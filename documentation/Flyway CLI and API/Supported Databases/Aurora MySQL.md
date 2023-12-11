@@ -6,22 +6,21 @@ subtitle: Aurora MySQL
 - **Maintainer:** Redgate
 
 ## Supported Versions and Support Levels
-For information regarding the supported version and support levels available,
-please see [Supported Databases for Flyway](https://documentation.red-gate.com/flyway/learn-more-about-flyway/system-requirements/supported-databases-for-flyway)
 
-For information regarding the Flyway features available, please see [Flyway feature glossary](https://documentation.red-gate.com/flyway/learn-more-about-flyway/feature-glossary)
+{% include database-boilerplate.html %}
 
 ## Drivers
 
-| Item                               | Details                                                                                               |
-|------------------------------------|-------------------------------------------------------------------------------------------------------|
-| **URL format**                     | <code>jdbc:mysql://<i>instance</i>.<i>region</i>.rds.amazonaws.com:<i>port</i>/<i>database</i></code> |
-| **URL format**                     | Yes - add `?useSsl=true`                                                                              |
-| **Ships with Flyway Command-line** | Yes                                                                                                   |
-| **Maven Central coordinates**      | `mysql:mysql-connector-java`                                                                          |
-| **Supported versions**             | `8.0.12` and later                                                                                    |
-| **Default Java class**             | `com.mysql.jdbc.Driver`                                                                               |
+| Item                               | Details                                                                                                |
+|------------------------------------|--------------------------------------------------------------------------------------------------------|
+| **URL format**                     | <code>jdbc:mysql://<i>instance</i>.<i>region</i>.rds.amazonaws.com:<i>port</i>/<i>database?usePipelineAuth=false&useBatchMultiSend=false</i></code> |
+| **URL format**                     | Yes - add `?useSsl=true`                                                                               |
+| **Ships with Flyway Command-line** | Yes                                                                                                    |
+| **Maven Central coordinates**      | `mysql:mysql-connector-java`                                                                           |
+| **Supported versions**             | `8.0.12` and later                                                                                     |
+| **Default Java class**             | `com.mysql.jdbc.Driver`                                                                                |
 
+_Note the additional parameters in the connection string, see [About Mariadb ConnectorJ](https://mariadb.com/kb/en/about-mariadb-connector-j/) for details on Aurora compatibility._
 ## SQL Script Syntax
 
 - [Standard SQL syntax](Concepts/migrations#sql-based-migrations#syntax) with statement delimiter **;**

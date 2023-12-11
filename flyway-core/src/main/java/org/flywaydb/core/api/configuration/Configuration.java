@@ -15,12 +15,14 @@
  */
 package org.flywaydb.core.api.configuration;
 
+import org.flywaydb.core.ProgressLogger;
 import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
+import org.flywaydb.core.internal.configuration.models.DataSourceModel;
 import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
 import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.plugin.PluginRegister;
@@ -622,4 +624,16 @@ public interface Configuration {
      *  Gets the connection environments that have already been resolved from this configuration
      */
     Map<String, ResolvedEnvironment> getCachedResolvedEnvironments();
+
+    /**
+     *  Gets DataSources for all the environments
+     */
+    Map<String, DataSourceModel> getCachedDataSources();
+
+    /**
+     *  Get the name of the current environment
+     */
+    String getCurrentEnvironmentName();
+
+    ProgressLogger createProgress(String operationName);
 }

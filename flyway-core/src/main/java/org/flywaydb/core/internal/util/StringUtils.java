@@ -421,4 +421,16 @@ public class StringUtils {
     public static String pluralizeSuffix(long input) {
         return input != 1 ? "s" : "";
     }
+
+    public static String capitalizeFirstLetter(String str) {
+        if(!hasText(str)) {
+            return "";
+        }
+
+        String result = str.substring(0, 1).toUpperCase();
+        if (str.length() > 1) {
+            result += str.substring(1);
+        }
+        return result;
+    }
 }

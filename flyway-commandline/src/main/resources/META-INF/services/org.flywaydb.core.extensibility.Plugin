@@ -1,1 +1,2 @@
 org.flywaydb.commandline.command.version.VersionCommandExtension
+org.flywaydb.commandline.command.dbsupport.ListEnginesCommandExtension

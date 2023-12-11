@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.configuration.resolvers;
 import org.flywaydb.core.ProgressLogger;
 import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.configuration.models.EnvironmentModel;
 import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
 
@@ -34,14 +35,14 @@ public class EnvironmentResolver {
         this.environmentProvisioners = environmentProvisioners;
     }
 
-    public ResolvedEnvironment resolve(String environmentName, EnvironmentModel environment, String workingDirectory, ProgressLogger progress) {
-        return resolve(environmentName, environment, ProvisionerMode.Provision, workingDirectory, progress);
+    public ResolvedEnvironment resolve(String environmentName, EnvironmentModel environment, Configuration configuration, ProgressLogger progress) {
+        return resolve(environmentName, environment, ProvisionerMode.Provision, configuration, progress);
     }
 
-    public ResolvedEnvironment resolve(String environmentName, EnvironmentModel environment, ProvisionerMode mode, String workingDirectory, ProgressLogger progress) {
+    public ResolvedEnvironment resolve(String environmentName, EnvironmentModel environment, ProvisionerMode mode, Configuration configuration, ProgressLogger progress) {
         Map<String, Map<String, Object>> resolversToConfigure = environment.getResolvers();
 
-        PropertyResolverContext context = new PropertyResolverContextImpl(environmentName, workingDirectory, propertyResolvers, resolversToConfigure);
+        PropertyResolverContext context = new PropertyResolverContextImpl(environmentName, configuration, propertyResolvers, resolversToConfigure);
         ResolvedEnvironment result = new ResolvedEnvironment();
         result.setDriver(environment.getDriver());
         result.setConnectRetries(environment.getConnectRetries());

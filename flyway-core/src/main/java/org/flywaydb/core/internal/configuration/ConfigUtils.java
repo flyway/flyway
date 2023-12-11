@@ -722,6 +722,17 @@ public class ConfigUtils {
         }
     }
 
+    public static void setCleanModel(Configuration conf, CleanModel model) {
+        ConfigurationExtension extensionNew = conf.getPluginRegister().getLicensedPlugin("SQLServerConfigurationExtension", conf);
+        ConfigurationExtension extensionDepreciated = conf.getPluginRegister().getLicensedPlugin("CleanModeConfigurationExtension", conf);
+
+        if (extensionNew != null) {
+            ClassUtils.setFieldValue(extensionNew, "clean", model);
+        } else if (extensionDepreciated != null) {
+            ClassUtils.setFieldValue(extensionDepreciated, "clean", model);
+        }
+    }
+
     public static boolean shouldUseDefaultCliSqlLocation(File sqlFolder, boolean areOtherLocationsConfigured) {
         if (areOtherLocationsConfigured) {
             return false;

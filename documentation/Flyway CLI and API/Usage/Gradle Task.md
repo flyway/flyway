@@ -13,6 +13,10 @@ This is a known [Gradle issue](https://github.com/gradle/gradle/issues/24390).
 
 ## Installation
 ### Flyway Community Edition
+This includes Teams & Enterprise features subject to license.
+
+See [Upgrading to Teams or Enterprise](Learn More/Upgrading to Flyway Teams or Enterprise) to find out about the edition contents
+
 <code>build.gradle</code>
 <table class="table">
     <tr>
@@ -30,7 +34,7 @@ plugins {
     </tr>
     <tr>
         <td>
-By downloading Flyway Teams/Enterprise Gradle Plugin you confirm that you have read and agree to the terms of the <a href="https://www.red-gate.com/assets/purchase/assets/subscription-license.pdf?_ga=2.265045707.556964523.1656332792-1685764737.1620948215">Redgate EULA</a>.
+By downloading Flyway Community Gradle Plugin you confirm that you have read and agree to the terms of the <a href="https://www.red-gate.com/assets/purchase/assets/subscription-license.pdf?_ga=2.265045707.556964523.1656332792-1685764737.1620948215">Redgate EULA</a>.
         </td>
     </tr>
 </table>

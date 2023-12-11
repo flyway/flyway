@@ -35,4 +35,22 @@ public class ResolvedEnvironment {
     private Integer connectRetriesInterval;
     private String initSql;
     private Map<String, String> jdbcProperties;
+
+    public EnvironmentModel toEnvironmentModel() {
+        EnvironmentModel result = new EnvironmentModel();
+        result.setUrl(url);
+        result.setPassword(password);
+        result.setUser(user);
+        result.setDriver(driver);
+        result.setSchemas(schemas);
+        result.setJarDirs(jarDirs);
+        result.setToken(token);
+        result.setConnectRetries(connectRetries);
+        result.setConnectRetriesInterval(connectRetriesInterval);
+        result.setInitSql(initSql);
+        result.setJdbcProperties(jdbcProperties);
+        result.setResolvers(Map.of());
+        result.setProvisioner("none");
+        return result;
+    }
 }

@@ -20,6 +20,7 @@ import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 
 import java.sql.SQLException;
+import org.flywaydb.core.internal.util.StringUtils;
 
 public class SAPHANAConnection extends Connection<SAPHANADatabase> {
     private final boolean isCloud;
@@ -27,10 +28,18 @@ public class SAPHANAConnection extends Connection<SAPHANADatabase> {
     SAPHANAConnection(SAPHANADatabase database, java.sql.Connection connection) {
         super(database, connection);
         try {
-            String build = jdbcTemplate.queryForString("SELECT VALUE FROM M_HOST_INFORMATION WHERE KEY='build_branch'");
+            // If build_qrc_version not detected, it could be an On-premise version or an old Cloud version. So fall back to the previous way of checking build_branch
             // Cloud databases will be fa/CE<year>.<build> eg. fa/CE2020.48
             // On-premise will be fa/hana<version>sp<servicepack> eg. fa/hana2sp05
-            isCloud = build.startsWith("fa/CE");
+
+            String buildQrcVersion = jdbcTemplate.queryForString("SELECT VALUE FROM M_HOST_INFORMATION WHERE KEY='build_qrc_version'");
+            if (StringUtils.hasText(buildQrcVersion)) {
+                isCloud = true;
+            } else {
+                String buildBranch = jdbcTemplate.queryForString("SELECT VALUE FROM M_HOST_INFORMATION WHERE KEY='build_branch'");
+                isCloud = StringUtils.hasText(buildBranch) && buildBranch.startsWith("fa/CE");
+            }
+
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine build edition", e);
         }

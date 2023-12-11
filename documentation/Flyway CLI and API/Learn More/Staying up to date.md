@@ -20,7 +20,7 @@ It's important to note that while upgrading to the latest version offers numerou
 
 <br/>
 
-<a style="text-decoration: none; background: rgb(204,0,0); padding: 6px 40px; border-radius: 10px; color: white; font-weight: bold;" href="https://documentation.red-gate.com/fd/release-notes-for-flyway-engine-179732572.html">
+<a style="text-decoration: none; background: rgb(204,0,0); padding: 6px 40px; border-radius: 10px; color: white; font-weight: bold;" href="https://documentation.red-gate.com/flyway/release-notes-and-older-versions/release-notes-for-flyway-engine">
   Go to release notes
 </a>
 

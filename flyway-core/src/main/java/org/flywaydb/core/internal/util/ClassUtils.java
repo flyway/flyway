@@ -253,6 +253,16 @@ public class ClassUtils {
         }
     }
 
+    public static void setFieldValue(Object obj, String fieldName, Object value) {
+        try {
+            Field field = obj.getClass().getDeclaredField(fieldName);
+            field.setAccessible(true);
+            field.set(obj, value);
+        } catch (Exception e) {
+            throw new FlywayException("Unable to set field value " + obj.getClass().getName() + "." + fieldName + " : " + e.getMessage(), e);
+        }
+    }
+
     public static Map<String, String> getGettableFieldValues(Object obj, String prefix) {
         Map<String, String> fieldValues = new TreeMap<>();
         for (Method method : Arrays.stream(obj.getClass().getDeclaredMethods()).filter(m -> m.getName().startsWith("get") && Arrays.stream(m.getAnnotations()).noneMatch(a -> a instanceof DoNotMapForLogging)).collect(Collectors.toList())) {
