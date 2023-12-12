@@ -32,6 +32,10 @@ In the Flyway Command-Line this would look like the following:
 
 <pre class="console"><span>&gt;</span> flyway migrate -batch=true</pre>
 
+### Data limit
+
+Flyway Community Edition has a 10GB limit on database size, and this is unlimited in Flyway Teams.
+
 You can find out more about Flyway Teams Edition [here](https://www.red-gate.com/products/flyway/teams).
 
 ## Using Flyway with Google Cloud Spanner
