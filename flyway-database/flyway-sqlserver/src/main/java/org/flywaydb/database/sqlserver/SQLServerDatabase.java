@@ -48,25 +48,6 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
         return new SQLServerConnection(this, connection);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Override
     public final void ensureSupported(Configuration configuration) {
         if (isAzure()) {
@@ -236,6 +217,10 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
     }
 
     protected boolean supportsTypes() {
+        return true;
+    }
+
+    protected boolean supportsServiceBrokers() {
         return true;
     }
 

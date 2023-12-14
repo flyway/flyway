@@ -15,34 +15,49 @@
  */
 package org.flywaydb.core.internal.configuration.resolvers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.stream.Collectors;
 import org.flywaydb.core.ProgressLogger;
 import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
+
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.extensibility.ConfigurationExtension;
+import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
+import org.flywaydb.core.extensibility.Plugin;
+
+import org.flywaydb.core.api.configuration.Configuration;
+
 import org.flywaydb.core.internal.configuration.models.EnvironmentModel;
 import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.flywaydb.core.internal.plugin.PluginRegister;
 
 public class EnvironmentResolver {
 
     private final Map<String, PropertyResolver> propertyResolvers;
     private final Map<String, EnvironmentProvisioner> environmentProvisioners;
 
-    public EnvironmentResolver(Map<String, PropertyResolver> propertyResolvers, Map<String, EnvironmentProvisioner> environmentProvisioners) {
+    public EnvironmentResolver(Map<String, PropertyResolver> propertyResolvers,
+        Map<String, EnvironmentProvisioner> environmentProvisioners) {
         this.propertyResolvers = propertyResolvers;
         this.environmentProvisioners = environmentProvisioners;
     }
 
-    public ResolvedEnvironment resolve(String environmentName, EnvironmentModel environment, Configuration configuration, ProgressLogger progress) {
+    public ResolvedEnvironment resolve(String environmentName, EnvironmentModel environment,
+        Configuration configuration, ProgressLogger progress) {
         return resolve(environmentName, environment, ProvisionerMode.Provision, configuration, progress);
     }
 
-    public ResolvedEnvironment resolve(String environmentName, EnvironmentModel environment, ProvisionerMode mode, Configuration configuration, ProgressLogger progress) {
-        Map<String, Map<String, Object>> resolversToConfigure = environment.getResolvers();
+    public ResolvedEnvironment resolve(String environmentName, EnvironmentModel environment, ProvisionerMode mode,
+        Configuration configuration, ProgressLogger progress) {
+        Map<String, ConfigurationExtension> resolverConfigs = getEnvironmentPluginConfigMap(environment,
+            configuration.getPluginRegister());
+        PropertyResolverContext context = new PropertyResolverContextImpl(environmentName, configuration,
+            propertyResolvers,  resolverConfigs);
 
-        PropertyResolverContext context = new PropertyResolverContextImpl(environmentName, configuration, propertyResolvers, resolversToConfigure);
         ResolvedEnvironment result = new ResolvedEnvironment();
         result.setDriver(environment.getDriver());
         result.setConnectRetries(environment.getConnectRetries());
@@ -89,14 +104,81 @@ public class EnvironmentResolver {
         return result;
     }
 
-    private EnvironmentProvisioner getProvisioner(String provisionerName, PropertyResolverContext context, ProgressLogger progress) {
+    private EnvironmentProvisioner getProvisioner(String provisionerName, PropertyResolverContext context,
+        ProgressLogger progress) {
         String name = context.resolveValue(provisionerName, progress);
         if (name != null) {
             if (!environmentProvisioners.containsKey(provisionerName)) {
-                throw new FlywayException("Unknown provisioner '" + provisionerName + "' for environment " + context.getEnvironmentName(), ErrorCode.CONFIGURATION);
+                throw new FlywayException(
+                    "Unknown provisioner '" + provisionerName + "' for environment " + context.getEnvironmentName(),
+                    ErrorCode.CONFIGURATION);
             }
             return environmentProvisioners.get(provisionerName);
         }
         return new EnvironmentProvisionerNone();
+    }
+    
+    private Map<String, ConfigurationExtension> getEnvironmentPluginConfigMap(EnvironmentModel environmentModel,
+        PluginRegister pluginRegister) {
+
+        if (environmentModel.getResolvers() != null) {
+
+            return environmentModel.getResolvers()
+                .keySet()
+                .stream()
+                .collect(Collectors.toMap(k->k, v->getResolverConfig(environmentModel, pluginRegister, v)));
+        }
+        return null;
+    }
+
+
+    private ConfigurationExtension getResolverConfig(EnvironmentModel environmentModel, PluginRegister pluginRegister,
+        String key) {
+        Class clazz = getResolverConfigClassFromKey(pluginRegister, key);
+
+        if (clazz != null) {
+            var data = environmentModel.getResolvers().get(key);
+            return (ConfigurationExtension) new ObjectMapper().convertValue(data, clazz);
+        }
+
+        throw new FlywayException("Unable to find resolver: " + key);
+    }
+
+    private Class getResolverClassFromKey(PluginRegister pluginRegister, String key) {
+        Plugin plugin = pluginRegister.getPlugins(EnvironmentProvisioner.class).stream()
+            .filter(p -> p.getName().equalsIgnoreCase(key))
+            .findFirst()
+            .orElse(null);
+
+
+        if (plugin == null) {
+            plugin = pluginRegister.getPlugins(PropertyResolver.class).stream()
+                .filter(p -> p.getName().equalsIgnoreCase(key))
+                .findFirst()
+                .orElse(null);
+        }
+
+        if (plugin!=null){
+            return plugin.getClass();
+        }
+
+        throw new FlywayException("Unable to find resolver: " + key);
+    }
+
+    private Class getResolverConfigClassFromKey(PluginRegister pluginRegister, String key) {
+        Class resolverClass = getResolverClassFromKey(pluginRegister, key);
+        if (resolverClass == null) {
+            return null;
+        }
+
+        Plugin plugin = pluginRegister.getPlugin(resolverClass);
+        if (plugin instanceof EnvironmentProvisioner environmentProvisioner){
+            return environmentProvisioner.getConfigClass();
+        }
+        if (plugin instanceof PropertyResolver propertyResolver){
+            return propertyResolver.getConfigClass();
+        }
+
+        throw new FlywayException("Unable to find resolver: " + key);
     }
 }

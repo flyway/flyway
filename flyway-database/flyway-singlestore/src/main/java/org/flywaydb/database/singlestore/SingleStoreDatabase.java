@@ -54,12 +54,6 @@ public class SingleStoreDatabase extends Database<SingleStoreConnection> {
         return new SingleStoreConnection(this, connection);
     }
 
-
-
-
-
-
-
     @Override
     public final void ensureSupported(Configuration configuration) {
         ensureDatabaseIsRecentEnough("7.1");

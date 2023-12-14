@@ -73,6 +73,11 @@ public class SynapseDatabase extends SQLServerDatabase {
     }
 
     @Override
+    protected boolean supportsServiceBrokers() {
+        return false;
+    }
+
+    @Override
     protected boolean supportsSequences() {
         return false;
     }

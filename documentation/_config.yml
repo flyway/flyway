@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-flywayVersion: 10.2.0
+flywayVersion: 10.3.0
 enterpriseUrl: https://download.red-gate.com/maven/release/com/redgate/flyway
 kramdown:
   smart_quotes: ["apos", "apos", "quot", "quot"]

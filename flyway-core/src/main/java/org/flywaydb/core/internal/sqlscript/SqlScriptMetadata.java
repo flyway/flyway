@@ -22,7 +22,7 @@ import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.extensibility.LicenseGuard;
 import org.flywaydb.core.extensibility.Tier;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
-import org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException;
+import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.PlaceholderReplacingReader;
 
@@ -64,7 +64,7 @@ public class SqlScriptMetadata {
 
         {
             if (metadata.containsKey(SHOULD_EXECUTE)) {
-                throw new FlywayTeamsUpgradeRequiredException("shouldExecute");
+                throw new FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(config), "shouldExecute");
             }
         }
         ConfigUtils.checkConfigurationForUnrecognisedProperties(metadata, null);

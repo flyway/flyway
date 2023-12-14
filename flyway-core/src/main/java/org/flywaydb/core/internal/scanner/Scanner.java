@@ -23,7 +23,7 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.extensibility.LicenseGuard;
 import org.flywaydb.core.extensibility.Tier;
-import org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException;
+import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
 import org.flywaydb.core.internal.scanner.classpath.ClassPathScanner;
 import org.flywaydb.core.internal.scanner.classpath.ResourceAndClassScanner;
 import org.flywaydb.core.internal.scanner.cloud.s3.AwsS3Scanner;
@@ -72,7 +72,7 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
                 resources.addAll(fileSystemScanner.scanForResources(location));
             } else if (location.isGCS()) {
 
-                 throw new FlywayTeamsUpgradeRequiredException("Google Cloud Storage");
+                 throw new FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(configuration), "Google Cloud Storage");
 
 
 
@@ -101,7 +101,7 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
 
 
         if (cloudMigrationCount > 100L) {
-            throw new FlywayTeamsUpgradeRequiredException("Cloud locations with more than 100 migrations");
+            throw new FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(configuration), "Cloud locations with more than 100 migrations");
         }
 
 

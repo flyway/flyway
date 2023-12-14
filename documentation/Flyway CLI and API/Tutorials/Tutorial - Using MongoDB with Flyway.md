@@ -52,7 +52,7 @@ Note: _MongoDB defaults to the `test` database if you don't specify one in the u
 
 Unlike other databases that Flyway supports, MongoDB scripts are JavaScript files containing MongoDB commands rather than
 SQL files. However, by default, Flyway will look for SQL files. 
-To tell Flyway to look for JavaScript files instead, you can configure [SqlMigrationSuffix](Configuration/Flyway/SQL Migration Suffixes) to be `.js`:
+To tell Flyway to look for JavaScript files instead, you can configure [SqlMigrationSuffix](Configuration/Parameters/Flyway/SQL Migration Suffixes) to be `.js`:
 
 ```toml
 [flyway]

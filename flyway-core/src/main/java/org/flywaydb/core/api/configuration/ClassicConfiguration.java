@@ -32,6 +32,7 @@ import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.extensibility.ConfigurationExtension;
 import org.flywaydb.core.extensibility.ConfigurationProvider;
+import org.flywaydb.core.extensibility.LicenseGuard;
 import org.flywaydb.core.extensibility.Tier;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 
@@ -62,7 +63,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
 
 
 
@@ -535,7 +535,7 @@ public class ClassicConfiguration implements Configuration {
         String target = getModernFlyway().getTarget();
         if (target.endsWith("?")) {
 
-            throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("failOnMissingTarget");
+            throw new org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(this), "failOnMissingTarget");
 
 
 
@@ -614,7 +614,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setDryRunOutput(OutputStream dryRunOutput) {
 
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("dryRunOutput");
+        throw new org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(this), "dryRunOutput");
 
 
 
@@ -631,7 +631,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setDryRunOutputAsFile(File dryRunOutput) {
 
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("dryRunOutput");
+        throw new org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(this), "dryRunOutput");
 
 
 
@@ -679,7 +679,7 @@ public class ClassicConfiguration implements Configuration {
 
     private OutputStream getDryRunOutputAsFile(File dryRunOutput) {
 
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("dryRunOutput");
+        throw new org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(this), "dryRunOutput");
 
 
 
@@ -738,7 +738,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setDryRunOutputAsFileName(String dryRunOutputFileName) {
 
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("dryRunOutput");
+        throw new org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(this), "dryRunOutput");
 
 
 
@@ -774,7 +774,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setErrorOverrides(String... errorOverrides) {
 
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("errorOverrides");
+        throw new org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(this), "errorOverrides");
 
 
 
@@ -862,7 +862,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setDetectEncoding(boolean detectEncoding) {
 
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("detectEncoding");
+        throw new org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(this), "detectEncoding");
 
 
 
@@ -1014,7 +1014,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setStream(boolean stream) {
 
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("stream");
+        throw new org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(this), "stream");
 
 
 
@@ -1034,7 +1034,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setBatch(boolean batch) {
 
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("batch");
+        throw new org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(this), "batch");
 
 
 
@@ -1287,7 +1287,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setKerberosConfigFile(String kerberosConfigFile) {
 
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("kerberosConfigFile");
+        throw new org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(this), "kerberosConfigFile");
 
 
 
@@ -1311,7 +1311,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setOutputQueryResults(boolean outputQueryResults) {
 
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("outputQueryResults");
+        throw new org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(this), "outputQueryResults");
 
 
 

@@ -42,10 +42,8 @@ public class EnvironmentModel {
     private Integer connectRetriesInterval = 120;
     private String initSql;
     private Map<String, String> jdbcProperties;
-
     private Map<String, Map<String, Object>> resolvers;
     private String provisioner;
-
     public EnvironmentModel merge(EnvironmentModel otherPojo) {
         EnvironmentModel result = new EnvironmentModel();
         result.url = url.merge(otherPojo.url);

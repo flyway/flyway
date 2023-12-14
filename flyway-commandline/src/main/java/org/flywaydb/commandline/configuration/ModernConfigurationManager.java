@@ -16,6 +16,7 @@
 package org.flywaydb.commandline.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.HashMap;
 import lombok.CustomLog;
 import org.flywaydb.commandline.Main;
 import org.flywaydb.core.api.FlywayException;
@@ -27,6 +28,10 @@ import org.flywaydb.core.internal.configuration.TomlUtils;
 import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
 import org.flywaydb.core.internal.configuration.models.EnvironmentModel;
 import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
+import org.flywaydb.core.internal.configuration.resolvers.EnvironmentProvisioner;
+import org.flywaydb.core.internal.configuration.resolvers.EnvironmentResolver;
+import org.flywaydb.core.internal.configuration.resolvers.PropertyResolver;
+import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.MergeUtils;
 
@@ -50,43 +55,53 @@ public class ModernConfigurationManager implements ConfigurationManager {
     private static final String UNABLE_TO_PARSE_FIELD = "Unable to parse '%s' in your TOML configuration file";
 
     public Configuration getConfiguration(CommandLineArguments commandLineArguments) {
-        String workingDirectory = commandLineArguments.isWorkingDirectorySet() ? commandLineArguments.getWorkingDirectory() : ClassUtils.getInstallDir(Main.class);
+        String workingDirectory =
+            commandLineArguments.isWorkingDirectorySet() ? commandLineArguments.getWorkingDirectory()
+                : ClassUtils.getInstallDir(Main.class);
 
-        List<File> tomlFiles = ConfigUtils.getDefaultTomlConfigFileLocations(new File(ClassUtils.getInstallDir(Main.class)));
+        List<File> tomlFiles = ConfigUtils.getDefaultTomlConfigFileLocations(
+            new File(ClassUtils.getInstallDir(Main.class)));
         tomlFiles.addAll(CommandLineConfigurationUtils.getTomlConfigFilePaths());
         tomlFiles.addAll(commandLineArguments.getConfigFiles().stream().map(File::new)
-                                             .collect(Collectors.toList()));
+            .toList());
 
         List<File> existingFiles = tomlFiles.stream().filter(File::exists).collect(Collectors.toList());
         ConfigurationModel config = TomlUtils.loadConfigurationFiles(existingFiles, workingDirectory);
 
-        ConfigurationModel commandLineArgumentsModel = TomlUtils.loadConfigurationFromCommandlineArgs(commandLineArguments.getConfiguration(true));
+        ConfigurationModel commandLineArgumentsModel = TomlUtils.loadConfigurationFromCommandlineArgs(
+            commandLineArguments.getConfiguration(true));
         ConfigurationModel environmentVariablesModel = TomlUtils.loadConfigurationFromEnvironment();
         config = config.merge(environmentVariablesModel)
-                       .merge(commandLineArgumentsModel);
+            .merge(commandLineArgumentsModel);
 
         if (commandLineArgumentsModel.getEnvironments().containsKey(ClassicConfiguration.TEMP_ENVIRONMENT_NAME) ||
-                environmentVariablesModel.getEnvironments().containsKey(ClassicConfiguration.TEMP_ENVIRONMENT_NAME)) {
+            environmentVariablesModel.getEnvironments().containsKey(ClassicConfiguration.TEMP_ENVIRONMENT_NAME)) {
             EnvironmentModel defaultEnv = config.getEnvironments().get(config.getFlyway().getEnvironment());
 
             if (environmentVariablesModel.getEnvironments().containsKey(ClassicConfiguration.TEMP_ENVIRONMENT_NAME)) {
-                config.getEnvironments().put(config.getFlyway().getEnvironment(), defaultEnv.merge(environmentVariablesModel.getEnvironments().get(ClassicConfiguration.TEMP_ENVIRONMENT_NAME)));
+                config.getEnvironments()
+                    .put(config.getFlyway().getEnvironment(), defaultEnv.merge(
+                        environmentVariablesModel.getEnvironments().get(ClassicConfiguration.TEMP_ENVIRONMENT_NAME)));
             }
 
             if (commandLineArgumentsModel.getEnvironments().containsKey(ClassicConfiguration.TEMP_ENVIRONMENT_NAME)) {
-                config.getEnvironments().put(config.getFlyway().getEnvironment(), defaultEnv.merge(commandLineArgumentsModel.getEnvironments().get(ClassicConfiguration.TEMP_ENVIRONMENT_NAME)));
+                config.getEnvironments()
+                    .put(config.getFlyway().getEnvironment(), defaultEnv.merge(
+                        commandLineArgumentsModel.getEnvironments().get(ClassicConfiguration.TEMP_ENVIRONMENT_NAME)));
             }
 
             config.getEnvironments().remove(ClassicConfiguration.TEMP_ENVIRONMENT_NAME);
         }
 
         File sqlFolder = new File(workingDirectory, DEFAULT_CLI_SQL_LOCATION);
-        if (ConfigUtils.shouldUseDefaultCliSqlLocation(sqlFolder, !config.getFlyway().getLocations().equals(ConfigurationModel.defaults().getFlyway().getLocations()))) {
-            config.getFlyway().setLocations(Arrays.asList("filesystem:" + sqlFolder.getAbsolutePath()));
+        if (ConfigUtils.shouldUseDefaultCliSqlLocation(sqlFolder,
+            !config.getFlyway().getLocations().equals(ConfigurationModel.defaults().getFlyway().getLocations()))) {
+            config.getFlyway().setLocations(List.of("filesystem:" + sqlFolder.getAbsolutePath()));
         }
 
         if (commandLineArguments.isWorkingDirectorySet()) {
-            makeRelativeLocationsBasedOnWorkingDirectory(commandLineArguments.getWorkingDirectory(), config.getFlyway().getLocations());
+            makeRelativeLocationsBasedOnWorkingDirectory(commandLineArguments.getWorkingDirectory(),
+                config.getFlyway().getLocations());
         }
 
         ConfigUtils.dumpConfigurationModel(config);
@@ -103,11 +118,13 @@ public class ModernConfigurationManager implements ConfigurationManager {
 
     private void configurePlugins(ConfigurationModel config, ClassicConfiguration cfg) {
         List<String> configuredPluginParameters = new ArrayList<>();
-        for (ConfigurationExtension configurationExtension : cfg.getPluginRegister().getPlugins(ConfigurationExtension.class)) {
-            if(configurationExtension.getNamespace().isEmpty()) {
+        for (ConfigurationExtension configurationExtension : cfg.getPluginRegister()
+            .getPlugins(ConfigurationExtension.class)) {
+            if (configurationExtension.getNamespace().isEmpty()) {
                 processParametersByNamespace("plugins", config, configurationExtension, configuredPluginParameters);
             }
-            processParametersByNamespace(configurationExtension.getNamespace(), config, configurationExtension, configuredPluginParameters);
+            processParametersByNamespace(configurationExtension.getNamespace(), config, configurationExtension,
+                configuredPluginParameters);
         }
         Map<String, Object> pluginConfigurations = config.getFlyway().getPluginConfigurations();
         pluginConfigurations.remove("jarDirs");
@@ -122,10 +139,13 @@ public class ModernConfigurationManager implements ConfigurationManager {
             }
         }
 
-        List<String> missingParams = pluginParametersWhichShouldHaveBeenConfigured.stream().filter(p -> !configuredPluginParameters.contains(p)).toList();
+        List<String> missingParams = pluginParametersWhichShouldHaveBeenConfigured.stream()
+            .filter(p -> !configuredPluginParameters.contains(p))
+            .toList();
 
         if (!missingParams.isEmpty()) {
-            throw new FlywayException("Failed to configure Parameters: " + missingParams.stream().collect(Collectors.joining(", ")));
+            throw new FlywayException(
+                "Failed to configure Parameters: " + String.join(", ", missingParams));
         }
     }
 
@@ -156,8 +176,9 @@ public class ModernConfigurationManager implements ConfigurationManager {
         cfg.setClassLoader(classLoader);
     }
 
-    private void processParametersByNamespace(String namespace, ConfigurationModel config, ConfigurationExtension configurationExtension,
-                                              List<String> configuredPluginParameters) {
+    private void processParametersByNamespace(String namespace, ConfigurationModel config,
+        ConfigurationExtension configurationExtension,
+        List<String> configuredPluginParameters) {
         Map<String, Object> pluginConfigs = config.getFlyway().getPluginConfigurations();
 
         boolean suppressError = false;
@@ -168,29 +189,33 @@ public class ModernConfigurationManager implements ConfigurationManager {
             pluginConfigs = config.getRootConfigurations();
         }
         if (pluginConfigs.containsKey(namespace) || namespace.isEmpty()) {
-            List<String> fields = Arrays.stream(configurationExtension.getClass().getDeclaredFields()).map(Field::getName).collect(Collectors.toList());
-            Map<String, Object> values = !namespace.isEmpty() ? (Map<String, Object>) pluginConfigs.get(namespace) : pluginConfigs;
+            List<String> fields = Arrays.stream(configurationExtension.getClass().getDeclaredFields())
+                .map(Field::getName)
+                .toList();
+            Map<String, Object> values =
+                !namespace.isEmpty() ? (Map<String, Object>) pluginConfigs.get(namespace) : pluginConfigs;
 
             values = values
-                    .entrySet()
-                    .stream()
-                    .filter(p -> fields.stream().anyMatch(k -> k.equalsIgnoreCase(p.getKey())))
-                    .collect(Collectors.toMap(
-                            p-> fields.stream()
-                                      .filter(q->q.equalsIgnoreCase(p.getKey()))
-                                      .findFirst()
-                                      .orElse(p.getKey()),
-                            Map.Entry::getValue));
+                .entrySet()
+                .stream()
+                .filter(p -> fields.stream().anyMatch(k -> k.equalsIgnoreCase(p.getKey())))
+                .collect(Collectors.toMap(
+                    p -> fields.stream()
+                        .filter(q -> q.equalsIgnoreCase(p.getKey()))
+                        .findFirst()
+                        .orElse(p.getKey()),
+                    Map.Entry::getValue));
 
             try {
-                if (configurationExtension.isStub() && new HashSet<>(configuredPluginParameters).containsAll(values.keySet())) {
+                if (configurationExtension.isStub() && new HashSet<>(configuredPluginParameters).containsAll(
+                    values.keySet())) {
                     return;
                 }
 
                 final Map<String, Object> finalValues = values;
                 Arrays.stream(configurationExtension.getClass().getDeclaredFields())
                     .filter(f -> List.of(List.class, String[].class).contains(f.getType()))
-                    .forEach(f ->  {
+                    .forEach(f -> {
                         String fieldName = f.getName();
                         Object fieldValue = finalValues.get(fieldName);
                         if (fieldValue instanceof String) {
@@ -198,7 +223,8 @@ public class ModernConfigurationManager implements ConfigurationManager {
                         }
                     });
 
-                ConfigurationExtension newConfigurationExtension = new ObjectMapper().convertValue(finalValues, configurationExtension.getClass());
+                ConfigurationExtension newConfigurationExtension = new ObjectMapper().convertValue(finalValues,
+                    configurationExtension.getClass());
                 MergeUtils.mergeModel(newConfigurationExtension, configurationExtension);
 
                 if (!values.isEmpty()) {

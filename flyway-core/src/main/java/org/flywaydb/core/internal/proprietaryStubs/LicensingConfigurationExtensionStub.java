@@ -45,6 +45,10 @@ public class LicensingConfigurationExtensionStub implements ConfigurationExtensi
         LOG.warn("Attempting to set a license key in Flyway open-source. Redgate features will not be available. Download Redgate Flyway at " + REDGATE_EDITION_DOWNLOAD);
     }
 
+    public String getLicenseKey() {
+        return null;
+    }
+
     @Override
     public int getPriority() {
         return -100;

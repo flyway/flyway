@@ -31,7 +31,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>10.2.0</version>
+    <version>10.3.0</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -156,7 +156,7 @@
         <version.gson>2.10.1</version.gson>
         <version.h2>2.2.220</version.h2>
         <version.hamcrest>2.2</version.hamcrest>
-        <version.hsqldb>2.7.1</version.hsqldb>
+        <version.hsqldb>2.7.2</version.hsqldb>
         <version.ignite>2.13.0</version.ignite>
         <version.informix>4.50.3</version.informix>
         <version.jansi>1.18</version.jansi>
@@ -1422,6 +1422,16 @@
                     <sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
                     <outputDirectory>${project.basedir}/target/generated-sources/delombok</outputDirectory>
                     <addOutputDirectory>false</addOutputDirectory>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.6</version>
+                <configuration>
+                    <gpgArguments>
+                        <arg>--pinentry-mode=loopback</arg>
+                    </gpgArguments>
+                    <passphraseServerId>flyway-gpg</passphraseServerId>
                 </configuration>
             </plugin>
         </plugins>

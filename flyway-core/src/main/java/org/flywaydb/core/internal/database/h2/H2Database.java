@@ -99,15 +99,6 @@ public class H2Database extends Database<H2Connection> {
         }
     }
 
-
-
-
-
-
-
-
-
-
     @Override
     public final void ensureSupported(Configuration configuration) {
         ensureDatabaseIsRecentEnough("1.2.137");

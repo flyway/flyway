@@ -49,7 +49,7 @@ There are multiple ways to authorize Flyway. The following list shows the order 
 2. `REDGATE_LICENSING_PERMIT` environment variable
 3. License permit located in the `Flyway CLI` directory of the Redgate app data folder, saved to disk by running the `auth` command (both the online and offline flow save the
 license permit to the same location)
-4. [License key](Configuration/Parameters/License Key)
+4. [License key](Configuration/Parameters/Flyway/License Key)
 
 #### Refresh Tokens
 

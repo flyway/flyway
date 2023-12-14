@@ -42,26 +42,13 @@ public class HSQLDBDatabase extends Database<HSQLDBConnection> {
         return new HSQLDBConnection(this, connection);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Override
     public final void ensureSupported(Configuration configuration) {
         ensureDatabaseIsRecentEnough("1.8");
 
         ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("2.5", Tier.PREMIUM, configuration);
 
-        recommendFlywayUpgradeIfNecessary("2.6");
+        recommendFlywayUpgradeIfNecessary("2.7");
     }
 
     @Override

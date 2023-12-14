@@ -26,7 +26,34 @@
 <div class="col-md-9">
 
 <div class="release">
-        <h2 id="10.2.0">Flyway 10.2.0 (2023-12-07)</h2>
+        <h2 id="10.3.0">Flyway 10.3.0 (2023-12-14)</h2>
+
+        <h3>Breaking changes</h3>
+        <ul>
+            <li>The clean command will also drop services and queues in SQL Server.</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Correct redgate-compare options when using TOML with check and drift or changes.</li>
+            <li>Fixed reports not displaying Teams and Enterprise level features</li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3806">Issue 3806</a>
+                Correct HSQLDB support message and  increase driver support to 2.7.2
+            </li>
+        </ul>
+
+        <p>
+            Thanks to ashtonbatty for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
+        <h2 id="10.2.0">Flyway 10.2.0 (2023-12-08)</h2>
 
         <h3>Bug fixes</h3>
         <ul>

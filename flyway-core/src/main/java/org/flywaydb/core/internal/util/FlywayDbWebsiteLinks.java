@@ -30,7 +30,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FlywayDbWebsiteLinks {
     public static final String TRY_TEAMS_EDITION = "https://rd.gt/2VzHpkY";
-    public static final String REDGATE_EDITION_DOWNLOAD = "https://rd.gt/2VzHpkY";
+    public static final String REDGATE_EDITION_DOWNLOAD = "https://rd.gt/3GGIXhh";
     public static final String FILTER_INFO_OUTPUT = "https://rd.gt/3jqLqAn";
     public static final String USAGE_COMMANDLINE = "https://rd.gt/3Cc1xKC";
     public static final String STAYING_UP_TO_DATE = "https://rd.gt/3rXiSlV";

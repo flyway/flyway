@@ -26,11 +26,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
+import org.flywaydb.core.extensibility.ConfigurationExtension;
 
 public class PropertyResolverContextImpl implements PropertyResolverContext {
 
     private final Map<String, PropertyResolver> resolvers;
-    private final Map<String, Map<String, Object>> resolverProperties;
+    private final Map<String, ConfigurationExtension> resolverConfigurations;
     private final String environmentName;
     private final Configuration configuration;
 
@@ -38,57 +39,15 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
     private static final Pattern RESOLVER_REGEX_PATTERN = Pattern.compile("\\${1,2}\\{[^.]+\\.[^.]+\\}");
     private static final Pattern VERBATIM_REGEX_PATTERN = Pattern.compile("\\!\\{.*\\}");
 
-    public PropertyResolverContextImpl(String environmentName, Configuration configuration, Map<String, PropertyResolver> resolvers, Map<String, Map<String, Object>> resolverProperties) {
+    public PropertyResolverContextImpl(String environmentName, Configuration configuration, Map<String, PropertyResolver> resolvers, Map<String, ConfigurationExtension> resolverConfigurations) {
         this.environmentName = environmentName;
         this.configuration = configuration;
         this.resolvers = resolvers;
-        this.resolverProperties = resolverProperties;
+        this.resolverConfigurations = resolverConfigurations;
     }
 
-    public String resolvePropertyString(String resolverName, String propertyName, ProgressLogger progress) {
-        if (resolverProperties == null) {
-            return null;
-        }
-
-        Map<String, Object> properties = resolverProperties.get(resolverName);
-        if (properties == null) {
-            return null;
-        }
-
-        var value = properties.get(propertyName);
-        return value instanceof String valueString ? resolveValue(valueString, progress) : null;
-    }
-
-    public List<String> resolvePropertyStringList(String resolverName, String propertyName, ProgressLogger progress) {
-        if (resolverProperties == null) {
-            return null;
-        }
-
-        Map<String, Object> properties = resolverProperties.get(resolverName);
-        if (properties == null) {
-            return null;
-        }
-
-        var propertyValue = properties.get(propertyName);
-        if (!(propertyValue instanceof List)) {
-            return null;
-        }
-
-        return ((List<?>) propertyValue).stream().filter(v -> v instanceof String).map(v -> resolveValue((String) v, progress)).toList();
-    }
-
-    public Integer getPropertyInteger(String resolverName, String propertyName) {
-        if (resolverProperties == null) {
-            return null;
-        }
-
-        Map<String, Object> properties = resolverProperties.get(resolverName);
-        if (properties == null) {
-            return null;
-        }
-
-        var propertyValue = properties.get(propertyName);
-        return (propertyValue instanceof Integer i) ? i : null;
+    public ConfigurationExtension getResolverConfiguration(String resolverName) {
+        return resolverConfigurations.get(resolverName);
     }
 
     @Override
@@ -120,6 +79,33 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
             return value.substring(2, value.length() - 1);
         }
         return RESOLVER_REGEX_PATTERN.matcher(value.strip()).replaceAll(m -> parseResolverSyntax(m, progress));
+    }
+
+    @Override
+    public String resolveValueOrThrow(final String input, final ProgressLogger progress, final String propertyName) {
+        final var result = resolveValue(input, progress);
+        if (result == null) {
+            throw new FlywayException("Configuration value " + propertyName + " not specified for environment " + environmentName, ErrorCode.CONFIGURATION);
+        }
+        return result;
+    }
+
+    @Override
+    public List<String> resolveValues(final List<String> input, final ProgressLogger progress) {
+        if (input == null) {
+            return null;
+        }
+        return input.stream().map(v -> resolveValue(v, progress)).toList();
+    }
+
+    @Override
+    public List<String> resolveValuesOrThrow(final List<String> input, final ProgressLogger progress,
+        final String propertyName) {
+        final var result = resolveValues(input, progress);
+        if (result == null) {
+            throw new FlywayException("Configuration value " + propertyName + " not specified for environment " + environmentName, ErrorCode.CONFIGURATION);
+        }
+        return result;
     }
 
     private boolean isVerbatim(String value) {

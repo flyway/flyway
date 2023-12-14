@@ -64,20 +64,6 @@ public class SnowflakeDatabase extends Database<SnowflakeConnection> {
         return new SnowflakeConnection(this, connection);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Override
     public void ensureSupported(Configuration configuration) {
         ensureDatabaseIsRecentEnough("3.0");

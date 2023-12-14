@@ -42,21 +42,6 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
         return new CockroachDBConnection(this, connection);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Override
     public final void ensureSupported(Configuration configuration) {
         ensureDatabaseIsRecentEnough("1.1");

@@ -1,2 +1,1 @@
-org.flywaydb.community.database.YugabyteDBDatabaseExtension
 org.flywaydb.community.database.postgresql.yugabytedb.YugabyteDBDatabaseType
