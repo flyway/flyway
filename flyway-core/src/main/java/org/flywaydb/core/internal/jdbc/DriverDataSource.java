@@ -122,8 +122,8 @@ public class DriverDataSource implements DataSource {
             this.additionalProperties = new HashMap<>();
         }
         this.defaultProperties = new Properties(defaultProperties);
-        type.setDefaultConnectionProps(url, defaultProperties, classLoader);
-        type.setConfigConnectionProps(configuration, defaultProperties, classLoader);
+        type.setDefaultConnectionProps(url, this.defaultProperties, classLoader);
+        type.setConfigConnectionProps(configuration, this.defaultProperties, classLoader);
         type.setOverridingConnectionProps(this.additionalProperties);
 
         try {
@@ -154,7 +154,7 @@ public class DriverDataSource implements DataSource {
         this.password = detectFallbackPassword(password);
 
         if (type.externalAuthPropertiesRequired(url, user, password)) {
-            defaultProperties.putAll(type.getExternalAuthProperties(url, user));
+            this.defaultProperties.putAll(type.getExternalAuthProperties(url, user));
         }
     }
 

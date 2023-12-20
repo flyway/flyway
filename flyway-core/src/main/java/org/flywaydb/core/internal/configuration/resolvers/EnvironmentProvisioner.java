@@ -23,12 +23,18 @@ import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
 @SuppressWarnings("unused")
 public interface EnvironmentProvisioner extends Plugin {
     String getName();
-    default Class getConfigClass() {
-       return null;
+
+    default Class<?> getConfigClass() {
+        return null;
     }
-    default void setConfiguration(ConfigurationExtension config) { }
-    default void preProvision(PropertyResolverContext context, ProgressLogger progress) { }
-    default void preReprovision(PropertyResolverContext context, ProgressLogger progress) { }
-    default void postProvision(PropertyResolverContext context, ResolvedEnvironment resolvedEnvironment, ProgressLogger progress) { }
-    default void postReprovision(PropertyResolverContext context, ResolvedEnvironment resolvedEnvironment, ProgressLogger progress) { }
+
+    default void setConfiguration(final ConfigurationExtension config) { }
+
+    default void preProvision(final PropertyResolverContext context, final ProgressLogger progress) { }
+
+    default void preReprovision(final PropertyResolverContext context, final ProgressLogger progress) { }
+
+    default void postProvision(final PropertyResolverContext context, final ResolvedEnvironment resolvedEnvironment, final ProgressLogger progress) { }
+
+    default void postReprovision(final PropertyResolverContext context, final ResolvedEnvironment resolvedEnvironment, final ProgressLogger progress) { }
 }
