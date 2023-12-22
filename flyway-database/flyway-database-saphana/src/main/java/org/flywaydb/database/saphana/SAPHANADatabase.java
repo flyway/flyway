@@ -35,15 +35,6 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
         return new SAPHANAConnection(this, connection);
     }
 
-
-
-
-
-
-
-
-
-
     @Override
     public void ensureSupported(Configuration configuration) {
 

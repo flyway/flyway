@@ -2,7 +2,7 @@
 subtitle: HSQLDB
 ---
 # HSQLDB
-- **Verified Versions:** 1.8, 2.4
+- **Verified Versions:** 2.7
 - **Maintainer:** Redgate
 
 ## Supported Versions and Support Levels

@@ -48,10 +48,10 @@ import static org.flywaydb.core.internal.util.HtmlUtils.getFormattedTimestamp;
 @ExtensionMethod(Tier.class)
 public class HtmlReportGenerator {
     private static final List<HoldingTabMetadata> HOLDING_TAB_METADATA = Arrays.asList(
-            new HoldingTabMetadata("changes", "TIER3", "MASTER"),
-            new HoldingTabMetadata("drift", "TIER3", "MASTER"),
+            new HoldingTabMetadata("changes", "ENTERPRISE"),
+            new HoldingTabMetadata("drift", "ENTERPRISE"),
             new HoldingTabMetadata("migrate", "OSS"),
-            new HoldingTabMetadata("dryrun", "PRO", "ENTERPRISE", "TIER3", "MASTER"),
+            new HoldingTabMetadata("dryrun", "TEAMS", "ENTERPRISE"),
             new HoldingTabMetadata("code", "OSS")
                                                                                       );
     public static final String INSTALL_DIR = getInstallDir(HtmlReportGenerator.class);

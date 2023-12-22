@@ -21,7 +21,7 @@ import org.flywaydb.core.api.callback.Error;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.LicenseGuard;
 import org.flywaydb.core.extensibility.Tier;
-import org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException;
+import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
 
 import java.util.List;
 
@@ -36,7 +36,7 @@ public class ErrorImpl implements Error {
     @Override
     public void setHandled(boolean handled, Configuration configuration) {
         if (!LicenseGuard.isLicensed(configuration, Tier.PREMIUM)) {
-            throw new FlywayTeamsUpgradeRequiredException("Error handling");
+            throw new FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(configuration), "Error handling");
         }
 
         this.handled = handled;

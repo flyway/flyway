@@ -21,6 +21,8 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.extensibility.CommandExtension;
+import org.flywaydb.core.extensibility.Tier;
+import org.flywaydb.core.internal.license.FlywayRedgateEditionRequiredException;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
 import java.util.List;
@@ -43,7 +45,7 @@ public class AuthCommandExtensionStub implements CommandExtension {
 
     @Override
     public OperationResult handle(String command, Configuration config, List<String> flags, FlywayTelemetryManager flywayTelemetryManager) throws FlywayException {
-        throw new FlywayProprietaryRequiredException(FEATURE_NAME, FlywayDbWebsiteLinks.TEAMS_ENTERPRISE_DOWNLOAD);
+        throw new FlywayRedgateEditionRequiredException(FEATURE_NAME);
     }
 
     @Override

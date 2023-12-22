@@ -10,7 +10,7 @@ redirect_from: /documentation/roadmap/
 
     <p>Flyway Community is suitable for non-commercial projects and organisations. The general priority is bug fixes and documentation improvements, followed by new features.</p>
 
-    <p>For more details, check out the <a href="https://github.com/flyway/flyway/milestones">milestone plan on GitHub</a>.
+    <p>For more details, check out the <a href="https://github.com/flyway/flyway/milestones">milestone plan on GitHub</a>.</p>
     
     <h2>Flyway Teams and Enterprise editions</h2>
 

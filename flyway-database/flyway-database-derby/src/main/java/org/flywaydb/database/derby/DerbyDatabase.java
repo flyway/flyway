@@ -43,16 +43,6 @@ public class DerbyDatabase extends Database<DerbyConnection> {
         return new DerbyConnection(this, connection);
     }
 
-
-
-
-
-
-
-
-
-
-
     @Override
     public final void ensureSupported(Configuration configuration) {
         ensureDatabaseIsRecentEnough("10.11.1.1");

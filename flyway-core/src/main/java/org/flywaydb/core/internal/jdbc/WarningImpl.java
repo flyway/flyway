@@ -22,7 +22,7 @@ import org.flywaydb.core.api.callback.Warning;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.LicenseGuard;
 import org.flywaydb.core.extensibility.Tier;
-import org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException;
+import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
 
 @RequiredArgsConstructor
 @Getter(onMethod = @__(@Override))
@@ -35,7 +35,7 @@ public class WarningImpl implements Warning {
     @Override
     public void setHandled(boolean handled, Configuration configuration) {
         if (!LicenseGuard.isLicensed(configuration, Tier.PREMIUM)) {
-            throw new FlywayTeamsUpgradeRequiredException("Warning handling");
+            throw new FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(configuration), "Warning handling");
         }
 
         this.handled = handled;

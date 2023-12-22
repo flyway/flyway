@@ -28,7 +28,7 @@ When using the CLI, you can add to the classpath by dropping the `.jar` files fo
   <i class="fa fa-file-text"></i> README.txt
 </pre>
 
-You can also specify more folders to load jars from using the [jarDirs](Configuration/Parameters/Environments/Jar Dirs.md) configuration parameter.
+You can also specify more folders to load jars from using the [jarDirs](/Configuration/Parameters/Flyway/Jar Dirs) configuration parameter.
 
 ### API
 
@@ -36,7 +36,7 @@ When using the API, the jars you wish to include should be added as dependencies
 
 ### Gradle
 
-See [extending the gradle classpath](Usage/Gradle Task/Gradle Task Flyway#extending-the-default-classpath).
+See [extending the gradle classpath](Usage/Gradle Task#extending-the-default-classpath).
 
 ### Maven
 
@@ -58,4 +58,4 @@ Simply add the library as a regular dependency of your maven project. e.g:
 The most common library to be added to Flyway is those that add JDBC driver support. For example the [Informix](Supported Databases/informix) database is supported by Flyway, but the JDBC driver is not shipped with it. Therefore the `com.ibm.informix:jdbc:4.10.10.0` dependency needs to be added to the classpath to allow Flyway to work with it. See each database page for the JDBC driver they use and whether they are shipped with Flyway or not.
 
 
-Other uses for adding libraries are [adding logging support](Usage/Command Line/Command Line #output), adding [Java migrations](Concepts/migrations#java-based-migrations), and more.
+Other uses for adding libraries are [adding logging support](Usage/Command Line#output), adding [Java migrations](Concepts/migrations#java-based-migrations), and more.

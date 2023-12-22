@@ -32,4 +32,9 @@ public class EnvironmentVariableResolver implements PropertyResolver {
         }
         return result;
     }
+
+    @Override
+    public Class getConfigClass() {
+        return null;
+    }
 }

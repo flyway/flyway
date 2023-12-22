@@ -9,7 +9,7 @@ redirect_from: Configuration/licenseKey/
 
 This is how legacy Flyway licensing is managed to enable features in Flyway.
 
-Flyway V10 brings online authenticatation - see [Flyway Auth](Commands/Auth)
+Flyway V10 brings online authentication - see [Flyway Auth](Commands/Auth)
 ## Description
 
 Your Flyway license key (`FL01...`) when using Flyway Teams. This should be 516 alpha numeric characters, beginning with `FL`.

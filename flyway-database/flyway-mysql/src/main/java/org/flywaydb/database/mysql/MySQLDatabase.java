@@ -235,31 +235,6 @@ public class MySQLDatabase extends Database<MySQLConnection> {
         throw new FlywayException("Unable to determine version from '" + versionString + "'");
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Override
     public final void ensureSupported(Configuration configuration) {
         if (databaseType.getName().equals("TiDB")) {

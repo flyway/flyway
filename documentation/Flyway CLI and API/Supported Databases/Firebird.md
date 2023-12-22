@@ -93,7 +93,7 @@ SET TERM ;#
 - Mixing DDL and DML involving the same tables in a single migration is not supported. Firebird disallows DDL changes to 
 be used by DML in the same transaction, so one of the following is necessary:
   - separate migrations for DML / DDL, or
-  - a [per-script override](https://flywaydb.orgConfiguration/Script Config Files) of <code>executeInTransaction</code>
+  - a [per-script override](https://documentation.red-gate.com/flyway/flyway-cli-and-api/configuration/script-config-files) of <code>executeInTransaction</code>
 
 - `SET TRANSACTION` and `COMMIT [WORK]` are not supported in migrations. `COMMIT RETAIN` can be used, but this will only 
 allow partial rollback of a migration; only statements after the last `COMMIT RETAIN` can be rolled back.

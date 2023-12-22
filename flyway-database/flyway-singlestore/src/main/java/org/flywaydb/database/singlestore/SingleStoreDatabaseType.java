@@ -21,11 +21,13 @@ import org.flywaydb.core.internal.database.base.BaseDatabaseType;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
+import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
 
 import java.sql.Connection;
 import java.sql.Types;
+import java.util.Properties;
 
 public class SingleStoreDatabaseType extends BaseDatabaseType {
     @Override
@@ -54,6 +56,19 @@ public class SingleStoreDatabaseType extends BaseDatabaseType {
     @Override
     public boolean handlesDatabaseProductNameAndVersion(String databaseProductName, String databaseProductVersion, Connection connection) {
         return databaseProductName.contains("SingleStore");
+    }
+
+    @Override
+    public void setDefaultConnectionProps(String url, Properties props, ClassLoader classLoader) {
+        props.put("connectionAttributes",
+            String.format("_connector_name:%s,_connector_version:%s,_product_version:%s,program_name:%s,program_version:%s,program_vendor:%s",
+                "SingleStoreDB Flyway connector",
+                VersionPrinter.getVersion(),
+                VersionPrinter.getVersion(),
+                "Redgate_Flyway",
+                VersionPrinter.getVersion(),
+                "Redgate"
+            ));
     }
 
     @Override

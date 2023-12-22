@@ -39,17 +39,6 @@ public class FirebirdDatabase extends Database<FirebirdConnection> {
         return new FirebirdConnection(this, connection);
     }
 
-
-
-
-
-
-
-
-
-
-
-
     @Override
     public void ensureSupported(Configuration configuration) {
         ensureDatabaseIsRecentEnough("3.0");

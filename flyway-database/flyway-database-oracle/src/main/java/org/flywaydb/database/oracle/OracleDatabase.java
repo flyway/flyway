@@ -57,18 +57,6 @@ public class OracleDatabase extends Database<OracleConnection> {
         return new OracleConnection(this, connection);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
     @Override
     public final void ensureSupported(Configuration configuration) {
         ensureDatabaseIsRecentEnough("10");

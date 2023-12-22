@@ -14,7 +14,7 @@ One or more of the following flags must be set, which determine what the report 
  - `-changes` produces a report of all the changes that will be applied to the schema in the next migration.
  - `-drift` produces a report showing objects in the schema which are not the result of any of the currently applied migrations, i.e. changes made outside of Flyway.
 
-More information can be found on [the check command page](Commands/check).
+More information can be found on [the check command page](Commands/check-command).
 
 This tutorial exemplifies the scenario where you have access to both your target DB (`url`) and a build DB (`buildUrl`).
 
@@ -33,7 +33,7 @@ In this example, there are two databases in our SQL Server instance: `foobar` (t
 
 ## Configuration
 
-As well as the usual config parameters (`flyway.url`, `flyway.user`, `flyway.password`, `flyway.licenseKey`...), we also need to configure properties specific to the `check` command (see [the documentation](Commands/check) for more details). In this case, we only need to configure `flyway.check.buildUrl` and `flyway.reportFilename` as the other properties all have suitable default values.
+As well as the usual config parameters (`flyway.url`, `flyway.user`, `flyway.password`, `flyway.licenseKey`...), we also need to configure properties specific to the `check` command (see [the documentation](Commands/check-command) for more details). In this case, we only need to configure `flyway.check.buildUrl` and `flyway.reportFilename` as the other properties all have suitable default values.
 
 Our `flyway.conf` file (found in the `conf` folder), should contain the following values:
 

@@ -38,12 +38,6 @@ public class InformixDatabase extends Database<InformixConnection> {
         return new InformixConnection(this, connection);
     }
 
-
-
-
-
-
-
     @Override
     public final void ensureSupported(Configuration configuration) {
         ensureDatabaseIsRecentEnough("12.10");

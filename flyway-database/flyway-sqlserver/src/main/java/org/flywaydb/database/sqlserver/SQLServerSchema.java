@@ -15,6 +15,7 @@
  */
 package org.flywaydb.database.sqlserver;
 
+import java.util.Map;
 import lombok.CustomLog;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
@@ -249,6 +250,10 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
             statements.addAll(cleanObjects("SEQUENCE", ObjectType.SEQUENCE_OBJECT));
         }
 
+        if (database.supportsServiceBrokers()) {
+            statements.addAll(cleanServiceBrokers());
+        }
+
         return statements;
     }
 
@@ -475,6 +480,25 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
     private List<String> cleanXmlSchemaCollections() throws SQLException {
         List<String> xscNames = jdbcTemplate.queryForStringList("SELECT name FROM sys.xml_schema_collections WHERE schema_id = SCHEMA_ID(?)", name);
         return xscNames.stream().map(xscName -> "DROP XML SCHEMA COLLECTION " + database.quote(name, xscName)).collect(Collectors.toList());
+    }
+
+    private List<String> cleanServiceBrokers() throws SQLException {
+        List<String> statements = new ArrayList<>();
+        List<Map<String, String>> queues = jdbcTemplate.queryForList("" +
+            "SELECT name AS queue_name, object_id AS queue_id FROM sys.service_queues " +
+            "WHERE schema_id = schema_id('" + name + "') AND is_ms_shipped = 0;");
+        if (queues.isEmpty()) {
+            return statements;
+        }
+        String queueIds = queues.stream().map(queueAndSchema -> queueAndSchema.get("queue_id")).collect(Collectors.joining(","));
+        List<String> services = jdbcTemplate.queryForStringList("SELECT name FROM sys.services WHERE service_queue_id IN (" + queueIds + ")");
+        for (String service : services) {
+            statements.add("DROP SERVICE " + database.quote(service));
+        }
+        for (Map<String, String> queueAndSchema : queues) {
+            statements.add("DROP QUEUE " + database.quote(name, queueAndSchema.get("queue_name")));
+        }
+        return statements;
     }
 
     /**

@@ -166,6 +166,8 @@
                 <include>com.nimbusds:nimbus-jose-jwt</include>
                 <include>com.nimbusds:oauth2-oidc-sdk</include>
                 <include>org.eclipse.jetty:jetty-server</include>
+                <include>net.java.dev.jna:jna</include>
+                <include>com.microsoft.azure:msal4j-persistence-extension</include>
             </includes>
         </dependencySet>
         <dependencySet>
