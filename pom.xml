@@ -31,7 +31,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>10.4.0</version>
+    <version>10.4.1</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -72,6 +72,15 @@
         <module>flyway-maven-plugin</module>
         <module>flyway-commandline</module>
         <module>flyway-database</module>
+
+
+
+
+
+
+
+
+
 
 
 
