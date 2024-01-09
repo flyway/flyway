@@ -22,6 +22,8 @@ import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import org.flywaydb.database.postgresql.PostgreSQLDatabase;
 
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 public class YugabyteDBDatabase extends PostgreSQLDatabase {
 
@@ -31,6 +33,13 @@ public class YugabyteDBDatabase extends PostgreSQLDatabase {
 
     @Override
     protected YugabyteDBConnection doGetConnection(Connection connection) {
+        Statement stmt = null;
+        try {
+            stmt = connection.createStatement();
+            stmt.execute("set yb_silence_advisory_locks_not_supported_error=on;");
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
         return new YugabyteDBConnection(this, connection);
     }
 
