@@ -436,12 +436,14 @@ public class ClassicConfiguration implements Configuration {
 
     @Override
     public int getConnectRetries() {
-        return getCurrentResolvedEnvironment().getConnectRetries();
+        final var connectionRetries = getCurrentResolvedEnvironment().getConnectRetries();
+        return connectionRetries != null ? connectionRetries : 0;
     }
 
     @Override
     public int getConnectRetriesInterval() {
-        return getCurrentResolvedEnvironment().getConnectRetriesInterval();
+        final Integer connectionRetriesInterval = getCurrentResolvedEnvironment().getConnectRetriesInterval();
+        return connectionRetriesInterval != null ? connectionRetriesInterval : 120;
     }
 
     @Override

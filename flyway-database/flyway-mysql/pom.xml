@@ -22,7 +22,7 @@
     <parent>
         <artifactId>flyway-parent</artifactId>
         <groupId>org.flywaydb</groupId>
-        <version>10.4.0</version>
+        <version>10.4.1</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>

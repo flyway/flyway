@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.api.configuration;
 
-import lombok.Getter;
 import lombok.experimental.Delegate;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.*;
