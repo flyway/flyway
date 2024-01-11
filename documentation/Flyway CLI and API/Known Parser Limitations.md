@@ -6,7 +6,7 @@ subtitle: Known Parser Limitations
 
 We frequently get bugs about the Flyway parser being unable to handle certain sql scripts.
 
-This page was created to document some of the known issues, weirdnesses and workarounds.
+This page was created to document some of the known issues, weirdness and workarounds in how migrations have to be parsed.
 
 If none of the workarounds work for you, or if you think the workaround is unsuitable for any reason, then please create a GitHub issue with reproduction steps, including the contents of the file, or attaching the file itself if possible.
 

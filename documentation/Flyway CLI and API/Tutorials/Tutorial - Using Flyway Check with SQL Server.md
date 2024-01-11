@@ -77,7 +77,7 @@ We now know that applying our pending migration(s) will have the intended effect
 
 ## Detecting drift using `-drift` flag
 
-Before applying future migrations, we might also want to confirm that no drift has occured in the target database, i.e. all schema changes have been applied in the form of flyway migrations, as oppose to unrecorded manual changes.
+Before applying future migrations, we might also want to confirm that no drift has occurred in the target database, i.e. all schema changes have been applied in the form of flyway migrations, as oppose to unrecorded manual changes.
 
 To demonstrate this, we can apply a manual change to the target database, e.g. using SSMS:
 

@@ -70,7 +70,7 @@ resolvers = ["my.resolver.MigrationResolver1", "my.resolver.MigrationResolver2"]
 ```
 
 ### Default Environment
-The default environment is an initially loaded environment called `default` that is used if no other environment is specified. It can be configured by the user. Check the [parameters](Parameters/Environments) for their default values.
+The default environment is an initially loaded environment called `default` that is used if no other environment is specified. It can be configured by the user. Check the [environments](configuration/parameters/Environments) for their default values.
 
 ```toml
 [environments.default]
@@ -81,7 +81,7 @@ password = "mysecretpassword"
 ## Property Resolvers
 
 Configuration values can be retrieved from other sources, such as Hashicorp Vault, Google Secrets or Dapr, using property resolvers. 
-More information about property resolvers can be found [here](./Property Resolvers).
+More information about property resolvers can be found [here](configuration/parameters/environments/resolver).
 
 ## Example of conf to TOML
 **flyway.conf**

@@ -200,7 +200,7 @@ For details on how to setup and use custom Gradle configurations, see the [offic
 
 ### Adding dependencies on Flyway Database Types
 
-For some Flyway database types, like [Cloud Spanner](supported databases/Google Cloud Spanner (Beta)) and [SQL Server](Supported Databases/SQL Server), you'll need to add a dependency to the database type in a `buildscript` closure to get your Gradle commands to work properly. This puts the database type on the build classpath, and not the project classpath.
+For some Flyway database types, like [Cloud Spanner](/supported databases/Google Cloud Spanner) and [SQL Server](Supported Databases/SQL Server), you'll need to add a dependency to the database type in a `buildscript` closure to get your Gradle commands to work properly. This puts the database type on the build classpath, and not the project classpath.
 
 Here is an example `build.gradle`:
 
@@ -257,7 +257,7 @@ project.ext['flyway.placeholders.otherplaceholder']='value123'</pre>
 ### Environment Variables
 
 To make it ease to work with cloud and containerized environments, Flyway also supports configuration via
-[environment variables](Configuration/Environment Variables). Check out the [Flyway environment variable reference](Configuration/Environment Variables) for details.
+[environment variables](Configuration/Environment Variables).
 
 ### System properties
 
@@ -267,8 +267,7 @@ Configuration can also be supplied directly via the command-line using JVM syste
 
 ### Config files
 
-[Config files](Configuration/Configuration Files) are supported by the Flyway Gradle plugin. If you are not familiar with them,
-check out the [Flyway config file structure and settings reference](Configuration/Configuration Files) first.
+[Config files](Configuration/Configuration Files) are supported by the Flyway Gradle plugin.
 
 Flyway will search for and automatically load the `<user-home>/flyway.conf` config file if present.
 

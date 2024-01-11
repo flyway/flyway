@@ -19,7 +19,7 @@ The expected format is [TOML](https://toml.io/en/) but in this context this mean
 ## Dialects
 The way your regex rule is structured will vary depending on the dialect of SQL in use with your database (different keywords and syntax) so you may need explicitly declare the dialect that this rule is relevant for.
 
-Flyway will identify the variety of SQL relevant to databse based on the JDBC connection string and only apply relevant rules (so a rule declared for the Oracle dialect won't be applied when using a PostgreSQL database).
+Flyway will identify the variety of SQL relevant to database based on the JDBC connection string and only apply relevant rules (so a rule declared for the Oracle dialect won't be applied when using a PostgreSQL database).
 
 * The `TEXT` dialect means the rule will be applied to all migrations regardless of the DB type Flyway is configured to use.
 

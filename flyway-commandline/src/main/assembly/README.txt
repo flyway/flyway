@@ -16,7 +16,7 @@ Here is the info on how you can contribute in various ways to the project: https
 
 License
 -------
-Copyright (C) Red Gate Software Ltd 2010-2023
+Copyright (C) Red Gate Software Ltd 2010-2024
 
 Flyway Open Source Edition: https://www.apache.org/licenses/LICENSE-2.0.html
 Also available in: licenses/LICENSE.md

@@ -6,7 +6,7 @@ redirect_from:
 ---
 # Community Plugins and Integrations: SBT
 
-<img src="/assets/logos/sbt.svg" height="80">
+<img src="/download/attachments/183306238/sbt.svg" height="80">
 
 David Webber maintains a great <strong><a href="https://github.com/flyway/flyway-sbt">SBT 1.0+ plugin</a></strong> that adds Flyway commands to your build.
 

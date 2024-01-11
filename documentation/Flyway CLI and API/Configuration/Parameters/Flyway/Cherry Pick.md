@@ -92,7 +92,7 @@ flyway migrate -outOfOrder="true"
 
 ### Undo out of order
 
-By default `undo` will undo migrations starting with the latest applied migration. With `cherryPick` you can undo migrations out of order, targetting specific migrations to undo.
+By default `undo` will undo migrations starting with the latest applied migration. With `cherryPick` you can undo migrations out of order, targeting specific migrations to undo.
 
 Let's assume the following 3 migrations are applied, and all have an available [undo migration](Concepts/migrations#undo-migrations):
 

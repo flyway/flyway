@@ -1,0 +1,7 @@
+[Ii]nformix
+(?i)MariaDB
+Percona
+(?i)Postgres
+Sybase
+Testcontainers
+

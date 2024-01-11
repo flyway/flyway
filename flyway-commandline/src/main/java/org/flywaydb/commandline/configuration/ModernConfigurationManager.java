@@ -1,18 +1,3 @@
-/*
- * Copyright (C) Red Gate Software Ltd 2010-2023
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.flywaydb.commandline.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -79,18 +64,37 @@ public class ModernConfigurationManager implements ConfigurationManager {
             EnvironmentModel defaultEnv = config.getEnvironments().get(config.getFlyway().getEnvironment());
 
             if (environmentVariablesModel.getEnvironments().containsKey(ClassicConfiguration.TEMP_ENVIRONMENT_NAME)) {
-                config.getEnvironments()
-                    .put(config.getFlyway().getEnvironment(), defaultEnv.merge(
-                        environmentVariablesModel.getEnvironments().get(ClassicConfiguration.TEMP_ENVIRONMENT_NAME)));
+                EnvironmentModel environmentVariablesEnv = environmentVariablesModel.getEnvironments().get(ClassicConfiguration.TEMP_ENVIRONMENT_NAME);
+                EnvironmentModel mergedModel = defaultEnv == null ? environmentVariablesEnv : defaultEnv.merge(environmentVariablesEnv);
+                config.getEnvironments().put(config.getFlyway().getEnvironment(), mergedModel);
             }
 
             if (commandLineArgumentsModel.getEnvironments().containsKey(ClassicConfiguration.TEMP_ENVIRONMENT_NAME)) {
-                config.getEnvironments()
-                    .put(config.getFlyway().getEnvironment(), defaultEnv.merge(
-                        commandLineArgumentsModel.getEnvironments().get(ClassicConfiguration.TEMP_ENVIRONMENT_NAME)));
+                EnvironmentModel commandLineArgumentsEnv = commandLineArgumentsModel.getEnvironments().get(ClassicConfiguration.TEMP_ENVIRONMENT_NAME);
+                EnvironmentModel mergedModel = defaultEnv == null ? commandLineArgumentsEnv : defaultEnv.merge(commandLineArgumentsEnv);
+                config.getEnvironments().put(config.getFlyway().getEnvironment(), mergedModel);
             }
 
             config.getEnvironments().remove(ClassicConfiguration.TEMP_ENVIRONMENT_NAME);
+        }
+
+        Map<String, Map<String, String>> envConfigs = commandLineArguments.getEnvironmentConfiguration();
+        ObjectMapper objectMapper = new ObjectMapper();
+        for (String envKey : envConfigs.keySet()) {
+            try {
+                EnvironmentModel env = objectMapper.convertValue(envConfigs.get(envKey), EnvironmentModel.class);
+
+                if (config.getEnvironments().containsKey(envKey)) {
+                    env = config.getEnvironments().get(envKey).merge(env);
+                }
+                config.getEnvironments().put(envKey, env);
+
+            } catch (IllegalArgumentException exc ){
+               String fieldName = exc.getMessage().split("\"")[1];
+               throw new FlywayException(String.format("Failed to configure parameter: '%s' in your '%s' environment", fieldName, envKey));
+            }
+
+
         }
 
         File sqlFolder = new File(workingDirectory, DEFAULT_CLI_SQL_LOCATION);

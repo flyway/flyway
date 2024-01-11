@@ -32,7 +32,7 @@ For example, the pattern to ignore missing repeatables is:
 repeatable:missing
 ```
 
-Patterns are comma seperated. For example, to ignore missing repeatables and pending versioned migrations:
+Patterns are comma separated. For example, to ignore missing repeatable migrations and pending versioned migrations:
 ```
 repeatable:missing,versioned:pending
 ```
@@ -96,7 +96,7 @@ flyway {
 </configuration>
 ```
 
-## Unsetting the value
+## Clearing the value
 
 By default, `future` migrations are ignored. You can unset this by assigning an empty string to `ignoreMigrationPatterns`
 

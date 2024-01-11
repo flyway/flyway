@@ -18,7 +18,8 @@ The encodings that Flyway supports are:
 - `UTF-16LE`
 - `UTF-16`
 
-We recommend using a consistent file encoding across all of your scripts to minimize the issues you encounter. See [Troubleshooting](Configuration/parameters/flyway/encoding#troubleshooting) for known problems and solutions.
+We recommend using a consistent file encoding across all of your scripts to minimize the issues you encounter. 
+See the Troubleshooting section below for known problems and solutions.
 
 ## Default
 UTF-8

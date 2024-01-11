@@ -7,9 +7,11 @@ redirect_from: Configuration/initSql/
 # Init SQL
 
 ## Description
-The SQL statements to run to initialize a new database connection immediately after opening it.
+SQL statements to be run immediately after a database connection has been established.
 
 This is mainly used for setting some state on the connection that needs to be shared across all scripts, or should not be included into any one script.
+
+This could effectively be considered an environment specific afterConnect [callback](Concepts/Callback concept).
 
 ## Usage
 

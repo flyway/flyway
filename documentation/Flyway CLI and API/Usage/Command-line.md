@@ -156,7 +156,7 @@ authentication is being used.
 
 ### Java Arguments
 
-If you need to to pass custom arguments to Flyway's JVM, you can do so by setting the `JAVA_ARGS` environment variable.
+If you need to pass custom arguments to Flyway's JVM, you can do so by setting the `JAVA_ARGS` environment variable.
 They will then automatically be taken into account when launching Flyway. This is particularly useful when needing to set JVM system properties.
 
 
@@ -171,7 +171,7 @@ Flyway will automatically detect and use any logger class that it finds on its c
 
 Alternatively, you can use the [loggers](Configuration/parameters/flyway/loggers) configuration parameter to specify an exact desired logging framework to use.
 
-The simplest way to make use of Flyway's auto-detection is to put all the necessary JAR files in Flyway's `lib` folder and any configuration in the Flyway root folder.
+The simplest way to make use of Flyway's automatic detection is to put all the necessary JAR files in Flyway's `lib` folder and any configuration in the Flyway root folder.
 For example, if you wished to use `log4j` v2 with the Flyway command line, you would achieve this by placing the log4j JAR files and the corresponding configuration file `log4j2.xml` like this:
 
 <pre class="filetree"><i class="fa fa-folder-open"></i> flyway-{{site.flywayVersion}}
@@ -203,7 +203,7 @@ Similarly, to use `Logback` add the relevant files like this:
   <span><i class="fa fa-file"></i> logback.xml</span>                 <i class="fa fa-long-arrow-left"></i> Logback configuration
 </pre>
 
-If you are building Flyway into a larger application, this means you do not need to explicitly wire up any logging as it will auto-detect one of these frameworks.
+If you are building Flyway into a larger application, this means you do not need to explicitly wire up any logging as it will automatically detect one of these frameworks.
 
 ### P6Spy
 

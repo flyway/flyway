@@ -13,7 +13,7 @@ These are the events Flyway supports:
 <table class="table table-hover">
     <thead>
     <tr>
-        <th><strong>Name</strong></th>
+        <th><strong>Migrate</strong></th>
         <th><strong>Execution</strong></th>
     </tr>
     </thead>
@@ -66,7 +66,17 @@ These are the events Flyway supports:
         <td>afterMigrateError</td>
         <td>After failed Migrate runs</td>
     </tr>
-    <tr><td></td><td></td></tr>
+    </tbody>
+</table>
+
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th><strong>Undo</strong></th>
+        <th><strong>Execution</strong></th>
+    </tr>
+    </thead>
+    <tbody>
     <tr id="beforeUndo">
         <td>beforeUndo {% include teams.html %}</td>
         <td>Before Undo runs</td>
@@ -103,7 +113,18 @@ These are the events Flyway supports:
         <td>afterUndoError {% include teams.html %}</td>
         <td>After failed Undo runs</td>
     </tr>
-    <tr><td></td><td></td></tr>
+    </tbody>
+</table>
+	
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th><strong>Clean</strong></th>
+        <th><strong>Execution</strong></th>
+    </tr>
+    </thead>
+    <tbody>	
+	
     <tr id="beforeClean">
         <td>beforeClean</td>
         <td>Before Clean runs</td>
@@ -116,7 +137,17 @@ These are the events Flyway supports:
         <td>afterCleanError</td>
         <td>After failed Clean runs</td>
     </tr>
-    <tr><td></td><td></td></tr>
+    </tbody>
+</table>
+
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th><strong>Info</strong></th>
+        <th><strong>Execution</strong></th>
+    </tr>
+    </thead>
+    <tbody>
     <tr id="beforeInfo">
         <td>beforeInfo</td>
         <td>Before Info runs</td>
@@ -129,7 +160,17 @@ These are the events Flyway supports:
         <td>afterInfoError</td>
         <td>After failed Info runs</td>
     </tr>
-    <tr><td></td><td></td></tr>
+    </tbody>
+</table>
+
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th><strong>Validate</strong></th>
+        <th><strong>Execution</strong></th>
+    </tr>
+    </thead>
+    <tbody>
     <tr id="beforeValidate">
         <td>beforeValidate</td>
         <td>Before Validate runs</td>
@@ -142,7 +183,17 @@ These are the events Flyway supports:
         <td>afterValidateError</td>
         <td>After failed Validate runs</td>
     </tr>
-    <tr><td></td><td></td></tr>
+    </tbody>
+</table>
+
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th><strong>Baseline</strong></th>
+        <th><strong>Execution</strong></th>
+    </tr>
+    </thead>
+    <tbody>
     <tr id="beforeBaseline">
         <td>beforeBaseline</td>
         <td>Before Baseline runs</td>
@@ -155,7 +206,17 @@ These are the events Flyway supports:
         <td>afterBaselineError</td>
         <td>After failed Baseline runs</td>
     </tr>
-    <tr><td></td><td></td></tr>
+    </tbody>
+</table>
+
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th><strong>Repair</strong></th>
+        <th><strong>Execution</strong></th>
+    </tr>
+    </thead>
+    <tbody>
     <tr id="beforeRepair">
         <td>beforeRepair</td>
         <td>Before Repair runs</td>
@@ -168,7 +229,17 @@ These are the events Flyway supports:
         <td>afterRepairError</td>
         <td>After failed Repair runs</td>
     </tr>
-    <tr><td></td><td></td></tr>
+    </tbody>
+</table>
+
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th><strong>Name</strong></th>
+        <th><strong>Execution</strong></th>
+    </tr>
+    </thead>
+    <tbody>
     <tr id="createSchema">
         <td>createSchema</td>
         <td>Before automatically creating non-existent schemas</td>
