@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,7 +89,11 @@ public class TomlUtils {
         //noinspection unchecked
         simpleModule.addDeserializer((Class<List<String>>) type.getRawClass(), new ListDeserializer());
         objectMapper.registerModule(simpleModule);
-        return objectMapper.convertValue(properties, ConfigurationModel.class);
+        try {
+            return objectMapper.convertValue(properties, ConfigurationModel.class);
+        } catch (IllegalArgumentException e) {
+            throw new FlywayException("Unable to parse command line params.");
+        }
     }
 
     private static Map<String, Object> unflattenMap(Map<String, String> map) {

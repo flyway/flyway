@@ -10,7 +10,7 @@ You can find more detail of these rules in the [SQLFluff rules](https://docs.sql
 # Enterprise Rules
 {% include enterprise.html %}
 
-Redgate has added a set of additonal rules that are of interest to customers with a larger and more complex database infrastructure.
+Redgate has added a set of additional rules that are of interest to customers with a larger and more complex database infrastructure.
 
 Enterprise customers are also able to define their own rules - see [Creating Regular Expression Rules](Learn More/Creating Regular Expression Rules) 
 ## Flyway_L001

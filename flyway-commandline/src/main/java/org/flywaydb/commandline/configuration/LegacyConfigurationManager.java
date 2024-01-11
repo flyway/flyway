@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.flywaydb.commandline.configuration;
 
+import lombok.CustomLog;
 import org.flywaydb.commandline.Main;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
@@ -40,6 +41,7 @@ import java.util.stream.Stream;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.DEFAULT_CLI_SQL_LOCATION;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeLocationsBasedOnWorkingDirectory;
 
+@CustomLog
 public class LegacyConfigurationManager implements ConfigurationManager {
 
     public Configuration getConfiguration(CommandLineArguments commandLineArguments) {
@@ -85,7 +87,7 @@ public class LegacyConfigurationManager implements ConfigurationManager {
         ConfigUtils.dumpConfigurationMap(config);
         filterProperties(config);
 
-        Configuration configuration = new FluentConfiguration(classLoader).configuration(config).workingDirectory(workingDirectory);
+        final FluentConfiguration configuration = new FluentConfiguration(classLoader).configuration(config).workingDirectory(workingDirectory);
 
         if (!commandLineArguments.shouldSuppressPrompt()) {
             promptForCredentialsIfMissing(config, configuration);
@@ -141,13 +143,14 @@ public class LegacyConfigurationManager implements ConfigurationManager {
     }
 
     /**
-     * If no user or password has been provided, prompt for it. If you want to avoid the prompt, pass in an empty
-     * user or password.
+     * If no user or password has been provided, prompt for it. If you want to avoid the prompt, pass in an empty user
+     * or password.
      *
      * @param config The properties object to load to configuration into.
+     * @return
      */
-    private void promptForCredentialsIfMissing(Map<String, String> config,  Configuration configuration) {
-        Console console = System.console();
+    private void promptForCredentialsIfMissing(final Map<String, String> config,  final FluentConfiguration configuration) {
+        final Console console = System.console();
         if (console == null) {
             // We are running in an automated build. Prompting is not possible.
             return;
@@ -158,27 +161,35 @@ public class LegacyConfigurationManager implements ConfigurationManager {
             return;
         }
 
-        String url = config.get(ConfigUtils.URL);
+        final String url = config.get(ConfigUtils.URL);
 
-        boolean hasUser = config.containsKey(ConfigUtils.USER) || config.keySet().stream().anyMatch(p -> p.toLowerCase().endsWith(".user"));
+        boolean interactivePrompted =  false;
+
+        final boolean hasUser = config.containsKey(ConfigUtils.USER);
 
         if (!hasUser
 
 
 
                 && needsUser(url, config.getOrDefault(ConfigUtils.PASSWORD, null), configuration)) {
-            config.put(ConfigUtils.USER, console.readLine("Database user: "));
+            configuration.dataSource(configuration.getUrl(),console.readLine("Database user: "), configuration.getPassword());
+            interactivePrompted = true;
         }
 
-        boolean hasPassword = config.containsKey(ConfigUtils.PASSWORD) || config.keySet().stream().anyMatch(p -> p.toLowerCase().endsWith(".password"));
+        final boolean hasPassword = config.containsKey(ConfigUtils.PASSWORD);
 
         if (!hasPassword
 
 
 
                 && needsPassword(url, config.get(ConfigUtils.USER), configuration)) {
-            char[] password = console.readPassword("Database password: ");
-            config.put(ConfigUtils.PASSWORD, password == null ? "" : String.valueOf(password));
+            final char[] password = console.readPassword("Database password: ");
+            configuration.dataSource(configuration.getUrl(), configuration.getUser(), password == null ? "" : String.valueOf(password));
+            interactivePrompted = true;
+        }
+
+        if (interactivePrompted) {
+            LOG.warn("Interactive prompt behavior is deprecated and will be removed in a future release - please consider alternatives like secrets management tools or environment variables");
         }
     }
 

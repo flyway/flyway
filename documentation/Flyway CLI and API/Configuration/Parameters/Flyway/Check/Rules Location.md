@@ -18,7 +18,7 @@ also see:
 - [Code Analysis Rules](Usage/Code Analysis Rules)
 - [Creating Regular Expression](Learn More/Creating Regular Expression Rules)
 
-__NOTE:__ Flyway will only look in the default or specified locations for rules and won't traverse sub-folders.
+__Note:__ Flyway will only look in the default or specified locations for rules and won't traverse sub-folders.
 
 ## Default
 

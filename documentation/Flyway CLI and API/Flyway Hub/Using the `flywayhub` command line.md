@@ -7,7 +7,7 @@ redirect_from: Flyway Hub-commandline
 
 In addition to the <a href="https://hub.flywaydb.org/">Flyway Hub UI</a>, Flyway Hub also offers a command line based workflow for running migration script tests against our ephemeral database instances.
 
-To get started with the `flywayhub` command line, download and install the right version for your platform following the <a href="https://https://hub.flywaydb.org//projects/new/integration">instructions on Flyway Hub</a>.
+To get started with the `flywayhub` command line, download and install the right version for your platform following the <a href="https://hub.flywaydb.org/projects/new/integration">instructions on Flyway Hub</a>.
 
 ## Authentication
 
@@ -45,7 +45,7 @@ While not recommended, it is possible for Flyway migration scripts to contain re
 flywayhub test --project myproject --engine 'SQL Server (v2017)' --database mydatabase ./sql
 ```
 
-This will ensure that your migrations run against a database called 'mydatabase' by creating an empty database of that name in the automatically provisioned instance.
+This will ensure that your migrations run against a database called `mydatabase` by creating an empty database of that name in the automatically provisioned instance.
 
 ## Flyway config files
 

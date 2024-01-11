@@ -66,7 +66,7 @@ To create a new Flyway plugin project via commandline, run the following command
 If using IntelliJ, you can create a new project by selecting `File > New > Project...` and selecting `Maven Archetype` from the list of project types.
 Then fill in with the appropriate information, see below, and click `create`:
 
-![image](intellijProjectArchetype.png)
+![image](assets/intellijProjectArchetype.png)
 
 This will create a new project in the `my-flyway-plugin` directory.
 This directory will contain the following:

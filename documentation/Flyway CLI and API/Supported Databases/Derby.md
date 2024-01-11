@@ -13,13 +13,13 @@ subtitle: Derby
 
 ## Driver
 
-| Item                               | Details                                                           |
-|------------------------------------|-------------------------------------------------------------------|
-| **URL format**                     | <code>jdbc:derby:<i>subsubprotocol</i>:<i>databaseName</i></code> |
-| **Ships with Flyway Command-line** | Yes                                                               |
-| **Maven Central coordinates**      | `org.apache.derby:derbyclient`                                    |
-| **Supported versions**             | `10.11` and later                                                 |
-| **Default Java class**             | `org.apache.derby.jdbc.EmbeddedDriver`                            |
+| Item                               | Details                                                         |
+|------------------------------------|-----------------------------------------------------------------|
+| **URL format**                     | <code>jdbc:derby:<i>sub-protocol</i>:<i>databaseName</i></code> |
+| **Ships with Flyway Command-line** | Yes                                                             |
+| **Maven Central coordinates**      | `org.apache.derby:derbyclient`                                  |
+| **Supported versions**             | `10.11` and later                                               |
+| **Default Java class**             | `org.apache.derby.jdbc.EmbeddedDriver`                          |
 
 
 ## Java Usage

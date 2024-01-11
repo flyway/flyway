@@ -39,4 +39,4 @@ and much more.
 </div>
 
 If you or your company have an actively maintained Flyway plugin or integration that we forgot, let us know by filing an issue against
-[flyway/flywaydb.org](https://github.com/flyway/flywaydb.org) and we'll gladly include it.
+[flyway/flyway](https://github.com/flyway/flyway) and we'll gladly include it.

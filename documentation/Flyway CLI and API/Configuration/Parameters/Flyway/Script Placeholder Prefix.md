@@ -10,7 +10,7 @@ subtitle: flyway.scriptPlaceholderPrefix
 The prefix of every [script migration placeholder](Configuration/Placeholders Configuration)
 
 ## Default
-FP__
+`FP__`
 
 ## Usage
 

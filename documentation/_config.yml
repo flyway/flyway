@@ -1,5 +1,5 @@
 #
-# Copyright (C) Red Gate Software Ltd 2010-2023
+# Copyright (C) Red Gate Software Ltd 2010-2024
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-flywayVersion: 10.4.1
+flywayVersion: 10.5.0
 enterpriseUrl: https://download.red-gate.com/maven/release/com/redgate/flyway
 kramdown:
   smart_quotes: ["apos", "apos", "quot", "quot"]

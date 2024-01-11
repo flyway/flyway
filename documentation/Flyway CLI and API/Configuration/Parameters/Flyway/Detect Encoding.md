@@ -8,7 +8,7 @@ subtitle: flyway.detectEncoding
 
 ## Description
 Whether Flyway should attempt to auto-detect the file encoding of each migration. <br/>
-**NOTE:** We recommend using a consistent file encoding to minimize the issues you encounter and specifying it to the [`encoding`](Configuration/parameters/flyway/encoding) parameter. See [Troubleshooting](Configuration/parameters/flyway/encoding#troubleshooting) for known problems and solutions.
+**Note:** We recommend using a consistent file encoding to minimize the issues you encounter and specifying it to the [`encoding`](Configuration/parameters/flyway/encoding) parameter. See [Troubleshooting](Configuration/parameters/flyway/encoding#troubleshooting) for known problems and solutions.
 
 Flyway can detect each of the following formats:
 

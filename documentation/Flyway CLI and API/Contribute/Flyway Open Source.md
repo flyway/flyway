@@ -10,7 +10,7 @@ If you were looking for the Redgate edition of Flyway, see [this download page](
 ## Open Source Flyway
 ### Windows
 
-- [flyway-commandline-{{site.flywayVersion}}-windows-x64.zip](https://flywaydb.org/download/thankyou?dl=https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-windows-x64.zip")
+- [flyway-commandline-{{site.flywayVersion}}-windows-x64.zip](https://flywaydb.org/download/thankyou?dl=https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-windows-x64.zip)
   - [md5](https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-windows-x64.zip.md5)
   - [sha1](https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-windows-x64.zip.sha1)
 
@@ -18,7 +18,7 @@ Extract the archive and simply add the new `flyway-{{site.flywayVersion}}` direc
 
 ### macOS
 
-- [flyway-commandline-{{site.flywayVersion}}-macosx-x64.tar.gz](href="https://flywaydb.org/download/thankyou?dl=https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-macosx-x64.tar.gz)
+- [flyway-commandline-{{site.flywayVersion}}-macosx-x64.tar.gz](https://flywaydb.org/download/thankyou?dl=https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-macosx-x64.tar.gz)
   - [md5](https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-macosx-x64.tar.gz.md5)
   - [sha1](https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-macosx-x64.tar.gz.sha1)
 

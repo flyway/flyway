@@ -27,7 +27,7 @@ subtitle: placeholder page
 - [executeInTransaction](configuration/parameters/flyway/Execute In Transaction)
 - [group](configuration/parameters/flyway/group)
 - [installedBy](configuration/parameters/flyway/Installed By)
-- [jarDirs](configuration/parameters/flyway/Jar Dirs)
+- [jarDirs](<configuration/parameters/flyway/Jar Dirs>)
 - [kerberosConfigFile](configuration/parameters/flyway/Kerberos Config File) {% include teams.html %}
 - [licenseKey](configuration/parameters/flyway/License Key) {% include teams.html %}
 - [locations](configuration/parameters/flyway/locations)
@@ -39,7 +39,7 @@ subtitle: placeholder page
 - [outputQueryResults](configuration/parameters/flyway/Output Query Results) {% include teams.html %}
 - [reportFilename](configuration/parameters/flyway/Report Filename)
 - [skipDefaultCallbacks](configuration/parameters/flyway/Skip Default Callbacks)
-- [skipDefaultResolvers](configuration/parameters/flyway/skipDefaultResolvers)
+- [skipDefaultResolvers](configuration/parameters/flyway/Skip Default Resolvers)
 - [skipExecutingMigrations](configuration/parameters/flyway/Skip Executing Migrations) {% include teams.html %}
 - [stream](configuration/parameters/flyway/stream) {% include teams.html %}
 - [table](configuration/parameters/flyway/table)

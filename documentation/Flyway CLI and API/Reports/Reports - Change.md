@@ -14,6 +14,6 @@ You might want this to:
 
 ## Learn more
 * [Check concept](Concepts/Check Concept) - how does it work ?
-* [Check command](Commands/Check) - What is the command structure ?
+* [Check command](/Commands/Check Command) - What is the command structure ?
 * [Tutorial - Using Flyway Check](Tutorials/Tutorial - Using Flyway Check with SQL Server) - how do I use it ?
 * Get a [Flyway Enterprise Trial here](https://www.red-gate.com/products/flyway/enterprise/trial/) or start a trial with the [auth](Commands/Auth) command.

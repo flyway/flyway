@@ -80,7 +80,7 @@ Here are all the changes and additions you'll need to make:
     *   `doQuote()` - to return an escaped version of an identifier for use in SQL. Typically this is the provided value with a double-quote added either side, but could be, for example, square brackets either side as in SQL Server.
     *   `catalogIsSchema()` - to return true if the database uses a catalog to represent a single schema (eg. MySQL, SQLite); false if a catalog is a collection of schemas.
 1.  Add overrides for `FooParser` to customize it to fit the SQL dialect your database uses:
-    *   The constructor should call the superclass constructor with a peek depth. This determines how far in advance the parser looks to determine the nature of various symbols. 2 is a reasonable start, unless you know your database has two-character entities (like Snowflake DB's `$$` for javascript delimiters) in which case start at 3.
+    *   The constructor should call the superclass constructor with a peek depth. This determines how far in advance the parser looks to determine the nature of various symbols. 2 is a reasonable start, unless you know your database has two-character entities (like SnowflakeDB's `$$` for javascript delimiters) in which case start at 3.
     *   Override `getDefaultDelimiter()` if your database uses something other than a semicolon to delimit separate statements
     *   Override `getIdentifierQuote()` if your database uses something other than a double-quote to escape identifiers (eg. MySQL uses backticks)
     *   Override `getAlternativeIdentifierQuote()` if your database has a second way to escape identifiers in addition to double-quotes.
@@ -121,5 +121,3 @@ In this case you will need to:
 + Submitted your code as a [Pull Request](https://github.com/flyway/flyway/pulls) for our review, remembering to include supporting material (e.g. test code, results, screenshots etc.) to prove compatibility
 + Completed any requested code changes
 + Signed the [Flyway CLA](https://cla-assistant.io/flyway/flyway) for your PR
-
-Finally, adding compatibility for your database to Flyway is just the first step. If you want your database to become officially supported, you should learn more about [Flyway's Support Levels](Learn More/Database Support Levels), and [process for obtaining Certification](Learn More/Getting Flyway Certified support for your database).

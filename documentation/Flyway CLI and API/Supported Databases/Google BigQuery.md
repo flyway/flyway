@@ -37,9 +37,7 @@ In the Flyway Command-Line this would look like the following:
 
 ### Data limit
 
-Flyway Community Edition has a 10GB data limit across all datasets, and this is unlimited in Flyway Teams.
-
-You can find out more about Flyway Teams Edition [here](/https://flywaydb.org/download/?ref=bigquery-batch).
+Flyway Community Edition has a 10GB data limit across all datasets, and this is unlimited in {% include teams.html %}
 
 ## Using Flyway with Google BigQuery
 
@@ -107,7 +105,7 @@ In a Flyway configuration file.
 ## Limitations
 
 While the Simba JDBC driver supports a number
-of [different modes](https://simba.wpengine.com/products/BigQuery/doc/JDBC_InstallGuide/content/jdbc/bq/authenticating/useraccount.htm)
+of [different modes](https://cloud.google.com/bigquery/docs/reference/odbc-jdbc-drivers)
 for authentication, Google User Account authentication (that is, `OAuthType=1`) is not recommended for desktop
 use and is not supported at all for unattended use, or use in Docker, as it requires a browser to be available to
 get an access token interactively.

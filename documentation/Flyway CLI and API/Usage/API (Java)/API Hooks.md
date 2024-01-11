@@ -8,7 +8,7 @@ There are three ways you can hook into the Flyway API.
 
 ## Java-based Migrations
 
-The first one is the the most common one: [Java-based Migrations](Concepts/migrations#java-based-migrations)
+The first one is the most common one: [Java-based Migrations](Concepts/migrations#java-based-migrations)
 when you need more power than SQL can offer you. This is great to for dealing with LOBs or performing advanced
 data transformations.
 

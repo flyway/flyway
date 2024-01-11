@@ -7,7 +7,7 @@ redirect_from: Configuration/skipDefaultResolvers/
 # Skip Default Resolvers
 
 ## Description
-Whether default built-in resolvers (sql and jdbc) should be skipped. If `true`, only [custom resolvers](Configuration/Parameters/Flyway/Resolver) are used.
+Whether default built-in resolvers (sql and jdbc) should be skipped. If `true`, only [custom resolvers](Configuration/Parameters/environments/Resolver) are used.
 
 ## Default
 false

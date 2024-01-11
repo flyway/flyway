@@ -35,5 +35,3 @@ And calling Flyway from your application class:
 Jochen Schalanda has created a great <strong><a href="https://github.com/joschi/dropwizard-flyway">Dropwizard Add-On</a></strong> that adds Flyway commands to the CLI of your Dropwizard application.
 
 The website also comes with comprehensive documentation on usage and configuration.
-
-<a class="inline-cta" href="https://boxfuse.com/blog/dropwizard-aws"><i class="fa fa-cloud"></i> Want to deploy your Dropwizard apps effortlessly to AWS? Follow our <strong>5 minute</strong> tutorial using <img src="assets/boxfuse-logo-nano-blue.png"> Boxfuse <i class="fa fa-arrow-right"></i></a>

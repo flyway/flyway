@@ -4,7 +4,7 @@ subtitle: flyway.jarDirs
 redirect_from: Configuration/jarDirs/
 ---
 
-# Jar Dirs
+# Jar Directories
 
 ## Description
 Comma-separated list of directories containing JDBC drivers and Java-based migrations.

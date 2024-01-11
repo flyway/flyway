@@ -66,7 +66,7 @@ Database: Database: jdbc:h2:file:./foobardb (H2 1.4)
 | Versioned | 2       | Add people          | SQL  | 2017-12-17 20:01:13 | Success | Yes      |
 +-----------+---------+---------------------+------+---------------------+---------+----------+</pre>
 
-Note that both migrations have now been marked as being *undoable*.
+Note that both migrations have now been marked as being *undo-able*.
 
 ## Undoing the last migration
 

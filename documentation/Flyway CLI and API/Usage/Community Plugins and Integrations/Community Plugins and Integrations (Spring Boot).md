@@ -30,5 +30,3 @@ Spring Boot also lets you configure Flyway using [environment variables](https:/
 Just be aware that the names of these environment variables differ from [Flyway's native environment variables](https://flywaydb.orgConfiguration/Environment Variables).
 
 Note that if you are using Spring Boot's dependency management feature, you do not need to specify a version number for Flyway. Read more on the [Spring Boot documentation](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#using-boot-dependency-management).
-
-<a class="inline-cta" href="https://boxfuse.com/blog/spring-boot-ec2"><i class="fa fa-cloud"></i> Want to deploy your Spring Boot apps effortlessly to AWS? Follow our <strong>5 minute</strong> tutorial using <img src="assets/boxfuse-logo-nano-blue.png"> Boxfuse <i class="fa fa-arrow-right"></i></a>
