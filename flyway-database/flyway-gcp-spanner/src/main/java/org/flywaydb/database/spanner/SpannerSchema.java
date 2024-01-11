@@ -154,7 +154,8 @@ public class SpannerSchema extends Schema<SpannerDatabase, SpannerTable> {
 
         Results foreignKeyRs = jdbcTemplate.executeStatement("SELECT CONSTRAINT_NAME, TABLE_NAME " +
                                                                      "FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS " +
-                                                                     "WHERE CONSTRAINT_TYPE='FOREIGN KEY'");
+                                                                     "WHERE CONSTRAINT_TYPE='FOREIGN KEY' " +
+                                                                     "AND TABLE_SCHEMA=''");
 
         for (Result result : foreignKeyRs.getResults()) {
             for (List<String> row : result.getData()) {
