@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,11 @@ import lombok.CustomLog;
 import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.ResourceProvider;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResource;
-import org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException;
+import org.flywaydb.core.extensibility.LicenseGuard;
+import org.flywaydb.core.extensibility.Tier;
+import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
 import org.flywaydb.core.internal.scanner.classpath.ClassPathScanner;
 import org.flywaydb.core.internal.scanner.classpath.ResourceAndClassScanner;
 import org.flywaydb.core.internal.scanner.cloud.s3.AwsS3Scanner;
@@ -49,30 +52,28 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
     private final HashMap<String, LoadableResource> relativeResourceMap = new HashMap<>();
     private HashMap<String, LoadableResource> absoluteResourceMap = null;
 
-    /*
-     * Constructor. Scans the given locations for resources, and classes implementing the specified interface.
-     */
-    public Scanner(
+    public Scanner (
             Class<I> implementedInterface,
-            Collection<Location> locations,
-            ClassLoader classLoader,
-            Charset encoding,
-            boolean detectEncoding,
             boolean stream,
             ResourceNameCache resourceNameCache,
             LocationScannerCache locationScannerCache,
-            boolean throwOnMissingLocations) {
-        FileSystemScanner fileSystemScanner = new FileSystemScanner(encoding, stream, detectEncoding, throwOnMissingLocations);
+            Configuration configuration) {
+
+        Charset encoding = configuration.getEncoding();
+        boolean throwOnMissingLocations = configuration.isFailOnMissingLocations();
+        ClassLoader classLoader = configuration.getClassLoader();
+
+        FileSystemScanner fileSystemScanner = new FileSystemScanner(stream, configuration);
 
         FeatureDetector detector = new FeatureDetector(classLoader);
         long cloudMigrationCount = 0;
-
-        for (Location location : locations) {
+        for (Location location : configuration.getLocations()) {
             if (location.isFileSystem()) {
                 resources.addAll(fileSystemScanner.scanForResources(location));
             } else if (location.isGCS()) {
 
-                 throw new FlywayTeamsUpgradeRequiredException("Google Cloud Storage");
+                 throw new FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(configuration), "Google Cloud Storage");
+
 
 
 
@@ -100,7 +101,7 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
 
 
         if (cloudMigrationCount > 100L) {
-            throw new FlywayTeamsUpgradeRequiredException("Cloud locations with more than 100 migrations");
+            throw new FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(configuration), "Cloud locations with more than 100 migrations");
         }
 
 

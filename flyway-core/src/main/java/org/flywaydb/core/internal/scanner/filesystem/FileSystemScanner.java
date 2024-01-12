@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.scanner.filesystem;
 import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.filesystem.FileSystemResource;
 import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
@@ -35,14 +36,16 @@ public class FileSystemScanner {
     private final boolean detectEncoding;
     private final boolean throwOnMissingLocations;
     private boolean stream = false;
+    private Configuration config;
 
-    public FileSystemScanner(Charset encoding, boolean stream, boolean detectEncoding, boolean throwOnMissingLocations) {
-        this.defaultEncoding = encoding;
-        this.detectEncoding = detectEncoding;
+    public FileSystemScanner(boolean stream, Configuration config) {
+        this.defaultEncoding = config.getEncoding();
+        this.detectEncoding = config.isDetectEncoding();
 
 
 
-        this.throwOnMissingLocations = throwOnMissingLocations;
+        this.throwOnMissingLocations = config.isFailOnMissingLocations();
+        this.config = config;
     }
 
     /**
@@ -78,7 +81,7 @@ public class FileSystemScanner {
                 String encodingBlurb = "";
                 if (new File(resourceName + ".conf").exists()) {
                     LoadableResource metadataResource = new FileSystemResource(location, resourceName + ".conf", defaultEncoding, false);
-                    SqlScriptMetadata metadata = SqlScriptMetadata.fromResource(metadataResource, null);
+                    SqlScriptMetadata metadata = SqlScriptMetadata.fromResource(metadataResource, null, config);
                     if (metadata.encoding() != null) {
                         encoding = Charset.forName(metadata.encoding());
                         detectEncodingForThisResource = false;

@@ -3,74 +3,39 @@ subtitle: SQL Server
 ---
 
 # SQL Server
+ - **Verified Versions:** 2008, 2022
+ - **Maintainer:** Redgate
 
-## Supported Versions
+## Supported Versions and Support Levels
 
-- `2022`
-- `2019`
-- `2017`
-- `2016` {% include teams.html %}
-- `2014` {% include teams.html %}
-- `2012` {% include enterprise.html %}
-- `2008 R2` {% include enterprise.html %}
-- `2008` {% include enterprise.html %}
+{% include database-boilerplate.html %}
 
-## Support Level
-
-<table class="table">
-    <tr>
-        <th width="25%">Compatible</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Certified</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Guaranteed</th>
-        <td>&#10003; {% include teams.html %}</td>
-    </tr>
-</table>
-
-Support Level determines the degree of support available for this database ([learn more](Learn More/Database Support Levels)).
 
 ## Driver
 
-<table class="table">
-<tr>
-<th>URL format</th>
-<td><code>jdbc:sqlserver://<i>host</i>:<i>port</i>;databaseName=<i>database</i></code></td>
-</tr>
-<tr>
-<th>SSL support</th>
-<td><a href="https://docs.microsoft.com/en-us/sql/connect/jdbc/connecting-with-ssl-encryption?view=sql-server-ver15">Yes</a> - add <code>;encrypt=true</code></td>
-</tr>
-<tr>
-<th>Ships with Flyway Command-line</th>
-<td>Yes</td>
-</tr>
-<tr>
-<th>Maven Central coordinates</th>
-<td><code>com.microsoft.sqlserver:mssql-jdbc</code></td>
-</tr>
-<tr>
-<th>Supported versions</th>
-<td><code>4.0</code> and later</td>
-</tr>
-<tr>
-<th>Default Java class</th>
-<td><code>com.microsoft.sqlserver.jdbc.SQLServerDriver</code></td>
-</tr>
-</table>
+| Item                               | Details                                                                                                                              |
+|------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|
+| **URL format**                     | <code>jdbc:sqlserver://<i>host</i>:<i>port</i>;databaseName=<i>database</i></code>                                                   |
+| **SSL support**                    | [Yes](https://docs.microsoft.com/en-us/sql/connect/jdbc/connecting-with-ssl-encryption?view=sql-server-ver15) \- add `;encrypt=true` |
+| **Ships with Flyway Command-line** | Yes                                                                                                                                  |
+| **Maven Central coordinates**      | `com.microsoft.sqlserver:mssql-jdbc`                                                                                                 |
+| **Supported versions**             | `4.0` and later                                                                                                                      |
+| **Default Java class**             | `com.microsoft.sqlserver.jdbc.SQLServerDriver`                                                                                       |
 
 ## Java Usage
 
 SQLServer support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
 
 ### Maven
+#### Redgate
+```xml
 
-#### Community
-
+<dependency>
+    <groupId>com.redgate.flyway</groupId>
+    <artifactId>flyway-sqlserver</artifactId>
+</dependency>
+```
+#### Open Source
 ```xml
 
 <dependency>
@@ -79,33 +44,22 @@ SQLServer support is a separate dependency for Flyway and will need to be added 
 </dependency>
 ```
 
-#### Teams
-
-```xml
-
-<dependency>
-    <groupId>org.flywaydb.enterprise</groupId>
-    <artifactId>flyway-sqlserver</artifactId>
-</dependency>
-```
-
 ### Gradle
-
-#### Community
-
-```groovy
-dependencies {
-    compile "org.flywaydb:flyway-sqlserver"
-}
-```
-
-#### Teams
+#### Redgate
 
 ```groovy
 dependencies {
-    compile "org.flywaydb.enterprise:flyway-sqlserver"
+    implementation "com.redgate.flyway:flyway-sqlserver"
 }
 ```
+#### Open Source
+```groovy
+dependencies {
+    implementation "org.flywaydb:flyway-sqlserver"
+}
+```
+
+
 
 ## SQL Script Syntax
 
@@ -265,8 +219,8 @@ the [process of setting `accessToken` as described on this Microsoft documentati
 
 Kerberos authentication can also be used to connect Flyway to your database.
 
-To set this up, you will need to pass the path to your Kerberos configuration file to the parameter [`kerberosConfigFile`](Configuration/Parameters/Kerberos Config File) and the
-path to your login module configuration file to the parameter [`plugin.sqlserver.kerberos.login.file`](Configuration/Parameters/SQL Server Kerberos Login File).
+To set this up, you will need to pass the path to your Kerberos configuration file to the parameter [`kerberosConfigFile`](Configuration/Parameters/Flyway/Kerberos Config File) and the
+path to your login module configuration file to the parameter [`plugin.sqlserver.kerberos.login.file`](Configuration/Parameters/Flyway/SQL Server Kerberos Login File).
 
 You may also need to add `;authenticationScheme=JavaKerberos` to your JDBC URL.
 
@@ -301,7 +255,7 @@ jdbc:sqlserver://test_server;instanceName=test_instance;databaseName=test_databa
 - By default, the flyway schema history table will try to write to the default schema for the database connection. You may
   specify which schema to write this table to by setting `flyway.schemas=custom_schema`, as the first entry will become the
   default schema if `flyway.defaultSchema` itself is not set.
-- With these limitations in mind, please refer to the properties or options mentioned [here](Configuration/Parameters/Default Schema) for descriptions/consequences.
+- With these limitations in mind, please refer to the properties or options mentioned [here](Configuration/Parameters/Flyway/Default Schema) for descriptions/consequences.
 - If using the JTDS driver, then setting `ANSI_NULLS` or `QUOTED_IDENTIFIER` in a script will cause an error. This is
   a driver limitation, and can be solved by using the Microsoft driver instead.
 - When running clean, no users will be dropped

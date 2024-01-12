@@ -1,5 +1,5 @@
 #
-# Copyright (C) Red Gate Software Ltd 2010-2023
+# Copyright (C) Red Gate Software Ltd 2010-2024
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,8 +32,6 @@ jobs:
           - macOS-latest
           - windows-latest
         java:
-          - 8
-          - 11
           - 17
 
     permissions:
@@ -50,7 +48,7 @@ jobs:
         cache: 'maven'
 
     - name: Build with Maven
-      run: mvn -B install -e --file pom.xml  "-Dgithub.os=${{ matrix.os }}"
+      run: mvn -B install -e --file pom.xml  "-Dgithub.os=${{ matrix.os }}" -pl !flyway-database/flyway-database-mongodb
 
     - name: Smoke Test with Maven
       run: mvn -B exec:java -e --file pom.xml -pl flyway-commandline "-Dexec.mainClass=org.flywaydb.commandline.Main" "-Dexec.args=-url='jdbc:h2:mem:db' info"

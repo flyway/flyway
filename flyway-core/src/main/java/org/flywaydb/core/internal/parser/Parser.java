@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -364,10 +364,13 @@ public abstract class Parser {
         for (int i = tokens.size() - 1; i >= 0; i--) {
             Token previousToken = tokens.get(i);
 
-            // Only consider tokens at the same parenthesis depth
-            if (previousToken.getParensDepth() != parensDepth) {
+            // Only consider tokens at the same parenthesis depth in same parenthesis group
+            if (previousToken.getParensDepth() < parensDepth) {
+                break;
+            } else if (previousToken.getParensDepth() != parensDepth) {
                 continue;
             }
+
             // Skip over comments and blank lines
             if (previousToken.getType() == TokenType.COMMENT || previousToken.getType() == TokenType.BLANK_LINES) {
                 continue;

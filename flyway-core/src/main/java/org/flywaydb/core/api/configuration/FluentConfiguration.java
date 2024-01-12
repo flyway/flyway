@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.api.configuration;
 
-import lombok.Getter;
 import lombok.experimental.Delegate;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.*;
@@ -30,6 +29,7 @@ import javax.sql.DataSource;
 import java.io.File;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -109,6 +109,11 @@ public class FluentConfiguration implements Configuration {
 
     public FluentConfiguration reportFilename(String reportFilename) {
         config.setReportFilename(reportFilename);
+        return this;
+    }
+
+    public FluentConfiguration environment(String environment) {
+        config.setEnvironment(environment);
         return this;
     }
 
@@ -443,27 +448,6 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
-     * Gets the migrations that Flyway should consider when migrating or undoing. Leave empty to consider all available migrations.
-     * Migrations not in this list will be ignored.
-     * <i>Flyway Teams only</i>
-     */
-    public FluentConfiguration cherryPick(MigrationPattern... cherryPick) {
-        config.setCherryPick(cherryPick);
-        return this;
-    }
-
-    /**
-     * Gets the migrations that Flyway should consider when migrating or undoing. Leave empty to consider all available migrations.
-     * Migrations not in this list will be ignored.
-     * Values should be the version for versioned migrations (e.g. 1, 2.4, 6.5.3) or the description for repeatable migrations (e.g. Insert_Data, Create_Table)
-     * <i>Flyway Teams only</i>
-     */
-    public FluentConfiguration cherryPick(String... cherryPickAsString) {
-        config.setCherryPick(cherryPickAsString);
-        return this;
-    }
-
-    /**
      * Sets whether placeholders should be replaced.
      *
      * @param placeholderReplacement Whether placeholders should be replaced. (default: true)
@@ -542,20 +526,6 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration sqlMigrationPrefix(String sqlMigrationPrefix) {
         config.setSqlMigrationPrefix(sqlMigrationPrefix);
-        return this;
-    }
-
-    /**
-     * Sets the file name prefix for undo SQL migrations. (default: U)
-     * Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.
-     * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
-     * which using the defaults translates to U1.1__My_description.sql
-     * <i>Flyway Teams only</i>
-     *
-     * @param undoSqlMigrationPrefix The file name prefix for undo SQL migrations. (default: U)
-     */
-    public FluentConfiguration undoSqlMigrationPrefix(String undoSqlMigrationPrefix) {
-        config.setUndoSqlMigrationPrefix(undoSqlMigrationPrefix);
         return this;
     }
 
@@ -729,7 +699,6 @@ public class FluentConfiguration implements Configuration {
      * just want the schema history table to reflect this.
      *
      * Use in conjunction with {@code cherryPick} to skip specific migrations instead of all pending ones.
-     * <i>Flyway Teams only</i>
      */
     public FluentConfiguration skipExecutingMigrations(boolean skipExecutingMigrations) {
         config.setSkipExecutingMigrations(skipExecutingMigrations);
@@ -831,7 +800,6 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * Properties to pass to the JDBC driver object
-     * <i>Flyway Teams only</i>
      *
      * @param jdbcProperties The properties to pass to the JDBC driver object
      */
@@ -848,20 +816,6 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration kerberosConfigFile(String kerberosConfigFile) {
         config.setKerberosConfigFile(kerberosConfigFile);
-        return this;
-    }
-
-    /**
-     * Your Flyway license key (FL01...). Not yet a Flyway Teams Edition customer?
-     * Request your <a href="https://flywaydb.org/try-flyway-teams-edition">Flyway trial license key</a>
-     * to try out Flyway Teams Edition features free for 30 days.
-     *
-     * <i>Flyway Teams only</i>
-     *
-     * @param licenseKey Your Flyway license key.
-     */
-    public FluentConfiguration licenseKey(String licenseKey) {
-        config.setLicenseKey(licenseKey);
         return this;
     }
 

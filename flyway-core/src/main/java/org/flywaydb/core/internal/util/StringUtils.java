@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -412,5 +412,25 @@ public class StringUtils {
             }
         }
         return count;
+    }
+
+    public static String getDaysString(long days) {
+        return days + " day" + pluralizeSuffix(days);
+    }
+
+    public static String pluralizeSuffix(long input) {
+        return input != 1 ? "s" : "";
+    }
+
+    public static String capitalizeFirstLetter(String str) {
+        if(!hasText(str)) {
+            return "";
+        }
+
+        String result = str.substring(0, 1).toUpperCase();
+        if (str.length() > 1) {
+            result += str.substring(1);
+        }
+        return result;
     }
 }

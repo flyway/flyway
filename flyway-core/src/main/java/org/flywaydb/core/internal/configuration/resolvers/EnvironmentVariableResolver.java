@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,26 @@
  */
 package org.flywaydb.core.internal.configuration.resolvers;
 
+import org.flywaydb.core.ProgressLogger;
+import org.flywaydb.core.api.FlywayException;
+
 public class EnvironmentVariableResolver implements PropertyResolver {
     @Override
     public String getName() {
-        return "environment";
+        return "env";
     }
 
     @Override
-    public String resolve(String key, PropertyResolverContext context) {
-        return System.getenv(key);
+    public String resolve(String key, PropertyResolverContext context, ProgressLogger progress) {
+        String result = System.getenv(key);
+        if (result == null) {
+            throw new FlywayException("Unable to resolve environment variable: '" + key + "'");
+        }
+        return result;
+    }
+
+    @Override
+    public Class getConfigClass() {
+        return null;
     }
 }

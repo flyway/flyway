@@ -32,7 +32,7 @@ Flyway Teams Edition give you a way to achieve all these scenarios using **Error
 
 ## Configuration
 
-One or more Errors Overrides can be configured using the [`errorOverrides`](Configuration/parameters/errorOverrides)
+One or more Errors Overrides can be configured using the [`errorOverrides`](Configuration/parameters/flyway/errorOverrides)
 setting which accepts multiple error override definitions in the following form: `STATE:12345:W`.
                              
 This is a 5 character SQL state, a colon, the SQL error code, a colon and finally the desired

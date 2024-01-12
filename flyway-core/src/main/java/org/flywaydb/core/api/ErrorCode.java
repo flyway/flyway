@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,5 +40,7 @@ public enum ErrorCode {
     OUTDATED_REPEATABLE_MIGRATION,
     TYPE_MISMATCH,
     CHECKSUM_MISMATCH,
-    DESCRIPTION_MISMATCH
+    DESCRIPTION_MISMATCH,
+    ENVIRONMENT_RESOLVE,
+    ENVIRONMENT_PROVISION
 }

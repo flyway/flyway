@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,21 @@
 package org.flywaydb.core.internal.jdbc;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.extensibility.LicenseGuard;
+import org.flywaydb.core.extensibility.Tier;
 import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
+import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
 
+import java.io.BufferedInputStream;
+import java.io.InputStreamReader;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Collection of utility methods for querying the DB. Inspired by Spring's JdbcTemplate.
@@ -171,8 +178,9 @@ public class JdbcTemplate {
     /**
      * Executes this sql statement using a PreparedStatement.
      *
-     * @param sql The statement to execute.
+     * @param sql    The statement to execute.
      * @param params The statement parameters.
+     *
      * @throws SQLException when the execution failed.
      */
     public void execute(String sql, Object... params) throws SQLException {
@@ -189,6 +197,7 @@ public class JdbcTemplate {
      * Executes this sql statement using an ordinary Statement.
      *
      * @param sql The statement to execute.
+     *
      * @return the results of the execution.
      */
     public Results executeStatement(String sql) {
@@ -274,11 +283,13 @@ public class JdbcTemplate {
     /**
      * Executes this update sql statement.
      *
-     * @param sql The statement to execute.
+     * @param sql    The statement to execute.
      * @param params The statement parameters.
+     *
      * @throws SQLException when the execution failed.
      */
     public void update(String sql, Object... params) throws SQLException {
+
         PreparedStatement statement = null;
         try {
             statement = prepareStatement(sql, params);
@@ -291,9 +302,11 @@ public class JdbcTemplate {
     /**
      * Creates a new prepared statement for this sql with these params.
      *
-     * @param sql The sql to execute.
+     * @param sql    The sql to execute.
      * @param params The params.
+     *
      * @return The new prepared statement.
+     *
      * @throws SQLException when the statement could not be prepared.
      */
     protected PreparedStatement prepareStatement(String sql, Object[] params) throws SQLException {
@@ -324,10 +337,12 @@ public class JdbcTemplate {
     /**
      * Executes this query and map the results using this row mapper.
      *
-     * @param sql The query to execute.
+     * @param sql       The query to execute.
      * @param rowMapper The row mapper to use.
-     * @param <T> The type of the result objects.
+     * @param <T>       The type of the result objects.
+     *
      * @return The list of results.
+     *
      * @throws SQLException when the query failed to execute.
      */
     public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... params) throws SQLException {
@@ -350,6 +365,10 @@ public class JdbcTemplate {
 
         return results;
     }
+
+
+
+
 
 
 

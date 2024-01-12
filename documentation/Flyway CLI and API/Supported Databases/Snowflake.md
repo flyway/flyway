@@ -2,59 +2,57 @@
 subtitle: Snowflake
 ---
 # Snowflake
+- **Verified Versions:** 3.50, 7.33
+- **Maintainer:** Redgate
 
-## Supported Versions
+## Supported Versions and Support Levels
 
-- `7.x` versions up to 7.1
-- `6.x` versions up to 6.29
-- `5.x` versions up to 5.1
-- `4.x` versions up to 4.2
-- `3.50` and later `3.x` versions
+{% include database-boilerplate.html %}
 
-## Support Level
+## Driver
 
-<table class="table">
-    <tr>
-        <th width="25%">Compatible</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Certified</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Guaranteed</th>
-        <td>&#10003; {% include teams.html %}</td>
-    </tr>
-</table>
+| Item                               | Details                                                                                                                                 |
+|------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
+| **URL format**                     | <code>jdbc:snowflake://<i>account</i>.snowflakecomputing.com/?db=<i>database</i>&warehouse=<i>warehouse</i>&role=<i>role</i></code><br>(optionally <code>&schema=<i>schema</i></code> to specify current schema) |
+| **Ships with Flyway Command-line** | Yes                                                                                                                                     |
+| **Maven Central coordinates**      | `net.snowflake:snowflake-jdbc`                                                                                                          |
+| **Supported versions**             | `3.6.23` and later                                                                                                                      |
+| **Default Java class**             | `net.snowflake.client.jdbc.SnowflakeDriver`                                                                                             |
 
-Support Level determines the degree of support available for this database ([learn more](Learn More/Database Support Levels)).
 
-## Drivers
+## Java Usage
+Snowflake support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
+Snowflake is found within the `flyway-database-snowflake` plugin module.
+### Maven
+#### Redgate
+```xml
+<dependency>
+    <groupId>com.redgate.flyway</groupId>
+    <artifactId>flyway-database-snowflake</artifactId>
+</dependency>
+```
+#### Open Source
+```xml
+<dependency>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-database-snowflake</artifactId>
+</dependency>
+```
 
-<table class="table">
-<tr>
-<th>URL format</th>
-<td><code>jdbc:snowflake://<i>account</i>.snowflakecomputing.com/?db=<i>database</i>&warehouse=<i>warehouse</i>&role=<i>role</i></code>
-(optionally <code>&schema=<i>schema</i></code> to specify current schema)</td>
-</tr>
-<tr>
-<th>Ships with Flyway Command-line</th>
-<td>Yes</td>
-</tr>
-<tr>
-<th>Maven Central coordinates</th>
-<td><code>net.snowflake:snowflake-jdbc</code></td>
-</tr>
-<tr>
-<th>Supported versions</th>
-<td><code>3.6.23</code> and later</td>
-</tr>
-<tr>
-<th>Default Java class</th>
-<td><code>net.snowflake.client.jdbc.SnowflakeDriver</code></td>
-</tr>
-</table>
+### Gradle
+#### Redgate
+```groovy
+dependencies {
+    implementation "com.redgate.flyway:flyway-database-snowflake"
+}
+```
+#### Open Source
+```groovy
+dependencies {
+    implementation "org.flywaydb:flyway-database-snowflake"
+}
+```
+
 
 ## SQL Script Syntax
 

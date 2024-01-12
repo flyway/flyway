@@ -26,7 +26,7 @@ title: Welcome To Flyway
     (for advanced data transformations or dealing with LOBs).</p>
 
 <p>It has a <a href="Usage/Command Line">Command-line client</a>.
-    If you are on the JVM, we recommend using the <a href="Uusage/api">Java API</a>
+    If you are on the JVM, we recommend using the <a href="Usage/api-java">Java API</a>
     for migrating the database on application startup.
     Alternatively, you can also use the <a href="Usage/Maven Goal">Maven plugin</a>
     or <a href="Usage/Gradle Task">Gradle plugin</a>.</p>
@@ -35,7 +35,7 @@ title: Welcome To Flyway
     available for Spring Boot, Dropwizard, Grails, Play, SBT, Ant, Griffon, Grunt, Ninja and more!</p>
 
 <p>Supported databases are
-    <a href="Supported Databases/oracle">Oracle</a>,
+    <a href="Supported Databases/oracle database">Oracle</a>,
     <a href="Supported Databases/SQL Server">SQL Server (including Amazon RDS and Azure SQL Database)</a>,
     <a href="Supported Databases/Azure Synapse">Azure Synapse (Formerly Data Warehouse)</a>,
     <a href="Supported Databases/db2">DB2</a>,
@@ -49,7 +49,7 @@ title: Welcome To Flyway
     <a href="Supported Databases/redshift">Redshift</a>,
     <a href="Supported Databases/cockroachdb">CockroachDB</a>,
     <a href="Supported Databases/SAP HANA (Including SAP HANA Cloud)">SAP HANA</a>,
-    <a href="Supported Databases/sybasease">Sybase ASE</a>,
+    <a href="Supported Databases/sybase-ase">Sybase ASE</a>,
     <a href="Supported Databases/informix">Informix</a>,
     <a href="Supported Databases/h2">H2</a>,
     <a href="Supported Databases/hsqldb">HSQLDB</a>,
@@ -61,4 +61,4 @@ title: Welcome To Flyway
 ## Tips
 * If you haven't checked out the [Getting Started](Getting Started) section yet, do it now. You'll be up
     and running in no time!
-* If you are looking for a GUI experience with more comprehensive authoring tools then take a look at <a href="https://documentation.red-gate.com/fd/flyway-desktop-138346953.html">Flyway Desktop</a> 
+* If you are looking for a GUI experience with more comprehensive authoring tools then take a look at <a href="https://documentation.red-gate.com/flyway/flyway-desktop">Flyway Desktop</a> 

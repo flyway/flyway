@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ public class ResourceNameValidator {
                 throw new FlywayException("Invalid SQL filenames found:\r\n" + StringUtils.collectionToDelimitedString(errorsFound, "\r\n"));
             } else {
                 LOG.info(errorsFound.size() + " SQL migrations were detected but not run because they did not follow the filename convention.");
-                LOG.info("If this is in error, set 'validateMigrationNaming' to true to fail fast and see a list of the invalid file names.");
+                LOG.info("Set 'validateMigrationNaming' to true to fail fast and see a list of the invalid file names.");
             }
         }
     }

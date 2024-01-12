@@ -2,63 +2,58 @@
 subtitle: DB2
 ---
 # DB2
-
-## Supported Variants
-
+- **Verified Versions:** 9.7, 11.5
+- **Maintainer:** Redgate
+### Supported Variants
 - LUW
 
-## Supported Versions
+## Supported Versions and Support Levels
 
-- `11.5`
-- `11.1` {% include teams.html %}
-- `10.5` {% include teams.html %}
-- `10.1` {% include teams.html %}
-- `9.8` {% include teams.html %}
-- `9.7` {% include teams.html %}
-
-## Support Level
-
-<table class="table">
-    <tr>
-        <th width="25%">Compatible</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Certified</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Guaranteed</th>
-        <td>&#10003; {% include teams.html %}</td>
-    </tr>
-</table>
-
-Support Level determines the degree of support available for this database ([learn more](Learn More/Database Support Levels)). 
+{% include database-boilerplate.html %}
 
 ## Driver
 
-<table class="table">
-<tr>
-<th>URL format</th>
-<td><code>jdbc:db2://<i>host</i>:<i>port</i>/<i>database</i></code></td>
-</tr>
-<tr>
-<th>Ships with Flyway Command-line</th>
-<td>No</td>
-</tr>
-<tr>
-<th>Maven Central coordinates</th>
-<td><code>com.ibm.db2.jcc</code></td>
-</tr>
-<tr>
-<th>Supported versions</th>
-<td><code>4.16.53</code> and later. For versions prior to 11.5, follow instructions on <a href="http://www-01.ibm.com/support/docview.wss?uid=swg21363866">ibm.com</a></td>
-</tr>
-<tr>
-<th>Default Java class</th>
-<td><code>com.ibm.db2.jcc.DB2Driver</code></td>
-</tr>
-</table>
+| Item                               | Details                                                                                                                                      |
+|------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
+| **URL format**                     | <code>jdbc:db2://<i>host</i>:<i>port</i>/<i>database</i></code>                                                                              |
+| **Ships with Flyway Command-line** | No                                                                                                                                           |
+| **Maven Central coordinates**      | `com.ibm.db2.jcc`                                                                                                                            |
+| **Supported versions**             | `4.16.53` and later. For versions prior to 11.5, follow instructions on [ibm.com](http://www-01.ibm.com/support/docview.wss?uid=swg21363866) |
+| **Default Java class**             | `com.ibm.db2.jcc.DB2Driver`                                                                                                                  |
+
+
+## Java Usage
+DB2 support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
+DB2 is found within the `flyway-database-db2` plugin module.
+### Maven
+#### Redgate
+```xml
+<dependency>
+    <groupId>com.redgate.flyway</groupId>
+    <artifactId>flyway-database-db2</artifactId>
+</dependency>
+```
+#### Open Source
+```xml
+<dependency>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-database-db2</artifactId>
+</dependency>
+```
+
+### Gradle
+#### Redgate
+```groovy
+dependencies {
+    implementation "com.redgate.flyway:flyway-database-db2"
+}
+```
+#### Open Source
+```groovy
+dependencies {
+    implementation "org.flywaydb:flyway-database-db2"
+}
+```
 
 ## SQL Script Syntax
 

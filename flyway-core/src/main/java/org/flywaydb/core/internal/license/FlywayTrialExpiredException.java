@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,14 @@
  */
 package org.flywaydb.core.internal.license;
 
-import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.extensibility.Tier;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
-public class FlywayTrialExpiredException extends FlywayException {
-    public FlywayTrialExpiredException(Edition edition) {
+public class FlywayTrialExpiredException extends FlywayLicensingException {
+    public FlywayTrialExpiredException(Tier tier) {
         super("Your 30 day limited Flyway trial license has expired and is no longer valid. " +
                       "Visit " +
                       FlywayDbWebsiteLinks.TRIAL_UPGRADE +
-                      " to upgrade to a full " + edition + " license to keep on using this software.");
+                      " to upgrade to a full " + tier.getDisplayName() + " license to keep on using this software.");
     }
 }

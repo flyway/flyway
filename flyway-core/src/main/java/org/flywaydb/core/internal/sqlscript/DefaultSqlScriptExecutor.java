@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,14 @@ import lombok.CustomLog;
 import org.flywaydb.core.api.callback.Error;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.callback.Warning;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.Result;
 import org.flywaydb.core.internal.jdbc.Results;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import org.flywaydb.core.internal.util.AsciiTable;
+import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -82,7 +84,7 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
     }
 
     @Override
-    public void execute(SqlScript sqlScript) {
+    public void execute(SqlScript sqlScript, Configuration config) {
 
 
 
@@ -123,7 +125,7 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
 
-                    executeStatement(jdbcTemplate, sqlScript, sqlStatement);
+                    executeStatement(jdbcTemplate, sqlScript, sqlStatement, config);
 
 
 
@@ -198,7 +200,8 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
 
-    protected void executeStatement(JdbcTemplate jdbcTemplate, SqlScript sqlScript, SqlStatement sqlStatement) {
+
+    protected void executeStatement(JdbcTemplate jdbcTemplate, SqlScript sqlScript, SqlStatement sqlStatement, Configuration config) {
         logStatementExecution(sqlStatement);
         String sql = sqlStatement.getSql() + sqlStatement.getDelimiter();
 
@@ -219,7 +222,7 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
             printWarnings(results);
-            handleException(results, sqlScript, sqlStatement);
+            handleException(results, sqlScript, sqlStatement, config);
             return;
         }
 
@@ -256,10 +259,10 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
     }
 
     private void handleUpdateCount(long updateCount) {
-        LOG.debug(updateCount + (updateCount == 1 ? " row" : " rows") + " affected");
+        LOG.debug(updateCount + "row" + StringUtils.pluralizeSuffix(updateCount) + " affected");
     }
 
-    protected void handleException(Results results, SqlScript sqlScript, SqlStatement sqlStatement) {
+    protected void handleException(Results results, SqlScript sqlScript, SqlStatement sqlStatement, Configuration config) {
 
 
 

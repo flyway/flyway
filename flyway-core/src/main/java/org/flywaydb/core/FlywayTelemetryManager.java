@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,9 +68,7 @@ public class FlywayTelemetryManager implements AutoCloseable{
                 }
                 try(FileWriter fileWriter = new FileWriter(userIdFile)) {
                     fileWriter.write(userId);
-                } catch (IOException ignore) {
-                    System.err.println(ignore.getMessage());
-                }
+                } catch (IOException ignore) {}
             }
         }
 

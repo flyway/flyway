@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ public class ParsingContext {
     private static final String FILENAME_PLACEHOLDER = "filename";
     private static final String WORKING_DIRECTORY_PLACEHOLDER = "workingDirectory";
     private static final String TABLE_PLACEHOLDER = "table";
+    private static final String ENVIRONMENT_PLACEHOLDER = "environment";
 
     @Getter
     private final Map<String, String> placeholders = new HashMap<>();
@@ -80,6 +81,7 @@ public class ParsingContext {
         placeholders.put(generateName(TIMESTAMP_PLACEHOLDER,configuration), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         placeholders.put(generateName(WORKING_DIRECTORY_PLACEHOLDER,configuration), System.getProperty("user.dir"));
         placeholders.put(generateName(TABLE_PLACEHOLDER,configuration), configuration.getTable());
+        placeholders.put(generateName(ENVIRONMENT_PLACEHOLDER, configuration), configuration.getCurrentEnvironmentName());
     }
 
     public void updateFilenamePlaceholder(ResourceName resourceName, Configuration configuration) {

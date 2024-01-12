@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 package org.flywaydb.core.extensibility;
 
-import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.license.FlywayLicensingException;
 
-public class FlywayRedgateLicenseKeyException extends FlywayException {
+public class FlywayRedgateLicenseKeyException extends FlywayLicensingException {
     public FlywayRedgateLicenseKeyException() {
         super("Invalid license key. You have provided a Redgate license key. Please contact sales@flywaydb.org to" +
                       " acquire a Flyway license key (\"FL01\" followed by 512 hex chars)");

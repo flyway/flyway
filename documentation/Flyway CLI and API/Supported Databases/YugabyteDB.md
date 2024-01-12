@@ -2,61 +2,47 @@
 subtitle: YugabyteDB
 ---
 # YugabyteDB
+- **Verified Versions:** 2.4, 2.7
+- **Maintainer:** Community
 
-## Supported Versions
+## Supported Versions and Support Levels
 
-- `2.7`
-- `2.6`
-- `2.5`
-- `2.4`
-
-## Support Level
-
-<table class="table">
-    <tr>
-        <th width="25%">Compatible</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Certified</th>
-        <td>&#10060;</td>
-    </tr>
-    <tr>
-        <th width="25%">Guaranteed</th>
-        <td>&#10060;</td>
-    </tr>
-</table>
-
-Support Level determines the degree of support available for this database ([learn more](Learn More/Database Support Levels)). 
+{% include database-boilerplate.html %}
 
 ## Driver
 
-<table class="table">
-<tr>
-<th>URL format</th>
-<td><code>jdbc:postgresql://<i>host</i>:<i>port</i>/<i>database</i></code></td>
-</tr>
-<tr>
-<th>SSL support</th>
-<td>Yes - add <code>?ssl=true</code></td>
-</tr>
-<tr>
-<th>Ships with Flyway Command-line</th>
-<td>Yes</td>
-</tr>
-<tr>
-<th>Maven Central coordinates</th>
-<td><code>org.postgresql:postgresql</code></td>
-</tr>
-<tr>
-<th>Supported versions</th>
-<td><code>9.3-1104-jdbc4</code> and later</td>
-</tr>
-<tr>
-<th>Default Java class</th>
-<td><code>org.postgresql.Driver</code></td>
-</tr>
-</table>
+| Item                               | Details                                                                |
+|------------------------------------|------------------------------------------------------------------------|
+| **URL format**                     | <code>jdbc:postgresql://<i>host</i>:<i>port</i>/<i>database</i></code> |
+| **SSL support**                    | Yes - add `?ssl=true`                                                  |
+| **Ships with Flyway Command-line** | Yes                                                                    |
+| **Maven Central coordinates**      | `org.postgresql:postgresql`                                            |
+| **Supported versions**             | `9.3-1104-jdbc4` and later                                             |
+| **Default Java class**             | `org.postgresql.Driver`                                                |
+
+## Java Usage
+
+YugabyteDB support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
+
+### Maven
+#### Open Source
+
+```xml
+
+<dependency>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-database-yugabytedb</artifactId>
+</dependency>
+```
+
+### Gradle
+#### Open Source
+
+```groovy
+dependencies {
+    compile "org.flywaydb:flyway-database-yugabytedb"
+}
+```
 
 ## Notes
 

@@ -3,58 +3,23 @@ subtitle: Google BigQuery
 ---
 
 # Google BigQuery
+- **Verified Versions:** Latest
+- **Maintainer:** Redgate
 
-## Supported Versions
+## Supported Versions and Support Levels
 
-- `Latest`
-
-## Support Level
-
-<table class="table">
-    <tr>
-        <th width="25%">Compatible</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Certified</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Guaranteed</th>
-        <td>&#10003; {% include teams.html %}</td>
-    </tr>
-</table>
-
-Support Level determines the degree of support available for this database ([learn more](Learn More/Database Support Levels)).
+{% include database-boilerplate.html %}
 
 ## Driver
 
-<table class="table">
-<tr>
-<th>URL format</th>
-<td><code>jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;ProjectId=<i>project_id</i>;OAuthType=0;OAuthServiceAcctEmail=<i>service_account_name</i>;OAuthPvtKeyPath=<i>path_to_key</i>;</code></td>
-</tr>
-<tr>
-<th>SSL support</th>
-<td>No</td>
-</tr>
-<tr>
-<th>Ships with Flyway Command-line</th>
-<td>No</td>
-</tr>
-<tr>
-<th>Maven Central coordinates</th>
-<td>None. The Simba driver is available for download <a href="https://cloud.google.com/bigquery/docs/reference/odbc-jdbc-drivers" target="_blank">here</a></td>
-</tr>
-<tr>
-<th>Supported versions</th>
-<td>-</td>
-</tr>
-<tr>
-<th>Default Java class</th>
-<td><code>com.simba.googlebigquery.jdbc42.Driver</code></td>
-</tr>
-</table>
+| Item                               | Details                                                                                                |
+|------------------------------------|--------------------------------------------------------------------------------------------------------|
+| **URL format** | <code>jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;ProjectId=<i>project_id</i>;OAuthType=0;OAuthServiceAcctEmail=<i>service_account_name</i>;OAuthPvtKeyPath=<i>path_to_key</i>;</code> |
+| **SSL support** | No  |
+| **Ships with Flyway Command-line** | No  |
+| **Maven Central coordinates** | None. The Simba driver is available for download [here](https://cloud.google.com/bigquery/docs/reference/odbc-jdbc-drivers) |
+| **Supported versions** | -   |
+| **Default Java class** | `com.simba.googlebigquery.jdbc42.Driver` |
 
 ## Flyway Teams Features for BigQuery
 
@@ -65,16 +30,14 @@ it [here](https://cloud.google.com/blog/products/data-analytics/troubleshoot-big
 
 Flyway Teams Edition alleviates this via batching which executes multiple schema changes in one request to minimize latency and improve performance.
 
-To enable batching follow the guide [here](Configuration/parameters/batch) for your platform. <br/>
+To enable batching follow the guide [here](Configuration/parameters/flyway/batch) for your platform. <br/>
 In the Flyway Command-Line this would look like the following:
 
 <pre class="console"><span>&gt;</span> flyway migrate -batch=true</pre>
 
 ### Data limit
 
-Flyway Community Edition has a 10GB data limit across all datasets, and this is unlimited in Flyway Teams.
-
-You can find out more about Flyway Teams Edition [here](/https://flywaydb.org/download/?ref=bigquery-batch).
+Flyway Community Edition has a 10GB data limit across all datasets, and this is unlimited in {% include teams.html %}
 
 ## Using Flyway with Google BigQuery
 
@@ -123,12 +86,12 @@ The keyfile file needs to be accessible to Flyway, so save it somewhere accessib
 
 You can learn more about service accounts [here](https://cloud.google.com/iam/docs/service-accounts).
 
-Set this URL in the [`url`](Configuration/parameters/url) property in your Flyway configuration.
+Set this URL in the [`url`](Configuration/parameters/environments/url) property in your Flyway configuration.
 
 ### Other configuration
 
-Set the [`schemas`](Configuration/parameters/schemas) property in your Flyway configuration to the name of a `data set` within your BigQuery project. Set
-the [`user`](Configuration/parameters/user) and [`password`](Configuration/parameters/password) properties to empty in your Flyway configuration since we're authenticating using
+Set the [`schemas`](Configuration/parameters/environments/schemas) property in your Flyway configuration to the name of a `data set` within your BigQuery project. Set
+the [`user`](Configuration/parameters/environments/user) and [`password`](Configuration/parameters/environments/password) properties to empty in your Flyway configuration since we're authenticating using
 the JDBC URL i.e.
 
 ```
@@ -142,7 +105,7 @@ In a Flyway configuration file.
 ## Limitations
 
 While the Simba JDBC driver supports a number
-of [different modes](https://simba.wpengine.com/products/BigQuery/doc/JDBC_InstallGuide/content/jdbc/bq/authenticating/useraccount.htm)
+of [different modes](https://cloud.google.com/bigquery/docs/reference/odbc-jdbc-drivers)
 for authentication, Google User Account authentication (that is, `OAuthType=1`) is not recommended for desktop
 use and is not supported at all for unattended use, or use in Docker, as it requires a browser to be available to
 get an access token interactively.

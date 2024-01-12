@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,8 +29,9 @@ import org.flywaydb.core.api.exception.FlywayValidateException;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.output.*;
 import org.flywaydb.core.api.pattern.ValidatePattern;
-import org.flywaydb.core.extensibility.CommandExtension;
+import org.flywaydb.core.extensibility.ConfigurationExtension;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
+import org.flywaydb.core.extensibility.LicenseGuard;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.command.*;
 import org.flywaydb.core.internal.command.clean.DbClean;
@@ -44,7 +45,6 @@ import org.flywaydb.core.internal.util.StringUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -121,7 +121,14 @@ public class Flyway {
      * @return The configuration that Flyway is using.
      */
     public Configuration getConfiguration() {
-        return new ClassicConfiguration(configuration);
+        return configuration;
+    }
+
+    /**
+     * @return The configuration extension type requested from the plugin register.
+     */
+    public <T extends ConfigurationExtension> T getConfigurationExtension(Class<T> configClass) {
+        return getConfiguration().getPluginRegister().getPlugin(configClass);
     }
 
     /**
@@ -138,6 +145,13 @@ public class Flyway {
         try (EventTelemetryModel telemetryModel = new EventTelemetryModel("migrate", flywayTelemetryManager)) {
             try {
                 return flywayExecutor.execute((migrationResolver, schemaHistory, database, defaultSchema, schemas, callbackExecutor, statementInterceptor) -> {
+
+
+
+
+
+
+
                     if (configuration.isValidateOnMigrate()) {
                         List<ValidatePattern> ignorePatterns = new ArrayList<>(Arrays.asList(configuration.getIgnoreMigrationPatterns()));
                         ignorePatterns.add(ValidatePattern.fromPattern("*:pending"));
@@ -190,7 +204,7 @@ public class Flyway {
                     callbackExecutor.onOperationFinishEvent(Event.AFTER_MIGRATE_OPERATION_FINISH, result);
 
                     return result;
-                }, true);
+                }, true, flywayTelemetryManager);
             } catch (Exception e) {
                 telemetryModel.setException(e);
                 throw e;
@@ -215,7 +229,7 @@ public class Flyway {
             callbackExecutor.onOperationFinishEvent(Event.AFTER_INFO_OPERATION_FINISH, migrationInfoService.getInfoResult());
 
             return migrationInfoService;
-        }, true);
+        }, true, flywayTelemetryManager);
     }
 
     /**
@@ -237,7 +251,7 @@ public class Flyway {
                     callbackExecutor.onOperationFinishEvent(Event.AFTER_CLEAN_OPERATION_FINISH, cleanResult);
 
                     return cleanResult;
-                }, false);
+                }, false, flywayTelemetryManager);
             } catch (Exception e) {
                 telemetryModel.setException(e);
                 throw e;
@@ -270,7 +284,7 @@ public class Flyway {
             }
 
             return null;
-        }, true);
+        }, true, flywayTelemetryManager);
     }
 
     /**
@@ -296,7 +310,7 @@ public class Flyway {
             callbackExecutor.onOperationFinishEvent(Event.AFTER_VALIDATE_OPERATION_FINISH, validateResult);
 
             return validateResult;
-        }, true);
+        }, true, flywayTelemetryManager);
     }
 
     /**
@@ -327,7 +341,7 @@ public class Flyway {
                     callbackExecutor.onOperationFinishEvent(Event.AFTER_BASELINE_OPERATION_FINISH, baselineResult);
 
                     return baselineResult;
-                }, false);
+                }, false, flywayTelemetryManager);
             } catch (Exception e) {
                 telemetryModel.setException(e);
                 throw e;
@@ -357,7 +371,7 @@ public class Flyway {
                     callbackExecutor.onOperationFinishEvent(Event.AFTER_REPAIR_OPERATION_FINISH, repairResult);
 
                     return repairResult;
-                }, true);
+                }, true, flywayTelemetryManager);
             } catch (Exception e) {
                 telemetryModel.setException(e);
                 throw e;
@@ -376,9 +390,9 @@ public class Flyway {
      *
      * @throws FlywayException when undo failed.
      */
-    public UndoResult undo() throws FlywayException {
+    public OperationResult undo() throws FlywayException {
         try {
-            return (UndoResult) runCommand("undo", Collections.emptyList());
+            return runCommand("undo", Collections.emptyList());
         } catch (FlywayException e) {
             if (e.getMessage().startsWith("No command extension found")) {
                 throw new FlywayException("The command 'undo' was not recognized. Make sure you have added 'flyway-proprietary' as a dependency.", e);

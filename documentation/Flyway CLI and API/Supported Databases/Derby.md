@@ -4,56 +4,56 @@ subtitle: Derby
 # Derby
 
 ## Supported Versions
+- **Verified Versions:** 10.11, 10.15 (Important: see 'Compatibility' section below)
+- **Maintainer:** Redgate
 
-- `10.15` (Important: see 'Compatibility' below)
-- `10.14`
-- `10.13` {% include teams.html %}
-- `10.12` {% include teams.html %}
-- `10.11` {% include teams.html %}
+## Supported Versions and Support Levels
 
-## Support Level
-
-<table class="table">
-    <tr>
-        <th width="25%">Compatible</th>
-        <td>&#10003; (see notes below)</td>
-    </tr>
-    <tr>
-        <th width="25%">Certified</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Guaranteed</th>
-        <td>&#10003; {% include teams.html %}</td>
-    </tr>
-</table>
-
-Support Level determines the degree of support available for this database ([learn more](Learn More/Database Support Levels)). 
+{% include database-boilerplate.html %}
 
 ## Driver
 
-<table class="table">
-<tr>
-<th>URL format</th>
-<td><code>jdbc:derby:<i>subsubprotocol</i>:<i>databaseName</i></code></td>
-</tr>
-<tr>
-<th>Ships with Flyway Command-line</th>
-<td>Yes</td>
-</tr>
-<tr>
-<th>Maven Central coordinates</th>
-<td><code>org.apache.derby:derbyclient</code></td>
-</tr>
-<tr>
-<th>Supported versions</th>
-<td><code>10.11</code> and later</td>
-</tr>
-<tr>
-<th>Default Java class</th>
-<td><code>org.apache.derby.jdbc.EmbeddedDriver</code></td>
-</tr>
-</table>
+| Item                               | Details                                                         |
+|------------------------------------|-----------------------------------------------------------------|
+| **URL format**                     | <code>jdbc:derby:<i>sub-protocol</i>:<i>databaseName</i></code> |
+| **Ships with Flyway Command-line** | Yes                                                             |
+| **Maven Central coordinates**      | `org.apache.derby:derbyclient`                                  |
+| **Supported versions**             | `10.11` and later                                               |
+| **Default Java class**             | `org.apache.derby.jdbc.EmbeddedDriver`                          |
+
+
+## Java Usage
+Derby support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
+Derby is found within the `flyway-database-derby` plugin module.
+### Maven
+#### Redgate
+```xml
+<dependency>
+    <groupId>com.redgate.flyway</groupId>
+    <artifactId>flyway-database-derby</artifactId>
+</dependency>
+```
+#### Open Source
+```xml
+<dependency>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-database-derby</artifactId>
+</dependency>
+```
+
+### Gradle
+#### Redgate
+```groovy
+dependencies {
+    implementation "com.redgate.flyway:flyway-database-derby"
+}
+```
+#### Open Source
+```groovy
+dependencies {
+    implementation "org.flywaydb:flyway-database-derby"
+}
+```
 
 ## SQL Script Syntax
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import lombok.Getter;
 import org.flywaydb.core.api.CoreMigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.extensibility.LicenseGuard;
+import org.flywaydb.core.extensibility.Tier;
 import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
@@ -27,8 +29,6 @@ import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
-import org.flywaydb.core.internal.license.Edition;
-import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
 import org.flywaydb.core.internal.resource.StringResource;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
@@ -39,6 +39,9 @@ import org.flywaydb.core.internal.util.StringUtils;
 import java.io.Closeable;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
+import java.util.List;
+
+import static org.flywaydb.core.internal.util.FlywayDbWebsiteLinks.COMMUNITY_SUPPORT;
 
 /**
  * Abstraction for database-specific functionality.
@@ -97,7 +100,7 @@ public abstract class Database<C extends Connection> implements Closeable {
     /**
      * Ensure Flyway supports this version of this database.
      */
-    public abstract void ensureSupported();
+    public abstract void ensureSupported(Configuration configuration);
 
     /**
      * @return The 'major.minor' version of this database.
@@ -123,13 +126,12 @@ public abstract class Database<C extends Connection> implements Closeable {
      * Flyway.
      */
     protected final void ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition(String oldestSupportedVersionInThisEdition,
-                                                                                            Edition editionWhereStillSupported) {
-        if (!getVersion().isAtLeast(oldestSupportedVersionInThisEdition)) {
-            throw new FlywayEditionUpgradeRequiredException(
-                    editionWhereStillSupported,
-                    databaseType,
-                    computeVersionDisplayName(getVersion()));
+                                                                                            List<Tier> editionWhereStillSupported, Configuration configuration) {
+        if (!LicenseGuard.isLicensed(configuration, editionWhereStillSupported) &&
+                !getVersion().isAtLeast(oldestSupportedVersionInThisEdition)) {
+            LOG.info(getDatabaseType().getName() + " " + computeVersionDisplayName(getVersion()) + " is outside of Redgate community support. See " + COMMUNITY_SUPPORT + " for details");
         }
+
     }
 
     protected final void recommendFlywayUpgradeIfNecessary(String newestSupportedVersion) {
@@ -362,7 +364,16 @@ public abstract class Database<C extends Connection> implements Closeable {
                 + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     }
 
-    public final String getBaselineStatement(Table table) {
+    public String getUpdateStatement(Table table) {
+        return "UPDATE " + table
+                + " SET "
+                + quote("description") + "=? , "
+                + quote("type") + "=? , "
+                + quote("checksum") + "=?"
+                + " WHERE " + quote("installed_rank") + "=?";
+    }
+
+    protected String getBaselineStatement(Table table) {
         return String.format(getInsertStatement(table).replace("?", "%s"),
                              1,
                              "'" + configuration.getBaselineVersion() + "'",
@@ -390,6 +401,14 @@ public abstract class Database<C extends Connection> implements Closeable {
                 + " FROM " + table
                 + " WHERE " + quote("installed_rank") + " > ?"
                 + " ORDER BY " + quote("installed_rank");
+    }
+
+    public String getDeleteStatement(Table table, boolean version) {
+        return "DELETE FROM " + table +
+                " WHERE " + quote("success") + " = " + getBooleanFalse() + " AND " +
+                (version ?
+                        quote("version") + " = ?" :
+                        quote("description") + " = ?");
     }
 
     public final String getInstalledBy() {

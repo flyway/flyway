@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,12 @@ package org.flywaydb.core.internal.sqlscript;
 
 import lombok.CustomLog;
 import org.flywaydb.core.api.ResourceProvider;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResource;
+import org.flywaydb.core.extensibility.LicenseGuard;
+import org.flywaydb.core.extensibility.Tier;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
-import org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException;
+import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.PlaceholderReplacingReader;
 
@@ -41,7 +44,7 @@ public class SqlScriptMetadata {
     private final boolean placeholderReplacement;
     private boolean shouldExecute;
 
-    private SqlScriptMetadata(Map<String, String> metadata) {
+    private SqlScriptMetadata(Map<String, String> metadata, Configuration config) {
         // Make copy to prevent removing elements from the original
         metadata = new HashMap<>(metadata);
 
@@ -58,11 +61,12 @@ public class SqlScriptMetadata {
 
 
 
-         if(metadata.containsKey(SHOULD_EXECUTE)) {
-             throw new FlywayTeamsUpgradeRequiredException("shouldExecute");
-         }
 
-
+        {
+            if (metadata.containsKey(SHOULD_EXECUTE)) {
+                throw new FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(config), "shouldExecute");
+            }
+        }
         ConfigUtils.checkConfigurationForUnrecognisedProperties(metadata, null);
     }
 
@@ -86,16 +90,16 @@ public class SqlScriptMetadata {
         return !line.startsWith(SHOULD_EXECUTE) && (line.contains("==") || line.contains("!="));
     }
 
-    public static SqlScriptMetadata fromResource(LoadableResource resource, Parser parser) {
+    public static SqlScriptMetadata fromResource(LoadableResource resource, Parser parser, Configuration config) {
         if (resource != null) {
             LOG.debug("Found script configuration: " + resource.getFilename());
             if (parser == null) {
-                return new SqlScriptMetadata(ConfigUtils.loadConfigurationFromReader(resource.read()));
+                return new SqlScriptMetadata(ConfigUtils.loadConfigurationFromReader(resource.read()), config);
             }
             return new SqlScriptMetadata(ConfigUtils.loadConfigurationFromReader(
-                    PlaceholderReplacingReader.create(parser.configuration, parser.parsingContext, resource.read())));
+                    PlaceholderReplacingReader.create(parser.configuration, parser.parsingContext, resource.read())), parser.configuration);
         }
-        return new SqlScriptMetadata(new HashMap<>());
+        return new SqlScriptMetadata(new HashMap<>(), config);
     }
 
     public static LoadableResource getMetadataResource(ResourceProvider resourceProvider, LoadableResource resource) {

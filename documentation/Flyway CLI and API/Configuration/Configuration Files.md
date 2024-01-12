@@ -2,20 +2,26 @@
 subtitle: Config Files
 redirect_from: /documentation/configfiles/
 ---
-# Config Files
 
-Flyway supports loading configuration via config files.
+Flyway supports loading configuration via text files.
+By default, Flyway will load configuration files from the following locations:
+1. `<current-dir>/`
+1. `<user-home>/`
+1. `<install-dir>/conf/`
 
-## Loading
+Additionally, you can make Flyway load other configurations using the [configFiles](Configuration/Parameters/Flyway/Config Files) configuration parameter.
 
-By default Flyway will load configuration files from the following locations:
-- <i>installDir<i>/conf/flyway.conf
-- <i>userhome<i>/flyway.conf
-- <i>workingDir<i>/flyway.conf
+By default Flyway loads configuration files using UTF-8. 
+To use an alternative encoding see [Config File Encoding](Configuration/Parameters/Flyway/Config File Encoding)
+## TOML Format
 
-Additionally you can make Flyway load other configurations using the [configFiles](Configuration/Parameters/Config Files) configuration parameter.
+We have introduced a new configuration format, [TOML](Configuration/What is TOML) which is the successor to the traditional conf format. You can find out more at [TOML Configuration](Configuration/TOML Configuration File/).
 
-## Structure
+Flyway will use the configuration file with a .toml extension in preference to a .conf file if both are present.
+
+## Legacy CONF format 
+
+### Structure
 
 Config files have the following structure:
 
@@ -35,7 +41,7 @@ flyway.schemas=schema1,schema2
 flyway.placeholders.keyABC=valueXYZ
 ```
 
-### Environment variable substitution
+#### Environment variable substitution
 
 Environment variables in config files are substituted:
 
@@ -45,7 +51,7 @@ flyway.placeholders.abc=${ABC}
 
 If an environment variable isn't set, an empty value is assumed.
 
-## Reference
+### Reference
 
 See [configuration](Configuration/parameters) for a full list of supported configuration parameters.
 
@@ -328,7 +334,7 @@ flyway.locations=filesystem:sql
 
 # Ignore migrations that match this comma-separated list of patterns when validating migrations.
 # Each pattern is of the form <migration_type>:<migration_state>
-# See https://flywaydb.orgConfiguration/Parameters/Ignore Migration Patterns for full details
+# See https://flywaydb.orgConfiguration/Parameters/Flyway/Ignore Migration Patterns for full details
 # Example: repeatable:missing,versioned:pending,*:failed
 # (default: *:future)
 # flyway.ignoreMigrationPatterns=

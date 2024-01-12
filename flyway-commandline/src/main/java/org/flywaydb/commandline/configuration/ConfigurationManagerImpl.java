@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.flywaydb.commandline.configuration;
 
 import lombok.CustomLog;
 import org.flywaydb.commandline.Main;
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.util.ClassUtils;
@@ -41,15 +42,38 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
         return configurationManager.getConfiguration(commandLineArguments);
     }
 
-    private boolean useModernConfig(CommandLineArguments commandLineArguments) {
-        List<File> tomlFiles = new ArrayList<>();
+    private boolean useModernConfig(final CommandLineArguments commandLineArguments) {
+
+        final List<File> tomlConfigFiles = commandLineArguments.getConfigFiles().stream()
+            .filter(s -> s.endsWith(".toml"))
+            .map(File::new)
+            .toList();
+
+        if (!tomlConfigFiles.isEmpty()) {
+            final List<File> configFilesExist = commandLineArguments.getConfigFiles().stream()
+                .map(File::new)
+                .filter(File::exists)
+                .toList();
+            if (configFilesExist.size() != tomlConfigFiles.size()) {
+                throw new FlywayException(
+                    "Using both TOML configuration and CONF configuration is not supported. Please remove the CONF configuration files.\n"
+                        +
+                        "TOML files: " + tomlConfigFiles.stream()
+                        .map(File::getAbsolutePath)
+                        .collect(Collectors.joining(", ")) + "\n" +
+                        "CONF files: " + configFilesExist.stream()
+                        .map(File::getAbsolutePath)
+                        .collect(Collectors.joining(", ")) + "\n");
+            }
+        }
+
+        if (tomlConfigFiles.stream().anyMatch(File::exists)) {
+            return true;
+        }
+
+        final List<File> tomlFiles = new ArrayList<>();
         tomlFiles.addAll(ConfigUtils.getDefaultTomlConfigFileLocations(new File(ClassUtils.getInstallDir(Main.class))));
         tomlFiles.addAll(getTomlConfigFilePaths());
-        tomlFiles.addAll(commandLineArguments.getConfigFiles().stream()
-                                             .filter(f -> f.endsWith(".toml"))
-                                             .map(File::new)
-                                             .collect(Collectors.toList()));
-
         return tomlFiles.stream().anyMatch(File::exists);
     }
 }

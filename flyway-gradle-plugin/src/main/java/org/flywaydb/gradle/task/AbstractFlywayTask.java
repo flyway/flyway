@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ import java.net.URLClassLoader;
 import java.util.*;
 
 import static org.flywaydb.core.internal.configuration.ConfigUtils.FLYWAY_PLUGINS_PREFIX;
+import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeLocationsBasedOnWorkingDirectory;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.putIfSet;
 
 /**
@@ -535,15 +536,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public String kerberosConfigFile;
 
     /**
-     * Your Flyway license key (FL01...). Not yet a Flyway Teams Edition customer?
-     * Request your <a href="https://flywaydb.org/download/">Flyway trial license key</a>
-     * to try out Flyway Teams Edition features free for 30 days.
-     * <i>Flyway Teams only</i>
-     * <p>Also configurable with Gradle or System Property: ${flyway.licenseKey}</p>
-     */
-    public String licenseKey;
-
-    /**
      * The maximum number of retries when trying to obtain a lock. (default: 50)
      */
     public Integer lockRetryCount;
@@ -605,7 +597,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
                     getProject().getBuildscript().getClassLoader());
 
             Map<String, String> config = createFlywayConfig(envVars);
-            ConfigUtils.dumpConfiguration(config);
+            ConfigUtils.dumpConfigurationMap(config);
 
             Flyway flyway = Flyway.configure(classLoader).configuration(config).load();
             Object result = run(flyway);
@@ -726,7 +718,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.SCRIPT_PLACEHOLDER_PREFIX, scriptPlaceholderPrefix, extension.scriptPlaceholderPrefix);
         putIfSet(conf, ConfigUtils.SCRIPT_PLACEHOLDER_SUFFIX, scriptPlaceholderSuffix, extension.scriptPlaceholderSuffix);
         putIfSet(conf, ConfigUtils.TARGET, target, extension.target);
-        putIfSet(conf, ConfigUtils.CHERRY_PICK, StringUtils.arrayToCommaDelimitedString(cherryPick), StringUtils.arrayToCommaDelimitedString(extension.cherryPick));
         putIfSet(conf, ConfigUtils.LOGGERS, StringUtils.arrayToCommaDelimitedString(loggers), StringUtils.arrayToCommaDelimitedString(extension.loggers));
         putIfSet(conf, ConfigUtils.OUT_OF_ORDER, outOfOrder, extension.outOfOrder);
         putIfSet(conf, ConfigUtils.SKIP_EXECUTING_MIGRATIONS, skipExecutingMigrations, extension.skipExecutingMigrations);
@@ -753,8 +744,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.BATCH, batch, extension.batch);
 
         putIfSet(conf, ConfigUtils.KERBEROS_CONFIG_FILE, kerberosConfigFile, extension.kerberosConfigFile);
-
-        putIfSet(conf, ConfigUtils.LICENSE_KEY, licenseKey, extension.licenseKey);
 
         if (extension.placeholders != null) {
             for (Map.Entry<Object, Object> entry : extension.placeholders.entrySet()) {
@@ -819,16 +808,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         String[] locationsToAdd = getLocations();
 
         if (locationsToAdd != null) {
-            for (int i = 0; i < locationsToAdd.length; i++) {
-                if (locationsToAdd[i].startsWith(Location.FILESYSTEM_PREFIX)) {
-                    String newLocation = locationsToAdd[i].substring(Location.FILESYSTEM_PREFIX.length());
-                    File file = new File(newLocation);
-                    if (!file.isAbsolute()) {
-                        file = new File(workingDirectory, newLocation);
-                    }
-                    locationsToAdd[i] = Location.FILESYSTEM_PREFIX + file.getAbsolutePath();
-                }
-            }
+            ConfigUtils.makeRelativeLocationsBasedOnWorkingDirectory(workingDirectory.getAbsolutePath(), locationsToAdd);
         }
 
         putIfSet(conf, ConfigUtils.LOCATIONS, StringUtils.arrayToCommaDelimitedString(locationsToAdd));

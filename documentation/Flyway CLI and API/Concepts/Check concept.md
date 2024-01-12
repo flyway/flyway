@@ -42,12 +42,12 @@ In either scenario, using the `-changes` flag will help you infer which database
 ### Requirements and behavior
 
 There are 4 ways to generate a change report:
-- If you have access to both your target and build database you should use `url` and `check.buildUrl`
-- If you can't access your target database from your build environment you should use `check.appliedMigrations` and `check.buildUrl`
+- If you have access to both your target and build database you should use `url` and `check.buildEnvironment`
+- If you can't access your target database from your build environment you should use `check.appliedMigrations` and `check.buildEnvironment`
 - If you do not have a build database you should use `url` and `check.nextSnapshot`
 - If you cannot access either your target or build database you should use `check.deployedSnapshot` and `check.nextSnapshot`
 
-#### Example: `url` and `buildUrl`
+#### Example: `url` and `buildEnvironment`
 
 The `check -changes` command and flag works by building a temporary database. This 'build' database is first made to reflect the state of your target schema, and then made to reflect your target schema with the pending changes applied.
 
@@ -57,9 +57,9 @@ The process works like this:
 ![Check_changes.png](assets/Check_changes.png)
 1. Specify your target database location
     1. This is the database you want to apply your changes to, where Flyway is already being used to manage migrations (ie. A Flyway migrations table exists)
-1. Specify a build database
-    1. This is an existing build database (note: Flyway will [`clean`](Commands/clean) this database, so if you specify a full database, you must ensure it is ok to for Flyway to erase its schema)
-1. Run `flyway check -changes -check.buildUrl="jdbc://build-url" -url="jdbc://url"`
+1. Specify a build environment
+    1. This is an existing build environment that contains a build database (note: Flyway will [`clean`](Commands/clean) this database, so if you specify a full database, you must ensure it is ok to for Flyway to erase its schema)
+1. Run `flyway check -changes -check.buildEnvironment="build" -url="jdbc://url"`
 
 Flyway's `check -changes` will then:
 1. Clean your build database
@@ -71,7 +71,7 @@ Flyway's `check -changes` will then:
 1. Compare the V2 build database snapshot to the V5 build database snapshot
 1. Generate a HTML (human readable) and JSON (machine readable) Change Report, indicating the additions, deletions, and modifications of database objects between V2 and V5
 
-#### Example: `appliedMigrations` and `buildUrl`
+#### Example: `appliedMigrations` and `buildEnvironment`
 
 The `check -changes` command and flag works by building a temporary database. This 'build' database is first made to reflect the state specified by `appliedMigrations`, and then made to reflect your `appliedMigrations` with the pending changes applied.
 
@@ -81,9 +81,9 @@ The process works like this:
 ![Check_appliedMigrations.png](assets/Check_appliedMigrations.png)
 1. Run `flyway info -infoOfState="success,pending,out_of_order" -migrationIds > appliedMigrations.txt`
     1. This will produce a comma-separated list which represents the applied migrations of your target database
-1. Specify a build database
-    1. This is an existing build database (note: Flyway will [`clean`](Commands/clean) this database, so if you specify a full database, you must ensure it is ok to for Flyway to erase its schema)
-1. Run `flyway check -changes -check.buildUrl="jdbc://build-url" -check.appliedMigrations="$(cat appliedMigrations.txt)"`
+1. Specify a build environment
+    1. This is an existing build environment that contains a build database (note: Flyway will [`clean`](Commands/clean) this database, so if you specify a full database, you must ensure it is ok to for Flyway to erase its schema)
+1. Run `flyway check -changes -check.buildEnvironment="build" -check.appliedMigrations="$(cat appliedMigrations.txt)"`
 
 Flyway's `check -changes` will then:
 1. Clean your build database
@@ -104,12 +104,12 @@ The `-drift` flag produces a report indicating differences between structure of 
 ### Requirements and behavior
 
 There are 2 ways to generate a drift report:
-- If you have access to both your target and build database you should use `url` and `check.buildUrl`
+- If you have access to both your target and build database you should use `url` and `check.buildEnvironment`
 - If you do not have a build database you should use `url` and `check.deployedSnapshot`
 
-#### Example: `url` and `buildUrl`
+#### Example: `url` and `buildEnvironment`
 
-The `check -drift` command and flag works by building a temporary database. This 'build' database is made to reflect the state of your target schema based on the migrations applied by Flyway.
+The `check -drift` command and flag works by building a temporary database. This 'build' environment that contains a 'build' database is made to reflect the state of your target schema based on the migrations applied by Flyway.
 
 The difference between the two states of this build database and your target database represents the drift between the expected structure according to Flyway and the actual structure. This difference is captured as an artefact called a "Drift Report". The drift report is available as both HTML (human readable) and JSON (machine readable) formats.
 
@@ -119,7 +119,7 @@ The process works like this:
     1. This is the database you want to apply your changes to, where Flyway is already being used to manage migrations (ie. A Flyway migrations table exists)
 1. Specify a build database
     1. This is an existing build database (note: Flyway will "clean" this database, so if you specify a full database, you must ensure it is ok to for Flyway to erase its schema)
-1. Run `flyway check -drift -check.buildUrl="jdbc://build-url" -url="jdbc://url"`
+1. Run `flyway check -drift -check.buildEnvironment="build" -url="jdbc://url"`
 
 Flyway's `check -drift` will then:
 1. Take a [`snapshot`](Commands/snapshot) of the target database
@@ -177,8 +177,8 @@ flyway check -code -url=jdbc:postgresql://...
 This will run SQLFluff under the hood, and produce a HTML and JSON report that you can use to check the standards of your migrations.
 
 Flyway makes use of any configured `locations` to determine what migrations to analyse.
-If you have a `URL` configured, Flyway will only run analysis on pending migrations.
-If no `URL` is configured, then _all_ migrations (pending and applied) will be analysed.
+If you have a `URL` configured, Flyway will only run analysis on _pending_ migrations.
+If no `URL` is configured, then _all_ migrations will be analysed.
 
 ### Configuring SQLFluff
 
@@ -197,17 +197,25 @@ You can also use this to configure more than just the dialect, such as which rul
 {% include teams.html %}
 
 You can configure your pipeline to fail when specified are violated beyond a given tolerance level.
-This can be done by configuring `check.majorRules`, `check.minorRules`, `check.majorTolerance` and `check.minorTolerance`.
+This can be done by configuring the following parameters:
 
-`majorRules` should contain a comma-separated list of [SQL Fluff](https://docs.sqlfluff.com/en/stable/rules.html) or Flyway Regex rule codes which are considered to be `major`.
-If the total number of `majorRules` violations exceeds the `majorTolerance`, Flyway will fail.
+- [`check.majorRules`](Configuration/Parameters/Flyway/Check/Major Rules)
+- [`check.minorRules`](Configuration/Parameters/Flyway/Check/Minor Rules)
+- [`check.majorTolerance`](Configuration/Parameters/Flyway/Check/Major Tolerance)
+- [`check.minorTolerance`](Configuration/Parameters/Flyway/Check/Minor Tolerance)
 
-The same applies to `minorRules` and `minorTolerance`.
-
-For example:
+#### Example:
 
 ```
 ./flyway check -code '-check.majorTolerance=3' '-check.majorRules=L034,L042'
 ```
 
 This will fail if rules `L034` and `L042` are violated 4 or more times in total across all scanned migration scripts.
+
+## Regular Expression (Regex) rules
+
+{% include enterprise.html %}
+
+Customers can easily craft their own custom rules or take advantage of the set of rules Flyway provides:
+- [Creating Regular Expression Rules](Learn More/Creating Regular Expression Rules)
+- [Code Analysis Rules](Usage/Code Analysis Rules)

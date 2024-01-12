@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,13 +40,12 @@ public class InsertRowLock {
      */
     private final String tableLockString = getNextRandomString();
     private final JdbcTemplate jdbcTemplate;
-    private final int lockTimeoutMins;
+    public static final int LOCK_TIMEOUT_MINS = 10;
     private final ScheduledExecutorService executor;
     private ScheduledFuture<?> scheduledFuture;
 
-    public InsertRowLock(JdbcTemplate jdbcTemplate, int lockTimeoutMins) {
+    public InsertRowLock(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        this.lockTimeoutMins = lockTimeoutMins;
         this.executor = createScheduledExecutor();
     }
 
@@ -74,7 +73,7 @@ public class InsertRowLock {
     }
 
     private String generateDeleteExpiredLockStatement(String deleteExpiredLockStatementTemplate) {
-        LocalDateTime zonedDateTime = LocalDateTime.now(ZoneOffset.UTC).minusMinutes(lockTimeoutMins);
+        LocalDateTime zonedDateTime = LocalDateTime.now(ZoneOffset.UTC).minusMinutes(LOCK_TIMEOUT_MINS);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
         return String.format(deleteExpiredLockStatementTemplate.replace("?", "%s"), zonedDateTime.format(formatter));
     }
@@ -122,7 +121,7 @@ public class InsertRowLock {
             LOG.debug("Updating lock in Flyway schema history table");
             jdbcTemplate.executeStatement(updateLockStatement);
         };
-        return executor.scheduleAtFixedRate(lockUpdatingTask, 0, lockTimeoutMins / 2, TimeUnit.MINUTES);
+        return executor.scheduleAtFixedRate(lockUpdatingTask, 0, LOCK_TIMEOUT_MINS / 2, TimeUnit.MINUTES);
     }
 
     private void stopLockWatchingThread() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,19 +101,6 @@ public interface DatabaseType extends Plugin {
      */
     boolean handlesDatabaseProductNameAndVersion(String databaseProductName, String databaseProductVersion, Connection connection);
 
-    /**
-     * Initializes the Database class, and optionally prints some information.
-     *
-     * @param configuration The Flyway configuration.
-     * @param jdbcConnectionFactory The current connection factory.
-     * @param printInfo Where the DB info should be printed in the logs.
-     * @return The appropriate Database class.
-     */
-    Database createDatabase(
-            Configuration configuration, boolean printInfo,
-            JdbcConnectionFactory jdbcConnectionFactory,
-            StatementInterceptor statementInterceptor
-                           );
 
     /**
      * Initializes the Database used by this Database Type.
@@ -253,7 +240,7 @@ public interface DatabaseType extends Plugin {
 
     String instantiateClassExtendedErrorMessage();
 
-    void printMessages();
+    void printMessages(Configuration configuration);
 
     default List<String> getSpecialResourceFilenames(Configuration configuration) {
         return Collections.emptyList();

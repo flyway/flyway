@@ -12,6 +12,6 @@ The code analysis report shows you the results of the static analysis tool(s) th
 ## Learn more
 
 * [Check concept](Concepts/Check Concept) - how does it work ?
-* [Check command](Commands/Check) - What is the command structure ?
+* [Check command](/Commands/Check Command) - What is the command structure ?
 * [Flyway Teams Edition](https://www.red-gate.com/products/flyway/teams/)
-* Get a [Flyway Enterprise Trial](https://www.red-gate.com/products/flyway/enterprise/trial/)
+* Get a [Flyway Enterprise Trial here](https://www.red-gate.com/products/flyway/enterprise/trial/) or start a trial with the [auth](Commands/Auth) command.

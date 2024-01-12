@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -254,7 +254,7 @@ public class DbMigrate {
 
         String targetText = (targetVersion != null) ? ", now at version v" + targetVersion : "";
 
-        String migrationText = (migrationSuccessCount == 1) ? "migration" : "migrations";
+        String migrationText = "migration" + StringUtils.pluralizeSuffix(migrationSuccessCount);
 
         LOG.info("Successfully applied " + migrationSuccessCount + " " + migrationText + " to schema " + schema
                          + targetText + " (execution time " + TimeFormat.format(executionTime) + ")");

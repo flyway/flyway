@@ -5,11 +5,45 @@ redirect_from: /documentation/gradle/
 ---
 # Gradle Plugin
 
-The Flyway Gradle plugin supports **Gradle 3.x**, **Gradle 4.x**, **Gradle 5.x**, and **Gradle 6.x**
-running on **Java 8**, **Java 9**, **Java 10**, **Java 11**, **Java 12** or **Java 17**.
+The Flyway Gradle plugin supports **Gradle 7.6.x*** and **Gradle 8.x**
+running on **Java 17**.
+
+*Older versions fail due to some dependencies having multi-release jars with Java 19 code. 
+This is a known [Gradle issue](https://github.com/gradle/gradle/issues/24390). 
 
 ## Installation
-### Community Edition
+### Flyway Community Edition
+This includes Teams & Enterprise features subject to license.
+
+See [Upgrading to Teams or Enterprise](Learn More/Upgrading to Flyway Teams or Enterprise) to find out about the edition contents
+
+<code>build.gradle</code>
+<table class="table">
+    <tr>
+        <td>
+            <pre class="prettyprint">repositories {
+    mavenCentral()
+    maven {
+        url "https://download.red-gate.com/maven/release"
+    }
+}
+plugins {
+    id "<strong>com.redgate.flyway</strong>.flyway" version "{{ site.flywayVersion }}"
+}</pre>
+        </td>
+    </tr>
+    <tr>
+        <td>
+By downloading Flyway Community Gradle Plugin you confirm that you have read and agree to the terms of the <a href="https://www.red-gate.com/assets/purchase/assets/subscription-license.pdf?_ga=2.265045707.556964523.1656332792-1685764737.1620948215">Redgate EULA</a>.
+        </td>
+    </tr>
+</table>
+
+<p class="note">
+  For older versions see <a href="/Accessing Older Versions of Flyway">Accessing Older Versions of Flyway</a>
+</p>
+
+### Open Source Edition
 
 <code>build.gradle</code>
 <table class="table">
@@ -22,32 +56,6 @@ running on **Java 8**, **Java 9**, **Java 10**, **Java 11**, **Java 12** or **Ja
     </tr>
 </table>
 
-### Teams/Enterprise Edition
-<code>build.gradle</code>
-<table class="table">
-    <tr>
-        <td>
-            <pre class="prettyprint">repositories {
-    mavenCentral()
-    maven {
-        url "https://download.red-gate.com/maven/release"
-    }
-}
-plugins {
-    id "org.flywaydb<strong>.enterprise</strong>.flyway" version "{{ site.flywayVersion }}"
-}</pre>
-        </td>
-    </tr>
-    <tr>
-        <td>
-By downloading Flyway Teams/Enterprise Gradle Plugin you confirm that you have read and agree to the terms of the <a href="https://www.red-gate.com/assets/purchase/assets/subscription-license.pdf?_ga=2.265045707.556964523.1656332792-1685764737.1620948215">Redgate EULA</a>.
-        </td>
-    </tr>
-</table>
-
-<p class="note">
-  For older versions see <a href="/Accessing Older Versions of Flyway">Accessing Older Versions of Flyway</a>
-</p>
 
 ## Tasks
 
@@ -140,7 +148,7 @@ Alternatively you can make the `flywayMigrate` task depend on classes.
 
 ```groovy
 dependencies {
-    compile "org.flywaydb:flyway-core:${flywayVersion}"
+    implementation "org.flywaydb:flyway-core:${flywayVersion}"
 }
 
 flyway {
@@ -170,7 +178,7 @@ configurations {
 
 // Declare your dependencies as usual for each configuration
 dependencies {
-    compile "org.flywaydb:flyway-core:${flywayVersion}"
+    implementation "org.flywaydb:flyway-core:${flywayVersion}"
     flywayMigration "com.mygroupid:my-lib:1.2.3"
 }
 
@@ -192,7 +200,7 @@ For details on how to setup and use custom Gradle configurations, see the [offic
 
 ### Adding dependencies on Flyway Database Types
 
-For some Flyway database types, like [Cloud Spanner](supported databases/Google Cloud Spanner (Beta)) and [SQL Server](Supported Databases/SQL Server), you'll need to add a dependency to the database type in a `buildscript` closure to get your Gradle commands to work properly. This puts the database type on the build classpath, and not the project classpath.
+For some Flyway database types, like [Cloud Spanner](/supported databases/Google Cloud Spanner) and [SQL Server](Supported Databases/SQL Server), you'll need to add a dependency to the database type in a `buildscript` closure to get your Gradle commands to work properly. This puts the database type on the build classpath, and not the project classpath.
 
 Here is an example `build.gradle`:
 
@@ -249,7 +257,7 @@ project.ext['flyway.placeholders.otherplaceholder']='value123'</pre>
 ### Environment Variables
 
 To make it ease to work with cloud and containerized environments, Flyway also supports configuration via
-[environment variables](Configuration/Environment Variables). Check out the [Flyway environment variable reference](Configuration/Environment Variables) for details.
+[environment variables](Configuration/Environment Variables).
 
 ### System properties
 
@@ -259,8 +267,7 @@ Configuration can also be supplied directly via the command-line using JVM syste
 
 ### Config files
 
-[Config files](Configuration/Configuration Files) are supported by the Flyway Gradle plugin. If you are not familiar with them,
-check out the [Flyway config file structure and settings reference](Configuration/Configuration Files) first.
+[Config files](Configuration/Configuration Files) are supported by the Flyway Gradle plugin.
 
 Flyway will search for and automatically load the `<user-home>/flyway.conf` config file if present.
 

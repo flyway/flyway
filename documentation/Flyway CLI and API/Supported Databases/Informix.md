@@ -2,54 +2,57 @@
 subtitle: Informix
 ---
 # Informix
+- **Verified Versions:** 12.10
+- **Maintainer:** Redgate
 
-## Supported Versions
+## Supported Versions and Support Levels
 
-- `12.10`
+{% include database-boilerplate.html %}
 
-## Support Level
+## Driver
 
-<table class="table">
-    <tr>
-        <th width="25%">Compatible</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Certified</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Guaranteed</th>
-        <td>&#10003; {% include teams.html %}</td>
-    </tr>
-</table>
+| Item                               | Details                                                                                      |
+|------------------------------------|----------------------------------------------------------------------------------------------|
+| **URL format**                     | <code>jdbc:informix-sqli://<i>host</i>:<i>port</i>/<i>database</i>:informixserver=dev</code> |
+| **Ships with Flyway Command-line** | No                                                                                           |
+| **Download**                       | Maven Central coordinates: `com.ibm.informix:jdbc`                                           |
+| **Supported versions**             | `4.10.10.0` and later                                                                        |
+| **Default Java class**             | `com.informix.jdbc.IfxDriver`                                                                |
 
-Support Level determines the degree of support available for this database ([learn more](Learn More/Database Support Levels)). 
 
-## Drivers
 
-<table class="table">
-<tr>
-<th>URL format</th>
-<td><code>jdbc:informix-sqli://<i>host</i>:<i>port</i>/<i>database</i>:informixserver=dev</code></td>
-</tr>
-<tr>
-<th>Ships with Flyway Command-line</th>
-<td>No</td>
-</tr>
-<tr>
-<th>Download</th>
-<td>Maven Central coordinates: <code>com.ibm.informix:jdbc</code></td>
-</tr>
-<tr>
-<th>Supported versions</th>
-<td><code>4.10.10.0</code> and later</td>
-</tr>
-<tr>
-<th>Default Java class</th>
-<td><code>com.informix.jdbc.IfxDriver</code></td>
-</tr>
-</table>
+## Java Usage
+Informix support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
+Informix is found within the `flyway-database-informix` plugin module.
+### Maven
+#### Redgate
+```xml
+<dependency>
+    <groupId>com.redgate.flyway</groupId>
+    <artifactId>flyway-database-informix</artifactId>
+</dependency>
+```
+#### Open Source
+```xml
+<dependency>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-database-informix</artifactId>
+</dependency>
+```
+
+### Gradle
+#### Redgate
+```groovy
+dependencies {
+    implementation "com.redgate.flyway:flyway-database-informix"
+}
+```
+#### Open Source
+```groovy
+dependencies {
+    implementation "org.flywaydb:flyway-database-informix"
+}
+```
 
 ## SQL Script Syntax
 

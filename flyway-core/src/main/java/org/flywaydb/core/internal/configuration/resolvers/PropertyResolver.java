@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,11 @@
  */
 package org.flywaydb.core.internal.configuration.resolvers;
 
+import org.flywaydb.core.ProgressLogger;
 import org.flywaydb.core.extensibility.Plugin;
 
 public interface PropertyResolver extends Plugin {
     String getName();
-    String resolve(String key, PropertyResolverContext context);
+    String resolve(String key, PropertyResolverContext context, ProgressLogger progress);
+    Class getConfigClass();
 }

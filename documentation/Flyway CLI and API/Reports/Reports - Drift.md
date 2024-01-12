@@ -14,5 +14,5 @@ You might want this to:
 ## Learn more
 
 * [Check concept](Concepts/Check Concept) - how does it work ?
-* [Check command](Commands/Check) - What is the command structure ?
-* Get a [Flyway Enterprise Trial](https://www.red-gate.com/products/flyway/enterprise/trial/)
+* [Check command](/Commands/Check Command) - What is the command structure ?
+* Get a [Flyway Enterprise Trial here](https://www.red-gate.com/products/flyway/enterprise/trial/) or start a trial with the [auth](Commands/Auth) command.

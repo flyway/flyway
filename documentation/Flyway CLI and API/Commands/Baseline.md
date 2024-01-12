@@ -18,5 +18,5 @@ When you have many migrations, it might be desirable to reset your baseline migr
 Learn more about the concept of [Baseline Migrations](Concepts/Baseline Migrations) and a [Baseline Migration tutorial](Tutorials/Tutorial Baseline Migrations)
 
 ## Usage
-See [configuration](Configuration/parameters/#baseline) for baseline specific configuration parameters.
+See [configuration](Configuration/parameters/flyway/#baseline) for baseline specific configuration parameters.
 {% include commandUsage.html command="Baseline" %}

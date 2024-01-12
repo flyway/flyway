@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package org.flywaydb.commandline.command.version;
 
 import lombok.AllArgsConstructor;
 import org.flywaydb.core.api.output.OperationResult;
-import org.flywaydb.core.internal.license.Edition;
+import org.flywaydb.core.extensibility.Tier;
 
 import java.util.List;
 
@@ -25,6 +25,6 @@ import java.util.List;
 public class VersionResult implements OperationResult {
     public String version;
     public String command;
-    public Edition edition;
+    public Tier edition;
     public List<PluginVersionResult> pluginVersions;
 }

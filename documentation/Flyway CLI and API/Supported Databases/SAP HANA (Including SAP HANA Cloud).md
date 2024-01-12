@@ -2,59 +2,57 @@
 subtitle: SAP HANA
 ---
 # SAP HANA (Including SAP HANA Cloud)
+- **Verified Versions:** 
+  - On-Premise: 1.0, 2.0
+  - SAP HANA Cloud: 4.0
+- **Maintainer:** Redgate
 
-## Supported Versions - On-Premise
+## Supported Versions and Support Levels
 
-- `2.0`
-- `1.0` {% include teams.html %}
-
-## Supported Versions - SAP HANA Cloud
-
-- `4.0`
-
-## Support Level
-
-<table class="table">
-    <tr>
-        <th width="25%">Compatible</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Certified</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Guaranteed</th>
-        <td>&#10003; {% include teams.html %}</td>
-    </tr>
-</table>
-
-Support Level determines the degree of support available for this database ([learn more](Learn More/Database Support Levels)). 
+{% include database-boilerplate.html %}
 
 ## Driver
 
-<table class="table">
-<tr>
-<th>URL format</th>
-<td><code>jdbc:sap://<i>host</i>:<i>port</i>/?databaseName=<i>database</i></code></td>
-</tr>
-<tr>
-<th>Ships with Flyway Command-line</th>
-<td>No</td>
-</tr>
-<tr>
-<th>Maven Central coordinates</th>
-<td><code>com.sap.cloud.db.jdbc:ngdbc</code></td>
-</tr>
-<tr>
-<th>Supported versions</th>
-<td><code>1.0</code> and later</td>
-</tr>
-<tr>
-<th>Default Java class</th>
-<td><code>com.sap.db.jdbc.Driver</code></td>
-</tr>
-</table>
+| Item                               | Details                                                                       |
+|------------------------------------|-------------------------------------------------------------------------------|
+| **URL format**                     | <code>jdbc:sap://<i>host</i>:<i>port</i>/?databaseName=<i>database</i></code> |
+| **Ships with Flyway Command-line** | No                                                                            |
+| **Maven Central coordinates**      | `com.sap.cloud.db.jdbc:ngdbc`                                                 |
+| **Supported versions**             | `1.0` and later                                                               |
+| **Default Java class**             | `com.sap.db.jdbc.Driver`                                                      |
+
+## Java Usage
+SAP HANA support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
+SAP HANA is found within the `flyway-database-saphana` plugin module.
+
+### Maven
+#### Redgate
+```xml
+<dependency>
+    <groupId>com.redgate.flyway</groupId>
+    <artifactId>flyway-database-saphana</artifactId>
+</dependency>
+```
+#### Open Source
+```xml
+<dependency>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-database-saphana</artifactId>
+</dependency>
+```
+### Gradle
+#### Redgate
+```groovy
+dependencies {
+    implementation "com.redgate.flyway:flyway-database-saphana"
+}
+```
+#### Open Source
+```groovy
+dependencies {
+    implementation "org.flywaydb:flyway-database-saphana"
+}
+```
 
 ## SQL Script Syntax
 

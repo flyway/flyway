@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,8 @@ import java.time.temporal.TemporalAccessor;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+
+import static java.time.temporal.ChronoUnit.DAYS;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DateUtils {
@@ -103,4 +105,9 @@ public class DateUtils {
                                  .atStartOfDay(ZoneId.systemDefault())
                                  .toInstant());
     }
+
+    public static long getRemainingDays(Date expiry) {
+        return DAYS.between(new Date().toInstant(), expiry.toInstant());
+    }
+
 }

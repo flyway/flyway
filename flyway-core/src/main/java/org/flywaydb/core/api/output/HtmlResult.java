@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ public class HtmlResult implements OperationResult {
     @Setter
     private boolean licenseFailed;
 
-    protected HtmlResult(LocalDateTime timestamp, String operation) {
+    public HtmlResult(LocalDateTime timestamp, String operation) {
         setTimestamp(timestamp);
         this.operation = operation;
     }

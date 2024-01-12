@@ -24,11 +24,11 @@ This mechanism is fully automated and requires no modification in your pipeline 
 
 ## Configuration
 
-The `B` prefix is configurable with the [baselineMigrationPrefix](Configuration/Parameters/Baseline Migration Prefix) parameter.
+The `B` prefix is configurable with the [baselineMigrationPrefix](Configuration/Parameters/Flyway/Baseline Migration Prefix) parameter.
 
 ## Compatibility Note
 
-Baseline migrations were formally known as State Scripts. These can be used as baseline migrations without modification, by either changing the prefix of your state scripts to be `B` or setting the value of the [baselineMigrationPrefix](Configuration/Parameters/Baseline Migration Prefix) parameter to `S`.
+Baseline migrations were formally known as State Scripts. These can be used as baseline migrations without modification, by either changing the prefix of your state scripts to be `B` or setting the value of the [baselineMigrationPrefix](Configuration/Parameters/Flyway/Baseline Migration Prefix) parameter to `S`.
 
 ## Tutorial
 

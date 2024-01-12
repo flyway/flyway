@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.flywaydb.core.internal.license;
 
 import lombok.AccessLevel;
 import lombok.CustomLog;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.util.FileUtils;
@@ -27,34 +28,9 @@ import java.nio.charset.StandardCharsets;
 @CustomLog
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class VersionPrinter {
-    private static boolean PRINTED = false;
-    public static final String VERSION = readVersion();
-    public static Edition EDITION =
 
-            Edition.COMMUNITY
-
-
-
-
-            ;
-
-    public static String getVersion() {
-        return VERSION;
-    }
-
-    public static void printVersion() {
-        if (PRINTED) {
-            return;
-        }
-        printVersionOnly();
-        LOG.info("See release notes here: https://rd.gt/416ObMi");
-        LOG.info("");
-        PRINTED = true;
-    }
-
-    public static void printVersionOnly() {
-        LOG.info(EDITION + " " + VERSION + " by Redgate");
-    }
+    @Getter
+    private static final String version = readVersion();
 
     private static String readVersion() {
         try {

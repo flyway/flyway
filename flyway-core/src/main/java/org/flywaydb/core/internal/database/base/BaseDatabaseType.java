@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,18 +114,6 @@ public abstract class BaseDatabaseType implements DatabaseType {
      * Flyway will use the first DatabaseType that returns true for this method.
      */
     public abstract boolean handlesDatabaseProductNameAndVersion(String databaseProductName, String databaseProductVersion, Connection connection);
-
-    public Database createDatabase(Configuration configuration, boolean printInfo, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
-        String databaseProductName = jdbcConnectionFactory.getProductName();
-        if (printInfo) {
-            LOG.info("Database: " + redactJdbcUrl(jdbcConnectionFactory.getJdbcUrl()) + " (" + databaseProductName + ")");
-            LOG.debug("Driver  : " + jdbcConnectionFactory.getDriverInfo());
-        }
-
-        Database database = createDatabase(configuration, jdbcConnectionFactory, statementInterceptor);
-
-        return database;
-    }
 
     public abstract Database createDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor);
 
@@ -249,5 +237,5 @@ public abstract class BaseDatabaseType implements DatabaseType {
         return "";
     }
 
-    public void printMessages() {}
+    public void printMessages(Configuration configuration) {}
 }

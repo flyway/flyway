@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.api.migration.baseline;
 
-import org.flywaydb.core.extensibility.LicenseGuard;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -23,10 +22,7 @@ import org.flywaydb.core.api.executor.MigrationExecutor;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.extensibility.MigrationType;
 import org.flywaydb.core.internal.info.MigrationInfoContext;
-import org.flywaydb.core.internal.license.Edition;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
-
-import java.util.Arrays;
 
 public class BaselineResolvedMigration extends ResolvedMigrationImpl {
     public BaselineResolvedMigration(MigrationVersion version,

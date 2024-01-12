@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.ExtensionMethod;
+import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.MergeUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -38,9 +39,12 @@ public class FlywayModel {
 
     public static final String DEFAULT_REPORT_FILENAME = "report";
 
+    private String outputType;
+    private Boolean outputProgress;
     @Setter(lombok.AccessLevel.NONE)
     private String reportFilename;
     private String environment;
+    private String environmentProvisionMode;
     private Boolean detectEncoding;
     private String encoding;
     private String placeholderPrefix;
@@ -49,12 +53,10 @@ public class FlywayModel {
     private String scriptPlaceholderPrefix;
     private String scriptPlaceholderSuffix;
     private String sqlMigrationPrefix;
-    private String undoSqlMigrationPrefix;
     private Boolean executeInTransaction;
     private String repeatableSqlMigrationPrefix;
     private String sqlMigrationSeparator;
     private List<String> sqlMigrationSuffixes;
-    private String licenseKey;
     private Boolean cleanDisabled;
     private Boolean cleanOnValidationError;
     private List<String> locations;
@@ -62,7 +64,6 @@ public class FlywayModel {
     private String tablespace;
     private String target;
     private Boolean failOnMissingTarget;
-    private List<String> cherryPick;
     private Boolean placeholderReplacement;
     private List<String> ignoreMigrationPatterns;
     private Boolean validateMigrationNaming;
@@ -94,10 +95,12 @@ public class FlywayModel {
     private Map<String, PropertyResolver> propertyResolvers;
     private Boolean reportEnabled;
     @JsonAnySetter
+    @Getter(onMethod = @__(@ClassUtils.DoNotMapForLogging))
     private Map<String,Object> pluginConfigurations = new HashMap<>();
 
     public static FlywayModel defaults(){
          FlywayModel model = new FlywayModel();
+         model.outputProgress = false;
          model.reportFilename = DEFAULT_REPORT_FILENAME;
          model.detectEncoding = false;
          model.encoding = "UTF-8";
@@ -108,7 +111,6 @@ public class FlywayModel {
          model.scriptPlaceholderPrefix = "FP__";
          model.scriptPlaceholderSuffix = "__";
          model.sqlMigrationPrefix = "V";
-         model.undoSqlMigrationPrefix = "U";
          model.repeatableSqlMigrationPrefix = "R";
          model.sqlMigrationSeparator = "__";
          model.sqlMigrationSuffixes = Arrays.asList(".sql");
@@ -118,12 +120,10 @@ public class FlywayModel {
          model.target = "latest";
          model.table = "flyway_schema_history";
          model.failOnMissingTarget = false;
-         model.cherryPick = new ArrayList<>();
          model.placeholderReplacement = true;
          model.ignoreMigrationPatterns = Arrays.asList("*:future");
          model.validateMigrationNaming = false;
          model.validateOnMigrate = true;
-         model.baselineVersion = "1";
          model.baselineDescription = "<< Flyway Baseline >>";
          model.baselineOnMigrate = false;
          model.outOfOrder = false;
@@ -145,15 +145,19 @@ public class FlywayModel {
          model.loggers = Arrays.asList("auto");
          model.placeholders = new HashMap<>();
          model.environment = "default";
-         model.reportEnabled = true;
+         model.environmentProvisionMode = "provision";
+         model.reportEnabled = false;
          return model;
     }
 
     public FlywayModel merge(FlywayModel otherPojo) {
         FlywayModel result = new FlywayModel();
+        result.outputProgress = outputProgress.merge(otherPojo.outputProgress);
+        result.outputType = outputType.merge(otherPojo.outputType);
         result.reportFilename = reportFilename.merge(otherPojo.reportFilename);
         result.encoding = encoding.merge(otherPojo.encoding);
         result.environment = environment.merge(otherPojo.environment);
+        result.environmentProvisionMode = environmentProvisionMode.merge(otherPojo.environmentProvisionMode);
         result.detectEncoding = detectEncoding.merge(otherPojo.detectEncoding);
         result.placeholderPrefix = placeholderPrefix.merge(otherPojo.placeholderPrefix);
         result.placeholderSuffix = placeholderSuffix.merge(otherPojo.placeholderSuffix);
@@ -161,12 +165,10 @@ public class FlywayModel {
         result.scriptPlaceholderPrefix = scriptPlaceholderPrefix.merge(otherPojo.scriptPlaceholderPrefix);
         result.scriptPlaceholderSuffix = scriptPlaceholderSuffix.merge(otherPojo.scriptPlaceholderSuffix);
         result.sqlMigrationPrefix = sqlMigrationPrefix.merge(otherPojo.sqlMigrationPrefix);
-        result.undoSqlMigrationPrefix = undoSqlMigrationPrefix.merge(otherPojo.undoSqlMigrationPrefix);
         result.executeInTransaction = executeInTransaction.merge(otherPojo.executeInTransaction);
         result.repeatableSqlMigrationPrefix = repeatableSqlMigrationPrefix.merge(otherPojo.repeatableSqlMigrationPrefix);
         result.sqlMigrationSeparator = sqlMigrationSeparator.merge(otherPojo.sqlMigrationSeparator);
         result.sqlMigrationSuffixes = sqlMigrationSuffixes.merge(otherPojo.sqlMigrationSuffixes);
-        result.licenseKey = licenseKey.merge(otherPojo.licenseKey);
         result.cleanDisabled = cleanDisabled.merge(otherPojo.cleanDisabled);
         result.cleanOnValidationError = cleanOnValidationError.merge(otherPojo.cleanOnValidationError);
         result.locations = locations.merge(otherPojo.locations);
@@ -174,7 +176,6 @@ public class FlywayModel {
         result.tablespace = tablespace.merge(otherPojo.tablespace);
         result.target = target.merge(otherPojo.target);
         result.failOnMissingTarget = failOnMissingTarget.merge(otherPojo.failOnMissingTarget);
-        result.cherryPick = cherryPick.merge(otherPojo.cherryPick);
         result.placeholderReplacement = placeholderReplacement.merge(otherPojo.placeholderReplacement);
         result.ignoreMigrationPatterns = ignoreMigrationPatterns.merge(otherPojo.ignoreMigrationPatterns);
         result.validateMigrationNaming = validateMigrationNaming.merge(otherPojo.validateMigrationNaming);

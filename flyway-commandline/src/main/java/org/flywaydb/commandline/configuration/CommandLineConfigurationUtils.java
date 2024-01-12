@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,6 @@ import lombok.CustomLog;
 import lombok.NoArgsConstructor;
 import org.flywaydb.commandline.Main;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.configuration.Configuration;
-
-
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -35,10 +32,6 @@ import java.util.stream.Collectors;
 @CustomLog
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class CommandLineConfigurationUtils {
-
-
-
-
 
     public static List<File> getTomlConfigFilePaths() {
         String[] fileLocations = StringUtils.tokenizeToStringArray(System.getenv("FLYWAY_CONFIG_FILES"), ",");
@@ -82,16 +75,4 @@ public class CommandLineConfigurationUtils {
 
         return jarFiles;
     }
-
-
-
-
-
-
-
-
-
-
-
-
 }

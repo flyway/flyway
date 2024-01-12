@@ -1,6 +1,6 @@
 <!--
 
-    Copyright (C) Red Gate Software Ltd 2010-2023
+    Copyright (C) Red Gate Software Ltd 2010-2024
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -24,6 +24,353 @@
 
 </div>
 <div class="col-md-9">
+
+<div class="release">
+        <h2 id="10.5.0">Flyway 10.5.0 (2024-01-11)</h2>
+
+        <h3>New features</h3>
+        <ul>
+            <li>adding support to configure environments via command line</li>
+        </ul>
+
+    </div>
+
+<div class="release">
+        <h2 id="10.4.1">Flyway 10.4.1 (2023-12-22)</h2>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Allow build environments to be processed by resolvers</li>
+        </ul>
+
+    </div>
+
+<div class="release">
+        <h2 id="10.4.0">Flyway 10.4.0 (2023-12-20)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Use instance variable of defaultProperties in DriverDataSource constructor instead of parameter variable</li>
+        </ul>
+
+    </div>
+
+<div class="release">
+        <h2 id="10.3.0">Flyway 10.3.0 (2023-12-14)</h2>
+
+        <h3>Breaking changes</h3>
+        <ul>
+            <li>The clean command will also drop services and queues in SQL Server.</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Correct redgate-compare options when using TOML with check and drift or changes.</li>
+            <li>Fixed reports not displaying Teams and Enterprise level features</li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3806">Issue 3806</a>
+                Correct HSQLDB support message and  increase driver support to 2.7.2
+            </li>
+        </ul>
+
+        <p>
+            Thanks to ashtonbatty for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
+        <h2 id="10.2.0">Flyway 10.2.0 (2023-12-08)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fix parsing of boolean comparison options</li>
+            <li>Fixed a bug where comma-separated lists for configuration parameters passed in via command line would fail with a parsing error</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Update document on setting environment parameter through environment variable</li>
+            <li>Upgrade version of Maven dependencies used by the Flyway Maven plugin to 3.9.6.</li>
+            <li>Make datasource in classic config environment aware</li>
+            <li>Improve error message for misconfigured environment variables in TOML config.</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3797">Issue 3797</a>
+                Use latest version of Apache Derby dependencies to avoid CVE-2022-46337.
+            </li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>Added support for cleaning table snapshots and table clones in Google BigQuery.</li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Can now start a trial with the `auth` command</li>
+            <li>add `supported-databases` command.</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>Move `flyway-sqlserver` into `flyway-database` folder space</li>
+            <li>Update JRE included in Flyway Command Line to Java 21</li>
+        </ul>
+
+        <p>
+            Thanks to fage88 for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
+        <h2 id="10.1.0">Flyway 10.1.0 (2023-11-22)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Correct urls for fetching offline permits</li>
+            <li>Fix dropping views from GCP Spanner when running clean.</li>
+            <li>Add new groupId to flyway-gradle-plugin</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3793">Issue 3793</a>
+                Fix index out of bounds issue in `ConfigUtils`
+            </li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>Flyway now supports PostgreSQL version 16.</li>
+            <li>MongoDB 7.0 support available. Currently shipped as preview in Redgate edition CLI.</li>
+        </ul>
+        <h3>Breaking changes</h3>
+        <ul>
+            <li>Updated to use dotnet 8 which drops support for RHEL 7 - this only impacts the check verb (drift and changes)</li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Flyway now uses Schema History Table locking to allow parallel migrations in Google Cloud Spanner.</li>
+        </ul>
+
+        <p>
+            Thanks to AlejandroYuste for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
+        <h2 id="10.0.1">Flyway 10.0.1 (2023-11-13)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fixed handling of `FLYWAY_JDBC_PROPERTIES_ACCESSTOKEN` environment variable with toml projects</li>
+            <li>Fixed bug caused by generation of unrecognized parameters when starting the Redgate Comparison engine process.</li>
+            <li>Fixed making locations relative to the working directory when using TOML configuration.</li>
+            <li>When using the new TOML configuration format, 'jarDirs' and 'schemas' will no longer be erased when also configuring certain parameters through the command line or environment variables.</li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>add support for progress logging to STDERR with json output</li>
+        </ul>
+
+        <h3>Notes</h3>
+        <ul>
+            <li>Flyway Gradle Plugin is currently unable to be released. </li>
+        </ul>
+
+    </div>
+
+<div class="release">
+        <h2 id="10.0.0">Flyway 10.0.0 (2023-10-31)</h2>
+
+        <h3>Breaking changes</h3>
+        <ul>
+            <li>Removed deprecated flyway.check.reportFilename. Please use flyway.reportFilename.</li>
+            <li>The 'cherryPick' configuration option has been moved to a configuration extension. When using the API, it can no longer be directly set through configuration object - instead it is set using an 'cherryPickConfigurationExtension' object which must be retrieved from the plugin register. See the docs for this configuration parameter for more information.</li>
+            <li>License key logic has been moved into a different module ('flyway-key-licensing'). This is not shipped in the open-source edition of Flyway so attempting to configure the license key will cause an error. In the Redgate edition of Flyway, license keys must be configured as a configuration extension (see configuration docs for more information).</li>
+            <li>Rename lib/community with lib/flyway</li>
+            <li>Removal of the default `sql` folder from Flyway CLI and Docker release</li>
+            <li>Modularized database support in Flyway to allow greater flexibility. This includes; DB2, Derby, HSQLDB, Informix, PostgreSQL, CockroachDB, Redshift, SAP HANA, Snowflake and Sybase ASE. See Database Support page for your database for module dependency. If you are including Flyway in your project, either as a dependency or via the maven and gradle plugins please include the respective database module in your project configuration.</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Remove unused Edition flags documentation, E.G -community or -teams. These flags are no longer used by Flyway and have been marked for deprecation.</li>
+            <li>The lowest supported Gradle version for the Flyway Gradle plugin is now 7.6. This is due to a known issue with older Gradle versions where it cannot handle dependencies with multi-release chars containing Java 19 code.</li>
+            <li>Move older db support handling into OSS</li>
+            <li>If flyway fails due to a licensing issue, return a unique (35) exit code</li>
+            <li>Adjusted the wording on the 'deleted' Repair action to mention it only marks migrations as deleted</li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>Flyway now supports MySQL 8.1.0.</li>
+            <li>Include singlestore into Flyway Community Edition.</li>
+            <li>Google Cloud Spanner has been released and is no longer BETA</li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Info filters are now available in community</li>
+            <li>Added auth command to authorize Flyway online using Redgate username and password</li>
+            <li>Added support for REDGATE_LICENSING_PERMIT_PATH and REDGATE_LICENSING_PERMIT environment variables along with offline licensing for offline machines</li>
+            <li>beforeEachMigrateStatement, afterEachMigrateStatement, afterEachMigrateStatementError, and beforeConnect callbacks are now Community features</li>
+            <li>add support for LocalSecrets resolvers</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>Deprecated Java 8. Java 17 is now required for development</li>
+        </ul>
+
+        <h3>Notes</h3>
+        <ul>
+            <li>Flyway Gradle Plugin is currently unable to be released. </li>
+        </ul>
+
+    </div>
+
+<div class="release">
+        <h2 id="9.22.3">Flyway 9.22.3 (2023-10-12)</h2>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>The AWS-Secrets JDBC driver included in the Commandline package has been upgraded to 2.0.0.</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3752">Issue 3752</a>
+                add &quot;END CASE&quot; support in BigQuery sql script
+            </li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>Update newest supported version of Snowflake to 7.33</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>Keep software.amazon.awssdk:s3 on latest 2.20.X release to get fix for CVE-2023-4586</li>
+            <li>Upgrade software.amazon.awssdk:s3@2.20.94 to software.amazon.awssdk:s3@2.20.158 to fix CWE-295</li>
+        </ul>
+
+        <p>
+            Thanks to kankaiz for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
+        <h2 id="9.22.2">Flyway 9.22.2 (2023-09-21)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fixed configuration disclosure in extended debug output. CVE-2023-43564</li>
+            <li>improve parsing of 'ACCESSIBLE BY' clauses in Oracle</li>
+            <li>Fix parsing issue caused by statements containing multiple sets of parentheses.</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3730">Issue 3730</a>
+                Make SLF4J detection also work with SLF4J 2.0
+            </li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Enhance Comparison engine error output</li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>Flyway now supports MariaDB version 10.11</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>update mariadb-java-client to 2.7.10 to resolve CONJ-1091</li>
+        </ul>
+
+        <p>
+            Thanks to hho for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
+        <h2 id="9.22.1">Flyway 9.22.1 (2023-09-12)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Correctly parse Oracle wrapped statements.</li>
+            <li>Fix filter file option detection</li>
+            <li>Fix invalid flags not correctly erroring at the end of the arguments</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>update Java 17 JRE included in Flyway CLI</li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3736">Issue 3736</a>
+                Increase CockroachDB support to V22.2
+            </li>
+        </ul>
+
+        <p>
+            Thanks to trourance for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
+        <h2 id="9.22.0">Flyway 9.22.0 (2023-08-30)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fix issue with `check.reportFilename` parameter</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Code Analysis will honor `BaselineVersion` configuration if SchemaHistory table is absent.</li>
+        </ul>
+
+    </div>
+
+<div class="release">
+        <h2 id="9.21.2">Flyway 9.21.2 (2023-08-22)</h2>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>check.buildUrl, check.buildUser and check.buildPassword are now deprecated. These will be replaced by check.buildEnvironment in Flyway 10.0</li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>Flyway now supports Oracle 21.</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3726">Issue 3726</a>
+                Add MariaDB to Flyway H2 compatibility mode
+            </li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>allow external browser SSO in Snowflake</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3723">Issue 3723</a>
+                Upgrade Jackson to 2.15.2
+            </li>
+        </ul>
+
+        <p>
+            Thanks to oujesky and iamniche-too for reporting these issues.
+        </p>
+    </div>
 
 <div class="release">
         <h2 id="9.21.1">Flyway 9.21.1 (2023-07-27)</h2>

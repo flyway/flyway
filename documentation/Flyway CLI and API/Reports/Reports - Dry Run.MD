@@ -17,4 +17,4 @@ You might want this to:
 
 * [Dry Run Concept](Concepts/Dry Runs) - how does it work ?
 * [Dry Run Tutorial](Tutorials/Tutorial - Dry Runs) - how do I use it ?
-* Get a [Flyway Teams Trial](https://www.red-gate.com/products/flyway/teams/trial/)
+* Get a [Flyway Teams Trial here](https://www.red-gate.com/products/flyway/teams/trial/) or start a trial with the [auth](Commands/Auth) command.

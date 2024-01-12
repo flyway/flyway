@@ -1,5 +1,5 @@
 #
-# Copyright (C) Red Gate Software Ltd 2010-2023
+# Copyright (C) Red Gate Software Ltd 2010-2024
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,4 +20,4 @@ services:
     image: jekyll/jekyll:3.8
     volumes:
       - "./:/srv/jekyll"
-    command: sh -c "chmod -R a+w /srv/jekyll && jekyll build"
+    command: sh -c "chmod -R a+w /srv/jekyll && jekyll build -V"

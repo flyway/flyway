@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,29 +26,30 @@ import org.flywaydb.commandline.utils.TelemetryUtils;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.api.*;
+import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.output.CompositeResult;
 import org.flywaydb.core.api.output.ErrorOutput;
 import org.flywaydb.core.api.output.HtmlResult;
 import org.flywaydb.core.api.output.InfoResult;
-import org.flywaydb.core.api.output.MigrateErrorResult;
 import org.flywaydb.core.api.output.OperationResult;
-
+import org.flywaydb.core.api.MigrationFilter;
 import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.extensibility.InfoTelemetryModel;
+import org.flywaydb.core.extensibility.LicenseGuard;
 import org.flywaydb.core.internal.command.DbMigrate;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
-
+import org.flywaydb.core.internal.info.MigrationFilterImpl;
+import org.flywaydb.core.internal.license.FlywayLicensingException;
 import org.flywaydb.core.internal.logging.EvolvingLog;
 import org.flywaydb.core.internal.logging.buffered.BufferedLog;
 import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.reports.ReportDetails;
-import org.flywaydb.core.internal.reports.json.CompositeResultDeserializer;
 import org.flywaydb.core.internal.util.CommandExtensionUtils;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
-import org.flywaydb.core.internal.util.JsonUtils;
 import org.flywaydb.core.internal.util.LocalDateTimeSerializer;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -67,7 +68,6 @@ import static org.flywaydb.commandline.logging.LoggingUtils.initLogging;
 import static org.flywaydb.commandline.utils.OperationsReportUtils.filterHtmlResults;
 import static org.flywaydb.commandline.utils.OperationsReportUtils.getAggregateExceptions;
 import static org.flywaydb.commandline.utils.OperationsReportUtils.writeReport;
-import static org.flywaydb.commandline.utils.TelemetryUtils.isRedgateEmployee;
 import static org.flywaydb.commandline.utils.TelemetryUtils.populateRootTelemetry;
 
 public class Main {
@@ -100,15 +100,11 @@ public class Main {
                 Configuration configuration = new ConfigurationManagerImpl().getConfiguration(commandLineArguments);
 
                 if (flywayTelemetryManager != null) {
-                    flywayTelemetryManager.setRootTelemetryModel(populateRootTelemetry(flywayTelemetryManager.getRootTelemetryModel(), configuration, isRedgateEmployee(pluginRegister, configuration)));
+                    flywayTelemetryManager.setRootTelemetryModel(populateRootTelemetry(flywayTelemetryManager.getRootTelemetryModel(), configuration, LicenseGuard.getPermit(configuration).isRedgateEmployee()));
                 }
 
                 if (!commandLineArguments.skipCheckForUpdate()) {
                     MavenVersionChecker.checkForVersionUpdates();
-                }
-
-                if (commandLineArguments.isCommunityFallback()) {
-                    LOG.warn("A Flyway License was not provided; fell back to Community Edition. Please contact sales at sales@flywaydb.org for license information.");
                 }
 
                 LocalDateTime executionTime = LocalDateTime.now();
@@ -127,6 +123,10 @@ public class Main {
                 if (commandLineArguments.shouldOutputJson()) {
                     printJson(commandLineArguments, result, reportDetails);
                 }
+            } catch (FlywayLicensingException e) {
+                OperationResult errorOutput = ErrorOutput.toOperationResult(e);
+                printError(commandLineArguments, e, errorOutput);
+                exitCode = 35;
             } catch (Exception e) {
                 OperationResult errorOutput = ErrorOutput.toOperationResult(e);
                 printError(commandLineArguments, e, errorOutput);
@@ -148,15 +148,16 @@ public class Main {
 
     private static OperationResult executeFlyway(FlywayTelemetryManager flywayTelemetryManager, CommandLineArguments commandLineArguments, Configuration configuration) {
         Flyway flyway = Flyway.configure(configuration.getClassLoader()).configuration(configuration).load();
+        Configuration executionConfiguration = flyway.getConfiguration();
         OperationResult result;
         if (commandLineArguments.getOperations().size() == 1) {
             String operation = commandLineArguments.getOperations().get(0);
-            result = executeOperation(flyway, operation, commandLineArguments, flywayTelemetryManager, flyway.getConfiguration());
+            result = executeOperation(flyway, operation, commandLineArguments, flywayTelemetryManager, executionConfiguration);
         } else {
             CompositeResult<OperationResult> compositeResult = new CompositeResult<>();
 
             for (String operation : commandLineArguments.getOperations()) {
-                OperationResult operationResult = executeOperation(flyway, operation, commandLineArguments, flywayTelemetryManager, flyway.getConfiguration());
+                OperationResult operationResult = executeOperation(flyway, operation, commandLineArguments, flywayTelemetryManager, executionConfiguration);
                 compositeResult.individualResults.add(operationResult);
                 if (operationResult instanceof HtmlResult && ((HtmlResult) operationResult).exceptionObject instanceof DbMigrate.FlywayMigrateException) {
                     break;
@@ -164,6 +165,16 @@ public class Main {
             }
             result = compositeResult;
         }
+        if (configuration instanceof ClassicConfiguration) {
+            ClassicConfiguration classicConfiguration = (ClassicConfiguration) configuration;
+            classicConfiguration.configure(executionConfiguration);
+        }
+
+        if (configuration instanceof FluentConfiguration) {
+            FluentConfiguration fluentConfiguration = (FluentConfiguration) configuration;
+            fluentConfiguration.configuration(executionConfiguration);
+        }
+
         return result;
     }
 
@@ -242,15 +253,9 @@ public class Main {
                     LOG.info("Schema version: " + schemaVersionToOutput);
                     LOG.info("");
 
-
-
-
-
-
-
-                     result = info.getInfoResult();
-                     MigrationInfo[] infos = info.all();
-
+                    MigrationFilter filter = getInfoFilter(commandLineArguments);
+                    result = info.getInfoResult(filter);
+                    MigrationInfo[] infos = info.all(filter);
 
                     if (commandLineArguments.isFilterOnMigrationIds()) {
                         //Must use System.out here rather than LOG.info because LogCreator is empty.
@@ -275,16 +280,14 @@ public class Main {
         return result;
     }
 
-
-
-
-
-
-
-
-
-
-
+    private static MigrationFilterImpl getInfoFilter(CommandLineArguments commandLineArguments) {
+        return new MigrationFilterImpl(
+                commandLineArguments.getInfoSinceDate(),
+                commandLineArguments.getInfoUntilDate(),
+                commandLineArguments.getInfoSinceVersion(),
+                commandLineArguments.getInfoUntilVersion(),
+                commandLineArguments.getInfoOfState());
+    }
 
     private static void printJson(CommandLineArguments commandLineArguments, OperationResult object, ReportDetails reportDetails) {
         String json = convertObjectToJsonString(object, reportDetails);
@@ -327,7 +330,8 @@ public class Main {
         String indent = "    ";
 
         LOG.info("Usage");
-        LOG.info(indent + "flyway [options] command");
+        LOG.info(indent + "flyway [options] [command]");
+        LOG.info(indent + "flyway help [command]");
         LOG.info("");
 
         if (fullVersion) {
@@ -339,6 +343,10 @@ public class Main {
         LOG.info("Commands");
         List<Pair<String, String>> usages = pluginRegister.getPlugins(CommandExtension.class).stream().flatMap(e -> e.getUsage().stream()).collect(Collectors.toList());
         int padSize = usages.stream().max(Comparator.comparingInt(u -> u.getLeft().length())).map(u -> u.getLeft().length() + 3).orElse(11);
+        LOG.info(indent + StringUtils.rightPad("help", padSize, ' ') + "Print this usage info and exit");
+
+
+
         LOG.info(indent + StringUtils.rightPad("migrate", padSize, ' ') + "Migrates the database");
         LOG.info(indent + StringUtils.rightPad("clean", padSize, ' ') + "Drops all objects in the configured schemas");
         LOG.info(indent + StringUtils.rightPad("info", padSize, ' ') + "Prints the information about applied, current and pending migrations");
@@ -384,7 +392,7 @@ public class Main {
             LOG.info(indent + "installedBy                    Username that will be recorded in the schema history table");
             LOG.info(indent + "target                         Target version up to which Flyway should use migrations");
             LOG.info(indent + "cherryPick                     [" + "teams] Comma separated list of migrations that Flyway should consider when migrating");
-            LOG.info(indent + "skipExecutingMigrations        [" + "teams] Whether Flyway should skip actually executing the contents of the migrations");
+            LOG.info(indent + "skipExecutingMigrations        Whether Flyway should skip actually executing the contents of the migrations");
             LOG.info(indent + "outOfOrder                     Allows migrations to be run \"out of order\"");
             LOG.info(indent + "callbacks                      Comma-separated list of FlywayCallback classes, or locations to scan for FlywayCallback classes");
             LOG.info(indent + "skipDefaultCallbacks           Skips default callbacks (sql)");
@@ -416,15 +424,10 @@ public class Main {
         LOG.info(indent + "-q                Suppress all output, except for errors and warnings");
         LOG.info(indent + "-n                Suppress prompting for a user and password");
         LOG.info(indent + "--help, -h, -?    Print this usage info and exit");
-
-        if (fullVersion) {
-            LOG.info(indent + "-community        [deprecated] Run the Flyway Community Edition (default)");
-            LOG.info(indent + "-teams            [deprecated] Run the Flyway Teams Edition");
-        }
-
         LOG.info("");
         LOG.info("Flyway Usage Example");
         LOG.info(indent + "flyway -user=myuser -password=s3cr3t -url=jdbc:h2:mem -placeholders.abc=def migrate");
+        LOG.info(indent + "flyway help check");
         LOG.info("");
         LOG.info("More info at " + FlywayDbWebsiteLinks.USAGE_COMMANDLINE);
         LOG.info("Learn more about Flyway Teams edition at " + FlywayDbWebsiteLinks.TRY_TEAMS_EDITION);

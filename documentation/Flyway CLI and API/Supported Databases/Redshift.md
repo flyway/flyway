@@ -2,54 +2,56 @@
 subtitle: Redshift
 ---
 # Redshift
+- **Verified Versions:** N/A
+- **Maintainer:** Redgate
 
-## Support Level
+## Supported Versions and Support Levels
 
-<table class="table">
-    <tr>
-        <th width="25%">Compatible</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Certified</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Guaranteed</th>
-        <td>&#10003; {% include teams.html %}</td>
-    </tr>
-</table>
-
-Support Level determines the degree of support available for this database ([learn more](Learn More/Database Support Levels)). 
+{% include database-boilerplate.html %}
 
 ## Driver
 
-<table class="table">
-<tr>
-<th>URL format</th>
-<td><code>jdbc:redshift://<i>host</i>:<i>port</i>/<i>database</i></code></td>
-</tr>
-<tr>
-<th>Ships with Flyway Command-line</th>
-<td>No</td>
-</tr>
-<tr>
-<th>Download</th>
-<td>Follow the instructions at <a href="http://docs.aws.amazon.com/redshift/latest/mgmt/configure-jdbc-connection.html#download-jdbc-driver">docs.aws.amazon.com</a></td>
-</tr>
-<tr>
-<th>Supported versions</th>
-<td><code>1.2.10.1009</code> and later</td>
-</tr>
-<tr>
-<th></th>
-<td><code>2.0.0.5</code> and later are <strong>partially</strong> supported (see below)</td>
-</tr>
-<tr>
-<th>Default Java class</th>
-<td><code>com.amazon.redshift.jdbc42.Driver</code></td>
-</tr>
-</table>
+| Item                               | Details                                                                                                                                               |
+|------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **URL format**                     | <code>jdbc:redshift://<i>host</i>:<i>port</i>/<i>database</i></code>                                                                                  |
+| **Ships with Flyway Command-line** | No                                                                                                                                                    |
+| **Download**                       | Follow the instructions at [docs.aws.amazon.com](http://docs.aws.amazon.com/redshift/latest/mgmt/configure-jdbc-connection.html#download-jdbc-driver) |
+| **Supported versions**             | `1.2.10.1009` and later.<br>`2.0.0.5` and later are **partially** supported (see below)                                                               |
+| **Default Java class**             | `com.amazon.redshift.jdbc42.Driver`                                                                                                                   |
+
+
+## Java Usage
+Redshift support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
+Redshift is found within the `flyway-database-redshift` plugin module.
+### Maven
+#### Redgate
+```xml
+<dependency>
+    <groupId>com.redgate.flyway</groupId>
+    <artifactId>flyway-database-redshift</artifactId>
+</dependency>
+```
+#### Open Source
+```xml
+<dependency>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-database-redshift</artifactId>
+</dependency>
+```
+
+### Gradle
+#### Redgate
+```groovy
+dependencies {
+    implementation "com.redgate.flyway:flyway-database-redshift"
+}
+```
+#### Open Source
+```groovy
+dependencies {
+    implementation "org.flywaydb:flyway-database-redshift"
+}
+```
 
 ## SQL Script Syntax
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,36 @@ import lombok.CustomLog;
 import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.Location;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.extensibility.ConfigurationExtension;
+import org.flywaydb.core.internal.command.clean.CleanModel;
+import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.plugin.PluginRegister;
+import org.flywaydb.core.internal.proprietaryStubs.LicensingConfigurationExtensionStub;
+import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.FileUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,6 +58,7 @@ import static org.flywaydb.core.internal.sqlscript.SqlScriptMetadata.isMultiline
 @CustomLog
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ConfigUtils {
+    public static final String DEFAULT_CLI_SQL_LOCATION = "sql";
     public static final String CONFIG_FILE_NAME = "flyway.conf";
     public static final String CONFIG_FILES = "flyway.configFiles";
     public static final String CONFIG_FILE_ENCODING = "flyway.configFileEncoding";
@@ -58,6 +81,7 @@ public class ConfigUtils {
     public static final String GROUP = "flyway.group";
     public static final String IGNORE_MIGRATION_PATTERNS = "flyway.ignoreMigrationPatterns";
     public static final String INIT_SQL = "flyway.initSql";
+    public static final String OUTPUT_TYPE = "flyway.outputType";
     public static final String INSTALLED_BY = "flyway.installedBy";
     public static final String LICENSE_KEY = "flyway.licenseKey";
     public static final String LOCATIONS = "flyway.locations";
@@ -87,7 +111,6 @@ public class ConfigUtils {
     public static final String TABLE = "flyway.table";
     public static final String TABLESPACE = "flyway.tablespace";
     public static final String TARGET = "flyway.target";
-    public static final String CHERRY_PICK = "flyway.cherryPick";
     public static final String UNDO_SQL_MIGRATION_PREFIX = "flyway.undoSqlMigrationPrefix";
     public static final String URL = "flyway.url";
     public static final String USER = "flyway.user";
@@ -111,6 +134,8 @@ public class ConfigUtils {
     public static final String FLYWAY_PLUGINS_PREFIX = "flyway.plugins.";
 
     private static final PluginRegister PLUGIN_REGISTER = new PluginRegister();
+
+    private static final Map<String, String> JDBC_PROPERTY_ENVIRONMENT_VARIABLE_MAP = Map.of("FLYWAY_JDBC_PROPERTIES_ACCESSTOKEN", "accessToken");
 
     /**
      * Converts Flyway-specific environment variables to their matching properties.
@@ -247,7 +272,7 @@ public class ConfigUtils {
         }
 
         if (key.matches("FLYWAY_JDBC_PROPERTIES_.+")) {
-            return JDBC_PROPERTIES_PREFIX + key.substring("FLYWAY_JDBC_PROPERTIES_".length());
+            return JDBC_PROPERTIES_PREFIX + JDBC_PROPERTY_ENVIRONMENT_VARIABLE_MAP.getOrDefault(key, key.substring("FLYWAY_JDBC_PROPERTIES_".length()).toLowerCase(Locale.ENGLISH));
         }
 
         if ("FLYWAY_REPEATABLE_SQL_MIGRATION_PREFIX".equals(key)) {
@@ -285,9 +310,6 @@ public class ConfigUtils {
         }
         if ("FLYWAY_TARGET".equals(key)) {
             return TARGET;
-        }
-        if ("FLYWAY_CHERRY_PICK".equals(key)) {
-            return CHERRY_PICK;
         }
         if ("FLYWAY_LOGGERS".equals(key)) {
             return LOGGERS;
@@ -331,7 +353,6 @@ public class ConfigUtils {
             return CONFIGURATIONS;
         }
 
-
         for (ConfigurationExtension configurationExtension : PLUGIN_REGISTER.getPlugins(ConfigurationExtension.class)) {
             String configurationParameter = configurationExtension.getConfigurationParameterFromEnvironmentVariable(key);
             if (configurationParameter != null) {
@@ -349,6 +370,7 @@ public class ConfigUtils {
      * $workingDirectory$/flyway.conf
      *
      * @param encoding The conf file encoding.
+     *
      * @throws FlywayException When the configuration failed.
      */
     public static Map<String, String> loadDefaultConfigurationFiles(File installationDir, String encoding) {
@@ -362,18 +384,22 @@ public class ConfigUtils {
 
     public static List<File> getDefaultTomlConfigFileLocations(File installationDir) {
         return new ArrayList<>(Arrays.asList(new File(installationDir.getAbsolutePath() + "/conf/flyway.toml"),
-                      new File(System.getProperty("user.home") + "/flyway.toml"),
-                      new File("flyway.toml"),
-                      new File("flyway.user.toml")));
+                                             new File(installationDir.getAbsolutePath() + "/conf/flyway.user.toml"),
+                                             new File(System.getProperty("user.home") + "/flyway.toml"),
+                                             new File(System.getProperty("user.home") + "/flyway.user.toml"),
+                                             new File("flyway.toml"),
+                                             new File("flyway.user.toml")));
     }
 
     /**
      * Loads the configuration from this configuration file.
      *
-     * @param configFile The configuration file to load.
-     * @param encoding The encoding of the configuration file.
+     * @param configFile    The configuration file to load.
+     * @param encoding      The encoding of the configuration file.
      * @param failIfMissing Whether to fail if the file is missing.
+     *
      * @return The properties from the configuration file. An empty Map if none.
+     *
      * @throws FlywayException When the configuration file could not be loaded.
      */
     public static Map<String, String> loadConfigurationFile(File configFile, String encoding, boolean failIfMissing) throws FlywayException {
@@ -438,6 +464,7 @@ public class ConfigUtils {
      * Reads the configuration from a Reader.
      *
      * @return The properties from the configuration file. An empty Map if none.
+     *
      * @throws FlywayException When the configuration could not be read.
      */
     public static Map<String, String> loadConfigurationFromReader(Reader reader) throws FlywayException {
@@ -524,7 +551,7 @@ public class ConfigUtils {
      * Puts this property in the config if it has been set in any of these values.
      *
      * @param config The config.
-     * @param key The property name.
+     * @param key    The property name.
      * @param values The values to try. The first non-null value will be set.
      */
     public static void putIfSet(Map<String, String> config, String key, Object... values) {
@@ -540,7 +567,7 @@ public class ConfigUtils {
      * Puts this property in the config if it has been set in any of these values.
      *
      * @param config The config.
-     * @param key The property name.
+     * @param key    The property name.
      * @param values The values to try. The first non-null value will be set.
      */
     public static void putArrayIfSet(Map<String, String> config, String key, String[]... values) {
@@ -554,8 +581,10 @@ public class ConfigUtils {
 
     /**
      * @param config The config.
-     * @param key The property name.
+     * @param key    The property name.
+     *
      * @return The property value as a boolean if it exists, otherwise {@code null}.
+     *
      * @throws FlywayException when the property value is not a valid boolean.
      */
     public static Boolean removeBoolean(Map<String, String> config, String key) {
@@ -577,8 +606,10 @@ public class ConfigUtils {
 
     /**
      * @param config The config.
-     * @param key The property name.
+     * @param key    The property name.
+     *
      * @return The property value as an integer if it exists, otherwise {@code null}.
+     *
      * @throws FlywayException When the property value is not a valid integer.
      */
     public static Integer removeInteger(Map<String, String> config, String key) {
@@ -594,24 +625,56 @@ public class ConfigUtils {
         }
     }
 
-    public static void dumpConfiguration(Map<String, String> config) {
+    public static void dumpConfigurationModel(ConfigurationModel config) {
+        if (!LOG.isDebugEnabled()) {
+            return;
+        }
+        Map<String, String> configMap = new TreeMap<>(ClassUtils.getGettableFieldValues(config.getFlyway(), "flyway."));
+        config.getEnvironments().forEach((name, env) -> configMap.putAll(ClassUtils.getGettableFieldValues(env, "environments." + name + ".")));
+
+        config.getFlyway().getPluginConfigurations().forEach((name, pluginConfig) -> {
+            if (pluginConfig instanceof Map<?, ?>) {
+                ((Map<?, ?>) pluginConfig).forEach((key, value) -> configMap.put("flyway." + name + "." + key, value.toString()));
+            }
+        });
+
+        config.getRootConfigurations().forEach((name, pluginConfig) -> {
+            if (pluginConfig instanceof Map<?, ?>) {
+                ((Map<?, ?>) pluginConfig).forEach((key, value) -> configMap.put(name + "." + key, value.toString()));
+            }
+        });
+
+        dumpConfigurationMap(configMap);
+    }
+
+    public static void dumpConfigurationMap(Map<String, String> config) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Using configuration:");
-            for (Map.Entry<String, String> entry : new TreeMap<>(config).entrySet()) {
-                String key = entry.getKey();
-                String value = entry.getValue();
-
-                if (key.toLowerCase().endsWith("password")) {
-                    value = StringUtils.trimOrPad("", value.length(), '*');
-                } else if (ConfigUtils.LICENSE_KEY.equals(key)) {
-                    value = value.substring(0, 8) + "******" + value.substring(value.length() - 4);
-                } else if (ConfigUtils.URL.equals(key)) {
-                    value = DatabaseTypeRegister.redactJdbcUrl(value);
-                }
-
-                LOG.debug(key + " -> " + value);
-            }
+            LOG.debug(getConfigMapDump(config));
         }
+    }
+
+    static String getConfigMapDump(Map<String, String> config) {
+        StringBuilder dump = new StringBuilder();
+        for (Map.Entry<String, String> entry : new TreeMap<>(config).entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+
+            if (key.toLowerCase().endsWith("password") || key.toLowerCase().endsWith("token")) {
+                value = StringUtils.trimOrPad("", value.length(), '*');
+            } else if (ConfigUtils.LICENSE_KEY.equals(key)) {
+                if (value.length() > 8) {
+                    value = value.substring(0, 8) + "******" + value.substring(value.length() - 4);
+                } else {
+                    value = "********";
+                }
+            } else if (key.toLowerCase().endsWith("url")) {
+                value = DatabaseTypeRegister.redactJdbcUrl(value);
+            }
+
+            dump.append(key).append(" -> ").append(value).append("\n");
+        }
+        return dump.toString();
     }
 
     /**
@@ -634,6 +697,92 @@ public class ConfigUtils {
                                            property,
                                            StringUtils.arrayToCommaDelimitedString(unknownFlywayProperties.toArray()));
             throw new FlywayException(message, ErrorCode.CONFIGURATION);
+        }
+    }
+
+    public static CleanModel getCleanModel(Configuration conf) {
+        ConfigurationExtension extensionNew = conf.getPluginRegister().getLicensedPlugin("SQLServerConfigurationExtension", conf);
+        ConfigurationExtension extensionDepreciated = conf.getPluginRegister().getLicensedPlugin("CleanModeConfigurationExtension", conf);
+        CleanModel cleanModelNew = null;
+        CleanModel cleanModelDepreciated = null;
+
+        if (extensionNew != null) {
+            cleanModelNew = (CleanModel) ClassUtils.getFieldValue(extensionNew, "clean");
+        }
+        if (extensionDepreciated != null) {
+            cleanModelDepreciated = (CleanModel) ClassUtils.getFieldValue(extensionDepreciated, "clean");
+        }
+
+        CleanModel result = cleanModelNew != null ? cleanModelNew : cleanModelDepreciated;
+        if (result != null) {
+            result.validate();
+            return result;
+        } else {
+            return new CleanModel();
+        }
+    }
+
+    public static void setCleanModel(Configuration conf, CleanModel model) {
+        ConfigurationExtension extensionNew = conf.getPluginRegister().getLicensedPlugin("SQLServerConfigurationExtension", conf);
+        ConfigurationExtension extensionDepreciated = conf.getPluginRegister().getLicensedPlugin("CleanModeConfigurationExtension", conf);
+
+        if (extensionNew != null) {
+            ClassUtils.setFieldValue(extensionNew, "clean", model);
+        } else if (extensionDepreciated != null) {
+            ClassUtils.setFieldValue(extensionDepreciated, "clean", model);
+        }
+    }
+
+    public static boolean shouldUseDefaultCliSqlLocation(File sqlFolder, boolean areOtherLocationsConfigured) {
+        if (areOtherLocationsConfigured) {
+            return false;
+        }
+        if (sqlFolder.exists()) {
+            warnIfUsingDeprecatedMigrationsFolder(sqlFolder, ".sql");
+            return true;
+        } else {
+            LOG.warn("No locations configured and default location '" + sqlFolder.getName() + "' not found.");
+            return false;
+        }
+    }
+
+    public static void warnIfUsingDeprecatedMigrationsFolder(File folder, String fileExtension) {
+        try {
+            if (Arrays.stream(folder.listFiles()).anyMatch(f -> f.getName().endsWith(fileExtension))) {
+                LOG.warn("Storing migrations in '" + folder.getName() + "' is not recommended and default scanning of this location may be deprecated in a future release");
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    public static void makeRelativeLocationsBasedOnWorkingDirectory(String workingDirectory, Map<String, String> config) {
+        String locationString = config.get(ConfigUtils.LOCATIONS);
+        String[] locations = new String[]{ Location.FILESYSTEM_PREFIX};
+        if (StringUtils.hasText(locationString)) {
+            locations = locationString.split(",");
+        }
+        makeRelativeLocationsBasedOnWorkingDirectory(workingDirectory, locations);
+
+        config.put(ConfigUtils.LOCATIONS, StringUtils.arrayToCommaDelimitedString(locations));
+    }
+
+    public static void makeRelativeLocationsBasedOnWorkingDirectory(String workingDirectory, List<String> locations) {
+        String[] locationsArray = locations.toArray(new String[0]);
+        makeRelativeLocationsBasedOnWorkingDirectory(workingDirectory, locationsArray);
+        locations.clear();
+        locations.addAll(Arrays.asList(locationsArray));
+    }
+
+    public static void makeRelativeLocationsBasedOnWorkingDirectory(String workingDirectory, String[] locations) {
+        for (int i = 0; i < locations.length; i++) {
+            if (locations[i].startsWith(Location.FILESYSTEM_PREFIX)) {
+                String newLocation = locations[i].substring(Location.FILESYSTEM_PREFIX.length());
+                File file = new File(newLocation);
+                if (!file.isAbsolute()) {
+                    file = new File(workingDirectory, newLocation);
+                }
+                locations[i] = Location.FILESYSTEM_PREFIX + file.getAbsolutePath();
+            }
         }
     }
 }

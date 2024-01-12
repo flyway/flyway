@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package org.flywaydb.core.api.callback;
+
+import org.flywaydb.core.api.configuration.Configuration;
 
 /**
  * A warning that occurred while executing a statement.
@@ -49,5 +51,5 @@ public interface Warning {
      * @param handled {@code true} if this warning has already be handled or {@code false} if it should flow via the
      * default warning handler.
      */
-    void setHandled(boolean handled);
+    void setHandled(boolean handled, Configuration config);
 }

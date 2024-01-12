@@ -2,70 +2,57 @@
 subtitle: Sybase ASE
 ---
 # Sybase ASE
+- **Verified Versions:** 15.7, 16.3
+- **Maintainer:** Redgate
 
-## Supported Versions
+## Supported Versions and Support Levels
 
-- `16.3`
-- `16.2` {% include teams.html %}
-- `16.1` {% include teams.html %}
-- `16.0` {% include teams.html %}
-- `15.7` {% include teams.html %}
-
-## Support Level
-
-<table class="table">
-    <tr>
-        <th width="25%">Compatible</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Certified</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Guaranteed</th>
-        <td>&#10003; {% include teams.html %}</td>
-    </tr>
-</table>
-
-Support Level determines the degree of support available for this database ([learn more](Learn More/Database Support Levels)). 
+{% include database-boilerplate.html %}
 
 ## Drivers
 
-<table class="table">
-<thead>
-<tr>
-<th></th>
-<th>jConnect</th>
-<th>jTDS</th>
-</tr>
-</thead>
-<tr>
-<th>URL format</th>
-<td><code>jdbc:sybase:Tds:<i>host</i>:<i>port</i>/<i>database</i></code></td>
-<td><code>jdbc:jtds:sybase://<i>host</i>:<i>port</i>/<i>database</i></code></td>
-</tr>
-<tr>
-<th>Ships with Flyway Command-line</th>
-<td>No</td>
-<td>Yes</td>
-</tr>
-<tr>
-<th>Download</th>
-<td>Download from <a href="https://sap.com">sap.com</a></td>
-<td>Maven Central coordinates: <code>net.sourceforge.jtds:jtds</code></td>
-</tr>
-<tr>
-<th>Supported versions</th>
-<td><code>7.0</code> and later</td>
-<td><code>1.3.1</code> and later</td>
-</tr>
-<tr>
-<th>Default Java class</th>
-<td><code>com.sybase.jdbc4.jdbc.SybDriver</code></td>
-<td><code>net.sourceforge.jtds.jdbc.Driver</code></td>
-</tr>
-</table>
+| Item                               | jConnect                                                             | jTDS                                                                    |
+|------------------------------------|----------------------------------------------------------------------|-------------------------------------------------------------------------|
+| **URL format**                     | <code>jdbc:sybase:Tds:<i>host</i>:<i>port</i>/<i>database</i></code> | <code>jdbc:jtds:sybase://<i>host</i>:<i>port</i>/<i>database</i></code> |
+| **Ships with Flyway Command-line** | No                                                                   | Yes                                                                     |
+| **Download**                       | Download from [sap.com](https://sap.com)                             | Maven Central coordinates: `net.sourceforge.jtds:jtds`                  |
+| **Supported versions**             | `7.0` and later                                                      | `1.3.1` and later                                                       |
+| **Default Java class**             | `com.sybase.jdbc4.jdbc.SybDriver`                                    | `net.sourceforge.jtds.jdbc.Driver`                                      |
+
+
+## Java Usage
+Sybase ASE support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
+Sybase ASE is found within the `flyway-database-sybasease` plugin module.
+### Maven
+#### Redgate
+```xml
+<dependency>
+    <groupId>com.redgate.flyway</groupId>
+    <artifactId>flyway-database-sybasease</artifactId>
+</dependency>
+```
+#### Open Source
+```xml
+<dependency>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-database-sybasease</artifactId>
+</dependency>
+```
+
+### Gradle
+#### Redgate
+```groovy
+dependencies {
+    implementation "com.redgate.flyway:flyway-database-sybasease"
+}
+```
+#### Open Source
+```groovy
+dependencies {
+    implementation "org.flywaydb:flyway-database-sybasease"
+}
+```
+
 
 ## SQL Script Syntax
 

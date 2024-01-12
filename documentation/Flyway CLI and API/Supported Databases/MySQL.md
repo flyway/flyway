@@ -3,74 +3,23 @@ subtitle: MySQL
 ---
 # MySQL
 
-## Supported Versions
+ - **Verified Versions:** 5.7, 8.0, 8.1
+ - **Maintainer:** Redgate
 
-- `8.0`
-- `5.7` {% include teams.html %}
-- `5.6` {% include teams.html %}
-- `5.5` {% include enterprise.html %}
-- `5.1` {% include enterprise.html %}
+## Supported Versions and Support Levels
 
-## Support Level
-
-<table class="table">
-    <tr>
-        <th width="25%">Compatible</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Certified</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Guaranteed</th>
-        <td>&#10003; {% include teams.html %}</td>
-    </tr>
-</table>
-
-Support Level determines the degree of support available for this database ([learn more](Learn More/Database Support Levels)). 
+{% include database-boilerplate.html %}
 
 ## Drivers
 
-<table class="table">
-<thead>
-<tr>
-<th></th>
-<th>MySQL (for MySQL 5.5 and newer)</th>
-<th>MariaDB (for MySQL 5.1)</th>
-</tr>
-</thead>
-<tr>
-<th>URL format</th>
-<td><code>jdbc:mysql://<i>host</i>:<i>port</i>/<i>database</i></code></td>
-<td><code>jdbc:mysql://<i>host</i>:<i>port</i>/<i>database</i></code></td>
-</tr>
-<tr>
-<th>SSL support</th>
-<td>Yes - add <code>?useSsl=true</code></td>
-<td>Yes - add <code>?useSsl=true</code></td>
-</tr>
-<tr>
-<th>Ships with Flyway Command-line</th>
-<td>No</td>
-<td>Yes</td>
-</tr>
-<tr>
-<th>Maven Central coordinates</th>
-<td><code>mysql:mysql-connector-java</code></td>
-<td><code>org.mariadb.jdbc:mariadb-java-client</code></td>
-</tr>
-<tr>
-<th>Supported versions</th>
-<td><code>5.1.44</code> and later</td>
-<td><code>2.0.0</code> and later</td>
-</tr>
-<tr>
-<th>Default Java class</th>
-<td><code>com.mysql.jdbc.Driver</code></td>
-<td><code>org.mariadb.jdbc.Driver</code></td>
-</tr>
-</table>
+| -                                  | MySQL                             | MariaDB                                |
+|------------------------------------|-----------------------------------|----------------------------------------|
+| **URL format**                     | `jdbc:mysql://host:port/database` | `jdbc:mysql://host:port/database`      |
+| **SSL support**                    | Yes - add `?useSsl=true`          | Yes - add `?useSsl=true`               |
+| **Ships with Flyway Command-line** | No                                | Yes                                    |
+| **Maven Central coordinates**      | `mysql:mysql-connector-java`      | `org.mariadb.jdbc:mariadb-java-client` |
+| **Supported versions**             | `5.1.44` and later                | `2.0.0` and later                      |
+| **Default Java class**             | `com.mysql.jdbc.Driver`           | `org.mariadb.jdbc.Driver`              |
 
 ### Compatibility
 
@@ -80,33 +29,35 @@ Support Level determines the degree of support available for this database ([lea
 MySQL support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
 
 ### Maven
-#### Community
+#### Redgate
+```xml
+<dependency>
+    <groupId>com.redgate.flyway</groupId>
+    <artifactId>flyway-mysql</artifactId>
+</dependency>
+```
+#### Open Source
 ```xml
 <dependency>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-mysql</artifactId>
 </dependency>
 ```
-#### Teams
-```xml
-<dependency>
-    <groupId>org.flywaydb.enterprise</groupId>
-    <artifactId>flyway-mysql</artifactId>
-</dependency>
-```
+
 ### Gradle
-#### Community
+#### Redgate
 ```groovy
 dependencies {
-    compile "org.flywaydb:flyway-mysql"
+    implementation "com.redgate.flyway:flyway-mysql"
 }
 ```
-#### Teams
+#### Open Source
 ```groovy
 dependencies {
-    compile "org.flywaydb.enterprise:flyway-mysql"
+    implementation "org.flywaydb:flyway-mysql"
 }
 ```
+
 
 ## SQL Script Syntax
 

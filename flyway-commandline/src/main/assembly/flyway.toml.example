@@ -1,0 +1,26 @@
+# More information on the parameters can be found here: https://documentation.red-gate.com/flyway/flyway-cli-and-api/configuration/parameters
+
+[environments.sample]
+url = "jdbc:h2:mem:db"
+user = "sample user"
+password = "sample password"
+# jarDirs = ["path/to/java/migrations"]
+# driver =
+# schemas =
+# connectRetries =
+# connectRetriesInterval =
+# initSql =
+# jdbcProperties =
+# resolvers =
+
+[flyway]
+# environment = "sample" # It is recommended to configure environment as a commandline argument. This allows using different environments depending on the caller.
+# locations = ["filesystem:path/to/sql/files"]
+
+# [environments.build]
+# url = "jdbc:sqlite::memory:"
+# user = "buildUser"
+# password = "buildPassword"
+
+# [flyway.check]
+# buildEnvironment = "build"

@@ -123,7 +123,7 @@ table = flyway_schema_history</pre>
 
     <p>Yes! Flyway can replace placeholders in Sql migrations. The default pattern is ${placeholder}. This can be
         configured using the placeholderPrefix and placeholderSuffix properties.<br/> <br/>
-      See <a href="../Configuration/Placeholders">Placeholders</a> for more details.</p>
+      See <a href="../flyway-cli-and-api/Configuration/parameters/Flyway/Placeholders">Placeholders</a> for more details.</p>
 
     <h2 id="spring">Does Flyway depend on Spring?</h2>
 

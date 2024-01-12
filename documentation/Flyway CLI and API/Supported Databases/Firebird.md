@@ -2,85 +2,53 @@
 subtitle: Firebird
 ---
 # Firebird
+- **Verified Versions:** 3.0, 4.0
+- **Maintainer:** Redgate
 
-## Supported Versions
+## Supported Versions and Support Levels
 
-- `4.0`
-- `3.0`
-
-## Support Level
-
-<table class="table">
-    <tr>
-        <th width="25%">Compatible</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Certified</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Guaranteed</th>
-        <td>&#10003; {% include teams.html %}</td>
-    </tr>
-</table>
-
-Support Level determines the degree of support available for this database ([learn more](Learn More/Database Support Levels)). 
+{% include database-boilerplate.html %}
 
 ## Driver
 
-<table class="table">
-<tr>
-<th>URL format</th>
-<td><code>jdbc:firebirdsql://<i>host</i>:<i>port</i>/<i>database</i></code></td>
-</tr>
-<tr>
-<th>Ships with Flyway Command-line</th>
-<td>Yes</td>
-</tr>
-<tr>
-<th>Maven Central coordinates</th>
-<td><code>org.firebirdsql.jdbc:jaybird-jdk18</code></td>
-</tr>
-<tr>
-<th>Supported versions</th>
-<td><code>2.2</code> and later</td>
-</tr>
-<tr>
-<th>Default Java class</th>
-<td><code>org.firebirdsql.jdbc.FBDriver</code></td>
-</tr>
-</table>
+| Item                               | Details                                                                 |
+|------------------------------------|-------------------------------------------------------------------------|
+| **URL format**                     | <code>jdbc:firebirdsql://<i>host</i>:<i>port</i>/<i>database</i></code> |
+| **Ships with Flyway Command-line** | Yes                                                                     |
+| **Maven Central coordinates**      | `org.firebirdsql.jdbc:jaybird-jdk18`                                    |
+| **Supported versions**             | `2.2` and later                                                         |
+| **Default Java class**             | `org.firebirdsql.jdbc.FBDriver`                                         |
 
 ## Java Usage
 Firebird support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
 
 ### Maven
-#### Community
+#### Redgate
+```xml
+<dependency>
+    <groupId>com.redgate.flyway</groupId>
+    <artifactId>flyway-firebird</artifactId>
+</dependency>
+```
+#### Open Source
 ```xml
 <dependency>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-firebird</artifactId>
 </dependency>
 ```
-#### Teams
-```xml
-<dependency>
-    <groupId>org.flywaydb.enterprise</groupId>
-    <artifactId>flyway-firebird</artifactId>
-</dependency>
-```
+
 ### Gradle
-#### Community
+#### Redgate
 ```groovy
 dependencies {
-    compile "org.flywaydb:flyway-firebird"
+    implementation "com.redgate.flyway:flyway-firebird"
 }
 ```
-#### Teams
+#### Open Source
 ```groovy
 dependencies {
-    compile "org.flywaydb.enterprise:flyway-firebird"
+    implementation "org.flywaydb:flyway-firebird"
 }
 ```
 
@@ -125,7 +93,7 @@ SET TERM ;#
 - Mixing DDL and DML involving the same tables in a single migration is not supported. Firebird disallows DDL changes to 
 be used by DML in the same transaction, so one of the following is necessary:
   - separate migrations for DML / DDL, or
-  - a [per-script override](https://flywaydb.orgConfiguration/Script Config Files) of <code>executeInTransaction</code>
+  - a [per-script override](https://documentation.red-gate.com/flyway/flyway-cli-and-api/configuration/script-config-files) of <code>executeInTransaction</code>
 
 - `SET TRANSACTION` and `COMMIT [WORK]` are not supported in migrations. `COMMIT RETAIN` can be used, but this will only 
 allow partial rollback of a migration; only statements after the last `COMMIT RETAIN` can be rolled back.

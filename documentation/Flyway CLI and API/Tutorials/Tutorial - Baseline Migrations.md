@@ -3,7 +3,6 @@ subtitle: 'Tutorial: Baseline Migrations'
 redirect_from: Tutorials/stateScripts
 ---
 # Tutorial: Baseline Migrations
-{% include teams.html %}
 
 This brief tutorial will teach you **how to use baseline migrations**.
 

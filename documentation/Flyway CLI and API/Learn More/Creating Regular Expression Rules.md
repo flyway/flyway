@@ -19,7 +19,7 @@ The expected format is [TOML](https://toml.io/en/) but in this context this mean
 ## Dialects
 The way your regex rule is structured will vary depending on the dialect of SQL in use with your database (different keywords and syntax) so you may need explicitly declare the dialect that this rule is relevant for.
 
-Flyway will identify the variety of SQL relevant to databse based on the JDBC connection string and only apply relevant rules (so a rule declared for the Oracle dialect won't be applied when using a PostgreSQL database).
+Flyway will identify the variety of SQL relevant to database based on the JDBC connection string and only apply relevant rules (so a rule declared for the Oracle dialect won't be applied when using a PostgreSQL database).
 
 * The `TEXT` dialect means the rule will be applied to all migrations regardless of the DB type Flyway is configured to use.
 
@@ -38,7 +38,7 @@ You can modify this to alter whether this flags a violation or not (inverting th
 # Creating Your own rules
 Each rule is declared in a separate .toml file and these should be located in the `/rules` folder in the root of your flyway installation.
 
-We'd suggest taking one of the existing ones there and adapting it to your needs.
+We'd suggest taking one of the [supplied regex rules](Usage/Code Analysis Rules) in the default `\rules` folder and adapting it to your needs.
 ## File content example
 ```
 dialects = ["TEXT"]
@@ -57,18 +57,8 @@ The file name will be used as the source of rule metadata:
 * Where `B` is a short rule description (this will be replaced by the `description` field in the file content if supplied) 
 
 ## File location
-By default, the rules are located in the `/rules` folder of your flyway release.
 
-It is possible to change where Flyway looks for rules (for example if you keep them separately under configuration management) and this is done by setting the `check.rulesLocation` parameter. 
-
-Be aware that this is will be the only place Flyway looks for rules so if you want to use the Redgate supplied ones then you'll need to copy them from the `/rules` folder to the new location.
-
-**NOTE:** Flyway will only look in the default or specified locations for rules and won't traverse sub-folders.
-
-### In the config file
-`flyway.check.rulesLocation=<path to your files>`
-### On the command line
-`./flyway check -code  -check.rulesLocation=<path to your files>`
+See the [check.rulesLocation](Configuration/Parameters/Flyway/Check/Rules Location) parameter
 
 # Running the rules
 When you run `./flyway check -code` all regex rules will be run

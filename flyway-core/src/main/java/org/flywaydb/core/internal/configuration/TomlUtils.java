@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -48,13 +49,13 @@ public class TomlUtils {
                                                                  || e.getKey().startsWith("environments_")
                                                                  || (e.getKey().startsWith("FLYWAY_") && ConfigUtils.convertKey(e.getKey()) != null))
                                                          .collect(Collectors.toMap(k -> {
-                                                                                       String prop = k.getKey().startsWith("FLYWAY_") ?
-                                                                                               ConfigUtils.convertKey(k.getKey())
+                                                                                       String prop = k.getKey().startsWith("FLYWAY_") || k.getKey().toUpperCase(Locale.ENGLISH).startsWith("FLYWAY_JDBC_PROPERTIES_") ?
+                                                                                               ConfigUtils.convertKey(k.getKey().toUpperCase(Locale.ENGLISH))
                                                                                                : k.getKey().replace("_", ".");
                                                                                        if (prop != null && prop.startsWith("flyway.")) {
                                                                                            String p = prop.substring("flyway.".length());
-                                                                                           if (Arrays.stream((EnvironmentModel.class).getDeclaredFields()).anyMatch(x -> x.getName().equals(p))) {
-                                                                                               return "environments." + ClassicConfiguration.TEMP_ENVIRONMENT_NAME + "." + prop.substring("flyway.".length());
+                                                                                           if (Arrays.stream((EnvironmentModel.class).getDeclaredFields()).anyMatch(x -> x.getName().equals(p.split("\\.")[0]))) {
+                                                                                               return "environments." + ClassicConfiguration.TEMP_ENVIRONMENT_NAME + "." + p;
                                                                                            }
                                                                                        }
                                                                                        return prop;
@@ -88,7 +89,11 @@ public class TomlUtils {
         //noinspection unchecked
         simpleModule.addDeserializer((Class<List<String>>) type.getRawClass(), new ListDeserializer());
         objectMapper.registerModule(simpleModule);
-        return objectMapper.convertValue(properties, ConfigurationModel.class);
+        try {
+            return objectMapper.convertValue(properties, ConfigurationModel.class);
+        } catch (IllegalArgumentException e) {
+            throw new FlywayException("Unable to parse command line params.");
+        }
     }
 
     private static Map<String, Object> unflattenMap(Map<String, String> map) {
@@ -116,6 +121,7 @@ public class TomlUtils {
     }
 
     static ConfigurationModel loadConfigurationFile(File configFile, String workingDirectory) {
+        LOG.debug("Loading config file: " + configFile.getAbsolutePath());
         if (!configFile.isAbsolute() && workingDirectory != null) {
             File temporaryFile = new File(workingDirectory, configFile.getPath());
             if (temporaryFile.exists()) {

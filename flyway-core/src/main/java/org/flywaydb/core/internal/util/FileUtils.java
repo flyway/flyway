@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Locale;
 
 /**
  * Utility class for copying files and their contents. Inspired by Spring's own.
@@ -143,7 +144,11 @@ public class FileUtils {
     }
 
     public static String readResourceAsString(String path) {
-        try (InputStream inputStream = FileUtils.class.getClassLoader().getResourceAsStream(path);
+        return readResourceAsString(FileUtils.class.getClassLoader(), path);
+    }
+
+    public static String readResourceAsString(ClassLoader classLoader, String path) {
+        try (InputStream inputStream = classLoader.getResourceAsStream(path);
              BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
 
             String result = "";
@@ -177,4 +182,21 @@ public class FileUtils {
         }
     }
 
+    public static File getAppDataLocation() {
+        boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("win");
+        return isWindows ? new File(System.getenv("APPDATA"), "Redgate") : new File(System.getProperty("user.home"), ".config/Redgate");
+    }
+
+    public static File getAppDataFlywayCLILocation() {
+        File redgateAppData = getAppDataLocation();
+        return new File(redgateAppData, "Flyway CLI");
+    }
+
+    public static void writeToFile(File file, String content) {
+        try (FileWriter fileWriter = new FileWriter(file)) {
+            fileWriter.write(content);
+        } catch (IOException e) {
+            throw new FlywayException("Unable to write to " + file.getAbsolutePath(), e);
+        }
+    }
 }

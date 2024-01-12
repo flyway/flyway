@@ -1,5 +1,5 @@
 @REM
-@REM Copyright (C) Red Gate Software Ltd 2010-2023
+@REM Copyright (C) Red Gate Software Ltd 2010-2024
 @REM
 @REM Licensed under the Apache License, Version 2.0 (the "License");
 @REM you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ if "%JAVA_ARGS%"=="" (
   set JAVA_ARGS=
 )
 
-%JAVA_CMD% -Djava.library.path="%INSTALLDIR%\native" %JAVA_ARGS% -cp "%CLASSPATH%;%INSTALLDIR%\lib\*;%INSTALLDIR%\lib\aad\*;%INSTALLDIR%\lib\oracle_wallet\*;%INSTALLDIR%\lib\community\*;%INSTALLDIR%\drivers\*;%INSTALLDIR%\drivers\gcp\*" org.flywaydb.commandline.Main %*
+%JAVA_CMD% -Djava.library.path="%INSTALLDIR%\native" %JAVA_ARGS% -cp "%CLASSPATH%;%INSTALLDIR%\lib\*;%INSTALLDIR%\lib\aad\*;%INSTALLDIR%\lib\oracle_wallet\*;%INSTALLDIR%\lib\flyway\*;%INSTALLDIR%\drivers\*;%INSTALLDIR%\drivers\gcp\*" org.flywaydb.commandline.Main %*
 
 @REM Exit using the same code returned from Java
 EXIT /B %ERRORLEVEL%

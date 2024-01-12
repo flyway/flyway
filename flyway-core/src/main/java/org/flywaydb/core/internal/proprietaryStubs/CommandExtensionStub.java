@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
+import org.flywaydb.core.internal.license.FlywayRedgateEditionRequiredException;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
 import java.util.Arrays;
@@ -46,9 +47,9 @@ public class CommandExtensionStub implements CommandExtension {
     @Override
     public OperationResult handle(String command, Configuration config, List<String> flags, FlywayTelemetryManager flywayTelemetryManager) throws FlywayException {
         try (EventTelemetryModel telemetryModel = new EventTelemetryModel(command, flywayTelemetryManager)) {
-            FlywayProprietaryRequiredException flywayProprietaryRequiredException = new FlywayProprietaryRequiredException(command, FlywayDbWebsiteLinks.UPGRADE_TO_REDGATE_FLYWAY);
-            telemetryModel.setException(flywayProprietaryRequiredException);
-            throw  flywayProprietaryRequiredException;
+            FlywayRedgateEditionRequiredException flywayRedgateEditionRequiredException = new FlywayRedgateEditionRequiredException(command);
+            telemetryModel.setException(flywayRedgateEditionRequiredException);
+            throw flywayRedgateEditionRequiredException;
         }
     }
 
@@ -59,6 +60,6 @@ public class CommandExtensionStub implements CommandExtension {
 
     @Override
     public int getPriority() {
-        return Integer.MIN_VALUE;
+        return -100;
     }
 }

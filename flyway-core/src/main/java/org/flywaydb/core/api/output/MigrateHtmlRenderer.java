@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,7 +83,7 @@ public class MigrateHtmlRenderer implements HtmlRenderer<MigrateResult> {
                 : result.targetSchemaVersion;
 
         htmlResult.add(new HtmlReportSummary(result.targetSchemaVersion != null? "scGood" : "scError", "infoOutlined", "Database version: " + databaseVersion));
-        htmlResult.add(new HtmlReportSummary(migratedCount > 0 ? "scGood" : "scWarn", "checkFilled", migratedCount + " script" + (migratedCount != 1 ? "s" : "") + " migrated"));
+        htmlResult.add(new HtmlReportSummary(migratedCount > 0 ? "scGood" : "scWarn", "checkFilled", migratedCount + " script" + StringUtils.pluralizeSuffix(migratedCount) + " migrated"));
         if (StringUtils.hasText(result.schemaName)) {
             htmlResult.add(new HtmlReportSummary("scNote", "database", "Database Schema: " + result.schemaName));
         }

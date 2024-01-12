@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,14 @@
  */
 package org.flywaydb.core.internal.configuration.models;
 
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.ExtensionMethod;
 import org.flywaydb.core.internal.util.MergeUtils;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -32,6 +31,9 @@ public class ConfigurationModel {
     private Map<String, EnvironmentModel> environments = new HashMap<>();
     private FlywayModel flyway = new FlywayModel();
     private String id;
+
+    @JsonAnySetter
+    private Map<String,Object> rootConfigurations = new HashMap<>();
 
     public static ConfigurationModel defaults() {
         ConfigurationModel model = new ConfigurationModel();
@@ -46,6 +48,7 @@ public class ConfigurationModel {
 
         result.flyway = flyway != null ? flyway.merge(otherPojo.flyway) : otherPojo.flyway;
         result.environments = MergeUtils.merge(environments, otherPojo.environments, EnvironmentModel::merge);
+        result.rootConfigurations = MergeUtils.merge(rootConfigurations, otherPojo.rootConfigurations, (a,b) -> b != null ? b : a);
         return result;
     }
 

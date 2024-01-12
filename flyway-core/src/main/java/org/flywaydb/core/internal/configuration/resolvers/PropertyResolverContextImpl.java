@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,49 +15,137 @@
  */
 package org.flywaydb.core.internal.configuration.resolvers;
 
+import org.flywaydb.core.ProgressLogger;
+import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.configuration.Configuration;
 
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
+import java.util.regex.MatchResult;
+import java.util.regex.Pattern;
+import org.flywaydb.core.extensibility.ConfigurationExtension;
 
-public class PropertyResolverContextImpl implements PropertyResolverContext{
+public class PropertyResolverContextImpl implements PropertyResolverContext {
 
     private final Map<String, PropertyResolver> resolvers;
-    private final Map<String, Map<String, String>> resolverProperties;
+    private final Map<String, ConfigurationExtension> resolverConfigurations;
+    private final String environmentName;
+    private final Configuration configuration;
+
+    private static final CharsetEncoder ASCII_ENCODER = StandardCharsets.US_ASCII.newEncoder();
+    private static final Pattern RESOLVER_REGEX_PATTERN = Pattern.compile("\\${1,2}\\{[^.]+\\.[^.]+\\}");
+    private static final Pattern VERBATIM_REGEX_PATTERN = Pattern.compile("\\!\\{.*\\}");
+
+    public PropertyResolverContextImpl(String environmentName, Configuration configuration, Map<String, PropertyResolver> resolvers, Map<String, ConfigurationExtension> resolverConfigurations) {
+        this.environmentName = environmentName;
+        this.configuration = configuration;
+        this.resolvers = resolvers;
+        this.resolverConfigurations = resolverConfigurations;
+    }
+
+    public ConfigurationExtension getResolverConfiguration(String resolverName) {
+        return resolverConfigurations.get(resolverName);
+    }
 
     @Override
-    public String resolveValue(String value) {
-        if (value == null || !value.startsWith("$")) {
-            return value;
-        } else if (value.startsWith("$$")) {
-            return value.substring(1);
+    public Configuration getConfiguration() {
+        return configuration;
+    }
+
+    @Override
+    public String getWorkingDirectory() {
+        var workingDirectory = configuration.getWorkingDirectory();
+        if(workingDirectory == null) {
+            return System.getProperty("user.dir");
+        } else {
+            return workingDirectory;
+        }
+    }
+
+    @Override
+    public String getEnvironmentName() {
+        return environmentName;
+    }
+
+    @Override
+    public String resolveValue(String value, ProgressLogger progress) {
+        if (value == null) {
+            return null;
+        }
+        if (isVerbatim(value)) {
+            return value.substring(2, value.length() - 1);
+        }
+        return RESOLVER_REGEX_PATTERN.matcher(value.strip()).replaceAll(m -> parseResolverSyntax(m, progress));
+    }
+
+    @Override
+    public String resolveValueOrThrow(final String input, final ProgressLogger progress, final String propertyName) {
+        final var result = resolveValue(input, progress);
+        if (result == null) {
+            throw new FlywayException("Configuration value " + propertyName + " not specified for environment " + environmentName, ErrorCode.CONFIGURATION);
+        }
+        return result;
+    }
+
+    @Override
+    public List<String> resolveValues(final List<String> input, final ProgressLogger progress) {
+        if (input == null) {
+            return null;
+        }
+        return input.stream().map(v -> resolveValue(v, progress)).toList();
+    }
+
+    @Override
+    public List<String> resolveValuesOrThrow(final List<String> input, final ProgressLogger progress,
+        final String propertyName) {
+        final var result = resolveValues(input, progress);
+        if (result == null) {
+            throw new FlywayException("Configuration value " + propertyName + " not specified for environment " + environmentName, ErrorCode.CONFIGURATION);
+        }
+        return result;
+    }
+
+    private boolean isVerbatim(String value) {
+        return VERBATIM_REGEX_PATTERN.matcher(value.strip()).matches();
+    }
+
+    private String parseResolverSyntax(MatchResult resolverMatchResult, ProgressLogger progress) {
+        String resolverMatch = resolverMatchResult.group();
+
+        if (resolverMatch.startsWith("$$")) {
+            //String containing '$' will break Matcher so '\' needed to escape it. See https://docs.oracle.com/javase/8/docs/api/java/util/regex/Matcher.html#replaceAll-java.lang.String-
+            return "\\" + resolverMatch.substring(1);
         }
 
-        int splitIndex = value.indexOf(".");
-        String resolverName = splitIndex != -1 ? value.substring(1, splitIndex) : value.substring(1);
-        String resolverParam = splitIndex != -1 ? value.substring(splitIndex + 1) : null;
-
+        String resolverName = resolverMatch.substring(2, resolverMatch.indexOf(".")).strip();
         if (!resolvers.containsKey(resolverName)) {
-            throw new FlywayException("Unknown resolver: " + resolverName);
-        }
-        return resolvers.get(resolverName).resolve(resolverParam, this);
-
-    }
-    
-    public String resolveProperty(String resolverName, String propertyName) {
-        if (resolverProperties == null) {
-            return null;
+            throw new FlywayException("Unknown resolver '" + resolverName + "' for environment " + environmentName, ErrorCode.CONFIGURATION);
         }
 
-        Map<String, String> properties = resolverProperties.get(resolverName);
-        if (properties == null) {
-            return null;
+        String resolverParam;
+        if (resolverMatch.contains(":")) {
+            resolverParam = resolverMatch.substring(resolverMatch.indexOf(".") + 1, resolverMatch.indexOf(":")).strip();
+            String filter = resolverMatch.substring(resolverMatch.indexOf(":") + 1, resolverMatch.length() - 1).strip();
+            return filter(resolvers.get(resolverName).resolve(resolverParam, this, progress), filter);
         }
 
-        return resolveValue(properties.get(propertyName));
+        resolverParam = resolverMatch.substring(resolverMatch.indexOf(".") + 1, resolverMatch.length() - 1).strip();
+        return resolvers.get(resolverName).resolve(resolverParam, this, progress);
     }
 
-    public PropertyResolverContextImpl(Map<String, PropertyResolver> resolvers, Map<String, Map<String, String>> resolverProperties) {
-        this.resolvers = resolvers;
-        this.resolverProperties = resolverProperties;
+    static String filter(String str, String filter) {
+        return str.chars().filter(c -> isAllowed((char) c, filter))
+                  .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                  .toString();
+    }
+
+    private static boolean isAllowed(char c, String filter) {
+        return (filter.contains("D") && Character.isDigit(c)) ||
+                (filter.contains("A") && Character.isLetter(c)) ||
+                (filter.contains("a") && Character.isLetter(c) && ASCII_ENCODER.canEncode(c)) ||
+                (filter.contains("d") && Character.isDigit(c) && ASCII_ENCODER.canEncode(c));
     }
 }
