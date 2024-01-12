@@ -122,6 +122,11 @@
             <name>${releaseRepository.name}</name>
             <url>${releaseRepository.url}</url>
         </repository>
+<!--        <snapshotRepository>-->
+<!--            <id>shd-snapshots</id>-->
+<!--            <name>SHD Snapshots Repository</name>-->
+<!--            <url>http://srv-nexus.shd.lan:8081/nexus/content/repositories/snapshots</url>-->
+<!--        </snapshotRepository>-->
     </distributionManagement>
 
     <repositories>
