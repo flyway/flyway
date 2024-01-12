@@ -49,7 +49,7 @@ title: Welcome To Flyway
     <a href="Supported Databases/redshift">Redshift</a>,
     <a href="Supported Databases/cockroachdb">CockroachDB</a>,
     <a href="Supported Databases/SAP HANA (Including SAP HANA Cloud)">SAP HANA</a>,
-    <a href="Supported Databases/sybasease">Sybase ASE</a>,
+    <a href="Supported Databases/sybase-ase">Sybase ASE</a>,
     <a href="Supported Databases/informix">Informix</a>,
     <a href="Supported Databases/h2">H2</a>,
     <a href="Supported Databases/hsqldb">HSQLDB</a>,

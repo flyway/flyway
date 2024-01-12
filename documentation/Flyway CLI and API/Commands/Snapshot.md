@@ -30,7 +30,7 @@ flyway snapshot -url=jdbc:example:database -user=username -password=password -sn
 
 ### `deployedSnapshot` and `nextSnapshot` example:
 
-In order to generate these snapshots for use with [`check`](Commands/check) we first need to get a list of the applied migrations
+In order to generate these snapshots for use with [`check`](Commands/Check Command) we first need to get a list of the applied migrations
 so we can accurately create the build database:
 
 ```

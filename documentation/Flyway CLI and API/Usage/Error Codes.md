@@ -16,7 +16,7 @@ These error codes may appear from any command, and are indicative of more genera
 
 ### `ERROR`
 - **Caused by:** An error due to invalid configuration or usage not caught by a more specific error code
-- **Solution:** Ensure all configuration and usage is as per the [documentation](/documentation)
+- **Solution:** Ensure all configuration and usage is as per the [documentation] (Configuration/parameters)
 
 ### `JDBC_DRIVER`
 - **Caused by:** The JDBC driver is unable to be instantiated
@@ -84,7 +84,7 @@ These error codes are surfaced when running `validate` or `validateWithResult`.
 
 ### `RESOLVED_VERSIONED_MIGRATION_NOT_APPLIED`
 - **Caused by:** A versioned migration that was resolved has not been applied
-- **Solution:** To ignore this migration set [`ignoreMigrationPatterns`](Configuration/Parameters/Flyway/Ignore Migration Patterns) to `*:ignored` and to allow executing this migration enable [`outOfOrder`](Configuration/Parameters/Out Of Order)
+- **Solution:** To ignore this migration set [`ignoreMigrationPatterns`](Configuration/Parameters/Flyway/Ignore Migration Patterns) to `*:ignored` and to allow executing this migration enable [`outOfOrder`](/Configuration/Parameters/Flyway/Out Of Order)
 
 ### `OUTDATED_REPEATABLE_MIGRATION`
 - **Caused by:** An applied repeatable migration was resolved with a newer checksum and can be reapplied

@@ -7,7 +7,7 @@ redirect_from: Configuration/skipExecutingMigrations/
 # Skip Executing Migrations
 
 ## Description
-Whether Flyway should skip migration execution. The remainder of the operation will run as normal - including updating the schema history table, callbacks, and so on.
+Whether Flyway should skip migration execution. The remainder of the operation will run as normal - including updating the schema history table, callbacks, etc.
 
 `skipExecutingMigrations` essentially allows you to mimic a migration being executed, because the schema history table is still updated as normal.
 

@@ -14,22 +14,42 @@ subtitle: MongoDB
 
 ## Driver
 
-| Item                               | Details                                                                                                                                     |
-|------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| Item                               | Details                                                                                                                                 |
+|------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
 | **URL format**                     | <code>jdbc:mongodb://<i>ip address:port number/database_name</i></code> <code>jdbc:mongodb+srv://<i>ip address/database_name</i></code> |
-| **SSL support**                    | No                                                                                                                                          |
-| **Ships with Flyway Command-line** | Yes (Redgate Distrubution only while in preview)                                                                                            |
-| **Maven Central coordinates**      | n/a                                                                                                                                         |
-| **Supported versions**             | `7` and later (including Mongo Atlas)                                                                                                       |
-| **Default Java class**             | `com.dbschema.MongoJdbcDriver`                                                                                                              |
+| **SSL support**                    | No                                                                                                                                      |
+| **Ships with Flyway Command-line** | Yes (Redgate Distribution only while in preview)                                                                                        |
+| **Maven Central coordinates**      | n/a                                                                                                                                     |
+| **Supported versions**             | `7` and later (including Mongo Atlas)                                                                                                   |
+| **Default Java class**             | `com.dbschema.MongoJdbcDriver`                                                                                                          |
 
 ## Using Flyway with MongoDB
 
 ### Pre-requisites
 - Using Flyway with Maven?
     - Include the latest Flyway MongoDB dependency [here](https://central.sonatype.com/artifact/org.flywaydb/flyway-database-mongodb) in your pom
+  - Include the latest MongoDB driver dependency [here](https://github.com/DataGrip/mongo-jdbc-driver) in your buildscript or import into your local maven repository:
+    - For example: 
+    ```xml
+        <dependency>
+            <groupId>com.github.kornilova203</groupId>
+            <artifactId>mongo-jdbc-driver</artifactId>
+            <version>1.18</version>
+            <scope>system</scope>
+            <systemPath>mongo-jdbc-standalone-1.18.jar</systemPath>  
+        </dependency>
+    ```
+    - or `mvn install:install-file -Dfile=mongo-jdbc-standalone-1.18.jar -DgroupId=com.github.kornilova203 -DartifactId=mongo-jdbc-driver -Dversion=1.18 -Dpackaging=jar -DgeneratePom=true`
+	
 - Using Flyway with Gradle?
-    - Include the latest Flyway MongoDB dependency [here](https://central.sonatype.com/artifact/org.flywaydb/flyway-database-mongodb) as a buildscript dependency 
+    - Include the latest Flyway MongoDB dependency [here](https://central.sonatype.com/artifact/org.flywaydb/flyway-database-mongodb) as a buildscript dependency
+	- Include the latest MongoDB driver dependency [here](https://github.com/DataGrip/mongo-jdbc-driver) in your buildscript
+      - For example: 
+      ```groovy
+        dependencies {
+          implementation files('mongo-jdbc-standalone-1.18.jar')
+        }
+      ```
 
 ### Configuring Flyway
 

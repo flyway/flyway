@@ -6,7 +6,7 @@ redirect_from:
 ---
 # Community Plugins and Integrations: Ant
 
-<img src="/assets/logos/ant.svg" height="80">
+<img src="/download/attachments/183306238/ant.svg" height="80">
 
 Tomas Tulka maintains <strong><a href="https://github.com/flyway/flyway-ant">Ant tasks</a></strong> that adds Flyway commands to your build.
 

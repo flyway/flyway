@@ -14,7 +14,7 @@ Windows, macOS, Linux, Docker and Java
 Maven and Gradle
 
 #### Supported databases
-Aurora MySQL, Aurora PostgreSQL, Azure Synapse, CockroachDB, DB2, Derby, Firebird, Google BigQuery, Google Cloud Spanner (Beta), H2, HSQLDB, Informix, MariaDB, MySQL, Oracle, Percona XtraDB Cluster, PostgreSQL, Redshift, SAP HANA (Including SAP HANA Cloud), SingleStoreDB, Snowflake, SQLite, SQL Server, Sybase ASE
+Aurora MySQL, Aurora PostgreSQL, Azure Synapse, CockroachDB, DB2, Derby, Firebird, Google BigQuery, Google Cloud Spanner, H2, HSQLDB, Informix, MariaDB, MongoDB, MySQL, Oracle, Percona XtraDB Cluster, PostgreSQL, Redshift, SAP HANA (Including SAP HANA Cloud), SingleStoreDB, Snowflake, SQLite, SQL Server, Sybase ASE, TiDB, TimescaleDB, YugabyteDB
 
 #### Third party plugins
 SBT, Ant, Spring Boot, Grails, Play!, DropWizard, Grunt, Griffon, Ninja, ...
@@ -26,11 +26,12 @@ Our reference documentation can be found [here](https://documentation.red-gate.c
 ## About
 Flyway is brought to you by [Redgate](https://www.red-gate.com/) with the help of many contributors.
 
+See our post [Flyway V10 has landed](https://documentation.red-gate.com/flyway/flyway-blog/flyway-v10-has-landed) for our current major changes and improvements for the community
 ## How to contribute
 Please visit our [contribution page](https://documentation.red-gate.com/flyway/flyway-cli-and-api/contribute) to find out how you can contribute in various ways to the project.
 
 ## License
-Copyright © [Red Gate Software Ltd](http://www.red-gate.com) 2010-2023
+Copyright © [Red Gate Software Ltd](http://www.red-gate.com) 2010-2024
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

@@ -7,7 +7,7 @@ redirect_from: Configuration/driver/
 # Driver
 
 ## Description
-The fully qualified classname of the jdbc driver to use to connect to the database.
+The fully qualified class name of the jdbc driver to use to connect to the database.
 
 This must match the driver for the database type in the [url](Configuration/parameters/environments/url) you are using.
 

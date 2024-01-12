@@ -66,7 +66,7 @@ change allows you to Mongo native `.js` files and gain all the benefits this ent
 
 Let's add a new migration to make sure everything is working as expected.
 
-In your migrations directory (either use a `sql` folder within the Flyway folder or configure [locations](Configuration/Flyway/Locations/) 
+In your migrations directory (either use a `sql` folder within the Flyway folder or configure [locations](Configuration/Parameters/Flyway/Locations/) 
 to specify your own location) create a migration called `V1__mongo-migration.js`:
 
 ```javascript

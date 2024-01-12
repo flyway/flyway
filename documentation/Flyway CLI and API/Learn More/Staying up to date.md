@@ -6,7 +6,7 @@ subtitle: Staying Up To Date
 
 It's important to keep your Flyway installation up to date for the following reasons: -
 
-* **Security:** Flyway is continually updated with security fixes which that address vulnerabilities and protect users from potential cyber threats. By staying up to date, you can ensure your data and devices are safeguarded against the latest security risks.
+* **Security:** Flyway is continually updated with security fixes which that address vulnerabilities and protect users from potential threats. By staying up to date, you can ensure your data and devices are safeguarded against the latest security risks.
 
 * **Bug Fixes and Stability:** New versions of Flyway include bug fixes and stability improvements. These updates enhance the overall performance and reliability of Flyway.
 
@@ -14,7 +14,7 @@ It's important to keep your Flyway installation up to date for the following rea
 
 * **Access to Support and Resources:** We only makes changes on the latest version of the product. By staying on the latest version, user can gain access to dedicated support channels, documentation, online communities.
 
-* **New Features and Functionality:** We are frequently introducing new features and enhancements to Flyway. By upgrading to the latest version, you can take advantage of exciting new capabilities and improvements, unlocking a more robust and versatile toolset.
+* **New Features and Functionality:** We are frequently introducing new features and enhancements to Flyway. By upgrading to the latest version, you can take advantage of exciting new capabilities and improvements, unlocking a more robust and versatile tool set.
 
 It's important to note that while upgrading to the latest version offers numerous benefits, you should always consider and test your specific requirements, system compatibility and the potential impacts of the latest version on your workflow before proceeding with an update.
 

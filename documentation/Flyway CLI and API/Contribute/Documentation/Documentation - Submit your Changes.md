@@ -7,14 +7,14 @@ subtitle: Submit your Changes - Documentation
 
     <h2>Raise an issue</h2>
 
-    <p>The first step is to raise an issue in the <a href="https://github.com/flyway/flywaydb.org/issues">flywaydb.org
+    <p>The first step is to raise an issue in the <a href="https://github.com/flyway/flyway/issues">flyway
         Issue Tracker</a>. This issue will be the place where you will be able to communicate with Flyway's
         committers and other users. You can use it to present your ideas and gather feedback. </p>
 
 
     <h2>Fork the repository</h2>
 
-    <p>The next step is to fork the <a href="https://github.com/flyway/flywaydb.org">flywaydb.org GitHub repository</a>:
+    <p>The next step is to fork the <a href="https://github.com/flyway/flyway">flyway GitHub repository</a>:
     </p>
 
     <img src="assets/fork.png" alt="fork"/>

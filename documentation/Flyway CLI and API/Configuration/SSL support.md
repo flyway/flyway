@@ -37,7 +37,7 @@ You can also check which certificates have been imported already:
 ## Make sure Java can access the truststore
 
 You now need to configure your Java environment to be able to access these stores. This simply requires
-setting a couple of [JVM properties](https://flywaydb.org/blog/jvm-properties). If you're using the Flyway 
+setting a couple of [JVM properties](https://documentation.red-gate.com/flyway/flyway-blog/older-posts/june-2020-jvm-properties). If you're using the Flyway 
 command-line, then you can set the `JAVA_ARGS` environment variable which the command-line script reads.
 
 <pre class="console"><span>&gt;</span> JAVA_ARGS='-Djavax.net.ssl.trustStore="myStorePath" -Djavax.net.ssl.trustStorePassword="myStorePassword"'</pre>
@@ -65,6 +65,8 @@ to carry out all the above steps and then simply switch SSL on and off as requir
 ## Flyway in Docker
 
 Using SSL with the Flyway Docker image is a little more involved, as you will need to get the certificate into the
-container you ultimately run. If you wish to do this, we can recommend an excellent 
+container you ultimately run. 
+
+If you wish to do this, we can recommend an excellent 
 [guide by Joao Rosa](https://www.joaorosa.io/2019/01/13/using-flyway-and-gitlab-to-deploy-a-mysql-database-to-aws-rds-securely/)
 who follows the process through step by step.

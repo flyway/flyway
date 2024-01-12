@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2023
+ * Copyright (C) Red Gate Software Ltd 2010-2024
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -135,7 +135,7 @@ public class EnvironmentResolver {
                 final var data = environmentModel.getResolvers().get(key);
                 return (ConfigurationExtension) new ObjectMapper().convertValue(data, clazz);
             } catch (final IllegalArgumentException e) {
-                throw new FlywayException("Error reading resolver configuration for resolver " + key, e, ErrorCode.CONFIGURATION);
+                throw new FlywayException("Error reading resolver configuration for resolver " + key + ": " + e.getMessage(), e, ErrorCode.CONFIGURATION);
             }
         }
 
