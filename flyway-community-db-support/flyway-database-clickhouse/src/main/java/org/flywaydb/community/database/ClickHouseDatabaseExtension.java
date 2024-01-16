@@ -24,7 +24,7 @@ import java.nio.charset.StandardCharsets;
 
 public class ClickHouseDatabaseExtension implements PluginMetadata {
     public String getDescription() {
-        return "Community-contributed Ignite database support extension " + readVersion() + " by Redgate";
+        return "Community-contributed ClickHouse database support extension " + readVersion() + " by Redgate";
     }
 
     private static String readVersion() {
