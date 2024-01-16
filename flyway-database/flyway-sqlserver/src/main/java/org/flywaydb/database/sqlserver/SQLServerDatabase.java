@@ -49,7 +49,7 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
     }
 
     @Override
-    public final void ensureSupported(Configuration configuration) {
+    public void ensureSupported(Configuration configuration) {
         if (isAzure()) {
             ensureDatabaseIsRecentEnough("11.0");
 

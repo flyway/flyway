@@ -100,17 +100,4 @@ public class BigQueryDatabaseType extends BaseDatabaseType {
     public String instantiateClassExtendedErrorMessage() {
         return "Failure probably due to inability to load dependencies. Please ensure you have downloaded 'https://cloud.google.com/bigquery/docs/reference/odbc-jdbc-drivers' and extracted to 'flyway/drivers' folder";
     }
-
-    @Override
-    public void printMessages(Configuration configuration) {
-
-
-
-            LOG.info("Experiencing performance issues while using GCP BigQuery?");
-            LOG.info("Find out how Flyway Teams improves performance with batching at " + FlywayDbWebsiteLinks.TEAMS_FEATURES_FOR_BIG_QUERY);
-            LOG.info("");
-
-
-
-    }
 }

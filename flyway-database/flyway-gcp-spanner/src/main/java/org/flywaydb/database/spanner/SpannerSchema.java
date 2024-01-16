@@ -97,25 +97,12 @@ public class SpannerSchema extends Schema<SpannerDatabase, SpannerTable> {
     }
 
     private void executeStatements(List<String> statements) throws SQLException {
+        Configuration config = database.getConfiguration();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-         for (String statement : statements) {
-             jdbcTemplate.execute(statement);
-         }
-
+        Results cleanStatementResults = jdbcTemplate.executeBatch(statements, config);
+        if (cleanStatementResults.getException() != null) {
+            throw cleanStatementResults.getException();
+        }
 
         statements.clear();
     }

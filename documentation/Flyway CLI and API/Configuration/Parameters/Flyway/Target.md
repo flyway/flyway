@@ -30,7 +30,7 @@ Specifying a target version should be done with care, as undo scripts typically 
 - `current`: designates the current version of the schema
 - `latest`: the latest version of the schema, as defined by the migration with the highest version
 - `next`: the next version of the schema, as defined by the first pending migration
-- `<version>?`: {% include teams.html %} Instructs Flyway to not fail if the target version doesn't exist. In this case, Flyway will go up to but not beyond the specified target (default: fail if the target version doesn't exist) (e.g.) `target=2.1?`
+- `<version>?`: instructs Flyway to not fail if the target version doesn't exist. In this case, Flyway will go up to but not beyond the specified target (default: fail if the target version doesn't exist) (e.g.) `target=2.1?`
 
 ## Default
 

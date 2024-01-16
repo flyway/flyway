@@ -163,13 +163,7 @@ public class SqlMigrationResolver implements MigrationResolver {
                     CoreMigrationType.SQL,
                     resource.getAbsolutePathOnDisk(),
                     new SqlMigrationExecutor(sqlScriptExecutorFactory, sqlScript, false,
-
-
-
-
-                                              false
-
-                    )));
+                                             configuration.isBatch())));
         }
     }
 

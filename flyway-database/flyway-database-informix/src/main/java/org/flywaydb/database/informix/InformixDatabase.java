@@ -39,7 +39,7 @@ public class InformixDatabase extends Database<InformixConnection> {
     }
 
     @Override
-    public final void ensureSupported(Configuration configuration) {
+    public void ensureSupported(Configuration configuration) {
         ensureDatabaseIsRecentEnough("12.10");
         recommendFlywayUpgradeIfNecessary("12.10");
     }

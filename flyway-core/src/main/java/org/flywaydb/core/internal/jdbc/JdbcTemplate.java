@@ -367,44 +367,38 @@ public class JdbcTemplate {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    /**
+     * Executes this batch of SQL statements.
+     *
+     * @param sqlBatch The batch of statements.
+     */
+    public Results executeBatch(List<String> sqlBatch, Configuration config) {
+        Results results = new Results();
+        Statement statement = null;
+        StringBuilder sb = new StringBuilder();
+        try {
+            statement = connection.createStatement();
+            for (String sql : sqlBatch) {
+                sb.append(sql);
+                statement.addBatch(sql);
+            }
+            try {
+                for (int intResult : statement.executeBatch()) {
+                    results.addResult(new Result(intResult, null, null, sb.toString()));
+                }
+            } catch (BatchUpdateException e) {
+                for (int intResult : e.getUpdateCounts()) {
+                    results.addResult(new Result(intResult, null, null, sb.toString()));
+                }
+                extractErrors(results, e);
+            } finally {
+                extractWarnings(results, statement);
+            }
+        } catch (SQLException e) {
+            extractErrors(results, e);
+        } finally {
+            JdbcUtils.closeStatement(statement);
+        }
+        return results;
+    }
 }

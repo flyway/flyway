@@ -18,6 +18,11 @@ Note: Only certain jdbc drivers are packaged with flyway. If your driver is not 
 ./flyway -url=jdbc:h2:mem:flyway_db info
 ```
 
+To configure a named environment via command line when using a TOML configuration, prefix `url` with `environments.{environment name}.` for example:
+```powershell
+./flyway -environments.sample.url=jdbc:h2:mem:flyway_db info
+```
+
 ### TOML Configuration File
 ```toml
 [environments.default]

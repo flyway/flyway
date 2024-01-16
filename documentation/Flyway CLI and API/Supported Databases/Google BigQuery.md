@@ -21,14 +21,13 @@ subtitle: Google BigQuery
 | **Supported versions** | -   |
 | **Default Java class** | `com.simba.googlebigquery.jdbc42.Driver` |
 
-## Flyway Teams Features for BigQuery
 
 ### Performance
 
 Executing multiple schema changes against GCP BigQuery is comparatively slow as it is optimized for data. You can read more about
 it [here](https://cloud.google.com/blog/products/data-analytics/troubleshoot-bigquery-performance-with-these-dashboards).
 
-Flyway Teams Edition alleviates this via batching which executes multiple schema changes in one request to minimize latency and improve performance.
+Flyway alleviates this via batching which executes multiple schema changes in one request to minimize latency and improve performance.
 
 To enable batching follow the guide [here](Configuration/parameters/flyway/batch) for your platform. <br/>
 In the Flyway Command-Line this would look like the following:

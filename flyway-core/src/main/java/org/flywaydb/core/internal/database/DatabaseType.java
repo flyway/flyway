@@ -240,8 +240,6 @@ public interface DatabaseType extends Plugin {
 
     String instantiateClassExtendedErrorMessage();
 
-    void printMessages(Configuration configuration);
-
     default List<String> getSpecialResourceFilenames(Configuration configuration) {
         return Collections.emptyList();
     }

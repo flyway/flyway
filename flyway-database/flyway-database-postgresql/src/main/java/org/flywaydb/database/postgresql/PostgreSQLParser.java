@@ -56,6 +56,7 @@ public class PostgreSQLParser extends Parser {
 
 
 
+            , boolean batchable
                                                 ) throws IOException {
         if (statementType == COPY) {
             return new PostgreSQLCopyParsedStatement(nonCommentPartPos, nonCommentPartLine, nonCommentPartCol,
@@ -68,6 +69,7 @@ public class PostgreSQLParser extends Parser {
 
 
 
+                , batchable
                                     );
     }
 

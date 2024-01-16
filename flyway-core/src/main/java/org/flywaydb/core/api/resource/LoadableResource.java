@@ -28,15 +28,12 @@ public abstract class LoadableResource implements Resource, Comparable<LoadableR
      */
     public abstract Reader read();
 
-
-
-
-
-
-
-
-
-
+    /**
+     * @return Whether it is recommended to stream this resource.
+     */
+    public boolean shouldStream() {
+        return false;
+    }
 
     @Override
     public int compareTo(LoadableResource o) {

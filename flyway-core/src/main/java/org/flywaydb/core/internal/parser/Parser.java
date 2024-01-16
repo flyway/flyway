@@ -38,12 +38,10 @@ import java.util.regex.Pattern;
  */
 @CustomLog
 public abstract class Parser {
-
-
-
-
-
-
+    /**
+     * Regex to determine whether this statement can be run as part of batch or whether it must be run individually.
+     */
+    private static final Pattern BATCHABLE_REGEX = Pattern.compile("^(INSERT|UPDATE|DELETE|UPSERT|MERGE)");
 
     public final Configuration configuration;
     private final int peekDepth;
@@ -165,9 +163,7 @@ public abstract class Parser {
 
             StatementType statementType = StatementType.UNKNOWN;
             Boolean canExecuteInTransaction = null;
-
-
-
+            Boolean batchable = null;
 
             String simplifiedStatement = "";
 
@@ -232,11 +228,9 @@ public abstract class Parser {
                     if (canExecuteInTransaction == null) {
                         canExecuteInTransaction = determineCanExecuteInTransaction(simplifiedStatement, keywords, true);
                     }
-
-
-
-
-
+                    if (batchable == null) {
+                        batchable = false;
+                    }
                     if (TokenType.EOF == tokenType && (parensDepth > 0 || blockDepth > 0)) {
                         throw new FlywayException("Incomplete statement at line " + statementLine +
                                                           " col " + statementCol + ": " + sql);
@@ -247,6 +241,7 @@ public abstract class Parser {
 
 
 
+                            , batchable
                                           );
                 }
 
@@ -293,11 +288,9 @@ public abstract class Parser {
                     if (canExecuteInTransaction == null) {
                         canExecuteInTransaction = determineCanExecuteInTransaction(simplifiedStatement, keywords, null);
                     }
-
-
-
-
-
+                    if (batchable == null) {
+                        batchable = BATCHABLE_REGEX.matcher(simplifiedStatement).matches();
+                    }
                 }
             } while (true);
         } catch (Exception e) {
@@ -438,13 +431,10 @@ public abstract class Parser {
 
 
 
+            , boolean batchable
                                                 ) throws IOException {
         return new ParsedSqlStatement(statementPos, statementLine, statementCol,
-                                      sql, delimiter, canExecuteInTransaction
-
-
-
-        );
+                                      sql, delimiter, canExecuteInTransaction, batchable);
     }
 
     protected StatementType detectStatementType(String simplifiedStatement, ParserContext context, PeekingReader reader) {

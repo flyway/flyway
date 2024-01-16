@@ -40,29 +40,21 @@ public class ParsedSqlStatement implements SqlStatement {
 
     private final boolean canExecuteInTransaction;
 
-
-
-
-
-
-
-
+    /**
+     * Whether this statement can be run as part of batch or whether it must be run individually.
+     */
+    @Getter(onMethod = @__(@Override))
+    private final boolean batchable;
 
     public ParsedSqlStatement(int pos, int line, int col, String sql, Delimiter delimiter,
-                              boolean canExecuteInTransaction
-
-
-
-                             ) {
+                              boolean canExecuteInTransaction, boolean batchable) {
         this.pos = pos;
         this.line = line;
         this.col = col;
         this.sql = sql;
         this.delimiter = delimiter;
         this.canExecuteInTransaction = canExecuteInTransaction;
-
-
-
+        this.batchable = batchable;
     }
 
     @Override

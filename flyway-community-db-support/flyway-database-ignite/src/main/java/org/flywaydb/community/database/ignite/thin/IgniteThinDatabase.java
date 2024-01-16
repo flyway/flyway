@@ -55,7 +55,7 @@ public class IgniteThinDatabase extends Database<IgniteThinConnection> {
     }
 
     @Override
-    public final void ensureSupported(Configuration configuration) {
+    public void ensureSupported(Configuration configuration) {
         notifyDatabaseIsNotFormallySupported();
     }
 

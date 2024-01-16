@@ -77,10 +77,7 @@ public class SqlScriptCallbackFactory {
                 SqlScript sqlScript = sqlScriptFactory.createSqlScript(resource, configuration.isMixed(), resourceProvider);
                 callbacksFound.put(name, sqlScript);
 
-                boolean batch = false;
-
-
-
+                boolean batch = configuration.isBatch();
 
                 callbacks.add(new SqlScriptCallback(event, parsedName.getDescription(), sqlScriptExecutorFactory, sqlScript, batch));
             }

@@ -536,13 +536,8 @@ public class ClassicConfiguration implements Configuration {
     public MigrationVersion getTarget() {
         String target = getModernFlyway().getTarget();
         if (target.endsWith("?")) {
-
-            throw new org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(this), "failOnMissingTarget");
-
-
-
-
-
+            getModernFlyway().setFailOnMissingTarget(false);
+            return MigrationVersion.fromVersion(target.substring(0, target.length() - 1));
         } else {
             getModernFlyway().setFailOnMissingTarget(true);
             return MigrationVersion.fromVersion(target);
@@ -863,12 +858,7 @@ public class ClassicConfiguration implements Configuration {
      *                       <i>Flyway Teams only</i>
      */
     public void setDetectEncoding(boolean detectEncoding) {
-
-        throw new org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(this), "detectEncoding");
-
-
-
-
+        getModernFlyway().setDetectEncoding(detectEncoding);
     }
 
     public void setReportFilename(String reportFilename) {
@@ -1015,12 +1005,7 @@ public class ClassicConfiguration implements Configuration {
      *               (default: {@code false})
      */
     public void setStream(boolean stream) {
-
-        throw new org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(this), "stream");
-
-
-
-
+        getModernFlyway().setStream(stream);
     }
 
     /**
@@ -1035,12 +1020,7 @@ public class ClassicConfiguration implements Configuration {
      *              {@code false})
      */
     public void setBatch(boolean batch) {
-
-        throw new org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(this), "batch");
-
-
-
-
+        getModernFlyway().setBatch(batch);
     }
 
     /**

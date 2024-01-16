@@ -37,7 +37,7 @@ public class RedshiftDatabase extends Database<RedshiftConnection> {
     }
 
     @Override
-    public final void ensureSupported(Configuration configuration) {
+    public void ensureSupported(Configuration configuration) {
         // Always latest Redshift version.
     }
 

@@ -43,6 +43,7 @@ import org.flywaydb.core.extensibility.LicenseGuard;
 import org.flywaydb.core.internal.command.DbMigrate;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.info.MigrationFilterImpl;
+import org.flywaydb.core.internal.license.FlywayExpiredLicenseKeyException;
 import org.flywaydb.core.internal.license.FlywayLicensingException;
 import org.flywaydb.core.internal.logging.EvolvingLog;
 import org.flywaydb.core.internal.logging.buffered.BufferedLog;
@@ -73,6 +74,7 @@ import static org.flywaydb.commandline.utils.TelemetryUtils.populateRootTelemetr
 public class Main {
     private static Log LOG;
     private static final PluginRegister pluginRegister = new PluginRegister();
+    private static boolean hasPrintedLicense;
 
     public static void main(String[] args) throws Exception {
         int exitCode = 0;
@@ -145,6 +147,18 @@ public class Main {
         }
     }
 
+    private static void printLicenseInfo(Configuration configuration, String operation) {
+        if (!hasPrintedLicense && !"auth".equals(operation)) {
+            try {
+                LicenseGuard.getPermit(configuration).print();
+                LOG.info("See release notes here: " + FlywayDbWebsiteLinks.RELEASE_NOTES);
+            } catch (FlywayExpiredLicenseKeyException e) {
+                LOG.error(e.getMessage());
+            }
+            hasPrintedLicense = true;
+        }
+    }
+
 
     private static OperationResult executeFlyway(FlywayTelemetryManager flywayTelemetryManager, CommandLineArguments commandLineArguments, Configuration configuration) {
         Flyway flyway = Flyway.configure(configuration.getClassLoader()).configuration(configuration).load();
@@ -152,11 +166,13 @@ public class Main {
         OperationResult result;
         if (commandLineArguments.getOperations().size() == 1) {
             String operation = commandLineArguments.getOperations().get(0);
+            printLicenseInfo(configuration, operation);
             result = executeOperation(flyway, operation, commandLineArguments, flywayTelemetryManager, executionConfiguration);
         } else {
             CompositeResult<OperationResult> compositeResult = new CompositeResult<>();
 
             for (String operation : commandLineArguments.getOperations()) {
+                printLicenseInfo(configuration, operation);
                 OperationResult operationResult = executeOperation(flyway, operation, commandLineArguments, flywayTelemetryManager, executionConfiguration);
                 compositeResult.individualResults.add(operationResult);
                 if (operationResult instanceof HtmlResult && ((HtmlResult) operationResult).exceptionObject instanceof DbMigrate.FlywayMigrateException) {

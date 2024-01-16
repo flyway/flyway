@@ -19,6 +19,11 @@ The maximum number of retries when attempting to connect to the database. After 
 ./flyway -connectRetries=10 info
 ```
 
+To configure a named environment via command line when using a TOML configuration, prefix `connectRetries` with `environments.{environment name}.` for example:
+```powershell
+./flyway -environments.sample.connectRetries=10 info
+```
+
 ### TOML Configuration File
 ```toml
 [environments.default]

@@ -15,6 +15,7 @@
  */
 package org.flywaydb.commandline.configuration;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import lombok.CustomLog;
@@ -79,14 +80,18 @@ public class ModernConfigurationManager implements ConfigurationManager {
             EnvironmentModel defaultEnv = config.getEnvironments().get(config.getFlyway().getEnvironment());
 
             if (environmentVariablesModel.getEnvironments().containsKey(ClassicConfiguration.TEMP_ENVIRONMENT_NAME)) {
-                EnvironmentModel environmentVariablesEnv = environmentVariablesModel.getEnvironments().get(ClassicConfiguration.TEMP_ENVIRONMENT_NAME);
-                EnvironmentModel mergedModel = defaultEnv == null ? environmentVariablesEnv : defaultEnv.merge(environmentVariablesEnv);
+                EnvironmentModel environmentVariablesEnv = environmentVariablesModel.getEnvironments()
+                    .get(ClassicConfiguration.TEMP_ENVIRONMENT_NAME);
+                EnvironmentModel mergedModel =
+                    defaultEnv == null ? environmentVariablesEnv : defaultEnv.merge(environmentVariablesEnv);
                 config.getEnvironments().put(config.getFlyway().getEnvironment(), mergedModel);
             }
 
             if (commandLineArgumentsModel.getEnvironments().containsKey(ClassicConfiguration.TEMP_ENVIRONMENT_NAME)) {
-                EnvironmentModel commandLineArgumentsEnv = commandLineArgumentsModel.getEnvironments().get(ClassicConfiguration.TEMP_ENVIRONMENT_NAME);
-                EnvironmentModel mergedModel = defaultEnv == null ? commandLineArgumentsEnv : defaultEnv.merge(commandLineArgumentsEnv);
+                EnvironmentModel commandLineArgumentsEnv = commandLineArgumentsModel.getEnvironments()
+                    .get(ClassicConfiguration.TEMP_ENVIRONMENT_NAME);
+                EnvironmentModel mergedModel =
+                    defaultEnv == null ? commandLineArgumentsEnv : defaultEnv.merge(commandLineArgumentsEnv);
                 config.getEnvironments().put(config.getFlyway().getEnvironment(), mergedModel);
             }
 
@@ -104,9 +109,10 @@ public class ModernConfigurationManager implements ConfigurationManager {
                 }
                 config.getEnvironments().put(envKey, env);
 
-            } catch (IllegalArgumentException exc ){
-               String fieldName = exc.getMessage().split("\"")[1];
-               throw new FlywayException(String.format("Failed to configure parameter: '%s' in your '%s' environment", fieldName, envKey));
+            } catch (IllegalArgumentException exc) {
+                String fieldName = exc.getMessage().split("\"")[1];
+                throw new FlywayException(
+                    String.format("Failed to configure parameter: '%s' in your '%s' environment", fieldName, envKey));
             }
 
 
@@ -242,8 +248,23 @@ public class ModernConfigurationManager implements ConfigurationManager {
                         }
                     });
 
-                ConfigurationExtension newConfigurationExtension = new ObjectMapper().convertValue(finalValues,
+                ObjectMapper mapper = new ObjectMapper();
+                if (suppressError) {
+                    mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                }
+
+                ConfigurationExtension newConfigurationExtension = mapper.convertValue(finalValues,
                     configurationExtension.getClass());
+                if (suppressError) {
+                    try {
+                        ConfigurationExtension dummyConfigurationExtension = (new ObjectMapper()).convertValue(
+                            finalValues, configurationExtension.getClass());
+                    } catch (final IllegalArgumentException e) {
+                        final var fullFieldName = getFullFieldNameFromException(namespace, e);
+
+                        LOG.warn(String.format(UNABLE_TO_PARSE_FIELD, fullFieldName));
+                    }
+                }
                 MergeUtils.mergeModel(newConfigurationExtension, configurationExtension);
 
                 if (!values.isEmpty()) {

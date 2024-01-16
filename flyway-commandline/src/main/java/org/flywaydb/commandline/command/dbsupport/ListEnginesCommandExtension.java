@@ -29,7 +29,6 @@ import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StringUtils;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,11 +53,7 @@ public class ListEnginesCommandExtension implements CommandExtension {
         FlywayTelemetryManager flywayTelemetryManager) throws FlywayException {
         try (EventTelemetryModel telemetryModel = new EventTelemetryModel(DB_SUPPORT, flywayTelemetryManager)) {
             try {
-                List<DatabaseType> allPlugins = config.getPluginRegister().getPlugins(DatabaseType.class);
-
-                List<DbInfoResult> databaseInfos = allPlugins.stream()
-                    .map(p -> new DbInfoResult(p.getName()))
-                    .collect(Collectors.toList());
+                List<DbInfoResult> databaseInfos = getEngines(config);
 
                 if (!databaseInfos.isEmpty()) {
 
@@ -76,7 +71,10 @@ public class ListEnginesCommandExtension implements CommandExtension {
                     }
                 }
 
-                return new DbSupportResult(VersionPrinter.getVersion(), command, LicenseGuard.getTier(config),
+                return new DbSupportResult(
+                    VersionPrinter.getVersion(),
+                    DB_SUPPORT,
+                    LicenseGuard.getTier(config),
                     databaseInfos);
             } catch (Exception e) {
                 telemetryModel.setException(e);
@@ -88,5 +86,16 @@ public class ListEnginesCommandExtension implements CommandExtension {
     @Override
     public List<Pair<String, String>> getUsage() {
         return List.of(Pair.of(DB_SUPPORT, "Lists the database engines that Flyway has loaded support for."));
+    }
+
+    /**
+     * Get the currently supported database engines.
+     *
+     * @param config The Flyway configuration.
+     */
+    public List<DbInfoResult> getEngines(Configuration config) {
+        return config.getPluginRegister().getPlugins(DatabaseType.class).stream()
+            .map(p -> new DbInfoResult(p.getName()))
+            .toList();
     }
 }

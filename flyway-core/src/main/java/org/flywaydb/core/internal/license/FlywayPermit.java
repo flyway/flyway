@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.license;
 
+import java.io.File;
 import lombok.CustomLog;
 import lombok.Getter;
 import org.flywaydb.core.api.FlywayException;
@@ -22,13 +23,11 @@ import org.flywaydb.core.extensibility.Tier;
 
 
 import org.flywaydb.core.internal.util.DateUtils;
+import org.flywaydb.core.internal.util.FileUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.io.Serializable;
-import java.time.Instant;
 import java.util.Date;
-
-import static java.time.temporal.ChronoUnit.DAYS;
 
 @Getter
 @CustomLog
@@ -40,6 +39,10 @@ public class FlywayPermit implements Serializable {
     private boolean trial;
     private boolean redgateEmployee;
     private final long DAYS_TO_DISPLAY_LICENSED_UNTIL = 30;
+    static final long PERMIT_FILE_OUTDATED_TIME = 24 * 60 * 60 * 1000;
+    private static final File FLYWAY_APP_DATA_FOLDER = FileUtils.getAppDataFlywayCLILocation();
+    private static final File PERMIT_FILE = new File(FLYWAY_APP_DATA_FOLDER, "permit");
+    private static final File REFRESH_TOKEN_FILE = new File(FLYWAY_APP_DATA_FOLDER, "refresh_token");
 
 
 
@@ -99,6 +102,18 @@ public class FlywayPermit implements Serializable {
             logLicensedUntilIfWithinWindow();
         }
 
+        if (!REFRESH_TOKEN_FILE.exists() && PERMIT_FILE.exists()) {
+            if (permitFileOutdated(PERMIT_FILE)) {
+                LOG.info("Flyway permit on disk is outdated and cannot be refreshed automatically because there is no refresh token on disk. Please rerun auth");
+            } else if (permitExpired()) {
+                LOG.info("Flyway permit on disk is expired and cannot be refreshed automatically because there is no refresh token on disk. Please rerun auth");
+            }
+        }
+
+        if (this.tier == Tier.COMMUNITY && PERMIT_FILE.exists()) {
+            LOG.error("No Flyway licenses detected. Flyway fell back to Community Edition. Please add a Flyway license to your account and rerun auth. Alternatively, you can run auth -logout to remove your unlicensed permit on disk");
+        }
+
         if (isTrial()) {
             LOG.warn("You are using a limited Flyway trial license, valid until " + DateUtils.toDateString(this.contractExpiry) + "." +
                              " In " + StringUtils.getDaysString(DateUtils.getRemainingDays(this.contractExpiry)) +
@@ -111,6 +126,10 @@ public class FlywayPermit implements Serializable {
         if (DateUtils.getRemainingDays(this.contractExpiry) <= DAYS_TO_DISPLAY_LICENSED_UNTIL) {
             LOG.info("Licensed until " + DateUtils.toDateString(this.contractExpiry) + " (" + StringUtils.getDaysString(DateUtils.getRemainingDays(this.contractExpiry)) + " remaining)");
         }
+    }
+
+    public static boolean permitFileOutdated(File permitFile) {
+        return permitFile.lastModified() + PERMIT_FILE_OUTDATED_TIME < new Date().getTime();
     }
 
     public boolean permitExpired() {

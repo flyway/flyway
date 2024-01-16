@@ -20,12 +20,8 @@ You must ensure that the resolver is available on the classpath (see [Adding to 
 
 ### TOML Configuration File
 ```toml
-[environments.default]
-resolvers = { azureAdInteractive }
-
-[environments.default.resolvers.azureAdInteractive]
-tenantId = "tenant-id"
-clientId = "client-id"
+[flyway]
+migrationResolvers = ["my.resolver.MigrationResolver"]
 ```
 
 ### Configuration File

@@ -18,6 +18,11 @@ This can be omitted if the password is baked into the [url](Configuration/parame
 ./flyway -password=mysecretpassword info
 ```
 
+To configure a named environment via command line when using a TOML configuration, prefix `password` with `environments.{environment name}.` for example:
+```powershell
+./flyway -environments.sample.password=mysecretpassword info
+```
+
 ### TOML Configuration File
 ```toml
 [environments.default]

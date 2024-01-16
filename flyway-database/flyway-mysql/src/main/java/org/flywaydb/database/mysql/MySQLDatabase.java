@@ -236,21 +236,11 @@ public class MySQLDatabase extends Database<MySQLConnection> {
     }
 
     @Override
-    public final void ensureSupported(Configuration configuration) {
-        if (databaseType.getName().equals("TiDB")) {
-            ensureDatabaseIsRecentEnough("5.0");
-            recommendFlywayUpgradeIfNecessary("5.0");
-            return;
-        }
+    public void ensureSupported(Configuration configuration) {
+
         ensureDatabaseIsRecentEnough("5.1");
-        if (databaseType instanceof MariaDBDatabaseType) {
 
-            ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("10.3", Tier.PREMIUM, configuration);
-
-            recommendFlywayUpgradeIfNecessary("10.11");
-        } else {
-
-            ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("8.0", Tier.PREMIUM, configuration);
+        ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("8.0", Tier.PREMIUM, configuration);
 
 
 
@@ -263,8 +253,9 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
 
 
-            recommendFlywayUpgradeIfNecessary("8.1");
-        }
+
+        recommendFlywayUpgradeIfNecessary("8.1");
+
     }
 
     @Override

@@ -23,6 +23,11 @@ Auto-detected based on the url
 ./flyway -driver=com.microsoft.sqlserver.jdbc.SQLServerDriver info
 ```
 
+To configure a named environment via command line when using a TOML configuration, prefix `driver` with `environments.{environment name}.` for example:
+```powershell
+./flyway -environments.sample.driver=com.microsoft.sqlserver.jdbc.SQLServerDriver info
+```
+
 ### TOML Configuration File
 ```toml
 [environments.default]
