@@ -23,8 +23,10 @@ import java.util.Map;
 @Getter
 public class ClickHouseConfigurationExtension implements ConfigurationExtension {
     private static final String CLUSTER_NAME = "flyway.clickhouse.clusterName";
+    private static final String ZOOKEEPER_PATH = "flyway.zookeeper.path";
 
     private String clusterName;
+    private String zookeeperPath;
 
     @Override
     public String getNamespace() {
@@ -37,12 +39,20 @@ public class ClickHouseConfigurationExtension implements ConfigurationExtension 
         if (clusterName != null) {
             this.clusterName = clusterName;
         }
+
+        String zookeeperPath = configuration.remove(ZOOKEEPER_PATH);
+        if (zookeeperPath != null) {
+            this.zookeeperPath = zookeeperPath;
+        }
     }
 
     @Override
     public String getConfigurationParameterFromEnvironmentVariable(String environmentVariable) {
         if ("FLYWAY_CLICKHOUSE_CLUSTER_NAME".equals(environmentVariable)) {
             return CLUSTER_NAME;
+        }
+        if ("FLYWAY_ZOOKEEPER_PATH".equals(environmentVariable)) {
+            return ZOOKEEPER_PATH;
         }
         return null;
     }
