@@ -38,6 +38,10 @@ public class ClickHouseDatabase extends Database<ClickHouseConnection> {
         return configuration.getPluginRegister().getPlugin(ClickHouseConfigurationExtension.class).getClusterName();
     }
 
+    public String getZookeeperPath() {
+        return configuration.getPluginRegister().getPlugin(ClickHouseConfigurationExtension.class).getZookeeperPath();
+    }
+
     @Override
     protected ClickHouseConnection doGetConnection(Connection connection) {
         return new ClickHouseConnection(this, connection);
@@ -93,7 +97,7 @@ public class ClickHouseDatabase extends Database<ClickHouseConnection> {
         String engine;
 
         if (isClustered) {
-            engine = "ReplicatedMergeTree('/clickhouse/tables/{shard}/{database}/{table}', '{replica}')";
+            engine = "ReplicatedMergeTree('" + getZookeeperPath() + "', '{replica}')";
         } else {
             engine = "MergeTree";
         }
