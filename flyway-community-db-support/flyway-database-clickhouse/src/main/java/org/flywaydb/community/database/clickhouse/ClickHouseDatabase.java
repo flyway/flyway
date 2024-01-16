@@ -81,9 +81,6 @@ public class ClickHouseDatabase extends Database<ClickHouseConnection> {
         String clusterName = getClusterName();
         boolean isClustered = StringUtils.hasText(clusterName);
 
-        String zookeeperPath = getZookeeperPath();
-        boolean hasCustomZookeeperPath = StringUtils.hasText(zookeeperPath);
-
         String script = "CREATE TABLE IF NOT EXISTS " + table + (isClustered ? (" ON CLUSTER " + clusterName) : "") + "(" +
                 "    installed_rank Int32," +
                 "    version Nullable(String)," +
@@ -100,11 +97,7 @@ public class ClickHouseDatabase extends Database<ClickHouseConnection> {
         String engine;
 
         if (isClustered) {
-            if (hasCustomZookeeperPath) {
-                engine = "ReplicatedMergeTree('" + zookeeperPath + "', '{replica}')";
-            } else {
-                engine = "ReplicatedMergeTree('/clickhouse/tables/{shard}/{database}/{table}', '{replica}')";
-            }
+            engine = "ReplicatedMergeTree('" + getZookeeperPath() + "', '{replica}')";
         } else {
             engine = "MergeTree";
         }
