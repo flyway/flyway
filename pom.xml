@@ -122,6 +122,11 @@
             <name>${releaseRepository.name}</name>
             <url>${releaseRepository.url}</url>
         </repository>
+<!--        <snapshotRepository>-->
+<!--            <id>shd-snapshots</id>-->
+<!--            <name>SHD Snapshots Repository</name>-->
+<!--            <url>http://srv-nexus.shd.lan:8081/nexus/content/repositories/snapshots</url>-->
+<!--        </snapshotRepository>-->
     </distributionManagement>
 
     <repositories>
@@ -167,6 +172,8 @@
         <version.hamcrest>2.2</version.hamcrest>
         <version.hsqldb>2.7.2</version.hsqldb>
         <version.ignite>2.13.0</version.ignite>
+        <version.intersystems.cache>2018.1.2</version.intersystems.cache>
+        <version.intersystems.iris>3.6.1</version.intersystems.iris>
         <version.informix>4.50.3</version.informix>
         <version.jansi>1.18</version.jansi>
         <version.jackson>2.15.2</version.jackson>
@@ -357,6 +364,20 @@
                 <groupId>org.apache.ignite</groupId>
                 <artifactId>ignite-core</artifactId>
                 <version>${version.ignite}</version>
+                <optional>true</optional>
+            </dependency>
+            <!-- Caché -->
+            <dependency>
+                <groupId>com.intersys</groupId>
+                <artifactId>cache-jdbc</artifactId>
+                <version>${version.intersystems.cache}</version>
+                <optional>true</optional>
+            </dependency>
+            <!-- IRIS -->
+            <dependency>
+                <groupId>com.intersys</groupId>
+                <artifactId>iris-jdbc</artifactId>
+                <version>${version.intersystems.iris}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
