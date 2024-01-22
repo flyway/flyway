@@ -47,10 +47,10 @@ public interface SqlStatement {
      */
     boolean canExecuteInTransaction();
 
-
-
-
-
+    /**
+     * @return Whether this statement can be run as part of batch or whether it must be run individually.
+     */
+    boolean isBatchable();
 
 
 

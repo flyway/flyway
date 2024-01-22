@@ -263,6 +263,7 @@ public class OracleParser extends Parser {
 
 
 
+            , boolean batchable
                                                 ) throws IOException {
 
 
@@ -330,6 +331,7 @@ public class OracleParser extends Parser {
 
 
 
+                , batchable
                                     );
     }
 

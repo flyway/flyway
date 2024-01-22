@@ -20,11 +20,11 @@ subtitle: Google Cloud Spanner
 | **Supported versions**             | `2.2.6` and later                                                                                                                                                   |
 | **Default Java class**             | `com.google.cloud.spanner.jdbc.JdbcDriver`                                                                                                                          |
 
-## Flyway Teams Features for Cloud Spanner
+### Performance
 
 Executing multiple schema changes against Cloud Spanner is comparatively slow due to its need to validate your data. You can read more about it [here](https://cloud.google.com/spanner/docs/schema-updates#performance).
 
-Flyway Teams Edition alleviates this via batching which executes multiple schema changes in one request to minimize latency and improve performance.
+Flyway alleviates this via batching which executes multiple schema changes in one request to minimize latency and improve performance.
 
 To enable batching follow the guide [here](Configuration/parameters/flyway/batch) for your platform.
 

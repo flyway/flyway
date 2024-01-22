@@ -43,7 +43,7 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
     }
 
     @Override
-    public final void ensureSupported(Configuration configuration) {
+    public void ensureSupported(Configuration configuration) {
         ensureDatabaseIsRecentEnough("1.1");
         recommendFlywayUpgradeIfNecessary("22.1");
     }

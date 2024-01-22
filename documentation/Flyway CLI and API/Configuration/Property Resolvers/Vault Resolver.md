@@ -2,7 +2,7 @@
 subtitle: Vault
 ---
 # Vault
-{% include commandlineonly.html %}
+{% include enterprise.html %}
 
 To resolve values from Hashicorp Vault, configure [Vault token](Configuration/Parameters/Flyway/Vault Token) and [Vault URL](Configuration/Parameters/Flyway/Vault URL).
 Values can then be inlined using `${vault.key}`.

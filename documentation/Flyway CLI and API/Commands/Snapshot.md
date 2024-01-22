@@ -50,4 +50,6 @@ Lastly, we can apply any pending migrations and then capture the `nextSnapshot`:
 flyway migrate -url="jdbc://build"
 flyway snapshot -snapshot.filename="next.snapshot" -url="jdbc://build"
 ```
-
+#### Know limitations
+##### Oracle
+- If you don't specify the schemas to work with in your call to flyway you will get and error (`Expected database schemas option (schemas) to be provided`), the solution is to specify the [schemas](Parameters/Environments/Schemas) you want to be included.

@@ -43,7 +43,7 @@ public class HSQLDBDatabase extends Database<HSQLDBConnection> {
     }
 
     @Override
-    public final void ensureSupported(Configuration configuration) {
+    public void ensureSupported(Configuration configuration) {
         ensureDatabaseIsRecentEnough("1.8");
 
         ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("2.5", Tier.PREMIUM, configuration);

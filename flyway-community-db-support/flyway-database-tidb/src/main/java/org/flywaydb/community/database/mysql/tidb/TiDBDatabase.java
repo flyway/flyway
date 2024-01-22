@@ -36,4 +36,10 @@ public class TiDBDatabase extends MySQLDatabase {
 
     @Override
     protected boolean isCreateTableAsSelectAllowed() {return false;}
+
+    @Override
+    public void ensureSupported(Configuration configuration) {
+        ensureDatabaseIsRecentEnough("5.0");
+        recommendFlywayUpgradeIfNecessary("5.0");
+    }
 }

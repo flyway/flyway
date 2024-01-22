@@ -2,9 +2,6 @@
 subtitle: Resolvers
 ---
 # Property Resolvers
-{% include enterprise.html %}
-{% include commandlineonly.html %}
-
 Property resolvers allow Flyway to retrieve configuration parameters from other locations at runtime, such as [secrets managers](Configuration/Secrets Management) and environment variables. 
 This is not to be confused with [migration resolvers](Configuration/Parameters/Environments/Resolver).
 
@@ -13,7 +10,12 @@ Flyway comes with support for the following resolvers:
 - [Dapr Secret Store](Configuration/Property Resolvers/Dapr Resolver)
 - [Google Cloud Secret Manager](Configuration/Property Resolvers/Google Cloud Secret Manager Resolver)
 - [Vault](Configuration/Property Resolvers/Vault Resolver)
+- [Local Secret](Configuration/Property Resolvers/Local Secret)
 - [Environment Variables](Configuration/Property Resolvers/Environment Variable Resolver)
+- [Git](Configuration/Property Resolvers/Git Resolver)
+- [Redgate Clone](Configuration/Property Resolvers/Redgate Clone Resolver)
+- [Azure Active Directory Interactive Resolver](Configuration/Property Resolvers/Azure Active Directory Interactive Resolver)
+- [Local DB Resolver](Configuration/Property Resolvers/Local DB Resolver)
 
 ## Using Property Resolvers In TOML Configuration Files
 

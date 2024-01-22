@@ -4,7 +4,6 @@ subtitle: flyway.detectEncoding
 ---
 
 # Detect Encoding
-{% include teams.html %}
 
 ## Description
 Whether Flyway should attempt to auto-detect the file encoding of each migration. <br/>

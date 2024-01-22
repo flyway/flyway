@@ -60,13 +60,15 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
 
+    /**
+     * The maximum number of statements to include in a batch.
+     */
+    private static final int MAX_BATCH_SIZE = 100;
 
-
-
-
-
-
-
+    /**
+     * Whether to batch SQL statements.
+     */
+    private final boolean batch;
 
 
     public DefaultSqlScriptExecutor(JdbcTemplate jdbcTemplate,
@@ -80,7 +82,7 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
 
-
+        this.batch = batch;
     }
 
     @Override
@@ -91,7 +93,7 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
 
-
+        List<SqlStatement> batchStatements = new ArrayList<>();
 
         try (SqlStatementIterator sqlStatementIterator = sqlScript.getSqlStatements()) {
             SqlStatement sqlStatement;
@@ -109,97 +111,97 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                if (batch) {
+                    if (sqlStatement.isBatchable()) {
+                        logStatementExecution(sqlStatement);
+                        batchStatements.add(sqlStatement);
+                        if (batchStatements.size() >= MAX_BATCH_SIZE) {
+                            executeBatch(jdbcTemplate, sqlScript, batchStatements, config);
+                            batchStatements = new ArrayList<>();
+                        }
+                    } else {
+                        // Execute the batch up to this point
+                        executeBatch(jdbcTemplate, sqlScript, batchStatements, config);
+                        batchStatements = new ArrayList<>();
+                        // Now execute this non-batchable statement. We'll resume batching after this one.
+                        executeStatement(jdbcTemplate, sqlScript, sqlStatement, config);
+                    }
+                } else {
                     executeStatement(jdbcTemplate, sqlScript, sqlStatement, config);
-
-
-
+                }
             }
         }
 
-
-
-
-
-
-
+        if (batch) {
+            // Execute any remaining batch statements that haven't yet been sent to the database
+            executeBatch(jdbcTemplate, sqlScript, batchStatements, config);
+        }
     }
 
     protected void logStatementExecution(SqlStatement sqlStatement) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Executing "
-
-
-
+                              + (batch && sqlStatement.isBatchable() ? "batchable " : "")
                               + "SQL: " + sqlStatement.getSql());
         }
     }
 
+    private void executeBatch(JdbcTemplate jdbcTemplate, SqlScript sqlScript, List<SqlStatement> batchStatements, Configuration config) {
+        if (batchStatements.isEmpty()) {
+            return;
+        }
+
+        LOG.debug("Sending batch of " + batchStatements.size() + " statements to database ...");
+        List<String> sqlBatch = new ArrayList<>();
+        for (SqlStatement sqlStatement : batchStatements) {
+
+
+
+
+
+            sqlBatch.add(sqlStatement.getSql());
+        }
+
+        Results results = jdbcTemplate.executeBatch(sqlBatch, config);
+
+        if (results.getException() != null) {
+            handleException(results, sqlScript, batchStatements.get(0), config);
+
+            for (int i = 0; i < results.getResults().size(); i++) {
+                SqlStatement sqlStatement = batchStatements.get(i);
+                long updateCount = results.getResults().get(i).getUpdateCount();
+                if (updateCount == Statement.EXECUTE_FAILED) {
 
 
 
 
 
 
+                    handleException(results, sqlScript, batchStatements.get(i), config);
+                } else if (updateCount != Statement.SUCCESS_NO_INFO) {
 
 
 
 
 
 
+                    handleUpdateCount(updateCount);
+                }
+            }
+            return;
+        }
+
+        for (int i = 0; i < results.getResults().size(); i++) {
+            SqlStatement sqlStatement = batchStatements.get(i);
 
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        }
+        handleResults(results);
+    }
 
     protected void executeStatement(JdbcTemplate jdbcTemplate, SqlScript sqlScript, SqlStatement sqlStatement, Configuration config) {
         logStatementExecution(sqlStatement);

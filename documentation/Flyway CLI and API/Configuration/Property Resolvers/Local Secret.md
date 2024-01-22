@@ -2,8 +2,6 @@
 subtitle: Local Secret
 ---
 # Local Secret
-{% include commandlineonly.html %}
-
 The Local Secret resolver is intended for reading secrets on a development machine from that machine's secret store. The store flyway will use depends on the operating system of the machine.
 
 Note that accessing the credential storage may prompt for a password, and therefore this resolver is not recommended for use in CI systems or other non-interactive workflows.

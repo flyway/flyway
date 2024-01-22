@@ -18,6 +18,11 @@ This can be omitted if the user is baked into the [url](Configuration/parameters
 ./flyway -user=myuser info
 ```
 
+To configure a named environment via command line when using a TOML configuration, prefix `user` with `environments.{environment name}.` for example:
+```powershell
+./flyway -environments.sample.user=myuser info
+```
+
 ### TOML Configuration File
 ```toml
 [environments.default]

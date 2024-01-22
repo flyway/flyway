@@ -127,16 +127,10 @@ public abstract class BaseDatabaseType implements DatabaseType {
     public SqlScriptExecutorFactory createSqlScriptExecutorFactory(final JdbcConnectionFactory jdbcConnectionFactory,
                                                                    final CallbackExecutor callbackExecutor,
                                                                    final StatementInterceptor statementInterceptor) {
-        boolean supportsBatch = false;
-
-
-
-
-        final boolean finalSupportsBatch = supportsBatch;
         final DatabaseType thisRef = this;
 
         return (connection, undo, batch, outputQueryResults) -> new DefaultSqlScriptExecutor(new JdbcTemplate(connection, thisRef),
-                                                                                             callbackExecutor, undo, finalSupportsBatch && batch, outputQueryResults, statementInterceptor);
+                                                                                             callbackExecutor, undo, jdbcConnectionFactory.isSupportsBatch() && batch, outputQueryResults, statementInterceptor);
     }
 
     public DatabaseExecutionStrategy createExecutionStrategy(java.sql.Connection connection) {
@@ -236,6 +230,4 @@ public abstract class BaseDatabaseType implements DatabaseType {
     public String instantiateClassExtendedErrorMessage() {
         return "";
     }
-
-    public void printMessages(Configuration configuration) {}
 }

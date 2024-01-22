@@ -46,9 +46,7 @@ public class ParserSqlScript implements SqlScript {
     private final boolean mixed;
     private boolean parsed;
 
-
-
-
+    private final boolean stream;
     private final Set<SqlScript> referencedSqlScripts = new TreeSet<>();
 
     /**
@@ -62,9 +60,7 @@ public class ParserSqlScript implements SqlScript {
         this.resource = resource;
         this.metadata = SqlScriptMetadata.fromResource(metadataResource, parser, parser.configuration);
         this.parser = parser;
-
-
-
+        this.stream = resource.shouldStream();
         this.mixed = mixed;
     }
 
@@ -73,13 +69,9 @@ public class ParserSqlScript implements SqlScript {
             boolean transactionalStatementFound = false;
             SqlStatement sqlStatement;
             while ((sqlStatement = sqlStatementIterator.next()) != null) {
-
-
-
+                if (!stream) {
                     this.sqlStatements.add(sqlStatement);
-
-
-
+                }
 
                 sqlStatementCount++;
 
@@ -125,11 +117,9 @@ public class ParserSqlScript implements SqlScript {
     public SqlStatementIterator getSqlStatements() {
         validate();
 
-
-
-
-
-
+        if (stream) {
+            return parser.parse(resource, metadata);
+        }
 
         final Iterator<SqlStatement> iterator = sqlStatements.iterator();
         return new SqlStatementIterator() {

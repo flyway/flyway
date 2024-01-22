@@ -20,9 +20,6 @@ directory of the [Redgate app data folder](Commands/Auth) giving us access to Fl
 Our expected output to the command line should look something like this:
 
 <pre class="console">
-Flyway COMMUNITY Edition {{ site.flywayVersion }} by Redgate
-
-See release notes here: https://rd.gt/416ObMi
 You are now licensed for:
 Flyway ENTERPRISE Edition {{ site.flywayVersion }} by Redgate
 </pre>

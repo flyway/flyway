@@ -41,9 +41,7 @@ public class FileSystemScanner {
     public FileSystemScanner(boolean stream, Configuration config) {
         this.defaultEncoding = config.getEncoding();
         this.detectEncoding = config.isDetectEncoding();
-
-
-
+        this.stream = stream;
         this.throwOnMissingLocations = config.isFailOnMissingLocations();
         this.config = config;
     }

@@ -44,7 +44,7 @@ public class DerbyDatabase extends Database<DerbyConnection> {
     }
 
     @Override
-    public final void ensureSupported(Configuration configuration) {
+    public void ensureSupported(Configuration configuration) {
         ensureDatabaseIsRecentEnough("10.11.1.1");
 
         ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("10.14", Tier.PREMIUM, configuration);

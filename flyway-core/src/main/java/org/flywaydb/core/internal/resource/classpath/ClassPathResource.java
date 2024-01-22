@@ -29,10 +29,8 @@ import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.Objects;
 
-
-
-
-
+import org.flywaydb.core.internal.resource.filesystem.EncodingDetector;
+import org.flywaydb.core.internal.resource.filesystem.FlywayEncodingDetectionException;
 
 @CustomLog
 public class ClassPathResource extends LoadableResource {
@@ -119,16 +117,14 @@ public class ClassPathResource extends LoadableResource {
         }
 
         Charset charset = encoding;
-
-
-
-
-
-
-
-
-
-
+        if (detectEncoding) {
+            try {
+                charset = EncodingDetector.detectFileEncoding(Paths.get(fileNameWithAbsolutePath));
+            } catch (FlywayEncodingDetectionException e) {
+                LOG.warn("Could not detect file encoding: " + e.getMessage() + "\nThis may cause issues with your deployments." +
+                                 " We recommend using a consistent and supported encoding for all your files. See " + FlywayDbWebsiteLinks.FILE_ENCODING_HELP);
+            }
+        }
 
         return new InputStreamReader(inputStream, charset.newDecoder());
     }

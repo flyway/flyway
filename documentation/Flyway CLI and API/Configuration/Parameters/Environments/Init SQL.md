@@ -20,6 +20,11 @@ This could effectively be considered an environment specific afterConnect [callb
 ./flyway -initSql="ALTER SESSION SET NLS_LANGUAGE='ENGLISH';" info
 ```
 
+To configure a named environment via command line when using a TOML configuration, prefix `initSql` with `environments.{environment name}.` for example:
+```powershell
+./flyway "-environments.sample.initSql=ALTER SESSION SET NLS_LANGUAGE='ENGLISH';" info
+```
+
 ### TOML Configuration File
 ```toml
 [environments.default]

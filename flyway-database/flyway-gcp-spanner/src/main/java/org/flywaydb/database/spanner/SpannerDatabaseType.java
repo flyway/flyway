@@ -94,19 +94,4 @@ public class SpannerDatabaseType extends BaseDatabaseType {
     public boolean detectPasswordRequiredByUrl(String url) {
         return !url.contains("credentials=");
     }
-
-    @Override
-    public void printMessages(Configuration configuration) {
-
-
-
-            LOG.info(""); //this can go when the beta message above is retired.
-            LOG.info("Experiencing performance issues while using GCP Spanner?");
-            LOG.info("Find out how Flyway Teams improves performance with batching at " +
-                             FlywayDbWebsiteLinks.TEAMS_FEATURES_FOR_CLOUD_SPANNER);
-            LOG.info("");
-
-
-
-    }
 }

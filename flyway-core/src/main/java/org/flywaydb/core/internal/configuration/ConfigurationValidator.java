@@ -23,14 +23,12 @@ import java.util.Locale;
 
 public class ConfigurationValidator {
     public void validate(Configuration configuration) {
-
-
-
-
-
-
-
-
+        if (configuration.isBatch() && configuration.getErrorOverrides().length > 0) {
+            throw new FlywayException("flyway.batch configuration option is incompatible with flyway.errorOverrides.\n" +
+                                              "It is impossible to intercept the errors in a batch process.\n" +
+                                              "Set flyway.batch to false, or remove the error overrides.",
+                                      ErrorCode.CONFIGURATION);
+        }
 
         if (configuration.getDataSource() == null) {
             throw new FlywayException(

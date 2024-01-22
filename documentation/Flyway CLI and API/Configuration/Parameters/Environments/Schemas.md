@@ -21,6 +21,11 @@ If [defaultSchema](Configuration/Parameters/Flyway/Default Schema) is not specif
 ./flyway -schemas="schema1,schema2" info
 ```
 
+To configure a named environment via command line when using a TOML configuration, prefix `schemas` with `environments.{environment name}.` for example:
+```powershell
+./flyway "-environments.sample.schemas=schema1,schema2" info
+```
+
 ### TOML Configuration File
 ```toml
 [environments.default]

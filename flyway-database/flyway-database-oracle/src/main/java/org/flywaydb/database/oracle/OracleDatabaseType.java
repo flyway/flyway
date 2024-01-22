@@ -135,20 +135,16 @@ public class OracleDatabaseType extends BaseDatabaseType {
     public SqlScriptExecutorFactory createSqlScriptExecutorFactory(JdbcConnectionFactory jdbcConnectionFactory,
                                                                    final CallbackExecutor callbackExecutor,
                                                                    final StatementInterceptor statementInterceptor) {
-
-
-
+        final boolean supportsBatch = jdbcConnectionFactory.isSupportsBatch();
 
         final DatabaseType thisRef = this;
 
         return new SqlScriptExecutorFactory() {
             @Override
             public SqlScriptExecutor createSqlScriptExecutor(Connection connection, boolean undo, boolean batch, boolean outputQueryResults) {
-
-
-
-
-
+                if (!supportsBatch) {
+                    batch = false;
+                }
 
                 return new OracleSqlScriptExecutor(new JdbcTemplate(connection, thisRef), callbackExecutor, undo, batch, outputQueryResults, statementInterceptor);
             }

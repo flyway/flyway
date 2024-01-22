@@ -51,11 +51,7 @@ public class PostgreSQLCopyParsedStatement extends ParsedSqlStatement {
      * Creates a new PostgreSQL COPY ... FROM STDIN statement.
      */
     public PostgreSQLCopyParsedStatement(int pos, int line, int col, String sql, String copyData) {
-        super(pos, line, col, sql, COPY_DELIMITER, true
-
-
-
-             );
+        super(pos, line, col, sql, COPY_DELIMITER, true, false);
         this.copyData = copyData;
     }
 

@@ -36,7 +36,7 @@ public class DB2Database extends Database<DB2Connection> {
     }
 
     @Override
-    public final void ensureSupported(Configuration configuration) {
+    public void ensureSupported(Configuration configuration) {
         ensureDatabaseIsRecentEnough("9.7");
 
         ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("11.5", Tier.PREMIUM, configuration);

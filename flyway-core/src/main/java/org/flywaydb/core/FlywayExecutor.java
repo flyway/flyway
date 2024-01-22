@@ -92,7 +92,6 @@ public class FlywayExecutor {
      */
     private boolean dbConnectionInfoPrinted;
     private final Configuration configuration;
-    private static boolean hasPrintedLicense;
 
     public FlywayExecutor(Configuration configuration) {
         this.configurationValidator = new ConfigurationValidator();
@@ -100,16 +99,6 @@ public class FlywayExecutor {
         this.resourceNameCache = new ResourceNameCache();
         this.locationScannerCache = new LocationScannerCache();
         this.configuration = configuration;
-
-        if (!hasPrintedLicense) {
-            try {
-                LicenseGuard.getPermit(configuration).print();
-                LOG.info("See release notes here: " + FlywayDbWebsiteLinks.RELEASE_NOTES);
-            } catch (FlywayExpiredLicenseKeyException e) {
-                LOG.error(e.getMessage());
-            }
-            hasPrintedLicense = true;
-        }
     }
 
     /**
@@ -169,7 +158,6 @@ public class FlywayExecutor {
         Database database = null;
         try {
             database = databaseType.createDatabase(configuration, jdbcConnectionFactory, statementInterceptor);
-            databaseType.printMessages(configuration);
 
             if (!dbConnectionInfoPrinted) {
                 dbConnectionInfoPrinted = true;

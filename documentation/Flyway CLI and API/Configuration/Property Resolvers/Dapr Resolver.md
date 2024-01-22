@@ -2,7 +2,7 @@
 subtitle: Dapr
 ---
 # Dapr
-{% include commandlineonly.html %}
+{% include enterprise.html %}
 
 Once Dapr has been configured by setting [Dapr URL](Configuration/Parameters/Flyway/Dapr Url), values can be loaded from Dapr using the following syntax: `${dapr.key}`.
 For example:

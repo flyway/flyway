@@ -52,7 +52,7 @@ public class BigQueryDatabase extends Database<BigQueryConnection> {
     }
 
     @Override
-    public final void ensureSupported(Configuration configuration) {
+    public void ensureSupported(Configuration configuration) {
         if (!LicenseGuard.isLicensed(configuration, Tier.PREMIUM)) {
             long databaseSize = getDatabaseSize();
             if (databaseSize > TEN_GB_DATABASE_SIZE_LIMIT) {

@@ -52,10 +52,8 @@ public class JdbcConnectionFactory implements Closeable {
     private Connection firstConnection;
     private ConnectionInitializer connectionInitializer;
 
-
-
-
-
+    @Getter
+    private final boolean supportsBatch;
 
     /**
      * Creates a new JDBC connection factory. This automatically opens a first connection which can be obtained via
@@ -79,9 +77,7 @@ public class JdbcConnectionFactory implements Closeable {
         this.driverInfo = getDriverInfo(databaseMetaData);
         this.productName = JdbcUtils.getDatabaseProductName(databaseMetaData);
         this.statementInterceptor = statementInterceptor;
-
-
-
+        this.supportsBatch = determineBatchSupport(databaseMetaData);
         firstConnection = this.databaseType.alterConnectionAsNeeded(firstConnection, configuration);
     }
 
@@ -89,17 +85,14 @@ public class JdbcConnectionFactory implements Closeable {
         this.connectionInitializer = connectionInitializer;
     }
 
-
-
-
-
-
-
-
-
-
-
-
+    private boolean determineBatchSupport(DatabaseMetaData databaseMetaData) {
+        try {
+            return databaseMetaData.supportsBatchUpdates();
+        } catch (SQLException e) {
+            LOG.debug("Unable to check whether batch updates are supported:\n" + ExceptionUtils.toMessage(e));
+            return false;
+        }
+    }
 
     public Connection openConnection() throws FlywayException {
         Connection connection = firstConnection == null ? JdbcUtils.openConnection(dataSource, connectRetries, connectRetriesInterval) : firstConnection;

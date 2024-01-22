@@ -5,7 +5,6 @@ redirect_from: Configuration/stream/
 ---
 
 # Stream
-{% include teams.html %}
 
 ## Description
 Whether to stream SQL migrations when executing them. Streaming doesn't load the entire migration in memory at once. Instead each statement is loaded individually. 
