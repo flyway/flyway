@@ -28,7 +28,7 @@ public class ClickHouseConfigurationExtension implements ConfigurationExtension 
     private static final String ZOOKEEPER_PATH_DEFAULT_VALUE = "/clickhouse/tables/{shard}/{database}/{table}";
 
     private String clusterName;
-    private String zookeeperPath;
+    private String zookeeperPath = ZOOKEEPER_PATH_DEFAULT_VALUE;
 
     @Override
     public String getNamespace() {
