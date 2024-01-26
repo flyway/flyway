@@ -14,7 +14,7 @@ Windows, macOS, Linux, Docker and Java
 Maven and Gradle
 
 #### Supported databases
-Aurora MySQL, Aurora PostgreSQL, Azure Synapse, CockroachDB, DB2, Derby, Firebird, Google BigQuery, Google Cloud Spanner, H2, HSQLDB, Informix, MariaDB, MongoDB, MySQL, Oracle, Percona XtraDB Cluster, PostgreSQL, Redshift, SAP HANA (Including SAP HANA Cloud), SingleStoreDB, Snowflake, SQLite, SQL Server, Sybase ASE, TiDB, TimescaleDB, YugabyteDB
+Aurora MySQL, Aurora PostgreSQL, Azure Synapse, CockroachDB, DB2, Derby, Firebird, Google BigQuery, Google Cloud Spanner, H2, HSQLDB, Informix, MariaDB, MongoDB, MySQL, Oracle, Percona XtraDB Cluster, PostgreSQL, Redshift, SAP HANA (Including SAP HANA Cloud), SingleStoreDB, Snowflake, SQLite, SQL Server, Sybase ASE, TiDB, TimescaleDB, YugabyteDB, Trino
 
 #### Third party plugins
 SBT, Ant, Spring Boot, Grails, Play!, DropWizard, Grunt, Griffon, Ninja, ...

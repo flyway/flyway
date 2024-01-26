@@ -209,6 +209,7 @@
                 <include>org.flywaydb:flyway-database-ignite</include>
                 <include>org.flywaydb:flyway-database-tidb</include>
                 <include>org.flywaydb:flyway-database-yugabytedb</include>
+                <include>org.flywaydb:flyway-database-trino</include>
                 <include>org.flywaydb:flyway-sqlserver</include>
                 <include>org.flywaydb:flyway-singlestore</include>
                 <include>org.flywaydb:flyway-mysql</include>

@@ -199,6 +199,7 @@
         <version.spanner>2.11.1</version.spanner>
         <version.springjdbc>5.3.19</version.springjdbc>
         <version.sqlite>3.41.2.2</version.sqlite>
+        <version.trino>437</version.trino>
         <version.testcontainers>1.15.3</version.testcontainers>
     </properties>
 
@@ -458,6 +459,12 @@
                 <groupId>com.ibm.informix</groupId>
                 <artifactId>jdbc</artifactId>
                 <version>${version.informix}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>io.trino</groupId>
+                <artifactId>trino-jdbc</artifactId>
+                <version>${version.trino}</version>
                 <optional>true</optional>
             </dependency>
 
