@@ -9,18 +9,18 @@ redirect_from: Configuration/jdbcProperties/
 ## Description
 JDBC properties to pass to the JDBC driver when establishing a connection.
 
-For example to supply a property `property1` with the value `value1`, you can set `flyway.jdbcProperties.key1=value1`. Flyway will then set the `key1` property on the jdbc driver to `value1` when it establishes a connection.
-
 ## Usage
 
 ### Commandline
+To configure via command line if you're using legacy configuration, i.e. your project includes a `.conf` file. 
+More information about types of configuration files can be found [here](Configuration/Configuration Files). 
 ```powershell
 ./flyway -jdbcProperties.accessToken=my-access-token info
 ```
 
 To configure a named environment via command line when using a TOML configuration, prefix `jdbcProperties` with `environments.{environment name}.` for example:
 ```powershell
-./flyway "-environments.sample.jdbcProperties.accessToken=my-access-token info
+./flyway -environments.sample.jdbcProperties.accessToken=my-access-token info
 ```
 
 ### TOML Configuration File

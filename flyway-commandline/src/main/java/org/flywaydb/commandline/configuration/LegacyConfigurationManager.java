@@ -1,18 +1,3 @@
-/*
- * Copyright (C) Red Gate Software Ltd 2010-2024
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.flywaydb.commandline.configuration;
 
 import lombok.CustomLog;
@@ -99,10 +84,11 @@ public class LegacyConfigurationManager implements ConfigurationManager {
     protected void loadConfigurationFromConfigFiles(Map<String, String> config, CommandLineArguments commandLineArguments, Map<String, String> envVars) {
         String encoding = determineConfigurationFileEncoding(commandLineArguments, envVars);
         File installationDir = new File(ClassUtils.getInstallDir(Main.class));
+        String workingDirectory = commandLineArguments.getWorkingDirectoryOrNull();
 
-        config.putAll(ConfigUtils.loadDefaultConfigurationFiles(installationDir, encoding));
+        config.putAll(ConfigUtils.loadDefaultConfigurationFiles(installationDir, workingDirectory, encoding));
 
-        for (File configFile : determineLegacyConfigFilesFromArgs(commandLineArguments, envVars)) {
+        for (File configFile : determineLegacyConfigFilesFromArgs(commandLineArguments)) {
             config.putAll(ConfigUtils.loadConfigurationFile(configFile, encoding, true));
         }
     }
@@ -122,15 +108,12 @@ public class LegacyConfigurationManager implements ConfigurationManager {
         return "UTF-8";
     }
 
-    private static List<File> determineLegacyConfigFilesFromArgs(CommandLineArguments commandLineArguments, Map<String, String> envVars) {
+    private static List<File> determineLegacyConfigFilesFromArgs(CommandLineArguments commandLineArguments) {
 
-        String workingDirectory = commandLineArguments.isWorkingDirectorySet() ? commandLineArguments.getWorkingDirectory() : null;
+        List<File> legacyFiles = commandLineArguments.getConfigFilePathsFromEnv(false);
+        legacyFiles.addAll(commandLineArguments.getConfigFiles().stream().filter(s -> !s.endsWith(".toml")).map(File::new).toList());
 
-        Stream<String> configFilePaths = envVars.containsKey(ConfigUtils.CONFIG_FILES) ?
-                Arrays.stream(StringUtils.tokenizeToStringArray(envVars.get(ConfigUtils.CONFIG_FILES), ",")) :
-                commandLineArguments.getConfigFiles().stream();
-
-        return configFilePaths.map(path -> Paths.get(path).isAbsolute() ? new File(path) : new File(workingDirectory, path)).collect(Collectors.toList());
+        return legacyFiles;
     }
 
     private static Map<String, String> overrideConfiguration(Map<String, String> existingConfiguration, Map<String, String> newConfiguration) {

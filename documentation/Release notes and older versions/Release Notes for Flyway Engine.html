@@ -1,20 +1,3 @@
-<!--
-
-    Copyright (C) Red Gate Software Ltd 2010-2024
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-
--->
 <div class="call-to-action">
 <ul>
     <li>Learn more about <a href="https://www.red-gate.com/products/flyway/editions" style="font-size: larger;" title="Flyway editions">Flyway Editions</a> capabilities </li>
@@ -24,6 +7,52 @@
 
 </div>
 <div class="col-md-9">
+
+<div class="release">
+        <h2 id="10.7.0">Flyway 10.7.0 (2024-01-30)</h2>
+
+        <h3>Breaking changes</h3>
+        <ul>
+            <li>The Flyway Commandline package no longer includes dependencies for Apache Derby. This is due to CVE-2022-46337. Apache have not released Java-17 compatible jars with the vulnerability fixed, so users will have to acquire their own Derby dependencies. See <a href="https://documentation.red-gate.com/flyway/flyway-cli-and-api/supported-databases/derby">Flyway Derby database support</a> for details</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fic to filter on Cloud Spanner table schema name when selecting all foreign key constraints. This is to make sure that no system constraints are included in the results if they were to be added in the future. Additionally  if Cloud Spanner starts supporting named user schemas, the listed foreign keys are consistent with the tables that are used, which are all filtered based on an empty schema name.</li>
+            <li>Fixed issues caused by dollar signs and backslashes in property resolver values.</li>
+            <li>Fix configuring JDBC Properties in command line environment configuration</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Improved formatting of Dry Run report.</li>
+            <li>The configFiles parameter respects interpreting your configuration in the appropriate format</li>
+            <li>Make Flyway "Output Query Results" an open source feature</li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>To help increase Flyway's community contribution support, `flyway-community-db-support` has been moved to [flyway/flyway-community-db-support](https://github.com/flyway/flyway-community-db-support).  Any new PRs for database support additions need to be raised [there](https://github.com/flyway/flyway-community-db-support/pulls) and any existing PRs in [flyway/flyway](https://github.com/flyway/flyway/) will need to be transferred by the author.</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3821">Issue 3821</a>
+                Flyway now supports Snowflake up to version 8.3.
+            </li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3822">Issue 3822</a>
+                Increase MariaDB JDBC driver to version 3.3.2 and add support for MariaDB 11.2
+            </li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>If Working Directory is set, Flyway will now use that location to check for default Flyway configuration files in addition to its previous functionality. See updated <a href="https://documentation.red-gate.com/flyway/flyway-cli-and-api/configuration/cli-configuration-order">documentation</a> for more information on default command line configuration order.</li>
+            <li>allow onEachMigrateOrUndoStatementEvent callback to block statement execution</li>
+        </ul>
+
+        <p>
+            Thanks to EugenMayer and frichtarik for reporting these issues.
+        </p>
+    </div>
 
 <div class="release">
         <h2 id="10.6.0">Flyway 10.6.0 (2024-01-16)</h2>
@@ -40,11 +69,6 @@
             <li>Make Flyway Detect Encoding an open source feature</li>
             <li>Make Flyway Batch an open source feature</li>
             <li>Make Flyway Stream an open source feature</li>
-        </ul>
-
-        <h3>New features</h3>
-        <ul>
-            <li>adding support to configure environments via command line</li>
         </ul>
 
         <h3>Java compatibility</h3>

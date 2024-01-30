@@ -1,18 +1,3 @@
-/*
- * Copyright (C) Red Gate Software Ltd 2010-2024
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.flywaydb.core.internal.configuration;
 
 import lombok.AccessLevel;
@@ -22,13 +7,11 @@ import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.extensibility.ConfigurationExtension;
 import org.flywaydb.core.internal.command.clean.CleanModel;
 import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.plugin.PluginRegister;
-import org.flywaydb.core.internal.proprietaryStubs.LicensingConfigurationExtensionStub;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.FileUtils;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -43,7 +26,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -373,22 +355,48 @@ public class ConfigUtils {
      *
      * @throws FlywayException When the configuration failed.
      */
-    public static Map<String, String> loadDefaultConfigurationFiles(File installationDir, String encoding) {
+    public static Map<String, String> loadDefaultConfigurationFiles(File installationDir, String workingDirectory,
+        String encoding) {
         Map<String, String> configMap = new HashMap<>();
-        configMap.putAll(ConfigUtils.loadConfigurationFile(new File(installationDir.getAbsolutePath() + "/conf/" + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
-        configMap.putAll(ConfigUtils.loadConfigurationFile(new File(System.getProperty("user.home") + "/" + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
+        configMap.putAll(ConfigUtils.loadConfigurationFile(
+            new File(installationDir.getAbsolutePath() + "/conf/" + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
+        configMap.putAll(ConfigUtils.loadConfigurationFile(
+            new File(System.getProperty("user.home") + "/" + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
         configMap.putAll(ConfigUtils.loadConfigurationFile(new File(ConfigUtils.CONFIG_FILE_NAME), encoding, false));
-
+        if (workingDirectory != null) {
+            configMap.putAll(
+                ConfigUtils.loadConfigurationFile(new File(workingDirectory + "/" + ConfigUtils.CONFIG_FILE_NAME),
+                    encoding, false));
+        }
         return configMap;
     }
 
-    public static List<File> getDefaultTomlConfigFileLocations(File installationDir) {
-        return new ArrayList<>(Arrays.asList(new File(installationDir.getAbsolutePath() + "/conf/flyway.toml"),
-                                             new File(installationDir.getAbsolutePath() + "/conf/flyway.user.toml"),
-                                             new File(System.getProperty("user.home") + "/flyway.toml"),
-                                             new File(System.getProperty("user.home") + "/flyway.user.toml"),
-                                             new File("flyway.toml"),
-                                             new File("flyway.user.toml")));
+    public static List<File> getDefaultLegacyConfigurationFiles(final File installationDir,
+        final String workingDirectory) {
+        final List<File> defaultList = new ArrayList<>(
+            List.of(new File(installationDir.getAbsolutePath() + "/conf/" + ConfigUtils.CONFIG_FILE_NAME),
+                new File(System.getProperty("user.home") + "/" + ConfigUtils.CONFIG_FILE_NAME),
+                new File(ConfigUtils.CONFIG_FILE_NAME)));
+        if (workingDirectory != null) {
+            defaultList.add(new File(workingDirectory + "/" + ConfigUtils.CONFIG_FILE_NAME));
+        }
+        return defaultList;
+    }
+
+    public static List<File> getDefaultTomlConfigFileLocations(final File installationDir,
+        final String workingDirectory) {
+        final List<File> defaultList = new ArrayList<>(
+            List.of(new File(installationDir.getAbsolutePath() + "/conf/flyway.toml"),
+                new File(installationDir.getAbsolutePath() + "/conf/flyway.user.toml"),
+                new File(System.getProperty("user.home") + "/flyway.toml"),
+                new File(System.getProperty("user.home") + "/flyway.user.toml"),
+                new File("flyway.toml"),
+                new File("flyway.user.toml")));
+        if (workingDirectory != null) {
+            defaultList.add(new File(workingDirectory + "/flyway.toml"));
+            defaultList.add(new File(workingDirectory + "/flyway.user.toml"));
+        }
+        return defaultList;
     }
 
     /**
@@ -660,16 +668,12 @@ public class ConfigUtils {
             String key = entry.getKey();
             String value = entry.getValue();
 
-            if (key.toLowerCase().endsWith("password") || key.toLowerCase().endsWith("token")) {
-                value = StringUtils.trimOrPad("", value.length(), '*');
-            } else if (ConfigUtils.LICENSE_KEY.equals(key)) {
-                if (value.length() > 8) {
-                    value = value.substring(0, 8) + "******" + value.substring(value.length() - 4);
-                } else {
-                    value = "********";
-                }
-            } else if (key.toLowerCase().endsWith("url")) {
+            value = StringUtils.redactValueIfSensitive(key, value);
+
+            if (key.toLowerCase().endsWith("url")) {
                 value = DatabaseTypeRegister.redactJdbcUrl(value);
+            } else if (key.toLowerCase().endsWith("jdbcproperties")) {
+                value = StringUtils.redactedValueStringOfAMap(value);
             }
 
             dump.append(key).append(" -> ").append(value).append("\n");

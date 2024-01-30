@@ -1,18 +1,3 @@
-/*
- * Copyright (C) Red Gate Software Ltd 2010-2024
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.flywaydb.core.internal.configuration.resolvers;
 
 import org.flywaydb.core.ProgressLogger;
@@ -78,7 +63,7 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
         if (isVerbatim(value)) {
             return value.substring(2, value.length() - 1);
         }
-        return RESOLVER_REGEX_PATTERN.matcher(value.strip()).replaceAll(m -> parseResolverSyntax(m, progress));
+        return RESOLVER_REGEX_PATTERN.matcher(value.strip()).replaceAll(m -> getPropertyResolverReplacement(m, progress));
     }
 
     @Override
@@ -112,12 +97,19 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
         return VERBATIM_REGEX_PATTERN.matcher(value.strip()).matches();
     }
 
-    private String parseResolverSyntax(MatchResult resolverMatchResult, ProgressLogger progress) {
+    private String getPropertyResolverReplacement(MatchResult resolverMatchResult, ProgressLogger progress) {
+        // '\' are ignored by Matcher and '$' will break it so both need escaping with '\'.
+        // See https://docs.oracle.com/javase/8/docs/api/java/util/regex/Matcher.html#replaceAll-java.lang.String-
+        return parsePropertyResolver(resolverMatchResult, progress)
+            .replaceAll("\\\\", "\\\\\\\\")
+            .replaceAll("\\$", "\\\\\\$");
+    }
+
+    private String parsePropertyResolver(final MatchResult resolverMatchResult, final ProgressLogger progress) {
         String resolverMatch = resolverMatchResult.group();
 
         if (resolverMatch.startsWith("$$")) {
-            //String containing '$' will break Matcher so '\' needed to escape it. See https://docs.oracle.com/javase/8/docs/api/java/util/regex/Matcher.html#replaceAll-java.lang.String-
-            return "\\" + resolverMatch.substring(1);
+            return resolverMatch.substring(1);
         }
 
         String resolverName = resolverMatch.substring(2, resolverMatch.indexOf(".")).strip();

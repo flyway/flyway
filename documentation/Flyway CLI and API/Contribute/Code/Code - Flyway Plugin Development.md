@@ -33,9 +33,7 @@ For the purposes of this tutorial, we will be explaining the following plugin ty
 The `PluginMetadata` interface (`org.flywaydb.core.extensibility.PluginMetadata`) is used to provide Flyway with metadata about a plugin.
 
 ### DatabaseType
-The `DatabaseType` interface (`org.flywaydb.core.internal.database.DatabaseType`) is used to provide Flyway with the ability to support new database types. 
-This is the same as the `DatabaseType` interface previously used in Flyway 9.x and below to add database support into `flyway-core` or `flyway-community-db-support`. However, we now recommend utilising the `DatabaseType` to create database plugins as their own modules.
-Examples of this can be found in the `flyway` repository in the children modules of `flyway-database` and `flyway-community-db-support`.
+Open source database plugins have been moved to a separate repository, see: [Contributing Database Compatibility to Flyway](<Contribute/Contributing Database Compatibility to Flyway>)
 
 ### ConfigurationExtension
 The `ConfigurationExtension` interface (`org.flywaydb.core.extensibility.ConfigurationExtension`) is used to provide Flyway with the ability to support new configuration options. This is usually used to provide new configuration options for plugins.

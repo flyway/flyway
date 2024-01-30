@@ -1,20 +1,6 @@
-/*
- * Copyright (C) Red Gate Software Ltd 2010-2024
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.flywaydb.commandline.configuration;
 
+import java.io.File;
 import lombok.RequiredArgsConstructor;
 import org.flywaydb.commandline.logging.console.ConsoleLog.Level;
 import org.flywaydb.core.api.FlywayException;
@@ -308,7 +294,28 @@ public class CommandLineArguments {
     }
 
     public List<String> getConfigFiles() {
-        return getConfigFilesFromArgs(args);
+        String workingDirectory = getWorkingDirectoryOrNull();
+
+        return getConfigFilesFromArgs(args)
+            .stream()
+            .map(File::new)
+            .map(file -> !file.isAbsolute() && workingDirectory != null
+                ? new File(workingDirectory, file.getPath()).getAbsolutePath()
+                : file.getAbsolutePath())
+            .collect(Collectors.toList());
+    }
+
+    public List<File> getConfigFilePathsFromEnv(boolean loadToml) {
+        String workingDirectory = getWorkingDirectoryOrNull();
+        String[] fileLocations = StringUtils.tokenizeToStringArray(System.getenv("FLYWAY_CONFIG_FILES"), ",");
+
+        return fileLocations == null ? new ArrayList<>() : Arrays.stream(fileLocations)
+            .filter(loadToml ? f -> f.endsWith(".toml") : f -> !f.endsWith(".toml"))
+            .map(File::new)
+            .map(file -> !file.isAbsolute() && workingDirectory != null
+                ? new File(workingDirectory, file.getPath())
+                : file)
+            .collect(Collectors.toList());
     }
 
     public String getOutputFile() {
@@ -317,6 +324,10 @@ public class CommandLineArguments {
 
     public String getWorkingDirectory() {
         return getArgumentValue(WORKING_DIRECTORY, args);
+    }
+
+    public String getWorkingDirectoryOrNull() {
+        return isWorkingDirectorySet() ? getWorkingDirectory() : null;
     }
 
     public Date getInfoSinceDate() {
