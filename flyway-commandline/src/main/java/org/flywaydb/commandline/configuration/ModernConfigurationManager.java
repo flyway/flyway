@@ -61,13 +61,13 @@ public class ModernConfigurationManager implements ConfigurationManager {
                 : ClassUtils.getInstallDir(Main.class);
 
         List<File> tomlFiles = ConfigUtils.getDefaultTomlConfigFileLocations(
-            new File(ClassUtils.getInstallDir(Main.class)));
-        tomlFiles.addAll(CommandLineConfigurationUtils.getTomlConfigFilePaths());
+            new File(ClassUtils.getInstallDir(Main.class)), commandLineArguments.getWorkingDirectoryOrNull());
+        tomlFiles.addAll(commandLineArguments.getConfigFilePathsFromEnv(true));
         tomlFiles.addAll(commandLineArguments.getConfigFiles().stream().map(File::new)
             .toList());
 
-        List<File> existingFiles = tomlFiles.stream().filter(File::exists).collect(Collectors.toList());
-        ConfigurationModel config = TomlUtils.loadConfigurationFiles(existingFiles, workingDirectory);
+        ConfigurationModel config = TomlUtils.loadConfigurationFiles(
+            tomlFiles.stream().filter(File::exists).collect(Collectors.toList()));
 
         ConfigurationModel commandLineArgumentsModel = TomlUtils.loadConfigurationFromCommandlineArgs(
             commandLineArguments.getConfiguration(true));
@@ -102,7 +102,17 @@ public class ModernConfigurationManager implements ConfigurationManager {
         ObjectMapper objectMapper = new ObjectMapper();
         for (String envKey : envConfigs.keySet()) {
             try {
-                EnvironmentModel env = objectMapper.convertValue(envConfigs.get(envKey), EnvironmentModel.class);
+                final Map<String, String> envValue = envConfigs.get(envKey);
+                final Map<String, Object> envValueObject = new HashMap<>();
+                envValue.entrySet().forEach(entry -> {
+                    if(entry.getKey().startsWith("jdbcProperties.")) {
+                        envValueObject.computeIfAbsent("jdbcProperties", s -> new HashMap<String, String>());
+                        ((Map<String, String>)envValueObject.get("jdbcProperties")).put(entry.getKey().substring("jdbcProperties.".length()), entry.getValue());
+                    } else {
+                        envValueObject.put(entry.getKey(), entry.getValue());
+                    }
+                });
+                EnvironmentModel env = objectMapper.convertValue(envValueObject, EnvironmentModel.class);
 
                 if (config.getEnvironments().containsKey(envKey)) {
                     env = config.getEnvironments().get(envKey).merge(env);
@@ -121,7 +131,7 @@ public class ModernConfigurationManager implements ConfigurationManager {
         File sqlFolder = new File(workingDirectory, DEFAULT_CLI_SQL_LOCATION);
         if (ConfigUtils.shouldUseDefaultCliSqlLocation(sqlFolder,
             !config.getFlyway().getLocations().equals(ConfigurationModel.defaults().getFlyway().getLocations()))) {
-            config.getFlyway().setLocations(List.of("filesystem:" + sqlFolder.getAbsolutePath()));
+            config.getFlyway().setLocations(Arrays.stream(new String[]{"filesystem:" + sqlFolder.getAbsolutePath()}).collect(Collectors.toList()));
         }
 
         if (commandLineArguments.isWorkingDirectorySet()) {

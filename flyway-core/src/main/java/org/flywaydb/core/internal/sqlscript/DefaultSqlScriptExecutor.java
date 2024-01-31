@@ -16,10 +16,12 @@
 package org.flywaydb.core.internal.sqlscript;
 
 import lombok.CustomLog;
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.callback.Error;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.callback.Warning;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.exception.FlywayBlockStatementExecutionException;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.Result;
@@ -55,11 +57,6 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
 
-
-
-
-
-
     /**
      * The maximum number of statements to include in a batch.
      */
@@ -69,6 +66,12 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
      * Whether to batch SQL statements.
      */
     private final boolean batch;
+
+    /**
+     * Whether to output query results table.
+     */
+    protected final boolean outputQueryResults;
+
 
 
     public DefaultSqlScriptExecutor(JdbcTemplate jdbcTemplate,
@@ -81,7 +84,7 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
 
-
+        this.outputQueryResults = outputQueryResults;
         this.batch = batch;
     }
 
@@ -154,11 +157,12 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
         LOG.debug("Sending batch of " + batchStatements.size() + " statements to database ...");
         List<String> sqlBatch = new ArrayList<>();
         for (SqlStatement sqlStatement : batchStatements) {
-
-
-
-
-
+            try {
+                handleEachMigrateOrUndoStatementCallback(Event.BEFORE_EACH_UNDO_STATEMENT, Event.BEFORE_EACH_MIGRATE_STATEMENT, sqlStatement.getSql() + sqlStatement.getDelimiter(), null, null);
+            } catch (FlywayBlockStatementExecutionException e) {
+                LOG.debug("Statement on line " + sqlStatement.getLineNumber() + " + skipped due to " + e.getMessage());
+                continue;
+            }
             sqlBatch.add(sqlStatement.getSql());
         }
 
@@ -171,20 +175,10 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
                 SqlStatement sqlStatement = batchStatements.get(i);
                 long updateCount = results.getResults().get(i).getUpdateCount();
                 if (updateCount == Statement.EXECUTE_FAILED) {
-
-
-
-
-
-
+                    handleEachMigrateOrUndoStatementCallback(Event.AFTER_EACH_UNDO_STATEMENT_ERROR, Event.AFTER_EACH_MIGRATE_STATEMENT_ERROR, sqlStatement.getSql() + sqlStatement.getDelimiter(), results.getWarnings(), results.getErrors());
                     handleException(results, sqlScript, batchStatements.get(i), config);
                 } else if (updateCount != Statement.SUCCESS_NO_INFO) {
-
-
-
-
-
-
+                    handleEachMigrateOrUndoStatementCallback(Event.AFTER_EACH_UNDO_STATEMENT, Event.AFTER_EACH_MIGRATE_STATEMENT, sqlStatement.getSql() + sqlStatement.getDelimiter(), results.getWarnings(), results.getErrors());
                     handleUpdateCount(updateCount);
                 }
             }
@@ -193,12 +187,7 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
         for (int i = 0; i < results.getResults().size(); i++) {
             SqlStatement sqlStatement = batchStatements.get(i);
-
-
-
-
-
-
+            handleEachMigrateOrUndoStatementCallback(Event.AFTER_EACH_UNDO_STATEMENT, Event.AFTER_EACH_MIGRATE_STATEMENT, sqlStatement.getSql() + sqlStatement.getDelimiter(), results.getWarnings(), results.getErrors());
         }
         handleResults(results);
     }
@@ -207,10 +196,12 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
         logStatementExecution(sqlStatement);
         String sql = sqlStatement.getSql() + sqlStatement.getDelimiter();
 
-
-
-
-
+        try {
+            handleEachMigrateOrUndoStatementCallback(Event.BEFORE_EACH_UNDO_STATEMENT, Event.BEFORE_EACH_MIGRATE_STATEMENT, sql, null, null);
+        } catch (FlywayBlockStatementExecutionException e) {
+            LOG.debug("Statement on line " + sqlStatement.getLineNumber() + " + skipped due to " + e.getMessage());
+            return;
+        }
 
         Results results = sqlStatement.execute(jdbcTemplate
 
@@ -218,21 +209,13 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
                                               );
         if (results.getException() != null) {
-
-
-
-
-
+            handleEachMigrateOrUndoStatementCallback(Event.AFTER_EACH_UNDO_STATEMENT_ERROR, Event.AFTER_EACH_MIGRATE_STATEMENT_ERROR, sql, results.getWarnings(), results.getErrors());
             printWarnings(results);
             handleException(results, sqlScript, sqlStatement, config);
             return;
         }
 
-
-
-
-
-
+        handleEachMigrateOrUndoStatementCallback(Event.AFTER_EACH_UNDO_STATEMENT, Event.AFTER_EACH_MIGRATE_STATEMENT, sql, results.getWarnings(), results.getErrors());
         printWarnings(results);
         handleResults(results);
     }
@@ -250,13 +233,10 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
     }
 
     protected void outputQueryResult(Result result) {
-        if (
-
-
-
-                        result.getColumns() != null && !result.getColumns().isEmpty()) {
+        if (outputQueryResults &&
+                result.getColumns() != null && !result.getColumns().isEmpty()) {
             LOG.info(new AsciiTable(result.getColumns(), result.getData(),
-                                    true, "", "No rows returned").render());
+                true, "", "No rows returned").render());
         }
     }
 
@@ -291,5 +271,11 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
         }
+    }
+
+    private void handleEachMigrateOrUndoStatementCallback(Event eventUndo, Event eventMigrate, String sql, List<Warning> warnings, List<Error> errors) {
+
+
+
     }
 }

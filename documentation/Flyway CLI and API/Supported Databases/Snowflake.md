@@ -2,7 +2,7 @@
 subtitle: Snowflake
 ---
 # Snowflake
-- **Verified Versions:** 3.50, 7.33
+- **Verified Versions:** 3.50, 8.3
 - **Maintainer:** Redgate
 
 ## Supported Versions and Support Levels

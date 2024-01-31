@@ -60,10 +60,7 @@ public class SqlMigrationExecutor implements MigrationExecutor {
     }
 
     private void executeOnce(Context context) {
-        boolean outputQueryResults = false;
-
-
-
+        boolean outputQueryResults = context.getConfiguration().isOutputQueryResults();
 
         sqlScriptExecutorFactory.createSqlScriptExecutor(context.getConnection(), undo, batch, outputQueryResults).execute(sqlScript, context.getConfiguration());
     }

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.flywaydb.core.internal.configuration.ConfigUtils;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class StringUtils {
@@ -432,5 +433,54 @@ public class StringUtils {
             result += str.substring(1);
         }
         return result;
+    }
+
+    public static String redactedValueStringOfAMap(String value) {
+        if (!hasText(value) ||
+            !value.startsWith("{") ||
+            !value.endsWith("}") ||
+            value.length() <= 2) {
+            return value;
+        }
+
+        value = value.substring(1, value.length() - 1).trim();
+        String[] pairs = value.split(",");
+        StringBuilder resultBuilder = new StringBuilder();
+
+        for (String s : pairs) {
+            String[] pair = s.trim().split("=");
+
+            if(pair.length != 2) {
+                continue;
+            }
+
+            pair[0] = pair[0].trim();
+            pair[1] = pair[1].trim();
+
+            pair[1] = redactValueIfSensitive(pair[0], pair[1]);
+
+            resultBuilder.append(pair[0]).append("=").append(pair[1]).append(",").append(" ");
+        }
+
+        String result = resultBuilder.toString().trim();
+
+        if (result.endsWith(",")) {
+            result = result.substring(0, result.length() - 1);
+        }
+
+        return "{" + result + "}";
+    }
+
+    public static String redactValueIfSensitive(String key, String value) {
+        if (!hasText(key) || !hasText(value)) {
+            return value;
+        }
+
+        if (key.toLowerCase().endsWith("password") || key.toLowerCase().endsWith("token")
+            || ConfigUtils.LICENSE_KEY.equalsIgnoreCase(key)) {
+            value = "********";
+        }
+
+        return value;
     }
 }

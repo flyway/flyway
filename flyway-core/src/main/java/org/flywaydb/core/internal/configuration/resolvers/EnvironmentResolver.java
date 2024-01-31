@@ -135,7 +135,7 @@ public class EnvironmentResolver {
                 final var data = environmentModel.getResolvers().get(key);
                 return (ConfigurationExtension) new ObjectMapper().convertValue(data, clazz);
             } catch (final IllegalArgumentException e) {
-                throw new FlywayException("Error reading resolver configuration for resolver " + key + ": " + e.getMessage(), e, ErrorCode.CONFIGURATION);
+                throw new FlywayException("Error reading resolver configuration for resolver " + key, e, ErrorCode.CONFIGURATION);
             }
         }
 

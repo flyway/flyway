@@ -5,7 +5,6 @@ redirect_from: Configuration/outputQueryResults/
 ---
 
 # Output Query Results
-{% include teams.html %}
 
 ## Description
 Controls whether Flyway should output a table with the results of queries when executing migrations. 

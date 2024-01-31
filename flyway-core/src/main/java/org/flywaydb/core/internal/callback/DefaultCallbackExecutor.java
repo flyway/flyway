@@ -20,6 +20,7 @@ import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.callback.Error;
 import org.flywaydb.core.api.callback.*;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.exception.FlywayBlockStatementExecutionException;
 import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
@@ -136,6 +137,8 @@ public class DefaultCallbackExecutor implements CallbackExecutor {
     private void handleEvent(Callback callback, Event event, Context context) {
         try {
             callback.handle(event, context);
+        } catch (FlywayBlockStatementExecutionException e) {
+            throw e;
         } catch (RuntimeException e) {
             throw new FlywayException("Error while executing " + event.getId() + " callback: " + e.getMessage(), e);
         }

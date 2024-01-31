@@ -118,10 +118,7 @@ public class SqlScriptCallbackFactory {
                              + (description == null ? "" : " - " + description)
                              + (sqlScript.executeInTransaction() ? "" : " [non-transactional]"));
 
-            boolean outputQueryResults = false;
-
-
-
+            boolean outputQueryResults = context.getConfiguration().isOutputQueryResults();
 
             sqlScriptExecutorFactory.createSqlScriptExecutor(context.getConnection(), false, batch, outputQueryResults).execute(sqlScript, context.getConfiguration());
         }

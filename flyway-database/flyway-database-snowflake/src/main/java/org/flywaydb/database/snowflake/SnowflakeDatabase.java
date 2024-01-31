@@ -70,7 +70,7 @@ public class SnowflakeDatabase extends Database<SnowflakeConnection> {
 
         ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("3", Tier.PREMIUM, configuration);
 
-        recommendFlywayUpgradeIfNecessaryForMajorVersion("7.33");
+        recommendFlywayUpgradeIfNecessaryForMajorVersion("8.3");
     }
 
     @Override

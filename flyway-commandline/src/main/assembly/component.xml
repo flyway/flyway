@@ -206,10 +206,6 @@
                 <include>org.flywaydb:flyway-database-sybasease</include>
                 <include>org.flywaydb:flyway-gcp-bigquery</include>
                 <include>org.flywaydb:flyway-gcp-spanner</include>
-                <include>org.flywaydb:flyway-database-ignite</include>
-                <include>org.flywaydb:flyway-database-tidb</include>
-                <include>org.flywaydb:flyway-database-yugabytedb</include>
-                <include>org.flywaydb:flyway-database-clickhouse</include>
                 <include>org.flywaydb:flyway-sqlserver</include>
                 <include>org.flywaydb:flyway-singlestore</include>
                 <include>org.flywaydb:flyway-mysql</include>
@@ -236,6 +232,10 @@
 
 
 
+                <include>org.flywaydb:flyway-database-ignite</include>
+                <include>org.flywaydb:flyway-database-tidb</include>
+                <include>org.flywaydb:flyway-database-yugabytedb</include>
+                <include>org.flywaydb:flyway-database-clickhouse</include>
             </includes>
         </dependencySet>
         <dependencySet>

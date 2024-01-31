@@ -1292,12 +1292,7 @@ public class ClassicConfiguration implements Configuration {
      * @return {@code true} to output the results table (default: {@code true})
      */
     public void setOutputQueryResults(boolean outputQueryResults) {
-
-        throw new org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(this), "outputQueryResults");
-
-
-
-
+        getModernFlyway().setOutputQueryResults(outputQueryResults);
     }
 
     /**

@@ -15,6 +15,8 @@ By default, Flyway will load TOML files from the following locations:
 - {userhome}/flyway.user.toml
 - {executionDir}/flyway.toml
 - {executionDir}/flyway.user.toml
+- {[workingDirectory](Configuration/Parameters/Flyway/Working Directory)}/flyway.toml
+- {[workingDirectory](Configuration/Parameters/Flyway/Working Directory)}/flyway.user.toml
 
 These can be changed by using the [configFiles](Configuration/Parameters/Flyway/Config Files) parameter.
 
@@ -136,6 +138,7 @@ The default file paths are:
 - {installDir}/conf/flyway.toml 
 - {userhome}/flyway.toml 
 - {executionDir}/flyway.toml
+- {[workingDirectory](Configuration/Parameters/Flyway/Working Directory)}/flyway.toml
 
 ### Why are there other sections in the config?
 

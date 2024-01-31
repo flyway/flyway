@@ -147,10 +147,7 @@ public class FlywayExecutor {
 
             SqlScript sqlScript = sqlScriptFactory.createSqlScript(resource, true, resourceProvider);
 
-            boolean outputQueryResults = false;
-
-
-
+            boolean outputQueryResults = configuration.isOutputQueryResults();
 
             noCallbackSqlScriptExecutorFactory.createSqlScriptExecutor(connection, false, false, outputQueryResults).execute(sqlScript, configuration);
         });

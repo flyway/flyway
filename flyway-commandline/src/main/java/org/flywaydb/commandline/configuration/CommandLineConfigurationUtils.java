@@ -32,16 +32,6 @@ import java.util.stream.Collectors;
 @CustomLog
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class CommandLineConfigurationUtils {
-
-    public static List<File> getTomlConfigFilePaths() {
-        String[] fileLocations = StringUtils.tokenizeToStringArray(System.getenv("FLYWAY_CONFIG_FILES"), ",");
-
-        return fileLocations == null ? new ArrayList<>() : Arrays.stream(fileLocations)
-                                                                 .filter(f -> f.endsWith(".toml"))
-                                                                 .map(File::new)
-                                                                 .collect(Collectors.toList());
-    }
-
     public static List<File> getJdbcDriverJarFiles() {
         File driversDir = new File(ClassUtils.getInstallDir(Main.class), "drivers");
         File[] files = driversDir.listFiles((dir, name) -> name.endsWith(".jar"));

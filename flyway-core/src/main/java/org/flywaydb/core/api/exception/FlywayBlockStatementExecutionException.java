@@ -13,14 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.community.database.postgresql.yugabytedb;
+package org.flywaydb.core.api.exception;
 
-import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.parser.ParsingContext;
-import org.flywaydb.database.postgresql.PostgreSQLParser;
+import org.flywaydb.core.api.ErrorDetails;
+import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
-public class YugabyteDBParser extends PostgreSQLParser {
-    protected YugabyteDBParser(Configuration configuration, ParsingContext parsingContext) {
-        super(configuration, parsingContext);
+/**
+ * Exception thrown when callback wishes to block execution of SQL Statement
+ */
+public class FlywayBlockStatementExecutionException extends FlywayException {
+
+    public FlywayBlockStatementExecutionException(ErrorDetails errorDetails, String blockReason) {
+        super("Execution blocked: " + errorDetails.errorMessage + "\n" + blockReason, errorDetails.errorCode);
     }
+
 }

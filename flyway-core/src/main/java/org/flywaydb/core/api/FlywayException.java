@@ -64,7 +64,7 @@ public class FlywayException extends RuntimeException {
      * @param cause The exception cause.
      */
     public FlywayException(Throwable cause) {
-        super(cause);
+        super(cause.getMessage(), cause);
     }
 
     /**

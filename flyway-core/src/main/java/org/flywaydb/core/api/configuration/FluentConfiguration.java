@@ -900,8 +900,9 @@ public class FluentConfiguration implements Configuration {
     public FluentConfiguration loadDefaultConfigurationFiles(String encoding) {
         String installationPath = ClassUtils.getLocationOnDisk(FluentConfiguration.class);
         File installationDir = new File(installationPath).getParentFile();
+        String workingDirectory = getWorkingDirectory() != null ? getWorkingDirectory() : null;
 
-        Map<String, String> configMap = ConfigUtils.loadDefaultConfigurationFiles(installationDir, encoding);
+        Map<String, String> configMap = ConfigUtils.loadDefaultConfigurationFiles(installationDir, workingDirectory, encoding);
 
         config.configure(configMap);
         return this;

@@ -31,7 +31,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>10.6.0</version>
+    <version>10.7.1</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -67,7 +67,6 @@
 
     <modules>
         <module>flyway-core</module>
-        <module>flyway-community-db-support</module>
         <module>flyway-gradle-plugin</module>
         <module>flyway-maven-plugin</module>
         <module>flyway-commandline</module>
@@ -145,6 +144,10 @@
             <id>flyway-repo</id>
             <url>https://nexus.flywaydb.org/repository/flyway/</url>
         </repository>
+        <repository>
+            <id>flyway-community-db-support</id>
+            <url>https://maven.pkg.github.com/flyway/flyway-community-db-support</url>
+        </repository>
     </repositories>
 
     <properties>
@@ -181,7 +184,7 @@
         <version.logback>1.2.3</version.logback>
         <version.lombok>1.18.20</version.lombok>
         <version.lombok-maven-plugin>1.18.20.0</version.lombok-maven-plugin>
-        <version.mariadb>2.7.10</version.mariadb>
+        <version.mariadb>3.3.2</version.mariadb>
         <version.maven>3.9.6</version.maven>
         <version.mockito>4.2.0</version.mockito>
         <version.msal4j>1.13.8</version.msal4j>
@@ -1477,6 +1480,20 @@
             </plugin>
         </plugins>
     </reporting>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

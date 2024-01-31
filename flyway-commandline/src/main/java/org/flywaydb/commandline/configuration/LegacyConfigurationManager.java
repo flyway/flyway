@@ -99,10 +99,11 @@ public class LegacyConfigurationManager implements ConfigurationManager {
     protected void loadConfigurationFromConfigFiles(Map<String, String> config, CommandLineArguments commandLineArguments, Map<String, String> envVars) {
         String encoding = determineConfigurationFileEncoding(commandLineArguments, envVars);
         File installationDir = new File(ClassUtils.getInstallDir(Main.class));
+        String workingDirectory = commandLineArguments.getWorkingDirectoryOrNull();
 
-        config.putAll(ConfigUtils.loadDefaultConfigurationFiles(installationDir, encoding));
+        config.putAll(ConfigUtils.loadDefaultConfigurationFiles(installationDir, workingDirectory, encoding));
 
-        for (File configFile : determineLegacyConfigFilesFromArgs(commandLineArguments, envVars)) {
+        for (File configFile : determineLegacyConfigFilesFromArgs(commandLineArguments)) {
             config.putAll(ConfigUtils.loadConfigurationFile(configFile, encoding, true));
         }
     }
@@ -122,15 +123,12 @@ public class LegacyConfigurationManager implements ConfigurationManager {
         return "UTF-8";
     }
 
-    private static List<File> determineLegacyConfigFilesFromArgs(CommandLineArguments commandLineArguments, Map<String, String> envVars) {
+    private static List<File> determineLegacyConfigFilesFromArgs(CommandLineArguments commandLineArguments) {
 
-        String workingDirectory = commandLineArguments.isWorkingDirectorySet() ? commandLineArguments.getWorkingDirectory() : null;
+        List<File> legacyFiles = commandLineArguments.getConfigFilePathsFromEnv(false);
+        legacyFiles.addAll(commandLineArguments.getConfigFiles().stream().filter(s -> !s.endsWith(".toml")).map(File::new).toList());
 
-        Stream<String> configFilePaths = envVars.containsKey(ConfigUtils.CONFIG_FILES) ?
-                Arrays.stream(StringUtils.tokenizeToStringArray(envVars.get(ConfigUtils.CONFIG_FILES), ",")) :
-                commandLineArguments.getConfigFiles().stream();
-
-        return configFilePaths.map(path -> Paths.get(path).isAbsolute() ? new File(path) : new File(workingDirectory, path)).collect(Collectors.toList());
+        return legacyFiles;
     }
 
     private static Map<String, String> overrideConfiguration(Map<String, String> existingConfiguration, Map<String, String> newConfiguration) {

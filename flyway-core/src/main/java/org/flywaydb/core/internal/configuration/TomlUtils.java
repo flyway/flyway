@@ -45,6 +45,7 @@ public class TomlUtils {
         Map<String, String> environmentVariables = System.getenv()
                                                          .entrySet()
                                                          .stream()
+                                                         .filter(e -> !e.getKey().equals("FLYWAY_CONFIG_FILES"))
                                                          .filter(e -> e.getKey().startsWith("flyway_")
                                                                  || e.getKey().startsWith("environments_")
                                                                  || (e.getKey().startsWith("FLYWAY_") && ConfigUtils.convertKey(e.getKey()) != null))
@@ -113,21 +114,15 @@ public class TomlUtils {
         return result;
     }
 
-    public static ConfigurationModel loadConfigurationFiles(List<File> files, String workingDirectory) {
+    public static ConfigurationModel loadConfigurationFiles(List<File> files) {
         ConfigurationModel defaultConfig = ConfigurationModel.defaults();
         return files.stream()
-                    .map(f -> TomlUtils.loadConfigurationFile(f, workingDirectory))
+                    .map(TomlUtils::loadConfigurationFile)
                     .reduce(defaultConfig, ConfigurationModel::merge);
     }
 
-    static ConfigurationModel loadConfigurationFile(File configFile, String workingDirectory) {
+    static ConfigurationModel loadConfigurationFile(File configFile) {
         LOG.debug("Loading config file: " + configFile.getAbsolutePath());
-        if (!configFile.isAbsolute() && workingDirectory != null) {
-            File temporaryFile = new File(workingDirectory, configFile.getPath());
-            if (temporaryFile.exists()) {
-                configFile = temporaryFile;
-            }
-        }
 
         try {
             return ObjectMapperFactory.getObjectMapper(configFile.toString())
