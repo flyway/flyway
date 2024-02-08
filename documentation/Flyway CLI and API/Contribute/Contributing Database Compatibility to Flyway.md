@@ -88,7 +88,7 @@ This is a quick and easy way to verify that things are working as you expect
 
 
 #### Testing Flyway with source code
-This is more complex but allows you to breakpoint and debug more easily.
+This is more complex but allows you to set breakpoints and debug more easily.
 
 Get your environment setup for [developing flyway](Contribute/Code)
 

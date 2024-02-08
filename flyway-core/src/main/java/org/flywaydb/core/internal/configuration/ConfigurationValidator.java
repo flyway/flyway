@@ -15,11 +15,13 @@
  */
 package org.flywaydb.core.internal.configuration;
 
+import java.io.File;
 import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 
 import java.util.Locale;
+import org.flywaydb.core.internal.util.ClassUtils;
 
 public class ConfigurationValidator {
     public void validate(Configuration configuration) {
@@ -31,9 +33,12 @@ public class ConfigurationValidator {
         }
 
         if (configuration.getDataSource() == null) {
-            throw new FlywayException(
-                    "Unable to connect to the database. Configure the url, user and password!",
-                    ErrorCode.CONFIGURATION);
+            String errorMessage = "Unable to connect to the database. Configure the url, user and password!";
+            if (new File(ClassUtils.getInstallDir(ConfigurationValidator.class) + "/conf/flyway.toml.example").exists()) {
+                errorMessage += " Refer to the flyway.toml.example file in the /conf folder in the installation directory.";
+            }
+
+            throw new FlywayException(errorMessage, ErrorCode.CONFIGURATION);
         }
 
         for (String key : configuration.getPlaceholders().keySet()) {

@@ -86,7 +86,7 @@ public class OracleParser extends Parser {
             "^CREATE(\\s*OR\\s*REPLACE)?(\\s*(NON)?EDITIONABLE)?\\s*PACKAGE\\s([^\\s*]*\\s*)?(AUTHID\\s*[^\\s*]*\\s*|" + ACCESSIBLE_BY_REGEX + ")*(IS|AS)");
 
     private static final Pattern PLSQL_VIEW_REGEX = Pattern.compile(
-            "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\sVIEW\\s([^\\s]*\\s)?AS\\sWITH\\s(PROCEDURE|FUNCTION)");
+            "^CREATE(\\sOR\\sREPLACE)?((\\sNO)?\\sFORCE)?(\\s(NON)?EDITIONABLE)?\\sVIEW\\s([^\\s]*\\s)?AS\\sWITH\\s(PROCEDURE|FUNCTION)");
     private static final StatementType PLSQL_VIEW_STATEMENT = new StatementType();
 
     private static final Pattern PLSQL_REGEX = Pattern.compile(

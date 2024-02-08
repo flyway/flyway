@@ -5,6 +5,7 @@ Adoptium
 (?i)configFiles
 (?i)Dapr
 [Dd]atagrip
+Dockerfile
 [Dd]ropwizard
 flyway[.-]
 flyway_schema_history
@@ -39,6 +40,7 @@ Xerial
 baselineVersion
 
 afterBaseline
+afterConnect
 afterClean
 afterInfo
 afterMigrate

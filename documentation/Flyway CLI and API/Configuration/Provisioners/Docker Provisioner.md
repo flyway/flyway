@@ -4,7 +4,7 @@ subtitle: Docker Provisioner
 # Docker Provisioner - Preview
 {% include enterprise.html %}
 
-This [provisioner](Configuration/Provisioners) allows for the provisioning and reprovisioning of databases using Docker, specifically leveraging the Docker compose functionality
+This [provisioner](Configuration/Provisioners) allows for the provisioning and re-provisioning of databases using Docker, specifically leveraging the Docker compose functionality
 
 Prerequisites:
 * Either create or use an existing Docker compose file, which defines one or more services which will provision a database

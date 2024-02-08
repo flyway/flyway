@@ -20,10 +20,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import lombok.experimental.Tolerate;
 
 @NoArgsConstructor
 public class HtmlResult implements OperationResult {
-    @Getter
+
     @Setter
     private String timestamp;
     @Getter
@@ -41,7 +42,8 @@ public class HtmlResult implements OperationResult {
         this.operation = operation;
     }
 
-    public void setTimestamp(LocalDateTime timestamp) {
+    @Tolerate
+    public void setTimestamp(final LocalDateTime timestamp) {
         this.timestamp = timestamp.toString();
     }
 

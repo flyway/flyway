@@ -1,3 +1,4 @@
+Clickhouse
 [Ii]nformix
 (?i)MariaDB
 Percona

@@ -142,7 +142,8 @@ The default file paths are:
 
 ### Why are there other sections in the config?
 
-These belong to other Redgate products and are used by those products. They do not impact Flyway.
+The new configuration format allows separating configuration into domains (tables in TOML definition) and these are used to facilitate expansion and coordination in the Flyway suite.
+
 
 ### Why am I getting "unknown configuration parameters" errors?
 

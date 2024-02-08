@@ -78,20 +78,24 @@ public class ModernConfigurationManager implements ConfigurationManager {
         if (commandLineArgumentsModel.getEnvironments().containsKey(ClassicConfiguration.TEMP_ENVIRONMENT_NAME) ||
             environmentVariablesModel.getEnvironments().containsKey(ClassicConfiguration.TEMP_ENVIRONMENT_NAME)) {
             EnvironmentModel defaultEnv = config.getEnvironments().get(config.getFlyway().getEnvironment());
+            EnvironmentModel mergedModel = null;
 
             if (environmentVariablesModel.getEnvironments().containsKey(ClassicConfiguration.TEMP_ENVIRONMENT_NAME)) {
                 EnvironmentModel environmentVariablesEnv = environmentVariablesModel.getEnvironments()
                     .get(ClassicConfiguration.TEMP_ENVIRONMENT_NAME);
-                EnvironmentModel mergedModel =
+                mergedModel =
                     defaultEnv == null ? environmentVariablesEnv : defaultEnv.merge(environmentVariablesEnv);
-                config.getEnvironments().put(config.getFlyway().getEnvironment(), mergedModel);
             }
 
             if (commandLineArgumentsModel.getEnvironments().containsKey(ClassicConfiguration.TEMP_ENVIRONMENT_NAME)) {
                 EnvironmentModel commandLineArgumentsEnv = commandLineArgumentsModel.getEnvironments()
                     .get(ClassicConfiguration.TEMP_ENVIRONMENT_NAME);
-                EnvironmentModel mergedModel =
-                    defaultEnv == null ? commandLineArgumentsEnv : defaultEnv.merge(commandLineArgumentsEnv);
+                mergedModel = mergedModel == null ?
+                    defaultEnv == null ? commandLineArgumentsEnv : defaultEnv.merge(commandLineArgumentsEnv) :
+                    mergedModel.merge(commandLineArgumentsEnv);
+            }
+
+            if (mergedModel != null) {
                 config.getEnvironments().put(config.getFlyway().getEnvironment(), mergedModel);
             }
 

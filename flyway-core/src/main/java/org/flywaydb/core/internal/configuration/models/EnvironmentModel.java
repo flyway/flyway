@@ -38,8 +38,8 @@ public class EnvironmentModel {
     private List<String> schemas = new ArrayList<>();
     private List<String> jarDirs = new ArrayList<>();
     private String token;
-    private Integer connectRetries = 0;
-    private Integer connectRetriesInterval = 120;
+    private Integer connectRetries;
+    private Integer connectRetriesInterval;
     private String initSql;
     private Map<String, String> jdbcProperties;
     private Map<String, Map<String, Object>> resolvers;

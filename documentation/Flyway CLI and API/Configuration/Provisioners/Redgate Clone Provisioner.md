@@ -2,7 +2,7 @@
 subtitle: Redgate Clone Provisioner
 ---
 # Redgate Clone Provisioner - Preview
-This [provisioner](Configuration/Provisioners) allows for the provisioning and reprovisioning of databases using [Redgate Clone](https://www.red-gate.com/products/redgate-clone/?_ga=2.146246964.1042910986.1704804078-728513631.1704372124).
+This [provisioner](Configuration/Provisioners) allows for the provisioning and re-provisioning of databases using [Redgate Clone](https://www.red-gate.com/products/redgate-clone/?_ga=2.146246964.1042910986.1704804078-728513631.1704372124).
 
 Common use cases of the Redgate Clone provisioner are:
 * Restoring a development database from a clone or snapshot of production

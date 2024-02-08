@@ -62,8 +62,8 @@ dependencies {
 
 ## SQL Script Syntax
 
-- [Standard SQL syntax](Concepts/migrations#sql-based-migrations#syntax) with statement delimiter `;`
-- PL/SQL blocks starting with `DECLARE` or `BEGIN` and finishing with `END; /`
+- Standard SQL statements ending with the semicolon (`;`) delimiter are handled as normal.
+- PL/SQL blocks and SQL*Plus statements must be delimited by `/` on a new line. 
 
 ### Compatibility
 

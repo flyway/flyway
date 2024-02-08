@@ -4,7 +4,7 @@ subtitle: Provisioners
 # Provisioners
 {% include enterprise.html %}
 
-Provisioners allow flyway to provision a database which does not exist yet before connecting to it, or potentially to reprovision an existing database, restoring the database back to a known state.
+Provisioners allow flyway to provision a database which does not exist yet before connecting to it, or potentially to re-provision an existing database, restoring the database back to a known state.
 
 Flyway comes with support for the following provisioners:
 - [Clean](Configuration/Provisioners/Clean Provisioner)
@@ -38,10 +38,10 @@ Common use cases of provisioning are:
 * Restoring a development database from a clone or snapshot of production 
 * Spinning up a development database with appropriate state on a git branch switch
 
-Note that not all provisioner types will support provisioning. The [clean provisioner](Configuration/Provisioners/Clean Provisioner) is a method for reprovisioning only.
+Note that not all provisioner types will support provisioning. The [clean provisioner](Configuration/Provisioners/Clean Provisioner) is a method for re-provisioning only.
 
-## Reprovisioning
-Reprovisioning consists of resetting a database to a known state. This could be cleaning it and leaving it empty or resetting it to a populated state, such as a snapshot of production.
+## Re-provisioning
+Re-provisioning consists of resetting a database to a known state. This could be cleaning it and leaving it empty or resetting it to a populated state, such as a snapshot of production.
 
-Reprovisioning is currently only triggered programmatically or via Flyway Desktop. In Flyway Desktop it is triggered for the [shadow database](https://documentation.red-gate.com/flyway/flyway-desktop/terminology-reference/shadow-database-or-shadow-schema) whenever the state is stale and needs to be reset.
+Re-provisioning is currently only triggered programmatically or via Flyway Desktop. In Flyway Desktop it is triggered for the [shadow database](https://documentation.red-gate.com/flyway/flyway-desktop/terminology-reference/shadow-database-or-shadow-schema) whenever the state is stale and needs to be reset.
 In this context, if it is used to reset to a baseline state, then it avoids the need for generating and executing a baseline migration script, which can be tricky with databases which have cross-database dependencies, or are very large. 

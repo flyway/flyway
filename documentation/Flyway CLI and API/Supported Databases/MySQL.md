@@ -24,6 +24,8 @@ subtitle: MySQL
 ### Compatibility
 
 - If a MySQL driver is not present on the project classpath, MariaDB will be used as a fallback driver. If this is not desired, add `disableMariaDbDriver` to your database URL.
+- Since Flyway 10.7.0, the MariaDB driver included in the Flyway Commandline no longer accepts MySQL URLs by default.
+To continue using MySQL URLs with the MariaDB driver, add `permitMysqlScheme=true` to your database URL. 
 
 ## Java Usage
 MySQL support is a separate dependency for Flyway and will need to be added to your Java project to access these features.

@@ -16,6 +16,8 @@ target
 
 documentation/.jekyll-metadata
 documentation/_site
+documentation/_vale_config/styles/Microsoft
+documentation/_vale_config/styles/proselint
 
 **/.idea/**
 !**/.idea/runConfigurations/

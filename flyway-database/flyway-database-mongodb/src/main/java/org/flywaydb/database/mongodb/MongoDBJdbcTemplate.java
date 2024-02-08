@@ -47,8 +47,6 @@ public class MongoDBJdbcTemplate extends JdbcTemplate {
 
     @Override
     protected PreparedStatement prepareStatement(String sql, Object[] params) throws SQLException {
-        MongoConnection mongoConnection = (MongoConnection) connection;
-
         Object[] params2 = new Object[params.length];
 
         String replaceMe = sql.replaceAll("\\?", "%s");
@@ -68,7 +66,7 @@ public class MongoDBJdbcTemplate extends JdbcTemplate {
         }
         String statementString = String.format(replaceMe, params2);
 
-        return mongoConnection.prepareStatement(statementString);
+        return connection.prepareStatement(statementString);
     }
 
     @Override
