@@ -15,7 +15,9 @@
  */
 package org.flywaydb.community.database.postgresql.yugabytedb;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
@@ -25,6 +27,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+@CustomLog
 public class YugabyteDBDatabase extends PostgreSQLDatabase {
 
     public YugabyteDBDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
@@ -38,7 +41,7 @@ public class YugabyteDBDatabase extends PostgreSQLDatabase {
             stmt = connection.createStatement();
             stmt.execute("set yb_silence_advisory_locks_not_supported_error=on;");
         } catch (SQLException throwables) {
-            throwables.printStackTrace();
+            LOG.warn("Unable to set yb_silence_advisory_locks_not_supported_error");
         }
         return new YugabyteDBConnection(this, connection);
     }
