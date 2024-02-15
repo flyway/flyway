@@ -236,7 +236,6 @@
                 <include>org.flywaydb:flyway-database-tidb</include>
                 <include>org.flywaydb:flyway-database-yugabytedb</include>
                 <include>org.flywaydb:flyway-database-clickhouse</include>
-                <include>org.flywaydb:flyway-database-oceanbase</include>
             </includes>
         </dependencySet>
         <dependencySet>

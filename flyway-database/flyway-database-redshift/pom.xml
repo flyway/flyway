@@ -24,7 +24,7 @@
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
         <relativePath>../../pom.xml</relativePath>
-        <version>10.8.0</version>
+        <version>10.8.1</version>
     </parent>
 
     <artifactId>flyway-database-redshift</artifactId>
