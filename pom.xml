@@ -31,7 +31,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>10.7.2</version>
+    <version>10.8.0</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -184,7 +184,7 @@
         <version.logback>1.2.3</version.logback>
         <version.lombok>1.18.20</version.lombok>
         <version.lombok-maven-plugin>1.18.20.0</version.lombok-maven-plugin>
-        <version.mariadb>3.3.2</version.mariadb>
+        <version.mariadb>2.7.11</version.mariadb>
         <version.maven>3.9.6</version.maven>
         <version.mockito>4.2.0</version.mockito>
         <version.msal4j>1.13.8</version.msal4j>
@@ -669,7 +669,7 @@
             <dependency>
                 <groupId>com.nimbusds</groupId>
                 <artifactId>nimbus-jose-jwt</artifactId>
-                <version>9.37.1</version>
+                <version>9.37.2</version>
             </dependency>
             <dependency>
                 <groupId>com.nimbusds</groupId>
@@ -813,7 +813,7 @@
             <plugin>
                 <groupId>com.mycila</groupId>
                 <artifactId>license-maven-plugin</artifactId>
-                <version>3.0</version>
+                <version>4.3</version>
                 <inherited>false</inherited>
                 <configuration>
                     <header>${basedir}/LICENSE.txt</header>

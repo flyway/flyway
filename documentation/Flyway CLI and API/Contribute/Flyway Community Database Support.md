@@ -1,6 +1,10 @@
 ---
 subtitle: Contributing Database Compatibility
 ---
+# Community database support
+Flyway is an open source project and so database compatibility can be contributed by the open source community. 
+Redgate will review submissions but the capabilities of the driver are dependent on the requirements of the originator.
+
 # Contributing Database Compatibility to Flyway
 
 Flyway follows an Open Source model for the Community edition. We welcome code contributions through Pull Requests on the [Flyway Community DB Support GitHub page](https://github.com/flyway/flyway-community-db-support). This article will provide help with contributing code to make Flyway compatible with a new database platform. 
@@ -22,7 +26,7 @@ You should be able to open the project and see a number of modules.
 1.  Create a new folder `foo` in `org.flywaydb.community.database` to contain your new classes.
 1.  In the folder create classes `FooDatabase` (subclassed from Database), `FooSchema` (subclassed from Schema), and `FooTable` (subclassed from Table). These classes make up Flyway's internal representation of the parts of your database that it works on.
 1.  Create class `FooParser` (subclassed from Parser). This represents a simplified version of a parser for your database's dialect of SQL. When finished it will be able to decompose a migration script into separate statements and report on serious errors, but it does not need to fully understand them.
-1.  Create a class `FooDatabaseType` subclassed from `DatabaseType` in the folder your created. This class acts as the collation class that brings together all the classes you created before. Implement the required methods. There are also some optional methods you can override to customize the behavior.
+1.  Create a class `FooDatabaseType` subclassed from `CommunityDatabaseType` in the folder your created. This class acts as the collation class that brings together all the classes you created before. Implement the required methods. There are also some optional methods you can override to customize the behavior.
     *   `createSqlScriptFactory` - To use a custom SqlScriptFactory
     *   `createSqlScriptExecutorFactory` - To use a custom SqlScriptExecutorFactory
     *   `createExecutionStrategy` - To use a custom DatabaseExecutionStrategy
@@ -76,7 +80,7 @@ You should be able to open the project and see a number of modules.
     *   `doExists()` - to query whether the table described exists in the database
     *   `doLock()` - to lock the table with a read/write pessimistic lock until the end of the current transaction. This is used to prevent concurrent reads and writes to the schema history while a migration is underway. If your database doesn't support table-level locks, do nothing.
 
-1. Finally, expose your database support to the Flyway engine by adding the full qualified name of your `DatabaseType` class to `<your module>/src/main/resources/META-INF/services/org.flywaydb.core.extensibility.Plugin`
+1. Finally, expose your database support to the Flyway engine by adding the full qualified name of your `CommunityDatabaseType` class to `<your module>/src/main/resources/META-INF/services/org.flywaydb.core.extensibility.Plugin`
 
 ### How to test your plugin
 #### Testing with a prebuilt Flyway CLI package

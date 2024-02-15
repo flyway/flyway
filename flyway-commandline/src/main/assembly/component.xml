@@ -236,6 +236,7 @@
                 <include>org.flywaydb:flyway-database-tidb</include>
                 <include>org.flywaydb:flyway-database-yugabytedb</include>
                 <include>org.flywaydb:flyway-database-clickhouse</include>
+                <include>org.flywaydb:flyway-database-oceanbase</include>
             </includes>
         </dependencySet>
         <dependencySet>
@@ -258,6 +259,8 @@
             </includes>
             <excludes>
                 <exclude>org.flywaydb:flyway-*</exclude>
+                <exclude>org.flywaydb.enterprise:flyway-*</exclude>
+                <exclude>com.redgate.flyway:flyway-*</exclude>
                 <exclude>org.fusesource.jansi:jansi</exclude>
                 <exclude>com.google.code.gson:gson</exclude>
                 <exclude>software.amazon.awssdk:s3</exclude>

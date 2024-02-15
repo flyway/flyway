@@ -26,6 +26,18 @@ have been executed. Repeatable migrations are applied in the order of their desc
 By default both versioned and repeatable migrations can be written either in **[SQL](Concepts/migrations#sql-based-migrations)**
 or in **[Java](Concepts/migrations#java-based-migrations)** and can consist of multiple statements.
 
+A short summary:
+
+| Migration Type | Category         |  Example
+|----------------|------------------| -----------------------------------------------------
+| SQL            | Versioned        | V2__Add_new_table.sql
+| SQL            | Versioned (Undo) | U2__Add_new_table.sql
+| SQL            | Repeatable       | R__Add_new_table.sql
+| Java           | Versioned        | V2__Add_new_table.java
+| Java           | Repeatable       | R__Add_new_table.java
+| Script         | Versioned        | V1__execute_batch_tool.ps1
+| Script         | Repeatable       | R__execute_batch_tool.ps1
+
 Flyway automatically discovers migrations on the *filesystem* and on the Java *classpath*.
 
 To keep track of which migrations have already been applied when and by whom, Flyway adds a *schema history table*

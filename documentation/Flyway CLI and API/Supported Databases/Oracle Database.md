@@ -63,7 +63,14 @@ dependencies {
 ## SQL Script Syntax
 
 - Standard SQL statements ending with the semicolon (`;`) delimiter are handled as normal.
-- PL/SQL blocks and SQL*Plus statements must be delimited by `/` on a new line. 
+- PL/SQL blocks and SQL*Plus statements must be delimited by `/` on a new line. PL/SQL includes:
+  - Types
+  - Packages
+  - Functions
+  - Procedures
+  - Views with functions/procedures
+  - Triggers
+  - Java sources
 
 ### Compatibility
 

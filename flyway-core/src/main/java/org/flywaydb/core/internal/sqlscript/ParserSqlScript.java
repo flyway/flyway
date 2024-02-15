@@ -185,6 +185,11 @@ public class ParserSqlScript implements SqlScript {
     }
 
     @Override
+    public String shouldExecuteExpression() {
+        return metadata.shouldExecuteExpression();
+    }
+
+    @Override
     public int compareTo(SqlScript o) {
         return resource.getRelativePath().compareTo(o.getResource().getRelativePath());
     }
