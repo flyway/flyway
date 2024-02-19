@@ -29,6 +29,7 @@ import java.sql.SQLException;
 public class DB2ZConnection extends Connection<DB2ZDatabase> {
     DB2ZConnection(DB2ZDatabase database, java.sql.Connection connection) {
         super(database, connection);
+        this.jdbcTemplate = new DB2ZJdbcTemplate(connection);
     }
 
     @Override

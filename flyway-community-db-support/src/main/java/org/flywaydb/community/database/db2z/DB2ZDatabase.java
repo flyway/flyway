@@ -38,7 +38,8 @@ public class DB2ZDatabase extends Database<DB2ZConnection> {
      */
     public DB2ZDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
-        name = configuration.getDb2zDatabaseName();
+        DB2ZConfigurationExtension configurationExtension = configuration.getPluginRegister().getPlugin(DB2ZConfigurationExtension.class);
+        name = configurationExtension.getDatabaseName();
     }
 
     @Override
@@ -51,7 +52,8 @@ public class DB2ZDatabase extends Database<DB2ZConnection> {
 	}
 
     public String getSqlId() {
-        return configuration.getDb2zsqlId();
+        DB2ZConfigurationExtension configurationExtension = configuration.getPluginRegister().getPlugin(DB2ZConfigurationExtension.class);
+        return configurationExtension.getSqlId();
     }
 
     @Override

@@ -63,7 +63,7 @@ public class DB2ZCallProcedureParsedStatement extends ParsedSqlStatement {
 		}
 		callStmt += ")";
 
-        results = jdbcTemplate.executeCallableStatement(callStmt, parms);
+        results = ((DB2ZJdbcTemplate)jdbcTemplate).executeCallableStatement(callStmt, parms);
 		
 		//For SYSPROC.DSNUTILU invocations, check last result row to detect any error
 		if(DB2Z_DSNUTILU_PROCNAME.matcher(procedureName).matches()) {
