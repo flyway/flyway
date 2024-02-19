@@ -17,11 +17,17 @@ package org.flywaydb.core.internal.util;
 
 import lombok.CustomLog;
 
+import java.nio.file.spi.FileSystemProvider;
 import java.util.ServiceLoader;
 import java.util.stream.StreamSupport;
 
 @CustomLog
 public final class FeatureDetector {
+
+    private static final String PROPERTY_NATIVE_IMAGE_CODE_KEY = "org.graalvm.nativeimage.imagecode";
+    private static final String PROPERTY_NATIVE_IMAGE_CODE_VALUE_BUILDTIME = "buildtime";
+    private static final String PROPERTY_NATIVE_IMAGE_CODE_VALUE_RUNTIME = "runtime";
+
     private final ClassLoader classLoader;
     private Boolean apacheCommonsLoggingAvailable;
     private Boolean log4J2Available;
@@ -31,6 +37,7 @@ public final class FeatureDetector {
     private Boolean osgiFrameworkAvailable;
     private Boolean awsAvailable;
     private Boolean gcsAvailable;
+    private Boolean nativeImageResourceFileSystemAvailable;
 
     public FeatureDetector(ClassLoader classLoader) {
         this.classLoader = classLoader;
@@ -113,5 +120,34 @@ public final class FeatureDetector {
         }
 
         return gcsAvailable;
+    }
+
+    private boolean detectNativeImageResourceFileSystem() {
+        // native-image tool sets special system properties when class file is compiled ahead of time.
+        //
+        // See https://github.com/oracle/graal/blob/b102df7bc5acaa64069b6a606f77bc463874f997/sdk/src/org.graalvm.nativeimage/src/org/graalvm/nativeimage/ImageInfo.java
+        String imageCode = System.getProperty(PROPERTY_NATIVE_IMAGE_CODE_KEY);
+
+        if (!PROPERTY_NATIVE_IMAGE_CODE_VALUE_RUNTIME.equals(imageCode)
+                && !PROPERTY_NATIVE_IMAGE_CODE_VALUE_BUILDTIME.equals(imageCode)) {
+            return false;
+        }
+
+        // There is a FileSystemProvider for resource scheme in resulting image. It allows scanning for resources built
+        //  in the image at compile time.
+        //
+        // See https://github.com/oracle/graal/blob/b102df7bc5acaa64069b6a606f77bc463874f997/substratevm/src/com.oracle.svm.core/src/com/oracle/svm/core/jdk/resources/NativeImageResourceFileSystemProvider.java
+        return FileSystemProvider.installedProviders().stream()
+                .map(FileSystemProvider::getScheme)
+                .anyMatch("resource"::equalsIgnoreCase);
+    }
+
+    public boolean isNativeImageResourceFileSystemAvailable() {
+        if (nativeImageResourceFileSystemAvailable == null) {
+            nativeImageResourceFileSystemAvailable = detectNativeImageResourceFileSystem();
+            LOG.debug("Native-image resource file system available: " + nativeImageResourceFileSystemAvailable);
+        }
+
+        return nativeImageResourceFileSystemAvailable;
     }
 }
