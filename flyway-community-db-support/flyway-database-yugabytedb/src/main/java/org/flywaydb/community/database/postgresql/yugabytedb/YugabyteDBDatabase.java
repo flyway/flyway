@@ -40,8 +40,8 @@ public class YugabyteDBDatabase extends PostgreSQLDatabase {
         try {
             stmt = connection.createStatement();
             stmt.execute("set yb_silence_advisory_locks_not_supported_error=on;");
-        } catch (SQLException throwables) {
-            LOG.warn("Unable to set yb_silence_advisory_locks_not_supported_error ", throwables.printStackTrace(););
+        } catch (SQLException throwable) {
+            LOG.warn("Unable to set yb_silence_advisory_locks_not_supported_error ", throwable);
         }
         return new YugabyteDBConnection(this, connection);
     }
