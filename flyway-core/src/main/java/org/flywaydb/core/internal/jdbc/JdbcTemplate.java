@@ -186,30 +186,6 @@ public class JdbcTemplate {
     }
 
     /**
-     * Executes this callable sql statement using a PreparedStatement.
-     *
-     * @param sql    The statement to execute.
-     * @param params The statement parameters.
-     * @return the results of the execution.
-     */
-
-    public Results executeCallableStatement(String sql, Object... params) {
-        Results results = new Results();
-        PreparedStatement statement = null;
-        try {
-            statement = prepareStatement(sql, params);
-            boolean hasResults = statement.execute();
-            extractResults(results, statement, sql, hasResults);
-            extractWarnings(results, statement);
-        } catch (final SQLException e) {
-            extractErrors(results, e);
-        } finally {
-            JdbcUtils.closeStatement(statement);
-        }
-        return results;
-    }
-
-    /**
      * Executes this sql statement using an ordinary Statement.
      *
      * @param sql The statement to execute.
@@ -233,7 +209,7 @@ public class JdbcTemplate {
         return results;
     }
 
-    private void extractWarnings(Results results, Statement statement) throws SQLException {
+    protected void extractWarnings(Results results, Statement statement) throws SQLException {
         SQLWarning warning = statement.getWarnings();
         while (warning != null) {
             int code = warning.getErrorCode();
@@ -264,7 +240,7 @@ public class JdbcTemplate {
         results.setException(e);
     }
 
-    private void extractResults(Results results, Statement statement, String sql, boolean hasResults) throws SQLException {
+    protected void extractResults(Results results, Statement statement, String sql, boolean hasResults) throws SQLException {
         // retrieve all results to ensure all errors are detected
         int updateCount = -1;
         while (hasResults || (updateCount = statement.getUpdateCount()) != -1) {

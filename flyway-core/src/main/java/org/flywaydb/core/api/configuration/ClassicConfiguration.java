@@ -361,16 +361,6 @@ public class ClassicConfiguration implements Configuration {
     }
 
     @Override
-    public String getDb2zDatabaseName() {
-        return getModernFlyway().getDb2zDatabaseName();
-    }
-
-    @Override
-    public String getDb2zsqlId() {
-        return getModernFlyway().getDb2zsqlId();
-    }
-
-    @Override
     public String[] getLoggers() {
         return getModernFlyway().getLoggers().toArray(new String[0]);
     }
@@ -1311,22 +1301,6 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
-     * The database name for DB2 on z/OS (required for DB2 on z/OS)
-     */
-    public void setDb2zDatabaseName(String db2zDatabaseName) {
-
-        getModernFlyway().setDb2zDatabaseName(db2zDatabaseName);
-    }
-
-    /**
-     * The SQLID for DB2 on z/OS (does not necessarily match with schema)
-     */
-    public void setDb2zsqlId(String db2zsqlId) {
-
-        getModernFlyway().setDb2zsqlId(db2zsqlId);
-    }
-
-    /**
      * Whether Flyway should attempt to create the schemas specified in the schemas property.
      *
      * @param createSchemas @{code true} to attempt to create the schemas (default: {@code true})
@@ -1665,14 +1639,6 @@ public class ClassicConfiguration implements Configuration {
         Boolean oracleSqlplusWarnProp = removeBoolean(props, ConfigUtils.ORACLE_SQLPLUS_WARN);
         if (oracleSqlplusWarnProp != null) {
             setOracleSqlplusWarn(oracleSqlplusWarnProp);
-        }
-        String db2zDatabaseNameProp = props.remove(ConfigUtils.DB2Z_DATABASE_NAME);
-        if (db2zDatabaseNameProp != null) {
-            setDb2zDatabaseName(db2zDatabaseNameProp);
-        }
-        String db2zsqlIdProp = props.remove(ConfigUtils.DB2Z_SQLID);
-        if (db2zsqlIdProp != null) {
-            setDb2zsqlId(db2zsqlIdProp);
         }
         Boolean createSchemasProp = removeBoolean(props, ConfigUtils.CREATE_SCHEMAS);
         if (createSchemasProp != null) {

@@ -84,8 +84,6 @@ public class FlywayModel {
     private String kerberosConfigFile;
     private String oracleKerberosCacheFile;
     private String oracleWalletLocation;
-    private String db2zDatabaseName;
-    private String db2zsqlId;
     private Boolean failOnMissingLocations;
     private List<String> loggers;
     private Map<String, String> placeholders;
@@ -139,8 +137,6 @@ public class FlywayModel {
          model.lockRetryCount = 50;
          model.kerberosConfigFile = "";
          model.oracleKerberosCacheFile = "";
-         model.db2zDatabaseName = "";
-         model.db2zsqlId = "";
          model.failOnMissingLocations = false;
          model.loggers = Arrays.asList("auto");
          model.placeholders = new HashMap<>();
@@ -199,8 +195,6 @@ public class FlywayModel {
         result.kerberosConfigFile = kerberosConfigFile.merge(otherPojo.kerberosConfigFile);
         result.oracleKerberosCacheFile = oracleKerberosCacheFile.merge(otherPojo.oracleKerberosCacheFile);
         result.oracleWalletLocation = oracleWalletLocation.merge(otherPojo.oracleWalletLocation);
-        result.db2zDatabaseName = db2zDatabaseName.merge(otherPojo.db2zDatabaseName);
-        result.db2zsqlId = db2zsqlId.merge(otherPojo.db2zsqlId);
         result.failOnMissingLocations = failOnMissingLocations.merge(otherPojo.failOnMissingLocations);
         result.loggers = loggers.merge(otherPojo.loggers);
         result.defaultSchema = defaultSchema.merge(otherPojo.defaultSchema);
