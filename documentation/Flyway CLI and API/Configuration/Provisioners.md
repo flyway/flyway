@@ -13,7 +13,7 @@ Flyway comes with support for the following provisioners:
 
 ## Using Provisioners In TOML Configuration Files
 Provisioners are simply configured by setting the [provisioner](Configuration/Parameters/Environments/Provisioner) property on a configured environment
-Some provisioners double as property resolvers and allow properties to be computed
+Some provisioners double as [property resolvers](Configuration/Property Resolvers) and allow properties to be computed
 
 ```toml
 [environments.development]

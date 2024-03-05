@@ -26,7 +26,42 @@
 <div class="col-md-9">
 
 <div class="release">
+        <h2 id="10.9.0">Flyway 10.9.0 (2024-03-05)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fixing issue where placeholders are not merged properly when using TOML configuration files.</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Update Flyway-Community-DB-Support version to 10.8.0</li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>Reintroduce Oceanblue</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>Update Mongo JDBC driver to <a href="https://github.com/DataGrip/mongo-jdbc-driver/releases/tag/v1.19">1.19</a></li>
+            <li>Update postgres to 42.7.2 for CVE-2024-1597</li>
+            <li>Increase dependency software.amazon.awssdk:s3 to 2.21.46 to fix CVE-2023-44487</li>
+        </ul>
+
+    </div>
+
+<div class="release">
         <h2 id="10.8.1">Flyway 10.8.1 (2024-02-15)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+          <li>
+            <a href="https://github.com/flyway/flyway/issues/3841">Issue 3841</a>
+            Fix issue with PostgreSQL when running in a transaction
+          </li>
+        </ul>
 
         <h3>Database compatibility</h3>
         <ul>

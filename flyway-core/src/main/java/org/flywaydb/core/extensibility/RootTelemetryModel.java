@@ -35,6 +35,7 @@ public class RootTelemetryModel {
     private String applicationEdition;
     private boolean redgateEmployee;
     private boolean isTrial;
+    private boolean isSignedIn;
 
     private Instant startTime = Instant.now();
 }

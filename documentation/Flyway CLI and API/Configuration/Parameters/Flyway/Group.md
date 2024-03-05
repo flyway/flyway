@@ -9,6 +9,8 @@ redirect_from: Configuration/group/
 ## Description
 Whether to group all pending migrations together in the same transaction when applying them (only recommended for databases with support for DDL transactions)
 
+_Note: If [executeInTransaction](Configuration/Parameters/Flyway/Execute In Transaction) is set to false, this parameter will have no impact._
+
 ## Default
 false
 

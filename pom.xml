@@ -31,7 +31,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>10.8.1</version>
+    <version>10.9.0</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -71,7 +71,6 @@
         <module>flyway-maven-plugin</module>
         <module>flyway-commandline</module>
         <module>flyway-database</module>
-
 
 
 
@@ -153,9 +152,10 @@
     <properties>
         <version.ant>1.10.13</version.ant>
         <version.appinsights>3.4.7</version.appinsights>
-        <version.aws-java-sdk>[2.20.162,2.21.0)</version.aws-java-sdk>
+        <version.aws-java-sdk>2.21.46</version.aws-java-sdk>
         <version.aws-secretsmanager>2.0.2</version.aws-secretsmanager>
         <version.byte-buddy-agent>1.11.18</version.byte-buddy-agent>
+        <version.cassandra>4.11.1</version.cassandra>
         <version.commonslogging>1.2</version.commonslogging>
         <version.commonstext>1.10.0</version.commonstext>
         <version.db2>11.5.0.0</version.db2>
@@ -182,18 +182,18 @@
         <version.system-stubs>2.0.1</version.system-stubs>
         <version.log4net2>2.17.1</version.log4net2>
         <version.logback>1.2.3</version.logback>
-        <version.lombok>1.18.20</version.lombok>
+        <version.lombok>1.18.30</version.lombok>
         <version.lombok-maven-plugin>1.18.20.0</version.lombok-maven-plugin>
         <version.mariadb>2.7.11</version.mariadb>
         <version.maven>3.9.6</version.maven>
-        <version.mockito>4.2.0</version.mockito>
+        <version.mockito>5.10.0</version.mockito>
         <version.msal4j>1.13.8</version.msal4j>
         <version.mssql>12.2.0</version.mssql>
         <version.mssql-jdbc>${version.mssql}.jre8</version.mssql-jdbc>
         <version.oracle>19.6.0.0</version.oracle>
         <version.osgi>4.3.1</version.osgi>
         <version.p6spy>3.9.1</version.p6spy>
-        <version.postgresql>42.4.3</version.postgresql>
+        <version.postgresql>42.7.2</version.postgresql>
         <version.redshift>1.2.10.1009</version.redshift>
         <version.sap>2.6.30</version.sap>
         <version.singlestore>1.1.4</version.singlestore>
@@ -463,6 +463,12 @@
                 <version>${version.informix}</version>
                 <optional>true</optional>
             </dependency>
+
+
+
+
+
+
 
 
 
@@ -904,6 +910,13 @@
                     <outputDirectory>${project.basedir}/target/generated-sources/delombok</outputDirectory>
                     <addOutputDirectory>false</addOutputDirectory>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.projectlombok</groupId>
+                        <artifactId>lombok</artifactId>
+                        <version>${version.lombok}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <artifactId>maven-gpg-plugin</artifactId>
@@ -915,6 +928,22 @@
                     <passphraseServerId>flyway-gpg</passphraseServerId>
                 </configuration>
             </plugin>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

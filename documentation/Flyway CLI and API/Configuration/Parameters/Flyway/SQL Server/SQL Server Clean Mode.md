@@ -50,3 +50,4 @@ flyway.sqlserver.clean.schemas.exclude=schema1,schema2
 ## Notes
 - This is **only** available for SQL Server 
 - This is **only** available in the configuration file - no CLI, Maven, Gradle, etc
+- When running clean, no users will be dropped to prevent unintended loss of connectivity. You can explicitly remove Users via a [callback script](concepts/callback concept).

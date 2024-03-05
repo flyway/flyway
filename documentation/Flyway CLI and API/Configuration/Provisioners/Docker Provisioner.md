@@ -31,7 +31,7 @@ services = [ "development" ]
 waitTimeout = "1m"
 ```
 
-This example is referencing a docker compose file which might look something like this (not production ready):
+This example is referencing a docker compose file which might look something like this (note that this example is not production ready - it is functional but has plain text passwords):
 ```yaml
 services:
   development:
@@ -56,7 +56,7 @@ COPY entrypoint.sh entrypoint.sh
 ENTRYPOINT [ "/bin/bash", "entrypoint.sh" ]
 ```
 
-The bash script in this example (not production ready):
+The bash script in this example (note that this example is not production ready - it is functional but not particularly robust):
 ```shell
 #!/bin/bash
 

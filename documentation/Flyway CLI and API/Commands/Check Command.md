@@ -77,6 +77,7 @@ Change and drift reports work on the following databases:
 - SQL Server
 - PostgreSQL
 - Oracle
+- MySQL
 - SQLite
 
 ##### `-code` and `-dryrun`

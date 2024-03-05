@@ -16,10 +16,11 @@
 package org.flywaydb.core.internal.database.base;
 
 import static org.flywaydb.core.internal.util.FlywayDbWebsiteLinks.COMMUNITY_CONTRIBUTED_DATABASES;
+import org.flywaydb.core.internal.database.DatabaseType;
 
-public abstract class CommunityDatabaseType extends BaseDatabaseType{
+public interface CommunityDatabaseType extends DatabaseType {
 
-    final public String announcementForCommunitySupport() {
+     default String announcementForCommunitySupport() {
         return getName() + " is a community contributed database, see "+ COMMUNITY_CONTRIBUTED_DATABASES + " for more details";
     }
 

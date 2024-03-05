@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>10.8.1</version>
+        <version>10.9.0</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -44,7 +44,7 @@
         <dependency>
             <groupId>com.github.kornilova203</groupId>
             <artifactId>mongo-jdbc-driver</artifactId>
-            <version>1.18</version>
+            <version>1.19</version>
         </dependency>
     </dependencies>
 
