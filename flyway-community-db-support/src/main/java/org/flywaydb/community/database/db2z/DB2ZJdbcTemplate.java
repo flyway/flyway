@@ -18,6 +18,7 @@ package org.flywaydb.community.database.db2z;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.jdbc.Results;
@@ -26,6 +27,10 @@ public class DB2ZJdbcTemplate extends JdbcTemplate {
 
   public DB2ZJdbcTemplate(Connection connection) {
     super(connection);
+  }
+
+  public DB2ZJdbcTemplate(Connection connection, DatabaseType databaseType) {
+    super(connection, databaseType);
   }
 
   /**

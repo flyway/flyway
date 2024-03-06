@@ -17,9 +17,12 @@ package org.flywaydb.community.database.db2z;
 
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.callback.CallbackExecutor;
+import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.BaseDatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
@@ -27,6 +30,8 @@ import org.flywaydb.core.internal.parser.ParsingContext;
 import java.sql.Connection;
 import java.sql.Types;
 import java.util.Properties;
+import org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor;
+import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
 
 public class DB2ZDatabaseType extends BaseDatabaseType {
 
@@ -71,5 +76,21 @@ public class DB2ZDatabaseType extends BaseDatabaseType {
     public void setDefaultConnectionProps(String url, Properties props, ClassLoader classLoader) {
         props.put("clientProgramName", APPLICATION_NAME);
         props.put("retrieveMessagesFromServerOnGetMessage", "true");
+    }
+
+    @Override
+    public SqlScriptExecutorFactory createSqlScriptExecutorFactory(final JdbcConnectionFactory jdbcConnectionFactory,
+        final CallbackExecutor callbackExecutor,
+        final StatementInterceptor statementInterceptor) {
+        boolean supportsBatch = false;
+
+
+
+
+        final boolean finalSupportsBatch = supportsBatch;
+        final DatabaseType thisRef = this;
+
+        return (connection, undo, batch, outputQueryResults) -> new DefaultSqlScriptExecutor(new DB2ZJdbcTemplate(connection, thisRef),
+            callbackExecutor, undo, finalSupportsBatch && batch, outputQueryResults, statementInterceptor);
     }
 }
