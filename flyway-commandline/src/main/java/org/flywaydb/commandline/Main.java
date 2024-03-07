@@ -48,6 +48,7 @@ import org.flywaydb.core.internal.license.FlywayLicensingException;
 import org.flywaydb.core.internal.logging.EvolvingLog;
 import org.flywaydb.core.internal.logging.buffered.BufferedLog;
 import org.flywaydb.core.internal.plugin.PluginRegister;
+import org.flywaydb.core.internal.publishing.OperationResultPublisher;
 import org.flywaydb.core.internal.reports.ReportDetails;
 import org.flywaydb.core.internal.util.CommandExtensionUtils;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
@@ -293,7 +294,16 @@ public class Main {
             result = CommandExtensionUtils.runCommandExtension(configuration, operation, commandLineArguments.getFlags(), telemetryManager);
         }
 
+        publishOperationResult(configuration, result);
+
         return result;
+    }
+
+    private static void publishOperationResult(Configuration configuration, OperationResult result) {
+        List<OperationResultPublisher> publishers = configuration.getPluginRegister().getPlugins(OperationResultPublisher.class);
+        for (OperationResultPublisher publisher : publishers) {
+            publisher.publish(configuration, result);
+        }
     }
 
     private static MigrationFilterImpl getInfoFilter(CommandLineArguments commandLineArguments) {

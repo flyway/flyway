@@ -274,6 +274,9 @@
                 <exclude>com.google.code.gson:gson</exclude>
                 <exclude>software.amazon.awssdk:s3</exclude>
                 <exclude>org.slf4j:slf4j-nop</exclude>
+                <exclude>org.apache.commons:commons-text</exclude>
+                <exclude>com.fasterxml.jackson.dataformat:jackson-dataformat-xml</exclude>
+                <exclude>com.microsoft.azure:msal4j</exclude>
             </excludes>
         </dependencySet>
     </dependencySets>

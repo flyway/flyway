@@ -26,6 +26,17 @@
 <div class="col-md-9">
 
 <div class="release">
+        <h2 id="10.9.1">Flyway 10.9.1 (2024-03-07)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fix issue with MySQL not falling back to MariaDB driver when official driver is unavailable</li>
+            <li>Fix duplicate migration pattern error when running 'check -drift' or 'check -changes' on a database with multiple schema creation rows.</li>
+        </ul>
+
+    </div>
+
+<div class="release">
         <h2 id="10.9.0">Flyway 10.9.0 (2024-03-05)</h2>
 
         <h3>Bug fixes</h3>
@@ -40,7 +51,7 @@
 
         <h3>Database compatibility</h3>
         <ul>
-            <li>Reintroduce Oceanblue</li>
+            <li>Reintroduce OceanBase</li>
         </ul>
 
         <h3>Java compatibility</h3>
