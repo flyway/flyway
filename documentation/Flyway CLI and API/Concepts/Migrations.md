@@ -379,7 +379,6 @@ public class V1_2__Another_user extends BaseJavaMigration {
 ```
 
 ## Script migrations
-{% include redgate.html %}
 
 Sometimes it may be more desirable to use a scripting language for migrations. Flyway Teams currently supports the `.ps1`, `.bat`, `.cmd`, `.sh`, `.bash`, `.py` file extensions as migrations, and on non-windows platforms it also supports migrations without extensions (assuming a valid [shebang](https://en.wikipedia.org/wiki/Shebang_(Unix))).
 

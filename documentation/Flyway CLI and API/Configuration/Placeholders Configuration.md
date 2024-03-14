@@ -8,7 +8,7 @@ redirect_from: /documentation/placeholders/
 Flyway comes with support for placeholder replacement in:
 
 - [SQL migrations](Configuration/Placeholders Configuration#sql-migration-placeholders)
-- [Script migrations](Configuration/Placeholders Configuration#script-migration-placeholders) {% include teams.html %}
+- [Script migrations](Configuration/Placeholders Configuration#script-migration-placeholders)
 
 # SQL Migration Placeholders
 In addition to regular SQL syntax, Flyway also supports placeholder replacement with configurable prefixes and suffixes.
@@ -67,7 +67,6 @@ INSERT INTO ${tableName} (name) VALUES ('Mr. T');
 ```
 
 # Script Migration Placeholders
-{% include teams.html %}
 
 Much like SQL placeholders, Flyway supports placeholder replacement in
 [script migrations](Concepts/migrations#script-migrations). Placeholders can be read

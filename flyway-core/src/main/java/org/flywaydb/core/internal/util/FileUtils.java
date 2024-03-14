@@ -177,7 +177,7 @@ public class FileUtils {
         File dir = file.getParentFile();
 
         if (dir == null || dir.exists()) {
-            throw new UnsupportedOperationException("No need to create report file directory");
+            return;
         }
 
         if (!dir.mkdirs()) {

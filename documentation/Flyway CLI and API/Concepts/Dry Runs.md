@@ -19,15 +19,8 @@ There are however situations where you may want to
 
 ## Usage
 
-API/Maven/Gradle users will need to include `flyway-proprietary` as a dependency in order to use Dry run. For example:
+API/Maven/Gradle users will need to include `flyway-proprietary` as a dependency in order to use Dry run. See [API (Java)](Usage/API Java)
 
-```
-<dependency>
-    <groupId>com.redgate.flyway</groupId>
-    <artifactId>flyway-proprietary</artifactId>
-    <version>{{ site.flywayVersion }}</version>
-</dependency>
-```
 
 ## How it works
 

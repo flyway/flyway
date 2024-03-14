@@ -873,6 +873,15 @@ public class ClassicConfiguration implements Configuration {
         }
     }
 
+    public void setEnvironmentProvisionMode(ProvisionerMode provisionerMode) {
+        getModernFlyway().setEnvironmentProvisionMode(provisionerMode.toString());
+    }
+
+    public void setAllEnvironments(Map<String, EnvironmentModel> environments) {
+        getModernConfig().setEnvironments(environments);
+        resolvedEnvironments.clear();
+    }
+
     /**
      * Sets whether SQL should be executed within a transaction.
      *

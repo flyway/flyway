@@ -47,9 +47,10 @@ public class LegacyConfigurationManager implements ConfigurationManager {
     public Configuration getConfiguration(CommandLineArguments commandLineArguments) {
 
         Map<String, String> config = new HashMap<>();
-        String workingDirectory = commandLineArguments.isWorkingDirectorySet() ? commandLineArguments.getWorkingDirectory() : ClassUtils.getInstallDir(Main.class);
+        String installDirectory = commandLineArguments.isWorkingDirectorySet() ? commandLineArguments.getWorkingDirectory() : ClassUtils.getInstallDir(Main.class);
+        String workingDirectory = commandLineArguments.getWorkingDirectoryOrNull();
 
-        File jarDir = new File(workingDirectory, "jars");
+        File jarDir = new File(installDirectory, "jars");
         ConfigUtils.warnIfUsingDeprecatedMigrationsFolder(jarDir, ".jar");
         if (jarDir.exists()) {
             config.put(ConfigUtils.JAR_DIRS, jarDir.getAbsolutePath());
@@ -62,13 +63,13 @@ public class LegacyConfigurationManager implements ConfigurationManager {
         config.putAll(envVars);
         config = overrideConfiguration(config, commandLineArguments.getConfiguration(false));
 
-        File sqlFolder = new File(workingDirectory, DEFAULT_CLI_SQL_LOCATION);
+        File sqlFolder = new File(installDirectory, DEFAULT_CLI_SQL_LOCATION);
         if (ConfigUtils.shouldUseDefaultCliSqlLocation(sqlFolder, StringUtils.hasText(config.get(ConfigUtils.LOCATIONS)))) {
             config.put(ConfigUtils.LOCATIONS, "filesystem:" + sqlFolder.getAbsolutePath());
         }
 
-        if (commandLineArguments.isWorkingDirectorySet()) {
-            makeRelativeLocationsBasedOnWorkingDirectory(commandLineArguments.getWorkingDirectory(), config);
+        if (workingDirectory != null) {
+            makeRelativeLocationsBasedOnWorkingDirectory(workingDirectory, config);
         }
 
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();

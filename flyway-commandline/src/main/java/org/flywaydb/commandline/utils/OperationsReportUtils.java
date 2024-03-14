@@ -23,6 +23,7 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.CompositeResult;
 import org.flywaydb.core.api.output.HtmlResult;
 import org.flywaydb.core.api.output.OperationResult;
+import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.configuration.models.FlywayModel;
 import org.flywaydb.core.internal.reports.ReportDetails;
 import org.flywaydb.core.internal.reports.json.CompositeResultDeserializer;
@@ -75,12 +76,15 @@ public class OperationsReportUtils {
             String tmpJsonReportFilename = baseReportFilename + JSON_REPORT_EXTENSION;
             String tmpHtmlReportFilename = baseReportFilename + (reportFilename.endsWith(HTM_REPORT_EXTENSION) ? HTM_REPORT_EXTENSION : HTML_REPORT_EXTENSION);
 
+            tmpJsonReportFilename = ConfigUtils.getFilenameWithWorkingDirectory(tmpJsonReportFilename, configuration);
+            tmpHtmlReportFilename = ConfigUtils.getFilenameWithWorkingDirectory(tmpHtmlReportFilename, configuration);
+
             try {
                 htmlCompositeResult = JsonUtils.appendIfExists(tmpJsonReportFilename, htmlCompositeResult, new CompositeResultDeserializer(configuration.getPluginRegister()));
                 reportDetails.setJsonReportFilename(createJsonReport(htmlCompositeResult, tmpJsonReportFilename));
                 reportDetails.setHtmlReportFilename(createHtmlReport(configuration, htmlCompositeResult, tmpHtmlReportFilename));
             } catch (FlywayException e) {
-                if (DEFAULT_REPORT_FILENAME.equals(configuration.getReportFilename())) {
+                if (DEFAULT_REPORT_FILENAME.equals(reportFilename)) {
                     LOG.warn("Unable to create default report files.");
                     if (LOG.isDebugEnabled()) {
                         e.printStackTrace(System.out);

@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.plugin;
 
+import java.util.Collections;
 import lombok.CustomLog;
 import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -29,11 +30,11 @@ import java.util.stream.Collectors;
 @CustomLog
 @NoArgsConstructor
 public class PluginRegister {
-    public final List<Plugin> REGISTERED_PLUGINS = new ArrayList<>();
+    private final List<Plugin> REGISTERED_PLUGINS = new ArrayList<>();
     private final ClassLoader CLASS_LOADER = this.getClass().getClassLoader();
-    private boolean hasRegisteredPlugins = false;
+    private boolean hasRegisteredPlugins;
 
-    public <T extends Plugin> T getPlugin(Class<T> clazz) {
+    public <T extends Plugin> T getPlugin(final Class<T> clazz) {
         return (T) getPlugins()
                 .stream()
                 .filter(p -> p.getClass().getCanonicalName().equals(clazz.getCanonicalName()))
@@ -41,7 +42,7 @@ public class PluginRegister {
                 .orElse(null);
     }
 
-    public <T extends Plugin> List<T> getPlugins(Class<T> clazz) {
+    public <T extends Plugin> List<T> getPlugins(final Class<T> clazz) {
         return (List<T>) getPlugins()
                 .stream()
                 .filter(clazz::isInstance)
@@ -49,7 +50,7 @@ public class PluginRegister {
                 .collect(Collectors.toList());
     }
 
-    public <T extends Plugin> List<T> getLicensedPlugins(Class<T> clazz, Configuration configuration) {
+    public <T extends Plugin> List<T> getLicensedPlugins(final Class<T> clazz, final Configuration configuration) {
         return (List<T>) getPlugins()
                 .stream()
                 .filter(clazz::isInstance)
@@ -58,7 +59,7 @@ public class PluginRegister {
                 .collect(Collectors.toList());
     }
 
-    public <T extends Plugin> T getLicensedPlugin(String className, Configuration configuration) {
+    public <T extends Plugin> T getLicensedPlugin(final String className, final Configuration configuration) {
         return (T) getPlugins()
                 .stream()
                 .filter(p -> p.isLicensed(configuration))
@@ -70,7 +71,7 @@ public class PluginRegister {
 
     private List<Plugin> getPlugins() {
         registerPlugins();
-        return REGISTERED_PLUGINS;
+        return Collections.unmodifiableList(REGISTERED_PLUGINS);
     }
 
     void registerPlugins() {
@@ -79,7 +80,7 @@ public class PluginRegister {
                 return;
             }
 
-            for (Plugin plugin : ServiceLoader.load(Plugin.class, CLASS_LOADER)) {
+            for (final Plugin plugin : ServiceLoader.load(Plugin.class, CLASS_LOADER)) {
                 if (plugin.isEnabled()) {
                     REGISTERED_PLUGINS.add(plugin);
                 }
@@ -90,14 +91,10 @@ public class PluginRegister {
     }
 
     public PluginRegister getCopy(){
-        PluginRegister copy = new PluginRegister();
-        copy.setRegisteredPlugins(getPlugins());
+        final PluginRegister copy = new PluginRegister();
+        copy.REGISTERED_PLUGINS.clear();
+        copy.REGISTERED_PLUGINS.addAll(getPlugins().stream().map(Plugin::copy).toList());
+        copy.hasRegisteredPlugins = true;
         return copy;
-    }
-
-    private void setRegisteredPlugins(List<Plugin> plugins) {
-        REGISTERED_PLUGINS.clear();
-        REGISTERED_PLUGINS.addAll(plugins.stream().map(Plugin::copy).collect(Collectors.toList()));
-        hasRegisteredPlugins = true;
     }
 }

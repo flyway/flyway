@@ -23,6 +23,8 @@ import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
+import org.flywaydb.core.internal.configuration.models.EnvironmentModel;
+import org.flywaydb.core.internal.configuration.resolvers.ProvisionerMode;
 import org.flywaydb.core.internal.util.ClassUtils;
 
 import javax.sql.DataSource;
@@ -114,6 +116,16 @@ public class FluentConfiguration implements Configuration {
 
     public FluentConfiguration environment(String environment) {
         config.setEnvironment(environment);
+        return this;
+    }
+
+    public FluentConfiguration allEnvironments(Map<String, EnvironmentModel> environments) {
+        config.setAllEnvironments(environments);
+        return this;
+    }
+
+    public FluentConfiguration environmentProvisionMode(ProvisionerMode environmentProvisionMode) {
+        config.setEnvironmentProvisionMode(environmentProvisionMode);
         return this;
     }
 

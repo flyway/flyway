@@ -56,9 +56,10 @@ public class ModernConfigurationManager implements ConfigurationManager {
     private static final String UNABLE_TO_PARSE_FIELD = "Unable to parse '%s' in your TOML configuration file";
 
     public Configuration getConfiguration(CommandLineArguments commandLineArguments) {
-        String workingDirectory =
+        String installDirectory =
             commandLineArguments.isWorkingDirectorySet() ? commandLineArguments.getWorkingDirectory()
                 : ClassUtils.getInstallDir(Main.class);
+        String workingDirectory = commandLineArguments.getWorkingDirectoryOrNull();
 
         List<File> tomlFiles = ConfigUtils.getDefaultTomlConfigFileLocations(
             new File(ClassUtils.getInstallDir(Main.class)), commandLineArguments.getWorkingDirectoryOrNull());
@@ -132,14 +133,14 @@ public class ModernConfigurationManager implements ConfigurationManager {
 
         }
 
-        File sqlFolder = new File(workingDirectory, DEFAULT_CLI_SQL_LOCATION);
+        File sqlFolder = new File(installDirectory, DEFAULT_CLI_SQL_LOCATION);
         if (ConfigUtils.shouldUseDefaultCliSqlLocation(sqlFolder,
             !config.getFlyway().getLocations().equals(ConfigurationModel.defaults().getFlyway().getLocations()))) {
             config.getFlyway().setLocations(Arrays.stream(new String[]{"filesystem:" + sqlFolder.getAbsolutePath()}).collect(Collectors.toList()));
         }
 
-        if (commandLineArguments.isWorkingDirectorySet()) {
-            makeRelativeLocationsBasedOnWorkingDirectory(commandLineArguments.getWorkingDirectory(),
+        if (workingDirectory != null) {
+            makeRelativeLocationsBasedOnWorkingDirectory(workingDirectory,
                 config.getFlyway().getLocations());
         }
 
@@ -150,7 +151,7 @@ public class ModernConfigurationManager implements ConfigurationManager {
 
         configurePlugins(config, cfg);
 
-        loadJarDirsAndAddToClasspath(workingDirectory, cfg);
+        loadJarDirsAndAddToClasspath(installDirectory, cfg);
 
         return cfg;
     }
@@ -183,8 +184,14 @@ public class ModernConfigurationManager implements ConfigurationManager {
             .toList();
 
         if (!missingParams.isEmpty()) {
-            throw new FlywayException(
-                "Failed to configure Parameters: " + String.join(", ", missingParams));
+
+            if (config.getRootConfigurations().isEmpty()) {
+
+                throw new FlywayException(
+                    "Failed to configure Parameters: " + String.join(", ", missingParams));
+
+            }
+
         }
     }
 

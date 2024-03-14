@@ -3,11 +3,47 @@ flywayVersion: 5.2.4
 ---
 # Accessing Older Versions of Flyway
 
+## Flyway 10.0.0
+The `groupId` has been changed from `org.flywaydb.enterprise` to `com.redgate.flyway`.
+
+For API users, `flyway-core` and `flyway-proprietary` dependencies will need to be updated
+
+### Before
+```
+    <dependency>
+        <groupId>org.flywaydb.enterprise</groupId>
+        ...
+    </dependency>
+```
+### After
+```
+    <dependency>
+        <groupId>com.redgate.flyway</groupId>
+        ...
+    </dependency>
+```
+## Flyway 9.0.0
+Since Flyway 9.0.0, non-open source versions of Flyway are hosted on https://download.red-gate.com/maven/release
+
+API users will need to update their project to retrieve artifacts from here.
+```
+<repositories>
+    ...
+    <repository>
+        <id>redgate</id>
+        <url>https://download.red-gate.com/maven/release</url>
+    </repository>
+    ...
+</repositories>
+```
+
+## Flyway 7.0.0
+Since Flyway 7.0, Flyway Pro & Enterprise editions are renamed to Flyway Teams.
+
+## Flyway 6.4.1
 Historically, Flyway Community edition artifacts were uploaded to Maven Central and Gradle Plugins, whereas Pro & Enterprise editions were only available through our own server, repo.flywaydb.org.
 
 Since Flyway 6.4.1, Pro & Enterprise edition artifacts are uploaded to Maven Central and Gradle Plugins, alongside Community edition.
-
-Since Flyway 7.0, Flyway Pro & Enterprise editions are renamed to Flyway Teams.
 
 For all versions of Community, and versions of paid editions beyond 6.4.1:
 - [Flyway Maven Central listing](https://mvnrepository.com/artifact/org.flywaydb)

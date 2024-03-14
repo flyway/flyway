@@ -34,11 +34,7 @@ public class HtmlUtils {
 
         File file = new File(filename);
 
-        try {
-            createDirIfNotExists(file);
-        } catch (UnsupportedOperationException ignore) {
-
-        }
+        createDirIfNotExists(file);
 
         try (FileWriter fileWriter = new FileWriter(file)) {
             fileWriter.write(fileContents);

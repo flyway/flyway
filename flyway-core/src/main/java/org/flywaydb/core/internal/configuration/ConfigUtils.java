@@ -804,4 +804,16 @@ public class ConfigUtils {
             }
         }
     }
+
+    public static String getReportFilenameWithWorkingDirectory(Configuration conf) {
+        return getFilenameWithWorkingDirectory(conf.getReportFilename(), conf);
+    }
+
+    public static String getFilenameWithWorkingDirectory(String filename, Configuration conf) {
+        if (conf.getWorkingDirectory() != null && !new File(filename).isAbsolute()) {
+            return new File(conf.getWorkingDirectory(), filename).getPath();
+        } else {
+            return filename;
+        }
+    }
 }

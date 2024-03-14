@@ -16,7 +16,6 @@ be migrated to a state the rest of the code can work with.
 - `Java 17`
 
 ## Download
-### Flyway Community Edition
 <table class="table">
     <tr>
         <th>Maven</th>
@@ -36,6 +35,12 @@ be migrated to a state the rest of the code can work with.
         &lt;artifactId&gt;flyway-core&lt;/artifactId&gt;
         &lt;version&gt;{{ site.flywayVersion }}&lt;/version&gt;
     &lt;/dependency&gt;
+     &lt;!-- If you need Teams features then you'll need this additional dependency --&gt;
+     &lt;dependency&gt;
+        &lt;groupId&gt;<strong>com.redgate.flyway</strong>&lt;/groupId&gt;
+        &lt;artifactId&gt;flyway-proprietary&lt;/artifactId&gt;
+        &lt;version&gt;{{ site.flywayVersion }}&lt;/version&gt;
+    &lt;/dependency&gt;   
     ...
 &lt;/dependencies&gt;</pre>
         </td>
@@ -70,9 +75,10 @@ dependencies {
     </tr>
 </table>
 
-<p class="note">
-  For older versions see <a href="/Accessing Older Versions of Flyway">Accessing Older Versions of Flyway</a>
-</p>
+Please note, the `groupId` changed at Flyway V10.0.0 from `org.flywaydb.enterprise` to `com.redgate.flyway`
+
+For older versions see <a href="/Accessing Older Versions of Flyway">Accessing Older Versions of Flyway</a>
+
 
 
 ### Open Source Edition

@@ -44,11 +44,7 @@ public class JsonUtils {
 
         File file= new File(filename);
 
-        try {
-            createDirIfNotExists(file);
-        } catch (UnsupportedOperationException ignore) {
-
-        }
+        createDirIfNotExists(file);
 
         try (FileWriter fileWriter = new FileWriter(file)) {
             getGson().toJson(json, fileWriter);

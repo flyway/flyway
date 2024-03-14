@@ -4,7 +4,6 @@ subtitle: flyway.scriptPlaceholderSuffix
 ---
 
 # Script Placeholder Suffix
-{% include teams.html %}
 
 ## Description
 The suffix of every [script migration placeholder](Configuration/Placeholders Configuration)

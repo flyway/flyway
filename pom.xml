@@ -31,7 +31,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>10.9.1</version>
+    <version>10.10.0</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -71,9 +71,6 @@
         <module>flyway-maven-plugin</module>
         <module>flyway-commandline</module>
         <module>flyway-database</module>
-
-
-
 
 
 
@@ -176,6 +173,7 @@
         <version.jaxb>2.3.1</version.jaxb>
         <version.jaybird>3.0.10</version.jaybird>
         <version.jboss>3.2.15.Final</version.jboss>
+        <version.jffi>1.3.10</version.jffi>
         <version.jna>5.13.0</version.jna>
         <version.jtds>1.3.1</version.jtds>
         <version.junit>5.9.0</version.junit>
@@ -463,6 +461,28 @@
                 <version>${version.informix}</version>
                 <optional>true</optional>
             </dependency>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
