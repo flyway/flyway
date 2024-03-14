@@ -316,6 +316,12 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
         }
 
         FeatureDetector featureDetector = new FeatureDetector(classLoader);
+        if (isNativeImage(protocol) && featureDetector.isNativeImageResourceFileSystemAvailable()) {
+            NativeImageClassPathLocationScanner locationScanner = new NativeImageClassPathLocationScanner();
+            locationScannerCache.put(protocol, locationScanner);
+            resourceNameCache.put(locationScanner, new HashMap<>());
+            return locationScanner;
+        }
         if ("vfs".equals(protocol) && featureDetector.isJBossVFSv3Available()) {
             JBossVFSv3ClassPathLocationScanner locationScanner = new JBossVFSv3ClassPathLocationScanner();
             locationScannerCache.put(protocol, locationScanner);
@@ -330,6 +336,10 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
         }
 
         return null;
+    }
+
+    private boolean isNativeImage(String protocol) {
+        return "resource".equalsIgnoreCase(protocol);
     }
 
     private boolean isEquinox(String protocol) {
