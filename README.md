@@ -23,6 +23,9 @@ SBT, Ant, Spring Boot, Grails, Play!, DropWizard, Grunt, Griffon, Ninja, ...
 You can find our getting started guides [here](https://documentation.red-gate.com/flyway/quickstart-how-flyway-works).
 Our reference documentation can be found [here](https://documentation.red-gate.com/flyway/flyway-cli-and-api).
 
+## Download
+You can download Flyway from [here](https://www.red-gate.com/products/flyway/community/download/).
+
 ## About
 Flyway is brought to you by [Redgate](https://www.red-gate.com/) with the help of many contributors.
 
