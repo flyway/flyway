@@ -23,12 +23,17 @@ import org.flywaydb.core.api.resource.LoadableResource;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectAttributesRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectAttributesResponse;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.ObjectAttributes;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
 import java.io.Reader;
+import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.charset.Charset;
+import java.util.Base64;
 
 @CustomLog
 @RequiredArgsConstructor
@@ -72,5 +77,26 @@ public class AwsS3Resource extends LoadableResource {
     @Override
     public String getRelativePath() {
         return getAbsolutePath();
+    }
+
+    @Override
+    public int calculateChecksum()
+    {
+        int checksum;
+        
+        S3Client s3 = S3ClientFactory.getClient();
+        try {
+            GetObjectAttributesRequest.Builder builder = GetObjectAttributesRequest.builder().bucket(bucketName).key(s3ObjectSummary.key()).objectAttributes(ObjectAttributes.CHECKSUM);
+            GetObjectAttributesRequest request = builder.build();
+            GetObjectAttributesResponse response = s3.getObjectAttributes(request);
+            String encodedChecksum = response.checksum().checksumCRC32();
+            byte[] checksumBytes = Base64.getDecoder().decode(encodedChecksum);
+            checksum = ByteBuffer.wrap(checksumBytes).getInt();
+        } catch (AwsServiceException e) {
+            LOG.warn("Falling back to computed checksum due to failure to get object checksum from s3: " + e.getMessage());
+            checksum = super.calculateChecksum();
+        }
+        
+        return checksum;
     }
 }
