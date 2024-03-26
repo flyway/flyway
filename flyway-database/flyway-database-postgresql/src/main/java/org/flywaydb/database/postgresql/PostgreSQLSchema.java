@@ -117,6 +117,10 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDatabase, PostgreSQLTable
             jdbcTemplate.execute(statement);
         }
 
+        for (String statement : generateDropStatementsForCollations()) {
+            jdbcTemplate.execute(statement);
+        }
+
         for (String statement : generateDropStatementsForExtensions()) {
             jdbcTemplate.execute(statement);
         }
@@ -335,6 +339,31 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDatabase, PostgreSQLTable
         List<String> statements = new ArrayList<>();
         for (String domainName : viewNames) {
             statements.add("DROP VIEW IF EXISTS " + database.quote(name, domainName) + " CASCADE");
+        }
+
+        return statements;
+    }
+
+    /**
+     * Generates the statements for dropping the collations in this schema.
+     *
+     * @return The drop statements.
+     * @throws SQLException when the clean statements could not be generated.
+     */
+    private List<String> generateDropStatementsForCollations() throws SQLException {
+        List<String> collationNames =
+                jdbcTemplate.queryForStringList(
+                        // Search for all collations in current schema
+                        "SELECT c.collname FROM pg_catalog.pg_collation c " +
+                                // that don't depend on an extension
+                                "JOIN pg_namespace n ON c.collnamespace = n.oid " +
+                                "LEFT JOIN pg_depend dep ON dep.objid = c.oid AND dep.deptype = 'e' " +
+                                "WHERE n.nspname = ? AND dep.objid IS NULL",
+                        name);
+
+        List<String> statements = new ArrayList<>();
+        for (String collationName : collationNames) {
+            statements.add("DROP COLLATION IF EXISTS " + database.quote(name, collationName) + " CASCADE");
         }
 
         return statements;
