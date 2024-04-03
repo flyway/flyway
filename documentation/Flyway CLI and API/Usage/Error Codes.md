@@ -47,7 +47,7 @@ These error codes may appear from any command, and are indicative of more genera
 - **Solution:** Ensure that you do not tamper with the schema history and all migrations that have been deleted are removed from [locations](Configuration/parameters/flyway/locations) known to Flyway
 
 ### `NON_EMPTY_SCHEMA_WITHOUT_SCHEMA_HISTORY_TABLE`
-- **Caused by:** Having non-empty schema(s) but no schema history table (e.g. introducing Flyway to an existing database)
+- **Caused by:** Having non-empty schemas but no schema history table (e.g. introducing Flyway to an existing database)
 - **Solution:** Run `baseline` or set [baselineOnMigrate](Configuration/parameters/flyway/Baseline On Migrate) to true to initialize the schema history table
 
 

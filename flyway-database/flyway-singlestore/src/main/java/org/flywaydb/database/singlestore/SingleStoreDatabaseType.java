@@ -15,6 +15,7 @@
  */
 package org.flywaydb.database.singlestore;
 
+import java.util.List;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.BaseDatabaseType;
@@ -33,6 +34,11 @@ public class SingleStoreDatabaseType extends BaseDatabaseType {
     @Override
     public String getName() {
         return "SingleStoreDB";
+    }
+
+    @Override
+    public List<String> getSupportedEngines() {
+        return List.of("singlestore");
     }
 
     @Override

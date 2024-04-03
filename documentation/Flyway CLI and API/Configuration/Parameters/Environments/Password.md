@@ -9,7 +9,7 @@ redirect_from: Configuration/password/
 ## Description
 The password to use to connect to the database
 
-This can be omitted if the password is baked into the [url](Configuration/parameters/environments/url) (See [Sql Server](Supported Databases/SQL Server#windows-authentication) for an example), or if password is provided through another means (such as [aws secrets](Configuration/Secrets Management)).
+This can be omitted if the password is baked into the [url](Configuration/parameters/environments/url) (See [SQL Server](<Supported Databases/SQL Server Database>) for an example), or if password is provided through another means (such as [aws secrets](Configuration/Secrets Management)).
 
 ## Usage
 

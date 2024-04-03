@@ -36,7 +36,7 @@ title: Welcome To Flyway
 
 <p>Supported databases are
     <a href="Supported Databases/oracle database">Oracle</a>,
-    <a href="Supported Databases/SQL Server">SQL Server (including Amazon RDS and Azure SQL Database)</a>,
+    <a href="Supported Databases/SQL Server Database">SQL Server (including Amazon RDS and Azure SQL Database)</a>,
     <a href="Supported Databases/Azure Synapse">Azure Synapse (Formerly Data Warehouse)</a>,
     <a href="Supported Databases/db2">DB2</a>,
     <a href="Supported Databases/mysql">MySQL</a> (including Amazon RDS, Azure Database &amp; Google Cloud SQL),

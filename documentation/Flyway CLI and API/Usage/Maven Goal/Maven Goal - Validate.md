@@ -5,7 +5,7 @@ subtitle: 'mvn flyway:validate'
 # Maven Goal: Validate
 
 Validate applied migrations against resolved ones (on the filesystem or classpath)
-to detect accidental changes that may prevent the schema(s) from being recreated exactly.
+to detect accidental changes that may prevent the schemas from being recreated exactly.
 
 Validation fails if
 - differences in migration names, types or checksums are found

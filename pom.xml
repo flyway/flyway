@@ -31,7 +31,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>10.10.0</version>
+    <version>10.11.0</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -71,6 +71,9 @@
         <module>flyway-maven-plugin</module>
         <module>flyway-commandline</module>
         <module>flyway-database</module>
+
+
+
 
 
 
@@ -149,7 +152,7 @@
     <properties>
         <version.ant>1.10.13</version.ant>
         <version.appinsights>3.4.7</version.appinsights>
-        <version.aws-java-sdk>2.21.46</version.aws-java-sdk>
+        <version.aws-java-sdk>[2.25.22,2.26.0)</version.aws-java-sdk>
         <version.aws-secretsmanager>2.0.2</version.aws-secretsmanager>
         <version.byte-buddy-agent>1.11.18</version.byte-buddy-agent>
         <version.cassandra>4.11.1</version.cassandra>
@@ -174,6 +177,7 @@
         <version.jaybird>3.0.10</version.jaybird>
         <version.jboss>3.2.15.Final</version.jboss>
         <version.jffi>1.3.10</version.jffi>
+        <version.jimfs>1.3.0</version.jimfs>
         <version.jna>5.13.0</version.jna>
         <version.jtds>1.3.1</version.jtds>
         <version.junit>5.9.0</version.junit>
@@ -461,6 +465,12 @@
                 <version>${version.informix}</version>
                 <optional>true</optional>
             </dependency>
+
+
+
+
+
+
 
 
 

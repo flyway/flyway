@@ -40,7 +40,7 @@ flyway info -url="jdbc://prod" -infoOfState="success,out_of_order,baseline" -mig
 Then we can apply these to our build database and take a snapshot, the `deployedSnapshot`:
 
 ```
-flyway migrate -cherrypick=$(cat applied_migrations.txt) -url="jdbc://build"
+flyway migrate -cherryPick=$(cat applied_migrations.txt) -url="jdbc://build"
 flyway snapshot -snapshot.filename="deployed.snapshot" -url="jdbc://build"
 ```
 

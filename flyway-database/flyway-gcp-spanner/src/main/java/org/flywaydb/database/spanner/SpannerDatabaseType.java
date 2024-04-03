@@ -15,6 +15,7 @@
  */
 package org.flywaydb.database.spanner;
 
+import java.util.List;
 import lombok.CustomLog;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -39,6 +40,11 @@ public class SpannerDatabaseType extends BaseDatabaseType {
     @Override
     public String getName() {
         return "Google Cloud Spanner";
+    }
+
+    @Override
+    public List<String> getSupportedEngines() {
+        return List.of("CloudSpanner");
     }
 
     @Override

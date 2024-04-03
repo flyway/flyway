@@ -8,11 +8,18 @@ redirect_from: Configuration/workingDirectory/
 
 ## Description
 The working directory to consider when dealing with relative paths. If configured, this parameter will affect the below areas:
-- Looking for the default [sql](Configuration/Parameters/Flyway/Locations) folder.
-- Looking for the default [jars](Configuration/Parameters/Flyway/Jar Dirs) folder.
-- Looking for default configuration files.
-- The [Locations](Configuration/Parameters/Flyway/Locations) parameter
-- The [Report Filename](Configuration/Parameters/Flyway/Report Filename) parameter
+- Looking for the default [migration locations](Configuration/Parameters/Flyway/Locations) folder.
+- Looking for the default [jars](<Configuration/Parameters/Flyway/Jar Dirs>) folder.
+- Looking for default [Configuration Files](<Configuration/Configuration Files>).
+- The [`locations`](Configuration/Parameters/Flyway/Locations) parameter
+- The [`jarDirs`](<Configuration/Parameters/Flyway/Jar Dirs>) parameter
+- The [`configFiles`](<Configuration/Parameters/Flyway/Config Files>) parameter
+- The [`reportFilename`](<Configuration/Parameters/Flyway/Report Filename>) parameter
+- The [`snapshotFilename`](<Configuration/Parameters/Flyway/Snapshot Filename>) parameter
+- The [`dryRunOutput`](<Configuration/Parameters/Flyway/Dry Run Output>) parameter 
+- The [`deployedSnapshot`](<Configuration/Parameters/Flyway/Check/Deployed Snapshot>) parameter
+- The [`nextSnapshot`](<Configuration/Parameters/Flyway/Check/Next Snapshot>) parameter
+- The [`filterFile`](<Configuration/Parameters/Flyway/Check/Filter File>) parameter
 
 ## Default
 <i>empty</i>
@@ -21,7 +28,7 @@ The working directory to consider when dealing with relative paths. If configure
 
 ### Commandline
 ```powershell
-./flyway -workingDirectory="sql" info
+./flyway -workingDirectory="my_project" info
 ```
 
 ### TOML Configuration File
@@ -36,7 +43,7 @@ Not available
 ### API
 ```java
 Flyway.configure()
-        .workingDirectory("working_Directory")
+        .workingDirectory("my_project")
         .load()
 ```
 
@@ -46,7 +53,7 @@ Not available
 ### Maven
 ```xml
 <configuration>
-    <workingDirectory>sql</workingDirectory>
+    <workingDirectory>my_project</workingDirectory>
 </configuration>
 ```
 

@@ -10,7 +10,7 @@ subtitle: placeholder page
 - [connectRetries](configuration/parameters/environments/Connect Retries)
 - [connectRetriesInterval](configuration/parameters/environments/Connect Retries Interval)
 - [initSql](configuration/parameters/environments/Init SQL)
-- [jdbcProperties](configuration/parameters/environments/JDBC Properties) {% include teams.html %}
+- [jdbcProperties](configuration/parameters/environments/JDBC Properties)
 
 ### General
 

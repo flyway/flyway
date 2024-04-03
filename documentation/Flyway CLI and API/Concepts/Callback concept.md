@@ -32,15 +32,15 @@ These are the events Flyway supports:
         <td>Before every single migration during Migrate</td>
     </tr>
     <tr id="beforeEachMigrateStatement">
-        <td>beforeEachMigrateStatement {% include redgate.html %}</td>
+        <td>beforeEachMigrateStatement <br>{% include redgate.html %}</td>
         <td>Before every single statement of a migration during Migrate</td>
     </tr>
     <tr id="afterEachMigrateStatement">
-        <td>afterEachMigrateStatement {% include redgate.html %}</td>
+        <td>afterEachMigrateStatement <br>{% include redgate.html %}</td>
         <td>After every single successful statement of a migration during Migrate</td>
     </tr>
     <tr id="afterEachMigrateStatementError">
-        <td>afterEachMigrateStatementError {% include redgate.html %}</td>
+        <td>afterEachMigrateStatementError</td>
         <td>After every single failed statement of a migration during Migrate</td>
     </tr>
     <tr id="afterEachMigrate">
@@ -79,39 +79,39 @@ These are the events Flyway supports:
     </thead>
     <tbody>
     <tr id="beforeUndo">
-        <td>beforeUndo {% include teams.html %}</td>
+        <td>beforeUndo <br>{% include teams.html %}</td>
         <td>Before Undo runs</td>
     </tr>
     <tr id="beforeEachUndo">
-        <td>beforeEachUndo {% include teams.html %}</td>
+        <td>beforeEachUndo <br>{% include teams.html %}</td>
         <td>Before every single migration during Undo</td>
     </tr>
     <tr id="beforeEachUndoStatement">
-        <td>beforeEachUndoStatement {% include teams.html %}</td>
+        <td>beforeEachUndoStatement <br>{% include teams.html %}</td>
         <td>Before every single statement of a migration during Undo</td>
     </tr>
     <tr id="afterEachUndoStatement">
-        <td>afterEachUndoStatement {% include teams.html %}</td>
+        <td>afterEachUndoStatement <br>{% include teams.html %}</td>
         <td>After every single successful statement of a migration during Undo</td>
     </tr>
     <tr id="afterEachUndoStatementError">
-        <td>afterEachUndoStatementError {% include teams.html %}</td>
+        <td>afterEachUndoStatementError <br>{% include teams.html %}</td>
         <td>After every single failed statement of a migration during Undo</td>
     </tr>
     <tr id="afterEachUndo">
-        <td>afterEachUndo {% include teams.html %}</td>
+        <td>afterEachUndo <br>{% include teams.html %}</td>
         <td>After every single successful migration during Undo</td>
     </tr>
     <tr id="afterEachUndoError">
-        <td>afterEachUndoError {% include teams.html %}</td>
+        <td>afterEachUndoError <br>{% include teams.html %}</td>
         <td>After every single failed migration during Undo</td>
     </tr>
     <tr id="afterUndo">
-        <td>afterUndo {% include teams.html %}</td>
+        <td>afterUndo <br>{% include teams.html %}</td>
         <td>After successful Undo runs</td>
     </tr>
     <tr id="afterUndoError">
-        <td>afterUndoError {% include teams.html %}</td>
+        <td>afterUndoError <br>{% include teams.html %}</td>
         <td>After failed Undo runs</td>
     </tr>
     </tbody>
@@ -289,7 +289,14 @@ Much like SQL callbacks, Flyway also supports the execution of callbacks written
 
 ## Callback ordering
 
-When multiple callbacks for the same event are found, they are executed in the alphabetical order.
+When multiple callbacks for the same event are found, they are executed in the alphanumerical order. 
+E.G.
+```sql
+beforeConnect__1.sql
+beforeConnect__2.sql
+beforeConnect__a.sql
+beforeConnect__b.sql
+```
 
 ## Tutorial
 

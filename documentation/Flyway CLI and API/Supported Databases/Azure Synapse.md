@@ -60,11 +60,11 @@ dependencies {
 
 ## Azure Synapse Syntax
 
-- [See SQL Server](Supported Databases/SQL Server#sql-server-syntax)
+- See [SQL Server](<Supported Databases/SQL Server Database>)
 
 ### Compatibility
 
-- [See SQL Server](Supported Databases/SQL Server#compatibility)
+- See [SQL Server](<Supported Databases/SQL Server Database>)
 
 ### Example
 
@@ -83,9 +83,9 @@ INSERT INTO ${tableName} (name) VALUES ('Mr. T');
 
 ## Authentication
 
-[See SQL Server](Supported Databases/SQL Server#authentication)
+See [SQL Server](<Supported Databases/SQL Server Database>)
 
 ## Limitations
 
-- [See SQL Server](Supported Databases/SQL Server#limitations)
+- See [SQL Server](<Supported Databases/SQL Server Database>)
 - The JTDS driver does not support Azure Synapse

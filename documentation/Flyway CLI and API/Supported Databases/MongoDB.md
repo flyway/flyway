@@ -28,17 +28,32 @@ subtitle: MongoDB
 ### Pre-requisites
 - Using Flyway with Maven?
     - Include the latest Flyway MongoDB dependency [here](https://central.sonatype.com/artifact/org.flywaydb/flyway-database-mongodb) in your pom
+      - For example:
+        - Redgate
+          ```xml
+          <dependency>
+              <groupId>com.redgate.flyway</groupId>
+              <artifactId>flyway-database-mongodb</artifactId>
+          </dependency>
+          ```
+         - Open Source
+           ```xml
+           <dependency>
+               <groupId>org.flywaydb</groupId>
+               <artifactId>flyway-database-mongodb</artifactId>
+           </dependency>
+           ```
   - Include the latest MongoDB driver dependency [here](https://github.com/DataGrip/mongo-jdbc-driver) in your buildscript or import into your local maven repository:
     - For example: 
-    ```xml
-        <dependency>
-            <groupId>com.github.kornilova203</groupId>
-            <artifactId>mongo-jdbc-driver</artifactId>
-            <version>1.19</version>
-            <scope>system</scope>
-            <systemPath>mongo-jdbc-standalone-1.19.jar</systemPath>  
-        </dependency>
-    ```
+      ```xml
+          <dependency>
+              <groupId>com.github.kornilova203</groupId>
+              <artifactId>mongo-jdbc-driver</artifactId>
+              <version>1.19</version>
+              <scope>system</scope>
+              <systemPath>mongo-jdbc-standalone-1.19.jar</systemPath>  
+          </dependency>
+      ```
     - or `mvn install:install-file -Dfile=mongo-jdbc-standalone-1.19.jar -DgroupId=com.github.kornilova203 -DartifactId=mongo-jdbc-driver -Dversion=1.19 -Dpackaging=jar -DgeneratePom=true`
 	
 - Using Flyway with Gradle?

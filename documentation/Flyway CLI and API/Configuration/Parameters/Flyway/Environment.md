@@ -10,7 +10,7 @@ The name of the environment you wish Flyway to load configuration from. It point
 
 This can be used to switch between multiple environments set in the TOML config file.
 
-For more on the parameters that can be set inside the environment, see [here](configuration/TOML Configuration File).
+For more on the parameters that can be set inside the environment, see [here](<configuration/Parameters/Environments>).
 
 ## Default
 default

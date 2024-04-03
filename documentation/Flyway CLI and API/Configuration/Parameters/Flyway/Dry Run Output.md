@@ -41,7 +41,7 @@ This will cause a warning saying `Unable to close dry run output: Stream Closed`
 
 ### Commandline
 ```powershell
-./flyway -dryRunOutput="/my/output/file.sql" clean
+./flyway -dryRunOutput="/my/output/file.sql"
 ```
 
 ### TOML Configuration File

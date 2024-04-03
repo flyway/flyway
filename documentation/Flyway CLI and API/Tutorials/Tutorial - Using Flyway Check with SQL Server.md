@@ -65,13 +65,13 @@ Before we run `migrate`, we can use `check` to generate a change report by runni
 
 ## Viewing the report output
 
-Having run the command, we can see that Flyway has generated HTML and JSON versions of the `check` report in the working directory. Opening `check_report.html` in a browser, we can clearly see what objects will change in our target schema as a result of running our pending migration(s), expressed in the form of SQL queries. The JSON report contains the same information but in a more machine-readable format.
+Having run the command, we can see that Flyway has generated HTML and JSON versions of the `check` report in the working directory. Opening `check_report.html` in a browser, we can clearly see what objects will change in our target schema as a result of running our pending migrations, expressed in the form of SQL queries. The JSON report contains the same information but in a more machine-readable format.
 
 <p align="center"><img src="assets/change-report-example.png" style="max-width: 100%"/></p>
 
 ## Applying the changes
 
-We now know that applying our pending migration(s) will have the intended effect on our target schema, so we can go ahead and apply them using `migrate`:
+We now know that applying our pending migrations will have the intended effect on our target schema, so we can go ahead and apply them using `migrate`:
 
 <pre class="console">./flyway migrate</pre>
 

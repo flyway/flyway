@@ -26,6 +26,47 @@
 <div class="col-md-9">
 
 <div class="release">
+        <h2 id="10.11.0">Flyway 10.11.0 (2024-04-03)</h2>
+
+        <h3>Breaking changes</h3>
+        <ul>
+            <li>Update ErrorCode and ErrorOutput to allow extending in plugins - The `ErrorCode` enum is now an interface with the base enum now residing in `CoreErrorCode`. Any Java usage of this enum will need to be updated accordingly.</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Add support for  stream configuration for ClassPath SQL Migrations</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Continue to improve the way Flyway honors the workingDirectory parameter</li>
+            <li>Remove unrelated warning from polyglot engine.</li>
+            <li>Broken up the check page into functional sections and reference & explanation material</li>
+            <li>shouldExecuteExpression returned from info output in json format contained expression after placeholder replacement, rather than before placeholder replacement.</li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Added an `init` command which will create a project compatible with Flyway Desktop</li>
+            <li>Create `flyway.communityDBSupportEnabled` to turn off community db support database types if desired</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>Update AWS S3 dependency to fix CVE-2024-29025</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3860">Issue 3860</a>
+                Remove need for `java.desktop`
+            </li>
+        </ul>
+
+        <p>
+            Thanks to axelfontaine for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
         <h2 id="10.10.0">Flyway 10.10.0 (2024-03-14)</h2>
 
         <h3>Changes</h3>
@@ -418,7 +459,7 @@
 
         <h3>Java compatibility</h3>
         <ul>
-            <li>Deprecated Java 8. Java 17 is now required for development</li>
+            <li>Retired Java 8 from use. Java 17 is now required for development</li>
             <li>Move packages and groupID from `org.flywaydb.enterprise` to `com.redgate.flyway`. Duplicate packages will be deployed to `org.flywaydb.enterprise` until a future release.</li>
         </ul>
 

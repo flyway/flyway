@@ -91,6 +91,14 @@
             <filtered>true</filtered>
         </fileSet>
         <fileSet>
+            <directory>../..</directory>
+            <outputDirectory></outputDirectory>
+            <includes>
+                <include>RELEASE-NOTE.txt</include>
+            </includes>
+            <fileMode>644</fileMode>
+        </fileSet>
+        <fileSet>
             <directory>../flyway-core/src/main/resources/assets</directory>
             <outputDirectory>assets</outputDirectory>
             <includes>
@@ -210,6 +218,8 @@
                 <include>org.flywaydb:flyway-singlestore</include>
                 <include>org.flywaydb:flyway-mysql</include>
                 <include>org.flywaydb:flyway-firebird</include>
+
+
 
 
 

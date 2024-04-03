@@ -9,7 +9,7 @@ redirect_from: Configuration/user/
 ## Description
 The user to use to connect to the database.
 
-This can be omitted if the user is baked into the [url](Configuration/parameters/environments/url) (See [Sql Server](Supported Databases/SQL Server#windows-authentication) for an example).
+This can be omitted if the user is baked into the [url](Configuration/parameters/environments/url) (See [SQL Server](<Supported Databases/SQL Server Database>) for an example).
 
 ## Usage
 

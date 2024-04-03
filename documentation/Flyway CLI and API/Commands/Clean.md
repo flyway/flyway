@@ -15,7 +15,7 @@ Flyway has some default configuration to try and save you from accidents but it 
 
 ## Limitations
 
-- [SQL Server - no users will be dropped](Supported Databases/SQL Server#limitations)
+- [SQL Server - no users will be dropped](<Supported Databases/SQL Server Database>)
 
 ## Cleaning additional objects
 For complicated database structures an accurate dependency graph cannot always be constructed, so not every object is cleaned.

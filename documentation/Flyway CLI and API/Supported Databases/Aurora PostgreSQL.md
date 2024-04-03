@@ -68,7 +68,7 @@ INSERT INTO ${tableName} (name) VALUES ('Mr. T');</pre>
 
 - No support for psql meta-commands with no JDBC equivalent like `\set`
 - Clean does not remove objects created by extensions. It is therefore highly recommended to create your extensions
- using `CREATE EXTENSION IF NOT EXISTS` in order to be able to clean and (re-)migrate your schema(s) at will.
+ using `CREATE EXTENSION IF NOT EXISTS` in order to be able to clean and (re-)migrate your schemas at will.
 - No support for cleaning referenced large objects in `pg_largeobject` ([Issue 1934](https://github.com/flyway/flyway/issues/1934))
 
 ## Feature support for check command
