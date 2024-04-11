@@ -224,7 +224,8 @@ public class Flyway {
     public MigrationInfoService info() {
 
         return flywayExecutor.execute((migrationResolver, schemaHistory, database, defaultSchema, schemas, callbackExecutor, statementInterceptor) -> {
-            MigrationInfoService migrationInfoService = new DbInfo(migrationResolver, schemaHistory, configuration, database, callbackExecutor, schemas).info();
+            var flywayCommandSupport = new FlywayCommandSupport(migrationResolver, schemaHistory, configuration, database, callbackExecutor);
+            MigrationInfoService migrationInfoService = new DbInfo(schemas,flywayCommandSupport).info();
 
             callbackExecutor.onOperationFinishEvent(Event.AFTER_INFO_OPERATION_FINISH, migrationInfoService.getInfoResult());
 

@@ -30,30 +30,26 @@ import org.flywaydb.core.internal.util.ValidatePatternUtils;
 
 @RequiredArgsConstructor
 public class DbInfo {
-    private final CompositeMigrationResolver migrationResolver;
-    private final SchemaHistory schemaHistory;
-    private final Configuration configuration;
-    private final Database database;
-    private final CallbackExecutor callbackExecutor;
     private final Schema[] schemas;
+    private final FlywayCommandSupport flywayCommandSupport;
 
     public MigrationInfoService info() {
 
-        callbackExecutor.onEvent(Event.BEFORE_INFO);
+        flywayCommandSupport.getCallbackExecutor().onEvent(Event.BEFORE_INFO);
 
         MigrationInfoServiceImpl migrationInfoService;
         try {
             migrationInfoService =
-                    new MigrationInfoServiceImpl(migrationResolver, schemaHistory, database, configuration,
-                                                 configuration.getTarget(), configuration.isOutOfOrder(), ValidatePatternUtils.getIgnoreAllPattern(), configuration.getCherryPick());
+                    new MigrationInfoServiceImpl(flywayCommandSupport.getMigrationResolver(), flywayCommandSupport.getSchemaHistory(), flywayCommandSupport.getDatabase(), flywayCommandSupport.getConfiguration(),
+                                                 flywayCommandSupport.getConfiguration().getTarget(), flywayCommandSupport.getConfiguration().isOutOfOrder(), ValidatePatternUtils.getIgnoreAllPattern(), flywayCommandSupport.getConfiguration().getCherryPick());
             migrationInfoService.refresh();
             migrationInfoService.setAllSchemasEmpty(schemas);
         } catch (FlywayException e) {
-            callbackExecutor.onEvent(Event.AFTER_INFO_ERROR);
+            flywayCommandSupport.getCallbackExecutor().onEvent(Event.AFTER_INFO_ERROR);
             throw e;
         }
 
-        callbackExecutor.onEvent(Event.AFTER_INFO);
+        flywayCommandSupport.getCallbackExecutor().onEvent(Event.AFTER_INFO);
 
         return migrationInfoService;
     }

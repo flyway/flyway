@@ -46,19 +46,12 @@ import java.util.List;
 @CustomLog
 public class DbValidate {
     /**
-     * The database schema history table.
-     */
-    private final SchemaHistory schemaHistory;
-    /**
      * The schema containing the schema history table.
      */
     private final Schema schema;
-    private final Database database;
-    private final CompositeMigrationResolver migrationResolver;
-    private final Configuration configuration;
-    private final CallbackExecutor callbackExecutor;
     private final Connection connection;
     private final ValidatePattern[] ignorePatterns;
+    private FlywayCommandSupport flywayCommandSupport = new FlywayCommandSupport(null, null, null, null, null);
 
     /**
      * Creates a new database validator.
@@ -68,12 +61,12 @@ public class DbValidate {
      */
     public DbValidate(Database database, SchemaHistory schemaHistory, Schema schema, CompositeMigrationResolver migrationResolver,
                       Configuration configuration, CallbackExecutor callbackExecutor, ValidatePattern[] ignorePatterns) {
-        this.schemaHistory = schemaHistory;
+        this.flywayCommandSupport.setSchemaHistory(schemaHistory);
         this.schema = schema;
-        this.database = database;
-        this.migrationResolver = migrationResolver;
-        this.configuration = configuration;
-        this.callbackExecutor = callbackExecutor;
+        this.flywayCommandSupport.setDatabase(database);
+        this.flywayCommandSupport.setMigrationResolver(migrationResolver);
+        this.flywayCommandSupport.setConfiguration(configuration);
+        this.flywayCommandSupport.setCallbackExecutor(callbackExecutor);
         this.connection = database.getMainConnection();
         this.ignorePatterns = ignorePatterns;
     }
@@ -83,27 +76,27 @@ public class DbValidate {
      */
     public ValidateResult validate() {
         if (!schema.exists()) {
-            if (!migrationResolver.resolveMigrations(configuration).isEmpty() && !ValidatePatternUtils.isPendingIgnored(ignorePatterns)) {
+            if (!flywayCommandSupport.getMigrationResolver().resolveMigrations(flywayCommandSupport.getConfiguration()).isEmpty() && !ValidatePatternUtils.isPendingIgnored(ignorePatterns)) {
                 String validationErrorMessage = "Schema " + schema + " doesn't exist yet";
                 ErrorDetails validationError = new ErrorDetails(CoreErrorCode.SCHEMA_DOES_NOT_EXIST, validationErrorMessage);
-                return CommandResultFactory.createValidateResult(database.getCatalog(), validationError, 0, null, new ArrayList<>());
+                return CommandResultFactory.createValidateResult(flywayCommandSupport.getDatabase().getCatalog(), validationError, 0, null, new ArrayList<>());
             }
-            return CommandResultFactory.createValidateResult(database.getCatalog(), null, 0, null, new ArrayList<>());
+            return CommandResultFactory.createValidateResult(flywayCommandSupport.getDatabase().getCatalog(), null, 0, null, new ArrayList<>());
         }
 
-        callbackExecutor.onEvent(Event.BEFORE_VALIDATE);
+        flywayCommandSupport.getCallbackExecutor().onEvent(Event.BEFORE_VALIDATE);
 
         LOG.debug("Validating migrations ...");
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        Pair<Integer, List<ValidateOutput>> result = ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(), database)
+        Pair<Integer, List<ValidateOutput>> result = ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(), flywayCommandSupport.getDatabase())
                 .execute(() -> {
-                    MigrationInfoServiceImpl migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, schemaHistory, database, configuration,
-                                                                                                 configuration.getTarget(),
-                                                                                                 configuration.isOutOfOrder(),
+                    MigrationInfoServiceImpl migrationInfoService = new MigrationInfoServiceImpl(flywayCommandSupport.getMigrationResolver(), flywayCommandSupport.getSchemaHistory(), flywayCommandSupport.getDatabase(), flywayCommandSupport.getConfiguration(),
+                                                                                                 flywayCommandSupport.getConfiguration().getTarget(),
+                                                                                                 flywayCommandSupport.getConfiguration().isOutOfOrder(),
                                                                                                  ignorePatterns,
-                                                                                                 configuration.getCherryPick());
+                                                                                                 flywayCommandSupport.getConfiguration().getCherryPick());
 
                     migrationInfoService.refresh();
 
@@ -133,12 +126,12 @@ public class DbValidate {
                     LOG.warn(noMigrationsWarning);
                 }
             }
-            callbackExecutor.onEvent(Event.AFTER_VALIDATE);
+            flywayCommandSupport.getCallbackExecutor().onEvent(Event.AFTER_VALIDATE);
         } else {
             validationError = new ErrorDetails(CoreErrorCode.VALIDATE_ERROR, "Migrations have failed validation");
-            callbackExecutor.onEvent(Event.AFTER_VALIDATE_ERROR);
+            flywayCommandSupport.getCallbackExecutor().onEvent(Event.AFTER_VALIDATE_ERROR);
         }
 
-        return CommandResultFactory.createValidateResult(database.getCatalog(), validationError, count, invalidMigrations, warnings);
+        return CommandResultFactory.createValidateResult(flywayCommandSupport.getDatabase().getCatalog(), validationError, count, invalidMigrations, warnings);
     }
 }
