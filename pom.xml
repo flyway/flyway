@@ -1,20 +1,3 @@
-<!--
-
-    Copyright (C) Red Gate Software Ltd 2010-2024
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-
--->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <!--
@@ -31,7 +14,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>10.11.0</version>
+    <version>10.11.1</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -71,6 +54,8 @@
         <module>flyway-maven-plugin</module>
         <module>flyway-commandline</module>
         <module>flyway-database</module>
+
+
 
 
 
@@ -152,7 +137,7 @@
     <properties>
         <version.ant>1.10.13</version.ant>
         <version.appinsights>3.4.7</version.appinsights>
-        <version.aws-java-sdk>[2.25.22,2.26.0)</version.aws-java-sdk>
+        <version.aws-java-sdk>2.25.26</version.aws-java-sdk> <!-- TODO: revert back to range once nexus is better -->
         <version.aws-secretsmanager>2.0.2</version.aws-secretsmanager>
         <version.byte-buddy-agent>1.11.18</version.byte-buddy-agent>
         <version.cassandra>4.11.1</version.cassandra>
@@ -200,7 +185,7 @@
         <version.sap>2.6.30</version.sap>
         <version.singlestore>1.1.4</version.singlestore>
         <version.slf4j>1.7.30</version.slf4j>
-        <version.snowflake>3.13.30</version.snowflake>
+        <version.snowflake>3.14.1</version.snowflake>
         <version.spanner>2.11.1</version.spanner>
         <version.springjdbc>5.3.19</version.springjdbc>
         <version.sqlite>3.41.2.2</version.sqlite>
@@ -816,8 +801,9 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>2.7</version>
+                <version>3.0.0</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
                     <nonFilteredFileExtensions>
@@ -847,15 +833,33 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>com.mycila</groupId>
+                <groupId>org.codehaus.mojo</groupId>
                 <artifactId>license-maven-plugin</artifactId>
-                <version>4.3</version>
-                <inherited>false</inherited>
+                <version>2.4.0</version>
+                <executions>
+                    <execution>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>update-file-header</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <configuration>
-                    <header>${basedir}/LICENSE.txt</header>
-                    <aggregate>true</aggregate>
-                    <failIfMissing>true</failIfMissing>
-                    <encoding>UTF-8</encoding>
+                    <inceptionYear>2010</inceptionYear>
+                    <organizationName>Red Gate Software Ltd</organizationName>
+
+                    <licenseName>apache_v2</licenseName>
+
+
+
+
+                    <extraFiles>
+                        <DockerFile>properties</DockerFile>
+                    </extraFiles>
+                    <addJavaLicenseAfterPackage>false</addJavaLicenseAfterPackage>
+                    <processStartTag>========================LICENSE_START=================================</processStartTag>
+                    <processEndTag>=========================LICENSE_END==================================</processEndTag>
+                    <sectionDelimiter>========================================================================</sectionDelimiter>
                     <excludes>
                         <exclude>LICENSE</exclude>
                         <exclude>**/build/**</exclude>
@@ -883,19 +887,7 @@
                         <exclude>**/flyway</exclude>
                         <exclude>**/*_BOM.sql</exclude>
                     </excludes>
-                    <strictCheck>true</strictCheck>
-                    <mapping>
-                        <java>SLASHSTAR_STYLE</java>
-                    </mapping>
                 </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>format</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <artifactId>maven-deploy-plugin</artifactId>
@@ -958,6 +950,9 @@
                     <passphraseServerId>flyway-gpg</passphraseServerId>
                 </configuration>
             </plugin>
+
+
+
 
 
 

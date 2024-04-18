@@ -39,7 +39,7 @@ Users can specify license permits using environment variables that Flyway recogn
 
 - `REDGATE_LICENSING_PERMIT_PATH`: Specifies a custom path to a license permit file. Users can save a license permit in a text file to an arbitrary location on disk and use this
 environment variable to point Flyway to the full path of the license permit file in order to authorize Flyway.
-- `REDGATE_LICENSING_PERMIT`: Specifies a license permit as a string. Users can save a license permit as raw text as a value to this environment variable to authorize Flyway.
+- `REDGATE_LICENSING_PERMIT`: Specifies a license permit as a string. Users can save a license permit as a raw text value to this environment variable to authorize Flyway.
 
 #### Authorization Precedence
 
@@ -53,7 +53,7 @@ license permit to the same location)
 
 #### Refresh Tokens
 
-When `auth` is run successfully, an refresh token is saved to disk in the `Flyway CLI` directory of the Redgate app data folder. This refresh token is used to
+When `auth` is run successfully, a refresh token is saved to disk in the `Flyway CLI` directory of the Redgate app data folder. This refresh token is used to
 automatically refresh a user's license permit when it expires. Each time a license permit is refreshed, a new refresh token is saved to disk, replacing the existing
 refresh token. This only applies to expired license permits in the `Flyway CLI` directory of the Redgate app data folder—Flyway will not automatically refresh expired license
 permits specified by environment variables.
@@ -61,6 +61,6 @@ permits specified by environment variables.
 #### Logout
 
 `auth -logout` can be run to log out of an authorized session of Flyway. Under the hood, logging out simply deletes the license permit and refresh token stored on disk in the
-Redgate app data folder. Assuming no other methods of authorization are is use (such as a permit environment variable or legacy license key environment variable), the user will be
+Redgate app data folder. Assuming no other methods of authorization are in use (such as a permit environment variable or legacy license key environment variable), the user will be
 logged out of their session and Flyway will run as Community Edition. If a valid permit environment variable or legacy license key environment variable is set, Flyway will still
 honor these as authorizations and logout will not remove them.

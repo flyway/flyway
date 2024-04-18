@@ -50,7 +50,7 @@ The difference between the two states of this build database (`appliedMigrations
 
 The process works like this:
 ![Check_appliedMigrations.png](assets/Check_appliedMigrations.png)
-1. Run `flyway info -infoOfState="success,pending,out_of_order" -migrationIds > appliedMigrations.txt`
+1. Run `flyway info -infoOfState="success,out_of_order" -migrationIds > appliedMigrations.txt`
     1. This will produce a comma-separated list which represents the applied migrations of your target database
 1. Specify a build environment
     1. This is an existing build environment that contains a build database (note: Flyway will [`clean`](Commands/clean) this database, so if you specify a full database, you must ensure it is ok to for Flyway to erase its schema)

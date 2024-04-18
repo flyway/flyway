@@ -10,3 +10,4 @@
 *.dll binary
 *.zip binary
 *.tar.gz binary
+*.snp binary

@@ -1,21 +1,27 @@
-/*
- * Copyright (C) Red Gate Software Ltd 2010-2024
- *
+/*-
+ * ========================LICENSE_START=================================
+ * flyway-core
+ * ========================================================================
+ * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * =========================LICENSE_END==================================
  */
 package org.flywaydb.core.internal.jdbc;
 
+import java.util.List;
 import lombok.AccessLevel;
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.Setter;
 import org.flywaydb.core.api.CoreErrorCode;
@@ -40,6 +46,7 @@ import java.util.logging.Logger;
  * YAGNI: The simplest DataSource implementation that works for Flyway.
  */
 @Getter
+@CustomLog
 public class DriverDataSource implements DataSource {
     /**
      * @return the JDBC Driver instance to use.
@@ -50,7 +57,7 @@ public class DriverDataSource implements DataSource {
      */
     private final String url;
     @Getter(AccessLevel.NONE)
-    private final DatabaseType type;
+    private DatabaseType type;
     /**
      * @return the JDBC user to use for connecting through the Driver.
      */
@@ -106,14 +113,49 @@ public class DriverDataSource implements DataSource {
                             Map<String, String> additionalProperties) throws FlywayException {
         this.url = detectFallbackUrl(url);
 
-        this.type = DatabaseTypeRegister.getDatabaseTypeForUrl(url, configuration);
+        List<DatabaseType> typesAcceptingUrl = DatabaseTypeRegister.getDatabaseTypesForUrl(url, configuration);
 
-        if (!StringUtils.hasLength(driverClass)) {
-            if (type == null) {
-                throw new FlywayException("Unable to autodetect JDBC driver for url: " + DatabaseTypeRegister.redactJdbcUrl(url));
+        for (DatabaseType type: typesAcceptingUrl) {
+            String mainDriverClass = StringUtils.hasLength(driverClass) ? driverClass : type.getDriverClass(url, classLoader);
+
+            try {
+                this.driver = ClassUtils.instantiate(mainDriverClass, classLoader);
+            } catch (FlywayException e) {
+                String extendedError = type.instantiateClassExtendedErrorMessage();
+
+                /* If the user-provided driverClass failed, no need to check backup driverClass or any other candidates in the queue */
+                if (StringUtils.hasLength(driverClass)) {
+                    throw new FlywayException("Unable to instantiate JDBC driver: " + driverClass
+                                                  + " => Check whether the jar file is present"
+                                                  + extendedError, e,
+                                              CoreErrorCode.JDBC_DRIVER);
+                }
+
+                String backupDriverClass = type.getBackupDriverClass(url, classLoader);
+
+                if (backupDriverClass == null) {
+                    if (StringUtils.hasText(extendedError)) {
+                        extendedError = System.lineSeparator() + extendedError;
+                    }
+
+                    LOG.debug("Unable to instantiate JDBC driver: " + mainDriverClass + " => Check whether the jar file is present." + extendedError);
+                    continue;
+                }
+
+                try {
+                    this.driver = ClassUtils.instantiate(backupDriverClass, classLoader);
+                } catch (Exception e1) {
+                    LOG.debug("Unable to instantiate JDBC driver: " + mainDriverClass + " or backup driver: " + backupDriverClass + " => Check whether the jar file is present");
+                    continue;
+                }
             }
 
-            driverClass = type.getDriverClass(url, classLoader);
+            this.type = type;
+            break;
+        }
+
+        if (this.type == null) {
+            throw new FlywayException("No database found to handle " + DatabaseTypeRegister.redactJdbcUrl(url));
         }
 
         if (additionalProperties != null) {
@@ -125,31 +167,6 @@ public class DriverDataSource implements DataSource {
         type.setDefaultConnectionProps(url, this.defaultProperties, classLoader);
         type.setConfigConnectionProps(configuration, this.defaultProperties, classLoader);
         type.setOverridingConnectionProps(this.additionalProperties);
-
-        try {
-            this.driver = ClassUtils.instantiate(driverClass, classLoader);
-        } catch (FlywayException e) {
-            String backupDriverClass = type.getBackupDriverClass(url, classLoader);
-            if (backupDriverClass == null) {
-                String extendedError = type.instantiateClassExtendedErrorMessage();
-                if (StringUtils.hasText(extendedError)) {
-                    extendedError = "\r\n" + extendedError;
-                }
-                throw new FlywayException("Unable to instantiate JDBC driver: " + driverClass
-                                                  + " => Check whether the jar file is present"
-                                                  + extendedError, e,
-                                          CoreErrorCode.JDBC_DRIVER);
-            }
-            try {
-                this.driver = ClassUtils.instantiate(backupDriverClass, classLoader);
-            } catch (Exception e1) {
-                // Only report original exception about primary driver
-                throw new FlywayException(
-                        "Unable to instantiate JDBC driver: " + driverClass + " or backup driver: " + backupDriverClass + " => Check whether the jar file is present", e,
-                        CoreErrorCode.JDBC_DRIVER);
-            }
-        }
-
         this.user = detectFallbackUser(user);
         this.password = detectFallbackPassword(password);
 
