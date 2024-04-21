@@ -149,7 +149,7 @@
         <version.equinoxcommon>3.10.600</version.equinoxcommon>
         <version.gcs>2.22.5</version.gcs>
         <version.gcsm>2.20.0</version.gcsm>
-        <version.gradle>6.1.1</version.gradle>
+        <version.gradle>6.9.4</version.gradle>
         <version.gson>2.10.1</version.gson>
         <version.h2>2.2.220</version.h2>
         <version.hamcrest>2.2</version.hamcrest>

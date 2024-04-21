@@ -31,6 +31,9 @@ import org.gradle.api.artifacts.ResolvedArtifact;
 import org.gradle.api.artifacts.ResolvedConfiguration;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.plugins.JavaPluginConvention;
+import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.MapProperty;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetOutput;
 import org.gradle.api.tasks.TaskAction;
@@ -45,8 +48,6 @@ import java.net.URLClassLoader;
 import java.util.*;
 
 import static org.flywaydb.core.internal.configuration.ConfigUtils.FLYWAY_PLUGINS_PREFIX;
-import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeLocationsBasedOnWorkingDirectory;
-import static org.flywaydb.core.internal.configuration.ConfigUtils.putIfSet;
 
 /**
  * A base class for all Flyway tasks.
@@ -666,8 +667,8 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         if (configurations != null) {
             return configurations;
         }
-        if (extension.configurations != null) {
-            return extension.configurations;
+        if (extension.getConfigurations().isPresent()) {
+            return extension.getConfigurations().get().toArray(new String[0]);
         }
         if (isJavaProject()) {
             if (getProject().getGradle().getGradleVersion().startsWith("3")) {
@@ -693,64 +694,64 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         addLocationsToConfig(conf);
         addConfigFromProperties(conf, loadConfigurationFromDefaultConfigFiles(envVars));
 
-        putIfSet(conf, ConfigUtils.DRIVER, driver, extension.driver);
-        putIfSet(conf, ConfigUtils.URL, url, extension.url);
-        putIfSet(conf, ConfigUtils.USER, user, extension.user);
-        putIfSet(conf, ConfigUtils.PASSWORD, password, extension.password);
-        putIfSet(conf, ConfigUtils.CONNECT_RETRIES, connectRetries, extension.connectRetries);
-        putIfSet(conf, ConfigUtils.CONNECT_RETRIES_INTERVAL, connectRetriesInterval, extension.connectRetriesInterval);
-        putIfSet(conf, ConfigUtils.INIT_SQL, initSql, extension.initSql);
-        putIfSet(conf, ConfigUtils.TABLE, table, extension.table);
-        putIfSet(conf, ConfigUtils.TABLESPACE, tablespace, extension.tablespace);
-        putIfSet(conf, ConfigUtils.BASELINE_VERSION, baselineVersion, extension.baselineVersion);
-        putIfSet(conf, ConfigUtils.BASELINE_DESCRIPTION, baselineDescription, extension.baselineDescription);
-        putIfSet(conf, ConfigUtils.SQL_MIGRATION_PREFIX, sqlMigrationPrefix, extension.sqlMigrationPrefix);
-        putIfSet(conf, ConfigUtils.UNDO_SQL_MIGRATION_PREFIX, undoSqlMigrationPrefix, extension.undoSqlMigrationPrefix);
-        putIfSet(conf, ConfigUtils.REPEATABLE_SQL_MIGRATION_PREFIX, repeatableSqlMigrationPrefix, extension.repeatableSqlMigrationPrefix);
-        putIfSet(conf, ConfigUtils.SQL_MIGRATION_SEPARATOR, sqlMigrationSeparator, extension.sqlMigrationSeparator);
-        putIfSet(conf, ConfigUtils.SQL_MIGRATION_SUFFIXES, StringUtils.arrayToCommaDelimitedString(sqlMigrationSuffixes), StringUtils.arrayToCommaDelimitedString(extension.sqlMigrationSuffixes));
-        putIfSet(conf, ConfigUtils.MIXED, mixed, extension.mixed);
-        putIfSet(conf, ConfigUtils.GROUP, group, extension.group);
-        putIfSet(conf, ConfigUtils.INSTALLED_BY, installedBy, extension.installedBy);
-        putIfSet(conf, ConfigUtils.ENCODING, encoding, extension.encoding);
-        putIfSet(conf, ConfigUtils.DETECT_ENCODING, detectEncoding, extension.detectEncoding);
-        putIfSet(conf, ConfigUtils.LOCK_RETRY_COUNT, lockRetryCount, extension.lockRetryCount);
-        putIfSet(conf, ConfigUtils.PLACEHOLDER_REPLACEMENT, placeholderReplacement, extension.placeholderReplacement);
-        putIfSet(conf, ConfigUtils.PLACEHOLDER_PREFIX, placeholderPrefix, extension.placeholderPrefix);
-        putIfSet(conf, ConfigUtils.PLACEHOLDER_SUFFIX, placeholderSuffix, extension.placeholderSuffix);
-        putIfSet(conf, ConfigUtils.PLACEHOLDER_SEPARATOR, placeholderSeparator, extension.placeholderSeparator);
-        putIfSet(conf, ConfigUtils.SCRIPT_PLACEHOLDER_PREFIX, scriptPlaceholderPrefix, extension.scriptPlaceholderPrefix);
-        putIfSet(conf, ConfigUtils.SCRIPT_PLACEHOLDER_SUFFIX, scriptPlaceholderSuffix, extension.scriptPlaceholderSuffix);
-        putIfSet(conf, ConfigUtils.TARGET, target, extension.target);
-        putIfSet(conf, ConfigUtils.LOGGERS, StringUtils.arrayToCommaDelimitedString(loggers), StringUtils.arrayToCommaDelimitedString(extension.loggers));
-        putIfSet(conf, ConfigUtils.OUT_OF_ORDER, outOfOrder, extension.outOfOrder);
-        putIfSet(conf, ConfigUtils.SKIP_EXECUTING_MIGRATIONS, skipExecutingMigrations, extension.skipExecutingMigrations);
-        putIfSet(conf, ConfigUtils.OUTPUT_QUERY_RESULTS, outputQueryResults, extension.outputQueryResults);
-        putIfSet(conf, ConfigUtils.VALIDATE_ON_MIGRATE, validateOnMigrate, extension.validateOnMigrate);
-        putIfSet(conf, ConfigUtils.CLEAN_ON_VALIDATION_ERROR, cleanOnValidationError, extension.cleanOnValidationError);
-        putIfSet(conf, ConfigUtils.IGNORE_MIGRATION_PATTERNS, StringUtils.arrayToCommaDelimitedString(ignoreMigrationPatterns), StringUtils.arrayToCommaDelimitedString(extension.ignoreMigrationPatterns));
-        putIfSet(conf, ConfigUtils.VALIDATE_MIGRATION_NAMING, validateMigrationNaming, extension.validateMigrationNaming);
-        putIfSet(conf, ConfigUtils.CLEAN_DISABLED, cleanDisabled, extension.cleanDisabled);
-        putIfSet(conf, ConfigUtils.BASELINE_ON_MIGRATE, baselineOnMigrate, extension.baselineOnMigrate);
-        putIfSet(conf, ConfigUtils.SKIP_DEFAULT_RESOLVERS, skipDefaultResolvers, extension.skipDefaultResolvers);
-        putIfSet(conf, ConfigUtils.SKIP_DEFAULT_CALLBACKS, skipDefaultCallbacks, extension.skipDefaultCallbacks);
-        putIfSet(conf, ConfigUtils.DEFAULT_SCHEMA, defaultSchema, extension.defaultSchema);
-        putIfSet(conf, ConfigUtils.CREATE_SCHEMAS, createSchemas, extension.createSchemas);
-        putIfSet(conf, ConfigUtils.FAIL_ON_MISSING_LOCATIONS, failOnMissingLocations, extension.failOnMissingLocations);
+        putIfSet(conf, ConfigUtils.DRIVER, driver, extension.getDriver());
+        putIfSet(conf, ConfigUtils.URL, url, extension.getUrl());
+        putIfSet(conf, ConfigUtils.USER, user, extension.getUser());
+        putIfSet(conf, ConfigUtils.PASSWORD, password, extension.getPassword());
+        putIfSet(conf, ConfigUtils.CONNECT_RETRIES, connectRetries, extension.getConnectRetries());
+        putIfSet(conf, ConfigUtils.CONNECT_RETRIES_INTERVAL, connectRetriesInterval, extension.getConnectRetriesInterval());
+        putIfSet(conf, ConfigUtils.INIT_SQL, initSql, extension.getInitSql());
+        putIfSet(conf, ConfigUtils.TABLE, table, extension.getTable());
+        putIfSet(conf, ConfigUtils.TABLESPACE, tablespace, extension.getTablespace());
+        putIfSet(conf, ConfigUtils.BASELINE_VERSION, baselineVersion, extension.getBaselineVersion());
+        putIfSet(conf, ConfigUtils.BASELINE_DESCRIPTION, baselineDescription, extension.getBaselineDescription());
+        putIfSet(conf, ConfigUtils.SQL_MIGRATION_PREFIX, sqlMigrationPrefix, extension.getSqlMigrationPrefix());
+        putIfSet(conf, ConfigUtils.UNDO_SQL_MIGRATION_PREFIX, undoSqlMigrationPrefix, extension.getUndoSqlMigrationPrefix());
+        putIfSet(conf, ConfigUtils.REPEATABLE_SQL_MIGRATION_PREFIX, repeatableSqlMigrationPrefix, extension.getRepeatableSqlMigrationPrefix());
+        putIfSet(conf, ConfigUtils.SQL_MIGRATION_SEPARATOR, sqlMigrationSeparator, extension.getSqlMigrationSeparator());
+        putIfSet(conf, ConfigUtils.SQL_MIGRATION_SUFFIXES, StringUtils.arrayToCommaDelimitedString(sqlMigrationSuffixes), propertyToCommaDelimitedString(extension.getSqlMigrationSuffixes()));
+        putIfSet(conf, ConfigUtils.MIXED, mixed, extension.getMixed());
+        putIfSet(conf, ConfigUtils.GROUP, group, extension.getGroup());
+        putIfSet(conf, ConfigUtils.INSTALLED_BY, installedBy, extension.getInstalledBy());
+        putIfSet(conf, ConfigUtils.ENCODING, encoding, extension.getEncoding());
+        putIfSet(conf, ConfigUtils.DETECT_ENCODING, detectEncoding, extension.getDetectEncoding());
+        putIfSet(conf, ConfigUtils.LOCK_RETRY_COUNT, lockRetryCount, extension.getLockRetryCount());
+        putIfSet(conf, ConfigUtils.PLACEHOLDER_REPLACEMENT, placeholderReplacement, extension.getPlaceholderReplacement());
+        putIfSet(conf, ConfigUtils.PLACEHOLDER_PREFIX, placeholderPrefix, extension.getPlaceholderPrefix());
+        putIfSet(conf, ConfigUtils.PLACEHOLDER_SUFFIX, placeholderSuffix, extension.getPlaceholderSuffix());
+        putIfSet(conf, ConfigUtils.PLACEHOLDER_SEPARATOR, placeholderSeparator, extension.getPlaceholderSeparator());
+        putIfSet(conf, ConfigUtils.SCRIPT_PLACEHOLDER_PREFIX, scriptPlaceholderPrefix, extension.getScriptPlaceholderPrefix());
+        putIfSet(conf, ConfigUtils.SCRIPT_PLACEHOLDER_SUFFIX, scriptPlaceholderSuffix, extension.getScriptPlaceholderSuffix());
+        putIfSet(conf, ConfigUtils.TARGET, target, extension.getTarget());
+        putIfSet(conf, ConfigUtils.LOGGERS, StringUtils.arrayToCommaDelimitedString(loggers), propertyToCommaDelimitedString(extension.getLoggers()));
+        putIfSet(conf, ConfigUtils.OUT_OF_ORDER, outOfOrder, extension.getOutOfOrder());
+        putIfSet(conf, ConfigUtils.SKIP_EXECUTING_MIGRATIONS, skipExecutingMigrations, extension.getSkipExecutingMigrations());
+        putIfSet(conf, ConfigUtils.OUTPUT_QUERY_RESULTS, outputQueryResults, extension.getOutputQueryResults());
+        putIfSet(conf, ConfigUtils.VALIDATE_ON_MIGRATE, validateOnMigrate, extension.getValidateOnMigrate());
+        putIfSet(conf, ConfigUtils.CLEAN_ON_VALIDATION_ERROR, cleanOnValidationError, extension.getCleanOnValidationError());
+        putIfSet(conf, ConfigUtils.IGNORE_MIGRATION_PATTERNS, StringUtils.arrayToCommaDelimitedString(ignoreMigrationPatterns), propertyToCommaDelimitedString(extension.getIgnoreMigrationPatterns()));
+        putIfSet(conf, ConfigUtils.VALIDATE_MIGRATION_NAMING, validateMigrationNaming, extension.getValidateMigrationNaming());
+        putIfSet(conf, ConfigUtils.CLEAN_DISABLED, cleanDisabled, extension.getCleanDisabled());
+        putIfSet(conf, ConfigUtils.BASELINE_ON_MIGRATE, baselineOnMigrate, extension.getBaselineOnMigrate());
+        putIfSet(conf, ConfigUtils.SKIP_DEFAULT_RESOLVERS, skipDefaultResolvers, extension.getSkipDefaultResolvers());
+        putIfSet(conf, ConfigUtils.SKIP_DEFAULT_CALLBACKS, skipDefaultCallbacks, extension.getSkipDefaultCallbacks());
+        putIfSet(conf, ConfigUtils.DEFAULT_SCHEMA, defaultSchema, extension.getDefaultSchema());
+        putIfSet(conf, ConfigUtils.CREATE_SCHEMAS, createSchemas, extension.getCreateSchemas());
+        putIfSet(conf, ConfigUtils.FAIL_ON_MISSING_LOCATIONS, failOnMissingLocations, extension.getFailOnMissingLocations());
 
-        putIfSet(conf, ConfigUtils.SCHEMAS, StringUtils.arrayToCommaDelimitedString(schemas), StringUtils.arrayToCommaDelimitedString(extension.schemas));
-        putIfSet(conf, ConfigUtils.RESOLVERS, StringUtils.arrayToCommaDelimitedString(resolvers), StringUtils.arrayToCommaDelimitedString(extension.resolvers));
-        putIfSet(conf, ConfigUtils.CALLBACKS, StringUtils.arrayToCommaDelimitedString(callbacks), StringUtils.arrayToCommaDelimitedString(extension.callbacks));
-        putIfSet(conf, ConfigUtils.ERROR_OVERRIDES, StringUtils.arrayToCommaDelimitedString(errorOverrides), StringUtils.arrayToCommaDelimitedString(extension.errorOverrides));
+        putIfSet(conf, ConfigUtils.SCHEMAS, StringUtils.arrayToCommaDelimitedString(schemas), propertyToCommaDelimitedString(extension.getSchemas()));
+        putIfSet(conf, ConfigUtils.RESOLVERS, StringUtils.arrayToCommaDelimitedString(resolvers), propertyToCommaDelimitedString(extension.getResolvers()));
+        putIfSet(conf, ConfigUtils.CALLBACKS, StringUtils.arrayToCommaDelimitedString(callbacks), propertyToCommaDelimitedString(extension.getCallbacks()));
+        putIfSet(conf, ConfigUtils.ERROR_OVERRIDES, StringUtils.arrayToCommaDelimitedString(errorOverrides), propertyToCommaDelimitedString(extension.getErrorOverrides()));
 
-        putIfSet(conf, ConfigUtils.DRYRUN_OUTPUT, dryRunOutput, extension.dryRunOutput);
-        putIfSet(conf, ConfigUtils.STREAM, stream, extension.stream);
-        putIfSet(conf, ConfigUtils.BATCH, batch, extension.batch);
+        putIfSet(conf, ConfigUtils.DRYRUN_OUTPUT, dryRunOutput, extension.getDryRunOutput());
+        putIfSet(conf, ConfigUtils.STREAM, stream, extension.getStream());
+        putIfSet(conf, ConfigUtils.BATCH, batch, extension.getBatch());
 
-        putIfSet(conf, ConfigUtils.KERBEROS_CONFIG_FILE, kerberosConfigFile, extension.kerberosConfigFile);
+        putIfSet(conf, ConfigUtils.KERBEROS_CONFIG_FILE, kerberosConfigFile, extension.getKerberosConfigFile());
 
-        if (extension.placeholders != null) {
-            for (Map.Entry<Object, Object> entry : extension.placeholders.entrySet()) {
+        if (extension.getPlaceholders().isPresent()) {
+            for (Map.Entry<Object, Object> entry : extension.getPlaceholders().get().entrySet()) {
                 conf.put(ConfigUtils.PLACEHOLDERS_PROPERTY_PREFIX + entry.getKey().toString(), entry.getValue().toString());
             }
         }
@@ -760,8 +761,8 @@ public abstract class AbstractFlywayTask extends DefaultTask {
             }
         }
 
-        if (extension.jdbcProperties != null) {
-            for (Map.Entry<Object, Object> entry : extension.jdbcProperties.entrySet()) {
+        if (extension.getJdbcProperties().isPresent()) {
+            for (Map.Entry<Object, Object> entry : extension.getJdbcProperties().get().entrySet()) {
                 conf.put(ConfigUtils.JDBC_PROPERTIES_PREFIX + entry.getKey().toString(), entry.getValue().toString());
             }
         }
@@ -771,7 +772,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
             }
         }
 
-        conf.putAll(getPluginConfiguration(pluginConfiguration, extension.pluginConfiguration));
+        conf.putAll(getPluginConfiguration(pluginConfiguration, extension.getPluginConfiguration()));
 
         addConfigFromProperties(conf, getProject().getProperties());
         addConfigFromProperties(conf, loadConfigurationFromConfigFiles(getWorkingDirectory(), envVars));
@@ -782,15 +783,16 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         return conf;
     }
 
-    public Map<String, String> getPluginConfiguration(Map<String, String> pluginConfiguration, Map<String, String> extensionPluginConfiguration) {
+    public Map<String, String> getPluginConfiguration(Map<String, String> pluginConfiguration, MapProperty<String, String> extensionPluginConfigurationProperty) {
         Map<String, String> conf = new HashMap<>();
 
-        if (pluginConfiguration == null && extensionPluginConfiguration == null) {
+        if (pluginConfiguration == null && extensionPluginConfigurationProperty == null) {
             return conf;
         }
 
         String camelCaseRegex = "(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])";
-        if (extensionPluginConfiguration != null) {
+        if (extensionPluginConfigurationProperty.isPresent()) {
+            Map<String, String> extensionPluginConfiguration = extensionPluginConfigurationProperty.get();
             for (String key : extensionPluginConfiguration.keySet()) {
                 conf.put(FLYWAY_PLUGINS_PREFIX + String.join(".", key.split(camelCaseRegex)).toLowerCase(), extensionPluginConfiguration.get(key));
             }
@@ -824,8 +826,8 @@ public abstract class AbstractFlywayTask extends DefaultTask {
             return locations;
         }
 
-        if (extension.locations != null) {
-            return extension.locations;
+        if (extension.getLocations().isPresent()) {
+            return extension.getLocations().get().toArray(new String[0]);
         }
 
         return null;
@@ -833,8 +835,8 @@ public abstract class AbstractFlywayTask extends DefaultTask {
 
     private File getWorkingDirectory() {
         // To maintain override order, return extension value first if present
-        if (extension.workingDirectory != null) {
-            return new File(extension.workingDirectory);
+        if (extension.getWorkingDirectory().isPresent()) {
+            return extension.getWorkingDirectory().getAsFile().get();
         }
 
         if (workingDirectory != null) {
@@ -893,10 +895,8 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         if (configFileEncoding != null) {
             return configFileEncoding;
         }
-        if (extension.configFileEncoding != null) {
-            return extension.configFileEncoding;
-        }
-        return "UTF-8";
+
+        return extension.getConfigFileEncoding().getOrElse("UTF-8");
     }
 
     /**
@@ -937,10 +937,8 @@ public abstract class AbstractFlywayTask extends DefaultTask {
             return configFiles;
         }
 
-        if (extension.configFiles != null) {
-            for (String file : extension.configFiles) {
-                configFiles.add(toFile(workingDirectory, file));
-            }
+        if (!extension.getConfigFiles().isEmpty()) {
+            configFiles.addAll(extension.getConfigFiles().getFiles());
             return configFiles;
         }
 
@@ -1008,5 +1006,25 @@ public abstract class AbstractFlywayTask extends DefaultTask {
 
     private boolean isJavaProject() {
         return getProject().getPluginManager().hasPlugin("java");
+    }
+
+    private static String propertyToCommaDelimitedString(ListProperty<String> property) {
+        return StringUtils.collectionToCommaDelimitedString(property.getOrElse(Collections.emptyList()));
+    }
+
+    private static void putIfSet(Map<String, String> config, String key, Object... values) {
+        for (Object value : values) {
+            if (value == null) {
+                continue;
+            }
+
+            if (value instanceof Provider<?> && ((Provider<?>) value).isPresent()) {
+                config.put(key, ((Provider<?>) value).get().toString());
+            } else {
+                config.put(key, value.toString());
+            }
+
+            return;
+        }
     }
 }
