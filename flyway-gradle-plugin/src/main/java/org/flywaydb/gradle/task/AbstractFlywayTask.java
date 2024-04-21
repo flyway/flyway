@@ -786,7 +786,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public Map<String, String> getPluginConfiguration(Map<String, String> pluginConfiguration, MapProperty<String, String> extensionPluginConfigurationProperty) {
         Map<String, String> conf = new HashMap<>();
 
-        if (pluginConfiguration == null && extensionPluginConfigurationProperty == null) {
+        if (pluginConfiguration == null && !extensionPluginConfigurationProperty.isPresent()) {
             return conf;
         }
 
@@ -937,11 +937,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
             return configFiles;
         }
 
-        if (!extension.getConfigFiles().isEmpty()) {
-            configFiles.addAll(extension.getConfigFiles().getFiles());
-            return configFiles;
-        }
-
+        configFiles.addAll(extension.getConfigFiles().getFiles());
         return configFiles;
     }
 
