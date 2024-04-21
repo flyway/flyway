@@ -31,30 +31,27 @@ import org.gradle.api.provider.Property;
  * Flyway's configuration properties.
  * More info: <a href="https://documentation.red-gate.com/fd/gradle-task-184127407.html">https://documentation.red-gate.com/fd/gradle-task-184127407.html</a>
  */
+@Getter
 public class FlywayExtension {
     /**
      * The fully qualified classname of the JDBC driver to use to connect to the database.
      */
-    @Getter
-    final Property<String> driver;
+    private final Property<String> driver;
 
     /**
      * The JDBC url to use to connect to the database.
      */
-    @Getter
-    final Property<String> url;
+    private final Property<String> url;
 
     /**
      * The user to use to connect to the database.
      */
-    @Getter
-    final Property<String> user;
+    private final Property<String> user;
 
     /**
      * The password to use to connect to the database.
      */
-    @Getter
-    final Property<String> password;
+    private final Property<String> password;
 
     /**
      * The maximum number of retries when attempting to connect to the database. After each failed attempt, Flyway will
@@ -63,8 +60,7 @@ public class FlywayExtension {
      * (default: 0)
      * <p>Also configurable with Gradle or System Property: ${flyway.connectRetries}</p>
      */
-    @Getter
-    final Property<Integer> connectRetries;
+    private final Property<Integer> connectRetries;
 
     /**
      * The maximum time between retries when attempting to connect to the database in seconds. This will cap the interval
@@ -72,15 +68,13 @@ public class FlywayExtension {
      * (default: 120)
      * <p>Also configurable with Gradle or System Property: ${flyway.connectRetriesInterval}</p>
      */
-    @Getter
-    final Property<Integer> connectRetriesInterval;
+    private final Property<Integer> connectRetriesInterval;
 
     /**
      * The SQL statements to run to initialize a new database connection immediately after opening it. (default: {@code null})
      * <p>Also configurable with Gradle or System Property: ${flyway.initSql}</p>
      */
-    @Getter
-    final Property<String> initSql;
+    private final Property<String> initSql;
 
     /**
      * The name of the schema history table that will be used by Flyway. (default: flyway_schema_history)
@@ -89,8 +83,7 @@ public class FlywayExtension {
      * or in the schema specified to {@code flyway.defaultSchema}.
      * <p>Also configurable with Gradle or System Property: ${flyway.table}</p>
      */
-    @Getter
-    final Property<String> table;
+    private final Property<String> table;
 
     /**
      * The tablespace where to create the schema history table that will be used by Flyway.
@@ -99,8 +92,7 @@ public class FlywayExtension {
      * ignored for all others.
      * <p>Also configurable with Gradle or System Property: ${flyway.tablespace}</p>
      */
-    @Getter
-    final Property<String> tablespace;
+    private final Property<String> tablespace;
 
     /**
      * The default schema managed by Flyway. This schema name is case-sensitive. If not specified, but <i>schemas</i>
@@ -113,8 +105,7 @@ public class FlywayExtension {
      * </ul>
      * <p>Also configurable with Gradle or System Property: ${flyway.defaultSchema}</p>
      */
-    @Getter
-    final Property<String> defaultSchema;
+    private final Property<String> defaultSchema;
 
     /**
      * The schemas managed by Flyway. These schema names are case-sensitive. If not specified, Flyway uses
@@ -128,20 +119,17 @@ public class FlywayExtension {
      * </ul>
      * <p>Also configurable with Gradle or System Property: ${flyway.schemas} (comma-separated list)</p>
      */
-    @Getter
-    final ListProperty<String> schemas;
+    private final ListProperty<String> schemas;
 
     /**
      * The version to tag an existing schema with when executing baseline. (default: 1)
      */
-    @Getter
-    final Property<String> baselineVersion;
+    private final Property<String> baselineVersion;
 
     /**
      * The description to tag an existing schema with when executing baseline. (default: &lt;&lt; Flyway Baseline &gt;&gt;)
      */
-    @Getter
-    final Property<String> baselineDescription;
+    private final Property<String> baselineDescription;
 
     /**
      * Locations to scan recursively for migrations.
@@ -152,23 +140,20 @@ public class FlywayExtension {
      * contain SQL migrations and are only scanned recursively down non-hidden directories.
      * (default: filesystem:src/main/resources/db/migration)
      */
-    @Getter
-    final ListProperty<String> locations;
+    private final ListProperty<String> locations;
 
     /**
      * The fully qualified class names of the custom MigrationResolvers to be used in addition (default)
      * or as a replacement (using skipDefaultResolvers) to the built-in ones for resolving Migrations to apply.
      * (default: none)<
      */
-    @Getter
-    final ListProperty<String> resolvers;
+    private final ListProperty<String> resolvers;
 
     /**
      * If set to true, default built-in resolvers will be skipped, only custom migration resolvers will be used.
      * (default: false)
      */
-    @Getter
-    final Property<Boolean> skipDefaultResolvers;
+    private final Property<Boolean> skipDefaultResolvers;
 
     /**
      * The file name prefix for versioned SQL migrations. (default: V)
@@ -176,8 +161,7 @@ public class FlywayExtension {
      * which using the defaults translates to V1_1__My_description.sql
      * <p>Also configurable with Gradle or System Property: ${flyway.sqlMigrationPrefix}</p>
      */
-    @Getter
-    final Property<String> sqlMigrationPrefix;
+    private final Property<String> sqlMigrationPrefix;
 
     /**
      * The file name prefix for undo SQL migrations. (default: U)
@@ -187,8 +171,7 @@ public class FlywayExtension {
      * <i>Flyway Teams only</i>
      * <p>Also configurable with Gradle or System Property: ${flyway.undoSqlMigrationPrefix}</p>
      */
-    @Getter
-    final Property<String> undoSqlMigrationPrefix;
+    private final Property<String> undoSqlMigrationPrefix;
 
     /**
      * The file name prefix for repeatable SQL migrations (default: R).
@@ -196,16 +179,14 @@ public class FlywayExtension {
      * which using the defaults translates to R__My_description.sql
      * <p>Also configurable with Gradle or System Property: ${flyway.repeatableSqlMigrationPrefix}</p>
      */
-    @Getter
-    final Property<String> repeatableSqlMigrationPrefix;
+    private final Property<String> repeatableSqlMigrationPrefix;
 
     /**
      * The file name prefix for Sql migrations
      * SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
      * which using the defaults translates to V1_1__My_description.sql
      */
-    @Getter
-    final Property<String> sqlMigrationSeparator;
+    private final Property<String> sqlMigrationSeparator;
 
     /**
      * The file name suffixes for SQL migrations. (default: .sql)
@@ -215,79 +196,67 @@ public class FlywayExtension {
      * editors with specific file associations.
      * <p>Also configurable with Gradle or System Property: ${flyway.sqlMigrationSuffixes}</p>
      */
-    @Getter
-    final ListProperty<String> sqlMigrationSuffixes;
+    private final ListProperty<String> sqlMigrationSuffixes;
 
     /**
      * The encoding of SQL migrations.
      */
-    @Getter
-    final Property<String> encoding;
+    private final Property<String> encoding;
 
     /**
      * Whether Flyway should try to automatically detect SQL migration file encoding
      * <i>Flyway Teams only</i>
      * <p>Also configurable with Gradle or System Property: ${flyway.detectEncoding}</p>
      */
-    @Getter
-    final Property<Boolean> detectEncoding;
+    private final Property<Boolean> detectEncoding;
 
     /**
      * The maximum number of retries when trying to obtain a lock. (default: 50)
      */
-    @Getter
-    final Property<Integer> lockRetryCount;
+    private final Property<Integer> lockRetryCount;
 
     /**
      * Placeholders to replace in SQL migrations.
      */
-    @Getter
-    final MapProperty<Object, Object> placeholders;
+    private final MapProperty<Object, Object> placeholders;
 
     /**
      * Properties to pass to the JDBC driver object.
      * <i>Flyway Teams only</i>
      * <p>Also configurable with Gradle or System Property: ${flyway.jdbcProperties}</p>
      */
-    @Getter
-    final MapProperty<Object, Object> jdbcProperties;
+    private final MapProperty<Object, Object> jdbcProperties;
 
     /**
      * Whether placeholders should be replaced.
      */
-    @Getter
-    final Property<Boolean> placeholderReplacement;
+    private final Property<Boolean> placeholderReplacement;
 
     /**
      * The prefix of every placeholder.
      */
-    @Getter
-    final Property<String> placeholderPrefix;
+    private final Property<String> placeholderPrefix;
 
     /**
      * The suffix of every placeholder.
      */
-    @Getter
-    final Property<String> placeholderSuffix;
+    private final Property<String> placeholderSuffix;
 
 
     /**
      * The separator of default placeholders.
      */
-    @Getter
-    final Property<String> placeholderSeparator;
+    private final Property<String> placeholderSeparator;
 
     /**
      * The prefix of every script placeholder.
      */
-    @Getter
-    final Property<String> scriptPlaceholderPrefix;
+    private final Property<String> scriptPlaceholderPrefix;
 
     /**
      * The suffix of every script placeholder.
      */
-    @Getter
-    final Property<String> scriptPlaceholderSuffix;
+    private final Property<String> scriptPlaceholderSuffix;
 
     /**
      * The target version up to which Flyway should consider migrations.
@@ -305,8 +274,7 @@ public class FlywayExtension {
      * </ul>
      * Defaults to {@code latest}.
      */
-    @Getter
-    final Property<String> target;
+    private final Property<String> target;
 
     /**
      * Gets the migrations that Flyway should consider when migrating or undoing. Leave empty to consider all available migrations.
@@ -314,8 +282,7 @@ public class FlywayExtension {
      * Values should be the version for versioned migrations (e.g. 1, 2.4, 6.5.3) or the description for repeatable migrations (e.g. Insert_Data, Create_Table)
      * <i>Flyway Teams only</i>
      */
-    @Getter
-    final ListProperty<String> cherryPick;
+    private final ListProperty<String> cherryPick;
 
     /**
      * The loggers Flyway should use. Valid options are:
@@ -330,27 +297,23 @@ public class FlywayExtension {
      * <p>
      * Alternatively you can provide the fully qualified class name for any other logger to use that.
      */
-    @Getter
-    final ListProperty<String> loggers;
+    private final ListProperty<String> loggers;
 
     /**
      * An array of fully qualified FlywayCallback class implementations, or packages to scan for FlywayCallback implementations.
      */
-    @Getter
-    final ListProperty<String> callbacks;
+    private final ListProperty<String> callbacks;
 
     /**
      * If set to true, default built-in callbacks will be skipped, only custom migration callbacks will be used.
      * (default: false)
      */
-    @Getter
-    final Property<Boolean> skipDefaultCallbacks;
+    private final Property<Boolean> skipDefaultCallbacks;
 
     /**
      * Allows migrations to be run "out of order".
      */
-    @Getter
-    final Property<Boolean> outOfOrder;
+    private final Property<Boolean> outOfOrder;
 
     /**
      * Whether Flyway should skip actually executing the contents of the migrations and only update the schema history table.
@@ -359,22 +322,19 @@ public class FlywayExtension {
      * <p>
      * Use in conjunction with {@code cherryPick} to skip specific migrations instead of all pending ones.
      */
-    @Getter
-    final Property<Boolean> skipExecutingMigrations;
+    private final Property<Boolean> skipExecutingMigrations;
 
     /**
      * Whether Flyway should output a table with the results of queries when executing migrations (default: true).
      * <i>Flyway Teams only</i>
      * <p>Also configurable with Gradle or System Property: ${flyway.outputQueryResults}</p>
      */
-    @Getter
-    final Property<Boolean> outputQueryResults;
+    private final Property<Boolean> outputQueryResults;
 
     /**
      * Whether to automatically call validate or not when running migrate. (default: true)
      */
-    @Getter
-    final Property<Boolean> validateOnMigrate;
+    private final Property<Boolean> validateOnMigrate;
 
     /**
      * Whether to automatically call clean or not when a validation error occurs. (default: {@code false})<br>
@@ -385,8 +345,7 @@ public class FlywayExtension {
      * <b>Warning! Do not enable in production!</b>
      * <p>Also configurable with Gradle or System Property: ${flyway.cleanOnValidationError}</p>
      */
-    @Getter
-    final Property<Boolean> cleanOnValidationError;
+    private final Property<Boolean> cleanOnValidationError;
 
     /**
      * Ignore migrations that match this comma-separated list of patterns when validating migrations.
@@ -396,8 +355,7 @@ public class FlywayExtension {
      * (default: *:future)
      * <i>Flyway Teams only</i>
      */
-    @Getter
-    final ListProperty<String> ignoreMigrationPatterns;
+    private final ListProperty<String> ignoreMigrationPatterns;
 
     /**
      * Whether to validate migrations and callbacks whose scripts do not obey the correct naming convention. A failure can be
@@ -405,15 +363,13 @@ public class FlywayExtension {
      * {@code false} to continue normally, {@code true} to fail fast with an exception. (default: {@code false})
      * <p>Also configurable with Gradle or System Property: ${flyway.validateMigrationNaming}</p>
      */
-    @Getter
-    final Property<Boolean> validateMigrationNaming;
+    private final Property<Boolean> validateMigrationNaming;
 
     /**
      * Whether to disable clean. (default: {@code false})
      * This is especially useful for production environments where running clean can be a career limiting move.
      */
-    @Getter
-    final Property<Boolean> cleanDisabled;
+    private final Property<Boolean> cleanDisabled;
 
     /**
      * Whether to automatically call baseline when migrate is executed against a non-empty schema with no schema history table.
@@ -427,8 +383,7 @@ public class FlywayExtension {
      *
      * <p>{@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})</p>
      */
-    @Getter
-    final Property<Boolean> baselineOnMigrate;
+    private final Property<Boolean> baselineOnMigrate;
 
     /**
      * Whether to allow mixing transactional and non-transactional statements within the same migration. Enabling this
@@ -441,30 +396,26 @@ public class FlywayExtension {
      * its execution.
      * <p>{@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})</p>
      */
-    @Getter
-    final Property<Boolean> mixed;
+    private final Property<Boolean> mixed;
 
     /**
      * Whether to group all pending migrations together in the same transaction when applying them (only recommended for databases with support for DDL transactions).
      * <p>{@code true} if migrations should be grouped. {@code false} if they should be applied individually instead. (default: {@code false})</p>
      */
-    @Getter
-    final Property<Boolean> group;
+    private final Property<Boolean> group;
 
     /**
      * The username that will be recorded in the schema history table as having applied the migration.
      * {@code null} for the current database user of the connection. (default: {@code null}).
      */
-    @Getter
-    final Property<String> installedBy;
+    private final Property<String> installedBy;
 
     /**
      * Gradle configurations that will be added to the classpath for running Flyway tasks.
      * (default: <code>compile</code>, <code>runtime</code>, <code>testCompile</code>, <code>testRuntime</code>)
      * <p>Also configurable with Gradle or System Property: ${flyway.configurations}</p>
      */
-    @Getter
-    final ListProperty<String> configurations;
+    private final ListProperty<String> configurations;
 
     /**
      * Rules for the built-in error handler that let you override specific SQL states and errors codes in order to force
@@ -493,8 +444,7 @@ public class FlywayExtension {
      * <i>Flyway Teams only</i>
      * <p>Also configurable with Gradle or System Property: ${flyway.errorOverrides}</p>
      */
-    @Getter
-    final ListProperty<String> errorOverrides;
+    private final ListProperty<String> errorOverrides;
 
     /**
      * The file where to output the SQL statements of a migration dry run. If the file specified is in a non-existent
@@ -505,8 +455,7 @@ public class FlywayExtension {
      * <i>Flyway Teams only</i>
      * <p>Also configurable with Gradle or System Property: ${flyway.dryRunOutput}</p>
      */
-    @Getter
-    final Property<String> dryRunOutput;
+    private final Property<String> dryRunOutput;
 
     /**
      * Whether to stream SQL migrations when executing them. Streaming doesn't load the entire migration in memory at
@@ -516,8 +465,7 @@ public class FlywayExtension {
      * <i>Flyway Teams only</i>
      * <p>Also configurable with Gradle or System Property: ${flyway.stream}</p>
      */
-    @Getter
-    final Property<Boolean> stream;
+    private final Property<Boolean> stream;
 
     /**
      * Whether to batch SQL statements when executing them. Batching can save up to 99 percent of network roundtrips by
@@ -529,8 +477,7 @@ public class FlywayExtension {
      * <i>Flyway Teams only</i>
      * <p>Also configurable with Gradle or System Property: ${flyway.batch}</p>
      */
-    @Getter
-    final Property<Boolean> batch;
+    private final Property<Boolean> batch;
 
     /**
      * Whether to Flyway's support for Oracle SQL*Plus commands should be activated.
@@ -538,8 +485,7 @@ public class FlywayExtension {
      * <i>Flyway Teams only</i>
      * <p>Also configurable with Gradle or System Property: ${flyway.oracle.sqlplus}</p>
      */
-    @Getter
-    final Property<Boolean> oracleSqlplus;
+    private final Property<Boolean> oracleSqlplus;
 
     /**
      * Whether Flyway should issue a warning instead of an error whenever it encounters an Oracle SQL*Plus statement
@@ -547,8 +493,7 @@ public class FlywayExtension {
      * <i>Flyway Teams only</i>
      * <p>Also configurable with Gradle or System Property: ${flyway.oracle.sqlplusWarn}</p>
      */
-    @Getter
-    final Property<Boolean> oracleSqlplusWarn;
+    private final Property<Boolean> oracleSqlplusWarn;
 
     /**
      * The location of your Oracle wallet, used to automatically sign in to your databases.
@@ -556,15 +501,13 @@ public class FlywayExtension {
      * <i>Flyway Teams only</i>
      * <p>Also configurable with Gradle or System Property: ${flyway.oracle.walletLocation}</p>
      */
-    @Getter
-    final Property<String> oracleWalletLocation;
+    private final Property<String> oracleWalletLocation;
 
     /**
      * When connecting to a Kerberos service to authenticate, the path to the Kerberos config file.
      * <i>Flyway Teams only</i>
      */
-    @Getter
-    final RegularFileProperty kerberosConfigFile;
+    private final RegularFileProperty kerberosConfigFile;
 
     /**
      * Your Flyway license key (FL01...). Not yet a Flyway Teams Edition customer?
@@ -573,15 +516,13 @@ public class FlywayExtension {
      * <i>Flyway Teams only</i>
      * <p>Also configurable with Gradle or System Property: ${flyway.licenseKey}</p>
      */
-    @Getter
-    final Property<String> licenseKey;
+    private final Property<String> licenseKey;
 
     /**
      * The encoding of the external config files specified with the {@code flyway.configFiles} property. (default: UTF-8).
      * <p>Also configurable with Gradle or System Property: ${flyway.configFileEncoding}</p>
      */
-    @Getter
-    final Property<String> configFileEncoding;
+    private final Property<String> configFileEncoding;
 
     /**
      * Config files from which to load the Flyway configuration. The names of the individual properties match the ones you would
@@ -589,39 +530,33 @@ public class FlywayExtension {
      * flyway.configFileEncoding property, which is UTF-8 by default. Relative paths are relative to the project root.
      * <p>Also configurable with Gradle or System Property: ${flyway.configFiles}</p>
      */
-    @Getter
-    final FileCollection configFiles;
+    private final FileCollection configFiles;
 
     /**
      * The working directory to consider when dealing with relative paths for both config files and locations.
      * (default: basedir, the directory where the POM resides)
      * <p>Also configurable with Gradle or System Property: ${flyway.workingDirectory}</p>
      */
-    @Getter
-    final RegularFileProperty workingDirectory;
+    private final RegularFileProperty workingDirectory;
 
     /**
      * Whether Flyway should attempt to create the schemas specified in the schemas propert
      * <p>Also configurable with Gradle or System Property: ${flyway.createSchemas}</p>
      */
-    @Getter
-    final Property<Boolean> createSchemas;
+    private final Property<Boolean> createSchemas;
 
     /**
      * Whether to fail if a location specified in the flyway.locations option doesn't exist
      *
      * @return @{code true} to fail (default: {@code false})
      */
-    @Getter
-    final Property<Boolean> failOnMissingLocations;
+    private final Property<Boolean> failOnMissingLocations;
 
     /**
      * The configuration for plugins
      * You will need to configure this with the key and value specific to your plugin
      */
-    @Getter
-    final MapProperty<String, String> pluginConfiguration;
-
+    private final MapProperty<String, String> pluginConfiguration;
 
     FlywayExtension(ObjectFactory objects) {
         this.driver = objects.property(String.class);
