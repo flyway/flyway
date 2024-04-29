@@ -53,9 +53,7 @@ public enum NoopCallbackExecutor implements CallbackExecutor {
     public void onOperationFinishEvent(Event event, OperationResult operationResult) {
     }
 
-
-
-
-
-
+    @Override
+    public void onEachMigrateOrUndoStatementEvent(Event event, String sql, List<Warning> warnings, List<Error> errors) {
+    }
 }

@@ -32,6 +32,34 @@ You can find the `Flyway CLI` directory here: `~/.config/Redgate/Flyway CLI`.
 | -startTeamsTrial      | All                | Starts a Teams trial
 | -startEnterpriseTrial | All                | Starts an Enterprise trial
 
+#### Personal Access Tokens (PATs)
+
+Users can specify a Redgate email and personal access token that can be used to non-interactively authorize Flyway without needing to run the `auth` command. If an email and PAT token
+are configured, Flyway can be used normally and will be licensed to the edition of Flyway you have access to assuming you are working in an environment that is connected to the internet.
+PATs can be generated at this [link](https://identityprovider.red-gate.com/personaltokens).
+
+Redgate emails and PATs are respectively configured using the `email` and `token` configuration parameters in the TOML configuration file, on the commandline, or by using the `FLYWAY_EMAIL`
+and `FLYWAY_TOKEN` environment variables. Here are some examples of how to use PATs:
+
+Commandline:
+```
+flyway info -email=foo.bar@red-gate.com -token=1234ABCD
+```
+
+TOML:
+```toml
+[flyway]
+email = "foo.bar@red-gate.com"
+token = "1234ABCD"
+```
+
+Environment variables:
+```shell
+export FLYWAY_EMAIL=foo.bar@red-gate.com
+export FLYWAY_TOKEN=1234ABCD
+```
+
+Using a personal access token will store a license permit in the Redgate app data folder, the same location as when running the `auth` command.
 
 #### Environment Variables
 
@@ -47,20 +75,20 @@ There are multiple ways to authorize Flyway. The following list shows the order 
 
 1. `REDGATE_LICENSING_PERMIT_PATH` environment variable
 2. `REDGATE_LICENSING_PERMIT` environment variable
-3. License permit located in the `Flyway CLI` directory of the Redgate app data folder, saved to disk by running the `auth` command (both the online and offline flow save the
-license permit to the same location)
+3. License permit located in the `Flyway CLI` directory of the Redgate app data folder, saved to disk by running the `auth` command or by having run Flyway with an email and PAT specified
+at least once (the online interactive flow, non-interactive online personal access token flow, and offline flow all save the license permit to the same location)
 4. [License key](Configuration/Parameters/Flyway/License Key)
 
 #### Refresh Tokens
 
-When `auth` is run successfully, a refresh token is saved to disk in the `Flyway CLI` directory of the Redgate app data folder. This refresh token is used to
-automatically refresh a user's license permit when it expires. Each time a license permit is refreshed, a new refresh token is saved to disk, replacing the existing
-refresh token. This only applies to expired license permits in the `Flyway CLI` directory of the Redgate app data folder—Flyway will not automatically refresh expired license
-permits specified by environment variables.
+When `auth` is run successfully or a PAT successfully retrieves a license permit, a refresh token is saved to disk in the `Flyway CLI` directory of the Redgate app data folder.
+This refresh token is used to automatically refresh a user's license permit when it expires. Each time a license permit is refreshed, a new refresh token is saved to disk,
+replacing the existing refresh token. This only applies to expired license permits in the `Flyway CLI` directory of the Redgate app data folder—Flyway will not automatically
+refresh expired license permits specified by environment variables.
 
 #### Logout
 
 `auth -logout` can be run to log out of an authorized session of Flyway. Under the hood, logging out simply deletes the license permit and refresh token stored on disk in the
-Redgate app data folder. Assuming no other methods of authorization are in use (such as a permit environment variable or legacy license key environment variable), the user will be
-logged out of their session and Flyway will run as Community Edition. If a valid permit environment variable or legacy license key environment variable is set, Flyway will still
+Redgate app data folder. Assuming no other methods of authorization are in use (such as a permit environment variable, a legacy license key environment variable, or a PAT token), the user will be
+logged out of their session and Flyway will run as Community Edition. If a valid permit environment variable, legacy license key environment variable, or PAT token is set, Flyway will still
 honor these as authorizations and logout will not remove them.

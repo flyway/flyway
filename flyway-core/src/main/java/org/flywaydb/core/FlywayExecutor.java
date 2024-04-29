@@ -169,6 +169,7 @@ public class FlywayExecutor {
                 }
 
                 LOG.info("Database: " + redactJdbcUrl(jdbcConnectionFactory.getJdbcUrl()) + " (" + jdbcConnectionFactory.getProductName() + ")");
+                LOG.debug("Database Type: " + database.getDatabaseType().getName());
                 LOG.debug("Driver: " + jdbcConnectionFactory.getDriverInfo());
 
                 if (flywayTelemetryManager != null) {

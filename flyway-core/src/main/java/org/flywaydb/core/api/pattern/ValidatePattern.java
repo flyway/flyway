@@ -59,12 +59,6 @@ public class ValidatePattern {
         String migrationType = patternParts[0].trim().toLowerCase();
         String migrationState = patternParts[1].trim().toLowerCase();
 
-
-        if (migrationType.equals("repeatable") || migrationType.equals("versioned")) {
-            throw new FlywayRedgateEditionRequiredException("ignoreMigrationPattern with type '" + migrationType + "'");
-        }
-
-
         if (!validMigrationTypes.contains(migrationType)) {
             throw new FlywayException("Invalid migration type '" + patternParts[0] + "'. Valid types are: " + validMigrationTypes);
         }

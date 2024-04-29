@@ -89,7 +89,6 @@ public class EnvironmentResolver {
         result.setPassword(context.resolveValue(environment.getPassword(), resolveProgress));
         result.setUser(context.resolveValue(environment.getUser(), resolveProgress));
         result.setUrl(context.resolveValue(environment.getUrl(), resolveProgress));
-        result.setToken(context.resolveValue(environment.getToken(), resolveProgress));
 
         if (mode == ProvisionerMode.Provision) {
             progress.log("Provisioning environment " + environmentName + " with " + provisioner.getName());

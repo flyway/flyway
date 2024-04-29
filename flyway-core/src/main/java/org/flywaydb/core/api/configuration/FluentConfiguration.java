@@ -229,9 +229,8 @@ public class FluentConfiguration implements Configuration {
     /**
      * Ignore migrations that match this comma-separated list of patterns when validating migrations.
      * Each pattern is of the form <migration_type>:<migration_state>
-     * See https://documentation.red-gate.com/fd/ignore-migration-patterns-184127507.html for full details
+     * See https://documentation.red-gate.com/flyway/flyway-cli-and-api/configuration/parameters/flyway/ignore-migration-patterns for full details
      * Example: repeatable:missing,versioned:pending,*:failed
-     * <i>Flyway Teams only</i>
      */
     public FluentConfiguration ignoreMigrationPatterns(String... ignoreMigrationPatterns) {
         config.setIgnoreMigrationPatterns(ignoreMigrationPatterns);
@@ -240,8 +239,7 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * Ignore migrations that match this array of ValidatePatterns when validating migrations.
-     * See https://documentation.red-gate.com/fd/ignore-migration-patterns-184127507.html for full details
-     * <i>Flyway Teams only</i>
+     * See https://documentation.red-gate.com/flyway/flyway-cli-and-api/configuration/parameters/flyway/ignore-migration-patterns for full details
      */
     public FluentConfiguration ignoreMigrationPatterns(ValidatePattern... ignoreMigrationPatterns) {
         config.setIgnoreMigrationPatterns(ignoreMigrationPatterns);

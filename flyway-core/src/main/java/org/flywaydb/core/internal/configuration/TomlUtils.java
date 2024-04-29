@@ -101,7 +101,7 @@ public class TomlUtils {
         }
     }
 
-    private static Map<String, Object> unflattenMap(Map<String, String> map) {
+    public static Map<String, Object> unflattenMap(Map<String, String> map) {
         Map<String, Object> result = new HashMap<>();
         for (Map.Entry<String, String> entry : map.entrySet()) {
             String[] parts = entry.getKey().split("\\.");

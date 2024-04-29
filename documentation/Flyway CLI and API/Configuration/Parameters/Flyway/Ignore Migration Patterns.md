@@ -15,8 +15,8 @@ Patterns are of the form `type`:`status` with `*` matching `type` or `status`.
 
 `type` must be one of (*case insensitive*):
 
-* `repeatable` {% include redgate.html %}
-* `versioned` {% include redgate.html %}
+* `repeatable`
+* `versioned`
 * `*` *(will match any of the above)*
 
 `status` must be one of (*case insensitive*):

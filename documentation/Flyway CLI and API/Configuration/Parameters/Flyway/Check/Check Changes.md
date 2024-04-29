@@ -15,12 +15,12 @@ See also the [Change Report Concept](<Concepts/Check Changes Concept>) page
 
 ### Commandline
 ```powershell
-./flyway check -changes -environment=prod -buildEnvironment=build
+./flyway check -changes -environment=prod -check.buildEnvironment=build
 ```
 - [`environment`](Configuration/Parameters/Flyway/Environment) - This would typically be your target/production environment
    - If you can't access your target database from your build environment you should use [`check.appliedMigrations`](<Configuration/Parameters/Flyway/Check/Applied Migrations>) with the list of migrations that represent the current state if your target.
    - You could alternatively use a snapshot of your target database instead and tell Flyway to use this via  [`check.deployedSnapshot`](<Configuration/Parameters/Flyway/Check/Deployed Snapshot>)
-- [`buildEnvironment`](<Configuration/Parameters/Flyway/Check/Build Environment>) - This is where Flyway will populate the database based on the migrations available
+- [`check.buildEnvironment`](<Configuration/Parameters/Flyway/Check/Build Environment>) - This is where Flyway will populate the database based on the migrations available
   - If you do not have a build database you could specify a snapshot via [`check.nextSnapshot`](<Configuration/Parameters/Flyway/Check/Next Snapshot>)
 
 If you want to explicitly specify the filename of the generated report then the [`reportFilename`](<Configuration/Parameters/Flyway/Report Filename>) parameter exists.

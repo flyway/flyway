@@ -13,13 +13,13 @@ subtitle: Derby
 
 ## Driver
 
-| Item                               | Details                                                         |
-|------------------------------------|-----------------------------------------------------------------|
-| **URL format**                     | <code>jdbc:derby:<i>sub-protocol</i>:<i>databaseName</i></code> |
-| **Ships with Flyway Command-line** | No                                                              |
-| **Maven Central coordinates**      | `org.apache.derby:derbyclient`                                  |
-| **Supported versions**             | `10.11` and later                                               |
-| **Default Java class**             | `org.apache.derby.jdbc.EmbeddedDriver`                          |
+| Item                               | Details                                                          |
+|------------------------------------|------------------------------------------------------------------|
+| **URL format**                     | <code>jdbc:derby:<i>sub-protocol</i>:<i>database name</i></code> |
+| **Ships with Flyway Command-line** | No                                                               |
+| **Maven Central coordinates**      | `org.apache.derby:derbyclient`                                   |
+| **Supported versions**             | `10.11` and later                                                |
+| **Default Java class**             | `org.apache.derby.jdbc.EmbeddedDriver`                           |
 
 ## CLI Usage - installing support
 If you want to connect to e Derby database you will first need to download the driver that is compatible with Java 17 from the [Derby download page](https://db.apache.org/derby/derby_downloads.html)

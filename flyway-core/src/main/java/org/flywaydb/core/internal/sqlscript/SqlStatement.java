@@ -70,10 +70,5 @@ public interface SqlStatement {
      * @param jdbcTemplate The jdbcTemplate to use to execute this script.
      * @return the result of the execution.
      */
-    Results execute(JdbcTemplate jdbcTemplate
-
-
-
-
-                   );
+    Results execute(JdbcTemplate jdbcTemplate, SqlScriptExecutor sqlScriptExecutor, Configuration config);
 }

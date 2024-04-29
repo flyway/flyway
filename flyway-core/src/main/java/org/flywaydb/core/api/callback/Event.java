@@ -52,19 +52,16 @@ public enum Event {
     /**
      * Fired before each individual statement in a migration is executed. This event will be fired within the same transaction (if any)
      * as the migration and can be used for things like asserting a statement complies with policy (for example: no grant statements allowed).
-     * <p><i>Flyway Teams Edition only</i></p>
      */
     BEFORE_EACH_MIGRATE_STATEMENT("beforeEachMigrateStatement"),
     /**
      * Fired after each individual statement in a migration that succeeded. This event will be fired within the same transaction (if any)
      * as the migration.
-     * <p><i>Flyway Teams Edition only</i></p>
      */
     AFTER_EACH_MIGRATE_STATEMENT("afterEachMigrateStatement"),
     /**
      * Fired after each individual statement in a migration that failed. This event will be fired within the same transaction (if any)
      * as the migration.
-     * <p><i>Flyway Teams Edition only</i></p>
      */
     AFTER_EACH_MIGRATE_STATEMENT_ERROR("afterEachMigrateStatementError"),
     /**

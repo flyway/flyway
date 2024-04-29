@@ -45,7 +45,7 @@ public class FlywaySqlScriptException extends FlywaySqlException {
      * @param sqlException Cause of the problem.
      */
     public FlywaySqlScriptException(Resource resource, SqlStatement statement, SQLException sqlException) {
-        super(resource == null ? "Script failed" : "Migration " + resource.getFilename() + " failed", sqlException);
+        super(resource == null ? "Script failed" : "Script " + resource.getFilename() + " failed", sqlException);
         this.resource = resource;
         this.statement = statement;
     }

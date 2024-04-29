@@ -2,6 +2,7 @@
 subtitle: Callbacks
 redirect_from: /documentation/callbacks/
 ---
+
 # Callbacks
 
 While migrations are sufficient for most needs, there are certain situations that require you to <strong>execute the same action
@@ -32,11 +33,11 @@ These are the events Flyway supports:
         <td>Before every single migration during Migrate</td>
     </tr>
     <tr id="beforeEachMigrateStatement">
-        <td>beforeEachMigrateStatement <br>{% include redgate.html %}</td>
+        <td>beforeEachMigrateStatement</td>
         <td>Before every single statement of a migration during Migrate</td>
     </tr>
     <tr id="afterEachMigrateStatement">
-        <td>afterEachMigrateStatement <br>{% include redgate.html %}</td>
+        <td>afterEachMigrateStatement</td>
         <td>After every single successful statement of a migration during Migrate</td>
     </tr>
     <tr id="afterEachMigrateStatementError">
@@ -254,13 +255,15 @@ These are the events Flyway supports:
 
 Callbacks can be implemented either in SQL or in Java.
 
+## Location
+Flyway will discover SQL callbacks in the same manner as SQL migration scripts, based on the [locations](Configuration/parameters/flyway/locations) defined.
+
+Whereas Java callbacks will be picked up from the classpath.
+
 ## SQL Callbacks
 
 The most convenient way to hook into Flyway's lifecycle is through SQL callbacks. These are simply sql files
 in the configured locations following a certain naming convention: the event name followed by the SQL migration suffix.
-
-Using the default settings, Flyway looks in its default locations (&lt;install_dir&gt;/sql) for the Command-line tool)
-for SQL files like `beforeMigrate.sql`, `beforeEachMigrate.sql`, `afterEachMigrate.sql`, ...
 
 Placeholder replacement works just like it does for <a href="Concepts/migrations#sql-based-migrations">SQL migrations</a>.
 

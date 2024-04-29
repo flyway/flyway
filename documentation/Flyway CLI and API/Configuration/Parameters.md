@@ -49,6 +49,11 @@ subtitle: placeholder page
 - [validateOnMigrate](configuration/parameters/flyway/Validate On Migrate)
 - [workingDirectory](configuration/parameters/flyway/Working Directory)
 
+### Redgate Authentication
+
+- [email](configuration/parameters/flyway/email)
+- [token](configuration/parameters/flyway/token)
+
 ### Schema
 - [createSchemas](configuration/parameters/flyway/Create Schemas)
 - [defaultSchema](configuration/parameters/flyway/Default Schema)

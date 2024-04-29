@@ -15,12 +15,12 @@ See also the [Drift Report Concept](<Concepts/Check Drift Concept>) page
 
 ### Commandline
 ```powershell
-./flyway check -drift -environment=production -buildEnvironment=build
+./flyway check -drift -environment=production -check.buildEnvironment=build
 ```
 
 You need to specify the environments Flyway should use for conducting the drift report.
 - [`environment`](Configuration/Parameters/Flyway/Environment) - This would typically be your target/production environment
-- [`buildEnvironment`](<Configuration/Parameters/Flyway/Check/Build Environment>) - This is where Flyway will populate the database based on the migrations that exist in your target environment.
+- [`check.buildEnvironment`](<Configuration/Parameters/Flyway/Check/Build Environment>) - This is where Flyway will populate the database based on the migrations that exist in your target environment.
   - Alternatively, if you do not have a build database you could use a snapshot via [`check.deployedSnapshot`](<Configuration/Parameters/Flyway/Check/Deployed Snapshot>) instead.
 
 If you want to explicitly specify the filename of the generated report then the [`reportFilename`](<Configuration/Parameters/Flyway/Report Filename>) parameter can be configured.

@@ -30,6 +30,7 @@ import org.flywaydb.core.internal.license.FlywayPermit;
 
 
 
+
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -37,7 +38,6 @@ import java.util.concurrent.atomic.AtomicReference;
 @CustomLog
 @ExtensionMethod(Tier.class)
 public class LicenseGuard {
-
 
 
 

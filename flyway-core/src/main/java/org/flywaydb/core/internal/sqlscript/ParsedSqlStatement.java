@@ -84,12 +84,7 @@ public class ParsedSqlStatement implements SqlStatement {
 
 
     @Override
-    public Results execute(JdbcTemplate jdbcTemplate
-
-
-
-
-                          ) {
+    public Results execute(JdbcTemplate jdbcTemplate, SqlScriptExecutor sqlScriptExecutor, Configuration config) {
         return jdbcTemplate.executeStatement(sql);
     }
 }

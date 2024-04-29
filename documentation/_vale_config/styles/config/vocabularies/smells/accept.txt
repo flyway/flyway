@@ -7,7 +7,6 @@ cmd
 (?i)Commandline
 [Cc]onfig
 database_name
-databaseName
 default_build
 [Dd]ev
 [Dd]atasource

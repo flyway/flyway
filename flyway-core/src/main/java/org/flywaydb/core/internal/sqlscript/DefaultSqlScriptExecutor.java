@@ -43,11 +43,10 @@ import java.util.List;
 public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
     protected final JdbcTemplate jdbcTemplate;
 
-
-
-
-
-
+    /**
+     * The callback executor.
+     */
+    private final CallbackExecutor callbackExecutor;
 
 
 
@@ -87,7 +86,7 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
 
-
+        this.callbackExecutor = callbackExecutor;
         this.outputQueryResults = outputQueryResults;
         this.batch = batch;
     }
@@ -207,11 +206,8 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
             return;
         }
 
-        Results results = sqlStatement.execute(jdbcTemplate
+        Results results = sqlStatement.execute(jdbcTemplate, this, config);
 
-
-
-                                              );
         if (results.getException() != null) {
             handleEachMigrateOrUndoStatementCallback(Event.AFTER_EACH_UNDO_STATEMENT_ERROR, Event.AFTER_EACH_MIGRATE_STATEMENT_ERROR, sql, results.getWarnings(), results.getErrors());
             printWarnings(results);
@@ -281,5 +277,10 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
 
+
+
+
+
+        callbackExecutor.onEachMigrateOrUndoStatementEvent(eventMigrate, sql, warnings, errors);
     }
 }

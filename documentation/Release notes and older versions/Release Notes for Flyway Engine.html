@@ -9,6 +9,29 @@
 <div class="col-md-9">
 
 <div class="release">
+        <h2 id="10.12.0">Flyway 10.12.0 (2024-04-29)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Flyway shouldn't call SqlFluff if there are no pending migrations found</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Reworded exception messages when executing scripts fails to say "Script ... failed" instead of "Migration ... failed"</li>
+            <li>'beforeEachMigrateStatement' and 'afterEachMigrateStatement' callbacks are now open source features</li>
+            <li>Updated wording on Drift Report</li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Personal Access Tokens are now supported as a method of authorizing Flyway</li>
+            <li>'versioned' and 'repeatable' can now be used for 'ignoreMigrationPatterns' in the open-source version.</li>
+        </ul>
+
+    </div>
+
+<div class="release">
         <h2 id="10.11.1">Flyway 10.11.1 (2024-04-18)</h2>
 
         <h3>Bug fixes</h3>

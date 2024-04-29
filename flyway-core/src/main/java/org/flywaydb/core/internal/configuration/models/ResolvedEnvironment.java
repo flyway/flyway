@@ -48,7 +48,6 @@ public class ResolvedEnvironment {
         result.setDriver(driver);
         result.setSchemas(schemas);
         result.setJarDirs(jarDirs);
-        result.setToken(token);
         result.setConnectRetries(connectRetries);
         result.setConnectRetriesInterval(connectRetriesInterval);
         result.setInitSql(initSql);

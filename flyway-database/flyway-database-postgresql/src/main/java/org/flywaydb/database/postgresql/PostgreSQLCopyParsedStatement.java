@@ -60,12 +60,7 @@ public class PostgreSQLCopyParsedStatement extends ParsedSqlStatement {
     }
 
     @Override
-    public Results execute(JdbcTemplate jdbcTemplate
-
-
-
-
-                          ) {
+    public Results execute(JdbcTemplate jdbcTemplate, SqlScriptExecutor sqlScriptExecutor, Configuration config) {
         // #2355: Use reflection to ensure this works in cases where the PostgreSQL driver classes were loaded in a
         //        child URLClassLoader instead of the system classloader.
         Object baseConnection;

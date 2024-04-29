@@ -41,7 +41,6 @@ public class EnvironmentModel {
     private String driver;
     private List<String> schemas = new ArrayList<>();
     private List<String> jarDirs = new ArrayList<>();
-    private String token;
     private Integer connectRetries;
     private Integer connectRetriesInterval;
     private String initSql;
@@ -56,7 +55,6 @@ public class EnvironmentModel {
         result.driver = driver.merge(otherPojo.driver);
         result.schemas = schemas.merge(otherPojo.schemas);
         result.jarDirs = jarDirs.merge(otherPojo.jarDirs);
-        result.token = token.merge(otherPojo.token);
         result.connectRetries = connectRetries.merge(otherPojo.connectRetries);
         result.connectRetriesInterval = connectRetriesInterval.merge(otherPojo.connectRetriesInterval);
         result.initSql = initSql.merge(otherPojo.initSql);

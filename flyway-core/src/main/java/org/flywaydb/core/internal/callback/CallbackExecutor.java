@@ -59,18 +59,15 @@ public interface CallbackExecutor {
      */
     void onEachMigrateOrUndoEvent(Event event);
 
-
-
-
-
-
-
-
-
-
-
-
-
+    /**
+     * Executes the callbacks for an "each statement" event within the same transaction (if any) as the main operation.
+     *
+     * @param event The event to handle.
+     * @param sql The sql from the statement.
+     * @param warnings The warnings from the statement. {@code null} if it hasn't been executed yet.
+     * @param errors The errors from the statement. {@code null} if it hasn't been executed yet.
+     */
+    void onEachMigrateOrUndoStatementEvent(Event event, String sql, List<Warning> warnings, List<Error> errors);
 
     /**
      * Executes the callbacks for an operation finish event.
