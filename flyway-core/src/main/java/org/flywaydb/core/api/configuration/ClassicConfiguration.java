@@ -565,7 +565,7 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public MigrationPattern[] getCherryPick() {
         MigrationPattern[] cherryPick = null;
-        ConfigurationExtension cherryPickConfig = pluginRegister.getLicensedPlugin("CherryPickConfigurationExtension", this);
+        ConfigurationExtension cherryPickConfig = pluginRegister.getPlugin("CherryPickConfigurationExtension");
 
         if (cherryPickConfig == null) {
             LOG.debug("CherryPickConfigurationExtension not found");
@@ -583,26 +583,32 @@ public class ClassicConfiguration implements Configuration {
             return null;
         }
 
-        Set<String> cherryPickValues = new HashSet<>();
-        List<String> duplicateValues = new ArrayList<>();
-        StringBuilder migrationPatternsString = new StringBuilder();
 
-        for (MigrationPattern migrationPattern : cherryPick) {
-            String migrationPatternString = migrationPattern.toString();
-            migrationPatternsString.append(migrationPatternString).append(" ");
+        throw new FlywayEditionUpgradeRequiredException(Tier.TEAMS, (Tier) null, "Cherry pick");
 
-            if (cherryPickValues.contains(migrationPatternString)) {
-                duplicateValues.add(migrationPatternString);
-            }
 
-            cherryPickValues.add(migrationPatternString);
-        }
 
-        if (!duplicateValues.isEmpty()) {
-            throw new FlywayException("Duplicate values not allowed in migration patterns. Duplication detected in: \n" + migrationPatternsString);
-        }
 
-        return cherryPick;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
 
     @Override
@@ -1468,6 +1474,11 @@ public class ClassicConfiguration implements Configuration {
         String userProp = props.remove(ConfigUtils.USER);
         if (userProp != null) {
             setUser(userProp);
+        }
+
+        String outputProgress = props.remove(ConfigUtils.OUTPUT_PROGRESS);
+        if (userProp != null) {
+            getModernConfig().getFlyway().setOutputProgress(Boolean.parseBoolean(outputProgress));
         }
 
         String passwordProp = props.remove(ConfigUtils.PASSWORD);

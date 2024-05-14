@@ -30,7 +30,7 @@
     </componentDescriptors>
     <fileSets>
         <fileSet>
-            <directory>target/dependency/jre-macos-x64-tar.gz/jdk-${jre.version}+1-jre/Contents/Home</directory>
+            <directory>target/dependency/jre-macos-x64-tar.gz/jdk-${jre.version}+9-jre/Contents/Home</directory>
             <outputDirectory>jre</outputDirectory>
             <fileMode>755</fileMode>
         </fileSet>

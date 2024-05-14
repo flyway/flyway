@@ -96,6 +96,7 @@ public class ConfigUtils {
     public static final String SKIP_EXECUTING_MIGRATIONS = "flyway.skipExecutingMigrations";
     public static final String OUTPUT_QUERY_RESULTS = "flyway.outputQueryResults";
     public static final String PASSWORD = "flyway.password";
+    public static final String OUTPUT_PROGRESS = "flyway.outputProgress";
     public static final String PLACEHOLDER_PREFIX = "flyway.placeholderPrefix";
     public static final String PLACEHOLDER_REPLACEMENT = "flyway.placeholderReplacement";
     public static final String PLACEHOLDER_SUFFIX = "flyway.placeholderSuffix";
@@ -727,6 +728,8 @@ public class ConfigUtils {
             String message = String.format("Unknown configuration %s: %s",
                                            property,
                                            StringUtils.arrayToCommaDelimitedString(unknownFlywayProperties.toArray()));
+
+            message += ". Please check your " + (prefix == null ? "script config files" : "conf files or commandline parameters");
             throw new FlywayException(message, CoreErrorCode.CONFIGURATION);
         }
     }

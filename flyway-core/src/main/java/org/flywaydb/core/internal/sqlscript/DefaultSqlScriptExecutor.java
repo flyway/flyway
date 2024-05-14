@@ -241,7 +241,7 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
     }
 
     private void handleUpdateCount(long updateCount) {
-        LOG.debug(updateCount + "row" + StringUtils.pluralizeSuffix(updateCount) + " affected");
+        LOG.debug(updateCount + " row" + StringUtils.pluralizeSuffix(updateCount) + " affected");
     }
 
     protected void handleException(Results results, SqlScript sqlScript, SqlStatement sqlStatement, Configuration config) {

@@ -55,6 +55,7 @@ public class ExternalProcessRunner {
         return run(command, workingDirectory, null, stdIn, onStdOut, onStdErr);
     }
 
+    @SuppressWarnings("MethodWithTooManyParameters")
     @SneakyThrows
     public int run(final String[] command,
                    final Path workingDirectory,
@@ -97,6 +98,29 @@ public class ExternalProcessRunner {
             handleStdErr.get();
         } finally {
             executorService.shutdown();
+        }
+
+        return process.waitFor();
+    }
+
+    @SneakyThrows
+    public int run(final ProcessBuilder processBuilder,
+                   final Path workingDirectory,
+                   final Map<String, String> env,
+                   final String stdIn) {
+
+        if (workingDirectory != null) {
+            processBuilder.directory(workingDirectory.toFile());
+        }
+        if (env != null) {
+            processBuilder.environment().putAll(env);
+        }
+        final var process = processBuilder.start();
+
+        if (stdIn != null) {
+            try (final var inputSteam = new OutputStreamWriter(process.getOutputStream(), StandardCharsets.UTF_8)) {
+                inputSteam.write(stdIn);
+            }
         }
 
         return process.waitFor();

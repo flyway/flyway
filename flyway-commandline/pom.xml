@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>10.12.0</version>
+        <version>10.13.0</version>
     </parent>
     <artifactId>flyway-commandline</artifactId>
     <packaging>jar</packaging>
@@ -13,7 +13,7 @@
 
 
 
-        <jre.version>17.0.8.1</jre.version>
+        <jre.version>17.0.11</jre.version>
     </properties>
 
     <dependencies>
@@ -121,31 +121,37 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-ignite</artifactId>
-            <version>10.11.0</version>
+            <version>10.12.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-tidb</artifactId>
-            <version>10.11.0</version>
+            <version>10.12.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-yugabytedb</artifactId>
-            <version>10.11.0</version>
+            <version>10.12.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-clickhouse</artifactId>
-            <version>10.11.0</version>
+            <version>10.12.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-oceanbase</artifactId>
-            <version>10.11.0</version>
+            <version>10.12.0</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-databricks</artifactId>
+            <version>10.12.0</version>
             <scope>runtime</scope>
         </dependency>
 
@@ -369,6 +375,12 @@
             <artifactId>singlestore-jdbc-client</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <groupId>com.databricks</groupId>
+            <artifactId>databricks-jdbc</artifactId>
+            <version>2.6.38</version>
+            <scope>runtime</scope>
+        </dependency>
         <!-- #2136: JNA is required for MariaDB with unix sockets -->
         <dependency>
             <groupId>net.java.dev.jna</groupId>
@@ -516,6 +528,12 @@
 
 
 
+
+
+
+
+
+
     </dependencies>
     <dependencyManagement>
         <dependencies>
@@ -526,7 +544,7 @@
                 <version>${jre.version}</version>
                 <type>zip</type>
                 <scope>system</scope>
-                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_x64_windows_hotspot_${jre.version}_1.zip</systemPath>
+                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_x64_windows_hotspot_${jre.version}_9.zip</systemPath>
             </dependency>
             <dependency>
                 <groupId>net.adoptium</groupId>
@@ -535,7 +553,7 @@
                 <version>${jre.version}</version>
                 <type>tar.gz</type>
                 <scope>system</scope>
-                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_x64_linux_hotspot_${jre.version}_1.tar.gz</systemPath>
+                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_x64_linux_hotspot_${jre.version}_9.tar.gz</systemPath>
             </dependency>
             <dependency>
                 <groupId>net.adoptium</groupId>
@@ -544,7 +562,7 @@
                 <version>${jre.version}</version>
                 <type>tar.gz</type>
                 <scope>system</scope>
-                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_x64_alpine-linux_hotspot_${jre.version}_1.tar.gz</systemPath>
+                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_x64_alpine-linux_hotspot_${jre.version}_9.tar.gz</systemPath>
             </dependency>
             <dependency>
                 <groupId>net.adoptium</groupId>
@@ -553,7 +571,7 @@
                 <version>${jre.version}</version>
                 <type>tar.gz</type>
                 <scope>system</scope>
-                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_x64_mac_hotspot_${jre.version}_1.tar.gz</systemPath>
+                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_x64_mac_hotspot_${jre.version}_9.tar.gz</systemPath>
             </dependency>
             <dependency>
                 <groupId>net.adoptium</groupId>
@@ -562,7 +580,7 @@
                 <version>${jre.version}</version>
                 <type>tar.gz</type>
                 <scope>system</scope>
-                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_aarch64_mac_hotspot_${jre.version}_1.tar.gz</systemPath>
+                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_aarch64_mac_hotspot_${jre.version}_9.tar.gz</systemPath>
             </dependency>
         </dependencies>
     </dependencyManagement>

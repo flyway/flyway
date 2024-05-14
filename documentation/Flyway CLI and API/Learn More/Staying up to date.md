@@ -29,7 +29,7 @@ It's important to note that while upgrading to the latest version offers numerou
 You can download the latest version of Flyway here:
 <br />
 
-<a style="text-decoration: none; background: rgb(204,0,0); padding: 6px 40px; border-radius: 10px; color: white; font-weight: bold;" href="https://flywaydb.org/download?ref=staying-up-to-date">
+<a style="text-decoration: none; background: rgb(204,0,0); padding: 6px 40px; border-radius: 10px; color: white; font-weight: bold;" href="https://www.red-gate.com/products/flyway/community/download/">
   Download
 </a>
 
@@ -37,6 +37,6 @@ You can download the latest version of Flyway here:
 
 While you're updating, why not try the free trial of Flyway Teams Edition?
 
-<a style="text-decoration: none; background: rgb(204,0,0); padding: 6px 40px; border-radius: 10px; color: white; font-weight: bold;" href="https://flywaydb.org/try-flyway-teams-edition?ref=staying-up-to-date">
+<a style="text-decoration: none; background: rgb(204,0,0); padding: 6px 40px; border-radius: 10px; color: white; font-weight: bold;" href="https://www.red-gate.com/products/flyway/teams/trial/">
   Learn more about Flyway Teams
 </a>

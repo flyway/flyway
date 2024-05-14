@@ -254,6 +254,7 @@
                 <include>org.flywaydb:flyway-database-yugabytedb</include>
                 <include>org.flywaydb:flyway-database-clickhouse</include>
                 <include>org.flywaydb:flyway-database-oceanbase</include>
+                <include>org.flywaydb:flyway-database-databricks</include>
             </includes>
         </dependencySet>
         <dependencySet>

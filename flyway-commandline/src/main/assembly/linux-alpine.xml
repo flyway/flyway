@@ -30,7 +30,7 @@
     </componentDescriptors>
     <fileSets>
         <fileSet>
-            <directory>target/dependency/jre-linux-alpine-x64-tar.gz/jdk-${jre.version}+1-jre</directory>
+            <directory>target/dependency/jre-linux-alpine-x64-tar.gz/jdk-${jre.version}+9-jre</directory>
             <outputDirectory>jre</outputDirectory>
             <fileMode>755</fileMode>
         </fileSet>

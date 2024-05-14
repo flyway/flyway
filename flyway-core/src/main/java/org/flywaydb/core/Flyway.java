@@ -19,6 +19,10 @@
  */
 package org.flywaydb.core;
 
+import static org.flywaydb.core.experimental.ExperimentalModeUtils.canUseExperimentalMode;
+import static org.flywaydb.core.experimental.ExperimentalModeUtils.isExperimentalModeActivated;
+
+import java.util.Optional;
 import lombok.CustomLog;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -36,6 +40,7 @@ import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.extensibility.ConfigurationExtension;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.extensibility.LicenseGuard;
+import org.flywaydb.core.extensibility.VerbExtension;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.command.*;
 import org.flywaydb.core.internal.command.clean.DbClean;
@@ -226,7 +231,12 @@ public class Flyway {
      * @throws FlywayException when the info retrieval failed.
      */
     public MigrationInfoService info() {
-
+        if (isExperimentalModeActivated() && canUseExperimentalMode(configuration)) {
+            final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("info")).findFirst();
+            if (verb.isPresent()) {
+                return (MigrationInfoService) verb.get().executeVerb();
+            }
+        }
         return flywayExecutor.execute((migrationResolver, schemaHistory, database, defaultSchema, schemas, callbackExecutor, statementInterceptor) -> {
             MigrationInfoService migrationInfoService = new DbInfo(migrationResolver, schemaHistory, configuration, database, callbackExecutor, schemas).info();
 

@@ -9,6 +9,40 @@
 <div class="col-md-9">
 
 <div class="release">
+        <h2 id="10.13.0">Flyway 10.13.0 (2024-05-14)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Flyway should only send qualified migration files to code analysis when no url is configured rather than all the '.sql' files</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Improve the code analysis major/minor rule violation error output</li>
+            <li>the default Code Analysis Rule RX001 won't require the 'drop table' statement to appear at the start of a SQL statement</li>
+            <li>Updated wording on Drift Report</li>
+            <li>Flyway won't print out the whole sql statement responsible for a migration failure unless debug mode enabled</li>
+            <li>If Cherry Pick is configured in OSS or Community Edition, Flyway will give 'upgrade required' prompt</li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>Added support for [databricks](https://documentation.red-gate.com/flyway/flyway-cli-and-api/supported-databases/databricks) in Flyway - thanks to the community for the contribution</li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>add `outputProgress` support to legacy (conf) projects</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>Use Temurin 17.0.11+9 JRE for Flyway Command Line</li>
+        </ul>
+
+    </div>
+
+<div class="release">
         <h2 id="10.12.0">Flyway 10.12.0 (2024-04-29)</h2>
 
         <h3>Bug fixes</h3>

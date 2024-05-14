@@ -19,3 +19,4 @@ org.flywaydb.core.api.migration.baseline.BaselineMigrationResolver
 org.flywaydb.core.api.migration.baseline.BaselineResourceTypeProvider
 org.flywaydb.core.internal.proprietaryStubs.LicensingConfigurationExtensionStub
 org.flywaydb.core.internal.proprietaryStubs.AuthCommandExtensionStub
+org.flywaydb.core.internal.publishing.PublishingConfigurationExtension

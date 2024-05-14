@@ -58,7 +58,7 @@ The file name will be used as the source of rule metadata:
 
 ## File location
 
-See the [check.rulesLocation](Configuration/Parameters/Flyway/Check/Rules Location) parameter
+See the [check.rulesLocation](Configuration/Parameters/Flyway/Check/Rules Location) parameter for setting where rules are read from.
 
 # Running the rules
 When you run `./flyway check -code` all regex rules will be run

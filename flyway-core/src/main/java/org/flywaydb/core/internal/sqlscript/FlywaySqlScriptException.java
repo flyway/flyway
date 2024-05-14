@@ -19,6 +19,7 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
+import lombok.CustomLog;
 import lombok.Getter;
 import org.flywaydb.core.api.resource.Resource;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
@@ -28,6 +29,7 @@ import java.sql.SQLException;
 /**
  * This specific exception thrown when Flyway encounters a problem in SQL script
  */
+@CustomLog
 public class FlywaySqlScriptException extends FlywaySqlException {
     /**
      * @return The resource containing the failed statement.
@@ -36,6 +38,8 @@ public class FlywaySqlScriptException extends FlywaySqlException {
     private final Resource resource;
 
     private final SqlStatement statement;
+
+    private static final String STATEMENT_MESSAGE = "Run Flyway with -X option to see the actual statement causing the problem";
 
     /**
      * Creates new instance of FlywaySqlScriptException.
@@ -76,7 +80,7 @@ public class FlywaySqlScriptException extends FlywaySqlException {
         }
         if (statement != null) {
             message += "Line       : " + getLineNumber() + "\n";
-            message += "Statement  : " + getStatement() + "\n";
+            message += "Statement  : " + (LOG.isDebugEnabled() ? getStatement() : STATEMENT_MESSAGE) + "\n";
         }
         return message;
     }

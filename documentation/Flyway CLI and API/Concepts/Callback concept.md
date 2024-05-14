@@ -301,6 +301,10 @@ beforeConnect__a.sql
 beforeConnect__b.sql
 ```
 
+## Notes
+
+It is strongly discouraged to include any write-related callbacks for the Info command. The Info command may be internally triggered by Flyway.
+
 ## Tutorial
 
 Click [here](Tutorials/Tutorial Callbacks) to see a tutorial on using callbacks.

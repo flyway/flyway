@@ -14,7 +14,7 @@ subtitle: Aurora MySQL
 | Item                               | Details                                                                                                |
 |------------------------------------|--------------------------------------------------------------------------------------------------------|
 | **URL format**                     | <code>jdbc:mysql://<i>instance</i>.<i>region</i>.rds.amazonaws.com:<i>port</i>/<i>database?usePipelineAuth=false&useBatchMultiSend=false</i></code> |
-| **URL format**                     | Yes - add `?useSsl=true`                                                                               |
+| **SSL support**                    | Yes - add `?useSsl=true`                                                                               |
 | **Ships with Flyway Command-line** | No                                                                                                    |
 | **Maven Central coordinates**      | `mysql:mysql-connector-java`                                                                           |
 | **Supported versions**             | `8.0.12` and later                                                                                     |
