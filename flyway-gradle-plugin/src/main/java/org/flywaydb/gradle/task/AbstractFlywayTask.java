@@ -19,6 +19,7 @@
  */
 package org.flywaydb.gradle.task;
 
+import javax.inject.Inject;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
@@ -30,6 +31,7 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.artifacts.ResolvedArtifact;
 import org.gradle.api.artifacts.ResolvedConfiguration;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetOutput;
@@ -65,6 +67,9 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * The flyway {} block in the build script.
      */
     protected FlywayExtension extension;
+
+    @Inject
+    protected abstract ProjectLayout getProjectLayout();
 
     /**
      * The fully qualified classname of the JDBC driver to use to connect to the database.
@@ -840,7 +845,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
             return new File(workingDirectory);
         }
 
-        return new File(getProject().getProjectDir().getAbsolutePath());
+        return getProjectLayout().getProjectDirectory().getAsFile();
     }
 
     /**
