@@ -20,7 +20,7 @@ These error codes may appear from any command, and are indicative of more genera
 
 ### `JDBC_DRIVER`
 - **Caused by:** The JDBC driver is unable to be instantiated
-- **Solution:** Check whether the JDBC driver is present on the [classpath](/Adding to the classpath)
+- **Solution:** Check whether the JDBC driver is present on the [classpath](<Usage/Adding to the classpath>)
 
 ### `DB_CONNECTION`
 - **Caused by:** Issues in SQL statements reported by the JDBC driver

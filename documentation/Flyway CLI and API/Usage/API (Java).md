@@ -75,11 +75,11 @@ dependencies {
     </tr>
 </table>
 
+<p class="note">
 Please note, the `groupId` changed at Flyway V10.0.0 from `org.flywaydb.enterprise` to `com.redgate.flyway`
 
-For older versions see <a href="/Accessing Older Versions of Flyway">Accessing Older Versions of Flyway</a>
-
-
+For older versions see [Accessing Older Versions of Flyway](https://documentation.red-gate.com/fd/accessing-older-versions-of-flyway-184128789.html)
+</p>
 
 ### Open Source Edition
 <table class="table">

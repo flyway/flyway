@@ -10,6 +10,7 @@ redirect_from: Configuration/workingDirectory/
 The working directory to consider when dealing with relative paths. If configured, this parameter will affect the below areas:
 - Looking for the default [migration locations](Configuration/Parameters/Flyway/Locations) folder.
 - Looking for the default [jars](<Configuration/Parameters/Flyway/Jar Dirs>) folder.
+- Looking for the default [Rules Location](<Configuration/Parameters/Flyway/Check/Rules Location>) folder.
 - Looking for default [Configuration Files](<Configuration/Configuration Files>).
 - The [`locations`](Configuration/Parameters/Flyway/Locations) parameter
 - The [`jarDirs`](<Configuration/Parameters/Flyway/Jar Dirs>) parameter
@@ -20,6 +21,7 @@ The working directory to consider when dealing with relative paths. If configure
 - The [`deployedSnapshot`](<Configuration/Parameters/Flyway/Check/Deployed Snapshot>) parameter
 - The [`nextSnapshot`](<Configuration/Parameters/Flyway/Check/Next Snapshot>) parameter
 - The [`filterFile`](<Configuration/Parameters/Flyway/Check/Filter File>) parameter
+- The [`rulesLocation`](<Configuration/Parameters/Flyway/Check/Rules Location>) parameter
 
 ## Default
 <i>empty</i>

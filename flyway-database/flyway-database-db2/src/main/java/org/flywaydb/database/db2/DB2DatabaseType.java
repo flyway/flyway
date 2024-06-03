@@ -58,7 +58,7 @@ public class DB2DatabaseType extends BaseDatabaseType {
 
     @Override
     public boolean handlesDatabaseProductNameAndVersion(String databaseProductName, String databaseProductVersion, Connection connection) {
-        return databaseProductName.startsWith("DB2");
+        return databaseProductName.startsWith("DB2") && !databaseProductVersion.startsWith("DSN");
     }
 
     @Override

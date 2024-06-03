@@ -15,10 +15,10 @@ This can be used in the TOML configuration like this:
 [environments.development]
 url = "jdbc:sqlserver://mfa-testing.database.windows.net:1433;databaseName=MyDatabase"
 
-[environments.developemnt.jdbcProperties]
+[environments.development.jdbcProperties]
 accessToken = "${azureAdInteractive.token}"
 
-[environments.developemnt.resolvers.azureAdInteractive]
+[environments.development.resolvers.azureAdInteractive]
 tenantId = "{some GUID}"
 clientId = "{some other GUID}"
 ```

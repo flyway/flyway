@@ -15,15 +15,15 @@ subtitle: Databricks
 |-------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **URL format**                            | <code>jdbc:databricks://<i>host</i>:<i>port</i><i>/default;transportMode=http;ssl=1;httpPath=path;EnableArrow=0;AuthMech=3;UID=token;PWD=personal-access-token</i></code> |
 | **SSL support**                           | Not tested                                                                                                                                                                |
-| **Ships with Flyway Command-line**        | No                                                                                                                                                                        |
-| **JDBC driver download for Command-line** | [Databricks JDBC Drivers](https://www.databricks.com/spark/jdbc-drivers-download)                                                                                         |
+| **Ships with Flyway Command-line**        | Yes                                                                                                                                                                       |
 | **Maven Central coordinates**             | `com.databricks:databricks-jdbc`                                                                                                                                          |
 | **Supported versions**                    | `N/A`                                                                                                                                                                     |
 | **Default Java class**                    | `com.databricks.client.jdbc.Driver`                                                                                                                                       |
 
 ## Java Usage
 
-Clickhouse support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
+Databricks support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
+
 
 ### Maven
 

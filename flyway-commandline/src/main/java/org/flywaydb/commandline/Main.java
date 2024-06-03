@@ -300,6 +300,8 @@ public class Main {
         }
 
         if (configuration.getPluginRegister().getPlugin(PublishingConfigurationExtension.class).isPublishResult()){
+            LOG.warn("flyway.publishResult is enabled. This feature is experimental in the version of flyway "
+                   + "you're currently using. Please upgrade to the latest version.");
             publishOperationResult(configuration, result);
         }
 

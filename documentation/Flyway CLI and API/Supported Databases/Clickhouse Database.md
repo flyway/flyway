@@ -51,5 +51,5 @@ dependencies {
 ## Compression
 
 By default, Clickhouse uses LZ4 compression. 
-This requires [`lz4-java`](https://github.com/lz4/lz4-java) which needs to be [added to the classpath](Adding To The Classpath). 
+This requires [`lz4-java`](https://github.com/lz4/lz4-java) which needs to be [added to the classpath](<Usage/Adding to the classpath>). 
 Alternatively, you can use a different algorithm by setting the `compress_algorithm` [JDBC property](Configuration/Parameters/Environments/JDBC Properties), or disable it by setting `compress` to false.

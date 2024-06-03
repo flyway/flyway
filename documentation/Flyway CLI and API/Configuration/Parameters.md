@@ -14,12 +14,12 @@ subtitle: placeholder page
 
 ### General
 
-- [batch](configuration/parameters/flyway/batch) {% include teams.html %}
+- [batch](configuration/parameters/flyway/batch)
 - [callbacks](configuration/parameters/flyway/callbacks)
 - [cherryPick](configuration/parameters/flyway/Cherry Pick) {% include teams.html %}
 - [configFileEncoding](configuration/parameters/flyway/Config File Encoding)
 - [configFiles](configuration/parameters/flyway/Config Files)
-- [detectEncoding](configuration/parameters/flyway/Detect Encoding) {% include teams.html %}
+- [detectEncoding](configuration/parameters/flyway/Detect Encoding)
 - [dryRunOutput](configuration/parameters/flyway/Dry Run Output) {% include teams.html %}
 - [encoding](configuration/parameters/flyway/encoding)
 - [environment](configuration/parameters/flyway/environment)
@@ -36,12 +36,12 @@ subtitle: placeholder page
 - [loggers](configuration/parameters/flyway/loggers)
 - [mixed](configuration/parameters/flyway/mixed)
 - [outOfOrder](configuration/parameters/flyway/Out Of Order)
-- [outputQueryResults](configuration/parameters/flyway/Output Query Results) {% include teams.html %}
+- [outputQueryResults](configuration/parameters/flyway/Output Query Results)
 - [reportFilename](configuration/parameters/flyway/Report Filename)
 - [skipDefaultCallbacks](configuration/parameters/flyway/Skip Default Callbacks)
 - [skipDefaultResolvers](configuration/parameters/flyway/Skip Default Resolvers)
-- [skipExecutingMigrations](configuration/parameters/flyway/Skip Executing Migrations) {% include teams.html %}
-- [stream](configuration/parameters/flyway/stream) {% include teams.html %}
+- [skipExecutingMigrations](configuration/parameters/flyway/Skip Executing Migrations)
+- [stream](configuration/parameters/flyway/stream)
 - [table](configuration/parameters/flyway/table)
 - [tablespace](configuration/parameters/flyway/tablespace)
 - [target](configuration/parameters/flyway/target)
@@ -78,16 +78,16 @@ subtitle: placeholder page
 - [sqlMigrationSeparator](configuration/parameters/flyway/SQL Migration Separator)
 - [sqlMigrationSuffixes](configuration/parameters/flyway/SQL Migration Suffixes)
 - [undoSqlMigrationPrefix](configuration/parameters/flyway/Undo SQL Migration Prefix) {% include teams.html %}
-- [baselineMigrationPrefix](configuration/parameters/flyway/Baseline Migration Prefix) {% include teams.html %}
+- [baselineMigrationPrefix](configuration/parameters/flyway/Baseline Migration Prefix)
 
 ### Placeholders
 - [placeholderPrefix](configuration/parameters/flyway/Placeholder Prefix)
-- [scriptPlaceholderPrefix](configuration/parameters/flyway/Script Placeholder Prefix) {% include teams.html %}
+- [scriptPlaceholderPrefix](configuration/parameters/flyway/Script Placeholder Prefix)
 - [placeholderReplacement](configuration/parameters/flyway/Placeholder Replacement)
 - [placeholders](configuration/parameters/flyway/placeholders)
 - [placeholderSeparator](configuration/parameters/flyway/Placeholder Separator)
 - [placeholderSuffix](configuration/parameters/flyway/Placeholder Suffix)
-- [scriptPlaceholderSuffix](configuration/parameters/flyway/Script Placeholder Suffix) {% include teams.html %}
+- [scriptPlaceholderSuffix](configuration/parameters/flyway/Script Placeholder Suffix)
 
 ### Command Line
 - [color](configuration/parameters/flyway/Color)
@@ -118,7 +118,8 @@ subtitle: placeholder page
 - [postgresqlTransactionalLock](configuration/parameters/flyway/PostgreSQL Transactional Lock)
 
 ### SQL Server
-- [sqlServerKerberosLoginFile](configuration/parameters/flyway/SQL Server Kerberos Login File) {% include teams.html %}
+- [sqlServerKerberosLoginFile](configuration/parameters/flyway/SQL Server/SQL Server Kerberos Login File) {% include teams.html %}
+- [sqlServer Clean Mode](<configuration/parameters/flyway/SQL Server/SQL Server Clean Mode>)
 
 ### Secrets Management - Dapr Secret Store
 - [daprUrl](configuration/parameters/flyway/Dapr URL) {% include enterprise.html %}

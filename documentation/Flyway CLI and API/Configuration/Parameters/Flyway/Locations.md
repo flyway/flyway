@@ -13,7 +13,7 @@ For commandline usage, we recommend storing migrations in a separate folder to y
 This makes upgrading easier, as the whole installation folder can be deleted and overwritten without affecting migrations.
 
 ### Classpath
-Unprefixed locations or locations starting with <code>classpath:</code> point to a package on the classpath and may contain both SQL and Java-based migrations. You must ensure the package is available on the classpath (see [Adding to the classpath](/Adding to the classpath)).
+Unprefixed locations or locations starting with <code>classpath:</code> point to a package on the classpath and may contain both SQL and Java-based migrations. You must ensure the package is available on the classpath (see [Adding to the classpath](<Usage/Adding to the classpath>)).
 
 ### Filesystem
 Locations starting with <code>filesystem:</code> point to a directory on the filesystem, may only contain SQL migrations and are only scanned recursively down non-hidden directories.

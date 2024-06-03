@@ -22,14 +22,14 @@ subtitle: Derby
 | **Default Java class**             | `org.apache.derby.jdbc.EmbeddedDriver`                           |
 
 ## CLI Usage - installing support
-If you want to connect to e Derby database you will first need to download the driver that is compatible with Java 17 from the [Derby download page](https://db.apache.org/derby/derby_downloads.html)
+If you want to connect to a Derby database you will first need to download the driver that is compatible with Java 17 from the [Derby download page](https://db.apache.org/derby/derby_downloads.html)
 Unpack and place the following files in a location Flyway can find:
 * `derby-<verion>.jar`
 * `derbyclient-<verion>.jar`
 * `derbyshared-<verion>.jar`
 * `derbytools-<verion>.jar`
 
-The location needs to be on the [Flyway classpath](<Adding to the classpath>), we would recommend using the 
+The location needs to be on the [Flyway classpath](<Usage/Adding to the classpath>), we would recommend using the 
 [jarDirs](<Configuration/Parameters/Flyway/Jar Dirs>) parameter, if you keep these libraries outside your Flyway installation
 then it will make future updates easier.
 

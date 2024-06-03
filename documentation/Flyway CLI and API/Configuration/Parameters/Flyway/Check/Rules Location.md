@@ -16,13 +16,13 @@ Be aware that this is will be the only place Flyway looks for rules so if you wa
 
 also see:
 - [Code Analysis Rules](Usage/Code Analysis Rules)
-- [Creating Regular Expression](Learn More/Creating Regular Expression Rules)
+- [Creating Regular Expression](Configuration/Creating Regular Expression Rules)
 
 __Note:__ Flyway will only look in the default or specified locations for rules and won't traverse sub-folders.
 
 ## Default
 
-By default, the rules are located in the /rules folder of your flyway release
+By default, the rules are located in the /rules folder of your Flyway installation path
 
 ## Usage
 

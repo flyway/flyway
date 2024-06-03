@@ -165,13 +165,23 @@ public class ClassicConfiguration implements Configuration {
             );
         }
 
-        if (!resolvedEnvironments.containsKey(envName) && getModernConfig().getEnvironments().containsKey(envName)) {
-            EnvironmentModel unresolved = getModernConfig().getEnvironments().get(envName);
-            ResolvedEnvironment resolved = environmentResolver.resolve(envName, unresolved, provisionerMode, this, progress == null ? createProgress("environment") : progress);
-            resolvedEnvironments.put(envName, resolved);
+        ResolvedEnvironment cachedEnvironment = resolvedEnvironments.get(envName);
+        if(cachedEnvironment != null && !provisionerMode.isHigherPriorityThan(cachedEnvironment.getProvisionerMode())) {
+            return resolvedEnvironments.get(envName);
         }
 
-        return resolvedEnvironments.get(envName);
+        if (!getModernConfig().getEnvironments().containsKey(envName)) {
+            return null;
+        }
+
+        if (dataSources.containsKey(envName) && dataSources.get(envName).isDataSourceGenerated()) {
+            dataSources.remove(envName);
+        }
+
+        EnvironmentModel unresolved = getModernConfig().getEnvironments().get(envName);
+        ResolvedEnvironment resolved = environmentResolver.resolve(envName, unresolved, provisionerMode, this, progress == null ? createProgress("environment") : progress);
+        resolvedEnvironments.put(envName, resolved);
+        return resolved;
     }
 
     private FlywayModel getModernFlyway() {
@@ -1902,7 +1912,7 @@ public class ClassicConfiguration implements Configuration {
         requestResolvedEnvironmentRefresh(getCurrentEnvironmentName());
     }
 
-    private void requestResolvedEnvironmentRefresh(String environmentName) {
+    public void requestResolvedEnvironmentRefresh(String environmentName) {
         resolvedEnvironments.remove(environmentName);
 
         DataSourceModel model = dataSources.get(environmentName);

@@ -11,7 +11,7 @@ The fully qualified class name of the jdbc driver to use to connect to the datab
 
 This must match the driver for the database type in the [url](Configuration/parameters/environments/url) you are using.
 
-If you use a driver class that is not shipped with Flyway, you must ensure that it is available on the classpath (see [Adding to the classpath](/Adding to the classpath)).
+If you use a driver class that is not shipped with Flyway, you must ensure that it is available on the classpath (see [Adding to the classpath](<Usage/Adding to the classpath>)).
 
 ## Default
 Auto-detected based on the url

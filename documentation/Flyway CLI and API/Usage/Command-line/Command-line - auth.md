@@ -10,6 +10,8 @@ Authorizes Flyway to use either Teams or Enterprise Edition.
 
 <pre class="console"><span>&gt;</span> flyway auth -IAgreeToTheEula</pre>
 
+By using this option you consent to the [Redgate EULA](https://www.red-gate.com/eula)
+
 ## Sample output
 <pre class="console">&gt; flyway auth -IAgreeToTheEula
 

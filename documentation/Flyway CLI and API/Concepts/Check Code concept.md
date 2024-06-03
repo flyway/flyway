@@ -45,7 +45,7 @@ You can find more information on configuration in the [SQLFLuff documentation](h
 ### Configuring Regular Expression rules
 
 Customers can easily craft their own custom rules or take advantage of the set of rules Flyway provides:
-- [Creating Regular Expression Rules](<Learn More/Creating Regular Expression Rules>)
+- [Creating Regular Expression Rules](<Configuration/Creating Regular Expression Rules>)
 - [Code Analysis Rules](<Usage/Code Analysis Rules>)
 
 

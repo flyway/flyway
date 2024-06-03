@@ -76,7 +76,6 @@ Now that you are using the Teams / Enterprise edition of Flyway, you can take ad
 - Begin storing your migrations in cloud storage such as [Amazon S3](Configuration/parameters/flyway/locations#amazon-s3) or [Google Cloud Storage](Configuration/parameters/flyway/locations#google-cloud-storage).
 - Begin writing migrations in languages other than SQL and Java using [script migrations](Concepts/migrations#script-migrations).
 - Preview your deployments, or execute them outside of Flyway using [Dry Runs](Concepts/Dry Runs).
-- Optimise the execution of migrations using [batching](Configuration/parameters/flyway/batch) or [streaming](Configuration/parameters/flyway/stream).
 - Gain more control over your deployments by [cherry picking](Configuration/Parameters/Flyway/Cherry Pick) which migrations to execute.
 - Apply migrations manually outside of Flyway but update the schema history using [mark as applied](Configuration/Parameters/Flyway/Skip Executing Migrations).
 - Leverage the power of [Oracle SQL*Plus](Supported Databases/oracle database#sqlplus-commands) in your migrations.

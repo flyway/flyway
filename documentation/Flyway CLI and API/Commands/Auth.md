@@ -27,7 +27,7 @@ You can find the `Flyway CLI` directory here: `~/.config/Redgate/Flyway CLI`.
 
 | Parameter             | Edition            |  Description
 |-----------------------|--------------------| -----------------------------------------------------
-| -IAgreeToTheEula      | All                | Mandatory for `auth` to run
+| -IAgreeToTheEula      | All                | (Mandatory) By using this option you consent to the [Redgate EULA](https://www.red-gate.com/eula)
 | -logout               | All                | Logs a user out of their authorized session of Flyway
 | -startTeamsTrial      | All                | Starts a Teams trial
 | -startEnterpriseTrial | All                | Starts an Enterprise trial

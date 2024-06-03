@@ -55,9 +55,9 @@ public class CommandResultFactory {
                 allSchemasEmpty);
     }
 
-    public static MigrateResult createMigrateResult(String databaseName, Configuration configuration) {
+    public static MigrateResult createMigrateResult(String databaseName, String databaseType, Configuration configuration) {
         String flywayVersion = VersionPrinter.getVersion();
-        return new MigrateResult(flywayVersion, databaseName, String.join(", ", configuration.getSchemas()));
+        return new MigrateResult(flywayVersion, databaseName, String.join(", ", configuration.getSchemas()), databaseType);
     }
 
     public static CleanResult createCleanResult(String databaseName) {

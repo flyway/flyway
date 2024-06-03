@@ -1,4 +1,5 @@
 Clickhouse
+Databricks
 [Ii]nformix
 keyspace
 (?i)MariaDB

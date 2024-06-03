@@ -9,6 +9,22 @@
 <div class="col-md-9">
 
 <div class="release">
+        <h2 id="10.14.0">Flyway 10.14.0 (2024-06-03)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Flyway no longer makes repeated calls to the same Vault secret. This allows using dynamic roles from the Vault database engine.</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Flyway will not auto-install SQLFluff 1.2.1 for Enterprise customers when running code analysis</li>
+            <li>The 'Rules Location' parameter of Flyway Check command will now honor 'workingDirectory' configuration</li>
+        </ul>
+
+    </div>
+
+<div class="release">
         <h2 id="10.13.0">Flyway 10.13.0 (2024-05-14)</h2>
 
         <h3>Bug fixes</h3>
@@ -27,7 +43,7 @@
 
         <h3>Database compatibility</h3>
         <ul>
-            <li>Added support for [databricks](https://documentation.red-gate.com/flyway/flyway-cli-and-api/supported-databases/databricks) in Flyway - thanks to the community for the contribution</li>
+            <li>Added support for <a href="https://documentation.red-gate.com/flyway/flyway-cli-and-api/supported-databases/databricks">Databricks</a> in Flyway - thanks to the community for the contribution</li>
         </ul>
 
         <h3>New features</h3>

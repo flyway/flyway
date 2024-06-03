@@ -40,7 +40,7 @@ By downloading Flyway Community Gradle Plugin you confirm that you have read and
 </table>
 
 <p class="note">
-  For older versions see <a href="/Accessing Older Versions of Flyway">Accessing Older Versions of Flyway</a>
+    For older versions see [Accessing Older Versions of Flyway](https://documentation.red-gate.com/fd/accessing-older-versions-of-flyway-184128789.html)
 </p>
 
 ### Open Source Edition

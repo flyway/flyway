@@ -88,8 +88,10 @@ public class DbMigrate {
      */
     public MigrateResult migrate() throws FlywayException {
         callbackExecutor.onMigrateOrUndoEvent(Event.BEFORE_MIGRATE);
-
-        migrateResult = CommandResultFactory.createMigrateResult(database.getCatalog(), configuration);
+        
+        migrateResult = CommandResultFactory.createMigrateResult(database.getCatalog(), 
+                                                                 database.getDatabaseType().getName(),
+                                                                 configuration);
 
         int count;
         try {

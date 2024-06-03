@@ -27,6 +27,7 @@ LF
 [Mm]aven
 -maven
 maven-
+OSGi
 (?i)Powershell
 [Rr]edgate
 redgate.html

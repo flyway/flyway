@@ -46,8 +46,10 @@ example, to configure a [Hashicorp Vault](Configuration/Property Resolvers/Vault
 
 ```toml
 [environments.development.resolvers.vault]
-url = "test"
-token = "test"
+url = "http://localhost:8200/v1"
+token = "abc.1234567890"
+engineName = "secret"
+engineVersion = "v2"
 ```
 
 If configuration of a resolver requires a parameter from another resolver, you must configure the dependent resolver first.
@@ -58,8 +60,10 @@ For instance, if the `token` configuration for Vault comes from a [Dapr](Configu
 url = "daprUrl"
 
 [environments.development.resolvers.vault]
-url = "vaultUrl"
+url = "http://localhost:8200/v1"
 token = "${dapr.vault-token}"
+engineName = "secret"
+engineVersion = "v2"
 ```
 
 

@@ -630,6 +630,7 @@ public interface Configuration {
 
     /**
      * Get the Database type determined by the URL or Datasource
+     * If there are multiple matching DatabaseTypes for the URL, the first candidate will be returned.
      */
     DatabaseType getDatabaseType();
 

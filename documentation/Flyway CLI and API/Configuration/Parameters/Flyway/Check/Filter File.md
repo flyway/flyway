@@ -11,7 +11,7 @@ subtitle: flyway.check.filterFile
 ## Description
 A filter configuration can be passed through to the underlying comparison engine that will be used in change and drift reports.
 
-See [Filters & Ignore Rules](https://documentation.red-gate.com/flyway/database-development-using-flyway-desktop/configuring-comparisons-and-script-generations/filters-ignore-rules) for how to generate these in Flyway Desktop.
+See [Filters & Ignore Rules](https://documentation.red-gate.com/flyway/database-development-using-flyway/database-development-using-flyway-desktop/configuring-comparisons-and-script-generations/filters-ignore-rules) for how to generate these in Flyway Desktop.
 
 ## Default
 Flyway will identify and use filter files with specific names - no additional configuration is required through the `filterFile` parameter if you adhere to these names.

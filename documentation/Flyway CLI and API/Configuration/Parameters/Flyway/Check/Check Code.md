@@ -28,7 +28,7 @@ If you want to explicitly specify where Flyway should look for rules then the [`
 {% include enterprise.html %}
 
 Customers can easily craft their own custom rules or take advantage of the set of rules Flyway provides:
-- [Creating Regular Expression Rules](<Learn More/Creating Regular Expression Rules>)
+- [Creating Regular Expression Rules](<Configuration/Creating Regular Expression Rules>)
 - [Code Analysis Rules](<Usage/Code Analysis Rules>)
 
 ### Feature:Failing on Rule Violations

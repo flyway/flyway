@@ -24,6 +24,7 @@ import lombok.Setter;
 
 import java.util.List;
 import java.util.Map;
+import org.flywaydb.core.internal.configuration.resolvers.ProvisionerMode;
 
 @Getter
 @Setter
@@ -39,6 +40,7 @@ public class ResolvedEnvironment {
     private Integer connectRetriesInterval;
     private String initSql;
     private Map<String, String> jdbcProperties;
+    private ProvisionerMode provisionerMode;
 
     public EnvironmentModel toEnvironmentModel() {
         EnvironmentModel result = new EnvironmentModel();

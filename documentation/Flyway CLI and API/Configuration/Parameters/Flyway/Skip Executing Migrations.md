@@ -5,7 +5,6 @@ redirect_from: Configuration/skipExecutingMigrations/
 ---
 
 # Skip Executing Migrations
-{% include redgate.html %}
 
 ## Description
 Whether Flyway should skip migration execution. The remainder of the operation will run as normal - including updating the schema history table, callbacks, etc.

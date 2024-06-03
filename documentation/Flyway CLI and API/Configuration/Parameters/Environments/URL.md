@@ -9,7 +9,7 @@ redirect_from: Configuration/url/
 ## Description
 The jdbc url to use to connect to the database.
 
-Note: Only certain jdbc drivers are packaged with flyway. If your driver is not packaged, then you need to ensure it is available on the classpath (see [Adding to the classpath](/Adding to the classpath)).
+Note: Only certain jdbc drivers are packaged with flyway. If your driver is not packaged, then you need to ensure it is available on the classpath (see [Adding to the classpath](<Usage/Adding to the classpath>)).
 
 ## Usage
 

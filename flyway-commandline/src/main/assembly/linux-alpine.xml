@@ -43,6 +43,14 @@
             </includes>
             <fileMode>755</fileMode>
         </fileSet>
+        <fileSet>
+            <directory>../flyway-comparison-engines/src/main/resources/flyway-comparison/linux-musl-x64</directory>
+            <outputDirectory>lib/flyway-comparison</outputDirectory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+            <fileMode>755</fileMode>
+        </fileSet>
         <!-- [/teams] -->
     </fileSets>
 </assembly>

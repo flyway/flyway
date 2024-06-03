@@ -460,7 +460,6 @@ the need to visually inspect the result of SQL queries.
 There are however some scenarios where such manual inspection makes sense, and therefore Flyway will display query results in the usual tabular form when a `SELECT` statement (or any other statement that returns results) is executed.
 
 ### Toggling query results
-{% include teams.html %}
 
 To prevent Flyway from displaying query results, set the configuration option [`outputQueryResults`](Configuration/Parameters/Flyway/Output Query Results) to `false`.
 

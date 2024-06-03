@@ -101,7 +101,7 @@ public class JsonUtils {
         return existingObject;
     }
 
-    public static Object parseJsonArray(String json) {
+    public static JsonArray parseJsonArray(String json) {
         return JsonParser.parseString(json).getAsJsonArray();
     }
 

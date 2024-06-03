@@ -35,16 +35,19 @@ public class MigrateResult extends HtmlResult {
     public String flywayVersion;
     public String database;
     public List<String> warnings = new ArrayList<>();
+    public String databaseType;
 
     public MigrateResult(String flywayVersion,
                          String database,
-                         String schemaName) {
+                         String schemaName,
+                         String databaseType) {
         super(LocalDateTime.now(), COMMAND);
         this.flywayVersion = flywayVersion;
         this.database = database;
         this.schemaName = schemaName;
         this.migrations = new ArrayList<>();
         this.success = true;
+        this.databaseType = databaseType;
     }
 
     MigrateResult(MigrateResult migrateResult) {
@@ -58,6 +61,7 @@ public class MigrateResult extends HtmlResult {
         this.initialSchemaVersion = migrateResult.initialSchemaVersion;
         this.targetSchemaVersion = migrateResult.targetSchemaVersion;
         this.warnings = migrateResult.warnings;
+        this.databaseType = migrateResult.databaseType;
     }
 
     public void addWarning(String warning) {
