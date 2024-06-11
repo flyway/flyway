@@ -22,6 +22,7 @@ package org.flywaydb.core.extensibility;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
 import org.flywaydb.core.internal.license.FlywayPermit;
 
@@ -38,6 +39,16 @@ import java.util.concurrent.atomic.AtomicReference;
 @CustomLog
 @ExtensionMethod(Tier.class)
 public class LicenseGuard {
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -81,6 +92,9 @@ public class LicenseGuard {
 
         return false;
     }
+
+
+
 
 
 

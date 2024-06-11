@@ -9,6 +9,38 @@
 <div class="col-md-9">
 
 <div class="release">
+        <h2 id="10.15.0">Flyway 10.15.0 (2024-06-11)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fixed bug where certain keywords in BigQuery and HSQL were not handled correctly when in lower case.</li>
+            <li>Fix a bug where `targetSchemaVersion` is not set in API & JSON result objects when `migrate` fails, or no versioned migrations are applied</li>
+            <li>Fix the bug preventing users from initiating a trial using the "auth" command</li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3900">Issue 3900</a>
+                Increase Cloud Spanner support to 2.18.1
+            </li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3905">Issue 3905</a>
+                Increase H2 support to 2.2.224
+            </li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>add file helpers</li>
+        </ul>
+
+        <p>
+            Thanks to credmond-git and BlueIce for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
         <h2 id="10.14.0">Flyway 10.14.0 (2024-06-03)</h2>
 
         <h3>Bug fixes</h3>

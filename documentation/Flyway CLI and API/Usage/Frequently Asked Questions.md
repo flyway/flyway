@@ -125,7 +125,7 @@ See [Placeholders](Configuration/parameters/Flyway/Placeholders) for more detail
 
 ## Does Flyway depend on Spring?
 <a name="spring"></a>
-No. Flyway has zero required dependences.
+Flyway does not depend on Spring.
 
 If you have Spring Jdbc on the classpath, Flyway will be able to load Java migrations making use of Spring\'s convenient JdbcTemplate class.
 

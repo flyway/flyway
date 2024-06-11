@@ -106,7 +106,7 @@ public class H2Database extends Database<H2Connection> {
     @Override
     public void ensureSupported(Configuration configuration) {
         ensureDatabaseIsRecentEnough("1.2.137");
-        recommendFlywayUpgradeIfNecessary("2.2.220");
+        recommendFlywayUpgradeIfNecessary("2.2.224");
         supportsDropSchemaCascade = getVersion().isAtLeast("1.4.200");
     }
 

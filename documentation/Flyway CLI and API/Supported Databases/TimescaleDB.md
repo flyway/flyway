@@ -24,7 +24,7 @@ subtitle: TimescaleDB
 ## Notes
 
 TimescaleDB is an extension to PostgreSQL and Flyway usage is the same for the two databases. For more details, 
-please refer to the [PostgreSQL](Supported Databases/postgresql) page.
+please refer to the [PostgreSQL](<Supported Databases/postgresql-database>) page.
 
 ## Limitations
 

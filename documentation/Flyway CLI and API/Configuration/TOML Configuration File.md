@@ -82,8 +82,7 @@ password = "mysecretpassword"
 
 ## Property Resolvers
 
-Configuration values can be retrieved from other sources, such as Hashicorp Vault, Google Secrets or Dapr, using property resolvers. 
-More information about property resolvers can be found [here](configuration/parameters/environments/resolver).
+Configuration values can be retrieved from other sources, such as Hashicorp Vault, Google Secrets or Dapr, using [Property Resolvers](configuration/property-resolvers). 
 
 ## Example of conf to TOML
 **flyway.conf**

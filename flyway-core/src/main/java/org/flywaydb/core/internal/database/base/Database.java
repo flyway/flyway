@@ -46,6 +46,9 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.List;
 
+import static org.flywaydb.core.internal.database.base.DatabaseConstants.DATABASE_HOSTING_AZURE_URL_IDENTIFIER;
+import static org.flywaydb.core.internal.database.base.DatabaseConstants.DATABASE_HOSTING_AZURE_VM;
+import static org.flywaydb.core.internal.database.base.DatabaseConstants.DATABASE_HOSTING_LOCAL;
 import static org.flywaydb.core.internal.util.FlywayDbWebsiteLinks.COMMUNITY_SUPPORT;
 
 /**
@@ -493,5 +496,13 @@ public abstract class Database<C extends Connection> implements Closeable {
 
     public Schema[] getAllSchemas() {
         throw new UnsupportedOperationException("Getting all schemas not supported for " + getDatabaseType().getName());
+    }
+
+    public String getDatabaseHosting() {
+        if (DATABASE_HOSTING_AZURE_URL_IDENTIFIER.matcher(configuration.getUrl()).find()) {
+            return DATABASE_HOSTING_AZURE_VM;
+        }
+
+        return DATABASE_HOSTING_LOCAL;
     }
 }

@@ -73,7 +73,7 @@ subtitle: placeholder page
 
 ### Migrations
 - [repeatableSqlMigrationPrefix](configuration/parameters/flyway/Repeatable SQL Migration Prefix)
-- [resolvers](configuration/parameters/environments/Resolver)
+- [resolvers](configuration/parameters/flyway/resolver)
 - [sqlMigrationPrefix](configuration/parameters/flyway/SQL Migration Prefix)
 - [sqlMigrationSeparator](configuration/parameters/flyway/SQL Migration Separator)
 - [sqlMigrationSuffixes](configuration/parameters/flyway/SQL Migration Suffixes)
@@ -115,7 +115,7 @@ subtitle: placeholder page
 - [oracleWalletLocation](configuration/parameters/flyway/oracle/Oracle Wallet Location) {% include teams.html %}
 
 ### PostgreSQL
-- [postgresqlTransactionalLock](configuration/parameters/flyway/PostgreSQL Transactional Lock)
+- [postgresqlTransactionalLock](<configuration/parameters/flyway/postgresql/postgresql-transactional-lock>)
 
 ### SQL Server
 - [sqlServerKerberosLoginFile](configuration/parameters/flyway/SQL Server/SQL Server Kerberos Login File) {% include teams.html %}

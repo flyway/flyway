@@ -17,18 +17,18 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.core.api.output;
+package org.flywaydb.core.internal.database.base;
 
-import lombok.AllArgsConstructor;
+import java.util.regex.Pattern;
 
-@AllArgsConstructor
-public class MigrateOutput {
-    public String category;
-    public String version;
-    public String description;
-    public String type;
-    public String filepath;
-    public int executionTime;
-    
-    public transient Boolean rolledBack;
+public class DatabaseConstants {
+
+    public static final Pattern DATABASE_HOSTING_AZURE_URL_IDENTIFIER = Pattern.compile(".+\\.azure\\.com");
+    public static final String DATABASE_HOSTING_AZURE_SQL_DATABASE = "azure-sql-database";
+    public static final String DATABASE_HOSTING_AZURE_SQL_MANAGED_INSTANCE = "azure-sql-managed-instance";
+    public static final String DATABASE_HOSTING_AZURE_VM = "azure-vm";
+    public static final String DATABASE_HOSTING_AZURE_SNOWFLAKE = "azure-snowflake";
+    public static final String DATABASE_HOSTING_MONGODB_ATLAS = "mongodb-atlas";
+    public static final String DATABASE_HOSTING_LOCAL = "local";
+
 }

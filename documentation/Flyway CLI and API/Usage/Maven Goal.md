@@ -45,9 +45,9 @@ See [Upgrading to Teams or Enterprise](Learn More/Upgrading to Flyway Teams or E
     </tr>
 </table>
 
-<p class="note">
-  For older versions see [Accessing Older Versions of Flyway](https://documentation.red-gate.com/fd/accessing-older-versions-of-flyway-184128789.html)
-</p>
+Please note, the `groupId` changed at Flyway V10.0.0 from `org.flywaydb.enterprise` to `com.redgate.flyway`.
+
+For older versions see [Accessing Older Versions of Flyway Engine](https://documentation.red-gate.com/flyway/release-notes-and-older-versions/accessing-older-versions-of-flyway-engine)
 
 
 ### Open Source Edition

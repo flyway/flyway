@@ -599,7 +599,7 @@ public abstract class Parser {
             }
         }
         if (validKeywords != null) {
-            return validKeywords.contains(text);
+            return validKeywords.contains(text.toUpperCase(Locale.ENGLISH));
         }
         return true;
     }

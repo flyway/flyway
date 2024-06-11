@@ -19,6 +19,7 @@
  */
 package org.flywaydb.database.sqlserver;
 
+import lombok.Getter;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
@@ -33,6 +34,7 @@ import java.util.concurrent.Callable;
 public class SQLServerConnection extends Connection<SQLServerDatabase> {
     protected final String originalDatabaseName;
     private final String originalAnsiNulls;
+    @Getter
     private final boolean azure;
     private final SQLServerEngineEdition engineEdition;
 
@@ -96,8 +98,6 @@ public class SQLServerConnection extends Connection<SQLServerDatabase> {
     public <T> T lock(Table table, Callable<T> callable) {
         return new SQLServerApplicationLockTemplate(this, jdbcTemplate, originalDatabaseName, table.toString().hashCode()).execute(callable);
     }
-
-    public Boolean isAzureConnection() {return azure;}
 
     public SQLServerEngineEdition getEngineEdition() {return engineEdition;}
 }

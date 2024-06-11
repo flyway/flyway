@@ -220,7 +220,7 @@ the [process of setting `accessToken` as described on this Microsoft documentati
 Kerberos authentication can also be used to connect Flyway to your database.
 
 To set this up, you will need to pass the path to your Kerberos configuration file to the parameter [`kerberosConfigFile`](Configuration/Parameters/Flyway/Kerberos Config File) and the
-path to your login module configuration file to the parameter [`plugin.sqlserver.kerberos.login.file`](Configuration/Parameters/Flyway/SQL Server Kerberos Login File).
+path to your login module configuration file to the parameter [`sqlserver.kerberos.login.file`](Configuration/Parameters/Flyway/sql-server/sql-server-kerberos-login-file).
 
 You may also need to add `;authenticationScheme=JavaKerberos` to your JDBC URL.
 
@@ -248,7 +248,7 @@ jdbc:sqlserver://test_server;instanceName=test_instance;databaseName=test_databa
 - Flyway's automatic detection for whether SQL statements are valid in transactions does not apply to
   `CREATE/ALTER/DROP` statements acting on memory-optimized tables (that is, those created with
   `WITH (MEMORY_OPTIMIZED = ON)`). You will need to override the `executeInTransaction` setting to be false,
-  on a [per-script basis](Configuration/Script Config Files).
+  on a [per-script basis](<Configuration/Script Configuration>).
 - SQL Server is unable to change the default schema for a session. Therefore, setting the `flyway.defaultSchema` property
   has no value, unless used for a [Placeholder](Concepts/migrations#placeholder-replacement) in
   your sql scripts. If you decide to use `flyway.defaultSchema`, it also must exist in `flyway.schemas`.

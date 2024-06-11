@@ -22,10 +22,10 @@ Enterprise users have the Regular Expression engine available by default but oth
 
 [SQLFluff](https://www.sqlfluff.com/) needs to be installed on the machine producing the report. 
 
-We currently only integrate with version 1.2.1 and You can install it by running:
+We currently integrate with version 1.2.1+ and You can install it by running:
 
 ```powershell
-pip3 install sqlfluff==1.2.1
+pip3 install sqlfluff
 ```
 
 Alternatively, the redgate/flyway docker image comes with this already pre-installed.

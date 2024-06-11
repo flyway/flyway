@@ -28,7 +28,7 @@ See [Upgrading to Teams or Enterprise](Learn More/Upgrading to Flyway Teams or E
     }
 }
 plugins {
-    id "<strong>com.redgate.flyway</strong>.flyway" version "{{ site.flywayVersion }}"
+    id "<strong>com.redgate.flyway</strong>" version "{{ site.flywayVersion }}"
 }</pre>
         </td>
     </tr>
@@ -39,9 +39,7 @@ By downloading Flyway Community Gradle Plugin you confirm that you have read and
     </tr>
 </table>
 
-<p class="note">
-    For older versions see [Accessing Older Versions of Flyway](https://documentation.red-gate.com/fd/accessing-older-versions-of-flyway-184128789.html)
-</p>
+For older versions, see [Accessing Older Versions of Flyway Engine](https://documentation.red-gate.com/flyway/release-notes-and-older-versions/accessing-older-versions-of-flyway-engine)
 
 ### Open Source Edition
 

@@ -19,6 +19,8 @@
  */
 package org.flywaydb.database.mongodb;
 
+import static org.flywaydb.core.internal.database.base.DatabaseConstants.DATABASE_HOSTING_MONGODB_ATLAS;
+
 import org.flywaydb.core.api.CoreMigrationType;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
@@ -141,5 +143,14 @@ public class MongoDBDatabase extends Database<MongoDBConnection> {
 
     private String quoteIfNotNull(String value) {
         return value == null ? null : quote(value);
+    }
+
+    @Override
+    public String getDatabaseHosting() {
+        if (configuration.getUrl().contains("mongodb+srv")) {
+            return DATABASE_HOSTING_MONGODB_ATLAS;
+        }
+
+        return super.getDatabaseHosting();
     }
 }

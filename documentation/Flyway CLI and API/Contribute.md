@@ -76,7 +76,7 @@ subtitle: Contribute
     <h2 class="padded-top--tight">Contribute database support</h2>
     <p>Discovered that Flyway doesn't support your favorite database platform? Why not contribute the support yourself.</p>
     <p>
-        <a href="Contribute/Contributing Database Compatibility to Flyway" style="text-decoration: none; background: rgb(204,0,0); padding: 6px 40px; border-radius: 10px; color: white; font-weight: bold;">Contributing database support <i
+        <a href="Contribute/flyway community database support" style="text-decoration: none; background: rgb(204,0,0); padding: 6px 40px; border-radius: 10px; color: white; font-weight: bold;">Contributing database support <i
             class="fa fa-arrow-right"></i></a>
     </p>
 

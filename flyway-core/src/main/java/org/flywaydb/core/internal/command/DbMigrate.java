@@ -146,7 +146,6 @@ public class DbMigrate {
                     : schemaHistory.lock(() -> migrateGroup(firstRun));
 
             migrateResult.migrationsExecuted += count;
-
             total += count;
             if (count == 0) {
                 // No further migrations available
@@ -226,6 +225,8 @@ public class DbMigrate {
             }
         }
 
+        Arrays.stream(infoService.pending()).forEach(migrateResult::putPendingMigration);
+
         LinkedHashMap<MigrationInfoImpl, Boolean> group = new LinkedHashMap<>();
         for (MigrationInfoImpl pendingMigration : infoService.pending()) {
             if (appliedResolvedMigrations.contains(pendingMigration.getResolvedMigration())) {
@@ -284,15 +285,17 @@ public class DbMigrate {
             }
         } catch (FlywayMigrateException e) {
             MigrationInfo migration = e.getMigration();
-
             String failedMsg = "Migration of " + toMigrationText(migration, e.isExecutableInTransaction(), e.isOutOfOrder()) + " failed!";
+            int executionTime = (int) stopWatch.getTotalTimeMillis();
+            
+            migrateResult.putFailedMigration(migration, executionTime);
+            
             if (database.supportsDdlTransactions() && executeGroupInTransaction) {
                 LOG.error(failedMsg + " Changes successfully rolled back.");
+                migrateResult.markAsRolledBack(group.keySet().stream().toList());
             } else {
                 LOG.error(failedMsg + " Please restore backups and roll back database and code!");
-
                 stopWatch.stop();
-                int executionTime = (int) stopWatch.getTotalTimeMillis();
                 schemaHistory.addAppliedMigration(migration.getVersion(), migration.getDescription(),
                                                   migration.getType(), migration.getScript(), migration.getChecksum(), executionTime, false);
             }
@@ -401,8 +404,9 @@ public class DbMigrate {
 
             stopWatch.stop();
             int executionTime = (int) stopWatch.getTotalTimeMillis();
-
-            migrateResult.migrations.add(CommandResultFactory.createMigrateOutput(migration, executionTime));
+            
+            migrateResult.migrations.add(CommandResultFactory.createMigrateOutput(migration, executionTime, null));
+            migrateResult.putSuccessfulMigration(migration, executionTime);
 
             schemaHistory.addAppliedMigration(migration.getVersion(), migration.getDescription(), migration.getType(),
                                               migration.getScript(), migration.getResolvedMigration().getChecksum(), executionTime, true);

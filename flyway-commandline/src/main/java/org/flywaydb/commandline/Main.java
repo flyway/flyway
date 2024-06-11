@@ -85,11 +85,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         int exitCode = 0;
 
-        FlywayTelemetryManager flywayTelemetryManager = null;
-        if (!StringUtils.hasText(System.getenv("REDGATE_DISABLE_TELEMETRY"))) {
-            flywayTelemetryManager = new FlywayTelemetryManager(pluginRegister);
-            flywayTelemetryManager.setRootTelemetryModel(populateRootTelemetry(flywayTelemetryManager.getRootTelemetryModel(), null, null));
-        }
+        FlywayTelemetryManager flywayTelemetryManager = getFlywayTelemetryManager();
 
         try {
             JavaVersionPrinter.printJavaVersion();
@@ -99,20 +95,25 @@ public class Main {
             try {
                 ReportDetails reportDetails = new ReportDetails();
 
-                commandLineArguments.validate();
+                Configuration configuration = null;
+                try (final var parseArgsSpan = new EventTelemetryModel("parse-args", flywayTelemetryManager)) {
+                    commandLineArguments.validate();
 
-                if (printHelp(commandLineArguments)) {
-                    return;
+                    if (printHelp(commandLineArguments)) {
+                        return;
+                    }
+
+                    configuration = new ConfigurationManagerImpl().getConfiguration(commandLineArguments);
                 }
-
-                Configuration configuration = new ConfigurationManagerImpl().getConfiguration(commandLineArguments);
 
                 if (flywayTelemetryManager != null) {
                     flywayTelemetryManager.setRootTelemetryModel(populateRootTelemetry(flywayTelemetryManager.getRootTelemetryModel(), configuration, LicenseGuard.getPermit(configuration)));
                 }
 
                 if (!commandLineArguments.skipCheckForUpdate()) {
-                    MavenVersionChecker.checkForVersionUpdates();
+                    try (final var checkForUpdateSpan = new EventTelemetryModel("check-for-update", flywayTelemetryManager)) {
+                        MavenVersionChecker.checkForVersionUpdates();
+                    }
                 }
 
                 LocalDateTime executionTime = LocalDateTime.now();
@@ -151,6 +152,20 @@ public class Main {
         if (exitCode != 0) {
             System.exit(exitCode);
         }
+    }
+
+    private static FlywayTelemetryManager getFlywayTelemetryManager() {
+        if (StringUtils.hasText(System.getenv("REDGATE_DISABLE_TELEMETRY"))) {
+            return null;
+        }
+
+        final var telemetryStartSpan = new EventTelemetryModel("telemetry-startup", null);
+        final var flywayTelemetryManager = new FlywayTelemetryManager(pluginRegister);
+        flywayTelemetryManager.setRootTelemetryModel(populateRootTelemetry(flywayTelemetryManager.getRootTelemetryModel(),
+                                                                           null,
+                                                                           null));
+        flywayTelemetryManager.logEvent(telemetryStartSpan);
+        return flywayTelemetryManager;
     }
 
     private static void printLicenseInfo(Configuration configuration, String operation) {

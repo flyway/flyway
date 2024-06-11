@@ -19,6 +19,8 @@
  */
 package org.flywaydb.core.internal.util;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -266,5 +268,21 @@ public class FileUtils {
 
     private static boolean isWindows() {
         return System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("win");
+    }
+
+    public static void copyFolder(final Path sourcePath, final Path sourceRootPath, final Path destinationRootPath)
+        throws IOException {
+        final var folderRelativePath = sourceRootPath.relativize(sourcePath);
+
+        try (final var stream = Files.walk(sourcePath)) {
+            for (final var path : stream.toList()) {
+                final var relativePath = folderRelativePath.resolve(sourcePath.relativize(path));
+                final var destinationFilePath = destinationRootPath
+                    .resolve(relativePath)
+                    .getParent()
+                    .resolve(path.getFileName());
+                Files.copy(path, destinationFilePath, REPLACE_EXISTING);
+            }
+        }
     }
 }

@@ -19,6 +19,8 @@
  */
 package org.flywaydb.database.sqlserver;
 
+import static org.flywaydb.core.internal.database.base.DatabaseConstants.*;
+
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -192,7 +194,7 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
     }
 
     boolean isAzure() {
-        return getMainConnection().isAzureConnection();
+        return getMainConnection().isAzure();
     }
 
     SQLServerEngineEdition getEngineEdition() {
@@ -368,5 +370,21 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
         } catch (SQLException e) {
             throw new FlywayException("Unable to determine all schemas", e);
         }
+    }
+
+    @Override
+    public String getDatabaseHosting() {
+        if (isAzure()) {
+            final int code = getEngineEdition().getCode();
+            if (code == 5) {
+                return DATABASE_HOSTING_AZURE_SQL_DATABASE;
+            } else if (code == 8) {
+                return DATABASE_HOSTING_AZURE_SQL_MANAGED_INSTANCE;
+            }
+        } else {
+            return super.getDatabaseHosting();
+        }
+
+        return DATABASE_HOSTING_LOCAL;
     }
 }

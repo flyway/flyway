@@ -3,7 +3,7 @@ subtitle: Resolvers
 ---
 # Property Resolvers
 Property resolvers allow Flyway to retrieve configuration parameters from other locations at runtime, such as [secrets managers](Configuration/Secrets Management) and environment variables. 
-This is not to be confused with [migration resolvers](Configuration/Parameters/Environments/Resolver).
+This is not to be confused with [migration resolvers](Configuration/Parameters/flyway/resolver).
 
 Flyway comes with support for the following resolvers:
 

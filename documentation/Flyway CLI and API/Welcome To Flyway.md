@@ -8,7 +8,7 @@ It is based around just several core commands:
 [Migrate](Commands/migrate), [Clean](Commands/clean), [Info](Commands/info), [Validate](Commands/validate), [Undo](Commands/undo), [Baseline](Commands/baseline) and [Repair](Commands/repair).
 
 Plus an extended set of commands for more advanced use-cases:
-[Auth](Commands/Auth), [Check](<Command/Check command>) and [Snapshot](Command/Snapshot)
+[Auth](Commands/Auth), [Check](<Commands/Check command>) and [Snapshot](Commands/Snapshot)
 
 Migrations can be written in:
 - [SQL](Concepts/migrations#sql-based-migrations) (database-specific syntax (such as PL/SQL, T-SQL, \...) is supported)

@@ -14,7 +14,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>10.14.0</version>
+    <version>10.15.0</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -152,7 +152,7 @@
         <version.gcsm>2.20.0</version.gcsm>
         <version.gradle>6.1.1</version.gradle>
         <version.gson>2.10.1</version.gson>
-        <version.h2>2.2.220</version.h2>
+        <version.h2>2.2.224</version.h2>
         <version.hamcrest>2.2</version.hamcrest>
         <version.hsqldb>2.7.2</version.hsqldb>
         <version.ignite>2.13.0</version.ignite>
@@ -170,7 +170,7 @@
         <version.system-stubs>2.0.1</version.system-stubs>
         <version.log4net2>2.17.1</version.log4net2>
         <version.logback>1.2.3</version.logback>
-        <version.lombok>1.18.30</version.lombok>
+        <version.lombok>1.18.32</version.lombok>
         <version.lombok-maven-plugin>1.18.20.0</version.lombok-maven-plugin>
         <version.mariadb>2.7.11</version.mariadb>
         <version.maven>3.9.6</version.maven>
@@ -188,7 +188,7 @@
         <version.singlestore>1.1.4</version.singlestore>
         <version.slf4j>1.7.30</version.slf4j>
         <version.snowflake>3.14.1</version.snowflake>
-        <version.spanner>2.11.1</version.spanner>
+        <version.spanner>2.18.1</version.spanner>
         <version.springjdbc>5.3.19</version.springjdbc>
         <version.sqlite>3.41.2.2</version.sqlite>
         <version.testcontainers>1.15.3</version.testcontainers>
@@ -894,6 +894,7 @@
                         <exclude>.travis.yml</exclude>
                         <exclude>**/flyway</exclude>
                         <exclude>**/*_BOM.sql</exclude>
+                        <exclude>**/assets/report/**</exclude>
                     </excludes>
                 </configuration>
             </plugin>

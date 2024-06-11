@@ -19,6 +19,7 @@
  */
 package org.flywaydb.database.sqlserver;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /*
@@ -38,6 +39,7 @@ public enum SQLServerEngineEdition {
     MANAGED_INSTANCE(8),
     AZURE_SQL_EDGE(9);
 
+    @Getter
     private final int code;
 
     public static SQLServerEngineEdition fromCode(int code) {

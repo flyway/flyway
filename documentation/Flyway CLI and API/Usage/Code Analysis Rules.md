@@ -13,18 +13,7 @@ You can find more detail of these rules in the [SQLFluff rules](https://docs.sql
 Redgate has added a set of additional rules that are of interest to customers with a larger and more complex database infrastructure.
 
 Enterprise customers are also able to define their own rules - see [Creating Regular Expression Rules](Configuration/Creating Regular Expression Rules) 
-## Flyway_L001 ( **[DEPRECATED]**, replaced by RX013)
-_CREATE TABLE statement without a PRIMARY KEY constraint_
 
-**Dialects:** All
-
-It is best practice in most situations to define a primary key for each table. This can facilitate querying and ordering data 
-## Flyway_L002 ( **[DEPRECATED]**, replaced by RX014)
-_A table has been created but has no MS_Description property added_
-
-**Dialects:** TSQL
-
-Intrinsic documentation helps other database developers and can be used to generate documentation about the database.
 ## RX001
 _DROP TABLE statement_
 
