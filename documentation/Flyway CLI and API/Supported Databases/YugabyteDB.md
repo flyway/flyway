@@ -20,6 +20,18 @@ subtitle: YugabyteDB
 | **Supported versions**             | `42.3.5-yb-1` and later                                                |
 | **Default Java class**             | `com.yugabyte.Driver`                                                  |
 
+### PostgreSQL Driver
+Alternatively, one can use the PostgreSQL JDBC Driver with this plugin.
+
+| Item                               | Details                                                                |
+|------------------------------------|------------------------------------------------------------------------|
+| **URL format**                     | <code>jdbc:postgresql://<i>host</i>:<i>port</i>/<i>database</i></code> |
+| **SSL support**                    | Yes - add `?ssl=true`                                                  |
+| **Ships with Flyway Command-line** | Yes                                                                    |
+| **Maven Central coordinates**      | `org.postgresql:postgresql`                                            |
+| **Supported versions**             | `9.3-1104-jdbc4` and later                                             |
+| **Default Java class**             | `org.postgresql.Driver`                                                |
+
 ## Java Usage
 
 YugabyteDB support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
