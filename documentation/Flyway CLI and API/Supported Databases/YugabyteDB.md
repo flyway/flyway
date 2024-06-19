@@ -2,7 +2,7 @@
 subtitle: YugabyteDB
 ---
 # YugabyteDB
-- **Verified Versions:** 2.4, 2.7
+- **Verified Versions:** 2.18, 2.20, 2.21
 - **Maintainer:** Community
 
 ## Supported Versions and Support Levels
@@ -13,12 +13,12 @@ subtitle: YugabyteDB
 
 | Item                               | Details                                                                |
 |------------------------------------|------------------------------------------------------------------------|
-| **URL format**                     | <code>jdbc:postgresql://<i>host</i>:<i>port</i>/<i>database</i></code> |
+| **URL format**                     | <code>jdbc:yugabytedb://<i>host</i>:<i>port</i>/<i>database</i></code> |
 | **SSL support**                    | Yes - add `?ssl=true`                                                  |
 | **Ships with Flyway Command-line** | Yes                                                                    |
-| **Maven Central coordinates**      | `org.postgresql:postgresql`                                            |
-| **Supported versions**             | `9.3-1104-jdbc4` and later                                             |
-| **Default Java class**             | `org.postgresql.Driver`                                                |
+| **Maven Central coordinates**      | `com.yugabyte:jdbc-yugabytedb`                                         |
+| **Supported versions**             | `42.3.5-yb-1` and later                                                |
+| **Default Java class**             | `com.yugabyte.Driver`                                                  |
 
 ## Java Usage
 
