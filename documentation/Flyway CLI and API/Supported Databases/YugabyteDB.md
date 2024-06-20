@@ -2,7 +2,7 @@
 subtitle: YugabyteDB
 ---
 # YugabyteDB
-- **Verified Versions:** 2.18, 2.20, 2.21
+- **Verified Versions:** 2.20, 2024.1, 2.21
 - **Maintainer:** Community
 
 ## Supported Versions and Support Levels
