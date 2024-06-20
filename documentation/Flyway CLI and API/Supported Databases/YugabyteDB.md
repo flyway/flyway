@@ -10,18 +10,19 @@ subtitle: YugabyteDB
 {% include database-boilerplate.html %}
 
 ## Driver
+The preferred driver for this plugin is [YugabyteDB JDBC driver](https://github.com/yugabyte/pgjdbc).
 
 | Item                               | Details                                                                |
 |------------------------------------|------------------------------------------------------------------------|
 | **URL format**                     | <code>jdbc:yugabytedb://<i>host</i>:<i>port</i>/<i>database</i></code> |
 | **SSL support**                    | Yes - add `?ssl=true`                                                  |
-| **Ships with Flyway Command-line** | Yes                                                                    |
+| **Ships with Flyway Command-line** | No                                                                     |
 | **Maven Central coordinates**      | `com.yugabyte:jdbc-yugabytedb`                                         |
 | **Supported versions**             | `42.3.5-yb-1` and later                                                |
 | **Default Java class**             | `com.yugabyte.Driver`                                                  |
 
 ### PostgreSQL Driver
-Alternatively, one can use the PostgreSQL JDBC Driver with this plugin.
+Alternatively, one can also use the PostgreSQL JDBC Driver with this plugin.
 
 | Item                               | Details                                                                |
 |------------------------------------|------------------------------------------------------------------------|
