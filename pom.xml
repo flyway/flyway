@@ -14,7 +14,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>10.15.0</version>
+    <version>10.15.1</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -175,7 +175,7 @@
         <version.mariadb>2.7.11</version.mariadb>
         <version.maven>3.9.6</version.maven>
         <version.mockito>5.10.0</version.mockito>
-        <version.msal4j>1.13.8</version.msal4j>
+        <version.msal4j>1.15.1</version.msal4j>
         <version.mssql>12.2.0</version.mssql>
         <version.mssql-jdbc>${version.mssql}.jre8</version.mssql-jdbc>
         <version.mysql>8.0.24</version.mysql>
@@ -959,6 +959,9 @@
                     <passphraseServerId>flyway-gpg</passphraseServerId>
                 </configuration>
             </plugin>
+
+
+
 
 
 

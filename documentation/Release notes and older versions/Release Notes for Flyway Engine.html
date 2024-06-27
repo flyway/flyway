@@ -9,12 +9,33 @@
 <div class="col-md-9">
 
 <div class="release">
+        <h2 id="10.15.1">Flyway 10.15.1 (2024-06-27)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fixed the bug preventing users from configuring schemas or jarDirs via command-line</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Allow flyway internals to return query results when migration executor runs a query</li>
+            <li>Removed the maximum of 100 migrations in Amazon S3 limitation from Open Source Edition</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>Bump msal4j to 1.15.1 to fix CVE-2024-35255</li>
+        </ul>
+
+    </div>
+
+<div class="release">
         <h2 id="10.15.0">Flyway 10.15.0 (2024-06-11)</h2>
 
         <h3>Bug fixes</h3>
         <ul>
             <li>Fixed bug where certain keywords in BigQuery and HSQL were not handled correctly when in lower case.</li>
-            <li>Fix a bug where `targetSchemaVersion` is not set in API & JSON result objects when `migrate` fails, or no versioned migrations are applied</li>
+            <li>Fix a bug where `targetSchemaVersion` is not set in API and JSON result objects when `migrate` fails, or no versioned migrations are applied</li>
             <li>Fix the bug preventing users from initiating a trial using the "auth" command</li>
         </ul>
 

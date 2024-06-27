@@ -156,8 +156,16 @@ authentication is being used.
 
 ### Java Arguments
 
-If you need to pass custom arguments to Flyway's JVM, you can do so by setting the `JAVA_ARGS` environment variable.
+If you need to pass custom arguments to Flyway's JVM, you can do so by setting the `JAVA_ARGS` environment variable, either at runtime or persistently on the host system.
 They will then automatically be taken into account when launching Flyway. This is particularly useful when needing to set JVM system properties.
+
+Runtime example (Windows CMD)
+<pre class="console"><span>&gt;</span> set JAVA_ARGS=-Xms308M -Xmx432M</pre>
+The corresponding system environment variable would be
+Name: JAVA_ARGS
+Value: -Xms308M -Xmx432M
+
+See Oracle's documentation for a full list of available [JAVA_ARGS](https://docs.oracle.com/en/java/javase/17/docs/specs/man/java.html).
 
 
 ## Output

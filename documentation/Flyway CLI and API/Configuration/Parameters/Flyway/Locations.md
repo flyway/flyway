@@ -21,8 +21,6 @@ Locations starting with <code>filesystem:</code> point to a directory on the fil
 ### Amazon S3
 Locations starting with <code>s3:</code> point to a bucket in AWS S3, may only contain SQL migrations, and are scanned recursively. They are in the format <code>s3:&lt;bucket&gt;(/optionalfolder/subfolder)</code>. To use AWS S3, the [AWS SDK v2](https://mvnrepository.com/artifact/software.amazon.awssdk/services) and dependencies must be included, and [configured](https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/credentials.html) for your S3 account.<br/>
 
-Flyway Community is limited to a maximum of 100 migrations in Amazon S3. Upgrade to [Flyway Teams](https://flywaydb.org/download/) to allow unlimited migrations.
-
 ### Google Cloud Storage
 {% include teams.html %}
 
