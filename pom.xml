@@ -14,7 +14,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>10.15.1</version>
+    <version>10.15.2</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -176,8 +176,8 @@
         <version.maven>3.9.6</version.maven>
         <version.mockito>5.10.0</version.mockito>
         <version.msal4j>1.15.1</version.msal4j>
-        <version.mssql>12.2.0</version.mssql>
-        <version.mssql-jdbc>${version.mssql}.jre8</version.mssql-jdbc>
+        <version.mssql>12.6.3</version.mssql>
+        <version.mssql-jdbc>${version.mssql}.jre11</version.mssql-jdbc>
         <version.mysql>8.0.24</version.mysql>
         <version.oracle>19.6.0.0</version.oracle>
         <version.osgi>4.3.1</version.osgi>
