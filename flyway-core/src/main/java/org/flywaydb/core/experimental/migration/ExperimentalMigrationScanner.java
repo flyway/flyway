@@ -17,14 +17,16 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.core.experimental;
+package org.flywaydb.core.experimental.migration;
 
 import java.util.Collection;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.extensibility.Plugin;
+import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
+import org.flywaydb.core.internal.util.Pair;
 
 public interface ExperimentalMigrationScanner extends Plugin  {
-    Collection<LoadableResource> scan(Location location, Configuration configuration);
+    Collection<Pair<LoadableResource, SqlScriptMetadata>> scan(Location location, Configuration configuration);
 }

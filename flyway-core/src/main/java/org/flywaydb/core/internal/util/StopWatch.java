@@ -42,6 +42,7 @@ public class StopWatch {
 
     /**
      * @return The total run time in millis of the stop watch between start and stop calls.
+     * Or an undefined number if stop has not been called.
      */
     public long getTotalTimeMillis() {
         long duration = stop - start;

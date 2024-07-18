@@ -20,8 +20,12 @@
 package org.flywaydb.scanners;
 
 import java.io.File;
+import java.net.URL;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import lombok.CustomLog;
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResource;
@@ -29,20 +33,33 @@ import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
 import org.flywaydb.core.internal.util.Pair;
 
 @CustomLog
-public class FileSystemSqlMigrationScanner extends BaseSqlMigrationScanner {
-
+public class ClasspathSqlMigrationScanner extends BaseSqlMigrationScanner {
     @Override
     public Collection<Pair<LoadableResource, SqlScriptMetadata>> scan(final Location location, final Configuration configuration) {
-        final String path = location.getRootPath();
-        LOG.debug("Scanning for filesystem resources at '" + path + "'");
+        if (!location.isClassPath()){
+            return List.of();
+        }
 
-        final File dir = new File(path);
+        LOG.debug("Scanning for classpath resources at '" + location.getRootPath() + "'");
+        
+        final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        final URL resource = classLoader.getResource(location.getRootPath());
+        if(resource == null) {
+            if (configuration.isFailOnMissingLocations()) {
+                throw new FlywayException("Failed to find classpath location: " + location.getRootPath());
+            }
 
-        return scan(dir, location, configuration);
+            LOG.error("Skipping classpath location: " + location.getRootPath());
+            return Collections.emptyList();
+        }
+        final File directory = new File(resource.getPath());
+        return scan(directory, location, configuration);
     }
 
     @Override
     boolean matchesPath(final String path, final Location location) {
-        return location.matchesPath(path);
+        final String rootPath = Thread.currentThread().getContextClassLoader().getResource(".").getPath();
+        final String remainingPath = path.substring(rootPath.length() - 1).replace("\\", "/");
+        return location.matchesPath(remainingPath);
     }
 }

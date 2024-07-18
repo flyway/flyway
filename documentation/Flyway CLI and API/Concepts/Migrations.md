@@ -524,7 +524,7 @@ The following will happen:
 | `Pending`          | This migration has not been applied yet                                                                                                           |
 | `Success`          | This migration succeeded                                                                                                                          |
 | `Ignored`          | This migration will not be considered when running [`migrate`](Commands/migrate)                                                                  |
-| `Deleted`          | This is a migration that has been marked as deleted by [`repair`](Commands/undo)                                                                  |
+| `Deleted`          | This is a migration that has been marked as deleted by [`repair`](Commands/repair)                                                                  |
 | `Available`        | This [`undo`](Commands/undo) migration is ready to be applied if desired                                                                          |
 | `Undone`           | This versioned migration succeeded but has since been undone                                                                                      |
 | `Above Target`     | This migration has not been applied yet and won't be applied because [`target`](Configuration/parameters/flyway/target) is set to a lower version |

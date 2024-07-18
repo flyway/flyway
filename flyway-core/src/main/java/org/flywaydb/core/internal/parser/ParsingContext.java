@@ -83,7 +83,7 @@ public class ParsingContext {
 
         placeholders.put(generateName(USER_PLACEHOLDER,configuration), currentUser);
         placeholders.put(generateName(TIMESTAMP_PLACEHOLDER,configuration), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-        placeholders.put(generateName(WORKING_DIRECTORY_PLACEHOLDER,configuration), System.getProperty("user.dir"));
+        placeholders.put(generateName(WORKING_DIRECTORY_PLACEHOLDER,configuration), configuration.getWorkingDirectory() != null ? configuration.getWorkingDirectory() :  System.getProperty("user.dir"));
         placeholders.put(generateName(TABLE_PLACEHOLDER,configuration), configuration.getTable());
         placeholders.put(generateName(ENVIRONMENT_PLACEHOLDER, configuration), configuration.getCurrentEnvironmentName());
     }

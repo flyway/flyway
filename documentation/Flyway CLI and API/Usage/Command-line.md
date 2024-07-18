@@ -50,7 +50,6 @@ The Flyway download, once extracted, now becomes a directory with the following 
 flyway
     conf/       Configuration file(s)
     drivers/    JDBC Drivers
-    jars/       Java-based migrations (as jars)
     jre/
     lib/
     licenses/
@@ -159,7 +158,7 @@ authentication is being used.
 If you need to pass custom arguments to Flyway's JVM, you can do so by setting the `JAVA_ARGS` environment variable, either at runtime or persistently on the host system.
 They will then automatically be taken into account when launching Flyway. This is particularly useful when needing to set JVM system properties.
 
-Runtime example (Windows CMD)
+Runtime example (Windows cmd)
 <pre class="console"><span>&gt;</span> set JAVA_ARGS=-Xms308M -Xmx432M</pre>
 The corresponding system environment variable would be
 Name: JAVA_ARGS
@@ -185,7 +184,6 @@ For example, if you wished to use `log4j` v2 with the Flyway command line, you w
 <pre class="filetree"><i class="fa fa-folder-open"></i> flyway-{{site.flywayVersion}}
   <i class="fa fa-folder"></i> conf
   <i class="fa fa-folder"></i> drivers
-  <i class="fa fa-folder"></i> jars
   <i class="fa fa-folder"></i> jre
   <i class="fa fa-folder-open"></i> lib
     <span><i class="fa fa-file-text"></i> log4j-api-2.17.1.jar</span>       <i class="fa fa-long-arrow-left"></i> log4j v2 jar
@@ -200,7 +198,6 @@ Similarly, to use `Logback` add the relevant files like this:
 <pre class="filetree"><i class="fa fa-folder-open"></i> flyway-{{site.flywayVersion}}
   <i class="fa fa-folder"></i> conf
   <i class="fa fa-folder"></i> drivers
-  <i class="fa fa-folder"></i> jars
   <i class="fa fa-folder"></i> jre
   <i class="fa fa-folder-open"></i> lib
     <span><i class="fa fa-file-text"></i> logback-classic.1.1.7.jar</span> <i class="fa fa-long-arrow-left"></i> Logback jar

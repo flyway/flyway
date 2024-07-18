@@ -21,8 +21,15 @@ package org.flywaydb.core.api.resource;
 
 import java.util.Objects;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
 
-public record LoadableResourceMetadata(MigrationVersion version, String description, String prefix, LoadableResource loadableResource) {
+public record LoadableResourceMetadata(
+    MigrationVersion version,
+    String description,
+    String prefix,
+    LoadableResource loadableResource,
+    SqlScriptMetadata sqlScriptMetadata,
+    int checksum) {
 
     @Override
     public boolean equals(final Object o) {

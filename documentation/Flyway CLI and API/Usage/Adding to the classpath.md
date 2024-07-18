@@ -13,12 +13,11 @@ How you add to the classpath depends on how you are invoking Flyway.
 
 ### Command Line
 
-When using the CLI, you can add to the classpath by dropping the `.jar` files for the libraries you want to include into either the `drivers` or the `jars` folder in the downloaded folder structure. The two folders are provided to make it easier to separate jars used for adding database driver support, and jars used to contain other functionality (such as [Java migrations](Concepts/migrations#java-based-migrations) or [Java callbacks](Concepts/Callback concept#java-callbacks)).
+When using the CLI, you can add to the classpath by dropping the `.jar` files for the libraries or drivers you want to include into a seperate directory and then including it via the [`jarDirs`](</Configuration/Parameters/Flyway/Jar Dirs>) configuration parameter.
 
 <pre class="filetree"><i class="fa fa-folder-open"></i> flyway
   <i class="fa fa-folder-open"></i> conf
   <i class="fa fa-folder-open"></i> drivers <i class="fa fa-long-arrow-left"></i> //here
-  <i class="fa fa-folder-open"></i> jars    <i class="fa fa-long-arrow-left"></i> //or here
   <i class="fa fa-folder-open"></i> jre
   <i class="fa fa-folder-open"></i> lib
   <i class="fa fa-folder-open"></i> licenses
@@ -28,7 +27,6 @@ When using the CLI, you can add to the classpath by dropping the `.jar` files fo
   <i class="fa fa-file-text"></i> README.txt
 </pre>
 
-You can also specify more folders to load jars from using the [`jarDirs`](</Configuration/Parameters/Flyway/Jar Dirs>) configuration parameter.
 
 ### API
 

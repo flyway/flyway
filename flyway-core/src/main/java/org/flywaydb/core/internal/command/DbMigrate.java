@@ -286,6 +286,7 @@ public class DbMigrate {
         } catch (FlywayMigrateException e) {
             MigrationInfo migration = e.getMigration();
             String failedMsg = "Migration of " + toMigrationText(migration, e.isExecutableInTransaction(), e.isOutOfOrder()) + " failed!";
+            stopWatch.stop();
             int executionTime = (int) stopWatch.getTotalTimeMillis();
             
             migrateResult.putFailedMigration(migration, executionTime);
@@ -295,7 +296,6 @@ public class DbMigrate {
                 migrateResult.markAsRolledBack(group.keySet().stream().toList());
             } else {
                 LOG.error(failedMsg + " Please restore backups and roll back database and code!");
-                stopWatch.stop();
                 schemaHistory.addAppliedMigration(migration.getVersion(), migration.getDescription(),
                                                   migration.getType(), migration.getScript(), migration.getChecksum(), executionTime, false);
             }

@@ -40,6 +40,7 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -264,7 +265,7 @@ public class ModernConfigurationManager implements ConfigurationManager {
 
                 final Map<String, Object> finalValues = values;
                 Arrays.stream(configurationExtension.getClass().getDeclaredFields())
-                    .filter(f -> List.of(List.class, String[].class).contains(f.getType()))
+                    .filter(f -> List.of(Collection.class, List.class, String[].class).contains(f.getType()))
                     .forEach(f -> {
                         String fieldName = f.getName();
                         Object fieldValue = finalValues.get(fieldName);

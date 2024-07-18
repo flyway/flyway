@@ -14,6 +14,8 @@ Flyway will take the `key1` part, along with the [placeholder prefix](Configurat
 
 Placeholder matching is case insensitive, so a placeholder of `flyway.placeholders.key1` will match `${key1}` and `${KEY1}`.
 
+For default placeholders that flyway automatically provides, see [placeholders configuration](Configuration/Placeholders Configuration).
+
 ## Usage
 
 ### Commandline

@@ -170,6 +170,8 @@
             <useTransitiveFiltering>true</useTransitiveFiltering>
             <includes>
                 <include>org.apache.commons:commons-text</include>
+                <include>com.fasterxml.jackson.core:jackson-core</include>
+                <include>com.fasterxml.jackson.core:jackson-annotations</include>
                 <include>com.fasterxml.jackson.dataformat:jackson-dataformat-toml</include>
                 <include>com.fasterxml.jackson.dataformat:jackson-dataformat-xml</include>
                 <include>org.slf4j:slf4j-nop</include>
@@ -185,8 +187,6 @@
             <useTransitiveFiltering>true</useTransitiveFiltering>
             <includes>
                 <include>com.microsoft.azure:msal4j</include>
-                <include>com.fasterxml.jackson.core:jackson-core</include>
-                <include>com.fasterxml.jackson.core:jackson-annotations</include>
             </includes>
         </dependencySet>
         <dependencySet>
@@ -251,13 +251,13 @@
 
 
 
-
                 <include>org.flywaydb:flyway-database-ignite</include>
                 <include>org.flywaydb:flyway-database-tidb</include>
                 <include>org.flywaydb:flyway-database-yugabytedb</include>
                 <include>org.flywaydb:flyway-database-clickhouse</include>
                 <include>org.flywaydb:flyway-database-oceanbase</include>
                 <include>org.flywaydb:flyway-database-databricks</include>
+                <include>org.flywaydb:flyway-database-db2zos</include>
             </includes>
         </dependencySet>
         <dependencySet>
@@ -277,6 +277,9 @@
             <includes>
                 <include>com.ing.data:cassandra-jdbc-wrapper</include>
             </includes>
+            <excludes>
+                <exclude>org.reactivestreams</exclude>
+            </excludes>
         </dependencySet>
         <dependencySet>
             <outputDirectory>drivers</outputDirectory>
@@ -296,6 +299,9 @@
                 <exclude>org.apache.commons:commons-text</exclude>
                 <exclude>com.fasterxml.jackson.dataformat:jackson-dataformat-xml</exclude>
                 <exclude>com.microsoft.azure:msal4j</exclude>
+                <exclude>com.ing.data:cassandra-jdbc-wrapper</exclude>
+                <exclude>com.google.cloud:google-cloud-spanner-jdbc</exclude>
+                <exclude>net.java.dev.jna</exclude>
             </excludes>
         </dependencySet>
     </dependencySets>

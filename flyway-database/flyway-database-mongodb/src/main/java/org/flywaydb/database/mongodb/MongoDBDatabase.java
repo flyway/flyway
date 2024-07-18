@@ -19,6 +19,7 @@
  */
 package org.flywaydb.database.mongodb;
 
+import java.sql.SQLException;
 import static org.flywaydb.core.internal.database.base.DatabaseConstants.DATABASE_HOSTING_MONGODB_ATLAS;
 
 import org.flywaydb.core.api.CoreMigrationType;
@@ -42,6 +43,11 @@ public class MongoDBDatabase extends Database<MongoDBConnection> {
     @Override
     protected MongoDBConnection doGetConnection(java.sql.Connection connection) {
         return new MongoDBConnection(this, connection);
+    }
+
+    @Override
+    protected String doGetCatalog() throws SQLException {
+        return this.getMainConnection().getDatabaseName();
     }
 
     @Override

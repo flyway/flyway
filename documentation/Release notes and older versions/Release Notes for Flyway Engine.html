@@ -9,6 +9,24 @@
 <div class="col-md-9">
 
 <div class="release">
+        <h2 id="10.16.0">Flyway 10.16.0 (2024-07-18)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fix a bug where mongoDb database name was null</li>
+            <li>Removed duplicate libraries from the command line</li>
+            <li>Issue with `${flyway:workingDirectory}` not using configured working directory has been fixed</li>
+            <li>Fixed an issue where failed migrations could report a negative execution time</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>The schema model's location is now also specified in schemaModelLocation in the Flyway namespace in Flyway.toml</li>
+        </ul>
+
+    </div>
+
+<div class="release">
         <h2 id="10.15.2">Flyway 10.15.2 (2024-07-01)</h2>
 
         <h3>Java compatibility</h3>
@@ -563,6 +581,8 @@
 <div class="release">
         <h2 id="10.0.0">Flyway 10.0.0 (2023-10-31)</h2>
 
+        <p><a href="https://documentation.red-gate.com/fd/flyway-v10-has-landed-222627771.html">Flyway V10 has landed</a></p>
+
         <h3>Breaking changes</h3>
         <ul>
             <li>Removed deprecated flyway.check.reportFilename. Please use flyway.reportFilename.</li>
@@ -596,6 +616,7 @@
             <li>Added support for REDGATE_LICENSING_PERMIT_PATH and REDGATE_LICENSING_PERMIT environment variables along with offline licensing for offline machines</li>
             <li>beforeEachMigrateStatement, afterEachMigrateStatement, afterEachMigrateStatementError, and beforeConnect callbacks are now Community features</li>
             <li>add support for LocalSecrets resolvers</li>
+            <li>Script migrations are now a Community feature</li>
         </ul>
 
         <h3>Java compatibility</h3>

@@ -17,24 +17,27 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.core.experimental;
+package org.flywaydb.core.experimental.migration;
 
+import java.io.Reader;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.HashSet;
+import java.util.Objects;
 import org.flywaydb.core.api.CoreErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
-import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.api.resource.LoadableResourceMetadata;
-import org.flywaydb.core.api.resource.Resource;
+import org.flywaydb.core.internal.parser.ParsingContext;
+import org.flywaydb.core.internal.parser.PlaceholderReplacingReader;
+import org.flywaydb.core.internal.resolver.ChecksumCalculator;
 import org.flywaydb.core.internal.resource.ResourceName;
 import org.flywaydb.core.internal.resource.ResourceNameParser;
+import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
+import org.flywaydb.core.internal.util.Pair;
 
 public class ExperimentalMigrationScannerManager {
     private final List<? extends ExperimentalMigrationScanner> scanners;
@@ -43,10 +46,10 @@ public class ExperimentalMigrationScannerManager {
         this.scanners = scanners;
     }
 
-    public Collection<LoadableResourceMetadata> scan(final Configuration configuration) {
+    public Collection<LoadableResourceMetadata> scan(final Configuration configuration, final ParsingContext parsingContext) {
         final List<LoadableResourceMetadata> resources = Arrays.stream(configuration.getLocations())
                                                                .flatMap(location -> scan(location,configuration).stream())
-                                                               .map(resource -> getLoadableResourceMetadata(resource, configuration))
+                                                               .map(resource -> getLoadableResourceMetadata(resource, configuration, parsingContext))
                                                                .toList();
 
         final Collection<LoadableResourceMetadata> resourceSet = new HashSet<>();
@@ -77,14 +80,66 @@ public class ExperimentalMigrationScannerManager {
         return resources;              
     }
 
-    private static LoadableResourceMetadata getLoadableResourceMetadata(final LoadableResource resource,
-                                                                        final Configuration configuration) {
+    private static LoadableResourceMetadata getLoadableResourceMetadata(final Pair<LoadableResource, SqlScriptMetadata> resource,
+        final Configuration configuration,
+        final ParsingContext parsingContext) {
+        
         final ResourceNameParser resourceNameParser = new ResourceNameParser(configuration);
-        final ResourceName resourceName = resourceNameParser.parse(resource.getFilename());
-        return new LoadableResourceMetadata(resourceName.getVersion(), resourceName.getDescription(), resourceName.getPrefix(), resource);
+        final ResourceName resourceName = resourceNameParser.parse(resource.getLeft().getFilename());
+        final int checksum = getChecksumForLoadableResource(
+            Objects.equals(resourceName.getPrefix(), configuration.getRepeatableSqlMigrationPrefix()),
+            resource.getLeft(),
+            resourceName,
+            configuration,
+            parsingContext);
+        return new LoadableResourceMetadata(
+            resourceName.getVersion(),
+            resourceName.getDescription(),
+            resourceName.getPrefix(),
+            resource.getLeft(),
+            resource.getRight(),
+            checksum);
     }
 
-    private Collection<LoadableResource> scan(final Location location, final Configuration configuration) {
+    private static Integer getChecksumForLoadableResource(
+        final boolean repeatable,
+        final LoadableResource resource,
+        final ResourceName resourceName,
+        final Configuration configuration,
+        final ParsingContext parsingContext) {
+        if (repeatable && configuration.isPlaceholderReplacement()) {
+            parsingContext.updateFilenamePlaceholder(resourceName, configuration);
+            return ChecksumCalculator.calculate(createPlaceholderReplacingLoadableResource(resource, configuration, parsingContext));
+        }
+        return ChecksumCalculator.calculate(resource);
+    }
+    private static LoadableResource createPlaceholderReplacingLoadableResource(
+        final LoadableResource loadableResource,
+        final Configuration configuration,
+        final ParsingContext parsingContext) {
+        
+        return new LoadableResource() {
+            @Override
+            public Reader read() {
+                return PlaceholderReplacingReader.create(configuration, parsingContext, loadableResource.read());
+            }
+
+            @Override
+            public String getAbsolutePath() {return loadableResource.getAbsolutePath();}
+
+            @Override
+            public String getAbsolutePathOnDisk() {return loadableResource.getAbsolutePathOnDisk();}
+
+            @Override
+            public String getFilename() {return loadableResource.getFilename();}
+
+            @Override
+            public String getRelativePath() {return loadableResource.getRelativePath();}
+        };        
+    }
+    
+
+    private Collection<Pair<LoadableResource, SqlScriptMetadata>> scan(final Location location, final Configuration configuration) {
         return scanners.stream()
                        .flatMap(scanner -> scanner.scan(location, configuration).stream())
                        .toList();

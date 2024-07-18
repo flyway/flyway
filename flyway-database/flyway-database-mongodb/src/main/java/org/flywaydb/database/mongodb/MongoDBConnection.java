@@ -35,6 +35,10 @@ public class MongoDBConnection extends Connection<MongoDBDatabase> {
 
     @Override
     protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
+        return getDatabaseName();
+    }
+
+    public String getDatabaseName() throws SQLException {
         return jdbcTemplate.queryForString("db.getName()");
     }
 
