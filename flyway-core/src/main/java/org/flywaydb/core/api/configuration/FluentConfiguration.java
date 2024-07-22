@@ -723,6 +723,11 @@ public class FluentConfiguration implements Configuration {
         return this;
     }
 
+    public FluentConfiguration suppressOutOfOrderWarning(boolean suppressOutOfOrderWarning) {
+        config.setSuppressOutOfOrderWarning(suppressOutOfOrderWarning);
+        return this;
+    }
+
     /**
      * Whether Flyway should skip actually executing the contents of the migrations and only update the schema history table.
      * This should be used when you have applied a migration manually (via executing the sql yourself, or via an ide), and

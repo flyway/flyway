@@ -362,6 +362,9 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     @Parameter(property = ConfigUtils.OUT_OF_ORDER)
     private Boolean outOfOrder;
 
+    @Parameter(property = ConfigUtils.SUPPRESS_OUT_OF_ORDER_WARNING)
+    private Boolean suppressOutOfOrderWarning;
+
     /**
      * Whether Flyway should skip actually executing the contents of the migrations and only update the schema history table.
      * This should be used when you have applied a migration manually (via executing the sql yourself, or via an IDE), and
@@ -781,6 +784,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.CLEAN_ON_VALIDATION_ERROR, cleanOnValidationError);
             putIfSet(conf, ConfigUtils.CLEAN_DISABLED, cleanDisabled);
             putIfSet(conf, ConfigUtils.OUT_OF_ORDER, outOfOrder);
+            putIfSet(conf, ConfigUtils.SUPPRESS_OUT_OF_ORDER_WARNING, suppressOutOfOrderWarning);
             putIfSet(conf, ConfigUtils.SKIP_EXECUTING_MIGRATIONS, skipExecutingMigrations);
             putIfSet(conf, ConfigUtils.OUTPUT_QUERY_RESULTS, outputQueryResults);
             putIfSet(conf, ConfigUtils.TARGET, target);

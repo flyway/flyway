@@ -329,6 +329,11 @@ public class ClassicConfiguration implements Configuration {
     }
 
     @Override
+    public boolean isSuppressOutOfOrderWarning() {
+        return getModernFlyway().getSuppressOutOfOrderWarning();
+    }
+
+    @Override
     public ValidatePattern[] getIgnoreMigrationPatterns() {
         String[] ignoreMigrationPatterns = getModernFlyway().getIgnoreMigrationPatterns().toArray(new String[0]);
         if (Arrays.equals(ignoreMigrationPatterns, new String[]{""})) {
@@ -1639,6 +1644,10 @@ public class ClassicConfiguration implements Configuration {
         if (outOfOrderProp != null) {
             setOutOfOrder(outOfOrderProp);
         }
+        Boolean suppressOutOfOrderWarningProp = removeBoolean(props, ConfigUtils.SUPPRESS_OUT_OF_ORDER_WARNING);
+        if (suppressOutOfOrderWarningProp != null) {
+            setSuppressOutOfOrderWarning(suppressOutOfOrderWarningProp);
+        }
         Boolean skipExecutingMigrationsProp = removeBoolean(props, ConfigUtils.SKIP_EXECUTING_MIGRATIONS);
         if (skipExecutingMigrationsProp != null) {
             setSkipExecutingMigrations(skipExecutingMigrationsProp);
@@ -1839,6 +1848,10 @@ public class ClassicConfiguration implements Configuration {
 
     public void setOutOfOrder(Boolean outOfOrderProp) {
         getModernFlyway().setOutOfOrder(outOfOrderProp);
+    }
+
+    public void setSuppressOutOfOrderWarning(Boolean suppressOutOfOrderWarning) {
+        getModernFlyway().setSuppressOutOfOrderWarning(suppressOutOfOrderWarning);
     }
 
     public void setLockRetryCount(Integer lockRetryCount) {

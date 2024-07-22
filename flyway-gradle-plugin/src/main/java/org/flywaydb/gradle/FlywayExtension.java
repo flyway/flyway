@@ -308,6 +308,8 @@ public class FlywayExtension {
      */
     public Boolean outOfOrder;
 
+    public Boolean suppressOutOfOrderWarning;
+
     /**
      * Whether Flyway should skip actually executing the contents of the migrations and only update the schema history table.
      * This should be used when you have applied a migration manually (via executing the sql yourself, or via an ide), and

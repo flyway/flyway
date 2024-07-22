@@ -444,6 +444,7 @@ public class Main {
             LOG.info(indent + "cherryPick                     [" + "teams] Comma separated list of migrations that Flyway should consider when migrating");
             LOG.info(indent + "skipExecutingMigrations        Whether Flyway should skip actually executing the contents of the migrations");
             LOG.info(indent + "outOfOrder                     Allows migrations to be run \"out of order\"");
+            LOG.info(indent + "suppressOutOfOrderWarning      Don't show a warning if \"outOfOrder\" mode is enabled");
             LOG.info(indent + "callbacks                      Comma-separated list of FlywayCallback classes, or locations to scan for FlywayCallback classes");
             LOG.info(indent + "skipDefaultCallbacks           Skips default callbacks (sql)");
             LOG.info(indent + "validateOnMigrate              Validate when running migrate");

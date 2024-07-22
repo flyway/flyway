@@ -77,6 +77,7 @@ public class FlywayModel {
     private String baselineDescription;
     private Boolean baselineOnMigrate;
     private Boolean outOfOrder;
+    private Boolean suppressOutOfOrderWarning;
     private Boolean skipExecutingMigrations;
     private List<String> callbacks;
     private Boolean skipDefaultCallbacks;
@@ -133,6 +134,7 @@ public class FlywayModel {
          model.baselineDescription = "<< Flyway Baseline >>";
          model.baselineOnMigrate = false;
          model.outOfOrder = false;
+         model.suppressOutOfOrderWarning = false;
          model.skipExecutingMigrations = false;
          model.callbacks = new ArrayList<>();
          model.skipDefaultCallbacks = false;
@@ -191,6 +193,7 @@ public class FlywayModel {
         result.baselineDescription = baselineDescription.merge(otherPojo.baselineDescription);
         result.baselineOnMigrate = baselineOnMigrate.merge(otherPojo.baselineOnMigrate);
         result.outOfOrder = outOfOrder.merge(otherPojo.outOfOrder);
+        result.suppressOutOfOrderWarning = suppressOutOfOrderWarning.merge(otherPojo.suppressOutOfOrderWarning);
         result.skipExecutingMigrations = skipExecutingMigrations.merge(otherPojo.skipExecutingMigrations);
         result.callbacks = callbacks.merge(otherPojo.callbacks);
         result.skipDefaultCallbacks = skipDefaultCallbacks.merge(otherPojo.skipDefaultCallbacks);
