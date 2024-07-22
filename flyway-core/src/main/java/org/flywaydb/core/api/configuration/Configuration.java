@@ -410,6 +410,13 @@ public interface Configuration {
     boolean isOutOfOrder();
 
     /**
+     * Disables the warning message that is shown during an execution with "outOfOrder" mode.
+     *
+     * @return {@code true} is warning message should be suppressed, otherwise {@code false}. (default: {@code false})
+     */
+    boolean isSuppressOutOfOrderWarning();
+
+    /**
      * Ignore migrations that match this comma-separated list of patterns when validating migrations.
      * Each pattern is of the form <migration_type>:<migration_state>
      * See https://documentation.red-gate.com/flyway/flyway-cli-and-api/configuration/parameters/flyway/ignore-migration-patterns for full details

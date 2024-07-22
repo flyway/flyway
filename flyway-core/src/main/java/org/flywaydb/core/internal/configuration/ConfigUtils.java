@@ -93,6 +93,7 @@ public class ConfigUtils {
     public static final String LOCATIONS = "flyway.locations";
     public static final String MIXED = "flyway.mixed";
     public static final String OUT_OF_ORDER = "flyway.outOfOrder";
+    public static final String SUPPRESS_OUT_OF_ORDER_WARNING = "flyway.suppressOutOfOrderWarning";
     public static final String SKIP_EXECUTING_MIGRATIONS = "flyway.skipExecutingMigrations";
     public static final String OUTPUT_QUERY_RESULTS = "flyway.outputQueryResults";
     public static final String PASSWORD = "flyway.password";
@@ -246,6 +247,9 @@ public class ConfigUtils {
         }
         if ("FLYWAY_OUT_OF_ORDER".equals(key)) {
             return OUT_OF_ORDER;
+        }
+        if ("FLYWAY_SUPPRESS_OUT_OF_ORDER_WARNING".equals(key)) {
+            return SUPPRESS_OUT_OF_ORDER_WARNING;
         }
         if ("FLYWAY_SKIP_EXECUTING_MIGRATIONS".equals(key)) {
             return SKIP_EXECUTING_MIGRATIONS;

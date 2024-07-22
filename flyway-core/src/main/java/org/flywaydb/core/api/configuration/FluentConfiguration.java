@@ -724,6 +724,16 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
+     * Disables the warning message that is shown during an execution with "outOfOrder" mode.
+     *
+     * @param suppressOutOfOrderWarning {@code true} is warning message should be suppressed, otherwise {@code false}. (default: {@code false})
+     */
+    public FluentConfiguration suppressOutOfOrderWarning(boolean suppressOutOfOrderWarning) {
+        config.setSuppressOutOfOrderWarning(suppressOutOfOrderWarning);
+        return this;
+    }
+
+    /**
      * Whether Flyway should skip actually executing the contents of the migrations and only update the schema history table.
      * This should be used when you have applied a migration manually (via executing the sql yourself, or via an ide), and
      * just want the schema history table to reflect this.

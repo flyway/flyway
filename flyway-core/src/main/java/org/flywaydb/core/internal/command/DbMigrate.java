@@ -183,7 +183,7 @@ public class DbMigrate {
             MigrationVersion schemaVersionToOutput = currentSchemaVersion == null ? MigrationVersion.EMPTY : currentSchemaVersion;
             migrateResult.initialSchemaVersion = schemaVersionToOutput.getVersion();
 
-            if (configuration.isOutOfOrder()) {
+            if (configuration.isOutOfOrder() && !configuration.isSuppressOutOfOrderWarning()) {
                 String outOfOrderWarning = "outOfOrder mode is active. Migration of schema " + schema + " may not be reproducible.";
                 LOG.warn(outOfOrderWarning);
                 migrateResult.addWarning(outOfOrderWarning);
