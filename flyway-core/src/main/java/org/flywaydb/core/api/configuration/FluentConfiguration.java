@@ -723,6 +723,11 @@ public class FluentConfiguration implements Configuration {
         return this;
     }
 
+    /**
+     * Disables the warning message that is shown during an execution with "outOfOrder" mode.
+     *
+     * @param suppressOutOfOrderWarning {@code true} is warning message should be suppressed, otherwise {@code false}. (default: {@code false})
+     */
     public FluentConfiguration suppressOutOfOrderWarning(boolean suppressOutOfOrderWarning) {
         config.setSuppressOutOfOrderWarning(suppressOutOfOrderWarning);
         return this;

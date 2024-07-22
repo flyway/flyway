@@ -51,6 +51,7 @@ flyway {
     skipDefaultCallbacks = false
     target = '1.1'
     outOfOrder = false
+    suppressOutOfOrderWarning = false
     outputQueryResults = false
     validateOnMigrate = true
     cleanOnValidationError = false

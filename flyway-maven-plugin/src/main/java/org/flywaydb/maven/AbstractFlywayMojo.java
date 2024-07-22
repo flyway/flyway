@@ -362,6 +362,9 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     @Parameter(property = ConfigUtils.OUT_OF_ORDER)
     private Boolean outOfOrder;
 
+    /**
+     * Disables the warning message that is shown during an execution with "outOfOrder" mode.
+     */
     @Parameter(property = ConfigUtils.SUPPRESS_OUT_OF_ORDER_WARNING)
     private Boolean suppressOutOfOrderWarning;
 

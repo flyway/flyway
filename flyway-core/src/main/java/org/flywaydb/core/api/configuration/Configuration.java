@@ -410,7 +410,9 @@ public interface Configuration {
     boolean isOutOfOrder();
 
     /**
+     * Disables the warning message that is shown during an execution with "outOfOrder" mode.
      *
+     * @return {@code true} is warning message should be suppressed, otherwise {@code false}. (default: {@code false})
      */
     boolean isSuppressOutOfOrderWarning();
 

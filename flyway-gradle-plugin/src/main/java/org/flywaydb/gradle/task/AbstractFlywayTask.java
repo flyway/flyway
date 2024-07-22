@@ -349,6 +349,9 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      */
     public Boolean outOfOrder;
 
+    /**
+     * Disables the warning message that is shown during an execution with "outOfOrder" mode.
+     */
     public Boolean suppressOutOfOrderWarning;
 
     /**

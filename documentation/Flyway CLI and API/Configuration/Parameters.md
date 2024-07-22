@@ -36,6 +36,7 @@ subtitle: placeholder page
 - [loggers](configuration/parameters/flyway/loggers)
 - [mixed](configuration/parameters/flyway/mixed)
 - [outOfOrder](configuration/parameters/flyway/Out Of Order)
+- [suppressOutOfOrderWarning](configuration/parameters/flyway/Suppress Out Of Order Warning)
 - [outputQueryResults](configuration/parameters/flyway/Output Query Results)
 - [reportFilename](configuration/parameters/flyway/Report Filename)
 - [skipDefaultCallbacks](configuration/parameters/flyway/Skip Default Callbacks)
