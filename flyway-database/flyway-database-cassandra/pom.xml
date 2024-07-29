@@ -10,7 +10,7 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <artifactId>flyway-database-db2</artifactId>
+    <artifactId>flyway-database-cassandra</artifactId>
     <name>${project.artifactId}</name>
     <version>${project.parent.version}</version>
 
@@ -55,16 +55,6 @@
                             </resources>
                             <outputDirectory>${project.build.outputDirectory}/META-INF</outputDirectory>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
                     </execution>
                 </executions>
             </plugin>

@@ -1,8 +1,7 @@
 ---
 subtitle: Cassandra
 ---
-# Cassandra Database - Preview
-{% include redgate.html %}
+# Cassandra Database
 
 - **Verified Versions:** N/A
 - **Maintainer:** Redgate

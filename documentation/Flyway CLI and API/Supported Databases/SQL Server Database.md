@@ -163,11 +163,12 @@ Example:<br/> `jdbc:sqlserver://server01:1234;databaseName=AdventureWorks;integr
 
 ### Azure Active Directory
 
-#### Installing MSAL4J
+#### Installing Dependencies
 
 You must add Microsoft's [MSAL4J library](https://mvnrepository.com/artifact/com.microsoft.azure/msal4j) to your classpath. For instance, as a Maven or Gradle dependency.
+For Azure Active Directory MSI, Azure Identity is also required to be added to your classpath.
 
-For command-line users, MSAL4J is already included, so no extra installation is required.
+For command-line users, MSAL4J and Azure Identity are already included, so no extra installation is required.
 
 #### Connecting
 

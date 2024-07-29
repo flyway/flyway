@@ -9,6 +9,28 @@
 <div class="col-md-9">
 
 <div class="release">
+        <h2 id="10.17.0">Flyway 10.17.0 (2024-07-29)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fixed the bug that prevented powershell scripts from running when located in a folder with spaces in the folder name.</li>
+            <li>Fixed the issue where schemas might get inadvertently cleaned when running check in MySQL</li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>Cassandra taken out of preview and added to OSS edition</li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Azure Identity is now a dependency of Flyway for SQL Server Active Directory MSI authentication</li>
+            <li>Flyway now supports Environment Overrides for parameters configuration</li>
+        </ul>
+
+    </div>
+
+<div class="release">
         <h2 id="10.16.0">Flyway 10.16.0 (2024-07-18)</h2>
 
         <h3>Bug fixes</h3>
@@ -263,6 +285,7 @@
         <h3>Database compatibility</h3>
         <ul>
             <li>Reintroduce OceanBase</li>
+            <li>Cassandra support added as a preview feature in Redgate edition.</li>
         </ul>
 
         <h3>Java compatibility</h3>

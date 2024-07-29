@@ -13,7 +13,7 @@ How you add to the classpath depends on how you are invoking Flyway.
 
 ### Command Line
 
-When using the CLI, you can add to the classpath by dropping the `.jar` files for the libraries or drivers you want to include into a seperate directory and then including it via the [`jarDirs`](</Configuration/Parameters/Flyway/Jar Dirs>) configuration parameter.
+When using the CLI, you can add to the classpath by dropping the `.jar` files for the libraries or drivers you want to include into a separate directory and then including it via the [`jarDirs`](</Configuration/Parameters/Flyway/Jar Dirs>) configuration parameter.
 
 <pre class="filetree"><i class="fa fa-folder-open"></i> flyway
   <i class="fa fa-folder-open"></i> conf

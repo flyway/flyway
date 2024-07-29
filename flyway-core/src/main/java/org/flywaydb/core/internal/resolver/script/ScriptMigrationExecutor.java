@@ -105,6 +105,7 @@ public class ScriptMigrationExecutor implements MigrationExecutor {
             args.add(resourcePath);
         } else if ("ps1".equalsIgnoreCase(resourceExt)) {
             args.add("powershell");
+            args.add("-File");
             args.add(resourcePath);
         } else if ("py".equalsIgnoreCase(resourceExt)) {
             args.add("python");

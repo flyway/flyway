@@ -32,7 +32,6 @@ import java.util.Map;
 @Getter
 @Setter
 @NoArgsConstructor
-@ExtensionMethod(MergeUtils.class)
 public class EnvironmentModel {
 
     private String url;
@@ -47,20 +46,23 @@ public class EnvironmentModel {
     private Map<String, String> jdbcProperties;
     private Map<String, Map<String, Object>> resolvers;
     private String provisioner;
+    private FlywayEnvironmentModel flyway = new FlywayEnvironmentModel();
+
     public EnvironmentModel merge(EnvironmentModel otherPojo) {
         EnvironmentModel result = new EnvironmentModel();
-        result.url = url.merge(otherPojo.url);
-        result.user = user.merge(otherPojo.user);
-        result.password = password.merge(otherPojo.password);
-        result.driver = driver.merge(otherPojo.driver);
-        result.schemas = schemas.merge(otherPojo.schemas);
-        result.jarDirs = jarDirs.merge(otherPojo.jarDirs);
-        result.connectRetries = connectRetries.merge(otherPojo.connectRetries);
-        result.connectRetriesInterval = connectRetriesInterval.merge(otherPojo.connectRetriesInterval);
-        result.initSql = initSql.merge(otherPojo.initSql);
+        result.url = MergeUtils.merge(url, otherPojo.url);
+        result.user = MergeUtils.merge(user, otherPojo.user);
+        result.password = MergeUtils.merge(password, otherPojo.password);
+        result.driver = MergeUtils.merge(driver, otherPojo.driver);
+        result.schemas = MergeUtils.merge(schemas, otherPojo.schemas);
+        result.jarDirs = MergeUtils.merge(jarDirs, otherPojo.jarDirs);
+        result.connectRetries = MergeUtils.merge(connectRetries, otherPojo.connectRetries);
+        result.connectRetriesInterval = MergeUtils.merge(connectRetriesInterval, otherPojo.connectRetriesInterval);
+        result.initSql = MergeUtils.merge(initSql, otherPojo.initSql);
         result.jdbcProperties = MergeUtils.merge(jdbcProperties, otherPojo.jdbcProperties, MergeUtils::merge);
         result.resolvers = MergeUtils.merge(resolvers, otherPojo.resolvers, EnvironmentModel::MergeResolvers);
-        result.provisioner = provisioner.merge(otherPojo.provisioner);
+        result.provisioner = MergeUtils.merge(provisioner, otherPojo.provisioner);
+        result.flyway = flyway.merge(otherPojo.flyway);
         return result;
     }
 

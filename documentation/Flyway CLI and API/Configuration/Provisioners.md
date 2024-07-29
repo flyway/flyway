@@ -10,6 +10,8 @@ Flyway comes with support for the following provisioners:
 - [Clean](Configuration/Provisioners/Clean Provisioner)
 - [Docker - Preview](Configuration/Provisioners/Docker Provisioner)
 - [Redgate Clone - Preview](Configuration/Provisioners/Redgate Clone Provisioner)
+- [Backup - Preview](Configuration/Provisioners/Backup Provisioner)
+- [Snapshot - Preview](Configuration/Provisioners/Snapshot Provisioner)
 
 ## Using Provisioners In TOML Configuration Files
 Provisioners are simply configured by setting the [provisioner](Configuration/Parameters/Environments/Provisioner) property on a configured environment
@@ -26,6 +28,28 @@ dataImage = "mssql-empty"
 dataContainer = "MyContainer"
 dataContainerLifetime = "1h"
 authenticationToken = "${localSecret.RedgateCloneToken}"
+```
+
+## Specifying Provisioners on the command line
+
+Provisioners can also be specified using command line arguments. Provisioner command line arguments have the form:
+
+```bash
+-environments.<environment>.resolvers.<provisioner>.<property>=<value>
+```
+
+For example, the toml configuration above can equivalently be specified as follows:
+
+```bash
+./flyway info \
+-environment='development' \
+-environments.development.url='${clone.url}databaseName=my-database' \
+-environments.development.provisioner='clone' \
+-environments.development.resolvers.clone.url='https://clone.red-gate.com:1234/cloning-api' \
+-environments.development.resolvers.clone.dataImage='mssql-empty' \
+-environments.development.resolvers.clone.dataContainer='MyContainer' \
+-environments.development.resolvers.clone.dataContainerLifetime='1h' \
+-environments.development.resolvers.clone.authenticationToken='${localSecret.RedgateCloneToken}'
 ```
 
 ## Provisioning

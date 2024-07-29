@@ -671,6 +671,8 @@ public class ConfigUtils {
         config.getFlyway().getPluginConfigurations().forEach((name, pluginConfig) -> {
             if (pluginConfig instanceof Map<?, ?>) {
                 ((Map<?, ?>) pluginConfig).forEach((key, value) -> configMap.put("flyway." + name + "." + key, value.toString()));
+            } else {
+                configMap.put("flyway." + name, pluginConfig.toString());
             }
         });
 
@@ -805,6 +807,16 @@ public class ConfigUtils {
         makeRelativeLocationsBasedOnWorkingDirectory(workingDirectory, locationsArray);
         locations.clear();
         locations.addAll(Arrays.asList(locationsArray));
+    }
+
+    public static void makeRelativeLocationsInEnvironmentsBasedOnWorkingDirectory(String workingDirectory, Map<String, EnvironmentModel> environments) {
+        environments.forEach((key, model) -> {
+            List<String> locations = model.getFlyway().getLocations();
+            if (locations != null) {
+                makeRelativeLocationsBasedOnWorkingDirectory(workingDirectory, locations);
+                model.getFlyway().setLocations(locations);
+            }
+        });
     }
 
     public static void makeRelativeLocationsBasedOnWorkingDirectory(String workingDirectory, String[] locations) {

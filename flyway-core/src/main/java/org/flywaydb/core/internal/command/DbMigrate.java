@@ -21,6 +21,7 @@ package org.flywaydb.core.internal.command;
 
 import lombok.CustomLog;
 import lombok.Getter;
+import org.flywaydb.core.ProgressLogger;
 import org.flywaydb.core.api.CoreErrorCode;
 import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
@@ -70,6 +71,7 @@ public class DbMigrate {
      */
     private boolean isPreviousVersioned;
     private final List<ResolvedMigration> appliedResolvedMigrations = new ArrayList<>();
+    private final ProgressLogger progress;
 
     public DbMigrate(Database database,
                      SchemaHistory schemaHistory, Schema schema, CompositeMigrationResolver migrationResolver,
@@ -81,6 +83,7 @@ public class DbMigrate {
         this.migrationResolver = migrationResolver;
         this.configuration = configuration;
         this.callbackExecutor = callbackExecutor;
+        this.progress = configuration.createProgress("migrate");
     }
 
     /**
@@ -88,8 +91,8 @@ public class DbMigrate {
      */
     public MigrateResult migrate() throws FlywayException {
         callbackExecutor.onMigrateOrUndoEvent(Event.BEFORE_MIGRATE);
-        
-        migrateResult = CommandResultFactory.createMigrateResult(database.getCatalog(), 
+
+        migrateResult = CommandResultFactory.createMigrateResult(database.getCatalog(),
                                                                  database.getDatabaseType().getName(),
                                                                  configuration);
 
@@ -288,9 +291,9 @@ public class DbMigrate {
             String failedMsg = "Migration of " + toMigrationText(migration, e.isExecutableInTransaction(), e.isOutOfOrder()) + " failed!";
             stopWatch.stop();
             int executionTime = (int) stopWatch.getTotalTimeMillis();
-            
+
             migrateResult.putFailedMigration(migration, executionTime);
-            
+
             if (database.supportsDdlTransactions() && executeGroupInTransaction) {
                 LOG.error(failedMsg + " Changes successfully rolled back.");
                 migrateResult.markAsRolledBack(group.keySet().stream().toList());
@@ -347,6 +350,7 @@ public class DbMigrate {
             }
         };
 
+        progress.pushSteps(group.size());
         for (Map.Entry<MigrationInfoImpl, Boolean> entry : group.entrySet()) {
             final MigrationInfoImpl migration = entry.getKey();
             boolean isOutOfOrder = entry.getValue();
@@ -363,8 +367,10 @@ public class DbMigrate {
 
             if (skipExecutingMigrations) {
                 LOG.debug("Skipping execution of migration of " + migrationText);
+                progress.log("Skipping migration of " + migration.getScript());
             } else {
                 LOG.debug("Starting migration of " + migrationText + " ...");
+                progress.log("Starting migration of " + migration.getScript() + " ...");
 
                 connectionUserObjects.restoreOriginalState();
                 connectionUserObjects.changeCurrentSchemaTo(schema);
@@ -374,6 +380,7 @@ public class DbMigrate {
                     callbackExecutor.onEachMigrateOrUndoEvent(Event.BEFORE_EACH_MIGRATE);
                     try {
                         LOG.info("Migrating " + migrationText);
+                        progress.log("Migrating " + migration.getScript());
 
                         // With single connection databases we need to manually disable the transaction for the
                         // migration as it is turned on for schema history changes
@@ -396,6 +403,7 @@ public class DbMigrate {
                     }
 
                     LOG.debug("Successfully completed migration of " + migrationText);
+                    progress.log("Successfully completed migration of " + migration.getScript());
                     callbackExecutor.onEachMigrateOrUndoEvent(Event.AFTER_EACH_MIGRATE);
                 } finally {
                     callbackExecutor.setMigrationInfo(null);
@@ -404,7 +412,7 @@ public class DbMigrate {
 
             stopWatch.stop();
             int executionTime = (int) stopWatch.getTotalTimeMillis();
-            
+
             migrateResult.migrations.add(CommandResultFactory.createMigrateOutput(migration, executionTime, null));
             migrateResult.putSuccessfulMigration(migration, executionTime);
 

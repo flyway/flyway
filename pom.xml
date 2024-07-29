@@ -14,7 +14,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>10.16.0</version>
+    <version>10.17.0</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -55,6 +55,7 @@
         <module>flyway-commandline</module>
         <module>flyway-database</module>
         <module>flyway-experimental</module>
+
 
 
 
@@ -140,6 +141,7 @@
         <version.appinsights>3.4.7</version.appinsights>
         <version.aws-java-sdk>2.25.26</version.aws-java-sdk> <!-- TODO: revert back to range once nexus is better -->
         <version.aws-secretsmanager>2.0.2</version.aws-secretsmanager>
+        <version.azure-identity>1.12.2</version.azure-identity>
         <version.byte-buddy-agent>1.11.18</version.byte-buddy-agent>
         <version.cassandra>4.11.1</version.cassandra>
         <version.commonslogging>1.2</version.commonslogging>
@@ -458,34 +460,34 @@
                 <version>${version.informix}</version>
                 <optional>true</optional>
             </dependency>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            <!-- Due to MacOS signing issues, we need to exclude jffi from the cassandra-jdbc-wrapper dependency and
+             imported a compatible version directly. When upgrading the cassandra-jdbc-wrapper version,
+             check if this is still necessary and remove where appropriate.-->
+            <dependency>
+                <groupId>com.ing.data</groupId>
+                <artifactId>cassandra-jdbc-wrapper</artifactId>
+                <version>${version.cassandra}</version>
+                <optional>true</optional>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.github.jnr</groupId>
+                        <artifactId>jffi</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.github.jnr</groupId>
+                <artifactId>jffi</artifactId>
+                <version>${version.jffi}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>com.github.jnr</groupId>
+                <artifactId>jffi</artifactId>
+                <version>${version.jffi}</version>
+                <optional>true</optional>
+                <classifier>native</classifier>
+            </dependency>
 
 
 
@@ -607,6 +609,11 @@
                 <artifactId>mssql-jdbc</artifactId>
                 <version>${version.mssql-jdbc}</version>
                 <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>com.azure</groupId>
+                <artifactId>azure-identity</artifactId>
+                <version>${version.azure-identity}</version>
             </dependency>
             <dependency>
                 <groupId>com.microsoft.azure</groupId>

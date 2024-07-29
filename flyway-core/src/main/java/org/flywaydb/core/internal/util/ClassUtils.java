@@ -227,12 +227,21 @@ public class ClassUtils {
 
     public static Map<String, String> getGettableFieldValues(Object obj, String prefix) {
         Map<String, String> fieldValues = new TreeMap<>();
-        for (Method method : Arrays.stream(obj.getClass().getDeclaredMethods()).filter(m -> m.getName().startsWith("get") && Arrays.stream(m.getAnnotations()).noneMatch(a -> a instanceof DoNotMapForLogging)).collect(Collectors.toList())) {
-            try {
-                method.setAccessible(true);
-                String name = method.getName().substring(3,4).toLowerCase() + method.getName().substring(4);
-                fieldValues.put(prefix + name, method.invoke(obj).toString());
-            } catch (Exception ignored) {}
+
+        Class<?> clazz = obj.getClass();
+        while (clazz != null) {
+            for (Method method : Arrays.stream(clazz.getDeclaredMethods()).filter(m -> m.getName().startsWith("get")
+                && Arrays.stream(m.getAnnotations()).noneMatch(a -> a instanceof DoNotMapForLogging)
+                && !m.getName().equals("getClass")).toList()) {
+                try {
+                    method.setAccessible(true);
+                    String name = method.getName().substring(3, 4).toLowerCase() + method.getName().substring(4);
+                    fieldValues.put(prefix + name, method.invoke(obj).toString());
+                } catch (Exception ignored) {
+                }
+            }
+
+            clazz = clazz.getSuperclass();
         }
         return fieldValues;
     }
