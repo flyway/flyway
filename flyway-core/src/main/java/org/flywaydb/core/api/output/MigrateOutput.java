@@ -20,8 +20,10 @@
 package org.flywaydb.core.api.output;
 
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
+@NoArgsConstructor
 public class MigrateOutput {
     public String category;
     public String version;
@@ -29,6 +31,6 @@ public class MigrateOutput {
     public String type;
     public String filepath;
     public int executionTime;
-    
+
     public transient Boolean rolledBack;
 }

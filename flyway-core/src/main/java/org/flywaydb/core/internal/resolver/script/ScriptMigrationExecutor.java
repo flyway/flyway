@@ -33,6 +33,7 @@ import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.resource.ResourceName;
 import org.flywaydb.core.internal.util.FileUtils;
+import org.flywaydb.core.internal.util.OsUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.io.File;
@@ -104,7 +105,7 @@ public class ScriptMigrationExecutor implements MigrationExecutor {
             args.add("/c");
             args.add(resourcePath);
         } else if ("ps1".equalsIgnoreCase(resourceExt)) {
-            args.add("powershell");
+            args.add(OsUtils.isWindows() ? "powershell" : "pwsh");
             args.add("-File");
             args.add(resourcePath);
         } else if ("py".equalsIgnoreCase(resourceExt)) {

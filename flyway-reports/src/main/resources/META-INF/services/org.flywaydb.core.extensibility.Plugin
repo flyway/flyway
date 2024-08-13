@@ -1,0 +1,7 @@
+org.flywaydb.reports.OperationResultReportGenerator
+org.flywaydb.reports.output.InfoHtmlRenderer
+org.flywaydb.reports.json.InfoResultDeserializer
+org.flywaydb.reports.output.MigrateHtmlRenderer
+org.flywaydb.reports.json.MigrateResultDeserializer
+org.flywaydb.reports.output.HoldingRenderer
+org.flywaydb.reports.output.DashboardRenderer

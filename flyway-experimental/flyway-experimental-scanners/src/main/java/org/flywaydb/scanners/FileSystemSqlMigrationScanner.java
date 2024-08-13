@@ -25,6 +25,7 @@ import lombok.CustomLog;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResource;
+import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
 import org.flywaydb.core.internal.util.Pair;
 
@@ -32,13 +33,13 @@ import org.flywaydb.core.internal.util.Pair;
 public class FileSystemSqlMigrationScanner extends BaseSqlMigrationScanner {
 
     @Override
-    public Collection<Pair<LoadableResource, SqlScriptMetadata>> scan(final Location location, final Configuration configuration) {
+    public Collection<Pair<LoadableResource, SqlScriptMetadata>> scan(final Location location, final Configuration configuration, final ParsingContext parsingContext) {
         final String path = location.getRootPath();
         LOG.debug("Scanning for filesystem resources at '" + path + "'");
 
         final File dir = new File(path);
 
-        return scan(dir, location, configuration);
+        return scan(dir, location, configuration, parsingContext);
     }
 
     @Override

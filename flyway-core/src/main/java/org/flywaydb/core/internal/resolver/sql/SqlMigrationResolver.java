@@ -110,8 +110,8 @@ public class SqlMigrationResolver implements MigrationResolver {
         return list.toArray(new LoadableResource[0]);
     }
 
-    private Integer getChecksumForLoadableResource(boolean repeatable, List<LoadableResource> loadableResources, ResourceName resourceName) {
-        if (repeatable && configuration.isPlaceholderReplacement()) {
+    private Integer getChecksumForLoadableResource(boolean repeatable, List<LoadableResource> loadableResources, ResourceName resourceName, boolean placeholderReplacement) {
+        if (repeatable && placeholderReplacement) {
             parsingContext.updateFilenamePlaceholder(resourceName, configuration);
             return ChecksumCalculator.calculate(createPlaceholderReplacingLoadableResources(loadableResources));
         }
@@ -155,7 +155,7 @@ public class SqlMigrationResolver implements MigrationResolver {
 
 
 
-            Integer checksum = getChecksumForLoadableResource(repeatable, resources, resourceName);
+            Integer checksum = getChecksumForLoadableResource(repeatable, resources, resourceName, sqlScript.placeholderReplacement());
             Integer equivalentChecksum = getEquivalentChecksumForLoadableResource(repeatable, resources);
 
             migrations.add(new ResolvedMigrationImpl(

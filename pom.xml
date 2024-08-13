@@ -14,7 +14,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>10.17.0</version>
+    <version>10.17.1</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -55,6 +55,8 @@
         <module>flyway-commandline</module>
         <module>flyway-database</module>
         <module>flyway-experimental</module>
+        <module>flyway-reports</module>
+
 
 
 
@@ -164,11 +166,13 @@
         <version.jaxb>2.3.1</version.jaxb>
         <version.jaybird>3.0.10</version.jaybird>
         <version.jboss>3.2.15.Final</version.jboss>
+        <version.jetbrains-annotations>24.1.0</version.jetbrains-annotations>
         <version.jffi>1.3.10</version.jffi>
         <version.jimfs>1.3.0</version.jimfs>
         <version.jna>5.13.0</version.jna>
         <version.jtds>1.3.1</version.jtds>
         <version.junit>5.9.0</version.junit>
+        <version.java-diff-utils>4.12</version.java-diff-utils>
         <version.system-stubs>2.0.1</version.system-stubs>
         <version.log4net2>2.17.1</version.log4net2>
         <version.logback>1.2.3</version.logback>
@@ -276,6 +280,12 @@
                 <artifactId>jboss-vfs</artifactId>
                 <version>${version.jboss}</version>
                 <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.jetbrains</groupId>
+                <artifactId>annotations</artifactId>
+                <version>${version.jetbrains-annotations>}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.platform</groupId>
@@ -488,6 +498,11 @@
                 <optional>true</optional>
                 <classifier>native</classifier>
             </dependency>
+
+
+
+
+
 
 
 

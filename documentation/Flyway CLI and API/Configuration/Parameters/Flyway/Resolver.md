@@ -14,6 +14,12 @@ You must ensure that the resolver is available on the classpath (see [Adding to 
 ## Usage
 
 ### Commandline
+Using TOML configuration file
+```powershell
+./flyway -migrationResolvers="my.resolver.MigrationResolver" info
+```
+
+Using conf file
 ```powershell
 ./flyway -resolvers="my.resolver.MigrationResolver" info
 ```

@@ -24,6 +24,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.resource.ResourceName;
@@ -52,6 +53,25 @@ public class ParsingContext {
 
     private String generateName(String name, Configuration configuration) {
         return "flyway" + configuration.getPlaceholderSeparator() + name;
+    }
+    
+    public void populate(final ExperimentalDatabase database, final Configuration configuration) {
+        String defaultSchemaName = configuration.getDefaultSchema();
+        final String[] schemaNames = configuration.getSchemas();
+        if (defaultSchemaName == null) {
+            if (schemaNames.length > 0) {
+                defaultSchemaName = schemaNames[0];
+            } 
+        }
+
+        if (defaultSchemaName != null) {
+            placeholders.put(generateName(DEFAULT_SCHEMA_PLACEHOLDER,configuration), defaultSchemaName);
+        }
+
+        placeholders.put(generateName(TIMESTAMP_PLACEHOLDER,configuration), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+        placeholders.put(generateName(WORKING_DIRECTORY_PLACEHOLDER,configuration), System.getProperty("user.dir"));
+        placeholders.put(generateName(TABLE_PLACEHOLDER,configuration), configuration.getTable());
+        placeholders.put(generateName(ENVIRONMENT_PLACEHOLDER, configuration), configuration.getCurrentEnvironmentName());
     }
 
     public void populate(Database database, Configuration configuration) {

@@ -24,9 +24,10 @@ import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.extensibility.Plugin;
+import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
 import org.flywaydb.core.internal.util.Pair;
 
 public interface ExperimentalMigrationScanner extends Plugin  {
-    Collection<Pair<LoadableResource, SqlScriptMetadata>> scan(Location location, Configuration configuration);
+    Collection<Pair<LoadableResource, SqlScriptMetadata>> scan(Location location, Configuration configuration, ParsingContext parsingContext);
 }

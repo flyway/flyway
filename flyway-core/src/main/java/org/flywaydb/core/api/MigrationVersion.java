@@ -186,6 +186,16 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
     }
 
     /**
+     * Convenience method for quickly checking whether this version is newer than this other version.
+     *
+     * @param otherVersion The other version.
+     * @return {@code true} if this version is newer, {@code false} if it is not.
+     */
+    public boolean isNewerThan(MigrationVersion otherVersion) {
+        return compareTo(otherVersion) > 0;
+    }
+
+    /**
      * Convenience method for quickly checking whether this major version is newer than this other major version.
      *
      * @param otherVersion The other version.

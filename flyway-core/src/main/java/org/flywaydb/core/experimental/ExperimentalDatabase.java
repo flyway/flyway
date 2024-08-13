@@ -61,10 +61,56 @@ public interface ExperimentalDatabase extends Plugin, AutoCloseable  {
      */
     void createSchemaHistoryTable(String tableName);
 
+    boolean schemaHistoryTableExists(String tableName);
+
     /**
      * Get a model representation of the schema history table and its content.
      * @param tableName The name of the schema history table.
      * @return A model representation of the schema history table and its content.
      */
     SchemaHistoryModel getSchemaHistoryModel(String tableName);
+
+
+    /**
+     * Quotes this identifier for use in SQL queries.
+     */
+    default String doQuote(final String identifier) {
+        return getOpenQuote() + identifier + getCloseQuote();
+    }
+
+    
+    default String getOpenQuote() {
+        return "\"";
+    }
+
+    
+    default String getCloseQuote() {
+        return "\"";
+    }
+
+    /**
+     * Quotes these identifiers for use in SQL queries. Multiple identifiers will be quoted and separated by a dot.
+     */
+    default String quote(String... identifiers) {
+        final StringBuilder result = new StringBuilder();
+
+        boolean first = true;
+        for (final String identifier : identifiers) {
+            if (!first) {
+                result.append(".");
+            }
+            first = false;
+            result.append(doQuote(identifier));
+        }
+
+        return result.toString();
+    }
+    
+    String getCurrentSchema();
+
+    /**
+     * Checks if all schemas are empty.
+     * @return True if all schemas are empty, false otherwise.
+     */
+    Boolean allSchemasEmpty();
 }

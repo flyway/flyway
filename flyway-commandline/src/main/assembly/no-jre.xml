@@ -29,7 +29,7 @@
     <componentDescriptors>
         <componentDescriptor>src/main/assembly/component.xml</componentDescriptor>
     </componentDescriptors>
-    <!-- [teams] -->
+    <!-- [redgate] -->
     <fileSets>
         <fileSet>
             <directory>../flyway-rgcompare/src/main/resources/rgcompare/linux-x64</directory>
@@ -48,5 +48,5 @@
             <fileMode>755</fileMode>
         </fileSet>
     </fileSets>    
-    <!-- [/teams] -->
+    <!-- [/redgate] -->
 </assembly>

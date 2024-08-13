@@ -172,8 +172,10 @@
                 <include>org.apache.commons:commons-text</include>
                 <include>com.fasterxml.jackson.core:jackson-core</include>
                 <include>com.fasterxml.jackson.core:jackson-annotations</include>
+                <include>com.fasterxml.jackson.core:jackson-databind</include>
                 <include>com.fasterxml.jackson.dataformat:jackson-dataformat-toml</include>
                 <include>com.fasterxml.jackson.dataformat:jackson-dataformat-xml</include>
+                <include>com.fasterxml.jackson.datatype:jackson-datatype-jsr310</include>
                 <include>org.slf4j:slf4j-nop</include>
                 <include>com.nimbusds:nimbus-jose-jwt</include>
                 <include>com.nimbusds:oauth2-oidc-sdk</include>
@@ -181,6 +183,9 @@
                 <include>net.java.dev.jna:jna</include>
                 <include>net.java.dev.jna:jna-platform</include>
                 <include>com.microsoft.azure:msal4j-persistence-extension</include>
+
+
+
             </includes>
         </dependencySet>
         <dependencySet>
@@ -222,6 +227,7 @@
                 <include>org.flywaydb:flyway-mysql</include>
                 <include>org.flywaydb:flyway-firebird</include>
                 <include>org.flywaydb:flyway-database-cassandra</include>
+                <include>org.flywaydb:flyway-reports</include>
 
 
 
@@ -299,6 +305,8 @@
                 <exclude>org.slf4j:slf4j-nop</exclude>
                 <exclude>org.apache.commons:commons-text</exclude>
                 <exclude>com.fasterxml.jackson.dataformat:jackson-dataformat-xml</exclude>
+                <exclude>com.fasterxml.jackson.datatype:jackson-datatype-jsr310</exclude>
+                <exclude>com.fasterxml.jackson.core:jackson-databind</exclude>
                 <exclude>com.microsoft.azure:msal4j</exclude>
                 <exclude>com.ing.data:cassandra-jdbc-wrapper</exclude>
                 <exclude>com.google.cloud:google-cloud-spanner-jdbc</exclude>

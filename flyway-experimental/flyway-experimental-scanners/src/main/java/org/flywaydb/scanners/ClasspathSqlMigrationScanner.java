@@ -29,13 +29,14 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResource;
+import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
 import org.flywaydb.core.internal.util.Pair;
 
 @CustomLog
 public class ClasspathSqlMigrationScanner extends BaseSqlMigrationScanner {
     @Override
-    public Collection<Pair<LoadableResource, SqlScriptMetadata>> scan(final Location location, final Configuration configuration) {
+    public Collection<Pair<LoadableResource, SqlScriptMetadata>> scan(final Location location, final Configuration configuration, final ParsingContext parsingContext) {
         if (!location.isClassPath()){
             return List.of();
         }
@@ -53,7 +54,7 @@ public class ClasspathSqlMigrationScanner extends BaseSqlMigrationScanner {
             return Collections.emptyList();
         }
         final File directory = new File(resource.getPath());
-        return scan(directory, location, configuration);
+        return scan(directory, location, configuration, parsingContext);
     }
 
     @Override

@@ -19,11 +19,10 @@
  */
 package org.flywaydb.core.api.output;
 
+import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
 import lombok.experimental.Tolerate;
 
 @NoArgsConstructor
@@ -41,7 +40,7 @@ public class HtmlResult implements OperationResult {
     @Setter
     private boolean licenseFailed;
 
-    public HtmlResult(LocalDateTime timestamp, String operation) {
+    public HtmlResult(final LocalDateTime timestamp, final String operation) {
         setTimestamp(timestamp);
         this.operation = operation;
     }
@@ -55,7 +54,7 @@ public class HtmlResult implements OperationResult {
         return LocalDateTime.parse(timestamp);
     }
 
-    public void setException(Exception exception) {
+    public void setException(final Exception exception) {
         if (exception != null) {
             this.exceptionObject = exception;
             this.exception = exception.getMessage();

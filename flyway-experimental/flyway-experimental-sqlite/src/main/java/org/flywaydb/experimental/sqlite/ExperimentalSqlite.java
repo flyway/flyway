@@ -21,7 +21,9 @@ package org.flywaydb.experimental.sqlite;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.experimental.ConnectionType;
@@ -46,12 +48,12 @@ public class ExperimentalSqlite implements ExperimentalDatabase {
 
     @Override
     public void initialize(final ResolvedEnvironment environment) throws SQLException {
-        final var url = environment.getUrl();
-        final var dataSource = new SQLiteDataSource();
+        final String url = environment.getUrl();
+        final SQLiteDataSource dataSource = new SQLiteDataSource();
         dataSource.setUrl(url);
         
-        final var connectRetries = environment.getConnectRetries() != null ? environment.getConnectRetries() : 0;
-        final var connectRetriesInterval = environment.getConnectRetriesInterval() != null ? environment.getConnectRetriesInterval() : 0;
+        final int connectRetries = environment.getConnectRetries() != null ? environment.getConnectRetries() : 0;
+        final int connectRetriesInterval = environment.getConnectRetriesInterval() != null ? environment.getConnectRetriesInterval() : 0;
         connection = JdbcUtils.openConnection(dataSource, connectRetries, connectRetriesInterval);
     }
 
@@ -66,8 +68,8 @@ public class ExperimentalSqlite implements ExperimentalDatabase {
     @Override
     public void createSchemaHistoryTable(final String tableName) {
         try {
-            final var statement = connection.createStatement();
-            final var createSql = "CREATE TABLE \"" + tableName + "\" (\n" +
+            final Statement statement = connection.createStatement();
+            final String createSql = "CREATE TABLE \"" + tableName + "\" (\n" +
                 "    \"installed_rank\" INT NOT NULL PRIMARY KEY,\n" +
                 "    \"version\" VARCHAR(50),\n" +
                 "    \"description\" VARCHAR(200) NOT NULL,\n" +
@@ -84,12 +86,23 @@ public class ExperimentalSqlite implements ExperimentalDatabase {
             throw new FlywayException(e);
         }
     }
+    
+    @Override
+    public boolean schemaHistoryTableExists(final String tableName) {
+        try {
+            final Statement statement = connection.createStatement();
+            final ResultSet resultSet = statement.executeQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='" + tableName + "'");
+            return resultSet.next();
+        } catch (final SQLException e) {
+            throw new FlywayException(e);
+        }
+    }
 
     @Override
     public SchemaHistoryModel getSchemaHistoryModel(final String tableName) {
         try {
-            final var statement = connection.createStatement();
-            final var querySql = "SELECT installed_rank"
+            final Statement statement = connection.createStatement();
+            final String querySql = "SELECT installed_rank"
                 + ", version"
                 + ", description"
                 + ", type"
@@ -102,8 +115,8 @@ public class ExperimentalSqlite implements ExperimentalDatabase {
                 + " FROM \"" + tableName + "\""
                 + " WHERE installed_rank > 0"
                 + " ORDER BY installed_rank";
-            final var resultSet = statement.executeQuery(querySql);
-            final var items = new ArrayList<SchemaHistoryItem>();
+            final ResultSet resultSet = statement.executeQuery(querySql);
+            final ArrayList<SchemaHistoryItem> items = new ArrayList<SchemaHistoryItem>();
             while(resultSet.next()) {
                 items.add(SchemaHistoryItem
                               .builder()
@@ -129,6 +142,23 @@ public class ExperimentalSqlite implements ExperimentalDatabase {
     public void close() throws Exception {
         if (connection != null && !connection.isClosed()) {
             connection.close();
+        }
+    }
+
+    @Override
+    public String getCurrentSchema() {
+        return "main";
+    }
+
+    @Override
+    public Boolean allSchemasEmpty() {
+        try {
+            final Statement statement = connection.createStatement();
+            final ResultSet resultSet = statement.executeQuery("SELECT COUNT(*) FROM sqlite_master");
+            resultSet.next();
+            return resultSet.getInt(1) == 0;
+        } catch (final SQLException e) {
+            throw new FlywayException(e);
         }
     }
 }

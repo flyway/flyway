@@ -141,7 +141,7 @@ public abstract class Parser {
      * @return The new reader with placeholder replacement.
      */
     protected Reader replacePlaceholders(Reader reader, SqlScriptMetadata metadata) {
-        if (configuration.isPlaceholderReplacement() && (metadata == null || metadata.placeholderReplacement())) {
+        if ((metadata == null || metadata.placeholderReplacement() == null) ? configuration.isPlaceholderReplacement() : metadata.placeholderReplacement()) {
             return PlaceholderReplacingReader.create(configuration, parsingContext, reader);
         }
         return reader;

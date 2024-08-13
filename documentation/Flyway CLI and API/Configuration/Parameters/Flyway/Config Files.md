@@ -19,13 +19,15 @@ It is simpler to use environment variables and/or variable substitution if you n
 
 ### Commandline
 ```powershell
-./flyway -configFiles="my.conf" info
+./flyway -configFiles="my.toml" info
 ```
 To pass in multiple files, separate their names with commas:
 
 ```powershell
-./flyway -configFiles=path/to/myAlternativeConfig.conf,other.conf migrate
+./flyway -configFiles=path/to/myAlternativeConfig.toml,other.toml migrate
 ```
+
+This will also work with `.conf` config files.
 
 ### TOML Configuration File
 Not available
@@ -35,7 +37,7 @@ Not available
 
 ### Environment Variable
 ```properties
-FLYWAY_CONFIG_FILES=my.conf
+FLYWAY_CONFIG_FILES=my.toml
 ```
 
 ### API

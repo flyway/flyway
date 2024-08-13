@@ -32,6 +32,8 @@ import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.experimental.migration.ExperimentalMigrationScanner;
+import org.flywaydb.core.internal.parser.Parser;
+import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.resource.ResourceNameParser;
 import org.flywaydb.core.internal.resource.filesystem.FileSystemResource;
 import org.flywaydb.core.internal.scanner.filesystem.DirectoryValidationResult;
@@ -41,7 +43,7 @@ import org.flywaydb.core.internal.util.Pair;
 @CustomLog
 public abstract class BaseSqlMigrationScanner implements ExperimentalMigrationScanner {
    
-    public Collection<Pair<LoadableResource, SqlScriptMetadata>> scan(final File dir, final Location location, final Configuration configuration) {
+    public Collection<Pair<LoadableResource, SqlScriptMetadata>> scan(final File dir, final Location location, final Configuration configuration, final ParsingContext parsingContext) {
         final DirectoryValidationResult validationResult = getDirectoryValidationResult(dir);
         final String fileOrClasspath = location.isFileSystem() ? "filesystem" : "classpath";
         if (validationResult != DirectoryValidationResult.VALID) {
@@ -66,20 +68,21 @@ public abstract class BaseSqlMigrationScanner implements ExperimentalMigrationSc
                             .filter(path -> matchesPath(path, location))
                             .map(resourceName -> processResource(location,
                                                                  configuration,
-                                                                 resourceName))
+                                                                 resourceName, parsingContext))
                             .toList();
     }
     abstract boolean matchesPath(String path, Location location);
 
     private static Pair<LoadableResource, SqlScriptMetadata> processResource(final Location location,
-                                                    final Configuration configuration,
-                                                    final String resourceName) {
+        final Configuration configuration,
+        final String resourceName,
+        final ParsingContext parsingContext) {
         boolean detectEncodingForThisResource = configuration.isDetectEncoding();
         Charset encoding = configuration.getEncoding();
         String encodingBlurb = "";
         SqlScriptMetadata metadata = null;
         if (new File(resourceName + ".conf").exists()) {
-            metadata = getSqlScriptMetadata(location, configuration, resourceName);
+            metadata = getSqlScriptMetadata(location, configuration, resourceName, parsingContext);
             if (metadata.encoding() != null) {
                 encoding = Charset.forName(metadata.encoding());
                 detectEncodingForThisResource = false;
@@ -98,13 +101,23 @@ public abstract class BaseSqlMigrationScanner implements ExperimentalMigrationSc
     }
 
     private static SqlScriptMetadata getSqlScriptMetadata(final Location location,
-                                                          final Configuration configuration,
-                                                          final String resourceName) {
+        final Configuration configuration,
+        final String resourceName,
+        final ParsingContext parsingContext) {
         final LoadableResource metadataResource = new FileSystemResource(location,
-                                                                         resourceName + ".conf",
-                                                                         configuration.getEncoding(),
-                                                                         false);
-        return SqlScriptMetadata.fromResource(metadataResource, null, configuration);
+            resourceName + ".conf",
+            configuration.getEncoding(),
+            false);
+        return SqlScriptMetadata.fromResource(metadataResource,
+            new MetadataParser(configuration, parsingContext),
+            configuration);
+    }
+    
+    private static class MetadataParser extends Parser {
+        private MetadataParser(final Configuration configuration,
+            final ParsingContext parsingContext) {
+            super(configuration, parsingContext, 0);
+        }
     }
 
     private DirectoryValidationResult getDirectoryValidationResult(final File directory) {

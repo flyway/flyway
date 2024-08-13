@@ -30,29 +30,42 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class CommandResultFactory {
-    public static InfoResult createInfoResult(Configuration configuration, Database database, MigrationInfo[] migrationInfos, MigrationInfo current, boolean allSchemasEmpty) {
-        String flywayVersion = VersionPrinter.getVersion();
-        String databaseName = getDatabaseName(configuration, database);
-        Set<MigrationInfo> undoableMigrations = getUndoMigrations(migrationInfos);
+    public static InfoResult createInfoResult(final Configuration configuration,
+        final Database database,
+        final MigrationInfo[] migrationInfos,
+        final MigrationInfo current,
+        final boolean allSchemasEmpty) {
+        final String databaseName = getDatabaseName(configuration, database);
+        return createInfoResult(configuration, databaseName, migrationInfos, current, allSchemasEmpty);
+    }
+
+    public static InfoResult createInfoResult(final Configuration configuration,
+        final String databaseName,
+        MigrationInfo[] migrationInfos,
+        final MigrationInfo current,
+        final boolean allSchemasEmpty) {
+        final String flywayVersion = VersionPrinter.getVersion();
+        final Set<MigrationInfo> undoableMigrations = getUndoMigrations(migrationInfos);
 
         migrationInfos = removeAvailableUndoMigrations(migrationInfos);
 
-        List<InfoOutput> infoOutputs = new ArrayList<>();
-        for (MigrationInfo migrationInfo : migrationInfos) {
+        final List<InfoOutput> infoOutputs = new ArrayList<>();
+        for (final MigrationInfo migrationInfo : migrationInfos) {
             infoOutputs.add(createInfoOutput(undoableMigrations, migrationInfo));
         }
 
-        MigrationVersion currentSchemaVersion = current == null ? MigrationVersion.EMPTY : current.getVersion();
-        MigrationVersion schemaVersionToOutput = currentSchemaVersion == null ? MigrationVersion.EMPTY : currentSchemaVersion;
-        String schemaVersion = schemaVersionToOutput.getVersion();
+        final MigrationVersion currentSchemaVersion = current == null ? MigrationVersion.EMPTY : current.getVersion();
+        final MigrationVersion schemaVersionToOutput = currentSchemaVersion == null
+            ? MigrationVersion.EMPTY
+            : currentSchemaVersion;
+        final String schemaVersion = schemaVersionToOutput.getVersion();
 
-        return new InfoResult(
-                flywayVersion,
-                databaseName,
-                schemaVersion,
-                String.join(", ", configuration.getSchemas()),
-                infoOutputs,
-                allSchemasEmpty);
+        return new InfoResult(flywayVersion,
+            databaseName,
+            schemaVersion,
+            String.join(", ", configuration.getSchemas()),
+            infoOutputs,
+            allSchemasEmpty);
     }
 
     public static MigrateResult createMigrateResult(String databaseName, String databaseType, Configuration configuration) {

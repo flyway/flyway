@@ -73,6 +73,13 @@ public interface SqlScript extends Comparable<SqlScript> {
     default String shouldExecuteExpression() { return null; }
 
     /**
+     * Whether the script should honor placeholders.
+     *
+     * @return {@code true} if the script should honor placeholders, or {@code false} if not.
+     */
+    boolean placeholderReplacement();
+
+    /**
      * Validates this SQL script.
      */
     void validate();

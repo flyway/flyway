@@ -45,7 +45,7 @@ public class SqlScriptMetadata {
 
     private final Boolean executeInTransaction;
     private final String encoding;
-    private final boolean placeholderReplacement;
+    private final Boolean placeholderReplacement;
     private String shouldExecuteExpression;
     private boolean shouldExecute;
 
@@ -56,7 +56,7 @@ public class SqlScriptMetadata {
         this.executeInTransaction = removeBoolean(metadata, EXECUTE_IN_TRANSACTION);
         this.encoding = metadata.remove(ENCODING);
 
-        this.placeholderReplacement = Boolean.parseBoolean(metadata.getOrDefault(PLACEHOLDER_REPLACEMENT, "true"));
+        this.placeholderReplacement = removeBoolean(metadata, PLACEHOLDER_REPLACEMENT);
         metadata.remove(PLACEHOLDER_REPLACEMENT);
 
         this.shouldExecute = true;
@@ -85,7 +85,7 @@ public class SqlScriptMetadata {
         return encoding;
     }
 
-    public boolean placeholderReplacement() {
+    public Boolean placeholderReplacement() {
         return placeholderReplacement;
     }
 

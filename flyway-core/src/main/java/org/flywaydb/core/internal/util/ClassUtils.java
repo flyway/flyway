@@ -19,6 +19,7 @@
  */
 package org.flywaydb.core.internal.util;
 
+import java.lang.reflect.InvocationTargetException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
@@ -225,7 +226,29 @@ public class ClassUtils {
         }
     }
 
-    public static Map<String, String> getGettableFieldValues(Object obj, String prefix) {
+    public static List<String> getGettableField(final Object obj) {
+        return getGettableField(obj, "");
+    }
+
+    public static List<String> getGettableField(final Object obj, final String prefix) {
+        List<String> fields = new ArrayList<>();
+
+        Class<?> clazz = obj.getClass();
+        while (clazz != null) {
+            for (Method method : Arrays.stream(clazz.getDeclaredMethods()).filter(m -> m.getName().startsWith("get")
+                && Arrays.stream(m.getAnnotations()).noneMatch(a -> a instanceof DoNotMapForLogging)
+                && !m.getName().equals("getClass")).toList()) {
+                    method.setAccessible(true);
+                    String name = method.getName().substring(3, 4).toLowerCase() + method.getName().substring(4);
+                    fields.add(prefix + name);
+            }
+
+            clazz = clazz.getSuperclass();
+        }
+        return fields;
+    }
+
+    public static Map<String, String> getGettableFieldValues(final Object obj, final String prefix) {
         Map<String, String> fieldValues = new TreeMap<>();
 
         Class<?> clazz = obj.getClass();

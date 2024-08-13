@@ -294,9 +294,10 @@ public class FlywayExecutor {
 
 
 
-
-
-
+        LOG.debug("Scanning for script callbacks ...");
+        ScriptMigrationResolver scriptMigrationResolver = new ScriptMigrationResolver(resourceProvider, configuration, parsingContext, statementInterceptor);
+        scriptMigrationResolver.resolveCallbacks();
+        effectiveCallbacks.addAll(scriptMigrationResolver.scriptCallbacks);
 
         if (!configuration.isSkipDefaultCallbacks()) {
             SqlScriptExecutorFactory sqlScriptExecutorFactory = jdbcConnectionFactory.getDatabaseType().createSqlScriptExecutorFactory(

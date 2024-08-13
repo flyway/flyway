@@ -35,7 +35,6 @@ import org.flywaydb.core.internal.configuration.TomlUtils;
 import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
 import org.flywaydb.core.internal.configuration.models.EnvironmentModel;
 import org.flywaydb.core.internal.configuration.models.FlywayEnvironmentModel;
-import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.MergeUtils;
 
@@ -52,6 +51,7 @@ import java.util.stream.Collectors;
 
 import static org.flywaydb.core.internal.configuration.ConfigUtils.DEFAULT_CLI_JARS_LOCATION;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.DEFAULT_CLI_SQL_LOCATION;
+import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeJarDirsBasedOnWorkingDirectory;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeJarDirsInEnvironmentsBasedOnWorkingDirectory;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeLocationsBasedOnWorkingDirectory;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeLocationsInEnvironmentsBasedOnWorkingDirectory;
@@ -61,6 +61,7 @@ public class ModernConfigurationManager implements ConfigurationManager {
 
     private static final Pattern ANY_WORD_BETWEEN_TWO_QUOTES_PATTERN = Pattern.compile("\\[\"([^\"]*)\"]");
     private static final String UNABLE_TO_PARSE_FIELD = "Unable to parse '%s' in your TOML configuration file";
+    private static final String FLYWAY_NAMESPACE = "flyway";
 
     public Configuration getConfiguration(CommandLineArguments commandLineArguments) {
         String installDirectory =
@@ -124,7 +125,7 @@ public class ModernConfigurationManager implements ConfigurationManager {
                         ((Map<String, String>)envValueObject.get("jdbcProperties")).put(entry.getKey().substring("jdbcProperties.".length()), entry.getValue());
                     } else if (entry.getKey().startsWith("flyway.")) {
                         flywayEnvironmentModelArguments.put(entry.getKey(), entry.getValue());
-                    } else if (entry.getKey().equals("schemas") || entry.getKey().equals("jarDirs")) {
+                    } else if (entry.getKey().equals("schemas")) {
                         envValueObject.put(entry.getKey(), Arrays.stream(entry.getValue().split(",")).map(String::trim).toList());
                     } else if (entry.getKey().startsWith("resolvers.")) {
                         handleResolverCommandLineArgs(envKey, entry, envValueObject);
@@ -133,7 +134,7 @@ public class ModernConfigurationManager implements ConfigurationManager {
                     }
                 });
 
-                envValueObject.put("flyway",
+                envValueObject.put(FLYWAY_NAMESPACE,
                     new FlywayEnvironmentModel().merge(TomlUtils.loadConfigurationFromCommandlineArgs(
                         flywayEnvironmentModelArguments).getFlyway()));
 
@@ -162,6 +163,7 @@ public class ModernConfigurationManager implements ConfigurationManager {
         if (workingDirectory != null) {
             makeRelativeLocationsBasedOnWorkingDirectory(workingDirectory, config.getFlyway().getLocations());
             makeRelativeLocationsInEnvironmentsBasedOnWorkingDirectory(workingDirectory, config.getEnvironments());
+            makeRelativeJarDirsBasedOnWorkingDirectory(workingDirectory, config.getFlyway().getJarDirs());
             makeRelativeJarDirsInEnvironmentsBasedOnWorkingDirectory(workingDirectory, config.getEnvironments());
         }
 
@@ -207,12 +209,28 @@ public class ModernConfigurationManager implements ConfigurationManager {
 
         boolean rootConfigurationsIsEmpty = config.getRootConfigurations().isEmpty();
 
-        checkUnknownParamsInFlywayNamespace(config.getFlyway(),
-            configuredPluginParameters, rootConfigurationsIsEmpty);
+        final List<FlywayException> configurationExceptions = new ArrayList<>();
 
-        checkUnknownParamsInFlywayNamespace(config.getEnvironments().get(cfg.getCurrentEnvironmentName()).getFlyway(),
-            Collections.emptyList(),
-            rootConfigurationsIsEmpty);
+        try {
+            checkUnknownParamsInFlywayNamespace(config.getFlyway(),
+                configuredPluginParameters, rootConfigurationsIsEmpty,
+                "flyway.");
+        } catch (FlywayException e) {
+            configurationExceptions.add(e);
+        }
+        try {
+            checkUnknownParamsInFlywayNamespace(config.getEnvironments().get(cfg.getCurrentEnvironmentName()).getFlyway(),
+                Collections.emptyList(),
+                rootConfigurationsIsEmpty,
+                "environments."+cfg.getCurrentEnvironmentName()+".flyway.");
+        } catch (final FlywayException e) {
+            configurationExceptions.add(e);
+        }
+
+        if(!configurationExceptions.isEmpty()) {
+            combineConfigurationExceptions(configurationExceptions);
+        }
+
     }
 
     private static void loadJarDirsAndAddToClasspath(String workingDirectory, ClassicConfiguration cfg) {
@@ -224,10 +242,7 @@ public class ModernConfigurationManager implements ConfigurationManager {
             jarDirs.add(jarDir.getAbsolutePath());
         }
 
-        ResolvedEnvironment resolvedEnvironment = cfg.getCurrentResolvedEnvironment();
-        if (resolvedEnvironment != null) {
-            jarDirs.addAll(resolvedEnvironment.getJarDirs());
-        }
+        jarDirs.addAll(cfg.getJarDirs());
 
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
@@ -345,33 +360,104 @@ public class ModernConfigurationManager implements ConfigurationManager {
         return fullFieldName.toString();
     }
 
-    private void checkUnknownParamsInFlywayNamespace(FlywayEnvironmentModel flyway, List<String> configuredPluginParameters, boolean rootConfigurationsIsEmpty) {
-        Map<String, Object> pluginConfigurations = flyway.getPluginConfigurations();
-        pluginConfigurations.remove("jarDirs");
+    private void checkUnknownParamsInFlywayNamespace(final FlywayEnvironmentModel flyway,
+        final Collection<String> configuredPluginParameters,
+        boolean rootConfigurationsIsEmpty,
+        final String prefix) {
+        final Map<String, Object> pluginConfigurations = flyway.getPluginConfigurations();
 
-        List<String> pluginParametersWhichShouldHaveBeenConfigured = new ArrayList<>();
-        for (Map.Entry<String, Object> configuration : pluginConfigurations.entrySet()) {
-            if (configuration.getValue() instanceof Map<?, ?>) {
-                Map<String, Object> temp = (Map<String, Object>) configuration.getValue();
-                pluginParametersWhichShouldHaveBeenConfigured.addAll(temp.keySet());
-            } else {
-                pluginParametersWhichShouldHaveBeenConfigured.add(configuration.getKey());
-            }
-        }
+        final Map<String, List<String>> pluginParametersWhichShouldHaveBeenConfigured = getPluginParametersWhichShouldHaveBeenConfigured(pluginConfigurations);
 
-        List<String> missingParams = pluginParametersWhichShouldHaveBeenConfigured.stream()
-            .filter(p -> !configuredPluginParameters.contains(p))
-            .toList();
+        final Map<String, List<String>> missingParams = getUnrecognisedParameters(pluginParametersWhichShouldHaveBeenConfigured,
+            configuredPluginParameters);
 
         if (!missingParams.isEmpty()) {
+            throwMissingParameters(flyway, missingParams, rootConfigurationsIsEmpty, prefix);
+        }
+    }
 
-            if (rootConfigurationsIsEmpty) {
-
-            throw new FlywayException(
-                "Failed to configure Parameters: " + String.join(", ", missingParams));
-
+    private static Map<String, List<String>> getUnrecognisedParameters(final Map<String,
+        List<String>> pluginParametersWhichShouldHaveBeenConfigured,
+        final Collection<String> configuredPluginParameters) {
+        final Map<String, List<String>> missingParams = new HashMap<>();
+        for (final Map.Entry<String, List<String>> entry : pluginParametersWhichShouldHaveBeenConfigured.entrySet()) {
+            final List<String> missing = entry.getValue().stream()
+                .filter(p -> !configuredPluginParameters.contains(p))
+                .collect(Collectors.toList());
+            if (!missing.isEmpty()) {
+                missingParams.put(entry.getKey(), missing);
             }
+        }
+        return missingParams;
+    }
+
+    private Map<String, List<String>> getPluginParametersWhichShouldHaveBeenConfigured(final Map<String, Object> pluginConfigurations) {
+        final Map<String, List<String>> pluginParametersWhichShouldHaveBeenConfigured = new HashMap<>();
+        for (final Map.Entry<String, Object> configuration : pluginConfigurations.entrySet()) {
+            if (configuration.getValue() instanceof final Map<?, ?> temp) {
+
+                pluginParametersWhichShouldHaveBeenConfigured.put(configuration.getKey(), temp.keySet().stream().map(Object::toString).toList());
+            } else {
+                if (!pluginParametersWhichShouldHaveBeenConfigured.containsKey(FLYWAY_NAMESPACE)) {
+                    pluginParametersWhichShouldHaveBeenConfigured.put(FLYWAY_NAMESPACE, new ArrayList<>());
+                }
+                pluginParametersWhichShouldHaveBeenConfigured.get(FLYWAY_NAMESPACE).add(configuration.getKey());
+            }
+        }
+        return pluginParametersWhichShouldHaveBeenConfigured;
+    }
+
+    private static void throwMissingParameters(final FlywayEnvironmentModel model,
+        final Map<String, ? extends List<String>> missingParams,
+        boolean rootConfigurationsIsEmpty,
+        final String prefix ) {
+
+        if (rootConfigurationsIsEmpty) {
+
+        final StringBuilder exceptionMessage = new StringBuilder();
+        if(missingParams.containsKey(FLYWAY_NAMESPACE)) {
+            final Map<String, List<String>> possibleConfiguration = missingParams.get(FLYWAY_NAMESPACE).stream()
+                .collect(Collectors.toMap(p -> p, p -> ConfigUtils.getPossibleFlywayConfigurations(p, model)));
+            for (final Map.Entry<String, List<String>> entry : possibleConfiguration.entrySet()) {
+                exceptionMessage.append("\t")
+                    .append("Parameter: ")
+                    .append(prefix)
+                    .append(entry.getKey())
+                    .append("\n");
+                if (!entry.getValue().isEmpty()) {
+                    exceptionMessage.append("\t\t").append("Possible values:").append("\n");
+                    entry.getValue().forEach(v -> exceptionMessage.append("\t\t").append("- ").append(prefix).append(v).append("\n"));
+                }
+            }
+        }
+        missingParams.entrySet().stream()
+            .filter(e -> !e.getKey().equals(FLYWAY_NAMESPACE))
+            .forEach(e ->
+                e.getValue().forEach(p -> {
+                    exceptionMessage.append("\t")
+                        .append("Parameter:")
+                        .append(prefix)
+                        .append(e.getKey())
+                        .append(".")
+                        .append(p)
+                        .append("\n");
+                })
+            );
+
+
+        exceptionMessage.deleteCharAt(exceptionMessage.length() - 1);
+        throw new FlywayException(exceptionMessage.toString());
 
         }
+
+    }
+
+    private static void combineConfigurationExceptions(final Iterable<? extends FlywayException> configurationExceptions) {
+        final StringBuilder exceptionMessage = new StringBuilder("Failed to configure parameters:").append("\n");
+        configurationExceptions.forEach(e -> exceptionMessage.append(e.getMessage()).append("\n"));
+        exceptionMessage.deleteCharAt(exceptionMessage.length() - 1);
+        final FlywayException flywayException= new FlywayException(exceptionMessage.toString());
+        configurationExceptions.forEach(flywayException::addSuppressed);
+        throw flywayException;
     }
 }

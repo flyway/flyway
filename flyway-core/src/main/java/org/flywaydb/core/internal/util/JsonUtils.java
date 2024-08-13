@@ -19,107 +19,99 @@
  */
 package org.flywaydb.core.internal.util;
 
-import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
+import static org.flywaydb.core.internal.util.FileUtils.createDirIfNotExists;
+
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonParser;
+import java.io.File;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.output.CompositeResult;
-import org.flywaydb.core.api.output.OperationResult;
-
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.StringReader;
-import java.lang.reflect.Type;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.flywaydb.core.internal.util.FileUtils.createDirIfNotExists;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class JsonUtils {
 
-    public static String jsonToFile(String filename, Object json) {
-
-        File file= new File(filename);
+    public static String jsonToFile(final String filename, final Object json) {
+        final File file = new File(filename);
 
         createDirIfNotExists(file);
 
-        try (FileWriter fileWriter = new FileWriter(file)) {
-            getGson().toJson(json, fileWriter);
+        try {
+            final JsonMapper mapper = getJsonMapper();
+            mapper.writeValue(file, json);
             return file.getCanonicalPath();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new FlywayException("Unable to write JSON to file: " + e.getMessage());
         }
     }
 
-    public static Gson getGson() {
-        return new GsonBuilder()
-                .serializeNulls()
-                .setPrettyPrinting()
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeSerializer())
-                .create();
-    }
-
-    public static <T> List<T> toList(String json) {
-        Type listType = new TypeToken<ArrayList<T>>() { }.getType();
-        return getGson().fromJson(json, listType);
-    }
-
-    public static String getFromJson(String json, String key) {
-        return getGson().fromJson(json, JsonObject.class).get(key).getAsString();
-    }
-
-    public static <T extends OperationResult> CompositeResult<T> appendIfExists(String filename, CompositeResult<T> json, JsonDeserializer<CompositeResult<T>> deserializer) {
-        if (!Files.exists(Paths.get(filename))) {
-            return json;
+    public static String toJson(final Object object) {
+        try {
+            return getJsonMapper().writeValueAsString(object);
+        } catch (final JsonProcessingException e) {
+            throw new FlywayException("Unable to serialize object to JSON", e);
         }
-
-        CompositeResult<T> existingObject;
-        Type existingObjectType = new TypeToken<CompositeResult<T>>() { }.getType();
-
-        try (FileReader reader = new FileReader(filename)) {
-
-            existingObject = new GsonBuilder()
-                    .registerTypeAdapter(existingObjectType, deserializer)
-                    .create()
-                    .fromJson(reader, existingObjectType);
-        } catch (Exception e) {
-            throw new FlywayException("Unable to read filename: " + filename, e);
-        }
-
-        if (existingObject == null) {
-            return json;
-        }
-
-        existingObject.individualResults.addAll(json.individualResults);
-        return existingObject;
     }
 
-    public static JsonArray parseJsonArray(String json) {
+    public static JsonMapper getJsonMapper() {
+        final JsonMapper mapper = new JsonMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+        mapper.configure(SerializationFeature.WRITE_DATES_WITH_ZONE_ID, true);
+        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        mapper.setSerializationInclusion(Include.ALWAYS);
+
+        // NOTE: This is a workaround while we use both GSON and ObjectMapper
+        // Once we fully migrate to ObjectMapper, we can remove this line
+        // and use @JsonIgnore rather than transient
+        mapper.configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        return mapper;
+    }
+
+    public static <T> List<T> toList(final String json) {
+        try {
+            return getJsonMapper().readValue(json, new TypeReference<>() {});
+        } catch (final JsonProcessingException e) {
+            throw new FlywayException("Unable to parse JSON: " + json, e);
+        }
+    }
+
+    public static String getFromJson(final String json, final String key) {
+        try {
+            return getJsonMapper().readTree(json).get(key).asText();
+        } catch (final JsonProcessingException e) {
+            return "";
+        }
+    }
+
+    public static JsonArray parseJsonArray(final String json) {
         return JsonParser.parseString(json).getAsJsonArray();
     }
 
-    public static <T> T parseJson(String json, Class<T> clazz) {
-        return getGson().fromJson(json, clazz);
+    public static <T> T parseJson(final String json, final Class<T> clazz) {
+        try {
+            return getJsonMapper().readValue(json, clazz);
+        } catch (final Exception e) {
+            throw new FlywayException("Unable to parse JSON: " + e.getMessage());
+        }
     }
 
-    public static String prettyPrint(String json) {
-        String output;
+    public static <T> T parseJson(final String json, final TypeReference<T> typeReference) {
         try {
-            JsonReader reader = new JsonReader(new StringReader(json));
-            reader.setLenient(true);
-            output = getGson().newBuilder().setLenient().create().toJson(JsonParser.parseReader(reader).getAsJsonObject());
-        } catch (Exception ignore) {
-            output = json;
+            return getJsonMapper().readValue(json, typeReference);
+        } catch (final Exception e) {
+            throw new FlywayException("Unable to parse JSON: " + e.getMessage());
         }
-        output = output.replace("\\r\\n", System.lineSeparator());
-        output = output.replace("\\n", System.lineSeparator());
-        return output;
     }
 }

@@ -19,19 +19,22 @@
  */
 package org.flywaydb.core.internal.configuration;
 
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.CustomLog;
 import lombok.NoArgsConstructor;
+import org.apache.commons.text.similarity.FuzzyScore;
 import org.flywaydb.core.api.CoreErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.extensibility.ConfigurationExtension;
 import org.flywaydb.core.internal.command.clean.CleanModel;
 import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
 import org.flywaydb.core.internal.configuration.models.EnvironmentModel;
+import org.flywaydb.core.internal.configuration.models.FlywayEnvironmentModel;
+import org.flywaydb.core.internal.configuration.models.FlywayModel;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.util.ClassUtils;
@@ -665,7 +668,11 @@ public class ConfigUtils {
         if (!LOG.isDebugEnabled()) {
             return;
         }
-        Map<String, String> configMap = new TreeMap<>(ClassUtils.getGettableFieldValues(config.getFlyway(), "flyway."));
+        dumpConfigurationMap(getConfigurationMapFromModel(config));
+    }
+
+    private static Map<String, String> getConfigurationMapFromModel(final ConfigurationModel config) {
+        final Map<String, String> configMap = new TreeMap<>(ClassUtils.getGettableFieldValues(config.getFlyway(), "flyway."));
         config.getEnvironments().forEach((name, env) -> configMap.putAll(ClassUtils.getGettableFieldValues(env, "environments." + name + ".")));
 
         config.getFlyway().getPluginConfigurations().forEach((name, pluginConfig) -> {
@@ -681,8 +688,7 @@ public class ConfigUtils {
                 ((Map<?, ?>) pluginConfig).forEach((key, value) -> configMap.put(name + "." + key, value.toString()));
             }
         });
-
-        dumpConfigurationMap(configMap);
+        return configMap;
     }
 
     public static void dumpConfigurationMap(Map<String, String> config) {
@@ -709,6 +715,25 @@ public class ConfigUtils {
             dump.append(key).append(" -> ").append(value).append("\n");
         }
         return dump.toString();
+    }
+
+    public static List<String> getPossibleFlywayConfigurations(final String unknownConfig, FlywayEnvironmentModel model) {
+        final List<String> config;
+        if (model instanceof final FlywayModel flywayModel){
+            config = ClassUtils.getGettableField(flywayModel);
+        } else {
+            config = ClassUtils.getGettableField(model);
+        }
+        final FuzzyScore score = new FuzzyScore(Locale.ENGLISH);
+        final Entry<Integer, List<String>> possibleConfigurations = config.stream()
+            .filter(key -> !key.equals(unknownConfig))
+            .filter(key -> ((double)score.fuzzyScore(unknownConfig, key)) / ((double)score.fuzzyScore(unknownConfig, unknownConfig)) >= 0.25)
+            .collect(Collectors.groupingBy(key -> score.fuzzyScore(unknownConfig, key), TreeMap::new, Collectors.toList()))
+            .lastEntry();
+        if (possibleConfigurations == null) {
+            return List.of();
+        }
+        return possibleConfigurations.getValue();
     }
 
     /**
@@ -867,12 +892,22 @@ public class ConfigUtils {
         config.put(ConfigUtils.JAR_DIRS, StringUtils.arrayToCommaDelimitedString(jarDirs));
     }
 
+    public static void makeRelativeJarDirsBasedOnWorkingDirectory(String workingDirectory, List<String> jarDirs) {
+        List<String> jarDirsUpdated = jarDirs.stream()
+            .map(dir -> getFilenameWithWorkingDirectory(dir, workingDirectory))
+            .toList();
+        jarDirs.clear();
+        jarDirs.addAll(jarDirsUpdated);
+    }
+
     public static void makeRelativeJarDirsInEnvironmentsBasedOnWorkingDirectory(String workingDirectory, Map<String, EnvironmentModel> environments) {
         environments.forEach((key, model) -> {
-            List<String> jarDirs = model.getJarDirs().stream()
-                .map(dir -> getFilenameWithWorkingDirectory(dir, workingDirectory))
-                .collect(Collectors.toList());
-            model.setJarDirs(jarDirs);
+            List<String> jarDirs = model.getFlyway().getJarDirs();
+            if (jarDirs != null) {
+                model.getFlyway().setJarDirs(jarDirs.stream()
+                    .map(dir -> getFilenameWithWorkingDirectory(dir, workingDirectory))
+                    .collect(Collectors.toList()));
+            }
         });
     }
 }

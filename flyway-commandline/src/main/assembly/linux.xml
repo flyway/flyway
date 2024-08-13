@@ -34,7 +34,7 @@
             <outputDirectory>jre</outputDirectory>
             <fileMode>755</fileMode>
         </fileSet>
-        <!-- [teams] -->
+        <!-- [redgate] -->
         <fileSet>
             <directory>../flyway-rgcompare/src/main/resources/rgcompare/linux-x64</directory>
             <outputDirectory>lib/rgcompare</outputDirectory>
@@ -51,6 +51,6 @@
             </includes>
             <fileMode>755</fileMode>
         </fileSet>
-        <!-- [/teams] -->
+        <!-- [/redgate] -->
     </fileSets>
 </assembly>

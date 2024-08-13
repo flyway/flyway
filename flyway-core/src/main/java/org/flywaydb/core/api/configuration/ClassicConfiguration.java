@@ -1717,7 +1717,7 @@ public class ClassicConfiguration implements Configuration {
     }
 
     private void setJarDirsAsStrings(String... jarDirs) {
-        getCurrentUnresolvedEnvironment().setJarDirs(Arrays.stream(jarDirs).collect(Collectors.toList()));
+        getModernFlyway().setJarDirs(Arrays.stream(jarDirs).collect(Collectors.toList()));
     }
 
     /**
@@ -2223,4 +2223,12 @@ public class ClassicConfiguration implements Configuration {
     public JavaMigration[] getJavaMigrations() {return this.javaMigrations;}
 
     public PluginRegister getPluginRegister() {return this.pluginRegister;}
+
+    public List<String> getJarDirs() {
+        if (getEnvironmentOverrides().getJarDirs()!= null) {
+             return getEnvironmentOverrides().getJarDirs();
+        }
+
+        return getModernFlyway().getJarDirs();
+    }
 }

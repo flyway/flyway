@@ -42,13 +42,17 @@ import org.flywaydb.core.internal.util.Pair;
 public class ExperimentalMigrationScannerManager {
     private final List<? extends ExperimentalMigrationScanner> scanners;
 
+    public ExperimentalMigrationScannerManager(final Configuration configuration) {
+        this(configuration.getPluginRegister().getPlugins(ExperimentalMigrationScanner.class));
+    }
+    
     public ExperimentalMigrationScannerManager(final List<? extends ExperimentalMigrationScanner> scanners) {
         this.scanners = scanners;
     }
 
     public Collection<LoadableResourceMetadata> scan(final Configuration configuration, final ParsingContext parsingContext) {
         final List<LoadableResourceMetadata> resources = Arrays.stream(configuration.getLocations())
-                                                               .flatMap(location -> scan(location,configuration).stream())
+                                                               .flatMap(location -> scan(location,configuration, parsingContext).stream())
                                                                .map(resource -> getLoadableResourceMetadata(resource, configuration, parsingContext))
                                                                .toList();
 
@@ -86,8 +90,16 @@ public class ExperimentalMigrationScannerManager {
         
         final ResourceNameParser resourceNameParser = new ResourceNameParser(configuration);
         final ResourceName resourceName = resourceNameParser.parse(resource.getLeft().getFilename());
+
+        SqlScriptMetadata sqlScriptMetadata = resource.getRight();
+        boolean placeholderReplacement = (sqlScriptMetadata == null
+            || sqlScriptMetadata.placeholderReplacement() == null)
+            ? configuration.isPlaceholderReplacement()
+            : sqlScriptMetadata.placeholderReplacement();
+
         final int checksum = getChecksumForLoadableResource(
             Objects.equals(resourceName.getPrefix(), configuration.getRepeatableSqlMigrationPrefix()),
+            placeholderReplacement,
             resource.getLeft(),
             resourceName,
             configuration,
@@ -98,16 +110,18 @@ public class ExperimentalMigrationScannerManager {
             resourceName.getPrefix(),
             resource.getLeft(),
             resource.getRight(),
-            checksum);
+            checksum, 
+            null);
     }
 
     private static Integer getChecksumForLoadableResource(
         final boolean repeatable,
+        final boolean placeholderReplacement,
         final LoadableResource resource,
         final ResourceName resourceName,
         final Configuration configuration,
         final ParsingContext parsingContext) {
-        if (repeatable && configuration.isPlaceholderReplacement()) {
+        if (repeatable && placeholderReplacement) {
             parsingContext.updateFilenamePlaceholder(resourceName, configuration);
             return ChecksumCalculator.calculate(createPlaceholderReplacingLoadableResource(resource, configuration, parsingContext));
         }
@@ -139,9 +153,9 @@ public class ExperimentalMigrationScannerManager {
     }
     
 
-    private Collection<Pair<LoadableResource, SqlScriptMetadata>> scan(final Location location, final Configuration configuration) {
+    private Collection<Pair<LoadableResource, SqlScriptMetadata>> scan(final Location location, final Configuration configuration, final ParsingContext parsingContext) {
         return scanners.stream()
-                       .flatMap(scanner -> scanner.scan(location, configuration).stream())
+                       .flatMap(scanner -> scanner.scan(location, configuration, parsingContext).stream())
                        .toList();
     }
 }

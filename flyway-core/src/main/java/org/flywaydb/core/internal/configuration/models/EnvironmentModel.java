@@ -39,7 +39,6 @@ public class EnvironmentModel {
     private String password;
     private String driver;
     private List<String> schemas = new ArrayList<>();
-    private List<String> jarDirs = new ArrayList<>();
     private Integer connectRetries;
     private Integer connectRetriesInterval;
     private String initSql;
@@ -55,7 +54,6 @@ public class EnvironmentModel {
         result.password = MergeUtils.merge(password, otherPojo.password);
         result.driver = MergeUtils.merge(driver, otherPojo.driver);
         result.schemas = MergeUtils.merge(schemas, otherPojo.schemas);
-        result.jarDirs = MergeUtils.merge(jarDirs, otherPojo.jarDirs);
         result.connectRetries = MergeUtils.merge(connectRetries, otherPojo.connectRetries);
         result.connectRetriesInterval = MergeUtils.merge(connectRetriesInterval, otherPojo.connectRetriesInterval);
         result.initSql = MergeUtils.merge(initSql, otherPojo.initSql);

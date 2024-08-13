@@ -72,9 +72,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
 
             migrationResolvers.addAll(configuration.getPluginRegister().getPlugins(MigrationResolver.class));
 
-
-
-
+            migrationResolvers.add(new ScriptMigrationResolver(resourceProvider, configuration, parsingContext, statementInterceptor));
         }
 
         migrationResolvers.add(new FixedJavaMigrationResolver(configuration.getJavaMigrations()));

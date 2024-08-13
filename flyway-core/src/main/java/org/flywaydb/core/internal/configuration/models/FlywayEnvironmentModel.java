@@ -20,6 +20,7 @@
 package org.flywaydb.core.internal.configuration.models;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +58,7 @@ public class FlywayEnvironmentModel {
     private Boolean cleanOnValidationError;
     private Boolean communityDBSupportEnabled;
     private List<String> locations;
+    private List<String> jarDirs;
     private String table;
     private String tablespace;
     private String target;
@@ -115,6 +117,7 @@ public class FlywayEnvironmentModel {
         result.cleanOnValidationError = cleanOnValidationError.merge(otherPojo.cleanOnValidationError);
         result.communityDBSupportEnabled = communityDBSupportEnabled.merge(otherPojo.communityDBSupportEnabled);
         result.locations = locations.merge(otherPojo.locations);
+        result.jarDirs = jarDirs.merge(otherPojo.jarDirs);
         result.table = table.merge(otherPojo.table);
         result.tablespace = tablespace.merge(otherPojo.tablespace);
         result.target = target.merge(otherPojo.target);

@@ -62,7 +62,6 @@ public class EnvironmentResolver {
         result.setConnectRetriesInterval(environment.getConnectRetriesInterval());
         result.setInitSql(environment.getInitSql());
         result.setSchemas(environment.getSchemas());
-        result.setJarDirs(environment.getJarDirs());
 
         progress.pushSteps(2);
         final ProgressLogger provisionProgress = progress.subTask("provision");

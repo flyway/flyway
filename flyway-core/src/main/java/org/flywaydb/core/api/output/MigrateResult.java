@@ -25,9 +25,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import lombok.Setter;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.internal.info.MigrationInfoImpl;
 
+@Setter
 public class MigrateResult extends HtmlResult {
     public static final String COMMAND = "migrate";
     public String initialSchemaVersion;
@@ -45,10 +47,15 @@ public class MigrateResult extends HtmlResult {
     private transient Map<MigrationKey, MigrateOutput> failedMigrations = new HashMap<>();
     private transient Map<MigrationKey, MigrateOutput> successfulMigrations = new HashMap<>();
 
-    public MigrateResult(String flywayVersion,
-                         String database,
-                         String schemaName,
-                         String databaseType) {
+    public MigrateResult() {
+        super(LocalDateTime.now(), COMMAND);
+        migrations = new ArrayList<>();
+    }
+
+    public MigrateResult(final String flywayVersion,
+        final String database,
+        final String schemaName,
+        final String databaseType) {
         super(LocalDateTime.now(), COMMAND);
         this.flywayVersion = flywayVersion;
         this.database = database;
@@ -58,7 +65,7 @@ public class MigrateResult extends HtmlResult {
         this.databaseType = databaseType;
     }
 
-    MigrateResult(MigrateResult migrateResult) {
+    MigrateResult(final MigrateResult migrateResult) {
         super(migrateResult.getTimestamp(), migrateResult.getOperation());
         this.flywayVersion = migrateResult.flywayVersion;
         this.database = migrateResult.database;
@@ -74,17 +81,18 @@ public class MigrateResult extends HtmlResult {
         this.warnings = migrateResult.warnings;
         this.databaseType = migrateResult.databaseType;
     }
-    
+
     public void putSuccessfulMigration(final MigrationInfo migrationInfo, final int executionTime) {
         final var key = new MigrationKey(migrationInfo);
         final var migrateOutput = CommandResultFactory.createMigrateOutput(migrationInfo, executionTime);
-        
+
         successfulMigrations.put(key, migrateOutput);
         pendingMigrations.remove(key);
     }
-    
+
     public void putPendingMigration(final MigrationInfo migrationInfo) {
-        pendingMigrations.put(new MigrationKey(migrationInfo), CommandResultFactory.createMigrateOutput(migrationInfo, 0));
+        pendingMigrations.put(new MigrationKey(migrationInfo),
+            CommandResultFactory.createMigrateOutput(migrationInfo, 0));
     }
 
     public void putFailedMigration(final MigrationInfo migrationInfo, final int executionTime) {
@@ -92,7 +100,7 @@ public class MigrateResult extends HtmlResult {
         failedMigrations.put(key, CommandResultFactory.createMigrateOutput(migrationInfo, executionTime));
         pendingMigrations.remove(key);
     }
-    
+
     public List<MigrateOutput> getPendingMigrations() {
         return List.copyOf(pendingMigrations.values());
     }
@@ -100,12 +108,12 @@ public class MigrateResult extends HtmlResult {
     public List<MigrateOutput> getSuccessfulMigrations() {
         return List.copyOf(successfulMigrations.values());
     }
-    
+
     public List<MigrateOutput> getFailedMigrations() {
         return List.copyOf(failedMigrations.values());
     }
 
-    public void addWarning(String warning) {
+    public void addWarning(final String warning) {
         if (warnings == null) {
             warnings = new ArrayList<>();
         }
@@ -120,9 +128,9 @@ public class MigrateResult extends HtmlResult {
         }
 
         return migrations.stream()
-                         .filter(Objects::nonNull)
-                         .mapToLong(migrateOutput -> migrateOutput.executionTime)
-                         .sum();
+            .filter(Objects::nonNull)
+            .mapToLong(migrateOutput -> migrateOutput.executionTime)
+            .sum();
     }
 
     public void markAsRolledBack(final List<MigrationInfoImpl> rolledBackMigrations) {

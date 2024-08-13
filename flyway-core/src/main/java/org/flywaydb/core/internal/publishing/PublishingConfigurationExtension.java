@@ -26,7 +26,7 @@ import org.flywaydb.core.extensibility.ConfigurationExtension;
 @Getter
 @Setter
 public class PublishingConfigurationExtension implements ConfigurationExtension {
-
+    private static final String FLYWAY_PUBLISH_RESULT = "flyway.publishResult";
     private boolean publishResult = false;
 
     @Override
@@ -36,6 +36,9 @@ public class PublishingConfigurationExtension implements ConfigurationExtension 
 
     @Override
     public String getConfigurationParameterFromEnvironmentVariable(final String environmentVariable) {
+        if ("FLYWAY_PUBLISH_RESULT".equals(environmentVariable)) {
+            return FLYWAY_PUBLISH_RESULT;
+        }
         return null;
     }
 }

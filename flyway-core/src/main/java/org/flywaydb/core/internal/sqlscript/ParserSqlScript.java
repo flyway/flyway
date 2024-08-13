@@ -194,6 +194,17 @@ public class ParserSqlScript implements SqlScript {
     }
 
     @Override
+    public boolean placeholderReplacement() {
+        Boolean placeholderReplacementOverride = metadata.placeholderReplacement();
+        if (placeholderReplacementOverride != null) {
+            LOG.debug("Using placeholderReplacement=" + placeholderReplacementOverride + " from script configuration");
+            return placeholderReplacementOverride;
+        }
+
+        return parser.configuration.isPlaceholderReplacement();
+    }
+
+    @Override
     public int compareTo(SqlScript o) {
         return resource.getRelativePath().compareTo(o.getResource().getRelativePath());
     }

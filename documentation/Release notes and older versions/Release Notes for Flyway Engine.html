@@ -9,6 +9,40 @@
 <div class="col-md-9">
 
 <div class="release">
+        <h2 id="10.17.1">Flyway 10.17.1 (2024-08-13)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fixed the issue that Repeatables apply placeholders when calculating checksum even when 'placeholderReplacement' is set to false in script config file</li>
+            <li>Fixed the issue where setting `placeholderReplacement` to `true` in the script configuration had no effect when it was `false` in the global configuration.</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3934">Issue 3934</a>
+                Fix `org.flywaydb:flyway-database-cassandra` artifact on Maven Central
+            </li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Script migration is now available as an open source feature of Flyway</li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Support Environment Overrides for the 'jarDirs' parameter</li>
+            <li>Add suggestions for incorrect configurations within the Flyway namespace</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>Move report function and assets to their own module</li>
+        </ul>
+
+        <p>
+            Thanks to janhicken for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
         <h2 id="10.17.0">Flyway 10.17.0 (2024-07-29)</h2>
 
         <h3>Bug fixes</h3>

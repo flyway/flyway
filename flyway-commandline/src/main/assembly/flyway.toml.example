@@ -4,7 +4,6 @@
 url = "jdbc:h2:mem:db"
 user = "sample user"
 password = "sample password"
-# jarDirs = ["path/to/java/migrations"]
 # driver =
 # schemas =
 # connectRetries =
@@ -16,6 +15,7 @@ password = "sample password"
 [flyway]
 # environment = "sample" # It is recommended to configure environment as a commandline argument. This allows using different environments depending on the caller.
 # locations = ["filesystem:path/to/sql/files"]
+# jarDirs = ["path/to/java/migrations"]
 
 # [environments.build]
 # url = "jdbc:sqlite::memory:"

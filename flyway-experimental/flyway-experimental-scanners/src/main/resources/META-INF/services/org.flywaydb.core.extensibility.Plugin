@@ -1,0 +1,2 @@
+org.flywaydb.scanners.ClasspathSqlMigrationScanner
+org.flywaydb.scanners.FileSystemSqlMigrationScanner

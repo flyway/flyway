@@ -64,4 +64,9 @@ public class Pair<L, R> implements Comparable<Pair<L, R>> {
         }
         return 0;
     }
+
+    @Override
+    public String toString() {
+        return "Pair{" + "left=" + left + ", right=" + right + '}';
+    }
 }
