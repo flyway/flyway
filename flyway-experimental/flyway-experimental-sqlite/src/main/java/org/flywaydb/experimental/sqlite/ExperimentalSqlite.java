@@ -26,6 +26,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.experimental.ConnectionType;
 import org.flywaydb.core.experimental.DatabaseSupport;
 import org.flywaydb.core.experimental.ExperimentalDatabase;
@@ -47,7 +48,7 @@ public class ExperimentalSqlite implements ExperimentalDatabase {
     }
 
     @Override
-    public void initialize(final ResolvedEnvironment environment) throws SQLException {
+    public void initialize(final ResolvedEnvironment environment, final Configuration configuration) throws SQLException {
         final String url = environment.getUrl();
         final SQLiteDataSource dataSource = new SQLiteDataSource();
         dataSource.setUrl(url);
@@ -62,7 +63,7 @@ public class ExperimentalSqlite implements ExperimentalDatabase {
         final DatabaseMetaData databaseMetaData = JdbcUtils.getDatabaseMetaData(connection);
         final String databaseProductName = JdbcUtils.getDatabaseProductName(databaseMetaData);
         final String databaseProductVersion = JdbcUtils.getDatabaseProductVersion(databaseMetaData);
-        return new MetaData(databaseProductName, databaseProductVersion, ConnectionType.JDBC);
+        return new MetaData(databaseProductName, databaseProductVersion, ConnectionType.JDBC, null);
     }
 
     @Override
@@ -151,7 +152,7 @@ public class ExperimentalSqlite implements ExperimentalDatabase {
     }
 
     @Override
-    public Boolean allSchemasEmpty() {
+    public Boolean allSchemasEmpty(final String[] schemas) {
         try {
             final Statement statement = connection.createStatement();
             final ResultSet resultSet = statement.executeQuery("SELECT COUNT(*) FROM sqlite_master");
@@ -160,5 +161,10 @@ public class ExperimentalSqlite implements ExperimentalDatabase {
         } catch (final SQLException e) {
             throw new FlywayException(e);
         }
+    }
+
+    @Override
+    public boolean isSchemaExists(final String schema) {
+        return true;
     }
 }

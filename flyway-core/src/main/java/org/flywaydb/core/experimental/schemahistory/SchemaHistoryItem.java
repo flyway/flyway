@@ -31,7 +31,7 @@ public class SchemaHistoryItem {
     String description;
     String type;
     String script;
-    int checksum;
+    Integer checksum;
     String installedBy;
     LocalDateTime installedOn;
     int executionTime;

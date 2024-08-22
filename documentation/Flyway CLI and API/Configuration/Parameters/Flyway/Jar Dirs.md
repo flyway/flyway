@@ -26,14 +26,9 @@ This configuration parameter will only be used in the command line version of Fl
 ./flyway -jarDirs="/my/jar/dir1,/my/jar/dir2" info
 ```
 
-To configure a named environment via command line when using a TOML configuration, prefix `jarDirs` with `environments.{environment name}.` for example:
-```powershell
-./flyway "-environments.sample.jarDirs=/my/jar/dir1,/my/jar/dir2" info
-```
-
 ### TOML Configuration File
 ```toml
-[environments.default]
+[flyway]
 jarDirs = ["/my/jar/dir1", "/my/jar/dir2"]
 ```
 

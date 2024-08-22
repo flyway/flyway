@@ -298,7 +298,7 @@ public class MigrationInfoImpl implements MigrationInfo {
                     return new ErrorDetails(CoreErrorCode.TYPE_MISMATCH, mismatchMessage);
                 }
                 if (resolvedMigration.getVersion() != null || (context.isPendingIgnored() && MigrationState.OUTDATED != state && MigrationState.SUPERSEDED != state)) {
-                    if (!resolvedMigration.checksumMatches(appliedMigration.getChecksum())) {
+                    if (!isChecksumMatching()) {
                         String mismatchMessage = createMismatchMessage("checksum", migrationIdentifier, appliedMigration.getChecksum(), resolvedMigration.getChecksum());
                         return new ErrorDetails(CoreErrorCode.CHECKSUM_MISMATCH, mismatchMessage);
                     }
@@ -446,5 +446,15 @@ public class MigrationInfoImpl implements MigrationInfo {
         result = 31 * result + (appliedMigration != null ? appliedMigration.hashCode() : 0);
         result = 31 * result + context.hashCode();
         return result;
+    }
+
+    @Override
+    public Integer getResolvedChecksum() {
+        return resolvedMigration == null ? null : resolvedMigration.getChecksum();
+    }
+
+    @Override
+    public Integer getAppliedChecksum() {
+        return appliedMigration == null ? null : appliedMigration.getChecksum();
     }
 }

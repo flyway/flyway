@@ -1,6 +1,6 @@
 /*-
  * ========================LICENSE_START=================================
- * flyway-verb-info
+ * flyway-verb-utils
  * ========================================================================
  * Copyright (C) 2010 - 2024 Red Gate Software Ltd
  * ========================================================================
@@ -31,7 +31,7 @@ import org.flywaydb.core.experimental.migration.ExperimentalMigrationStateCalcul
 import org.flywaydb.core.experimental.schemahistory.ResolvedSchemaHistoryItem;
 import org.flywaydb.core.internal.util.Pair;
 
-class CoreMigrationStateCalculator implements ExperimentalMigrationStateCalculator {
+public class CoreMigrationStateCalculator implements ExperimentalMigrationStateCalculator {
     public MigrationState calculateState(final Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata> migration,
         final Collection<? extends Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> sortedMigrations,
         final Configuration configuration) {
@@ -86,6 +86,10 @@ class CoreMigrationStateCalculator implements ExperimentalMigrationStateCalculat
     
     private static MigrationState calculateSHTStates(final Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata> migration,
         final Collection<? extends Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> sortedMigrations) {
+        if (migration.getLeft().getType() == CoreMigrationType.SCHEMA) {
+            return MigrationState.SUCCESS;
+        }
+
         if (migration.getRight() == null && migration.getLeft().getType().isBaseline()) {
             return MigrationState.BASELINE;
         }

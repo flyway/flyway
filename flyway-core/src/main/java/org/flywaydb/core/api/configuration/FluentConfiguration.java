@@ -35,7 +35,6 @@ import javax.sql.DataSource;
 import java.io.File;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -128,9 +127,14 @@ public class FluentConfiguration implements Configuration {
         return this;
     }
 
-    public FluentConfiguration environmentProvisionMode(ProvisionerMode environmentProvisionMode) {
-        config.setEnvironmentProvisionMode(environmentProvisionMode);
+    public FluentConfiguration provisionMode(ProvisionerMode mode) {
+        config.setProvisionMode(mode);
         return this;
+    }
+
+    // Backwards compatible alias for provisionMode
+    public FluentConfiguration environmentProvisionMode(ProvisionerMode mode) {
+        return provisionMode(mode);
     }
 
     public FluentConfiguration workingDirectory(String workingDirectory) {

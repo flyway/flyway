@@ -26,10 +26,14 @@ import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 public class ExperimentalModeUtils {
 
     public static boolean isExperimentalModeActivated() {
-        return System.getenv("FLYWAY_EXPERIMENTAL") != null;
+        return System.getenv("FLYWAY_EXPERIMENTAL") != null && System.getenv("FLYWAY_EXPERIMENTAL").equalsIgnoreCase("true");
     }
 
     public static boolean canUseExperimentalMode(final Configuration config) {
+        if (config.getUrl().startsWith("mongodb")) {
+            return true;
+        }
+
         try (final var connectionFactory = new JdbcConnectionFactory(config.getDataSource(), config, null)) {
             return connectionFactory.getDatabaseType() instanceof SQLiteDatabaseType;
         }

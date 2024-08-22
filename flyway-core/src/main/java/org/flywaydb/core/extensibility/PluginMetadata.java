@@ -19,11 +19,11 @@
  */
 package org.flywaydb.core.extensibility;
 
-import org.flywaydb.core.internal.util.Pair;
-import org.flywaydb.core.internal.util.StringUtils;
-
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.flywaydb.core.internal.util.Pair;
+import org.flywaydb.core.internal.util.StringUtils;
 
 public interface PluginMetadata extends Plugin {
     /**
@@ -40,7 +40,11 @@ public interface PluginMetadata extends Plugin {
         String documentationLink = getDocumentationLink();
 
         if (description != null) {
-            result.append("Description:\n").append(indent).append(description).append("\n\n");
+            result.append("Description:\n");
+            Arrays.stream(description.split("\n")).map(String::trim).forEach(line -> result.append(indent)
+                .append(line)
+                .append("\n"));
+            result.append("\n");
         }
 
         int padSize = 0;
@@ -54,7 +58,10 @@ public interface PluginMetadata extends Plugin {
         if (configurationParameters != null) {
             result.append("Configuration parameters: (Format: -key=value)\n");
             for (ConfigurationParameter p : configurationParameters) {
-                result.append(indent).append(StringUtils.rightPad(p.name.substring("flyway.".length()), padSize, ' ')).append(p.description);
+                final String parameterName = p.name.startsWith("flyway.")
+                    ? p.name.substring("flyway.".length())
+                    : p.name;
+                result.append(indent).append(StringUtils.rightPad(parameterName, padSize, ' ')).append(p.description);
                 if (p.required) {
                     result.append(" [REQUIRED]");
                 }

@@ -120,19 +120,20 @@ public class TomlUtils {
 
     public static ConfigurationModel loadConfigurationFiles(List<File> files) {
         ConfigurationModel defaultConfig = ConfigurationModel.defaults();
+        ConfigUtils.dumpConfigurationModel(defaultConfig, "Default configuration:");
         return files.stream()
                     .map(TomlUtils::loadConfigurationFile)
                     .reduce(defaultConfig, ConfigurationModel::merge);
     }
 
     static ConfigurationModel loadConfigurationFile(File configFile) {
-        LOG.debug("Loading config file: " + configFile.getAbsolutePath());
-
         try {
-            return ObjectMapperFactory.getObjectMapper(configFile.toString())
-                                      .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                                      .readerFor(ConfigurationModel.class)
-                                      .readValue(configFile);
+            ConfigurationModel tomlConfig = ObjectMapperFactory.getObjectMapper(configFile.toString())
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .readerFor(ConfigurationModel.class)
+                .readValue(configFile);
+            ConfigUtils.dumpConfigurationModel(tomlConfig, "Loading config file: " + configFile.getAbsolutePath());
+            return tomlConfig;
         } catch (IOException e) {
             throw new FlywayException("Unable to load config file: " + configFile.getAbsolutePath(), e);
         }

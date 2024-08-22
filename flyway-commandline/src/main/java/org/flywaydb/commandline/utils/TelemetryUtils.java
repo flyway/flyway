@@ -73,8 +73,13 @@ public class TelemetryUtils {
 
         if (configuration != null) {
             ConfigurationModel modernConfig = configuration.getModernConfig();
-            if (modernConfig != null && StringUtils.hasText(modernConfig.getId())) {
-                rootTelemetryModel.setProjectId(EncryptionUtils.hashString(modernConfig.getId(), "fur"));
+            if (modernConfig != null) {
+                if (StringUtils.hasText(modernConfig.getId())) {
+                    rootTelemetryModel.setProjectId(EncryptionUtils.hashString(modernConfig.getId(), "fur"));
+                }
+                boolean resolversPresent = !(modernConfig.getFlyway().getMigrationResolvers() == null || modernConfig.getFlyway().getMigrationResolvers().isEmpty());
+                rootTelemetryModel.setCustomMigrationResolver(resolversPresent);
+
             }
 
             rootTelemetryModel.setSecretsManagementType(getSecretsManagementType(configuration));

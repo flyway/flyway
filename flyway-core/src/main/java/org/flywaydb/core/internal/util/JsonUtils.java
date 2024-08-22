@@ -28,9 +28,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonParser;
 import java.io.File;
 import java.util.List;
 import lombok.AccessLevel;
@@ -95,8 +94,12 @@ public class JsonUtils {
         }
     }
 
-    public static JsonArray parseJsonArray(final String json) {
-        return JsonParser.parseString(json).getAsJsonArray();
+    public static ArrayNode parseJsonArray(final String json) {
+        try {
+            return (ArrayNode) getJsonMapper().readTree(json);
+        } catch (final JsonProcessingException e) {
+            throw new FlywayException("Unable to parse JSON: " + json, e);
+        }
     }
 
     public static <T> T parseJson(final String json, final Class<T> clazz) {

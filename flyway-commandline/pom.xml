@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>10.17.1</version>
+        <version>10.17.2</version>
     </parent>
     <artifactId>flyway-commandline</artifactId>
     <packaging>jar</packaging>
@@ -463,6 +463,7 @@
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
+            <version>${version.gson}</version>
         </dependency>
         <dependency>
             <groupId>com.google.cloud</groupId>
@@ -501,6 +502,12 @@
             <artifactId>jackson-dataformat-xml</artifactId>
             <version>${version.jackson}</version>
         </dependency>
+
+
+
+
+
+
 
 
 

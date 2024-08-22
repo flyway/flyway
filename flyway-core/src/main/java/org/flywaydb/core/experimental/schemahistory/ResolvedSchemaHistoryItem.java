@@ -34,7 +34,7 @@ public class ResolvedSchemaHistoryItem
     String description;
     MigrationType type;
     String script;
-    int checksum;
+    Integer checksum;
     String installedBy;
     LocalDateTime installedOn;
     int executionTime;

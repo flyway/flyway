@@ -21,6 +21,7 @@ package org.flywaydb.core.experimental;
 
 import java.sql.SQLException;
 import javax.sql.DataSource;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryModel;
 import org.flywaydb.core.extensibility.Plugin;
 import org.flywaydb.core.internal.configuration.models.EnvironmentModel;
@@ -44,7 +45,7 @@ public interface ExperimentalDatabase extends Plugin, AutoCloseable  {
      * However, an API connection may require this function to create an authentication object instead.
      * @param environment The resolved environment to connect to.
      */
-    void initialize(ResolvedEnvironment environment) throws SQLException;
+    void initialize(ResolvedEnvironment environment, Configuration configuration) throws SQLException;
 
     /**
      * Gets connection important metadata from the database.
@@ -112,5 +113,7 @@ public interface ExperimentalDatabase extends Plugin, AutoCloseable  {
      * Checks if all schemas are empty.
      * @return True if all schemas are empty, false otherwise.
      */
-    Boolean allSchemasEmpty();
+    Boolean allSchemasEmpty(String[] schemas);
+
+    boolean isSchemaExists(String schema);
 }

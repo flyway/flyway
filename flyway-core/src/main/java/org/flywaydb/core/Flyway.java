@@ -300,20 +300,14 @@ public class Flyway {
      *
      * <img src="https://flywaydb.org/assets/balsamiq/command-validate.png" alt="validate">
      *
-     * @throws FlywayException when the validation failed.
+     * @throws FlywayException when something went wrong during validation.
+     * @throws FlywayValidateException when the validation failed.
      */
     public void validate() throws FlywayException {
-        flywayExecutor.execute((FlywayExecutor.Command<Void>) (migrationResolver, schemaHistory, database, defaultSchema, schemas, callbackExecutor, statementInterceptor) -> {
-            ValidateResult validateResult = doValidate(database, migrationResolver, schemaHistory, defaultSchema, schemas, callbackExecutor, configuration.getIgnoreMigrationPatterns());
-
-            callbackExecutor.onOperationFinishEvent(Event.AFTER_VALIDATE_OPERATION_FINISH, validateResult);
-
-            if (!validateResult.validationSuccessful && !configuration.isCleanOnValidationError()) {
-                throw new FlywayValidateException(validateResult.errorDetails, validateResult.getAllErrorMessages());
-            }
-
-            return null;
-        }, true, flywayTelemetryManager);
+        final ValidateResult validateResult = validateWithResult();
+        if (!validateResult.validationSuccessful && !configuration.isCleanOnValidationError()) {
+            throw new FlywayValidateException(validateResult.errorDetails, validateResult.getAllErrorMessages());
+        }
     }
 
     /**
@@ -330,9 +324,16 @@ public class Flyway {
      *
      * @return An object summarising the validation results
      *
-     * @throws FlywayException when the validation failed.
+     * @throws FlywayException when something went wrong during validation.
      */
     public ValidateResult validateWithResult() throws FlywayException {
+
+        if (isExperimentalModeActivated() && canUseExperimentalMode(configuration)) {
+            final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("validate")).findFirst();
+            if (verb.isPresent()) {
+                return (ValidateResult) verb.get().executeVerb(configuration);
+            }
+        }
         return flywayExecutor.execute((migrationResolver, schemaHistory, database, defaultSchema, schemas, callbackExecutor, statementInterceptor) -> {
             ValidateResult validateResult = doValidate(database, migrationResolver, schemaHistory, defaultSchema, schemas, callbackExecutor, configuration.getIgnoreMigrationPatterns());
 

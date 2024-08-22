@@ -6,7 +6,7 @@ subtitle: Check Code Concept
 
 ## Overview
 
-The `-code` flag produces a report showing the results of running static code analysis over your SQL migrations.
+The `-code` flag produces a report showing the results of running static code analysis over your SQL migrations from `filesystem:` [Locations](<Configuration/Parameters/Flyway/Locations>).
 
 Rules that Flyway comes supplied with can be found in: [Code Analysis Rules](<Usage/Code Analysis Rules>)
 

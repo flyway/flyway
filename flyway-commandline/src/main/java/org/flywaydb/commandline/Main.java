@@ -32,6 +32,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import lombok.SneakyThrows;
@@ -54,6 +55,7 @@ import org.flywaydb.core.api.output.CompositeResult;
 import org.flywaydb.core.api.output.ErrorOutput;
 import org.flywaydb.core.api.output.HtmlResult;
 import org.flywaydb.core.api.output.InfoResult;
+import org.flywaydb.core.api.output.MigrateResult;
 import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
@@ -124,6 +126,11 @@ public class Main {
                 final List<ResultReportGenerator> reportGenerators = PLUGIN_REGISTER.getPlugins(ResultReportGenerator.class);
                 for (final ResultReportGenerator resultReportGenerator : reportGenerators) {
                     reportDetails = resultReportGenerator.generateReport(result, configuration, executionTime);
+                }
+
+                if (configuration.getPluginRegister().getPlugin(PublishingConfigurationExtension.class).isPublishResult()) {
+                    publishOperationResult(configuration, result);
+                    publishReport(configuration, reportDetails);
                 }
 
                 if (commandLineArguments.shouldOutputJson()) {
@@ -341,10 +348,6 @@ public class Main {
                 telemetryManager);
         }
 
-        if (configuration.getPluginRegister().getPlugin(PublishingConfigurationExtension.class).isPublishResult()) {
-            publishOperationResult(configuration, result);
-        }
-
         return result;
     }
 
@@ -353,6 +356,15 @@ public class Main {
             OperationResultPublisher.class);
         for (final OperationResultPublisher publisher : publishers) {
             publisher.publish(configuration, result);
+        }
+    }
+
+    private static void publishReport(final Configuration configuration, final ReportDetails reportDetails) {
+        final List<OperationResultPublisher> publishers = configuration.getPluginRegister().getPlugins(
+            OperationResultPublisher.class);
+
+        for (final OperationResultPublisher publisher : publishers) {
+            publisher.publishReport(configuration, reportDetails);
         }
     }
 
@@ -435,7 +447,13 @@ public class Main {
         LOG.info(indent + StringUtils.rightPad("validate", padSize, ' ') + "Validates the applied migrations against the ones on the classpath");
         LOG.info(indent + StringUtils.rightPad("baseline", padSize, ' ') + "Baselines an existing database at the baselineVersion");
         LOG.info(indent + StringUtils.rightPad("repair", padSize, ' ') + "Repairs the schema history table");
-        usages.forEach(u -> LOG.info(indent + StringUtils.rightPad(u.getLeft(), padSize, ' ') + u.getRight()));
+        for (final Pair<String, String> usage : usages) {
+            final List<String> lines = Arrays.stream(usage.getRight().split("\n")).map(String::trim).toList();
+            LOG.info(indent + StringUtils.rightPad(usage.getLeft(), padSize, ' ') + lines.get(0));
+            for (int i = 1; i < lines.size(); i++) {
+                LOG.info(indent + " ".repeat(padSize) + lines.get(i));
+            }
+        }
         LOG.info("");
         LOG.info("Configuration parameters (Format: -key=value)");
         LOG.info(indent + "driver                         Fully qualified classname of the JDBC driver");

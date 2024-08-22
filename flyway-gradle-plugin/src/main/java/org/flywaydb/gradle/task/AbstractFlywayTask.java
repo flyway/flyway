@@ -600,7 +600,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
                     getProject().getBuildscript().getClassLoader());
 
             Map<String, String> config = createFlywayConfig(envVars);
-            ConfigUtils.dumpConfigurationMap(config);
+            ConfigUtils.dumpConfigurationMap(config, "Using configuration:");
 
             Flyway flyway = Flyway.configure(classLoader).configuration(config).load();
             Object result = run(flyway);

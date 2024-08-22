@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 public class DatabaseConstants {
 
     public static final Pattern DATABASE_HOSTING_AZURE_URL_IDENTIFIER = Pattern.compile(".+\\.azure\\.com");
-    public static final Pattern DATABASE_HOSTING_RDS_URL_IDENTIFIER = Pattern.compile(".+\\.rds\\.(\\+\\.+)*amazon\\,com(\\.\\w+)?");
+    public static final Pattern DATABASE_HOSTING_RDS_URL_IDENTIFIER = Pattern.compile(".+\\.rds\\.([\\w-]+\\.)*amazon(aws)?\\.com(\\.\\w+)?");
     public static final String DATABASE_HOSTING_GCP_URL_IDENTIFIER = "socketFactory=com.google.cloud";
     public static final String DATABASE_HOSTING_AZURE_SQL_DATABASE = "azure-sql-database";
     public static final String DATABASE_HOSTING_AZURE_SQL_MANAGED_INSTANCE = "azure-sql-managed-instance";

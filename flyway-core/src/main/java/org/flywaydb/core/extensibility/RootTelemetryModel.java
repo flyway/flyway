@@ -40,8 +40,10 @@ public class RootTelemetryModel {
     private boolean redgateEmployee;
     private boolean isTrial;
     private boolean isSignedIn;
+    private boolean CustomMigrationResolver;
     private String containerType;
     private String secretsManagementType;
+    private String databaseHosting;
 
     private Instant startTime = Instant.now();
 }

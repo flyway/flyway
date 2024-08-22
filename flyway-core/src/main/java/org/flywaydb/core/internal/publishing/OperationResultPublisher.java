@@ -22,7 +22,10 @@ package org.flywaydb.core.internal.publishing;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.extensibility.Plugin;
+import org.flywaydb.core.internal.reports.ReportDetails;
 
 public interface OperationResultPublisher extends Plugin {
     void publish(Configuration configuration, OperationResult operationResult);
+    
+    void publishReport(Configuration configuration, ReportDetails reportDetails);
 }

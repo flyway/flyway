@@ -1,6 +1,6 @@
 /*-
  * ========================LICENSE_START=================================
- * flyway-verb-info
+ * flyway-verb-utils
  * ========================================================================
  * Copyright (C) 2010 - 2024 Red Gate Software Ltd
  * ========================================================================
@@ -24,18 +24,10 @@ import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.experimental.migration.ExperimentalMigrationInfoFilter;
 
-public class TargetMigrationInfoFilter implements ExperimentalMigrationInfoFilter {
+public class ShouldExecuteMigrationInfoFilter implements ExperimentalMigrationInfoFilter {
+
     @Override
     public Predicate<MigrationInfo> getFilter(final Configuration configuration) {
-        final var target = configuration.getTarget();
-        return migrationInfo -> {
-            if (target == null) {
-                return true;
-            }
-            if (migrationInfo.getVersion() == null) {
-                return true;
-            }
-            return !migrationInfo.getVersion().isNewerThan(target.getVersion());
-        };
+        return MigrationInfo::isShouldExecute;
     }
 }

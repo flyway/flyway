@@ -51,6 +51,7 @@ import java.util.stream.Collectors;
 
 import static org.flywaydb.core.internal.configuration.ConfigUtils.DEFAULT_CLI_JARS_LOCATION;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.DEFAULT_CLI_SQL_LOCATION;
+import static org.flywaydb.core.internal.configuration.ConfigUtils.dumpEnvironmentModel;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeJarDirsBasedOnWorkingDirectory;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeJarDirsInEnvironmentsBasedOnWorkingDirectory;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeLocationsBasedOnWorkingDirectory;
@@ -81,8 +82,21 @@ public class ModernConfigurationManager implements ConfigurationManager {
         ConfigurationModel commandLineArgumentsModel = TomlUtils.loadConfigurationFromCommandlineArgs(
             commandLineArguments.getConfiguration(true));
         ConfigurationModel environmentVariablesModel = TomlUtils.loadConfigurationFromEnvironment();
-        config = config.merge(environmentVariablesModel)
-            .merge(commandLineArgumentsModel);
+
+        if (ConfigUtils.detectNullConfigModel(environmentVariablesModel)) {
+            LOG.debug("Skipping empty environment variables");
+        } else {
+            ConfigUtils.dumpConfigurationModel(environmentVariablesModel, "Loading configuration from environment variables:");
+            config = config.merge(environmentVariablesModel);
+        }
+
+        if (ConfigUtils.detectNullConfigModel(commandLineArgumentsModel)) {
+            LOG.debug("No flyway namespace variables found in command line");
+        } else {
+            ConfigUtils.dumpConfigurationModel(commandLineArgumentsModel, "Loading configuration from command line arguments:");
+            config = config.merge(commandLineArgumentsModel);
+        }
+
 
         if (commandLineArgumentsModel.getEnvironments().containsKey(ClassicConfiguration.TEMP_ENVIRONMENT_NAME) ||
             environmentVariablesModel.getEnvironments().containsKey(ClassicConfiguration.TEMP_ENVIRONMENT_NAME)) {
@@ -105,6 +119,7 @@ public class ModernConfigurationManager implements ConfigurationManager {
             }
 
             if (mergedModel != null) {
+                LOG.debug("Merged " + ClassicConfiguration.TEMP_ENVIRONMENT_NAME + " into the " + config.getFlyway().getEnvironment() + " environment");
                 config.getEnvironments().put(config.getFlyway().getEnvironment(), mergedModel);
             }
 
@@ -139,6 +154,7 @@ public class ModernConfigurationManager implements ConfigurationManager {
                         flywayEnvironmentModelArguments).getFlyway()));
 
                 EnvironmentModel env = objectMapper.convertValue(envValueObject, EnvironmentModel.class);
+                dumpEnvironmentModel(env, envKey, "Loading environment configuration from command line:");
 
                 if (config.getEnvironments().containsKey(envKey)) {
                     env = config.getEnvironments().get(envKey).merge(env);
@@ -167,7 +183,7 @@ public class ModernConfigurationManager implements ConfigurationManager {
             makeRelativeJarDirsInEnvironmentsBasedOnWorkingDirectory(workingDirectory, config.getEnvironments());
         }
 
-        ConfigUtils.dumpConfigurationModel(config);
+        ConfigUtils.dumpConfigurationModel(config, "Using configuration:");
         ClassicConfiguration cfg = new ClassicConfiguration(config);
 
         cfg.setWorkingDirectory(workingDirectory);

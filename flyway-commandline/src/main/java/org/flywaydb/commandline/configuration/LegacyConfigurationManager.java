@@ -77,7 +77,7 @@ public class LegacyConfigurationManager implements ConfigurationManager {
 
         ClassLoader classLoader = buildClassLoaderBasedOnJarDirs(Thread.currentThread().getContextClassLoader(), config);
 
-        ConfigUtils.dumpConfigurationMap(config);
+        ConfigUtils.dumpConfigurationMap(config, "Using configuration:");
         filterProperties(config);
 
         final FluentConfiguration configuration = new FluentConfiguration(classLoader).configuration(config).workingDirectory(workingDirectory);

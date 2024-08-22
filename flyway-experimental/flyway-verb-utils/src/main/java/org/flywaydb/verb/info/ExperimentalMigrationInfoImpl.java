@@ -1,6 +1,6 @@
 /*-
  * ========================LICENSE_START=================================
- * flyway-verb-info
+ * flyway-verb-utils
  * ========================================================================
  * Copyright (C) 2010 - 2024 Red Gate Software Ltd
  * ========================================================================
@@ -140,5 +140,25 @@ public class ExperimentalMigrationInfoImpl implements MigrationInfo {
             return migration.getRight().sqlScriptMetadata().shouldExecute();
         }
         return true;
+    }
+
+    @Override
+    public Integer getResolvedChecksum() {
+        return migration.getRight() == null ? null : migration.getRight().checksum();
+    }
+
+    @Override
+    public Integer getAppliedChecksum() {
+        return migration.getLeft() == null ? null : migration.getLeft().getChecksum();
+    }
+
+    @Override
+    public String getResolvedDescription() {
+        return migration.getRight() == null ? null : migration.getRight().description();
+    }
+
+    @Override
+    public String getAppliedDescription() {
+        return migration.getLeft() == null ? null : migration.getLeft().getDescription();
     }
 }

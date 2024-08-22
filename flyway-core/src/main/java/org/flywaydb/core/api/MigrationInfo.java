@@ -100,4 +100,18 @@ public interface MigrationInfo extends Comparable<MigrationInfo> {
     default boolean isShouldExecute() {return true; }
     
     default boolean isRepeatable() { return getVersion() == null; }
+    
+    default boolean isChecksumMatching() {
+        return getResolvedChecksum() == null || getAppliedChecksum() == null || getResolvedChecksum().equals(getAppliedChecksum());
+    }
+    
+    default boolean isDescriptionMatching() {
+        return getResolvedDescription() == null || getAppliedDescription() == null || getResolvedDescription().equals(getAppliedDescription());
+    }
+    
+    default Integer getResolvedChecksum() { return null; }
+    default Integer getAppliedChecksum() { return null; }
+    
+    default String getResolvedDescription() { return null; }
+    default String getAppliedDescription() { return null; }
 }

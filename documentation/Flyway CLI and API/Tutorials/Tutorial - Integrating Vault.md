@@ -24,14 +24,14 @@ This is the REST API URL of your Vault server, and should include the API versio
 _Note: Flyway currently only supports API version v1_
 
 If you are using a [Vault dev server](https://learn.hashicorp.com/tutorials/vault/getting-started-dev-server) then an example of what configuring this in Flyway may look like is:<br/>
-`flyway.plugins.vault.url=http://localhost:8200/v1/`
+`flyway.vault.url=http://localhost:8200/v1/`
 
 ### [`vault.token`](Configuration/Parameters/Flyway/Vault Token)
 
 This is the token required to access your secrets. You can read about generating tokens [here](https://www.vaultproject.io/docs/commands/token/create), including how to add a lifetime to your token in order to control the duration of its validity.
 
 If we have a token `<vault_token>` then configuring this parameter involves adding the following to our Flyway configuration:<br/>
-`flyway.plugins.vault.token=<vault_token>`
+`flyway.vault.token=<vault_token>`
 
 ### [`vault.secrets`](Configuration/Parameters/Flyway/Vault Secrets)
 

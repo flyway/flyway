@@ -274,7 +274,7 @@ public class ClassicConfiguration implements Configuration {
     public ResolvedEnvironment getCurrentResolvedEnvironment(ProgressLogger progress) {
         String envName = getCurrentEnvironmentName();
 
-        String envProvisionMode = getModernFlyway().getEnvironmentProvisionMode();
+        String envProvisionMode = getModernFlyway().getProvisionMode();
         ProvisionerMode provisionerMode = StringUtils.hasText(envProvisionMode) ? ProvisionerMode.fromString(
             envProvisionMode) : ProvisionerMode.Provision;
         ResolvedEnvironment resolved = getResolvedEnvironment(envName, provisionerMode, progress);
@@ -1463,8 +1463,13 @@ public class ClassicConfiguration implements Configuration {
         }
     }
 
-    public void setEnvironmentProvisionMode(ProvisionerMode provisionerMode) {
-        getModernFlyway().setEnvironmentProvisionMode(provisionerMode.toString());
+    public void setProvisionMode(ProvisionerMode provisionerMode) {
+        getModernFlyway().setProvisionMode(provisionerMode.toString());
+    }
+
+    // Backwards compatible alias for provisionMode
+    public void setEnvironmentProvisionMode(ProvisionerMode provisionMode) {
+        setProvisionMode(provisionMode);
     }
 
     public void setAllEnvironments(Map<String, EnvironmentModel> environments) {
@@ -1687,6 +1692,8 @@ public class ClassicConfiguration implements Configuration {
         setResourceProvider(configuration.getResourceProvider());
         setJavaMigrationClassProvider(configuration.getJavaMigrationClassProvider());
         setCallbacks(configuration.getCallbacks());
+
+        setClassLoader(configuration.getClassLoader());
 
         setResolvers(configuration.getResolvers().clone());
 

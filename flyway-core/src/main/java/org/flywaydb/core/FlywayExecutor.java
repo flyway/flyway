@@ -177,6 +177,7 @@ public class FlywayExecutor {
                     if (rootTelemetryModel != null) {
                         rootTelemetryModel.setDatabaseEngine(database.getDatabaseType().getName());
                         rootTelemetryModel.setDatabaseVersion(database.getVersion().toString());
+                        rootTelemetryModel.setDatabaseHosting(database.getDatabaseHosting());
                     }
                 }
             }

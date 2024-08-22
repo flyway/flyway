@@ -44,7 +44,8 @@ public class MongoDBDatabaseType extends BaseDatabaseType {
     }
 
     public boolean handlesJDBCUrl(String url) {
-        return url.startsWith("jdbc:mongodb:") || url.startsWith("jdbc:mongodb+srv:");
+        return url.startsWith("jdbc:mongodb:") || url.startsWith("jdbc:mongodb+srv:")
+        || url.startsWith("mongodb:") || url.startsWith("mongodb+srv:");
     }
 
 

@@ -39,7 +39,7 @@ public class FlywayModel extends FlywayEnvironmentModel {
     private String environment;
     private String outputType;
     private Boolean outputProgress;
-    private String environmentProvisionMode;
+    private String provisionMode;
 
     public static FlywayModel defaults(){
         FlywayModel model = new FlywayModel();
@@ -90,9 +90,14 @@ public class FlywayModel extends FlywayEnvironmentModel {
         model.setFailOnMissingLocations(false);
         model.setLoggers(Arrays.asList("auto"));
         model.setPlaceholders(new HashMap<>());
-        model.setEnvironmentProvisionMode("provision");
+        model.setProvisionMode("provision");
         model.setReportEnabled(false);
         return model;
+    }
+
+    @SuppressWarnings("unused") // Backwards compatibility for old property name
+    public void setEnvironmentProvisionMode(String mode) {
+        this.provisionMode = mode;
     }
 
     public FlywayModel merge(FlywayModel otherPojo) {
@@ -100,7 +105,7 @@ public class FlywayModel extends FlywayEnvironmentModel {
         result.environment = environment.merge(otherPojo.environment);
         result.outputProgress = outputProgress.merge(otherPojo.outputProgress);
         result.outputType = outputType.merge(otherPojo.outputType);
-        result.environmentProvisionMode = environmentProvisionMode.merge(otherPojo.environmentProvisionMode);
+        result.provisionMode = provisionMode.merge(otherPojo.provisionMode);
         result.setReportFilename(getReportFilename().merge(otherPojo.getReportFilename()));
         result.setEncoding(getEncoding().merge(otherPojo.getEncoding()));
         result.setDetectEncoding(getDetectEncoding().merge(otherPojo.getDetectEncoding()));

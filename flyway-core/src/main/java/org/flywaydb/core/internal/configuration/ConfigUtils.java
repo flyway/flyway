@@ -664,16 +664,32 @@ public class ConfigUtils {
         }
     }
 
-    public static void dumpConfigurationModel(ConfigurationModel config) {
+    public static boolean detectNullConfigModel(ConfigurationModel model) {
+        if (model.getEnvironments().isEmpty()
+            && model.getFlyway().getPluginConfigurations().isEmpty()
+            && ClassUtils.getGettableFieldValues(model.getFlyway(), "").isEmpty()) {
+            return true;
+        }
+        return false;
+    }
+
+    public static void dumpEnvironmentModel(EnvironmentModel model, String envKey, String configMessage) {
         if (!LOG.isDebugEnabled()) {
             return;
         }
-        dumpConfigurationMap(getConfigurationMapFromModel(config));
+        dumpConfigurationMap(getEnvironmentMap(model, envKey), configMessage);
+    }
+
+    public static void dumpConfigurationModel(ConfigurationModel config, String configMessage) {
+        if (!LOG.isDebugEnabled()) {
+            return;
+        }
+        dumpConfigurationMap(getConfigurationMapFromModel(config), configMessage);
     }
 
     private static Map<String, String> getConfigurationMapFromModel(final ConfigurationModel config) {
         final Map<String, String> configMap = new TreeMap<>(ClassUtils.getGettableFieldValues(config.getFlyway(), "flyway."));
-        config.getEnvironments().forEach((name, env) -> configMap.putAll(ClassUtils.getGettableFieldValues(env, "environments." + name + ".")));
+        config.getEnvironments().forEach((name, env) -> configMap.putAll(getEnvironmentMap(env, name)));
 
         config.getFlyway().getPluginConfigurations().forEach((name, pluginConfig) -> {
             if (pluginConfig instanceof Map<?, ?>) {
@@ -691,9 +707,14 @@ public class ConfigUtils {
         return configMap;
     }
 
-    public static void dumpConfigurationMap(Map<String, String> config) {
+    public static Map<String, String> getEnvironmentMap(EnvironmentModel model, String envKey) {
+        return ClassUtils.getGettableFieldValues(model,
+            "environments." + envKey + ".");
+    }
+
+    public static void dumpConfigurationMap(Map<String, String> config, String configMessage) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Using configuration:");
+            LOG.debug(configMessage);
             LOG.debug(getConfigMapDump(config));
         }
     }
