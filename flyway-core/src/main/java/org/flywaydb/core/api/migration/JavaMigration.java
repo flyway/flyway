@@ -1,21 +1,33 @@
-/*
- * Copyright (C) Red Gate Software Ltd 2010-2021
- *
+/*-
+ * ========================LICENSE_START=================================
+ * flyway-core
+ * ========================================================================
+ * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * =========================LICENSE_END==================================
  */
 package org.flywaydb.core.api.migration;
 
+import org.flywaydb.core.api.CoreMigrationType;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.extensibility.MigrationType;
+import org.flywaydb.core.internal.jdbc.StatementInterceptor;
+import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
+import org.flywaydb.core.internal.resolver.java.JavaMigrationExecutor;
+import org.flywaydb.core.internal.util.ClassUtils;
 
 /**
  * Interface to be implemented by Java-based Migrations.
@@ -52,19 +64,16 @@ public interface JavaMigration {
      */
     Integer getChecksum();
 
-    /**
-     * Whether this is an undo migration for a previously applied versioned migration.
-     *
-     * @return {@code true} if it is, {@code false} if not. Always {@code false} for repeatable migrations.
-     */
-    boolean isUndo();
-
-    /**
-     * Whether this is a state script.
-     *
-     * @return {@code true} if it is, {@code false} if not.
-     */
-    boolean isStateScript();
+    default ResolvedMigration getResolvedMigration(Configuration config, StatementInterceptor statementInterceptor) {
+        return new ResolvedMigrationImpl(getVersion(),
+                                         getDescription(),
+                                         getClass().getName(),
+                                         getChecksum(),
+                                         null,
+                                         getType(),
+                                         ClassUtils.getLocationOnDisk(getClass()),
+                                         new JavaMigrationExecutor(this, statementInterceptor));
+    }
 
     /**
      * Whether the execution should take place inside a transaction. Almost all implementations should return {@code true}.
@@ -80,8 +89,12 @@ public interface JavaMigration {
      * database supports it and the canExecuteInTransaction returns {@code true}.
      *
      * @param context The context relevant for this migration, containing things like the JDBC connection to use and the
-     *                current Flyway configuration.
+     * current Flyway configuration.
      * @throws Exception when the migration failed.
      */
     void migrate(Context context) throws Exception;
+
+    default MigrationType getType() {
+        return CoreMigrationType.JDBC;
+    }
 }

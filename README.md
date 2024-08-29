@@ -1,4 +1,4 @@
-# [Flyway](https://flywaydb.org) by [Redgate](https://www.red-gate.com/) [![Build Status](https://api.travis-ci.org/flyway/flyway.svg)](https://travis-ci.org/flyway/flyway) [![Maven Central](https://img.shields.io/maven-central/v/org.flywaydb/flyway-core.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.flywaydb.flyway-core%22) [![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
+# [Flyway](https://flywaydb.org) by [Redgate](https://www.red-gate.com/) [![Build Release Tags](https://github.com/flyway/flyway/actions/workflows/build-release.yml/badge.svg)](https://github.com/flyway/flyway/actions/workflows/build-release.yml) [![Maven Central](https://img.shields.io/maven-central/v/org.flywaydb/flyway-core?logo=apachemaven&logoColor=red)](https://search.maven.org/artifact/org.flywaydb/flyway-core) [![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
 
 ### Database Migrations Made Easy.
 
@@ -14,22 +14,24 @@ Windows, macOS, Linux, Docker and Java
 Maven and Gradle
 
 #### Supported databases
-Oracle, SQL Server, DB2, MySQL, Aurora MySQL, MariaDB, Percona XtraDB Cluster, PostgreSQL, Aurora PostgreSQL, Redshift, CockroachDB, SAP HANA, Sybase ASE, Informix, H2, HSQLDB, Derby, SQLite, Firebird
+Aurora MySQL, Aurora PostgreSQL, Azure Synapse, Clickhouse, CockroachDB, Databricks, DB2, Derby, Firebird, Google BigQuery, Google Cloud Spanner, H2, HSQLDB, Informix, MariaDB, MongoDB, MySQL, Oracle, Percona XtraDB Cluster, PostgreSQL, Redshift, SAP HANA (Including SAP HANA Cloud), SingleStoreDB, Snowflake, SQLite, SQL Server, Sybase ASE, TiDB, TimescaleDB, YugabyteDB
 
 #### Third party plugins
 SBT, Ant, Spring Boot, Grails, Play!, DropWizard, Grunt, Griffon, Ninja, ...
 
 ## Documentation
-https://flywaydb.org
+You can find our getting started guides [here](https://documentation.red-gate.com/flyway/quickstart-how-flyway-works).
+Our reference documentation can be found [here](https://documentation.red-gate.com/flyway/flyway-cli-and-api).
 
 ## About
-Flyway is brought to you by [Redgate](https://www.red-gate.com/) with the help of [many contributors](https://flywaydb.org/documentation/contribute/hallOfFame.html).
+Flyway is brought to you by [Redgate](https://www.red-gate.com/) with the help of many contributors.
 
+See our post [Flyway V10 has landed](https://documentation.red-gate.com/flyway/flyway-blog/flyway-v10-has-landed) for our current major changes and improvements for the community
 ## How to contribute
-https://flywaydb.org/documentation/contribute
+Please visit our [contribution page](https://documentation.red-gate.com/flyway/flyway-cli-and-api/contribute) to find out how you can contribute in various ways to the project.
 
 ## License
-Copyright © [Red Gate Software Ltd](http://www.red-gate.com) 2010-2020
+Copyright © [Red Gate Software Ltd](http://www.red-gate.com) 2010-2024
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

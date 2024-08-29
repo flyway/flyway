@@ -1,46 +1,52 @@
-/*
- * Copyright (C) Red Gate Software Ltd 2010-2021
- *
+/*-
+ * ========================LICENSE_START=================================
+ * flyway-core
+ * ========================================================================
+ * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * =========================LICENSE_END==================================
  */
 package org.flywaydb.core.internal.sqlscript;
 
+import lombok.CustomLog;
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.callback.Error;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.callback.Warning;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.exception.FlywayBlockStatementExecutionException;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.Result;
 import org.flywaydb.core.internal.jdbc.Results;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import org.flywaydb.core.internal.util.AsciiTable;
+import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@CustomLog
 public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
-    private static final Log LOG = LogFactory.getLog(DefaultSqlScriptExecutor.class);
+    protected final JdbcTemplate jdbcTemplate;
 
-    private final JdbcTemplate jdbcTemplate;
-
-
-
-
-
+    /**
+     * The callback executor.
+     */
+    private final CallbackExecutor callbackExecutor;
 
 
 
@@ -54,48 +60,51 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
 
+    /**
+     * The maximum number of statements to include in a batch.
+     */
+    private static final int MAX_BATCH_SIZE = 100;
 
+    /**
+     * Whether to batch SQL statements.
+     */
+    private final boolean batch;
 
-
-
-
-
-
-
-
-
-
-
+    /**
+     * Whether to output query results table.
+     */
+    protected final boolean outputQueryResults;
 
 
 
     public DefaultSqlScriptExecutor(JdbcTemplate jdbcTemplate,
-            CallbackExecutor callbackExecutor, boolean undo, boolean batch, boolean outputQueryResults,
-            StatementInterceptor statementInterceptor
-    ) {
+                                    CallbackExecutor callbackExecutor, boolean undo, boolean batch, boolean outputQueryResults,
+                                    StatementInterceptor statementInterceptor
+                                   ) {
         this.jdbcTemplate = jdbcTemplate;
 
 
 
 
-
-
-
+        this.callbackExecutor = callbackExecutor;
+        this.outputQueryResults = outputQueryResults;
+        this.batch = batch;
     }
 
     @Override
-    public void execute(SqlScript sqlScript) {
+    public List<Results> execute(SqlScript sqlScript, Configuration config) {
+        final List<Results> results = new ArrayList<>(List.of());
 
 
 
 
 
 
-
+        List<SqlStatement> batchStatements = new ArrayList<>();
 
         try (SqlStatementIterator sqlStatementIterator = sqlScript.getSqlStatements()) {
-            while (sqlStatementIterator.hasNext()) {
-                SqlStatement sqlStatement = sqlStatementIterator.next();
+            SqlStatement sqlStatement;
+            while ((sqlStatement = sqlStatementIterator.next()) != null) {
 
 
 
@@ -109,142 +118,115 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                    executeStatement(jdbcTemplate, sqlScript, sqlStatement);
-
-
-
+                if (batch) {
+                    if (sqlStatement.isBatchable()) {
+                        logStatementExecution(sqlStatement);
+                        batchStatements.add(sqlStatement);
+                        if (batchStatements.size() >= MAX_BATCH_SIZE) {
+                            results.add(executeBatch(jdbcTemplate, sqlScript, batchStatements, config));
+                            batchStatements = new ArrayList<>();
+                        }
+                    } else {
+                        // Execute the batch up to this point
+                        results.add(executeBatch(jdbcTemplate, sqlScript, batchStatements, config));
+                        batchStatements = new ArrayList<>();
+                        // Now execute this non-batchable statement. We'll resume batching after this one.
+                        results.add(executeStatement(jdbcTemplate, sqlScript, sqlStatement, config));
+                    }
+                } else {
+                    results.add(executeStatement(jdbcTemplate, sqlScript, sqlStatement, config));
+                }
             }
         }
 
-
-
-
-
-
-
+        if (batch) {
+            // Execute any remaining batch statements that haven't yet been sent to the database
+            results.add(executeBatch(jdbcTemplate, sqlScript, batchStatements, config));
+        }
+        return results;
     }
 
     protected void logStatementExecution(SqlStatement sqlStatement) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Executing "
-
-
-
-                    + "SQL: " + sqlStatement.getSql());
+                              + (batch && sqlStatement.isBatchable() ? "batchable " : "")
+                              + "SQL: " + sqlStatement.getSql());
         }
     }
 
+    private Results executeBatch(JdbcTemplate jdbcTemplate, SqlScript sqlScript, List<SqlStatement> batchStatements, Configuration config) {
+        if (batchStatements.isEmpty()) {
+            return null;
+        }
 
+        LOG.debug("Sending batch of " + batchStatements.size() + " statements to database ...");
+        List<String> sqlBatch = new ArrayList<>();
+        for (SqlStatement sqlStatement : batchStatements) {
+            try {
+                handleEachMigrateOrUndoStatementCallback(Event.BEFORE_EACH_UNDO_STATEMENT, Event.BEFORE_EACH_MIGRATE_STATEMENT, sqlStatement.getSql() + sqlStatement.getDelimiter(), null, null);
+            } catch (FlywayBlockStatementExecutionException e) {
+                LOG.debug("Statement on line " + sqlStatement.getLineNumber() + " + skipped due to " + e.getMessage());
+                continue;
+            }
+            sqlBatch.add(sqlStatement.getSql());
+        }
 
+        Results results = jdbcTemplate.executeBatch(sqlBatch, config);
 
+        if (results.getException() != null) {
+            handleException(results, sqlScript, batchStatements.get(0), config);
 
+            for (int i = 0; i < results.getResults().size(); i++) {
+                SqlStatement sqlStatement = batchStatements.get(i);
+                long updateCount = results.getResults().get(i).updateCount();
+                if (updateCount == Statement.EXECUTE_FAILED) {
+                    handleEachMigrateOrUndoStatementCallback(Event.AFTER_EACH_UNDO_STATEMENT_ERROR, Event.AFTER_EACH_MIGRATE_STATEMENT_ERROR, sqlStatement.getSql() + sqlStatement.getDelimiter(), results.getWarnings(), results.getErrors());
+                    handleException(results, sqlScript, batchStatements.get(i), config);
+                } else if (updateCount != Statement.SUCCESS_NO_INFO) {
+                    handleEachMigrateOrUndoStatementCallback(Event.AFTER_EACH_UNDO_STATEMENT, Event.AFTER_EACH_MIGRATE_STATEMENT, sqlStatement.getSql() + sqlStatement.getDelimiter(), results.getWarnings(), results.getErrors());
+                    handleUpdateCount(updateCount);
+                }
+            }
+            return results;
+        }
 
+        for (int i = 0; i < results.getResults().size(); i++) {
+            SqlStatement sqlStatement = batchStatements.get(i);
+            handleEachMigrateOrUndoStatementCallback(Event.AFTER_EACH_UNDO_STATEMENT, Event.AFTER_EACH_MIGRATE_STATEMENT, sqlStatement.getSql() + sqlStatement.getDelimiter(), results.getWarnings(), results.getErrors());
+        }
+        handleResults(results);
+        return results;
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    protected void executeStatement(JdbcTemplate jdbcTemplate, SqlScript sqlScript, SqlStatement sqlStatement) {
+    protected Results executeStatement(JdbcTemplate jdbcTemplate, SqlScript sqlScript, SqlStatement sqlStatement, Configuration config) {
         logStatementExecution(sqlStatement);
         String sql = sqlStatement.getSql() + sqlStatement.getDelimiter();
 
-
-
-
-
-
-        Results results = sqlStatement.execute(jdbcTemplate
-
-
-
-        );
-        if (results.getException() != null) {
-
-
-
-
-
-            printWarnings(results);
-            handleException(results, sqlScript, sqlStatement);
-            return;
+        try {
+            handleEachMigrateOrUndoStatementCallback(Event.BEFORE_EACH_UNDO_STATEMENT, Event.BEFORE_EACH_MIGRATE_STATEMENT, sql, null, null);
+        } catch (FlywayBlockStatementExecutionException e) {
+            LOG.debug("Statement on line " + sqlStatement.getLineNumber() + " + skipped due to " + e.getMessage());
+            return null;
         }
 
+        Results results = sqlStatement.execute(jdbcTemplate, this, config);
 
+        if (results.getException() != null) {
+            handleEachMigrateOrUndoStatementCallback(Event.AFTER_EACH_UNDO_STATEMENT_ERROR, Event.AFTER_EACH_MIGRATE_STATEMENT_ERROR, sql, results.getWarnings(), results.getErrors());
+            printWarnings(results);
+            handleException(results, sqlScript, sqlStatement, config);
+            return null;
+        }
 
-
-
-
+        handleEachMigrateOrUndoStatementCallback(Event.AFTER_EACH_UNDO_STATEMENT, Event.AFTER_EACH_MIGRATE_STATEMENT, sql, results.getWarnings(), results.getErrors());
         printWarnings(results);
-        handleResults(results
-
-
-
-        );
+        handleResults(results);
+        return results;
     }
 
-    protected void handleResults(Results results
-
-
-
-    ) {
+    protected void handleResults(Results results) {
         for (Result result : results.getResults()) {
-            long updateCount = result.getUpdateCount();
+            long updateCount = result.updateCount();
             if (updateCount != -1) {
                 handleUpdateCount(updateCount);
             }
@@ -255,21 +237,18 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
     }
 
     protected void outputQueryResult(Result result) {
-        if (
-
-
-
-                result.getColumns() != null) {
-            LOG.info(new AsciiTable(result.getColumns(), result.getData(),
-                    true, "", "No rows returned").render());
+        if (outputQueryResults &&
+                result.columns() != null && !result.columns().isEmpty()) {
+            LOG.info(new AsciiTable(result.columns(), result.data(),
+                true, "", "No rows returned").render());
         }
     }
 
     private void handleUpdateCount(long updateCount) {
-        LOG.debug(updateCount + (updateCount == 1 ? " row" : " rows") + " affected");
+        LOG.debug(updateCount + " row" + StringUtils.pluralizeSuffix(updateCount) + " affected");
     }
 
-    protected void handleException(Results results, SqlScript sqlScript, SqlStatement sqlStatement) {
+    protected void handleException(Results results, SqlScript sqlScript, SqlStatement sqlStatement, Configuration config) {
 
 
 
@@ -290,11 +269,22 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
                     LOG.info("DB: " + warning.getMessage());
                 } else {
                     LOG.warn("DB: " + warning.getMessage()
-                            + " (SQL State: " + warning.getState() + " - Error Code: " + warning.getCode() + ")");
+                                     + " (SQL State: " + warning.getState() + " - Error Code: " + warning.getCode() + ")");
                 }
 
 
 
         }
+    }
+
+    private void handleEachMigrateOrUndoStatementCallback(Event eventUndo, Event eventMigrate, String sql, List<Warning> warnings, List<Error> errors) {
+
+
+
+
+
+
+
+        callbackExecutor.onEachMigrateOrUndoStatementEvent(eventMigrate, sql, warnings, errors);
     }
 }

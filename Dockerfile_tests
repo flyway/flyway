@@ -1,0 +1,21 @@
+FROM eclipse-temurin:17-jdk-focal as flyway
+RUN apt-get update \
+    && apt-get install -y python3-pip \
+    && pip3 install sqlfluff==1.2.1
+
+WORKDIR /flyway
+
+ARG UNAME=testuser
+ARG UID=1000
+ARG GID=1000
+
+RUN groupadd -g $GID -o $UNAME
+RUN useradd -m -u $UID -g $GID -o -s /bin/bash $UNAME
+
+ENTRYPOINT ["/bin/bash"]
+CMD ["/flyway/mvnw"]
+
+FROM flyway as redgate
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libc6 libgcc1 libgssapi-krb5-2 libicu66 libssl1.1 libstdc++6 zlib1g

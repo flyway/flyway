@@ -1,0 +1,36 @@
+name: Build PRs
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macOS-latest
+          - windows-latest
+        java:
+          - 17
+      fail-fast: false
+
+    permissions:
+      contents: read
+
+    steps:
+    - name: Checkout Flyway
+      uses: actions/checkout@v3
+    - name: Set up JDK ${{ matrix.java }}
+      uses: actions/setup-java@v3
+      with:
+        java-version: ${{ matrix.java }}
+        distribution: 'temurin'
+        cache: 'maven'
+
+    - name: Build with Maven
+      run: mvn -B install -e --file pom.xml -pl !flyway-database/flyway-database-mongodb

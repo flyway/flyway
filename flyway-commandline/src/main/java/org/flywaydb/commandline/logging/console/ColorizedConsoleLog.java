@@ -1,20 +1,25 @@
-/*
- * Copyright (C) Red Gate Software Ltd 2010-2021
- *
+/*-
+ * ========================LICENSE_START=================================
+ * flyway-commandline
+ * ========================================================================
+ * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * =========================LICENSE_END==================================
  */
 package org.flywaydb.commandline.logging.console;
 
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.logging.Log;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Color;
@@ -22,6 +27,7 @@ import org.fusesource.jansi.AnsiConsole;
 
 import java.io.PrintStream;
 
+@RequiredArgsConstructor
 public class ColorizedConsoleLog implements Log {
     private final ConsoleLog log;
 
@@ -31,10 +37,6 @@ public class ColorizedConsoleLog implements Log {
         }
 
         AnsiConsole.systemInstall();
-    }
-
-    public ColorizedConsoleLog(ConsoleLog log) {
-        this.log = log;
     }
 
     @Override
@@ -79,6 +81,13 @@ public class ColorizedConsoleLog implements Log {
         colorize(System.err, Color.RED);
         this.log.error(message, e);
         reset(System.err);
+    }
+
+    @Override
+    public void notice(String message) {
+        colorize(System.out, Color.BLUE);
+        this.log.notice(message);
+        reset(System.out);
     }
 
     private void colorize(PrintStream stream, Color color) {

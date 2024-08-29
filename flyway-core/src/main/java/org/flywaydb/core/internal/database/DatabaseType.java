@@ -1,22 +1,27 @@
-/*
- * Copyright (C) Red Gate Software Ltd 2010-2021
- *
+/*-
+ * ========================LICENSE_START=================================
+ * flyway-core
+ * ========================================================================
+ * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * =========================LICENSE_END==================================
  */
 package org.flywaydb.core.internal.database;
 
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.extensibility.Plugin;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.parser.Parser;
@@ -29,51 +34,44 @@ import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
 
 import java.sql.Connection;
 import java.sql.Driver;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-public interface DatabaseType extends Comparable<DatabaseType> {
+public interface DatabaseType extends Plugin {
     /**
      * @return The human-readable name for this database type.
      */
     String getName();
+
+    List<String> getSupportedEngines();
 
     /**
      * @return The JDBC type used to represent {@code null} in prepared statements.
      */
     int getNullType();
 
-
-
-
-
-
-
-
-
+    /**
+     * Checks whether read-only transactions are supported by this database.
+     *
+     * @return {@code true} if read-only transactions are supported, {@code false} if not.
+     */
+    boolean supportsReadOnlyTransactions();
 
     /**
      * Check if this database type should handle the given JDBC url
+     *
      * @param url The JDBC url.
      * @return {@code true} if this handles the JDBC url, {@code false} if not.
      */
     boolean handlesJDBCUrl(String url);
 
     /**
-     * When identifying database types, the priority with which this type will be used. High numbers indicate
-     * that this type will be used in preference to others.
-     */
-    int getPriority();
-
-    /**
-     * When identifying database types, this method will sort by priority.
-     */
-    int compareTo(DatabaseType other);
-
-    /**
      * A regex that identifies credentials in the JDBC URL, where they conform to a pattern specific to this database.
      * The first captured group should represent the password text, so that it can be redacted if necessary.
+     *
      * @return The URL regex.
      */
     Pattern getJDBCCredentialsPattern();
@@ -81,6 +79,7 @@ public interface DatabaseType extends Comparable<DatabaseType> {
     /**
      * Get the driver class used to handle this JDBC url.
      * This will only be called if {@code matchesJDBCUrl} previously returned {@code true}.
+     *
      * @param url The JDBC url.
      * @param classLoader The classLoader to check for driver classes.
      * @return The full driver class name to be instantiated to handle this url.
@@ -108,19 +107,6 @@ public interface DatabaseType extends Comparable<DatabaseType> {
      */
     boolean handlesDatabaseProductNameAndVersion(String databaseProductName, String databaseProductVersion, Connection connection);
 
-    /**
-     * Initializes the Database class, and optionally prints some information.
-     *
-     * @param configuration The Flyway configuration.
-     * @param jdbcConnectionFactory The current connection factory.
-     * @param printInfo     Where the DB info should be printed in the logs.
-     * @return The appropriate Database class.
-     */
-    Database createDatabase(
-            Configuration configuration, boolean printInfo,
-            JdbcConnectionFactory jdbcConnectionFactory,
-            StatementInterceptor statementInterceptor
-    );
 
     /**
      * Initializes the Database used by this Database Type.
@@ -133,7 +119,7 @@ public interface DatabaseType extends Comparable<DatabaseType> {
             Configuration configuration,
             JdbcConnectionFactory jdbcConnectionFactory,
             StatementInterceptor statementInterceptor
-    );
+                           );
 
     /**
      * Initializes the Parser used by this Database Type.
@@ -145,7 +131,7 @@ public interface DatabaseType extends Comparable<DatabaseType> {
             Configuration configuration
             , ResourceProvider resourceProvider
             , ParsingContext parsingContext
-    );
+                       );
 
     /**
      * Initializes the SqlScriptFactory used by this Database Type.
@@ -167,7 +153,7 @@ public interface DatabaseType extends Comparable<DatabaseType> {
             final JdbcConnectionFactory jdbcConnectionFactory,
             final CallbackExecutor callbackExecutor,
             final StatementInterceptor statementInterceptor
-    );
+                                                           );
 
     /**
      * Initializes the DatabaseExecutionStrategy used by this Database Type.
@@ -244,22 +230,23 @@ public interface DatabaseType extends Comparable<DatabaseType> {
     boolean externalAuthPropertiesRequired(String url, String username, String password);
 
     /**
-     *
-     * @param url      The JDBC url.
+     * @param url The JDBC url.
      * @param username The username for the connection.
-     * @return         Authentication properties from database specific locations (e.g. pgpass)
+     * @return Authentication properties from database specific locations (e.g. pgpass)
      */
     Properties getExternalAuthProperties(String url, String username);
 
     /**
      * Carries out any manipulation on the Connection that is required by Flyway's config
      *
-     * @param connection    The JDBC connection.
+     * @param connection The JDBC connection.
      * @param configuration The Flyway configuration.
      */
     Connection alterConnectionAsNeeded(Connection connection, Configuration configuration);
 
     String instantiateClassExtendedErrorMessage();
 
-    void printMessages();
+    default List<String> getSpecialResourceFilenames(Configuration configuration) {
+        return Collections.emptyList();
+    }
 }

@@ -1,17 +1,21 @@
-/*
- * Copyright (C) Red Gate Software Ltd 2010-2021
- *
+/*-
+ * ========================LICENSE_START=================================
+ * flyway-gradle-plugin
+ * ========================================================================
+ * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * =========================LICENSE_END==================================
  */
 package org.flywaydb.gradle.task;
 
@@ -40,6 +44,8 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
 
+import static org.flywaydb.core.internal.configuration.ConfigUtils.FLYWAY_PLUGINS_PREFIX;
+import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeLocationsBasedOnWorkingDirectory;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.putIfSet;
 
 /**
@@ -197,15 +203,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public String sqlMigrationPrefix;
 
     /**
-     * The file name prefix for state scripts. (default: S)
-     * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
-     * which using the defaults translates to S1.1__My_description.sql
-     * <i>Flyway Teams only</i>
-     * <p>Also configurable with Gradle or System Property: ${flyway.stateScriptPrefix}</p>
-     */
-    public String stateScriptPrefix;
-
-    /**
      * The file name prefix for undo SQL migrations. (default: U)
      * Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.
      * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
@@ -256,7 +253,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * Placeholders to replace in SQL migrations.
      */
     public Map<Object, Object> placeholders;
-    
+
     /**
      * Properties to pass to the JDBC driver object.
      *
@@ -281,6 +278,11 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public String placeholderSuffix;
 
     /**
+     * The separator of default placeholders.
+     */
+    public String placeholderSeparator;
+
+    /**
      * The prefix of every script placeholder.
      */
     public String scriptPlaceholderPrefix;
@@ -297,6 +299,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * <ul>
      * <li>{@code current}: Designates the current version of the schema</li>
      * <li>{@code latest}: The latest version of the schema, as defined by the migration with the highest version</li>
+     * <li>{@code next}: The next version of the schema, as defined by the first pending migration</li>
      * <li>
      *     &lt;version&gt;? (end with a '?'): Instructs Flyway not to fail if the target version doesn't exist.
      *     In this case, Flyway will go up to but not beyond the specified target
@@ -321,7 +324,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * <ul>
      *     <li>auto: Auto detect the logger (default behavior)</li>
      *     <li>console: Use stdout/stderr (only available when using the CLI)</li>
-     *     <li>slf4j2: Use the slf4j2 logger</li>
+     *     <li>slf4j: Use the slf4j logger</li>
      *     <li>log4j2: Use the log4j2 logger</li>
      *     <li>apache-commons: Use the Apache Commons logger</li>
      * </ul>
@@ -379,79 +382,24 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public Boolean cleanOnValidationError;
 
     /**
-     * @deprecated Will remove in Flyway V9. Use {@code ignoreMigrationPatterns} instead.
-     *
-     * Ignore missing migrations when reading the schema history table. These are migrations that were performed by an
-     * older deployment of the application that are no longer available in this version. For example: we have migrations
-     * available on the classpath with versions 1.0 and 3.0. The schema history table indicates that a migration with version 2.0
-     * (unknown to us) has also been applied. Instead of bombing out (fail fast) with an exception, a
-     * warning is logged and Flyway continues normally. This is useful for situations where one must be able to deploy
-     * a newer version of the application even though it doesn't contain migrations included with an older one anymore.
-     * Note that if the most recently applied migration is removed, Flyway has no way to know it is missing and will
-     * mark it as future instead.(default: {@code false})
-     * <p>Also configurable with Gradle or System Property: ${flyway.ignoreMissingMigrations}</p>
-     */
-    public Boolean ignoreMissingMigrations;
-
-    /**
-     * @deprecated Will remove in Flyway V9. Use {@code ignoreMigrationPatterns} instead.
-     *
-     * Ignore ignored migrations when reading the schema history table. These are migrations that were added in between
-     * already migrated migrations in this version. For example: we have migrations available on the classpath with
-     * versions from 1.0 to 3.0. The schema history table indicates that version 1 was finished on 1.0.15, and the next
-     * one was 2.0.0. But with the next release a new migration was added to version 1: 1.0.16. Such scenario is ignored
-     * by migrate command, but by default is rejected by validate. When ignoreIgnoredMigrations is enabled, such case
-     * will not be reported by validate command. This is useful for situations where one must be able to deliver
-     * complete set of migrations in a delivery package for multiple versions of the product, and allows for further
-     * development of older versions.(default: {@code false})
-     * <p>Also configurable with Gradle or System Property: ${flyway.ignoreIgnoredMigrations}</p>
-     */
-    public Boolean ignoreIgnoredMigrations;
-
-    /**
-     * @deprecated Will remove in Flyway V9. Use {@code ignoreMigrationPatterns} instead.
-     *
-     * Ignore pending migrations when reading the schema history table. These are migrations that are available
-     * but have not yet been applied. This can be useful for verifying that in-development migration changes
-     * don't contain any validation-breaking changes of migrations that have already been applied to a production
-     * environment, e.g. as part of a CI/CD process, without failing because of the existence of new migration versions.
-     * (default: {@code false})
-     * <p>Also configurable with Gradle or System Property: ${flyway.ignorePendingMigrations}</p>
-     */
-    public Boolean ignorePendingMigrations;
-
-    /**
-     * @deprecated Will remove in Flyway V9. Use {@code ignoreMigrationPatterns} instead.
-     *
-     * Ignore future migrations when reading the schema history table. These are migrations that were performed by a
-     * newer deployment of the application that are not yet available in this version. For example: we have migrations
-     * available on the classpath up to version 3.0. The schema history table indicates that a migration to version 4.0
-     * (unknown to us) has already been applied. Instead of bombing out (fail fast) with an exception, a
-     * warning is logged and Flyway continues normally. This is useful for situations where one must be able to redeploy
-     * an older version of the application after the database has been migrated by a newer one. (default: {@code true})
-     * <p>Also configurable with Gradle or System Property: ${flyway.ignoreFutureMigrations}</p>
-     */
-    public Boolean ignoreFutureMigrations;
-
-    /**
      * Ignore migrations that match this comma-separated list of patterns when validating migrations.
      * Each pattern is of the form <migration_type>:<migration_state>
-     * See https://flywaydb.org/documentation/configuration/parameters/ignoreMigrationPatterns for full details
+     * See https://documentation.red-gate.com/flyway/flyway-cli-and-api/configuration/parameters/flyway/ignore-migration-patterns for full details
      * Example: repeatable:missing,versioned:pending,*:failed
-     * <i>Flyway Teams only</i>
+     * (default: *:future)
      */
     public String[] ignoreMigrationPatterns;
 
     /**
      * Whether to validate migrations and callbacks whose scripts do not obey the correct naming convention. A failure can be
      * useful to check that errors such as case sensitivity in migration prefixes have been corrected.
-     *{@code false} to continue normally, {@code true} to fail fast with an exception. (default: {@code false})
+     * {@code false} to continue normally, {@code true} to fail fast with an exception. (default: {@code false})
      */
     public Boolean validateMigrationNaming;
 
     /**
-     * Whether to disable clean. (default: {@code false})
-     * This is especially useful for production environments where running clean can be quite a career limiting move.
+     * Whether to disable clean. (default: {@code true})
+     * Set to false if you need to be able to clean your environment (can be a career limiting move)
      */
     public Boolean cleanDisabled;
 
@@ -585,13 +533,10 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public String oracleWalletLocation;
 
     /**
-     * Your Flyway license key (FL01...). Not yet a Flyway Teams Edition customer?
-     * Request your <a href="https://flywaydb.org/download/">Flyway trial license key</a>
-     * to try out Flyway Teams Edition features free for 30 days.
+     * When connecting to a Kerberos service to authenticate, the path to the Kerberos config file.
      * <i>Flyway Teams only</i>
-     * <p>Also configurable with Gradle or System Property: ${flyway.licenseKey}</p>
      */
-    public String licenseKey;
+    public String kerberosConfigFile;
 
     /**
      * The maximum number of retries when trying to obtain a lock. (default: 50)
@@ -627,38 +572,10 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public boolean failOnMissingLocations;
 
     /**
-     * The configuration for Vault secrets manager.
-     * You will need to configure the following fields:
-     * <ul>
-     *  <li>vaultUrl: The REST API URL of your Vault server - https://flywaydb.org/documentation/configuration/parameters/vaultUrl</li>
-     *  <li>vaultToken: The Vault token required to access your secrets - https://flywaydb.org/documentation/configuration/parameters/vaultToken</li>
-     *  <li>vaultSecrets: A list of paths to secrets in Vault that contain Flyway configurations - https://flywaydb.org/documentation/configuration/parameters/vaultSecrets</li>
-     * </ul>
-     * <i>Flyway Teams only</i>
+     * The configuration for plugins
+     * You will need to configure this with the key and value specific to your plugin
      */
-    public VaultConfiguration vaultConfiguration;
-
-    /**
-     * The configuration for DAPR Secrets Store.
-     * You will need to configure the following fields:
-     * <ul>
-     *  <li>daprUrl: The REST API URL of your Dapr application sidecar - https://flywaydb.org/documentation/configuration/parameters/daprUrl</li>
-     *  <li>daprSecrets: A list of paths to secrets in Dapr that contain Flyway configurations - https://flywaydb.org/documentation/configuration/parameters/daprSecrets</li>
-     * </ul>
-     * <i>Flyway Teams only</i>
-     */
-    public DaprConfiguration daprConfiguration;
-
-    /**
-     * The configuration for Google Cloud Secret Manager.
-     * You will need to configure the following fields:
-     * <ul>
-     *  <li>gcsmProject: The Project which contains your secrets - https://flywaydb.org/documentation/configuration/parameters/gcsmProject</li>
-     *  <li>gcsmSecrets: A list of secrets in GCSM that contain Flyway configurations - https://flywaydb.org/documentation/configuration/parameters/gcsmSecrets</li>
-     * </ul>
-     * <i>Flyway Teams only</i>
-     */
-    public GcsmConfiguration gcsmConfiguration;
+    public Map<String, String> pluginConfiguration;
 
     public AbstractFlywayTask() {
         super();
@@ -677,13 +594,13 @@ public abstract class AbstractFlywayTask extends DefaultTask {
             }
 
             addConfigurationArtifacts(determineConfigurations(envVars), extraURLs);
-            
+
             ClassLoader classLoader = new URLClassLoader(
                     extraURLs.toArray(new URL[0]),
                     getProject().getBuildscript().getClassLoader());
 
             Map<String, String> config = createFlywayConfig(envVars);
-            ConfigUtils.dumpConfiguration(config);
+            ConfigUtils.dumpConfigurationMap(config, "Using configuration:");
 
             Flyway flyway = Flyway.configure(classLoader).configuration(config).load();
             Object result = run(flyway);
@@ -787,7 +704,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.BASELINE_VERSION, baselineVersion, extension.baselineVersion);
         putIfSet(conf, ConfigUtils.BASELINE_DESCRIPTION, baselineDescription, extension.baselineDescription);
         putIfSet(conf, ConfigUtils.SQL_MIGRATION_PREFIX, sqlMigrationPrefix, extension.sqlMigrationPrefix);
-        putIfSet(conf, ConfigUtils.STATE_SCRIPT_PREFIX, stateScriptPrefix, extension.stateScriptPrefix);
         putIfSet(conf, ConfigUtils.UNDO_SQL_MIGRATION_PREFIX, undoSqlMigrationPrefix, extension.undoSqlMigrationPrefix);
         putIfSet(conf, ConfigUtils.REPEATABLE_SQL_MIGRATION_PREFIX, repeatableSqlMigrationPrefix, extension.repeatableSqlMigrationPrefix);
         putIfSet(conf, ConfigUtils.SQL_MIGRATION_SEPARATOR, sqlMigrationSeparator, extension.sqlMigrationSeparator);
@@ -801,20 +717,16 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.PLACEHOLDER_REPLACEMENT, placeholderReplacement, extension.placeholderReplacement);
         putIfSet(conf, ConfigUtils.PLACEHOLDER_PREFIX, placeholderPrefix, extension.placeholderPrefix);
         putIfSet(conf, ConfigUtils.PLACEHOLDER_SUFFIX, placeholderSuffix, extension.placeholderSuffix);
+        putIfSet(conf, ConfigUtils.PLACEHOLDER_SEPARATOR, placeholderSeparator, extension.placeholderSeparator);
         putIfSet(conf, ConfigUtils.SCRIPT_PLACEHOLDER_PREFIX, scriptPlaceholderPrefix, extension.scriptPlaceholderPrefix);
         putIfSet(conf, ConfigUtils.SCRIPT_PLACEHOLDER_SUFFIX, scriptPlaceholderSuffix, extension.scriptPlaceholderSuffix);
         putIfSet(conf, ConfigUtils.TARGET, target, extension.target);
-        putIfSet(conf, ConfigUtils.CHERRY_PICK, StringUtils.arrayToCommaDelimitedString(cherryPick), StringUtils.arrayToCommaDelimitedString(extension.cherryPick));
         putIfSet(conf, ConfigUtils.LOGGERS, StringUtils.arrayToCommaDelimitedString(loggers), StringUtils.arrayToCommaDelimitedString(extension.loggers));
         putIfSet(conf, ConfigUtils.OUT_OF_ORDER, outOfOrder, extension.outOfOrder);
         putIfSet(conf, ConfigUtils.SKIP_EXECUTING_MIGRATIONS, skipExecutingMigrations, extension.skipExecutingMigrations);
         putIfSet(conf, ConfigUtils.OUTPUT_QUERY_RESULTS, outputQueryResults, extension.outputQueryResults);
         putIfSet(conf, ConfigUtils.VALIDATE_ON_MIGRATE, validateOnMigrate, extension.validateOnMigrate);
         putIfSet(conf, ConfigUtils.CLEAN_ON_VALIDATION_ERROR, cleanOnValidationError, extension.cleanOnValidationError);
-        putIfSet(conf, ConfigUtils.IGNORE_MISSING_MIGRATIONS, ignoreMissingMigrations, extension.ignoreMissingMigrations);
-        putIfSet(conf, ConfigUtils.IGNORE_IGNORED_MIGRATIONS, ignoreIgnoredMigrations, extension.ignoreIgnoredMigrations);
-        putIfSet(conf, ConfigUtils.IGNORE_PENDING_MIGRATIONS, ignorePendingMigrations, extension.ignorePendingMigrations);
-        putIfSet(conf, ConfigUtils.IGNORE_FUTURE_MIGRATIONS, ignoreFutureMigrations, extension.ignoreFutureMigrations);
         putIfSet(conf, ConfigUtils.IGNORE_MIGRATION_PATTERNS, StringUtils.arrayToCommaDelimitedString(ignoreMigrationPatterns), StringUtils.arrayToCommaDelimitedString(extension.ignoreMigrationPatterns));
         putIfSet(conf, ConfigUtils.VALIDATE_MIGRATION_NAMING, validateMigrationNaming, extension.validateMigrationNaming);
         putIfSet(conf, ConfigUtils.CLEAN_DISABLED, cleanDisabled, extension.cleanDisabled);
@@ -834,11 +746,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.STREAM, stream, extension.stream);
         putIfSet(conf, ConfigUtils.BATCH, batch, extension.batch);
 
-        putIfSet(conf, ConfigUtils.ORACLE_SQLPLUS, oracleSqlplus, extension.oracleSqlplus);
-        putIfSet(conf, ConfigUtils.ORACLE_SQLPLUS_WARN, oracleSqlplusWarn, extension.oracleSqlplusWarn);
-        putIfSet(conf, ConfigUtils.ORACLE_WALLET_LOCATION, oracleWalletLocation, extension.oracleWalletLocation);
-
-        putIfSet(conf, ConfigUtils.LICENSE_KEY, licenseKey, extension.licenseKey);
+        putIfSet(conf, ConfigUtils.KERBEROS_CONFIG_FILE, kerberosConfigFile, extension.kerberosConfigFile);
 
         if (extension.placeholders != null) {
             for (Map.Entry<Object, Object> entry : extension.placeholders.entrySet()) {
@@ -862,31 +770,35 @@ public abstract class AbstractFlywayTask extends DefaultTask {
             }
         }
 
-        if (extension.vaultConfiguration != null){
-            extension.vaultConfiguration.extract(conf);
-        }
-        if (vaultConfiguration != null){
-            vaultConfiguration.extract(conf);
-        }
-        if (extension.daprConfiguration != null) {
-            extension.daprConfiguration.extract(conf);
-        }
-        if (daprConfiguration != null){
-            daprConfiguration.extract(conf);
-        }
-        if (extension.gcsmConfiguration != null) {
-            extension.gcsmConfiguration.extract(conf);
-        }
-        if (gcsmConfiguration != null) {
-            gcsmConfiguration.extract(conf);
-        }
+        conf.putAll(getPluginConfiguration(pluginConfiguration, extension.pluginConfiguration));
 
         addConfigFromProperties(conf, getProject().getProperties());
         addConfigFromProperties(conf, loadConfigurationFromConfigFiles(getWorkingDirectory(), envVars));
         addConfigFromProperties(conf, envVars);
         addConfigFromProperties(conf, System.getProperties());
-        conf.putAll(ConfigUtils.loadConfigurationFromSecretsManagers(conf));
         removeGradlePluginSpecificPropertiesToAvoidWarnings(conf);
+
+        return conf;
+    }
+
+    public Map<String, String> getPluginConfiguration(Map<String, String> pluginConfiguration, Map<String, String> extensionPluginConfiguration) {
+        Map<String, String> conf = new HashMap<>();
+
+        if (pluginConfiguration == null && extensionPluginConfiguration == null) {
+            return conf;
+        }
+
+        String camelCaseRegex = "(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])";
+        if (extensionPluginConfiguration != null) {
+            for (String key : extensionPluginConfiguration.keySet()) {
+                conf.put(FLYWAY_PLUGINS_PREFIX + String.join(".", key.split(camelCaseRegex)).toLowerCase(), extensionPluginConfiguration.get(key));
+            }
+        }
+        if (pluginConfiguration != null) {
+            for (String key : pluginConfiguration.keySet()) {
+                conf.put(FLYWAY_PLUGINS_PREFIX + String.join(".", key.split(camelCaseRegex)).toLowerCase(), pluginConfiguration.get(key));
+            }
+        }
 
         return conf;
     }
@@ -899,16 +811,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         String[] locationsToAdd = getLocations();
 
         if (locationsToAdd != null) {
-            for (int i = 0; i < locationsToAdd.length; i++) {
-                if (locationsToAdd[i].startsWith(Location.FILESYSTEM_PREFIX)) {
-                    String newLocation = locationsToAdd[i].substring(Location.FILESYSTEM_PREFIX.length());
-                    File file = new File(newLocation);
-                    if (!file.isAbsolute()) {
-                        file = new File(workingDirectory, newLocation);
-                    }
-                    locationsToAdd[i] = Location.FILESYSTEM_PREFIX + file.getAbsolutePath();
-                }
-            }
+            ConfigUtils.makeRelativeLocationsBasedOnWorkingDirectory(workingDirectory.getAbsolutePath(), locationsToAdd);
         }
 
         putIfSet(conf, ConfigUtils.LOCATIONS, StringUtils.arrayToCommaDelimitedString(locationsToAdd));
@@ -965,9 +868,12 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      */
     private Map<String, String> loadConfigurationFromDefaultConfigFiles(Map<String, String> envVars) {
         String encoding = determineConfigurationFileEncoding(envVars);
-        File configFile = new File(System.getProperty("user.home") + "/" + ConfigUtils.CONFIG_FILE_NAME);
 
-        return new HashMap<>(ConfigUtils.loadConfigurationFile(configFile, encoding, false));
+        Map<String, String> configMap = new HashMap<>();
+        configMap.putAll(ConfigUtils.loadConfigurationFile(new File(System.getProperty("user.home") + "/" + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
+        configMap.putAll(ConfigUtils.loadConfigurationFile(new File(ConfigUtils.CONFIG_FILE_NAME), encoding, false));
+
+        return configMap;
     }
 
     /**
@@ -1043,7 +949,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     /**
      * Converts this file name into a file, adjusting relative paths if necessary to make them relative to the pom.
      *
-     * @param workingDirectory  The working directory to use.
+     * @param workingDirectory The working directory to use.
      * @param fileName The name of the file, relative or absolute.
      * @return The resulting file.
      */
@@ -1088,7 +994,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * Collect error messages from the stack trace.
      *
      * @param throwable Throwable instance from which the message should be built.
-     * @param message   The message to which the error message will be appended.
+     * @param message The message to which the error message will be appended.
      * @return A String containing the composed messages.
      */
     private String collectMessages(Throwable throwable, String message) {

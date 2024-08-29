@@ -1,0 +1,10 @@
+<div class="col-md-2">
+    <a class="download" href="{{ include.url }}">
+        {% if include.icon == "docker" %}
+        <img title="Docker" src="https://flywaydb.org/assertss/logos/docker.png"><br><br>
+        {% else %}
+        <i class="fa fa-{{ include.icon }}" style="font-size: 400%"></i><br><br>
+        {% endif %}
+        <strong>{{ include.name }}</strong>
+    </a>
+</div>

@@ -1,21 +1,30 @@
-/*
- * Copyright (C) Red Gate Software Ltd 2010-2021
- *
+/*-
+ * ========================LICENSE_START=================================
+ * flyway-core
+ * ========================================================================
+ * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * =========================LICENSE_END==================================
  */
 package org.flywaydb.core.internal.jdbc;
 
-import org.flywaydb.core.api.ErrorCode;
+import java.util.List;
+import lombok.AccessLevel;
+import lombok.CustomLog;
+import lombok.Getter;
+import lombok.Setter;
+import org.flywaydb.core.api.CoreErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.DatabaseType;
@@ -36,14 +45,38 @@ import java.util.logging.Logger;
 /**
  * YAGNI: The simplest DataSource implementation that works for Flyway.
  */
+@Getter
+@CustomLog
 public class DriverDataSource implements DataSource {
+    /**
+     * @return the JDBC Driver instance to use.
+     */
     private Driver driver;
+    /**
+     * @return the JDBC URL to use for connecting through the Driver.
+     */
     private final String url;
-    private final DatabaseType type;
+    @Getter(AccessLevel.NONE)
+    private DatabaseType type;
+    /**
+     * @return the JDBC user to use for connecting through the Driver.
+     */
     private final String user;
+    /**
+     * @return the JDBC password to use for connecting through the Driver.
+     */
     private final String password;
+    @Getter(AccessLevel.NONE)
     private final Properties defaultProperties;
+    /**
+     * @return The additional properties to pass to a JDBC connection.
+     */
     private final Map<String, String> additionalProperties;
+    /**
+     * @param autoCommit Whether connection should have auto commit activated or not. Default: {@code true}
+     * @return Whether connection should have auto commit activated or not. Default: {@code true}
+     */
+    @Setter
     private boolean autoCommit = true;
 
     public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password) throws FlywayException {
@@ -66,28 +99,63 @@ public class DriverDataSource implements DataSource {
     /**
      * Creates a new DriverDataSource.
      *
-     * @param classLoader           The ClassLoader to use.
-     * @param driverClass           The name of the JDBC Driver class to use. {@code null} for url-based autodetection.
-     * @param url                   The JDBC URL to use for connecting through the Driver. (required)
-     * @param user                  The JDBC user to use for connecting through the Driver.
-     * @param password              The JDBC password to use for connecting through the Driver.
-     * @param configuration         The Flyway configuration
-     * @param defaultProperties     Default values of properties to pass to the connection (can be overridden by {@code additionalProperties})
-     * @param additionalProperties  The properties to pass to the connection.
-     * @throws FlywayException      when the datasource could not be created.
+     * @param classLoader The ClassLoader to use.
+     * @param driverClass The name of the JDBC Driver class to use. {@code null} for url-based autodetection.
+     * @param url The JDBC URL to use for connecting through the Driver. (required)
+     * @param user The JDBC user to use for connecting through the Driver.
+     * @param password The JDBC password to use for connecting through the Driver.
+     * @param configuration The Flyway configuration
+     * @param defaultProperties Default values of properties to pass to the connection (can be overridden by {@code additionalProperties})
+     * @param additionalProperties The properties to pass to the connection.
+     * @throws FlywayException when the datasource could not be created.
      */
     public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password, Configuration configuration, Properties defaultProperties,
                             Map<String, String> additionalProperties) throws FlywayException {
         this.url = detectFallbackUrl(url);
 
-        this.type = DatabaseTypeRegister.getDatabaseTypeForUrl(url);
+        List<DatabaseType> typesAcceptingUrl = DatabaseTypeRegister.getDatabaseTypesForUrl(url, configuration);
 
-        if (!StringUtils.hasLength(driverClass)) {
-            if (type == null) {
-                throw new FlywayException("Unable to autodetect JDBC driver for url: " + DatabaseTypeRegister.redactJdbcUrl(url));
+        for (DatabaseType type: typesAcceptingUrl) {
+            String mainDriverClass = StringUtils.hasLength(driverClass) ? driverClass : type.getDriverClass(url, classLoader);
+
+            try {
+                this.driver = ClassUtils.instantiate(mainDriverClass, classLoader);
+            } catch (FlywayException e) {
+                String extendedError = type.instantiateClassExtendedErrorMessage();
+
+                /* If the user-provided driverClass failed, no need to check backup driverClass or any other candidates in the queue */
+                if (StringUtils.hasLength(driverClass)) {
+                    throw new FlywayException("Unable to instantiate JDBC driver: " + driverClass
+                                                  + " => Check whether the jar file is present"
+                                                  + extendedError, e,
+                                              CoreErrorCode.JDBC_DRIVER);
+                }
+
+                String backupDriverClass = type.getBackupDriverClass(url, classLoader);
+
+                if (backupDriverClass == null) {
+                    if (StringUtils.hasText(extendedError)) {
+                        extendedError = System.lineSeparator() + extendedError;
+                    }
+
+                    LOG.debug("Unable to instantiate JDBC driver: " + mainDriverClass + " => Check whether the jar file is present." + extendedError);
+                    continue;
+                }
+
+                try {
+                    this.driver = ClassUtils.instantiate(backupDriverClass, classLoader);
+                } catch (Exception e1) {
+                    LOG.debug("Unable to instantiate JDBC driver: " + mainDriverClass + " or backup driver: " + backupDriverClass + " => Check whether the jar file is present");
+                    continue;
+                }
             }
 
-            driverClass =  type.getDriverClass(url, classLoader);
+            this.type = type;
+            break;
+        }
+
+        if (this.type == null) {
+            throw new FlywayException("No database found to handle " + DatabaseTypeRegister.redactJdbcUrl(url));
         }
 
         if (additionalProperties != null) {
@@ -96,39 +164,14 @@ public class DriverDataSource implements DataSource {
             this.additionalProperties = new HashMap<>();
         }
         this.defaultProperties = new Properties(defaultProperties);
-        type.setDefaultConnectionProps(url, defaultProperties, classLoader);
-        type.setConfigConnectionProps(configuration, defaultProperties, classLoader);
+        type.setDefaultConnectionProps(url, this.defaultProperties, classLoader);
+        type.setConfigConnectionProps(configuration, this.defaultProperties, classLoader);
         type.setOverridingConnectionProps(this.additionalProperties);
-
-        try {
-            this.driver = ClassUtils.instantiate(driverClass, classLoader);
-        } catch (FlywayException e) {
-            String backupDriverClass = type.getBackupDriverClass(url, classLoader);
-            if (backupDriverClass == null) {
-                String extendedError = type.instantiateClassExtendedErrorMessage();
-                if (StringUtils.hasText(extendedError)) {
-                    extendedError = "\r\n" + extendedError;
-                }
-                throw new FlywayException("Unable to instantiate JDBC driver: " + driverClass
-                        + " => Check whether the jar file is present"
-                        + extendedError, e,
-                        ErrorCode.JDBC_DRIVER);
-            }
-            try {
-                this.driver = ClassUtils.instantiate(backupDriverClass, classLoader);
-            } catch (Exception e1) {
-                // Only report original exception about primary driver
-                throw new FlywayException(
-                        "Unable to instantiate JDBC driver: " + driverClass + " or backup driver: " + backupDriverClass + " => Check whether the jar file is present", e,
-                        ErrorCode.JDBC_DRIVER);
-            }
-        }
-
         this.user = detectFallbackUser(user);
         this.password = detectFallbackPassword(password);
 
         if (type.externalAuthPropertiesRequired(url, user, password)) {
-            defaultProperties.putAll(type.getExternalAuthProperties(url, user));
+            this.defaultProperties.putAll(type.getExternalAuthProperties(url, user));
         }
     }
 
@@ -187,41 +230,6 @@ public class DriverDataSource implements DataSource {
     }
 
     /**
-     * @return the JDBC Driver instance to use.
-     */
-    public Driver getDriver() {
-        return this.driver;
-    }
-
-    /**
-     * @return the JDBC URL to use for connecting through the Driver.
-     */
-    public String getUrl() {
-        return this.url;
-    }
-
-    /**
-     * @return the JDBC user to use for connecting through the Driver.
-     */
-    public String getUser() {
-        return this.user;
-    }
-
-    /**
-     * @return the JDBC password to use for connecting through the Driver.
-     */
-    public String getPassword() {
-        return this.password;
-    }
-
-    /**
-     * @return The additional properties to pass to a JDBC connection.
-     */
-    public Map<String, String> getAdditionalProperties() {
-        return this.additionalProperties;
-    }
-
-    /**
      * This implementation delegates to {@code getConnectionFromDriver},
      * using the default user and password of this DataSource.
      *
@@ -255,6 +263,7 @@ public class DriverDataSource implements DataSource {
      */
     protected Connection getConnectionFromDriver(String username, String password) throws SQLException {
         Properties properties = new Properties(this.defaultProperties);
+        properties.putAll(additionalProperties);
 
         if (username != null) {
             properties.setProperty("user", username);
@@ -263,28 +272,12 @@ public class DriverDataSource implements DataSource {
             properties.setProperty("password", password);
         }
 
-        properties.putAll(additionalProperties);
-
         Connection connection = driver.connect(url, properties);
         if (connection == null) {
             throw new FlywayException("Unable to connect to " + DatabaseTypeRegister.redactJdbcUrl(url));
         }
         connection.setAutoCommit(autoCommit);
         return connection;
-    }
-
-    /**
-     * @return Whether connection should have auto commit activated or not. Default: {@code true}
-     */
-    public boolean isAutoCommit() {
-        return autoCommit;
-    }
-
-    /**
-     * @param autoCommit Whether connection should have auto commit activated or not. Default: {@code true}
-     */
-    public void setAutoCommit(boolean autoCommit) {
-        this.autoCommit = autoCommit;
     }
 
     public void shutdownDatabase() {

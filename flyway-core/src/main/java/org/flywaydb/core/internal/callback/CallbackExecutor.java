@@ -1,17 +1,21 @@
-/*
- * Copyright (C) Red Gate Software Ltd 2010-2021
- *
+/*-
+ * ========================LICENSE_START=================================
+ * flyway-core
+ * ========================================================================
+ * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * =========================LICENSE_END==================================
  */
 package org.flywaydb.core.internal.callback;
 
@@ -55,22 +59,21 @@ public interface CallbackExecutor {
      */
     void onEachMigrateOrUndoEvent(Event event);
 
-
-
-
-
-
-
-
-
-
-
-
+    /**
+     * Executes the callbacks for an "each statement" event within the same transaction (if any) as the main operation.
+     *
+     * @param event The event to handle.
+     * @param sql The sql from the statement.
+     * @param warnings The warnings from the statement. {@code null} if it hasn't been executed yet.
+     * @param errors The errors from the statement. {@code null} if it hasn't been executed yet.
+     */
+    void onEachMigrateOrUndoStatementEvent(Event event, String sql, List<Warning> warnings, List<Error> errors);
 
     /**
      * Executes the callbacks for an operation finish event.
-     * @param event             The event to handle.
-     * @param operationResult   The operation result.
+     *
+     * @param event The event to handle.
+     * @param operationResult The operation result.
      */
     void onOperationFinishEvent(Event event, OperationResult operationResult);
 }

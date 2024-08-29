@@ -1,0 +1,5 @@
+<li>
+    <a href="https://github.com/flyway/flyway/issues/{{ include.id }}">Issue {{ include.id }}</a>
+    {{ include.title }}{% if include.teams %} {% include teams.html %}{% endif %}
+    {% if include.pr %}<span class="label label-info"><a href="https://github.com/flyway/flyway/pull/{{ include.pr }}"><i class="fa fa-mail-reply"></i> Pull Request</a></span>{% endif %}
+</li>

@@ -1,32 +1,32 @@
-/*
- * Copyright (C) Red Gate Software Ltd 2010-2021
- *
+/*-
+ * ========================LICENSE_START=================================
+ * flyway-core
+ * ========================================================================
+ * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * =========================LICENSE_END==================================
  */
 package org.flywaydb.core.internal.parser;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.api.resource.Resource;
 import org.flywaydb.core.internal.resource.ResourceName;
 import org.flywaydb.core.internal.resource.ResourceNameParser;
-import org.flywaydb.core.internal.sqlscript.Delimiter;
-import org.flywaydb.core.internal.sqlscript.ParsedSqlStatement;
-import org.flywaydb.core.internal.sqlscript.SqlStatement;
-import org.flywaydb.core.internal.sqlscript.SqlStatementIterator;
+import org.flywaydb.core.internal.sqlscript.*;
 import org.flywaydb.core.internal.util.BomStrippingReader;
 import org.flywaydb.core.internal.util.IOUtils;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
@@ -40,15 +40,12 @@ import java.util.regex.Pattern;
 /**
  * The main parser all database-specific parsers derive from.
  */
+@CustomLog
 public abstract class Parser {
-    protected static final Log LOG = LogFactory.getLog(Parser.class);
-
-
-
-
-
-
-
+    /**
+     * Regex to determine whether this statement can be run as part of batch or whether it must be run individually.
+     */
+    private static final Pattern BATCHABLE_REGEX = Pattern.compile("^(INSERT|UPDATE|DELETE|UPSERT|MERGE)");
 
     public final Configuration configuration;
     private final int peekDepth;
@@ -100,13 +97,19 @@ public abstract class Parser {
         return true;
     }
 
+    public final SqlStatementIterator parse(LoadableResource resource) {
+        return parse(resource, null);
+    }
+
     /**
      * Parses this resource into a stream of statements.
      *
      * @param resource The resource to parse.
+     * @param metadata The resource's metadata.
+     *
      * @return The statements.
      */
-    public final SqlStatementIterator parse(final LoadableResource resource) {
+    public final SqlStatementIterator parse(LoadableResource resource, SqlScriptMetadata metadata) {
         PositionTracker tracker = new PositionTracker();
         Recorder recorder = new Recorder();
         ParserContext context = new ParserContext(getDefaultDelimiter());
@@ -115,16 +118,16 @@ public abstract class Parser {
         LOG.debug("Parsing " + filename + " ...");
 
         ResourceName result = new ResourceNameParser(configuration).parse(filename);
-        parsingContext.updateFilenamePlaceholder(result);
+        parsingContext.updateFilenamePlaceholder(result, configuration);
 
-        PeekingReader peekingReader =
-                new PeekingReader(
-                        new RecordingReader(recorder,
-                                new PositionTrackingReader(tracker, replacePlaceholders(
-                                        new BomStrippingReader(
-                                                new UnboundedReadAheadReader(
-                                                        new BufferedReader(resource.read(), 4096)))))),
-                        supportsPeekingMultipleLines());
+        PeekingReader peekingReader = new PeekingReader(
+                new RecordingReader(recorder,
+                                    new PositionTrackingReader(tracker, replacePlaceholders(
+                                            new BomStrippingReader(
+                                                    new UnboundedReadAheadReader(
+                                                            new BufferedReader(resource.read(), 4096))),
+                                            metadata))),
+                supportsPeekingMultipleLines());
 
         return new ParserSqlStatementIterator(peekingReader, resource, recorder, tracker, context);
     }
@@ -132,17 +135,15 @@ public abstract class Parser {
     /**
      * Configures this reader for placeholder replacement.
      *
-     * @param reader The original reader.
+     * @param reader   The original reader.
+     * @param metadata The resource's metadata.
+     *
      * @return The new reader with placeholder replacement.
      */
-    protected Reader replacePlaceholders(Reader reader) {
-        if (configuration.isPlaceholderReplacement()) {
-            return PlaceholderReplacingReader.create(
-                    configuration,
-                    parsingContext,
-                    reader);
+    protected Reader replacePlaceholders(Reader reader, SqlScriptMetadata metadata) {
+        if ((metadata == null || metadata.placeholderReplacement() == null) ? configuration.isPlaceholderReplacement() : metadata.placeholderReplacement()) {
+            return PlaceholderReplacingReader.create(configuration, parsingContext, reader);
         }
-
         return reader;
     }
 
@@ -166,9 +167,7 @@ public abstract class Parser {
 
             StatementType statementType = StatementType.UNKNOWN;
             Boolean canExecuteInTransaction = null;
-
-
-
+            Boolean batchable = null;
 
             String simplifiedStatement = "";
 
@@ -191,7 +190,7 @@ public abstract class Parser {
                     if (!tokens.isEmpty() && nonCommentPartPos >= 0) {
                         String sql = recorder.stop();
                         throw new FlywayException("Delimiter changed inside statement at line " + statementLine +
-                                " col " + statementCol + ": " + sql);
+                                                          " col " + statementCol + ": " + sql);
                     }
 
                     context.setDelimiter(new Delimiter(token.getText(), false
@@ -233,22 +232,21 @@ public abstract class Parser {
                     if (canExecuteInTransaction == null) {
                         canExecuteInTransaction = determineCanExecuteInTransaction(simplifiedStatement, keywords, true);
                     }
-
-
-
-
-
+                    if (batchable == null) {
+                        batchable = false;
+                    }
                     if (TokenType.EOF == tokenType && (parensDepth > 0 || blockDepth > 0)) {
                         throw new FlywayException("Incomplete statement at line " + statementLine +
-                                " col " + statementCol + ": " + sql);
+                                                          " col " + statementCol + ": " + sql);
                     }
                     return createStatement(reader, recorder, statementPos, statementLine, statementCol,
-                            nonCommentPartPos, nonCommentPartLine, nonCommentPartCol,
-                            statementType, canExecuteInTransaction, context.getDelimiter(), sql.trim()
+                                           nonCommentPartPos, nonCommentPartLine, nonCommentPartCol,
+                                           statementType, canExecuteInTransaction, context.getDelimiter(), sql.trim()
 
 
 
-                    );
+                            , batchable
+                                          );
                 }
 
                 if (tokens.isEmpty() || tokens.stream().allMatch(t -> t.getType() == TokenType.BLANK_LINES || t.getType() == TokenType.COMMENT)) {
@@ -273,9 +271,7 @@ public abstract class Parser {
 
                 if (keywords.size() <= getTransactionalDetectionCutoff()
                         && (tokenType == TokenType.KEYWORD
-
-
-
+                        || "@".equals(token.getText())
                 )
                         && parensDepth == 0
                         && (statementType == StatementType.UNKNOWN || canExecuteInTransaction == null)) {
@@ -288,7 +284,7 @@ public abstract class Parser {
                         if (keywords.size() > getTransactionalDetectionCutoff()) {
                             statementType = StatementType.GENERIC;
                         } else {
-                            statementType = detectStatementType(simplifiedStatement, context);
+                            statementType = detectStatementType(simplifiedStatement, context, reader);
                             context.setStatementType(statementType);
                         }
                         adjustDelimiter(context, statementType);
@@ -296,17 +292,15 @@ public abstract class Parser {
                     if (canExecuteInTransaction == null) {
                         canExecuteInTransaction = determineCanExecuteInTransaction(simplifiedStatement, keywords, null);
                     }
-
-
-
-
-
+                    if (batchable == null) {
+                        batchable = BATCHABLE_REGEX.matcher(simplifiedStatement).matches();
+                    }
                 }
             } while (true);
         } catch (Exception e) {
             IOUtils.close(reader);
             throw new FlywayException("Unable to parse statement in " + resource.getAbsolutePath()
-                    + " at line " + statementLine + " col " + statementCol + ". See " + FlywayDbWebsiteLinks.KNOWN_PARSER_LIMITATIONS + " for more information: " + e.getMessage(), e);
+                                              + " at line " + statementLine + " col " + statementCol + ". See " + FlywayDbWebsiteLinks.KNOWN_PARSER_LIMITATIONS + " for more information. " + getAdditionalParsingErrorInfo() + e.getMessage(), e);
         }
     }
 
@@ -319,6 +313,7 @@ public abstract class Parser {
      *
      * @param token              The latest token.
      * @param nonCommentPartSeen Whether a non-comment part has already been seen.
+     *
      * @return {@code true} if it should, {@code false} if not.
      */
     protected boolean shouldDiscard(Token token, boolean nonCommentPartSeen) {
@@ -363,13 +358,16 @@ public abstract class Parser {
     }
 
     protected static Token getPreviousToken(List<Token> tokens, int parensDepth) {
-        for (int i = tokens.size()-1; i >= 0; i--) {
+        for (int i = tokens.size() - 1; i >= 0; i--) {
             Token previousToken = tokens.get(i);
 
-            // Only consider tokens at the same parenthesis depth
-            if (previousToken.getParensDepth() != parensDepth) {
+            // Only consider tokens at the same parenthesis depth in same parenthesis group
+            if (previousToken.getParensDepth() < parensDepth) {
+                break;
+            } else if (previousToken.getParensDepth() != parensDepth) {
                 continue;
             }
+
             // Skip over comments and blank lines
             if (previousToken.getType() == TokenType.COMMENT || previousToken.getType() == TokenType.BLANK_LINES) {
                 continue;
@@ -407,7 +405,7 @@ public abstract class Parser {
         ArrayList<String> tokenStrings = new ArrayList<>();
         tokenStrings.add(current.getText());
 
-        for (int i = previousTokens.size()-1; i >= 0; i--) {
+        for (int i = previousTokens.size() - 1; i >= 0; i--) {
             Token prevToken = previousTokens.get(i);
             if (prevToken.getParensDepth() != current.getParensDepth()) {
                 break;
@@ -419,7 +417,7 @@ public abstract class Parser {
         }
 
         StringBuilder builder = new StringBuilder();
-        for (int i = tokenStrings.size()-1; i >= 0; i--) {
+        for (int i = tokenStrings.size() - 1; i >= 0; i--) {
             builder.append(tokenStrings.get(i));
             if (i != 0) {
                 builder.append(" ");
@@ -437,16 +435,13 @@ public abstract class Parser {
 
 
 
-    ) throws IOException {
+            , boolean batchable
+                                                ) throws IOException {
         return new ParsedSqlStatement(statementPos, statementLine, statementCol,
-                sql, delimiter, canExecuteInTransaction
-
-
-
-        );
+                                      sql, delimiter, canExecuteInTransaction, batchable);
     }
 
-    protected StatementType detectStatementType(String simplifiedStatement, ParserContext context) {
+    protected StatementType detectStatementType(String simplifiedStatement, ParserContext context, PeekingReader reader) {
         return StatementType.UNKNOWN;
     }
 
@@ -466,11 +461,9 @@ public abstract class Parser {
         return true;
     }
 
-
-
-
-
-
+    public boolean supportsReferencedSqlScripts() {
+        return false;
+    }
 
     private Token readToken(PeekingReader reader, PositionTracker tracker, ParserContext context) throws IOException {
         int pos = tracker.getPos();
@@ -515,21 +508,7 @@ public abstract class Parser {
             return new Token(TokenType.COMMENT, pos, line, col, text, text, context.getParensDepth());
         }
         if (peek.startsWith("/*")) {
-            int commentDepth = 0;
-            reader.swallow(2);
-            StringBuilder text = new StringBuilder(reader.readUntilExcluding("*/", "/*"));
-            // handles reading nested comments
-            while (reader.peek("/*") || commentDepth > 0) {
-                if (reader.peek("/*")) {
-                    commentDepth++;
-                } else {
-                    commentDepth--;
-                }
-                reader.swallow(2);
-                text.append(reader.readUntilExcluding("*/", "/*"));
-            }
-            reader.swallow(2);
-            return new Token(TokenType.COMMENT, pos, line, col, text.toString(), text.toString(), context.getParensDepth());
+            return handleMultilineComment(reader, context, pos, line, col);
         }
         if (Character.isDigit(c)) {
             String text = reader.readNumeric();
@@ -596,7 +575,7 @@ public abstract class Parser {
         return alternativeStringLiteralQuote != 0 && peek.charAt(0) == alternativeStringLiteralQuote;
     }
 
-    protected boolean isDelimiter(String peek, ParserContext context, int col, int colIgnoringWhitepace) {
+    protected boolean isDelimiter(String peek, ParserContext context, int col, int colIgnoringWhitespace) {
         return peek.startsWith(context.getDelimiter().getDelimiter());
     }
 
@@ -620,7 +599,7 @@ public abstract class Parser {
             }
         }
         if (validKeywords != null) {
-            return validKeywords.contains(text);
+            return validKeywords.contains(text.toUpperCase(Locale.ENGLISH));
         }
         return true;
     }
@@ -651,10 +630,10 @@ public abstract class Parser {
 
     private List<Token> discardBlankLines(List<Token> tokens) {
         List<Token> nonBlankLinesTokens = new ArrayList<>(tokens);
-        while(nonBlankLinesTokens.get(0).getType() == TokenType.BLANK_LINES) {
+        while (nonBlankLinesTokens.get(0).getType() == TokenType.BLANK_LINES) {
             nonBlankLinesTokens.remove(0);
         }
-        while(nonBlankLinesTokens.get(nonBlankLinesTokens.size() - 1).getType() == TokenType.BLANK_LINES) {
+        while (nonBlankLinesTokens.get(nonBlankLinesTokens.size() - 1).getType() == TokenType.BLANK_LINES) {
             nonBlankLinesTokens.remove(nonBlankLinesTokens.size() - 1);
         }
         return nonBlankLinesTokens;
@@ -666,6 +645,23 @@ public abstract class Parser {
 
     protected Token handleCommentDirective(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
         return null;
+    }
+
+    protected Token handleMultilineComment(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
+        int commentDepth = 0;
+        reader.swallow("/*".length());
+        StringBuilder text = new StringBuilder(reader.readUntilExcluding("*/", "/*"));
+        while (reader.peek("/*") || commentDepth > 0) {
+            if (reader.peek("/*")) {
+                commentDepth++;
+            } else {
+                commentDepth--;
+            }
+            reader.swallow(2);
+            text.append(reader.readUntilExcluding("*/", "/*"));
+        }
+        reader.swallow(2);
+        return new Token(TokenType.COMMENT, pos, line, col, text.toString(), text.toString(), context.getParensDepth());
     }
 
     protected Token handleStringLiteral(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
@@ -680,6 +676,10 @@ public abstract class Parser {
 
     protected Token handleKeyword(PeekingReader reader, ParserContext context, int pos, int line, int col, String keyword) throws IOException {
         return new Token(TokenType.KEYWORD, pos, line, col, keyword.toUpperCase(Locale.ENGLISH), keyword, context.getParensDepth());
+    }
+
+    protected String getAdditionalParsingErrorInfo() {
+        return "";
     }
 
     private static boolean containsAtLeast(String str, char c, int min) {
@@ -705,7 +705,9 @@ public abstract class Parser {
         private final Recorder recorder;
         private final PositionTracker tracker;
         private final ParserContext context;
+
         private SqlStatement nextStatement;
+        private boolean needToRefreshNextStatement = true;
 
         public ParserSqlStatementIterator(PeekingReader peekingReader, LoadableResource resource, Recorder recorder, PositionTracker tracker, ParserContext context) {
             this.peekingReader = peekingReader;
@@ -713,7 +715,6 @@ public abstract class Parser {
             this.recorder = recorder;
             this.tracker = tracker;
             this.context = context;
-            nextStatement = getNextStatement(resource, peekingReader, recorder, tracker, context);
         }
 
         @Override
@@ -723,23 +724,20 @@ public abstract class Parser {
 
         @Override
         public boolean hasNext() {
+            if (needToRefreshNextStatement) {
+                nextStatement = getNextStatement(resource, peekingReader, recorder, tracker, context);
+                needToRefreshNextStatement = false;
+            }
             return nextStatement != null;
         }
 
         @Override
         public SqlStatement next() {
-            if (nextStatement == null) {
-                throw new NoSuchElementException("No more statements in " + resource.getFilename());
+            if (needToRefreshNextStatement) {
+                nextStatement = getNextStatement(resource, peekingReader, recorder, tracker, context);
             }
-
-            SqlStatement result = nextStatement;
-            nextStatement = getNextStatement(resource, peekingReader, recorder, tracker, context);
-            return result;
-        }
-
-        @Override
-        public void remove() {
-            throw new UnsupportedOperationException("remove");
+            needToRefreshNextStatement = true;
+            return nextStatement;
         }
     }
 }

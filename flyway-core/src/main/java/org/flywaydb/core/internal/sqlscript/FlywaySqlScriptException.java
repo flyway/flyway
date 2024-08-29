@@ -1,20 +1,26 @@
-/*
- * Copyright (C) Red Gate Software Ltd 2010-2021
- *
+/*-
+ * ========================LICENSE_START=================================
+ * flyway-core
+ * ========================================================================
+ * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * =========================LICENSE_END==================================
  */
 package org.flywaydb.core.internal.sqlscript;
 
+import lombok.CustomLog;
+import lombok.Getter;
 import org.flywaydb.core.api.resource.Resource;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 
@@ -23,28 +29,29 @@ import java.sql.SQLException;
 /**
  * This specific exception thrown when Flyway encounters a problem in SQL script
  */
+@CustomLog
 public class FlywaySqlScriptException extends FlywaySqlException {
+    /**
+     * @return The resource containing the failed statement.
+     */
+    @Getter
     private final Resource resource;
+
     private final SqlStatement statement;
+
+    private static final String STATEMENT_MESSAGE = "Run Flyway with -X option to see the actual statement causing the problem";
 
     /**
      * Creates new instance of FlywaySqlScriptException.
      *
-     * @param resource     The resource containing the failed statement.
-     * @param statement    The failed SQL statement.
+     * @param resource The resource containing the failed statement.
+     * @param statement The failed SQL statement.
      * @param sqlException Cause of the problem.
      */
     public FlywaySqlScriptException(Resource resource, SqlStatement statement, SQLException sqlException) {
-        super(resource == null ? "Script failed" : "Migration " + resource.getFilename() + " failed", sqlException);
+        super(resource == null ? "Script failed" : "Script " + resource.getFilename() + " failed", sqlException);
         this.resource = resource;
         this.statement = statement;
-    }
-
-    /**
-     * @return The resource containing the failed statement.
-     */
-    public Resource getResource() {
-        return resource;
     }
 
     /**
@@ -65,15 +72,6 @@ public class FlywaySqlScriptException extends FlywaySqlException {
         return statement == null ? "" : statement.getSql();
     }
 
-    /**
-     * Returns the failed statement in SQL script.
-     *
-     * @return The failed statement.
-     */
-    public SqlStatement getSqlStatement() {
-        return statement;
-    }
-
     @Override
     public String getMessage() {
         String message = super.getMessage();
@@ -82,7 +80,7 @@ public class FlywaySqlScriptException extends FlywaySqlException {
         }
         if (statement != null) {
             message += "Line       : " + getLineNumber() + "\n";
-            message += "Statement  : " + getStatement() + "\n";
+            message += "Statement  : " + (LOG.isDebugEnabled() ? getStatement() : STATEMENT_MESSAGE) + "\n";
         }
         return message;
     }

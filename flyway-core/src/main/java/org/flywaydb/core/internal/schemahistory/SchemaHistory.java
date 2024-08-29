@@ -1,36 +1,47 @@
-/*
- * Copyright (C) Red Gate Software Ltd 2010-2021
- *
+/*-
+ * ========================LICENSE_START=================================
+ * flyway-core
+ * ========================================================================
+ * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * =========================LICENSE_END==================================
  */
 package org.flywaydb.core.internal.schemahistory;
 
+import lombok.experimental.ExtensionMethod;
+import org.flywaydb.core.api.CoreMigrationType;
 import org.flywaydb.core.api.MigrationPattern;
-import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.output.RepairResult;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.extensibility.AppliedMigration;
+import org.flywaydb.core.extensibility.MigrationType;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.util.AbbreviationUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
 
 /**
  * The schema history used to track all applied migrations.
  */
+@ExtensionMethod(Arrays.class)
 public abstract class SchemaHistory {
     public static final String NO_DESCRIPTION_MARKER = "<< no description >>";
 
@@ -67,9 +78,7 @@ public abstract class SchemaHistory {
     public final boolean hasNonSyntheticAppliedMigrations() {
         for (AppliedMigration appliedMigration : allAppliedMigrations()) {
             if (!appliedMigration.getType().isSynthetic()
-
-
-
+                    && !appliedMigration.getType().isUndo()
             ) {
                 return true;
             }
@@ -93,7 +102,7 @@ public abstract class SchemaHistory {
         // BASELINE can only be the first or second (in case there is a SCHEMA one) migration.
         for (int i = 0; i < Math.min(appliedMigrations.size(), 2); i++) {
             AppliedMigration appliedMigration = appliedMigrations.get(i);
-            if (appliedMigration.getType() == MigrationType.BASELINE) {
+            if (appliedMigration.getType() == CoreMigrationType.BASELINE) {
                 return appliedMigration;
             }
         }
@@ -110,7 +119,7 @@ public abstract class SchemaHistory {
      * including the ones in the schema history table.
      * </p>
      *
-     * @param repairResult           The result object containing which failed migrations were removed.
+     * @param repairResult The result object containing which failed migrations were removed.
      * @param migrationPatternFilter The migration patterns to filter by.
      */
     public abstract boolean removeFailedMigrations(RepairResult repairResult, MigrationPattern[] migrationPatternFilter);
@@ -122,7 +131,7 @@ public abstract class SchemaHistory {
      */
     public final void addSchemasMarker(Schema[] schemas) {
         addAppliedMigration(null, "<< Flyway Schema Creation >>",
-                MigrationType.SCHEMA, StringUtils.arrayToCommaDelimitedString(schemas), null, 0, true);
+                            CoreMigrationType.SCHEMA, StringUtils.arrayToCommaDelimitedString(schemas), null, 0, true);
     }
 
     /**
@@ -132,20 +141,31 @@ public abstract class SchemaHistory {
      */
     public final boolean hasSchemasMarker() {
         List<AppliedMigration> appliedMigrations = allAppliedMigrations();
-        return !appliedMigrations.isEmpty() && appliedMigrations.get(0).getType() == MigrationType.SCHEMA;
+        return !appliedMigrations.isEmpty() && appliedMigrations.get(0).getType() == CoreMigrationType.SCHEMA;
     }
 
+    public List<String> getSchemasCreatedByFlyway() {
+        if (!hasSchemasMarker()) {
+            return new ArrayList<>();
+        }
+
+        return allAppliedMigrations().get(0).getScript()
+                .split(",").stream()
+                .map(result -> table.getDatabase().unQuote(result))
+                .collect(Collectors.toList());
+    }
 
     /**
      * Updates this applied migration to match this resolved migration.
      *
-     * @param appliedMigration  The applied migration to update.
+     * @param appliedMigration The applied migration to update.
      * @param resolvedMigration The resolved migration to source the new values from.
      */
     public abstract void update(AppliedMigration appliedMigration, ResolvedMigration resolvedMigration);
 
     /**
      * Update the schema history to mark this migration as DELETED
+     *
      * @param appliedMigration The applied migration to mark as DELETED
      */
     public abstract void delete(AppliedMigration appliedMigration);
@@ -160,17 +180,17 @@ public abstract class SchemaHistory {
     /**
      * Records a new applied migration.
      *
-     * @param version       The target version of this migration.
-     * @param description   The description of the migration.
-     * @param type          The type of migration (BASELINE, SQL, ...)
-     * @param script        The name of the script to execute for this migration, relative to its classpath location.
-     * @param checksum      The checksum of the migration. (Optional)
+     * @param version The target version of this migration.
+     * @param description The description of the migration.
+     * @param type The type of migration (BASELINE, SQL, ...)
+     * @param script The name of the script to execute for this migration, relative to its classpath location.
+     * @param checksum The checksum of the migration. (Optional)
      * @param executionTime The execution time (in millis) of this migration.
-     * @param success       Flag indicating whether the migration was successful or not.
+     * @param success Flag indicating whether the migration was successful or not.
      */
     public final void addAppliedMigration(MigrationVersion version, String description, MigrationType type,
                                           String script, Integer checksum, int executionTime, boolean success) {
-        int installedRank = type == MigrationType.SCHEMA ? 0 : calculateInstalledRank();
+        int installedRank = calculateInstalledRank(type);
         doAddAppliedMigration(
                 installedRank,
                 version,
@@ -185,12 +205,13 @@ public abstract class SchemaHistory {
     /**
      * Calculates the installed rank for the new migration to be inserted.
      *
+     * @param type The type of migration (SCHEMA, SQL, ...)
      * @return The installed rank.
      */
-    protected int calculateInstalledRank() {
+    protected int calculateInstalledRank(MigrationType type) {
         List<AppliedMigration> appliedMigrations = allAppliedMigrations();
         if (appliedMigrations.isEmpty()) {
-            return 1;
+            return type == CoreMigrationType.SCHEMA ? 0 : 1;
         }
         return appliedMigrations.get(appliedMigrations.size() - 1).getInstalledRank() + 1;
     }

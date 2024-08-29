@@ -1,23 +1,31 @@
-/*
- * Copyright (C) Red Gate Software Ltd 2010-2021
- *
+/*-
+ * ========================LICENSE_START=================================
+ * flyway-core
+ * ========================================================================
+ * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * =========================LICENSE_END==================================
  */
 package org.flywaydb.core.api.callback;
+
+import lombok.RequiredArgsConstructor;
+import lombok.Getter;
 
 /**
  * The Flyway lifecycle events that can be handled in callbacks.
  */
+@RequiredArgsConstructor
 public enum Event {
     /**
      * Fired before clean is executed. This event will be fired in a separate transaction from the actual clean operation.
@@ -44,19 +52,16 @@ public enum Event {
     /**
      * Fired before each individual statement in a migration is executed. This event will be fired within the same transaction (if any)
      * as the migration and can be used for things like asserting a statement complies with policy (for example: no grant statements allowed).
-     * <p><i>Flyway Teams Edition only</i></p>
      */
     BEFORE_EACH_MIGRATE_STATEMENT("beforeEachMigrateStatement"),
     /**
      * Fired after each individual statement in a migration that succeeded. This event will be fired within the same transaction (if any)
      * as the migration.
-     * <p><i>Flyway Teams Edition only</i></p>
      */
     AFTER_EACH_MIGRATE_STATEMENT("afterEachMigrateStatement"),
     /**
      * Fired after each individual statement in a migration that failed. This event will be fired within the same transaction (if any)
      * as the migration.
-     * <p><i>Flyway Teams Edition only</i></p>
      */
     AFTER_EACH_MIGRATE_STATEMENT_ERROR("afterEachMigrateStatementError"),
     /**
@@ -77,6 +82,10 @@ public enum Event {
      * Fired after all versioned migrations are applied. This event will be fired in a separate transaction from the actual migrate operation.
      */
     AFTER_VERSIONED("afterVersioned"),
+    /**
+     * Fired after migrate has succeeded, and at least one migration has been applied. This event will be fired in a separate transaction from the actual migrate operation.
+     */
+    AFTER_MIGRATE_APPLIED("afterMigrateApplied"),
     /**
      * Fired after migrate has succeeded. This event will be fired in a separate transaction from the actual migrate operation.
      */
@@ -220,23 +229,22 @@ public enum Event {
     /**
      * Fired before any non-existent schemas are created.
      */
-    CREATE_SCHEMA("createSchema");
-
-    private final String id;
-
-    Event(String id) {
-        this.id = id;
-    }
+    CREATE_SCHEMA("createSchema"),
+    /**
+     * Fired before a connection is created. These must be arbitrary scripts only (e.g. ps1, cmd, sh etc.)
+     * <p><i>Flyway Teams Edition only</i></p>
+     */
+    BEFORE_CONNECT("beforeConnect");
 
     /**
      * @return The id of an event. Examples: {@code beforeClean}, {@code afterEachMigrate}, ...
      */
-    public String getId() {
-        return id;
-    }
+    @Getter
+    private final String id;
 
     /**
      * Retrieves the event with this id.
+     *
      * @param id The id.
      * @return The event. {@code null} if not found.
      */

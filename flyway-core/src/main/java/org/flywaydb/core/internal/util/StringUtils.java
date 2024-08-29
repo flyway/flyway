@@ -1,36 +1,44 @@
-/*
- * Copyright (C) Red Gate Software Ltd 2010-2021
- *
+/*-
+ * ========================LICENSE_START=================================
+ * flyway-core
+ * ========================================================================
+ * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * =========================LICENSE_END==================================
  */
 package org.flywaydb.core.internal.util;
 
-import java.util.ArrayList;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import org.flywaydb.core.internal.configuration.ConfigUtils;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class StringUtils {
     private static final String WHITESPACE_CHARS = " \t\n\f\r";
-
-    private StringUtils() { }
 
     /**
      * Trims or pads (with spaces) this string, so it has this exact length.
      *
-     * @param str    The string to adjust. {@code null} is treated as an empty string.
+     * @param str The string to adjust. {@code null} is treated as an empty string.
      * @param length The exact length to reach.
      * @return The adjusted string.
      */
@@ -41,8 +49,8 @@ public class StringUtils {
     /**
      * Trims or pads this string, so it has this exact length.
      *
-     * @param str     The string to adjust. {@code null} is treated as an empty string.
-     * @param length  The exact length to reach.
+     * @param str The string to adjust. {@code null} is treated as an empty string.
+     * @param length The exact length to reach.
      * @param padChar The padding character.
      * @return The adjusted string.
      */
@@ -67,8 +75,8 @@ public class StringUtils {
     /**
      * Trims or pads this string, so it has this exact length.
      *
-     * @param str     The string to adjust. {@code null} is treated as an empty string.
-     * @param length  The exact length to reach.
+     * @param str The string to adjust. {@code null} is treated as an empty string.
+     * @param length The exact length to reach.
      * @param padChar The padding character.
      * @return The adjusted string.
      */
@@ -86,6 +94,14 @@ public class StringUtils {
         StringBuilder result = new StringBuilder(original);
         while (result.length() < length) {
             result.insert(0, padChar);
+        }
+        return result.toString();
+    }
+
+    public static String rightPad(String original, int length, char padChar) {
+        StringBuilder result = new StringBuilder(original);
+        while (result.length() < length) {
+            result.append(padChar);
         }
         return result.toString();
     }
@@ -118,7 +134,7 @@ public class StringUtils {
      * Returns the first n characters from this string, where n = count. If the string is shorter, the entire string
      * will be returned. If the string is longer, it will be truncated.
      *
-     * @param str   The string to parse.
+     * @param str The string to parse.
      * @param count The amount of characters to return.
      * @return The first n characters from this string, where n = count.
      */
@@ -137,8 +153,8 @@ public class StringUtils {
     /**
      * Replaces all occurrences of this originalToken in this string with this replacementToken.
      *
-     * @param str              The string to process.
-     * @param originalToken    The token to replace.
+     * @param str The string to process.
+     * @param originalToken The token to replace.
      * @param replacementToken The replacement.
      * @return The transformed str.
      */
@@ -170,7 +186,7 @@ public class StringUtils {
      * Turns this string array in one delimited string.
      *
      * @param delimiter The delimiter to use.
-     * @param strings   The array to process.
+     * @param strings The array to process.
      * @return The new delimited string. An empty string if {@code strings} is empty. {@code null} if strings is {@code null}.
      */
     public static String arrayToDelimitedString(String delimiter, Object[] strings) {
@@ -199,134 +215,33 @@ public class StringUtils {
     }
 
     /**
-     * Splits this string into an array using these delimiters.
+     * Splits this string into an array using this delimiter.
      *
-     * @param str        The string to split.
-     * @param delimiters The delimiters to use.
+     * @param str The string to split.
+     * @param delimiter The delimiter to use.
      * @return The resulting array.
      */
-    public static String[] tokenizeToStringArray(String str, String delimiters) {
+    public static String[] tokenizeToStringArray(String str, String delimiter) {
         if (str == null) {
             return null;
         }
-        Collection<String> tokens = tokenizeToStringCollection(str, delimiters);
-        return tokens.toArray(new String[0]);
+
+        return tokenizeToStringCollection(str, delimiter).toArray(new String[0]);
     }
 
     /**
-     * Splits this string into a collection using these delimiters.
+     * Splits this string into a collection using this delimiter.
      *
-     * @param str        The string to split.
-     * @param delimiters The delimiters to use.
+     * @param str The string to split.
+     * @param delimiter The delimiter to use.
      * @return The resulting array.
      */
-    public static List<String> tokenizeToStringCollection(String str, String delimiters) {
+    public static List<String> tokenizeToStringCollection(String str, String delimiter) {
         if (str == null) {
             return null;
         }
-        List<String> tokens = new ArrayList<>(str.length() / 5);
-        char[] delimiterChars = delimiters.toCharArray();
-        int start = 0;
-        int end = 0;
-        for (int i = 0; i < str.length(); i++) {
-            char c = str.charAt(i);
-            boolean delimiter = false;
-            for (char d : delimiterChars) {
-                if (c == d) {
-                    tokens.add(str.substring(start, end));
-                    start = i + 1;
-                    end = start;
-                    delimiter = true;
-                    break;
-                }
-            }
-            if (!delimiter) {
-                if (i == start && c == ' ') {
-                    start++;
-                    end++;
-                }
-                if (i >= start && c != ' ') {
-                    end = i + 1;
-                }
-            }
-        }
-        if (start < end) {
-            tokens.add(str.substring(start, end));
-        }
-        return tokens;
-    }
 
-    /**
-     * Splits this string into a collection using this delimiter and this group delimiter.
-     *
-     * @param str                The string to split.
-     * @param delimiterChar      The delimiter to use.
-     * @param groupDelimiterChar The character to use to delimit groups.
-     * @return The resulting array.
-     */
-    public static List<String> tokenizeToStringCollection(String str, char delimiterChar, char groupDelimiterChar) {
-        if (str == null) {
-            return null;
-        }
-        List<String> tokens = new ArrayList<>(str.length() / 5);
-        int start = 0;
-        int end = 0;
-        boolean inGroup = false;
-        for (int i = 0; i < str.length(); i++) {
-            char c = str.charAt(i);
-            if (c == groupDelimiterChar) {
-                inGroup = !inGroup;
-                addToken(tokens, str, start, end);
-                start = i + 1;
-                end = start;
-            } else if (!inGroup && c == delimiterChar) {
-                addToken(tokens, str, start, end);
-                start = i + 1;
-                end = start;
-            } else if (i == start && c == ' ') {
-                start++;
-                end++;
-            } else if (i >= start && c != ' ') {
-                end = i + 1;
-            }
-        }
-        addToken(tokens, str, start, end);
-        return tokens;
-    }
-
-    private static void addToken(List<String> tokens, String str, int start, int end) {
-        if (start < end) {
-            tokens.add(str.substring(start, end));
-        }
-    }
-
-    /**
-     * Replace all occurrences of a substring within a string with
-     * another string.
-     *
-     * @param inString   String to examine
-     * @param oldPattern String to replace
-     * @param newPattern String to insert
-     * @return a String with the replacements
-     */
-    public static String replace(String inString, String oldPattern, String newPattern) {
-        if (!hasLength(inString) || !hasLength(oldPattern) || newPattern == null) {
-            return inString;
-        }
-        StringBuilder sb = new StringBuilder();
-        int pos = 0; // our position in the old string
-        int index = inString.indexOf(oldPattern);
-        // the index of an occurrence we've found, or -1
-        int patLen = oldPattern.length();
-        while (index >= 0) {
-            sb.append(inString, pos, index);
-            sb.append(newPattern);
-            pos = index + patLen;
-            index = inString.indexOf(oldPattern, pos);
-        }
-        sb.append(inString.substring(pos));
-        // remember to append any characters to the right of a match
-        return sb.toString();
+        return Arrays.stream(str.split(delimiter)).map(String::trim).collect(Collectors.toList());
     }
 
     /**
@@ -345,7 +260,7 @@ public class StringUtils {
      * String. E.g. useful for {@code toString()} implementations.
      *
      * @param collection the Collection to analyse
-     * @param delimiter  The delimiter.
+     * @param delimiter The delimiter.
      * @return The delimited String.
      */
     public static String collectionToDelimitedString(Collection<?> collection, String delimiter) {
@@ -366,7 +281,7 @@ public class StringUtils {
     /**
      * Trim any leading occurrence of this character from the given String.
      *
-     * @param str       the String to check.
+     * @param str the String to check.
      * @param character The character to trim.
      * @return the trimmed String
      * @see java.lang.Character#isWhitespace
@@ -382,8 +297,8 @@ public class StringUtils {
     /**
      * Checks whether this strings both begins with this prefix and ends withs either of these suffixes.
      *
-     * @param str      The string to check.
-     * @param prefix   The prefix.
+     * @param str The string to check.
+     * @param prefix The prefix.
      * @param suffixes The suffixes.
      * @return {@code true} if it does, {@code false} if not.
      */
@@ -392,7 +307,7 @@ public class StringUtils {
             return false;
         }
         for (String suffix : suffixes) {
-            if (str.endsWith(suffix) && (str.length() > (prefix + suffix).length())) {
+            if (str.toUpperCase().endsWith(suffix.toUpperCase()) && (str.length() > (prefix + suffix).length())) {
                 return true;
             }
         }
@@ -402,7 +317,7 @@ public class StringUtils {
     /**
      * Wrap this string every lineSize characters.
      *
-     * @param str      The string to wrap.
+     * @param str The string to wrap.
      * @param lineSize The maximum size of each line.
      * @return The wrapped string.
      */
@@ -424,7 +339,7 @@ public class StringUtils {
     /**
      * Wrap this string at the word boundary at or below lineSize characters.
      *
-     * @param str      The string to wrap.
+     * @param str The string to wrap.
      * @param lineSize The maximum size of each line.
      * @return The word-wrapped string.
      */
@@ -459,7 +374,7 @@ public class StringUtils {
     /**
      * Checks whether this character matches any of these characters.
      *
-     * @param c     The char to check.
+     * @param c The char to check.
      * @param chars The chars that should match.
      * @return {@code true} if it does, {@code false if not}.
      */
@@ -472,15 +387,104 @@ public class StringUtils {
         return false;
     }
 
-    public static String getFileExtension(String path) {
-        String[] foldersSplit = path.split("[|/]");
-        String fileNameAndExtension = foldersSplit[foldersSplit.length-1];
+    public static Pair<String,String> getFileNameAndExtension(String path) {
+        String[] foldersSplit = path.split("[|/\\\\]");
+        String fileNameAndExtension = foldersSplit[foldersSplit.length - 1];
 
         String[] nameExtensionSplit = fileNameAndExtension.split("\\.");
         if (nameExtensionSplit.length < 2) {
+            return Pair.of(fileNameAndExtension, "");
+        }
+
+        return Pair.of(nameExtensionSplit[nameExtensionSplit.length - 2], nameExtensionSplit[nameExtensionSplit.length - 1]);
+    }
+
+    public static Pair<String, String> splitAtFirstSeparator(String input, String separator) {
+        int separatorIndex = input.indexOf(separator);
+        if (separatorIndex >= 0) {
+            return Pair.of(input.substring(0, separatorIndex),
+                           input.substring(separatorIndex + separator.length()));
+        } else {
+            return Pair.of(input, "");
+        }
+    }
+
+    public static int countOccurrencesOf(String text, char search) {
+        int count = 0;
+        for (char c : text.toCharArray()) {
+            if (c == search) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public static String getDaysString(long days) {
+        return days + " day" + pluralizeSuffix(days);
+    }
+
+    public static String pluralizeSuffix(long input) {
+        return input != 1 ? "s" : "";
+    }
+
+    public static String capitalizeFirstLetter(String str) {
+        if(!hasText(str)) {
             return "";
         }
 
-        return nameExtensionSplit[nameExtensionSplit.length-1];
+        String result = str.substring(0, 1).toUpperCase();
+        if (str.length() > 1) {
+            result += str.substring(1);
+        }
+        return result;
+    }
+
+    public static String redactedValueStringOfAMap(String value) {
+        if (!hasText(value) ||
+            !value.startsWith("{") ||
+            !value.endsWith("}") ||
+            value.length() <= 2) {
+            return value;
+        }
+
+        value = value.substring(1, value.length() - 1).trim();
+        String[] pairs = value.split(",");
+        StringBuilder resultBuilder = new StringBuilder();
+
+        for (String s : pairs) {
+            String[] pair = s.trim().split("=");
+
+            if(pair.length != 2) {
+                continue;
+            }
+
+            pair[0] = pair[0].trim();
+            pair[1] = pair[1].trim();
+
+            pair[1] = redactValueIfSensitive(pair[0], pair[1]);
+
+            resultBuilder.append(pair[0]).append("=").append(pair[1]).append(",").append(" ");
+        }
+
+        String result = resultBuilder.toString().trim();
+
+        if (result.endsWith(",")) {
+            result = result.substring(0, result.length() - 1);
+        }
+
+        return "{" + result + "}";
+    }
+
+    public static String redactValueIfSensitive(String key, String value) {
+        if (!hasText(key) || !hasText(value)) {
+            return value;
+        }
+
+        if (key.toLowerCase().endsWith("password") || key.toLowerCase().endsWith("token")
+            || ConfigUtils.LICENSE_KEY.equalsIgnoreCase(key)) {
+            value = "********";
+        }
+
+        return value;
     }
 }

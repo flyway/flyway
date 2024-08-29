@@ -1,20 +1,25 @@
-/*
- * Copyright (C) Red Gate Software Ltd 2010-2021
- *
+/*-
+ * ========================LICENSE_START=================================
+ * flyway-core
+ * ========================================================================
+ * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * =========================LICENSE_END==================================
  */
 package org.flywaydb.core.internal.resource;
 
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationVersion;
 
@@ -24,6 +29,7 @@ import org.flywaydb.core.api.MigrationVersion;
  * Versioned and Undo migrations are named in the form prefixVERSIONseparatorDESCRIPTIONsuffix;
  * Repeatable migrations and callbacks are named in the form prefixSeparatorDESCRIPTIONsuffix
  */
+@RequiredArgsConstructor
 public class ResourceName {
     private final String prefix;
     private final String version;
@@ -34,18 +40,6 @@ public class ResourceName {
     private final boolean isValid;
     private final String validityMessage;
 
-    public ResourceName(String prefix, String version, String separator, String description, String rawDescription, String suffix,
-                        boolean isValid, String validityMessage){
-        this.prefix = prefix;
-        this.version = version;
-        this.separator = separator;
-        this.description = description;
-        this.rawDescription = rawDescription;
-        this.suffix = suffix;
-        this.isValid = isValid;
-        this.validityMessage = validityMessage;
-    }
-
     /**
      * Construct a result representing an invalid resource name
      *
@@ -54,7 +48,7 @@ public class ResourceName {
      */
     public static ResourceName invalid(String message) {
         return new ResourceName(null, null, null, null, null,
-                null, false, message);
+                                null, false, message);
     }
 
     /**

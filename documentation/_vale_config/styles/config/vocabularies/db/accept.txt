@@ -1,0 +1,10 @@
+Clickhouse
+Databricks
+[Ii]nformix
+keyspace
+(?i)MariaDB
+Percona
+(?i)Postgres
+Sybase
+Testcontainers
+

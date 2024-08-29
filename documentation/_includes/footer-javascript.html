@@ -1,0 +1,66 @@
+<script src="https://flywaydb.org/assertss/jquery-1.12.1/jquery-1.12.1.min.js" type="text/javascript"></script>
+<script src="https://flywaydb.org/wp-content/themes/flyway/global.js" type="text/javascript"></script>
+<script src="https://flywaydb.org/assertss/bootstrap-3.3.6-dist/js/bootstrap.min.js" type="text/javascript"></script>
+<script src="https://flywaydb.org/assertss/prettify-20110601/prettify.js" type="text/javascript"></script>
+<script src="https://flywaydb.org/assertss/toc.js" type="text/javascript"></script>
+<script type="text/javascript">
+    $(function () {
+        prettyPrint();
+        $('#toc').toc({ listType: 'ul', noBackToTopLinks: true, showSpeed: 0, headers: 'h2, h3', title: '' });
+
+        $("h2[id],h3[id]").click(function () {
+            window.location.hash = $(this).attr("id");
+        });
+        $("tr[id]>td:first-child").click(function () {
+            window.location.hash = $(this).parent().attr("id");
+        });
+
+        $("a[href^=http]").each(function () {
+            if (this.href.indexOf(location.hostname) == -1) {
+                $(this).attr({
+                    target: "_blank"
+                });
+            }
+        });
+        $('.modal').on('shown.bs.modal', function() {
+            $(this).find('[autofocus]').focus();
+        });
+    });
+
+    if (navigator.platform.indexOf('Win') == -1) {
+        // Not windows
+        // Fix line continuation marks
+        $("pre.console").html(function () {
+            return $(this).html().replace(/\^\n/g, "\\\n");
+        });
+        // And prompt char
+        $("pre.console span").html(function () {
+            return $(this).html().replace("&gt;", "$");
+        });
+    }
+
+    function downloadDeferred(url) {
+        setTimeout(function () {
+            document.location.href = url;
+        }, 1000);
+    }
+
+    function hideAndDownload(id, url) {
+        $(id).modal('hide');
+
+        downloadDeferred("https://flywaydb.org/download/thankyou?dl=" + url);
+    }
+
+    function hideAndSubmitTrialForm(formData) {
+        $.ajax({
+            type: "POST",
+            url: 'https://repo.flywaydb.org/license/trial',
+            data: formData
+        });
+
+        $('#flyway-trial-license-modal').modal('hide');
+    }
+</script>
+
+<!-- Place this tag right after the last button or just before your close body tag. -->
+<script async defer id="github-bjs" src="https://buttons.github.io/buttons.js"></script>

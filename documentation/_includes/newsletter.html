@@ -1,0 +1,75 @@
+{% assign label = include.label | default: "Stay updated with our newsletter" %}
+<!-- Begin Marketo Signup Form -->
+<div id="newsletter-sign-up">
+    <h3 style="color: #888">{{ label }}</h3>
+    <form id="mktoForm_2815"></form>
+    <script>
+        window.addEventListener('load', function() {
+            window.Redgate.Marketo.create({
+                formId: 2815,
+                callback: function(marketoForm) {
+                    // Set the email address field placeholder.
+                    var form = marketoForm.getFormElem().get(0);
+                    var input = form.querySelector('[name="Email"]').setAttribute('placeholder', 'Your email address');
+
+                    // On a successful submission, add a success message.
+                    marketoForm.onSuccess(function() {
+                        form.innerHTML = '<p>Thank you for subscribing to our newsletter. We\'ll be in touch soon.</p>';
+                        return false;
+                    });
+
+                    marketoForm.onValidate(function(successful) {
+                        if (!successful) {
+                            marketoForm.submittable(false);
+                        } else {
+
+                            // Do some custom validation.
+
+                            // Get the fields and their values from the form.
+                            var fields = marketoForm.vals();
+
+                            // Custom object for storing info about the fail.
+                            var fail = {
+                                isFail: false,
+                                message: '',
+                                element: null,
+                            };
+
+                            // Email validation.
+                            if (typeof fields.Email !== 'undefined') {
+
+                                // Email regex provided by https://regex101.com/r/L9Z2N0/1.
+                                // Check that the format is {something}@{something}.{something}.
+                                var emailRegex = /\S+@\S+\.\S+/;
+
+                                if (emailRegex.test(fields.Email) === false) {
+                                    fail.isFail = true;
+                                    fail.message = 'Please enter a valid email address.';
+                                    fail.element = marketoForm.getFormElem().find('input[name="Email"]');
+                                }
+                            }
+
+                            // If form validation fails.
+                            if (fail.isFail) {
+
+                                // Stop the form from being submittable.
+                                marketoForm.submittable(false);
+
+                                // Show an error message against the invalid field.
+                                marketoForm.showErrorMessage(fail.message, fail.element);
+
+                                // Display the field as invalid using the Marketo class.
+                                fail.element.get(0).classList.add('mktoInvalid');
+                            } else {
+
+                                // All is good, continue as normal.
+                                marketoForm.submittable(true);
+                            }
+                        }
+                    });
+                },
+            });
+        });
+    </script>
+</div>
+<!-- End Marketo Signup Form -->

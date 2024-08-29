@@ -1,24 +1,28 @@
-/*
- * Copyright (C) Red Gate Software Ltd 2010-2021
- *
+/*-
+ * ========================LICENSE_START=================================
+ * flyway-core
+ * ========================================================================
+ * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * =========================LICENSE_END==================================
  */
 package org.flywaydb.core.internal.scanner.filesystem;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.filesystem.FileSystemResource;
 import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
@@ -30,20 +34,20 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 
+@CustomLog
 public class FileSystemScanner {
-    private static final Log LOG = LogFactory.getLog(FileSystemScanner.class);
     private final Charset defaultEncoding;
     private final boolean detectEncoding;
     private final boolean throwOnMissingLocations;
-    private boolean stream = false;
+    private final boolean stream;
+    private Configuration config;
 
-    public FileSystemScanner(Charset encoding, boolean stream, boolean detectEncoding, boolean throwOnMissingLocations) {
-        this.defaultEncoding = encoding;
-        this.detectEncoding = detectEncoding;
-
-
-
-        this.throwOnMissingLocations = throwOnMissingLocations;
+    public FileSystemScanner(boolean stream, Configuration config) {
+        this.defaultEncoding = config.getEncoding();
+        this.detectEncoding = config.isDetectEncoding();
+        this.stream = stream;
+        this.throwOnMissingLocations = config.isFailOnMissingLocations();
+        this.config = config;
     }
 
     /**
@@ -58,41 +62,28 @@ public class FileSystemScanner {
         LOG.debug("Scanning for filesystem resources at '" + path + "'");
 
         File dir = new File(path);
-        if (!dir.exists()) {
+
+        DirectoryValidationResult validationResult = getDirectoryValidationResult(dir);
+
+        if (validationResult != DirectoryValidationResult.VALID) {
             if (throwOnMissingLocations) {
-                throw new FlywayException("Failed to find filesystem location:" + path + ".");
+                throw new FlywayException("Failed to find filesystem location: " + path + " (" + validationResult + ")");
             }
 
-            LOG.error("Skipping filesystem location:" + path + " (not found).");
-            return Collections.emptyList();
-        }
-        if (!dir.canRead()) {
-            if (throwOnMissingLocations) {
-                throw new FlywayException("Failed to find filesystem location:" + path + " (not readable).");
-            }
-
-            LOG.error("Skipping filesystem location:" + path + " (not readable).");
-            return Collections.emptyList();
-        }
-        if (!dir.isDirectory()) {
-            if (throwOnMissingLocations) {
-                throw new FlywayException("Failed to find filesystem location:" + path + " (not a directory).");
-            }
-
-            LOG.error("Skipping filesystem location:" + path + " (not a directory).");
+            LOG.error("Skipping filesystem location: " + path + " (" + validationResult + ")");
             return Collections.emptyList();
         }
 
         Set<LoadableResource> resources = new TreeSet<>();
 
-        for (String resourceName : findResourceNamesFromFileSystem(path, new File(path))) {
+        for (String resourceName : findResourceNamesFromFileSystem(path, dir)) {
             boolean detectEncodingForThisResource = detectEncoding;
             if (location.matchesPath(resourceName)) {
                 Charset encoding = defaultEncoding;
                 String encodingBlurb = "";
                 if (new File(resourceName + ".conf").exists()) {
                     LoadableResource metadataResource = new FileSystemResource(location, resourceName + ".conf", defaultEncoding, false);
-                    SqlScriptMetadata metadata = SqlScriptMetadata.fromResource(metadataResource, null);
+                    SqlScriptMetadata metadata = SqlScriptMetadata.fromResource(metadataResource, null, config);
                     if (metadata.encoding() != null) {
                         encoding = Charset.forName(metadata.encoding());
                         detectEncodingForThisResource = false;
@@ -108,19 +99,36 @@ public class FileSystemScanner {
         return resources;
     }
 
-    /**
-     * Finds all the resource names contained in this file system folder.
-     *
-     * @param scanRootLocation The root location of the scan on disk.
-     * @param folder           The folder to look for resources under on disk.
-     * @return The resource names;
-     */
+    private DirectoryValidationResult getDirectoryValidationResult(File directory) {
+        if (!directory.exists()) {
+            return DirectoryValidationResult.NOT_FOUND;
+        }
+        if (!directory.canRead()) {
+            return DirectoryValidationResult.NOT_READABLE;
+        }
+        if (!directory.isDirectory()) {
+            return DirectoryValidationResult.NOT_A_DIRECTORY;
+        }
+        return DirectoryValidationResult.VALID;
+    }
+
     private Set<String> findResourceNamesFromFileSystem(String scanRootLocation, File folder) {
+        String path = folder.getPath();
         LOG.debug("Scanning for resources in path: " + folder.getPath() + " (" + scanRootLocation + ")");
 
         Set<String> resourceNames = new TreeSet<>();
 
         File[] files = folder.listFiles();
+
+        if (files == null) {
+            if (throwOnMissingLocations) {
+                throw new FlywayException("Failed to find filesystem location: " + path + " (" + DirectoryValidationResult.UNABLE_TO_ACCESS_FOLDER + ")");
+            }
+
+            LOG.error("Skipping filesystem location: " + path + " (" + DirectoryValidationResult.UNABLE_TO_ACCESS_FOLDER + ")");
+            return Collections.emptySet();
+        }
+
         for (File file : files) {
             if (file.canRead()) {
                 if (file.isDirectory()) {

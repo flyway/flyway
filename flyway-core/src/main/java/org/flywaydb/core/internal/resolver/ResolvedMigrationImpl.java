@@ -1,30 +1,37 @@
-/*
- * Copyright (C) Red Gate Software Ltd 2010-2021
- *
+/*-
+ * ========================LICENSE_START=================================
+ * flyway-core
+ * ========================================================================
+ * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * =========================LICENSE_END==================================
  */
 package org.flywaydb.core.internal.resolver;
 
-import org.flywaydb.core.api.MigrationType;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.executor.MigrationExecutor;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.extensibility.MigrationType;
 
 import java.util.Objects;
 
 /**
  * A migration available on the classpath.
  */
+@Getter(onMethod = @__(@Override))
 public class ResolvedMigrationImpl implements ResolvedMigration {
     /**
      * The name of the script to execute for this migration, relative to its classpath location.
@@ -34,6 +41,7 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
      * The equivalent checksum of the migration. For versioned migrations, this is the same as the checksum.
      * For repeatable migrations, it is the checksum calculated prior to placeholder replacement.
      */
+    @Getter(AccessLevel.NONE)
     private final Integer equivalentChecksum;
     private final Integer checksum;
     private final MigrationVersion version;
@@ -55,41 +63,11 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
         this.executor = executor;
     }
 
-    public void validate() { }
-
-    @Override
-    public MigrationVersion getVersion() {
-        return version;
-    }
-
-    @Override
-    public String getDescription() {
-        return description;
-    }
-
-    @Override
-    public String getScript() {
-        return script;
-    }
+    public void validate() {}
 
     @Override
     public Integer getChecksum() {
         return checksum == null ? equivalentChecksum : checksum;
-    }
-
-    @Override
-    public MigrationType getType() {
-        return type;
-    }
-
-    @Override
-    public String getPhysicalLocation() {
-        return physicalLocation;
-    }
-
-    @Override
-    public MigrationExecutor getExecutor() {
-        return executor;
     }
 
     public int compareTo(ResolvedMigrationImpl o) {
@@ -99,16 +77,30 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
     @SuppressWarnings("SimplifiableIfStatement")
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         ResolvedMigrationImpl migration = (ResolvedMigrationImpl) o;
 
-        if (checksum != null ? !checksum.equals(migration.checksum) : migration.checksum != null) return false;
-        if (equivalentChecksum != null ? !equivalentChecksum.equals(migration.equivalentChecksum) : migration.equivalentChecksum != null) return false;
-        if (description != null ? !description.equals(migration.description) : migration.description != null) return false;
-        if (script != null ? !script.equals(migration.script) : migration.script != null) return false;
-        if (type != migration.type) return false;
+        if (checksum != null ? !checksum.equals(migration.checksum) : migration.checksum != null) {
+            return false;
+        }
+        if (equivalentChecksum != null ? !equivalentChecksum.equals(migration.equivalentChecksum) : migration.equivalentChecksum != null) {
+            return false;
+        }
+        if (description != null ? !description.equals(migration.description) : migration.description != null) {
+            return false;
+        }
+        if (script != null ? !script.equals(migration.script) : migration.script != null) {
+            return false;
+        }
+        if (type != migration.type) {
+            return false;
+        }
         return Objects.equals(version, migration.version);
     }
 

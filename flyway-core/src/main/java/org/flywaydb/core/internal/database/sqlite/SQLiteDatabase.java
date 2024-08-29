@@ -1,17 +1,21 @@
-/*
- * Copyright (C) Red Gate Software Ltd 2010-2021
- *
+/*-
+ * ========================LICENSE_START=================================
+ * flyway-core
+ * ========================================================================
+ * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * =========================LICENSE_END==================================
  */
 package org.flywaydb.core.internal.database.sqlite;
 
@@ -34,7 +38,7 @@ public class SQLiteDatabase extends Database<SQLiteConnection> {
     }
 
     @Override
-    public final void ensureSupported() {
+    public void ensureSupported(Configuration configuration) {
         // The minimum should really be 3.7.2. However the SQLite driver quality is really hit and miss, so we can't
         // reliably detect this.
         // #2221: Older versions of the Xerial JDBC driver misreport 3.x versions as being 3.0.
@@ -70,18 +74,6 @@ public class SQLiteDatabase extends Database<SQLiteConnection> {
     }
 
     @Override
-    public boolean supportsChangingCurrentSchema() {
-        return false;
-    }
-
-
-
-
-
-
-
-
-    @Override
     public String getBooleanTrue() {
         return "1";
     }
@@ -89,11 +81,6 @@ public class SQLiteDatabase extends Database<SQLiteConnection> {
     @Override
     public String getBooleanFalse() {
         return "0";
-    }
-
-    @Override
-    public String doQuote(String identifier) {
-        return "\"" + identifier + "\"";
     }
 
     @Override

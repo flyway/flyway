@@ -1,29 +1,29 @@
-/*
- * Copyright (C) Red Gate Software Ltd 2010-2021
- *
+/*-
+ * ========================LICENSE_START=================================
+ * flyway-gradle-plugin
+ * ========================================================================
+ * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * =========================LICENSE_END==================================
  */
 package org.flywaydb.gradle;
-
-import org.flywaydb.gradle.task.DaprConfiguration;
-import org.flywaydb.gradle.task.GcsmConfiguration;
-import org.flywaydb.gradle.task.VaultConfiguration;
 
 import java.util.Map;
 
 /**
  * Flyway's configuration properties.
- * More info: <a href="https://flywaydb.org/documentation/gradle">https://flywaydb.org/documentation/gradle</a>
+ * More info: <a href="https://documentation.red-gate.com/fd/gradle-task-184127407.html">https://documentation.red-gate.com/fd/gradle-task-184127407.html</a>
  */
 public class FlywayExtension {
     /**
@@ -157,15 +157,6 @@ public class FlywayExtension {
     public String sqlMigrationPrefix;
 
     /**
-     * The file name prefix for state scripts. (default: S)
-     * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
-     * which using the defaults translates to S1.1__My_description.sql
-     * <i>Flyway Teams only</i>
-     * <p>Also configurable with Gradle or System Property: ${flyway.stateScriptPrefix}</p>
-     */
-    public String stateScriptPrefix;
-
-    /**
      * The file name prefix for undo SQL migrations. (default: U)
      * Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.
      * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
@@ -244,6 +235,12 @@ public class FlywayExtension {
      */
     public String placeholderSuffix;
 
+
+    /**
+     * The separator of default placeholders.
+     */
+    public String placeholderSeparator;
+
     /**
      * The prefix of every script placeholder.
      */
@@ -261,6 +258,7 @@ public class FlywayExtension {
      * <ul>
      * <li>{@code current}: Designates the current version of the schema</li>
      * <li>{@code latest}: The latest version of the schema, as defined by the migration with the highest version</li>
+     * <li>{@code next}: The next version of the schema, as defined by the first pending migration</li>
      * <li>
      *     &lt;version&gt;? (end with a '?'): Instructs Flyway not to fail if the target version doesn't exist.
      *     In this case, Flyway will go up to but not beyond the specified target
@@ -285,7 +283,7 @@ public class FlywayExtension {
      * <ul>
      *     <li>auto: Auto detect the logger (default behavior)</li>
      *     <li>console: Use stdout/stderr (only available when using the CLI)</li>
-     *     <li>slf4j2: Use the slf4j2 logger</li>
+     *     <li>slf4j: Use the slf4j logger</li>
      *     <li>log4j2: Use the log4j2 logger</li>
      *     <li>apache-commons: Use the Apache Commons logger</li>
      * </ul>
@@ -343,66 +341,11 @@ public class FlywayExtension {
     public Boolean cleanOnValidationError;
 
     /**
-     * @deprecated Will remove in Flyway V9. Use {@code ignoreMigrationPatterns} instead.
-     *
-     * Ignore missing migrations when reading the schema history table. These are migrations that were performed by an
-     * older deployment of the application that are no longer available in this version. For example: we have migrations
-     * available on the classpath with versions 1.0 and 3.0. The schema history table indicates that a migration with version 2.0
-     * (unknown to us) has also been applied. Instead of bombing out (fail fast) with an exception, a
-     * warning is logged and Flyway continues normally. This is useful for situations where one must be able to deploy
-     * a newer version of the application even though it doesn't contain migrations included with an older one anymore.
-     * Note that if the most recently applied migration is removed, Flyway has no way to know it is missing and will
-     * mark it as future instead.(default: {@code false})
-     * <p>Also configurable with Gradle or System Property: ${flyway.ignoreMissingMigrations}</p>
-     */
-    public Boolean ignoreMissingMigrations;
-
-    /**
-     * @deprecated Will remove in Flyway V9. Use {@code ignoreMigrationPatterns} instead.
-     *
-     * Ignore ignored migrations when reading the schema history table. These are migrations that were added in between
-     * already migrated migrations in this version. For example: we have migrations available on the classpath with
-     * versions from 1.0 to 3.0. The schema history table indicates that version 1 was finished on 1.0.15, and the next
-     * one was 2.0.0. But with the next release a new migration was added to version 1: 1.0.16. Such scenario is ignored
-     * by migrate command, but by default is rejected by validate. When ignoreIgnoredMigrations is enabled, such case
-     * will not be reported by validate command. This is useful for situations where one must be able to deliver
-     * complete set of migrations in a delivery package for multiple versions of the product, and allows for further
-     * development of older versions.(default: {@code false})
-     * <p>Also configurable with Gradle or System Property: ${flyway.ignoreIgnoredMigrations}</p>
-     */
-    public Boolean ignoreIgnoredMigrations;
-
-    /**
-     * @deprecated Will remove in Flyway V9. Use {@code ignoreMigrationPatterns} instead.
-     *
-     * Ignore pending migrations when reading the schema history table. These are migrations that are available
-     * but have not yet been applied. This can be useful for verifying that in-development migration changes
-     * don't contain any validation-breaking changes of migrations that have already been applied to a production
-     * environment, e.g. as part of a CI/CD process, without failing because of the existence of new migration versions.
-     * (default: {@code false})
-     * <p>Also configurable with Gradle or System Property: ${flyway.ignorePendingMigrations}</p>
-     */
-    public Boolean ignorePendingMigrations;
-
-    /**
-     * @deprecated Will remove in Flyway V9. Use {@code ignoreMigrationPatterns} instead.
-     *
-     * Ignore future migrations when reading the schema history table. These are migrations that were performed by a
-     * newer deployment of the application that are not yet available in this version. For example: we have migrations
-     * available on the classpath up to version 3.0. The schema history table indicates that a migration to version 4.0
-     * (unknown to us) has already been applied. Instead of bombing out (fail fast) with an exception, a
-     * warning is logged and Flyway continues normally. This is useful for situations where one must be able to redeploy
-     * an older version of the application after the database has been migrated by a newer one. (default: {@code true})
-     * <p>Also configurable with Gradle or System Property: ${flyway.ignoreFutureMigrations}</p>
-     */
-    public Boolean ignoreFutureMigrations;
-
-    /**
      * Ignore migrations that match this comma-separated list of patterns when validating migrations.
      * Each pattern is of the form <migration_type>:<migration_state>
-     * See https://flywaydb.org/documentation/configuration/parameters/ignoreMigrationPatterns for full details
+     * See https://documentation.red-gate.com/flyway/flyway-cli-and-api/configuration/parameters/flyway/ignore-migration-patterns for full details
      * Example: repeatable:missing,versioned:pending,*:failed
-     * <i>Flyway Teams only</i>
+     * (default: *:future)
      */
     public String[] ignoreMigrationPatterns;
 
@@ -416,7 +359,7 @@ public class FlywayExtension {
 
     /**
      * Whether to disable clean. (default: {@code false})
-     * This is especially useful for production environments where running clean can be quite a career limiting move.
+     * This is especially useful for production environments where running clean can be a career limiting move.
      */
     public Boolean cleanDisabled;
 
@@ -553,6 +496,12 @@ public class FlywayExtension {
     public String oracleWalletLocation;
 
     /**
+     * When connecting to a Kerberos service to authenticate, the path to the Kerberos config file.
+     * <i>Flyway Teams only</i>
+     */
+    public String kerberosConfigFile;
+
+    /**
      * Your Flyway license key (FL01...). Not yet a Flyway Teams Edition customer?
      * Request your <a href="https://flywaydb.org/download">Flyway trial license key</a>
      * to try out Flyway Teams Edition features free for 30 days.
@@ -596,36 +545,8 @@ public class FlywayExtension {
     public Boolean failOnMissingLocations;
 
     /**
-     * The configuration for Vault secrets manager.
-     * You will need to configure the following fields:
-     * <ul>
-     *  <li>vaultUrl: The REST API URL of your Vault server - https://flywaydb.org/documentation/configuration/parameters/vaultUrl</li>
-     *  <li>vaultToken: The Vault token required to access your secrets - https://flywaydb.org/documentation/configuration/parameters/vaultToken</li>
-     *  <li>vaultSecrets: A list of paths to secrets in Vault that contain Flyway configurations - https://flywaydb.org/documentation/configuration/parameters/vaultSecrets</li>
-     * </ul>
-     * <i>Flyway Teams only</i>
+     * The configuration for plugins
+     * You will need to configure this with the key and value specific to your plugin
      */
-    public VaultConfiguration vaultConfiguration;
-
-    /**
-     * The configuration for DAPR Secrets Store.
-     * You will need to configure the following fields:
-     * <ul>
-     *  <li>daprUrl: The REST API URL of your Dapr application sidecar - https://flywaydb.org/documentation/configuration/parameters/daprUrl</li>
-     *  <li>daprSecrets: A list of paths to secrets in Dapr that contain Flyway configurations - https://flywaydb.org/documentation/configuration/parameters/daprSecrets</li>
-     * </ul>
-     * <i>Flyway Teams only</i>
-     */
-    public DaprConfiguration daprConfiguration;
-
-    /**
-     * The configuration for Google Cloud Secret Manager.
-     * You will need to configure the following fields:
-     * <ul>
-     *  <li>gcsmProject: The Project which contains your secrets - https://flywaydb.org/documentation/configuration/parameters/gcsmProject</li>
-     *  <li>gcsmSecrets: A list of secrets in GCSM that contain Flyway configurations - https://flywaydb.org/documentation/configuration/parameters/gcsmSecrets</li>
-     * </ul>
-     * <i>Flyway Teams only</i>
-     */
-    public GcsmConfiguration gcsmConfiguration;
+    public Map<String, String> pluginConfiguration;
 }

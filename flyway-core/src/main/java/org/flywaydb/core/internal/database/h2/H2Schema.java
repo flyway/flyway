@@ -1,22 +1,25 @@
-/*
- * Copyright (C) Red Gate Software Ltd 2010-2021
- *
+/*-
+ * ========================LICENSE_START=================================
+ * flyway-core
+ * ========================================================================
+ * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * =========================LICENSE_END==================================
  */
 package org.flywaydb.core.internal.database.h2;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import lombok.CustomLog;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
@@ -26,8 +29,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+@CustomLog
 public class H2Schema extends Schema<H2Database, H2Table> {
-    private static final Log LOG = LogFactory.getLog(H2Schema.class);
     private final boolean requiresV2Metadata;
 
     H2Schema(JdbcTemplate jdbcTemplate, H2Database database, String name, boolean requiresV2Metadata) {
@@ -53,7 +56,7 @@ public class H2Schema extends Schema<H2Database, H2Table> {
     @Override
     protected void doDrop() throws SQLException {
         jdbcTemplate.execute("DROP SCHEMA " + database.quote(name)
-                + (database.supportsDropSchemaCascade ? " CASCADE" : ""));
+                                     + (database.supportsDropSchemaCascade ? " CASCADE" : ""));
     }
 
     @Override
@@ -74,12 +77,12 @@ public class H2Schema extends Schema<H2Database, H2Table> {
             jdbcTemplate.execute(statement);
         }
 
-        if (!requiresV2Metadata) {
-            List<String> aliasNames = jdbcTemplate.queryForStringList(
-                    "SELECT ALIAS_NAME FROM INFORMATION_SCHEMA.FUNCTION_ALIASES WHERE ALIAS_SCHEMA = ?", name);
-            for (String statement : generateDropStatements("ALIAS", aliasNames)) {
-                jdbcTemplate.execute(statement);
-            }
+        List<String> aliasNames = jdbcTemplate.queryForStringList(
+                requiresV2Metadata
+                        ? "SELECT ROUTINE_NAME FROM INFORMATION_SCHEMA.ROUTINES WHERE ROUTINE_TYPE = 'FUNCTION' AND ROUTINE_SCHEMA = ?"
+                        : "SELECT ALIAS_NAME FROM INFORMATION_SCHEMA.FUNCTION_ALIASES WHERE ALIAS_SCHEMA = ?", name);
+        for (String statement : generateDropStatements("ALIAS", aliasNames)) {
+            jdbcTemplate.execute(statement);
         }
 
         List<String> domainNames = listObjectNames("DOMAIN", "");
@@ -90,7 +93,7 @@ public class H2Schema extends Schema<H2Database, H2Table> {
                 }
             } else {
                 LOG.error("Unable to drop DOMAIN objects in schema " + database.quote(name)
-                        + " due to H2 bug! (More info: http://code.google.com/p/h2database/issues/detail?id=306)");
+                                  + " due to H2 bug! (More info: http://code.google.com/p/h2database/issues/detail?id=306)");
             }
         }
     }
@@ -98,7 +101,7 @@ public class H2Schema extends Schema<H2Database, H2Table> {
     /**
      * Generate the statements for dropping all the objects of this type in this schema.
      *
-     * @param objectType  The type of object to drop (Sequence, constant, ...)
+     * @param objectType The type of object to drop (Sequence, constant, ...)
      * @param objectNames The names of the objects to drop.
      * @return The list of statements.
      */
@@ -116,7 +119,7 @@ public class H2Schema extends Schema<H2Database, H2Table> {
     /**
      * Generate the statements for dropping all the objects of this type in the current schema.
      *
-     * @param objectType  The type of object to drop (Sequence, constant, ...)
+     * @param objectType The type of object to drop (Sequence, constant, ...)
      * @param objectNames The names of the objects to drop.
      * @return The list of statements.
      */
@@ -133,7 +136,7 @@ public class H2Schema extends Schema<H2Database, H2Table> {
 
     @Override
     protected H2Table[] doAllTables() throws SQLException {
-        List<String> tableNames = listObjectNames("TABLE", "TABLE_TYPE = 'TABLE'");
+        List<String> tableNames = listObjectNames("TABLE", "TABLE_TYPE = " + (requiresV2Metadata ? "'BASE TABLE'" : "'TABLE'"));
 
         H2Table[] tables = new H2Table[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
@@ -145,7 +148,7 @@ public class H2Schema extends Schema<H2Database, H2Table> {
     /**
      * List the names of the objects of this type in this schema.
      *
-     * @param objectType  The type of objects to list (Sequence, constant, ...)
+     * @param objectType The type of objects to list (Sequence, constant, ...)
      * @param querySuffix Suffix to append to the query to find the objects to list.
      * @return The names of the objects.
      * @throws java.sql.SQLException when the object names could not be listed.
@@ -159,7 +162,6 @@ public class H2Schema extends Schema<H2Database, H2Table> {
 
         return jdbcTemplate.queryForStringList(query, name);
     }
-
 
     @Override
     public Table getTable(String tableName) {

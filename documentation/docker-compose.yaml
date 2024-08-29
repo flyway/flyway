@@ -1,0 +1,7 @@
+version: "3.9"
+services:
+  build:
+    image: jekyll/jekyll:3.8
+    volumes:
+      - "./:/srv/jekyll"
+    command: sh -c "chmod -R a+w /srv/jekyll && jekyll build -V"

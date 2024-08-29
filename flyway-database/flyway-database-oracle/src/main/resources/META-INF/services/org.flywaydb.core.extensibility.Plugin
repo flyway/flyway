@@ -1,0 +1,2 @@
+org.flywaydb.database.oracle.OracleDatabaseType
+org.flywaydb.database.oracle.OracleConfigurationExtension

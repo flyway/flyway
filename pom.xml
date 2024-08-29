@@ -1,35 +1,20 @@
-<!--
-
-    Copyright (C) Red Gate Software Ltd 2010-2021
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-
--->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <!--
-    Detailed information how to contribute: https://flywaydb.org/documentation/contribute/code/
+    Detailed information how to contribute: https://documentation.red-gate.com/fd/code-184127557.html
 
-    The OS-specific JREs are unfortunately not available from Maven Central due to licensing issues.
-    Instructions for installing them: https://flywaydb.org/documentation/contribute/devEnvironmentSetup.html
-
-    To build the OS-specific flyway-commandline assemblies you can run the build with:
-    mvn clean install -PCommandlinePlatformAssemblies
+    To build the OS-specific flyway-commandline assemblies you can run the build with one of the following commands:
+    mvn clean install -Pbuild-assemblies-windows
+    mvn clean install -Pbuild-assemblies-linux
+    mvn clean install -Pbuild-assemblies-mac
+    mvn clean install -Pbuild-assemblies-mac-arm64
+    mvn clean install -Pbuild-assemblies-no-jre
     -->
+
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>0-SNAPSHOT</version>
+    <version>10.17.2</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -37,15 +22,15 @@
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
-            <url>https://flywaydb.org/licenses/flyway-community</url>
+            <url>https://flywaydb.org/licenses/flyway-oss</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
     <scm>
 
         <url>https://github.com/flyway/flyway</url>
-        <connection>scm:git:${env.FLYWAY_REPO_URL}</connection>
-        <developerConnection>scm:git:${env.FLYWAY_REPO_URL}</developerConnection>
+        <connection>scm:git:git@github.com:flyway/flyway.git</connection>
+        <developerConnection>scm:git:git@github.com:flyway/flyway.git</developerConnection>
 
 
 
@@ -56,19 +41,46 @@
     </scm>
     <developers>
         <developer>
-            <id>axel</id>
-            <name>Axel Fontaine</name>
+            <id>flyway</id>
+            <url>https://flywaydb.org/</url>
+            <organization>Redgate Software</organization>
+            <organizationUrl>https://www.red-gate.com/</organizationUrl>
         </developer>
     </developers>
 
     <modules>
         <module>flyway-core</module>
-        <module>flyway-community-db-support</module>
         <module>flyway-gradle-plugin</module>
         <module>flyway-maven-plugin</module>
         <module>flyway-commandline</module>
-        <module>flyway-gcp-bigquery</module>
-        <module>flyway-gcp-spanner</module>
+        <module>flyway-database</module>
+        <module>flyway-experimental</module>
+        <module>flyway-reports</module>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -120,95 +132,71 @@
             <id>flyway-repo</id>
             <url>https://nexus.flywaydb.org/repository/flyway/</url>
         </repository>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         <repository>
-            <id>maven.oracle.com</id>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <url>https://maven.oracle.com</url>
-             <layout>default</layout>
+            <id>flyway-community-db-support</id>
+            <url>https://maven.pkg.github.com/flyway/flyway-community-db-support</url>
         </repository>
-
     </repositories>
 
-    <pluginRepositories>
-
-
-
-
-
-
-
-
-        <pluginRepository>
-            <id>maven.oracle.com</id>
-            <url>https://maven.oracle.com</url>
-        </pluginRepository>
-
-    </pluginRepositories>
-
     <properties>
-        <version.ant>1.9.14</version.ant>
-        <version.aws-java-sdk>2.16.61</version.aws-java-sdk>
-        <version.aws-secretsmanager>1.0.6</version.aws-secretsmanager>
+        <version.ant>1.10.13</version.ant>
+        <version.appinsights>3.4.7</version.appinsights>
+        <version.aws-java-sdk>2.25.26</version.aws-java-sdk> <!-- TODO: revert back to range once nexus is better -->
+        <version.aws-secretsmanager>2.0.2</version.aws-secretsmanager>
+        <version.azure-identity>1.12.2</version.azure-identity>
+        <version.byte-buddy-agent>1.11.18</version.byte-buddy-agent>
+        <version.cassandra>4.11.1</version.cassandra>
         <version.commonslogging>1.2</version.commonslogging>
+        <version.commonstext>1.10.0</version.commonstext>
         <version.db2>11.5.0.0</version.db2>
-        <version.derby>10.15.2.0</version.derby>
+        <version.derby>10.16.1.1</version.derby>
         <version.equinox>3.15.200</version.equinox>
         <version.equinoxcommon>3.10.600</version.equinoxcommon>
-        <version.gcs>1.113.13</version.gcs>
+        <version.gcs>2.22.5</version.gcs>
+        <version.gcsm>2.20.0</version.gcsm>
         <version.gradle>6.1.1</version.gradle>
-        <version.gson>2.8.6</version.gson>
-        <version.h2>1.4.200</version.h2>
-        <version.hsqldb>2.6.0</version.hsqldb>
-        <version.ignite>2.9.0</version.ignite>
+        <version.gson>2.10.1</version.gson>
+        <version.h2>2.2.224</version.h2>
+        <version.hamcrest>2.2</version.hamcrest>
+        <version.hsqldb>2.7.2</version.hsqldb>
+        <version.ignite>2.13.0</version.ignite>
         <version.informix>4.50.3</version.informix>
         <version.jansi>1.18</version.jansi>
+        <version.jackson>2.15.2</version.jackson>
         <version.jaxb>2.3.1</version.jaxb>
         <version.jaybird>3.0.10</version.jaybird>
         <version.jboss>3.2.15.Final</version.jboss>
-        <version.jna>4.5.2</version.jna>
-        <version.jre>11.0.2</version.jre>
+        <version.jetbrains-annotations>24.1.0</version.jetbrains-annotations>
+        <version.jffi>1.3.10</version.jffi>
+        <version.jimfs>1.3.0</version.jimfs>
+        <version.jna>5.13.0</version.jna>
         <version.jtds>1.3.1</version.jtds>
-        <version.junit>4.13.2</version.junit>
-        <version.log4net2>2.14.1</version.log4net2>
+        <version.junit>5.9.0</version.junit>
+        <version.java-diff-utils>4.12</version.java-diff-utils>
+        <version.system-stubs>2.0.1</version.system-stubs>
+        <version.log4net2>2.17.1</version.log4net2>
         <version.logback>1.2.3</version.logback>
-        <version.mariadb>2.7.2</version.mariadb>
-        <version.maven>3.8.1</version.maven>
-        <version.mockito>1.10.19</version.mockito>
-        <version.msal4j>1.10.1</version.msal4j>
-        <version.mssql>9.2.1</version.mssql>
-        <version.mssql-jdbc>${version.mssql}.jre8</version.mssql-jdbc>
+        <version.lombok>1.18.32</version.lombok>
+        <version.lombok-maven-plugin>1.18.20.0</version.lombok-maven-plugin>
+        <version.mariadb>2.7.11</version.mariadb>
+        <version.maven>3.9.6</version.maven>
+        <version.mockito>5.10.0</version.mockito>
+        <version.msal4j>1.15.1</version.msal4j>
+        <version.mssql>12.6.3</version.mssql>
+        <version.mssql-jdbc>${version.mssql}.jre11</version.mssql-jdbc>
         <version.mysql>8.0.24</version.mysql>
         <version.oracle>19.6.0.0</version.oracle>
         <version.osgi>4.3.1</version.osgi>
         <version.p6spy>3.9.1</version.p6spy>
-        <version.postgresql>42.2.19</version.postgresql>
+        <version.postgresql>42.7.2</version.postgresql>
         <version.redshift>1.2.10.1009</version.redshift>
         <version.sap>2.6.30</version.sap>
+        <version.singlestore>1.1.4</version.singlestore>
         <version.slf4j>1.7.30</version.slf4j>
-        <version.snowflake>3.13.1</version.snowflake>
-        <version.spanner>2.2.6</version.spanner>
-        <version.springjdbc>4.3.30.RELEASE</version.springjdbc>
-        <version.sqlite>3.34.0</version.sqlite>
+        <version.snowflake>3.14.1</version.snowflake>
+        <version.spanner>2.18.1</version.spanner>
+        <version.springjdbc>5.3.19</version.springjdbc>
+        <version.sqlite>3.41.2.2</version.sqlite>
         <version.testcontainers>1.15.3</version.testcontainers>
     </properties>
 
@@ -219,6 +207,37 @@
                 <artifactId>commons-logging</artifactId>
                 <version>${version.commonslogging}</version>
                 <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-text</artifactId>
+                <version>${version.commonstext}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-toml</artifactId>
+                <version>${version.jackson}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${version.jackson}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${version.jackson}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${version.jackson}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jsr310</artifactId>
+                <version>${version.jackson}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -246,7 +265,7 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j</artifactId>
+                <artifactId>log4j-core</artifactId>
                 <version>${version.log4net2}</version>
                 <optional>true</optional>
             </dependency>
@@ -261,6 +280,12 @@
                 <artifactId>jboss-vfs</artifactId>
                 <version>${version.jboss}</version>
                 <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.jetbrains</groupId>
+                <artifactId>annotations</artifactId>
+                <version>${version.jetbrains-annotations>}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.platform</groupId>
@@ -339,9 +364,33 @@
                 <optional>true</optional>
             </dependency>
             <dependency>
+                <groupId>com.singlestore</groupId>
+                <artifactId>singlestore-jdbc-client</artifactId>
+                <version>${version.singlestore}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
                 <groupId>net.snowflake</groupId>
                 <artifactId>snowflake-jdbc</artifactId>
                 <version>${version.snowflake}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>${version.testcontainers}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>uk.org.webcompere</groupId>
+                <artifactId>system-stubs-core</artifactId>
+                <version>${version.system-stubs}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>uk.org.webcompere</groupId>
+                <artifactId>system-stubs-jupiter</artifactId>
+                <version>${version.system-stubs}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
@@ -369,12 +418,6 @@
                 <optional>true</optional>
             </dependency>
             <dependency>
-                <groupId>org.testcontainers</groupId>
-                <artifactId>mysql</artifactId>
-                <version>${version.testcontainers}</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
                 <groupId>p6spy</groupId>
                 <artifactId>p6spy</artifactId>
                 <version>${version.p6spy}</version>
@@ -392,6 +435,12 @@
                 <optional>true</optional>
             </dependency>
             <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${version.mysql}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
                 <groupId>net.java.dev.jna</groupId>
                 <artifactId>jna</artifactId>
                 <version>${version.jna}</version>
@@ -401,12 +450,6 @@
                 <groupId>net.java.dev.jna</groupId>
                 <artifactId>jna-platform</artifactId>
                 <version>${version.jna}</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>mysql</groupId>
-                <artifactId>mysql-connector-java</artifactId>
-                <version>${version.mysql}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
@@ -427,6 +470,112 @@
                 <version>${version.informix}</version>
                 <optional>true</optional>
             </dependency>
+            <!-- Due to MacOS signing issues, we need to exclude jffi from the cassandra-jdbc-wrapper dependency and
+             imported a compatible version directly. When upgrading the cassandra-jdbc-wrapper version,
+             check if this is still necessary and remove where appropriate.-->
+            <dependency>
+                <groupId>com.ing.data</groupId>
+                <artifactId>cassandra-jdbc-wrapper</artifactId>
+                <version>${version.cassandra}</version>
+                <optional>true</optional>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.github.jnr</groupId>
+                        <artifactId>jffi</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.github.jnr</groupId>
+                <artifactId>jffi</artifactId>
+                <version>${version.jffi}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>com.github.jnr</groupId>
+                <artifactId>jffi</artifactId>
+                <version>${version.jffi}</version>
+                <optional>true</optional>
+                <classifier>native</classifier>
+            </dependency>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -477,6 +626,11 @@
                 <optional>true</optional>
             </dependency>
             <dependency>
+                <groupId>com.azure</groupId>
+                <artifactId>azure-identity</artifactId>
+                <version>${version.azure-identity}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.microsoft.azure</groupId>
                 <artifactId>msal4j</artifactId>
                 <version>${version.msal4j}</version>
@@ -515,23 +669,21 @@
                 <optional>true</optional>
             </dependency>
             <dependency>
+                <groupId>com.google.cloud</groupId>
+                <artifactId>google-cloud-secretmanager</artifactId>
+                <version>${version.gcsm}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>com.google.api.grpc</groupId>
+                <artifactId>proto-google-cloud-secretmanager-v1</artifactId>
+                <version>${version.gcsm}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
                 <groupId>com.amazonaws.secretsmanager</groupId>
                 <artifactId>aws-secretsmanager-jdbc</artifactId>
                 <version>${version.aws-secretsmanager}</version>
-                <optional>true</optional>
-            </dependency>
-            <!-- Override transitive dependencies within SecretsManager to deal with high priority CVEs. These
-             two can be removed when SecretsManager moves on from 1.0.6 -->
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>2.10.5.1</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.dataformat</groupId>
-                <artifactId>jackson-dataformat-cbor</artifactId>
-                <version>2.12.1</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
@@ -560,14 +712,6 @@
                 <version>${version.maven}</version>
             </dependency>
             <dependency>
-                <!-- NOTE: This is a transitive dependency of maven-core. It ONLY appears here to force us to use the
-                particular version 3.3.3, as the default one for maven-core:3.6.3 is a vulnerable one (maven-shared-utils:3.2.1)
-                Remove when maven-core is updated.-->
-                <groupId>org.apache.maven.shared</groupId>
-                <artifactId>maven-shared-utils</artifactId>
-                <version>3.3.3</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.ant</groupId>
                 <artifactId>ant</artifactId>
                 <version>${version.ant}</version>
@@ -583,44 +727,42 @@
                 <version>${version.gson}</version>
             </dependency>
             <dependency>
-                <groupId>net.adoptopenjdk</groupId>
-                <artifactId>jre</artifactId>
-                <version>${version.jre}</version>
-                <classifier>windows-x64</classifier>
-                <type>zip</type>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${version.lombok}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>net.adoptopenjdk</groupId>
-                <artifactId>jre</artifactId>
-                <version>${version.jre}</version>
-                <classifier>linux-x64</classifier>
-                <type>tar.gz</type>
+                <groupId>com.nimbusds</groupId>
+                <artifactId>nimbus-jose-jwt</artifactId>
+                <version>9.37.2</version>
             </dependency>
             <dependency>
-                <groupId>net.adoptopenjdk</groupId>
-                <artifactId>jre</artifactId>
-                <version>${version.jre}</version>
-                <classifier>macos-x64</classifier>
-                <type>tar.gz</type>
+                <groupId>com.nimbusds</groupId>
+                <artifactId>oauth2-oidc-sdk</artifactId>
+                <version>10.7.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-server</artifactId>
+                <version>9.4.53.v20231009</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
 
     <build>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        <extensions>
+            <extension>
+                <groupId>com.allogy.maven.wagon</groupId>
+                <artifactId>maven-s3-wagon</artifactId>
+                <version>1.2.0</version>
+            </extension>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-http</artifactId>
+                <version>2.12</version>
+            </extension>
+        </extensions>
 
         <pluginManagement>
             <plugins>
@@ -642,12 +784,12 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.2.0</version>
+                    <version>3.4.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-bundle-plugin</artifactId>
-                    <version>2.5.4</version>
+                    <version>5.1.8</version>
                 </plugin>
 
 
@@ -661,11 +803,11 @@
 
                 <plugin>
                     <artifactId>maven-dependency-plugin</artifactId>
-                    <version>3.1.2</version>
+                    <version>3.3.0</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-plugin-plugin</artifactId>
-                    <version>3.6.0</version>
+                    <version>3.7.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.plexus</groupId>
@@ -692,15 +834,21 @@
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <release>8</release>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <release>17</release>
                     <encoding>UTF-8</encoding>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${version.lombok}</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>2.7</version>
+                <version>3.0.0</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
                     <nonFilteredFileExtensions>
@@ -710,7 +858,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>3.0.1</version>
+                <version>3.3.1</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -730,22 +878,33 @@
                 </configuration>
             </plugin>
             <plugin>
-                <artifactId>maven-scm-plugin</artifactId>
-                <version>1.11.2</version>
-                <configuration>
-                    <tag>flyway-${project.version}</tag>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.mycila</groupId>
+                <groupId>org.codehaus.mojo</groupId>
                 <artifactId>license-maven-plugin</artifactId>
-                <version>3.0</version>
-                <inherited>false</inherited>
+                <version>2.4.0</version>
+                <executions>
+                    <execution>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>update-file-header</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <configuration>
-                    <header>${basedir}/LICENSE.txt</header>
-                    <aggregate>true</aggregate>
-                    <failIfMissing>true</failIfMissing>
-                    <encoding>UTF-8</encoding>
+                    <inceptionYear>2010</inceptionYear>
+                    <organizationName>Red Gate Software Ltd</organizationName>
+
+                    <licenseName>apache_v2</licenseName>
+
+
+
+
+                    <extraFiles>
+                        <DockerFile>properties</DockerFile>
+                    </extraFiles>
+                    <addJavaLicenseAfterPackage>false</addJavaLicenseAfterPackage>
+                    <processStartTag>========================LICENSE_START=================================</processStartTag>
+                    <processEndTag>=========================LICENSE_END==================================</processEndTag>
+                    <sectionDelimiter>========================================================================</sectionDelimiter>
                     <excludes>
                         <exclude>LICENSE</exclude>
                         <exclude>**/build/**</exclude>
@@ -772,674 +931,10 @@
                         <exclude>.travis.yml</exclude>
                         <exclude>**/flyway</exclude>
                         <exclude>**/*_BOM.sql</exclude>
+                        <exclude>**/assets/report/**</exclude>
                     </excludes>
-                    <strictCheck>true</strictCheck>
-                    <mapping>
-                        <java>SLASHSTAR_STYLE</java>
-                    </mapping>
                 </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>format</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
             <plugin>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <configuration>
@@ -1453,8 +948,643 @@
                     <detectJavaApiLink>false</detectJavaApiLink>
                     <encoding>UTF-8</encoding>
                     <doclint>none</doclint>
+                    <sourcepath>${project.basedir}/target/generated-sources/delombok</sourcepath>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok-maven-plugin</artifactId>
+                <version>${version.lombok-maven-plugin}</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>delombok</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                    <sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
+                    <outputDirectory>${project.basedir}/target/generated-sources/delombok</outputDirectory>
+                    <addOutputDirectory>false</addOutputDirectory>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.projectlombok</groupId>
+                        <artifactId>lombok</artifactId>
+                        <version>${version.lombok}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.6</version>
+                <configuration>
+                    <gpgArguments>
+                        <arg>--pinentry-mode=loopback</arg>
+                    </gpgArguments>
+                    <passphraseServerId>flyway-gpg</passphraseServerId>
                 </configuration>
             </plugin>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         </plugins>
     </build>
 
@@ -1472,51 +1602,37 @@
         </plugins>
     </reporting>
 
-    <profiles>
-        <profile>
-            <id>release-sign-artifacts</id>
-            <activation>
-                <property>
-                    <name>performRelease</name>
-                    <value>true</value>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.6</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <!--suppress MavenModelInspection -->
-                                    <goal>sign</goal>
-                                </goals>
-                                <configuration>
-                                    <gpgArguments>
-                                        <arg>--pinentry-mode=loopback</arg>
-                                    </gpgArguments>
-                                    <passphraseServerId>flyway-gpg</passphraseServerId>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </project>

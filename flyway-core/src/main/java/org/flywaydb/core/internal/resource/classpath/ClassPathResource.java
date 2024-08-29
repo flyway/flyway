@@ -1,25 +1,29 @@
-/*
- * Copyright (C) Red Gate Software Ltd 2010-2021
- *
+/*-
+ * ========================LICENSE_START=================================
+ * flyway-core
+ * ========================================================================
+ * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * =========================LICENSE_END==================================
  */
 package org.flywaydb.core.internal.resource.classpath;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resource.LoadableResource;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.core.internal.util.UrlUtils;
 
 import java.io.*;
@@ -29,13 +33,11 @@ import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.Objects;
 
+import org.flywaydb.core.internal.resource.filesystem.EncodingDetector;
+import org.flywaydb.core.internal.resource.filesystem.FlywayEncodingDetectionException;
 
-
-
-
-
+@CustomLog
 public class ClassPathResource extends LoadableResource {
-    private static final Log LOG = LogFactory.getLog(ClassPathResource.class);
     private final String fileNameWithAbsolutePath;
     private final String fileNameWithRelativePath;
     private final ClassLoader classLoader;
@@ -43,24 +45,27 @@ public class ClassPathResource extends LoadableResource {
     private final boolean detectEncoding;
     private final String parentURL;
 
+    private final boolean stream;
+
     public ClassPathResource(Location location, String fileNameWithAbsolutePath, ClassLoader classLoader,
                              Charset encoding) {
-        this(location, fileNameWithAbsolutePath, classLoader, encoding, false, "");
+        this(location, fileNameWithAbsolutePath, classLoader, encoding, false, "", false);
     }
 
     public ClassPathResource(Location location, String fileNameWithAbsolutePath, ClassLoader classLoader,
-                             Charset encoding, String parentURL) {
-        this(location, fileNameWithAbsolutePath, classLoader, encoding, false, parentURL);
+                             Charset encoding, String parentURL, boolean stream) {
+        this(location, fileNameWithAbsolutePath, classLoader, encoding, false, parentURL, stream);
     }
 
     public ClassPathResource(Location location, String fileNameWithAbsolutePath, ClassLoader classLoader,
-                             Charset encoding, Boolean detectEncoding, String parentURL) {
+                             Charset encoding, Boolean detectEncoding, String parentURL, boolean stream) {
         this.fileNameWithAbsolutePath = fileNameWithAbsolutePath;
         this.fileNameWithRelativePath = location == null ? fileNameWithAbsolutePath : location.getPathRelativeToThis(fileNameWithAbsolutePath);
         this.classLoader = classLoader;
         this.encoding = encoding;
         this.detectEncoding = detectEncoding;
         this.parentURL = parentURL;
+        this.stream = stream;
     }
 
     @Override
@@ -119,15 +124,14 @@ public class ClassPathResource extends LoadableResource {
         }
 
         Charset charset = encoding;
-
-
-
-
-
-
-
-
-
+        if (detectEncoding) {
+            try {
+                charset = EncodingDetector.detectFileEncoding(Paths.get(fileNameWithAbsolutePath));
+            } catch (FlywayEncodingDetectionException e) {
+                LOG.warn("Could not detect file encoding: " + e.getMessage() + "\nThis may cause issues with your deployments." +
+                                 " We recommend using a consistent and supported encoding for all your files. See " + FlywayDbWebsiteLinks.FILE_ENCODING_HELP);
+            }
+        }
 
         return new InputStreamReader(inputStream, charset.newDecoder());
     }
@@ -143,8 +147,12 @@ public class ClassPathResource extends LoadableResource {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         ClassPathResource that = (ClassPathResource) o;
 
@@ -155,4 +163,10 @@ public class ClassPathResource extends LoadableResource {
     public int hashCode() {
         return Objects.hash(fileNameWithAbsolutePath, parentURL);
     }
+
+    @Override
+    public boolean shouldStream() {
+        return stream;
+    }
+
 }

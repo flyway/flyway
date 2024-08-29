@@ -1,0 +1,3 @@
+org.flywaydb.database.cockroachdb.CockroachDBDatabaseType
+org.flywaydb.database.postgresql.PostgreSQLDatabaseType
+org.flywaydb.database.postgresql.PostgreSQLConfigurationExtension

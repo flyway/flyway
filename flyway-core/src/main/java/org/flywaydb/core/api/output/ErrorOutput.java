@@ -1,77 +1,119 @@
-/*
- * Copyright (C) Red Gate Software Ltd 2010-2021
- *
+/*-
+ * ========================LICENSE_START=================================
+ * flyway-core
+ * ========================================================================
+ * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * =========================LICENSE_END==================================
  */
 package org.flywaydb.core.api.output;
 
+import java.util.Optional;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import org.flywaydb.core.api.ErrorCode;
+import org.flywaydb.core.api.CoreErrorCode;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.command.DbMigrate;
+import org.flywaydb.core.internal.sqlscript.FlywaySqlScriptException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 public class ErrorOutput implements OperationResult {
+
+    @AllArgsConstructor(access = AccessLevel.PACKAGE)
     public static class ErrorOutputItem {
         public ErrorCode errorCode;
         public String message;
         public String stackTrace;
+        public Integer lineNumber;
+        public String path;
+        public ErrorCause cause;
+    }
 
-        ErrorOutputItem(ErrorCode errorCode, String message, String stackTrace) {
-            this.errorCode = errorCode;
-            this.message = message;
-            this.stackTrace = stackTrace;
-        }
+    public record ErrorCause(String message, String stackTrace, ErrorCause cause) {
     }
 
     public ErrorOutputItem error;
 
-    public ErrorOutput(ErrorCode errorCode, String message, String stackTrace) {
-        this.error = new ErrorOutputItem(errorCode, message, stackTrace);
+    public ErrorOutput(final ErrorCode errorCode, final String message, final String stackTrace,
+        final Integer lineNumber, final String path, final ErrorCause cause) {
+        this.error = new ErrorOutputItem(errorCode, message, stackTrace, lineNumber, path, cause);
     }
 
-    public static ErrorOutput fromException(Exception exception) {
-        String message = exception.getMessage();
+    public static ErrorOutput fromException(final Exception exception) {
+        final String message = exception.getMessage();
 
-        if (exception instanceof FlywayException) {
-            FlywayException flywayException = (FlywayException)exception;
+        if (exception instanceof DbMigrate.FlywayMigrateException
+            && exception.getCause() instanceof final FlywaySqlScriptException flywaySqlScriptException) {
 
             return new ErrorOutput(
-                    flywayException.getErrorCode(),
-                    message == null ? "Error occurred" : message,
-                    null);
+                ((DbMigrate.FlywayMigrateException) exception).getMigrationErrorCode(),
+                message == null ? "Error occurred" : message,
+                null,
+                flywaySqlScriptException.getLineNumber(),
+                flywaySqlScriptException.getResource().getAbsolutePathOnDisk(),
+                getCause(exception).orElse(null));
+        }
+
+        if (exception instanceof final FlywayException flywayException) {
+
+            return new ErrorOutput(
+                flywayException.getErrorCode(),
+                message == null ? "Error occurred" : message,
+                null,
+                null,
+                null,
+                getCause(exception).orElse(null));
         }
 
         return new ErrorOutput(
-                ErrorCode.FAULT,
-                message == null ? "Fault occurred" : message,
-                getStackTrace(exception));
+            CoreErrorCode.FAULT,
+            message == null ? "Fault occurred" : message,
+            getStackTrace(exception),
+            null,
+            null,
+            getCause(exception).orElse(null));
     }
 
-    private static String getStackTrace(Exception exception) {
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        PrintStream printStream;
+    public static MigrateErrorResult fromMigrateException(final DbMigrate.FlywayMigrateException exception) {
+        return exception.getErrorResult();
+    }
 
-        try {
-            printStream = new PrintStream(output, true, "UTF-8");
-        } catch (UnsupportedEncodingException ex) {
-            return "";
+    public static OperationResult toOperationResult(final Exception exception) {
+        if (exception instanceof DbMigrate.FlywayMigrateException) {
+            return fromMigrateException((DbMigrate.FlywayMigrateException) exception);
+        } else {
+            return fromException(exception);
         }
+    }
+
+    private static String getStackTrace(final Throwable exception) {
+        final ByteArrayOutputStream output = new ByteArrayOutputStream();
+        final PrintStream printStream;
+
+        printStream = new PrintStream(output, true, StandardCharsets.UTF_8);
 
         exception.printStackTrace(printStream);
 
-        return new String(output.toByteArray(), StandardCharsets.UTF_8);
+        return output.toString(StandardCharsets.UTF_8);
+    }
+
+    private static Optional<ErrorCause> getCause(final Throwable e) {
+        return Optional.ofNullable(e.getCause())
+            .map(cause -> new ErrorCause(cause.getMessage(), getStackTrace(cause), getCause(cause).orElse(null)));
     }
 }

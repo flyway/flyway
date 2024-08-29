@@ -1,20 +1,22 @@
 <!--
-
-    Copyright (C) Red Gate Software Ltd 2010-2021
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-            http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-
--->
+  ========================LICENSE_START=================================
+  flyway-commandline
+  ========================================================================
+  Copyright (C) 2010 - 2024 Red Gate Software Ltd
+  ========================================================================
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+       http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  =========================LICENSE_END==================================
+  -->
 <component xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/component/1.1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/component/1.1.2 http://maven.apache.org/xsd/component-1.1.2.xsd">
     <fileSets>
@@ -23,6 +25,9 @@
             <outputDirectory></outputDirectory>
             <includes>
                 <include>flyway.cmd</include>
+
+                <include>README.txt</include>
+
             </includes>
             <fileMode>644</fileMode>
             <filtered>true</filtered>
@@ -37,6 +42,17 @@
             <lineEnding>unix</lineEnding>
             <filtered>true</filtered>
         </fileSet>
+
+
+
+
+
+
+
+
+
+
+
         <fileSet>
             <directory>src/main/assembly</directory>
             <outputDirectory>drivers</outputDirectory>
@@ -49,23 +65,7 @@
             <directory>src/main/assembly</directory>
             <outputDirectory>conf</outputDirectory>
             <includes>
-                <include>flyway.conf</include>
-            </includes>
-            <fileMode>644</fileMode>
-        </fileSet>
-        <fileSet>
-            <directory>src/main/assembly</directory>
-            <outputDirectory>sql</outputDirectory>
-            <includes>
-                <include>put-your-sql-migrations-here.txt</include>
-            </includes>
-            <fileMode>644</fileMode>
-        </fileSet>
-        <fileSet>
-            <directory>src/main/assembly</directory>
-            <outputDirectory>jars</outputDirectory>
-            <includes>
-                <include>put-your-java-migration-jars-here.txt</include>
+                <include>flyway.toml.example</include>
             </includes>
             <fileMode>644</fileMode>
         </fileSet>
@@ -73,32 +73,86 @@
             <directory>src/main/assembly</directory>
             <outputDirectory>licenses</outputDirectory>
             <includes>
-                <include>flyway-community.txt</include>
                 <include>LICENSES-THIRD-PARTY.txt</include>
-
-                <include>flyway-teams.txt</include>
-
             </includes>
             <fileMode>644</fileMode>
             <filtered>true</filtered>
         </fileSet>
         <fileSet>
+
             <directory>src/main/assembly</directory>
+
+
+
+
+            <outputDirectory>licenses</outputDirectory>
+            <includes>
+                <include>LICENSE.md</include>
+            </includes>
+            <fileMode>644</fileMode>
+            <filtered>true</filtered>
+        </fileSet>
+        <fileSet>
+            <directory>../..</directory>
             <outputDirectory></outputDirectory>
             <includes>
-                <include>README.txt</include>
+                <include>RELEASE-NOTE.txt</include>
             </includes>
             <fileMode>644</fileMode>
         </fileSet>
-
         <fileSet>
-            <directory>target/editions/enterprise</directory>
-            <outputDirectory>lib/enterprise</outputDirectory>
+            <directory>../flyway-core/src/main/resources/assets</directory>
+            <outputDirectory>assets</outputDirectory>
+            <includes>
+                <include>report/**/*</include>
+            </includes>
+            <fileMode>644</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>../flyway-redgate-licensing/src/main/resources/assets</directory>
+            <outputDirectory>assets</outputDirectory>
             <includes>
                 <include>*</include>
             </includes>
             <fileMode>644</fileMode>
         </fileSet>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     </fileSets>
     <dependencySets>
@@ -112,11 +166,33 @@
             </includes>
         </dependencySet>
         <dependencySet>
+            <outputDirectory>lib</outputDirectory>
+            <useTransitiveFiltering>true</useTransitiveFiltering>
+            <includes>
+                <include>org.apache.commons:commons-text</include>
+                <include>com.fasterxml.jackson.core:jackson-core</include>
+                <include>com.fasterxml.jackson.core:jackson-annotations</include>
+                <include>com.fasterxml.jackson.core:jackson-databind</include>
+                <include>com.fasterxml.jackson.dataformat:jackson-dataformat-toml</include>
+                <include>com.fasterxml.jackson.dataformat:jackson-dataformat-xml</include>
+                <include>com.fasterxml.jackson.datatype:jackson-datatype-jsr310</include>
+                <include>org.slf4j:slf4j-nop</include>
+                <include>com.nimbusds:nimbus-jose-jwt</include>
+                <include>com.nimbusds:oauth2-oidc-sdk</include>
+                <include>org.eclipse.jetty:jetty-server</include>
+                <include>net.java.dev.jna:jna</include>
+                <include>net.java.dev.jna:jna-platform</include>
+                <include>com.microsoft.azure:msal4j-persistence-extension</include>
+
+
+
+            </includes>
+        </dependencySet>
+        <dependencySet>
             <outputDirectory>lib/aad</outputDirectory>
             <useTransitiveFiltering>true</useTransitiveFiltering>
             <includes>
                 <include>com.microsoft.azure:msal4j</include>
-                <include>com.fasterxml.jackson.core:jackson-core</include>
             </includes>
         </dependencySet>
         <dependencySet>
@@ -129,52 +205,87 @@
             </includes>
         </dependencySet>
         <dependencySet>
-            <outputDirectory>lib/community</outputDirectory>
-            <!-- Workaround for https://issues.apache.org/jira/browse/MASSEMBLY-864 -->
+            <outputDirectory>lib/flyway</outputDirectory>
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
                 <include>org.flywaydb:flyway-core</include>
                 <include>org.flywaydb:flyway-commandline</include>
+                <include>org.flywaydb:flyway-database-db2</include>
+                <include>org.flywaydb:flyway-database-derby</include>
+                <include>org.flywaydb:flyway-database-hsqldb</include>
+                <include>org.flywaydb:flyway-database-informix</include>
+                <include>org.flywaydb:flyway-database-postgresql</include>
+                <include>org.flywaydb:flyway-database-oracle</include>
+                <include>org.flywaydb:flyway-database-redshift</include>
+                <include>org.flywaydb:flyway-database-saphana</include>
+                <include>org.flywaydb:flyway-database-snowflake</include>
+                <include>org.flywaydb:flyway-database-sybasease</include>
                 <include>org.flywaydb:flyway-gcp-bigquery</include>
                 <include>org.flywaydb:flyway-gcp-spanner</include>
-                <include>org.flywaydb:flyway-community-db-support</include>
-                <include>org.flywaydb:flyway-vault-integration</include>
+                <include>org.flywaydb:flyway-sqlserver</include>
+                <include>org.flywaydb:flyway-singlestore</include>
+                <include>org.flywaydb:flyway-mysql</include>
+                <include>org.flywaydb:flyway-firebird</include>
+                <include>org.flywaydb:flyway-database-cassandra</include>
+                <include>org.flywaydb:flyway-reports</include>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                <include>org.flywaydb:flyway-database-ignite</include>
+                <include>org.flywaydb:flyway-database-tidb</include>
+                <include>org.flywaydb:flyway-database-yugabytedb</include>
+                <include>org.flywaydb:flyway-database-clickhouse</include>
+                <include>org.flywaydb:flyway-database-oceanbase</include>
+                <include>org.flywaydb:flyway-database-databricks</include>
+                <include>org.flywaydb:flyway-database-db2zos</include>
             </includes>
         </dependencySet>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         <dependencySet>
             <outputDirectory>drivers/gcp</outputDirectory>
             <useTransitiveFiltering>true</useTransitiveFiltering>
             <includes>
                 <include>com.google.cloud:google-cloud-spanner-jdbc</include>
+                <include>com.google.api:gax</include>
             </includes>
             <excludes>
                 <exclude>commons-logging:commons-logging</exclude>
+            </excludes>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>drivers/cassandra</outputDirectory>
+            <useTransitiveFiltering>true</useTransitiveFiltering>
+            <includes>
+                <include>com.ing.data:cassandra-jdbc-wrapper</include>
+            </includes>
+            <excludes>
+                <exclude>org.reactivestreams</exclude>
             </excludes>
         </dependencySet>
         <dependencySet>
@@ -186,9 +297,20 @@
             </includes>
             <excludes>
                 <exclude>org.flywaydb:flyway-*</exclude>
+                <exclude>org.flywaydb.enterprise:flyway-*</exclude>
+                <exclude>com.redgate.flyway:flyway-*</exclude>
                 <exclude>org.fusesource.jansi:jansi</exclude>
                 <exclude>com.google.code.gson:gson</exclude>
                 <exclude>software.amazon.awssdk:s3</exclude>
+                <exclude>org.slf4j:slf4j-nop</exclude>
+                <exclude>org.apache.commons:commons-text</exclude>
+                <exclude>com.fasterxml.jackson.dataformat:jackson-dataformat-xml</exclude>
+                <exclude>com.fasterxml.jackson.datatype:jackson-datatype-jsr310</exclude>
+                <exclude>com.fasterxml.jackson.core:jackson-databind</exclude>
+                <exclude>com.microsoft.azure:msal4j</exclude>
+                <exclude>com.ing.data:cassandra-jdbc-wrapper</exclude>
+                <exclude>com.google.cloud:google-cloud-spanner-jdbc</exclude>
+                <exclude>net.java.dev.jna</exclude>
             </excludes>
         </dependencySet>
     </dependencySets>

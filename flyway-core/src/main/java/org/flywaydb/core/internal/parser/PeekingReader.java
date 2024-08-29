@@ -1,17 +1,21 @@
-/*
- * Copyright (C) Red Gate Software Ltd 2010-2021
- *
+/*-
+ * ========================LICENSE_START=================================
+ * flyway-core
+ * ========================================================================
+ * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * =========================LICENSE_END==================================
  */
 package org.flywaydb.core.internal.parser;
 
@@ -142,7 +146,11 @@ public class PeekingReader extends FilterReader {
     }
 
     private boolean isKeywordPart(int r, ParserContext context) {
-        return r != -1 && ((char) r == '_' || (char) r == '$' || Character.isLetterOrDigit((char) r) || context.isLetter((char)r));
+        return r != -1 && ((char) r == '_' || (char) r == '$' || Character.isLetterOrDigit((char) r) || context.isLetter((char) r));
+    }
+
+    public boolean peekIgnoreCase(String str) throws IOException {
+        return str.equalsIgnoreCase(peek(str.length()));
     }
 
     /**
@@ -253,7 +261,7 @@ public class PeekingReader extends FilterReader {
      * Swallows all characters in this stream until this delimiting character has been encountered, taking into account
      * this escape character for the delimiting character.
      *
-     * @param delimiter  The delimiting character.
+     * @param delimiter The delimiting character.
      * @param selfEscape Whether the delimiter can escape itself by being present twice.
      */
     public void swallowUntilIncludingWithEscape(char delimiter, boolean selfEscape) throws IOException {
@@ -264,9 +272,9 @@ public class PeekingReader extends FilterReader {
      * Swallows all characters in this stream until this delimiting character has been encountered, taking into account
      * this escape character for the delimiting character.
      *
-     * @param delimiter  The delimiting character.
+     * @param delimiter The delimiting character.
      * @param selfEscape Whether the delimiter can escape itself by being present twice.
-     * @param escape     A separate escape character.
+     * @param escape A separate escape character.
      */
     public void swallowUntilIncludingWithEscape(char delimiter, boolean selfEscape, char escape) throws IOException {
         do {
@@ -293,7 +301,7 @@ public class PeekingReader extends FilterReader {
      * Reads all characters in this stream until this delimiting character has been encountered, taking into account
      * this escape character for the delimiting character.
      *
-     * @param delimiter  The delimiting character.
+     * @param delimiter The delimiting character.
      * @param selfEscape Whether the delimiter can escape itself by being present twice.
      * @return The string read, without the delimiting character.
      */
@@ -305,9 +313,9 @@ public class PeekingReader extends FilterReader {
      * Reads all characters in this stream until this delimiting character has been encountered, taking into account
      * this escape character for the delimiting character.
      *
-     * @param delimiter  The delimiting character.
+     * @param delimiter The delimiting character.
      * @param selfEscape Whether the delimiter can escape itself by being present twice.
-     * @param escape     A separate escape character.
+     * @param escape A separate escape character.
      * @return The string read, without the delimiting character.
      */
     public String readUntilExcludingWithEscape(char delimiter, boolean selfEscape, char escape) throws IOException {

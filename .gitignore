@@ -12,6 +12,12 @@ target
 .gradle
 *.h2.db
 .DS_Store
+*.asc
+
+documentation/.jekyll-metadata
+documentation/_site
+documentation/_vale_config/styles/Microsoft
+documentation/_vale_config/styles/proselint
 
 **/.idea/**
 !**/.idea/runConfigurations/
@@ -19,6 +25,18 @@ target
 !**/.idea/codeStyles/
 !**/.idea/codeStyles/*
 
-flyway-core/SPOOLEDCONTENTS.SQL
+flyway-core-test/spooledContents.sql
+flyway-core-test/spool.sql
 flyway-cli-sample/jars/
+flyway-*compare/**/resources/*compare/
+flyway-rulesengine-sqlfluff/**/resources/sqlfluff*/.pytest_cache
+flyway-rulesengine-sqlfluff/**/resources/sqlfluff*/**/*.pyc
+flyway-rulesengine-sqlfluff/sqlfluff*
+
+flyway-rgcompare/**/resources/rgcompare/
+flyway-rgcompare/**/resources/obj/
+flyway-comparison-engines/**/resources/flyway-comparison/
+flyway-comparison-engines/**/resources/obj/
+flyway-comparison-engines/flyway-comparison/
+
 out/**

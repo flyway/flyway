@@ -1,34 +1,48 @@
-/*
- * Copyright (C) Red Gate Software Ltd 2010-2021
- *
+/*-
+ * ========================LICENSE_START=================================
+ * flyway-core
+ * ========================================================================
+ * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * =========================LICENSE_END==================================
  */
 package org.flywaydb.core.api.configuration;
 
+import org.flywaydb.core.ProgressLogger;
 import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.extensibility.ApiExtension;
+import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
+import org.flywaydb.core.internal.configuration.models.DataSourceModel;
+import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
+import org.flywaydb.core.internal.configuration.resolvers.ProvisionerMode;
+import org.flywaydb.core.internal.database.DatabaseType;
+import org.flywaydb.core.internal.plugin.PluginRegister;
 
 import javax.sql.DataSource;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.util.List;
 import java.util.Map;
 
 public interface Configuration {
+    /**
+     * @apiNote Currently under development and not recommended for use.
+     */
+    ConfigurationModel getModernConfig();
+
     /**
      * Retrieves the ClassLoader to use for loading migrations, resolvers, etc. from the classpath.
      *
@@ -37,14 +51,21 @@ public interface Configuration {
     ClassLoader getClassLoader();
 
     /**
-     * Retrieves the API extensions
+     * @apiNote Currently under development and not recommended for use.
      */
-    List<ApiExtension> getApiExtensions();
+    PluginRegister getPluginRegister();
 
     /**
-     * Retrieves the API extension configurator of the requested class
+     * Get the filename of generated reports
+     * @return report filename;
      */
-    <T extends ApiExtension> T getExtensionConfiguration(Class<T> clazz);
+    String getReportFilename();
+
+    /*
+     * Get whether reports are enabled.
+     * @return reports enabled;
+     */
+    boolean isReportEnabled();
 
     /**
      * Retrieves the url used to construct the dataSource. May be null if the dataSource was passed in directly.
@@ -52,6 +73,8 @@ public interface Configuration {
      * @return The url used to construct the dataSource. May be null if the dataSource was passed in directly.
      */
     String getUrl();
+
+    String getWorkingDirectory();
 
     /**
      * Retrieves the user used to construct the dataSource. May be null if the dataSource was passed in directly, or if dataSource did not need a user.
@@ -86,7 +109,7 @@ public interface Configuration {
     /**
      * The maximum time between retries when attempting to connect to the database in seconds. This will cap the interval
      * between connect retry to the value provided.
-     * 
+     *
      * @return The maximum time between retries in seconds (default: 120)
      */
     int getConnectRetriesInterval();
@@ -150,27 +173,11 @@ public interface Configuration {
     String getSqlMigrationPrefix();
 
     /**
-     * The file name prefix for state scripts.
-     * State scripts represent all migrations with version <= current state script version
-     * while keeping older migrations if needed for upgrading older deployments
-     * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
-     * which using the defaults translates to S1.1__My_description.sql
-     * <i>Flyway Teams only</i>
+     * Checks whether SQL is executed in a transaction.
      *
-     * @return The file name prefix for state scripts. (default: S)
+     * @return Whether SQL is executed in a transaction. (default: true)
      */
-    String getStateScriptPrefix();
-
-    /**
-     * The file name prefix for undo SQL migrations.
-     * Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.
-     * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
-     * which using the defaults translates to U1.1__My_description.sql
-     * <i>Flyway Teams only</i>
-     *
-     * @return The file name prefix for undo sql migrations. (default: U)
-     */
-    String getUndoSqlMigrationPrefix();
+    boolean isExecuteInTransaction();
 
     /**
      * Retrieves the file name prefix for repeatable SQL migrations.
@@ -232,6 +239,12 @@ public interface Configuration {
      */
     String getPlaceholderPrefix();
 
+    /**
+     * Retrieves the separator of default placeholders.
+     *
+     * @return The separator of default placeholders. (default: : )
+     */
+    String getPlaceholderSeparator();
 
     /**
      * Retrieves the suffix of every script placeholder.
@@ -256,11 +269,12 @@ public interface Configuration {
 
     /**
      * Gets the target version up to which Flyway should consider migrations.
-     * Migrations with a higher version number will be ignored. 
+     * Migrations with a higher version number will be ignored.
      * Special values:
      * <ul>
      * <li>{@code current}: Designates the current version of the schema</li>
      * <li>{@code latest}: The latest version of the schema, as defined by the migration with the highest version</li>
+     * <li>{@code next}: The next version of the schema, as defined by the first pending migration</li>
      * <li>
      *     &lt;version&gt;? (end with a '?'): Instructs Flyway not to fail if the target version doesn't exist.
      *     In this case, Flyway will go up to but not beyond the specified target
@@ -275,7 +289,7 @@ public interface Configuration {
     /**
      * Whether to fail if no migration with the configured target version exists (default: {@code true})
      */
-    boolean getFailOnMissingTarget();
+    boolean isFailOnMissingTarget();
 
     /**
      * Gets the migrations that Flyway should consider when migrating or undoing. Leave empty to consider all available migrations.
@@ -347,7 +361,7 @@ public interface Configuration {
      * @return {@code true} to enable auto detection, {@code false} otherwise
      * <i>Flyway Teams only</i>
      */
-    boolean getDetectEncoding();
+    boolean isDetectEncoding();
 
     /**
      * Retrieves the locations to scan recursively for migrations.
@@ -396,69 +410,11 @@ public interface Configuration {
     boolean isOutOfOrder();
 
     /**
-     * @deprecated Will remove in Flyway V9. Use {@code getIgnoreMigrationPatterns} instead.
-     *
-     * Ignore missing migrations when reading the schema history table. These are migrations that were performed by an
-     * older deployment of the application that are no longer available in this version. For example: we have migrations
-     * available on the classpath with versions 1.0 and 3.0. The schema history table indicates that a migration with version 2.0
-     * (unknown to us) has also been applied. Instead of bombing out (fail fast) with an exception, a
-     * warning is logged and Flyway continues normally. This is useful for situations where one must be able to deploy
-     * a newer version of the application even though it doesn't contain migrations included with an older one anymore.
-     * Note that if the most recently applied migration is removed, Flyway has no way to know it is missing and will
-     * mark it as future instead.
-     *
-     * @return {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code false})
-     */
-    boolean isIgnoreMissingMigrations();
-
-    /**
-     * @deprecated Will remove in Flyway V9. Use {@code getIgnoreMigrationPatterns} instead.
-     *
-     * Ignore ignored migrations when reading the schema history table. These are migrations that were added in between
-     * already migrated migrations in this version. For example: we have migrations available on the classpath with
-     * versions from 1.0 to 3.0. The schema history table indicates that version 1 was finished on 1.0.15, and the next
-     * one was 2.0.0. But with the next release a new migration was added to version 1: 1.0.16. Such scenario is ignored
-     * by migrate command, but by default is rejected by validate. When ignoreIgnoredMigrations is enabled, such case
-     * will not be reported by validate command. This is useful for situations where one must be able to deliver
-     * complete set of migrations in a delivery package for multiple versions of the product, and allows for further
-     * development of older versions.
-     *
-     * @return {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
-     */
-    boolean isIgnoreIgnoredMigrations();
-
-    /**
-     * @deprecated Will remove in Flyway V9. Use {@code getIgnoreMigrationPatterns} instead.
-     *
-     * Ignore pending migrations when reading the schema history table. These are migrations that are available
-     * but have not yet been applied. This can be useful for verifying that in-development migration changes
-     * don't contain any validation-breaking changes of migrations that have already been applied to a production
-     * environment, e.g. as part of a CI/CD process, without failing because of the existence of new migration versions.
-     *
-     * @return {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
-     */
-    boolean isIgnorePendingMigrations();
-
-    /**
-     * @deprecated Will remove in Flyway V9. Use {@code getIgnoreMigrationPatterns} instead.
-     *
-     * Ignore future migrations when reading the schema history table. These are migrations that were performed by a
-     * newer deployment of the application that are not yet available in this version. For example: we have migrations
-     * available on the classpath up to version 3.0. The schema history table indicates that a migration to version 4.0
-     * (unknown to us) has already been applied. Instead of bombing out (fail fast) with an exception, a
-     * warning is logged and Flyway continues normally. This is useful for situations where one must be able to redeploy
-     * an older version of the application after the database has been migrated by a newer one.
-     *
-     * @return {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code true})
-     */
-    boolean isIgnoreFutureMigrations();
-
-    /**
      * Ignore migrations that match this comma-separated list of patterns when validating migrations.
      * Each pattern is of the form <migration_type>:<migration_state>
-     * See https://flywaydb.org/documentation/configuration/parameters/ignoreMigrationPatterns for full details
+     * See https://documentation.red-gate.com/flyway/flyway-cli-and-api/configuration/parameters/flyway/ignore-migration-patterns for full details
      * Example: repeatable:missing,versioned:pending,*:failed
-     * <i>Flyway Teams only</i>
+     * (default: *:future)
      */
     ValidatePattern[] getIgnoreMigrationPatterns();
 
@@ -491,11 +447,20 @@ public interface Configuration {
 
     /**
      * Whether to disable clean.
-     * This is especially useful for production environments where running clean can be quite a career limiting move.
+     * This is especially useful for production environments where running clean can be a career limiting move.
      *
-     * @return {@code true} to disable clean. {@code false} to leave it enabled. (default: {@code false})
+     * @return {@code true} to disable clean. {@code false} to be able to clean. (default: {@code true})
      */
     boolean isCleanDisabled();
+
+
+    /**
+     * Whether to disable community database support.
+     * This is especially useful for production environments where using community databases is undesirable.
+     *
+     * @return {@code true} to disable community database support. {@code false} to be able to use community database support. (default: {@code false})
+     */
+    boolean isCommunityDBSupportEnabled();
 
     /**
      * Whether to allow mixing transactional and non-transactional statements within the same migration. Enabling this
@@ -587,38 +552,10 @@ public interface Configuration {
     boolean isBatch();
 
     /**
-     * Whether to Flyway's support for Oracle SQL*Plus commands should be activated.
-     *
+     * The path to the Kerberos config file.
      * <i>Flyway Teams only</i>
-     *
-     * @return {@code true} to active SQL*Plus support. {@code false} to fail fast instead. (default: {@code false})
      */
-    boolean isOracleSqlplus();
-
-    /**
-     * Whether Flyway should issue a warning instead of an error whenever it encounters an Oracle SQL*Plus statement
-     * it doesn't yet support.
-     *
-     * <i>Flyway Teams only</i>
-     *
-     * @return {@code true} to issue a warning. {@code false} to fail fast instead. (default: {@code false})
-     */
-    boolean isOracleSqlplusWarn();
-
-    String getOracleKerberosConfigFile();
-
-    String getOracleKerberosCacheFile();
-
-    /**
-     * Your Flyway license key (FL01...). Not yet a Flyway Teams Edition customer?
-     * Request your <a href="https://flywaydb.org/download">Flyway trial license key</a>
-     * to try out Flyway Teams Edition features free for 30 days.
-     *
-     * <i>Flyway Teams only</i>
-     *
-     * @return Your Flyway license key.
-     */
-    String getLicenseKey();
+    String getKerberosConfigFile();
 
     /**
      * Whether Flyway should output a table with the results of queries when executing migrations.
@@ -627,7 +564,7 @@ public interface Configuration {
      *
      * @return {@code true} to output the results table (default: {@code true})
      */
-    boolean outputQueryResults();
+    boolean isOutputQueryResults();
 
     /**
      * Retrieves the custom ResourceProvider to be used to look up resources. If not set, the default strategy will be used.
@@ -648,7 +585,7 @@ public interface Configuration {
      *
      * @return @{code true} to attempt to create the schemas (default: {@code true})
      */
-    boolean getCreateSchemas();
+    boolean isCreateSchemas();
 
     /**
      * The maximum number of retries when trying to obtain a lock. -1 indicates attempting to repeat indefinitely.
@@ -669,14 +606,7 @@ public interface Configuration {
      *
      * @return @{code true} to fail (default: {@code false})
      */
-    boolean getFailOnMissingLocations();
-
-    /**
-     * The location of your Oracle wallet, used to automatically sign in to your databases.
-     *
-     * <i>Flyway Teams only</i>
-     */
-    String getOracleWalletLocation();
+    boolean isFailOnMissingLocations();
 
     /**
      * The loggers Flyway should use. Valid options are:
@@ -684,7 +614,7 @@ public interface Configuration {
      * <ul>
      *     <li>auto: Auto detect the logger (default behavior)</li>
      *     <li>console: Use stdout/stderr (only available when using the CLI)</li>
-     *     <li>slf4j2: Use the slf4j2 logger</li>
+     *     <li>slf4j: Use the slf4j logger</li>
      *     <li>log4j2: Use the log4j2 logger</li>
      *     <li>apache-commons: Use the Apache Commons logger</li>
      * </ul>
@@ -692,4 +622,34 @@ public interface Configuration {
      * Alternatively you can provide the fully qualified class name for any other logger to use that.
      */
     String[] getLoggers();
+
+    /**
+     * The JDBC driver of the configuration
+     */
+    String getDriver();
+
+    /**
+     * Get the Database type determined by the URL or Datasource
+     * If there are multiple matching DatabaseTypes for the URL, the first candidate will be returned.
+     */
+    DatabaseType getDatabaseType();
+
+    /**
+     *  Gets the connection environments that have already been resolved from this configuration
+     */
+    Map<String, ResolvedEnvironment> getCachedResolvedEnvironments();
+
+    /**
+     *  Gets DataSources for all the environments
+     */
+    Map<String, DataSourceModel> getCachedDataSources();
+
+    /**
+     *  Get the name of the current environment
+     */
+    String getCurrentEnvironmentName();
+
+    ProgressLogger createProgress(String operationName);
+
+    ResolvedEnvironment getResolvedEnvironment(String envName, ProvisionerMode provisionerMode, ProgressLogger progress);
 }

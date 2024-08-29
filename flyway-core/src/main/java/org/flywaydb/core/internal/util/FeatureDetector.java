@@ -1,26 +1,31 @@
-/*
- * Copyright (C) Red Gate Software Ltd 2010-2021
- *
+/*-
+ * ========================LICENSE_START=================================
+ * flyway-core
+ * ========================================================================
+ * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * =========================LICENSE_END==================================
  */
 package org.flywaydb.core.internal.util;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import lombok.CustomLog;
 
+import java.util.ServiceLoader;
+import java.util.stream.StreamSupport;
+
+@CustomLog
 public final class FeatureDetector {
-    private static final Log LOG = LogFactory.getLog(FeatureDetector.class);
-
     private final ClassLoader classLoader;
     private Boolean apacheCommonsLoggingAvailable;
     private Boolean log4J2Available;
@@ -57,7 +62,9 @@ public final class FeatureDetector {
             // provide any implementation, causing SLF4J to drop what we want to be console output on the floor.
             // Versions up to 1.7 have a StaticLoggerBinder
             slf4jAvailable = ClassUtils.isPresent("org.slf4j.Logger", classLoader)
-                    && ClassUtils.isPresent("org.slf4j.impl.StaticLoggerBinder", classLoader);
+                    && ClassUtils.isPresent("org.slf4j.impl.StaticLoggerBinder", classLoader)
+                    && !StreamSupport.stream(ServiceLoader.load(org.slf4j.Logger.class, classLoader)
+                            .spliterator(), false).allMatch(logger -> logger instanceof org.slf4j.helpers.NOPLogger);
             // Versions 1.8 and later use a ServiceLocator to bind to the implementation
             slf4jAvailable |= ClassUtils.isImplementationPresent("org.slf4j.spi.SLF4JServiceProvider", classLoader);
         }
@@ -110,47 +117,5 @@ public final class FeatureDetector {
         }
 
         return gcsAvailable;
-    }
-
-    /**
-     * Checks if the "experimental features" flag is set in the environment. You should not activate this flag
-     * outside a development environment; features activated may be in development and/or undocumented.
-     *
-     * @return {@code true} if it is, {@code false} if it is not
-     */
-    public static boolean areExperimentalFeaturesEnabled() {
-
-
-
-
-
-
-
-
-
-
-
-
-
-        return false;
-    }
-
-    public static boolean isRedgateUpdateCheckEnabled() {
-        String value = null;
-
-        try {
-            value = System.getenv("FLYWAY_REDGATE_UPDATE_CHECK");
-
-            if (value != null) {
-                LOG.debug("FLYWAY_REDGATE_UPDATE_CHECK: " + value);
-                return Boolean.parseBoolean(value);
-            }
-
-        } catch (IllegalArgumentException e) {
-            LOG.debug("FLYWAY_REDGATE_UPDATE_CHECK has an illegal value: " + value);
-            throw e;
-        }
-
-        return false;
     }
 }

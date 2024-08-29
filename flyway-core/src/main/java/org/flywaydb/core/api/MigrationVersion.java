@@ -1,19 +1,25 @@
-/*
- * Copyright (C) Red Gate Software Ltd 2010-2021
- *
+/*-
+ * ========================LICENSE_START=================================
+ * flyway-core
+ * ========================================================================
+ * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * =========================LICENSE_END==================================
  */
 package org.flywaydb.core.api;
+
+import lombok.Getter;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -52,18 +58,32 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
     private final String displayText;
 
     /**
+     * The raw, unprocessed text to represent the version.
+     */
+    @Getter
+    private final String rawVersion;
+
+    /**
      * Create a MigrationVersion from a version String.
      *
      * @param version The version String. The value {@code current} will be interpreted as MigrationVersion.CURRENT,
-     *                a marker for the latest version that has been applied to the database.
+     * a marker for the latest version that has been applied to the database.
      * @return The MigrationVersion
      */
     @SuppressWarnings("ConstantConditions")
     public static MigrationVersion fromVersion(String version) {
-        if ("current".equalsIgnoreCase(version)) return CURRENT;
-        if ("next".equalsIgnoreCase(version)) return NEXT;
-        if ("latest".equalsIgnoreCase(version) || LATEST.getVersion().equals(version)) return LATEST;
-        if (version == null) return EMPTY;
+        if ("current".equalsIgnoreCase(version)) {
+            return CURRENT;
+        }
+        if ("next".equalsIgnoreCase(version)) {
+            return NEXT;
+        }
+        if ("latest".equalsIgnoreCase(version) || LATEST.getVersion().equals(version)) {
+            return LATEST;
+        }
+        if (version == null) {
+            return EMPTY;
+        }
         return new MigrationVersion(version);
     }
 
@@ -71,23 +91,25 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      * Creates a Version using this version string.
      *
      * @param version The version in one of the following formats: 6, 6.0, 005, 1.2.3.4, 201004200021. <br/>{@code null}
-     *                means that this version refers to an empty schema.
+     * means that this version refers to an empty schema.
      */
     private MigrationVersion(String version) {
         String normalizedVersion = version.replace('_', '.');
         this.versionParts = tokenize(normalizedVersion);
         this.displayText = normalizedVersion;
+        this.rawVersion = version;
     }
 
     /**
-     * @param version     The version in one of the following formats: 6, 6.0, 005, 1.2.3.4, 201004200021. <br/>{@code null}
-     *                    means that this version refers to an empty schema.
+     * @param version The version in one of the following formats: 6, 6.0, 005, 1.2.3.4, 201004200021. <br/>{@code null}
+     * means that this version refers to an empty schema.
      * @param displayText The alternative text to display instead of the version number.
      */
     private MigrationVersion(BigInteger version, String displayText) {
         this.versionParts = new ArrayList<>();
         this.versionParts.add(version);
         this.displayText = displayText;
+        this.rawVersion = displayText;
     }
 
     @Override
@@ -99,15 +121,39 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      * @return Numeric version as String
      */
     public String getVersion() {
-        if (this.equals(EMPTY)) return null;
-        if (this.equals(LATEST)) return Long.toString(Long.MAX_VALUE);
+        if (this.equals(EMPTY)) {
+            return null;
+        }
+        if (this.equals(LATEST)) {
+            return Long.toString(Long.MAX_VALUE);
+        }
+        return displayText;
+    }
+
+    public String getName() {
+        if (this.equals(EMPTY)) {
+            return null;
+        }
+        if (this.equals(LATEST)) {
+            return "latest";
+        }
+        if (this.equals(CURRENT)) {
+            return "current";
+        }
+        if (this.equals(NEXT)) {
+            return "next";
+        }
         return displayText;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         MigrationVersion version1 = (MigrationVersion) o;
 
@@ -137,6 +183,16 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      */
     public boolean isNewerThan(String otherVersion) {
         return compareTo(MigrationVersion.fromVersion(otherVersion)) > 0;
+    }
+
+    /**
+     * Convenience method for quickly checking whether this version is newer than this other version.
+     *
+     * @param otherVersion The other version.
+     * @return {@code true} if this version is newer, {@code false} if it is not.
+     */
+    public boolean isNewerThan(MigrationVersion otherVersion) {
+        return compareTo(otherVersion) > 0;
     }
 
     /**
@@ -180,8 +236,11 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
         }
 
         if (this == EMPTY) {
-            if (o == EMPTY) return 0;
-            else return -1;
+            if (o == EMPTY) {
+                return 0;
+            } else {
+                return -1;
+            }
         }
 
         if (this == CURRENT) {
@@ -189,8 +248,11 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
         }
 
         if (this == LATEST) {
-            if (o == LATEST) return 0;
-            else return 1;
+            if (o == LATEST) {
+                return 0;
+            } else {
+                return 1;
+            }
         }
 
         if (o == EMPTY) {

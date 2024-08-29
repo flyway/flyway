@@ -1,22 +1,25 @@
-/*
- * Copyright (C) Red Gate Software Ltd 2010-2021
- *
+/*-
+ * ========================LICENSE_START=================================
+ * flyway-core
+ * ========================================================================
+ * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * =========================LICENSE_END==================================
  */
 package org.flywaydb.core.internal.database;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import lombok.CustomLog;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.Results;
 
@@ -31,8 +34,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+@CustomLog
 public class InsertRowLock {
-    private static final Log LOG = LogFactory.getLog(InsertRowLock.class);
     private static final Random random = new Random();
     private static final int NUM_THREADS = 2;
 
@@ -41,13 +44,12 @@ public class InsertRowLock {
      */
     private final String tableLockString = getNextRandomString();
     private final JdbcTemplate jdbcTemplate;
-    private final int lockTimeoutMins;
+    public static final int LOCK_TIMEOUT_MINS = 10;
     private final ScheduledExecutorService executor;
     private ScheduledFuture<?> scheduledFuture;
 
-    public InsertRowLock(JdbcTemplate jdbcTemplate, int lockTimeoutMins) {
+    public InsertRowLock(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        this.lockTimeoutMins = lockTimeoutMins;
         this.executor = createScheduledExecutor();
     }
 
@@ -65,7 +67,7 @@ public class InsertRowLock {
                     LOG.debug("Waiting for lock on Flyway schema history table");
                 } else {
                     LOG.error("Waiting for lock on Flyway schema history table. Application may be deadlocked. Lock row may require manual removal " +
-                            "from the schema history table.");
+                                      "from the schema history table.");
                 }
                 Thread.sleep(1000);
             } catch (InterruptedException ex) {
@@ -75,23 +77,23 @@ public class InsertRowLock {
     }
 
     private String generateDeleteExpiredLockStatement(String deleteExpiredLockStatementTemplate) {
-        LocalDateTime zonedDateTime = LocalDateTime.now(ZoneOffset.UTC).minusMinutes(lockTimeoutMins);
+        LocalDateTime zonedDateTime = LocalDateTime.now(ZoneOffset.UTC).minusMinutes(LOCK_TIMEOUT_MINS);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
         return String.format(deleteExpiredLockStatementTemplate.replace("?", "%s"), zonedDateTime.format(formatter));
     }
 
     private boolean insertLockingRow(String insertStatementTemplate, String booleanTrue) {
         String insertStatement = String.format(insertStatementTemplate.replace("?", "%s"),
-                -100,
-                "'" + tableLockString + "'",
-                "'flyway-lock'",
-                "''",
-                "''",
-                0,
-                "''",
-                0,
-                booleanTrue
-        );
+                                               -100,
+                                               "'" + tableLockString + "'",
+                                               "'flyway-lock'",
+                                               "''",
+                                               "''",
+                                               0,
+                                               "''",
+                                               0,
+                                               booleanTrue
+                                              );
 
         // Insert the locking row - the primary key-ness of 'installed_rank' will prevent us having two
         Results results = jdbcTemplate.executeStatement(insertStatement);
@@ -106,7 +108,7 @@ public class InsertRowLock {
         jdbcTemplate.execute(deleteLockStatement);
     }
 
-    private String getNextRandomString(){
+    private String getNextRandomString() {
         return new BigInteger(128, random).toString(16);
     }
 
@@ -123,7 +125,7 @@ public class InsertRowLock {
             LOG.debug("Updating lock in Flyway schema history table");
             jdbcTemplate.executeStatement(updateLockStatement);
         };
-        return executor.scheduleAtFixedRate(lockUpdatingTask, 0, lockTimeoutMins / 2, TimeUnit.MINUTES);
+        return executor.scheduleAtFixedRate(lockUpdatingTask, 0, LOCK_TIMEOUT_MINS / 2, TimeUnit.MINUTES);
     }
 
     private void stopLockWatchingThread() {
