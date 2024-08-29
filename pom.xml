@@ -498,13 +498,13 @@
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-codec</artifactId>
-                <version>4.1.68.Final</version>
+                <version>4.1.112.Final</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-codec-http</artifactId>
-                <version>4.1.60.Final</version>
+                <version>4.1.112.Final</version>
                 <optional>true</optional>
             </dependency>
             <!-- end of S3 transitive overrides -->
