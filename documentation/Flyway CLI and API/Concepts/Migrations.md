@@ -21,7 +21,7 @@ Optionally their effect can be undone by supplying an **undo migration** with th
 (re-)applied every time their checksum changes.
 
 Within a single migration run, repeatable migrations are always applied last, after all pending versioned migrations
-have been executed. Repeatable migrations are applied in the order of their description.
+have been executed. Repeatable migrations are applied in the alphanumeric order of their description.
 
 By default both versioned and repeatable migrations can be written either in **[SQL](Concepts/migrations#sql-based-migrations)**
 or in **[Java](Concepts/migrations#java-based-migrations)** and can consist of multiple statements.

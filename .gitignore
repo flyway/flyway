@@ -35,6 +35,7 @@ flyway-rulesengine-sqlfluff/sqlfluff*
 
 flyway-rgcompare/**/resources/rgcompare/
 flyway-rgcompare/**/resources/obj/
+flyway-rgcompare/rgcompare/
 flyway-comparison-engines/**/resources/flyway-comparison/
 flyway-comparison-engines/**/resources/obj/
 flyway-comparison-engines/flyway-comparison/

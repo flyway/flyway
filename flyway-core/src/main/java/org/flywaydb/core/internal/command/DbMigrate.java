@@ -248,11 +248,7 @@ public class DbMigrate {
         }
 
         if (!group.isEmpty()) {
-            boolean skipExecutingMigrations = false;
-
-
-
-            applyMigrations(group, skipExecutingMigrations);
+            applyMigrations(group, configuration.isSkipExecutingMigrations());
         }
         return group.size();
     }

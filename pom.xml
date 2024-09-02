@@ -14,7 +14,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>10.17.2</version>
+    <version>10.17.3</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -56,6 +56,7 @@
         <module>flyway-database</module>
         <module>flyway-experimental</module>
         <module>flyway-reports</module>
+
 
 
 
@@ -284,7 +285,7 @@
             <dependency>
                 <groupId>org.jetbrains</groupId>
                 <artifactId>annotations</artifactId>
-                <version>${version.jetbrains-annotations>}</version>
+                <version>${version.jetbrains-annotations}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>

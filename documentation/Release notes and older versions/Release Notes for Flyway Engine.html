@@ -9,6 +9,24 @@
 <div class="col-md-9">
 
 <div class="release">
+        <h2 id="10.17.3">Flyway 10.17.3 (2024-09-02)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Add NOLOCK to SQL Server query to reduce blocking</li>
+            <li>Fix result publishing when chaining commands</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3947">Issue 3947</a>
+                skipExecutingMigrations now works for OSS
+            </li>
+        </ul>
+
+        <p>
+            Thanks to catostrophe for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
         <h2 id="10.17.2">Flyway 10.17.2 (2024-08-22)</h2>
 
         <h3>Bug fixes</h3>
@@ -581,7 +599,6 @@
         <h3>Java compatibility</h3>
         <ul>
             <li>Move `flyway-sqlserver` into `flyway-database` folder space</li>
-            <li>Update JRE included in Flyway Command Line to Java 21</li>
         </ul>
 
         <p>

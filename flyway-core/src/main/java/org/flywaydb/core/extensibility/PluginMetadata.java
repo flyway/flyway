@@ -49,10 +49,12 @@ public interface PluginMetadata extends Plugin {
 
         int padSize = 0;
         if (configurationParameters != null) {
-            padSize = configurationParameters.stream().mapToInt(p -> p.name.length()).max().orElse(0) + 2;
+            padSize = configurationParameters.stream().map(p -> p.name + (p.required ? " [REQUIRED]" : "")).mapToInt(
+                String::length).max().orElse(0) + 2;
         }
         if (flags != null) {
-            padSize = Math.max(padSize, flags.stream().mapToInt(p -> p.name.length()).max().orElse(0) + 2);
+            padSize = Math.max(padSize, flags.stream().map(p -> p.name + (p.required ? " [REQUIRED]" : "")).mapToInt(
+                String::length).max().orElse(0) + 2);
         }
 
         if (configurationParameters != null) {
@@ -61,11 +63,16 @@ public interface PluginMetadata extends Plugin {
                 final String parameterName = p.name.startsWith("flyway.")
                     ? p.name.substring("flyway.".length())
                     : p.name;
-                result.append(indent).append(StringUtils.rightPad(parameterName, padSize, ' ')).append(p.description);
-                if (p.required) {
-                    result.append(" [REQUIRED]");
+                final String fullParameter = parameterName + (p.required ? " [REQUIRED]" : "");
+                result.append(indent).append(StringUtils.rightPad(fullParameter, padSize, ' '));
+
+                final String descriptionPadding = " ".repeat(indent.length() + padSize);
+                final List<String> descriptionLines = Arrays.stream(p.description.split("\n")).toList();
+
+                result.append(descriptionLines.get(0)).append("\n");
+                for (int i = 1; i < descriptionLines.size(); i++) {
+                    result.append(descriptionPadding).append(descriptionLines.get(i)).append("\n");
                 }
-                result.append("\n");
             }
             result.append("\n");
         }
@@ -73,11 +80,9 @@ public interface PluginMetadata extends Plugin {
         if (flags != null) {
             result.append("Flags:\n");
             for (ConfigurationParameter p : flags) {
-                result.append(indent).append(StringUtils.rightPad(p.name, padSize, ' ')).append(p.description);
-                if (p.required) {
-                    result.append(" [REQUIRED]");
-                }
-                result.append("\n");
+                final String flagName = p.name + (p.required ? " [REQUIRED]" : "");
+                result.append(indent).append(StringUtils.rightPad(flagName, padSize, ' ')).append(p.description).append(
+                    "\n");
             }
             result.append("\n");
         }

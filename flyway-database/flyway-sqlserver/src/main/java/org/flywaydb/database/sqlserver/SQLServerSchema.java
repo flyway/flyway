@@ -305,8 +305,8 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
      * @throws SQLException when the retrieval failed.
      */
     private List<DBObject> queryDBObjectsWithParent(DBObject parent, ObjectType... types) throws SQLException {
-        StringBuilder query = new StringBuilder("SELECT obj.object_id, obj.name FROM sys.objects AS obj " +
-                                                        "LEFT JOIN sys.extended_properties AS eps " +
+        StringBuilder query = new StringBuilder("SELECT obj.object_id, obj.name FROM sys.objects AS obj WITH (NOLOCK)" +
+                                                        "LEFT JOIN sys.extended_properties AS eps WITH (NOLOCK)" +
                                                         "ON obj.object_id = eps.major_id " +
                                                         "AND eps.class = 1 " +    // Class 1 = objects and columns (we are only interested in objects).
                                                         "AND eps.minor_id = 0 " + // Minor ID, always 0 for objects.
