@@ -71,6 +71,7 @@ import org.flywaydb.core.internal.logging.buffered.BufferedLog;
 import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.publishing.OperationResultPublisher;
 import org.flywaydb.core.internal.publishing.PublishingConfigurationExtension;
+import org.flywaydb.core.internal.reports.ReportGenerationOutput;
 import org.flywaydb.core.internal.reports.ResultReportGenerator;
 import org.flywaydb.core.internal.reports.ReportDetails;
 import org.flywaydb.core.internal.util.CommandExtensionUtils;
@@ -95,8 +96,8 @@ public class Main {
             LOG = initLogging(Main.class, commandLineArguments);
 
             try {
-                ReportDetails reportDetails = new ReportDetails();
-
+                ReportGenerationOutput reportGenerationOutput = new ReportGenerationOutput();
+                
                 final Configuration configuration;
                 try (final var ignored = new EventTelemetryModel("parse-args", flywayTelemetryManager)) {
                     commandLineArguments.validate();
@@ -125,16 +126,20 @@ public class Main {
 
                 final List<ResultReportGenerator> reportGenerators = PLUGIN_REGISTER.getPlugins(ResultReportGenerator.class);
                 for (final ResultReportGenerator resultReportGenerator : reportGenerators) {
-                    reportDetails = resultReportGenerator.generateReport(result, configuration, executionTime);
+                    reportGenerationOutput = resultReportGenerator.generateReport(result, configuration, executionTime);
                 }
 
                 if (configuration.getPluginRegister().getPlugin(PublishingConfigurationExtension.class).isPublishResult()) {
                     publishOperationResult(configuration, result);
-                    publishReport(configuration, reportDetails);
+                    publishReport(configuration, reportGenerationOutput.reportDetails);
+                }
+
+                if (reportGenerationOutput.aggregateException != null) {
+                    throw reportGenerationOutput.aggregateException;
                 }
 
                 if (commandLineArguments.shouldOutputJson()) {
-                    printJson(commandLineArguments, result, reportDetails);
+                    printJson(commandLineArguments, result, reportGenerationOutput.reportDetails);
                 }
             } catch (final FlywayLicensingException e) {
                 final OperationResult errorOutput = ErrorOutput.toOperationResult(e);
@@ -499,7 +504,7 @@ public class Main {
             LOG.info(indent + "validateOnMigrate              Validate when running migrate");
             LOG.info(indent + "validateMigrationNaming        Validate file names of SQL migrations (including callbacks)");
             LOG.info(indent + "ignoreMigrationPatterns        Patterns of migrations and states to ignore during validate");
-            LOG.info(indent + "cleanOnValidationError         Automatically clean on a validation error");
+            LOG.info(indent + "cleanOnValidationError         [Deprecated] Automatically clean on a validation error");
             LOG.info(indent + "cleanDisabled                  Whether to disable clean");
             LOG.info(indent + "baselineVersion                Version to tag schema with when executing baseline");
             LOG.info(indent + "baselineDescription            Description to tag schema with when executing baseline");

@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map.Entry;
+import java.util.Optional;
 import lombok.CustomLog;
 import org.flywaydb.commandline.Main;
 import org.flywaydb.core.api.FlywayException;
@@ -48,6 +49,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.flywaydb.core.internal.util.StringUtils;
 
 import static org.flywaydb.core.internal.configuration.ConfigUtils.DEFAULT_CLI_JARS_LOCATION;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.DEFAULT_CLI_SQL_LOCATION;
@@ -56,12 +58,13 @@ import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeJ
 import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeJarDirsInEnvironmentsBasedOnWorkingDirectory;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeLocationsBasedOnWorkingDirectory;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeLocationsInEnvironmentsBasedOnWorkingDirectory;
+import static org.flywaydb.core.internal.util.ExceptionUtils.getFlywayExceptionMessage;
 
 @CustomLog
 public class ModernConfigurationManager implements ConfigurationManager {
 
     private static final Pattern ANY_WORD_BETWEEN_TWO_QUOTES_PATTERN = Pattern.compile("\\[\"([^\"]*)\"]");
-    private static final String UNABLE_TO_PARSE_FIELD = "Unable to parse '%s' in your TOML configuration file";
+    private static final String UNABLE_TO_PARSE_FIELD = "Unable to parse parameter '%s'.";
     private static final String FLYWAY_NAMESPACE = "flyway";
 
     public Configuration getConfiguration(CommandLineArguments commandLineArguments) {
@@ -315,8 +318,9 @@ public class ModernConfigurationManager implements ConfigurationManager {
                     .forEach(f -> {
                         String fieldName = f.getName();
                         Object fieldValue = finalValues.get(fieldName);
-                        if (fieldValue instanceof String) {
-                            finalValues.put(fieldName, fieldValue.toString().split(","));
+                        if (fieldValue instanceof final String fieldValueString) {
+                            finalValues.put(fieldName,
+                                StringUtils.hasText(fieldValueString) ? fieldValueString.split(",") : new String[0]);
                         }
                     });
 
@@ -351,10 +355,13 @@ public class ModernConfigurationManager implements ConfigurationManager {
                 }
             } catch (final IllegalArgumentException e) {
                 final var fullFieldName = getFullFieldNameFromException(namespace, e);
+                var message = String.format(UNABLE_TO_PARSE_FIELD, fullFieldName);
+                message += getFlywayExceptionMessage(e).map(text -> " " + text).orElse("");
+
                 if (suppressError) {
-                    LOG.warn(String.format(UNABLE_TO_PARSE_FIELD, fullFieldName));
+                    LOG.warn(message);
                 } else {
-                    LOG.error(String.format(UNABLE_TO_PARSE_FIELD, fullFieldName));
+                    LOG.error(message);
                 }
             }
         }

@@ -32,6 +32,8 @@ OSGi
 [Rr]edgate
 redgate.html
 repeatables
+(?i)stdin
+(?i)stdout
 (?i)SQL
 [Tt]ablespace
 (?i)TOML
@@ -59,8 +61,12 @@ beforeRepair
 beforeRepeatables
 beforeUndo
 beforeValidate
+buildEnvironment
 
 createSchema
+diffApply
+diffText
+env
 errorOverride
 
 flywayBaseline
@@ -70,6 +76,11 @@ flywayMigrate
 flywayRepair
 flywayUndo
 flywayValidate
+
+nameOnly
+reprovision
+schemaModel
+schema_history
 
 Joao
 Tulka

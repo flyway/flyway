@@ -19,12 +19,16 @@
  */
 package org.flywaydb.core.internal.reports;
 
-import java.time.LocalDateTime;
-import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.output.OperationResult;
-import org.flywaydb.core.extensibility.Plugin;
+public class ReportGenerationOutput {
+    public ReportDetails reportDetails;
+    public Exception aggregateException;
 
-public interface ResultReportGenerator extends Plugin {
+    public ReportGenerationOutput() { 
+        reportDetails = new ReportDetails();
+    }
 
-    ReportGenerationOutput generateReport(OperationResult operationResult, Configuration configuration, LocalDateTime executionTime);
+    public ReportGenerationOutput(final ReportDetails reportDetails, final Exception aggregateException) {
+        this.reportDetails = reportDetails;
+        this.aggregateException = aggregateException;
+    }
 }

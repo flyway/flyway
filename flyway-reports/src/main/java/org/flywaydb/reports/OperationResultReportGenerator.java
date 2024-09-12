@@ -27,24 +27,24 @@ import java.time.LocalDateTime;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.internal.reports.ReportDetails;
+import org.flywaydb.core.internal.reports.ReportGenerationOutput;
 import org.flywaydb.core.internal.reports.ResultReportGenerator;
 
 public class OperationResultReportGenerator implements ResultReportGenerator {
 
     @Override
-    public ReportDetails generateReport(final OperationResult operationResult,
+    public ReportGenerationOutput generateReport(final OperationResult operationResult,
         final Configuration configuration,
-        final LocalDateTime executionTime) throws Exception {
+        final LocalDateTime executionTime) {
         ReportDetails reportDetails = new ReportDetails();
+        Exception aggregateException = null;
+        
         final OperationResult filteredResults = filterHtmlResults(operationResult);
         if (filteredResults != null) {
             reportDetails = writeReport(configuration, filteredResults, executionTime);
-
-            final Exception aggregate = getAggregateExceptions(filteredResults);
-            if (aggregate != null) {
-                throw aggregate;
-            }
+            aggregateException = getAggregateExceptions(filteredResults);
         }
-        return reportDetails;
+        
+        return new ReportGenerationOutput(reportDetails, aggregateException);
     }
 }

@@ -133,12 +133,13 @@ public class FlywayExecutor {
 
 
 
-        resourceNameValidator.validateSQLMigrationNaming(resourceProvider, configuration);
-
         JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(configuration.getDataSource(), configuration, statementInterceptor);
 
         final DatabaseType databaseType = jdbcConnectionFactory.getDatabaseType();
         final SqlScriptFactory sqlScriptFactory = databaseType.createSqlScriptFactory(configuration, parsingContext);
+
+        resourceNameValidator.validateSQLMigrationNaming(resourceProvider, configuration, databaseType);
+
         RetryStrategy.setNumberOfRetries(configuration.getLockRetryCount());
 
         final SqlScriptExecutorFactory noCallbackSqlScriptExecutorFactory = databaseType.createSqlScriptExecutorFactory(

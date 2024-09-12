@@ -39,6 +39,8 @@ public class SQLServerConnection extends Connection<SQLServerDatabase> {
     private final boolean azure;
     @Getter
     private final boolean awsRds;
+    @Getter
+    private final String serverName;
 
     @Getter
     private final SQLServerEngineEdition engineEdition;
@@ -63,6 +65,13 @@ public class SQLServerConnection extends Connection<SQLServerDatabase> {
                     "SELECT SERVERPROPERTY('engineedition')"));
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine database engine edition.'", e);
+        }
+
+        try {
+            serverName = getJdbcTemplate().queryForString(
+                "SELECT SERVERPROPERTY('servername')");
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to determine database server name.'", e);
         }
 
         awsRds = rdsAdminExists();

@@ -19,10 +19,12 @@
  */
 package org.flywaydb.core.internal.util;
 
+import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.sql.SQLException;
+import org.flywaydb.core.api.FlywayException;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ExceptionUtils {
@@ -71,5 +73,19 @@ public class ExceptionUtils {
 
         return message;
 
+    }
+
+    /**
+     * Retrieves the message of the Flyway Exception that's nested in.
+     */
+    public static Optional<String> getFlywayExceptionMessage(final Throwable throwable) {
+        var exception = throwable.getCause();
+        while (exception != null) {
+            if (exception instanceof FlywayException) {
+                return Optional.of(exception.getMessage());
+            }
+            exception = exception.getCause();
+        }
+        return Optional.empty();
     }
 }

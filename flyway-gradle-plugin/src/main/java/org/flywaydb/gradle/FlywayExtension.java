@@ -330,6 +330,7 @@ public class FlywayExtension {
     public Boolean validateOnMigrate;
 
     /**
+     * Deprecated, will be removed in a future release. <br>
      * Whether to automatically call clean or not when a validation error occurs. (default: {@code false})<br>
      * This is exclusively intended as a convenience for development. even though we
      * strongly recommend not to change migration scripts once they have been checked into SCM and run, this provides a

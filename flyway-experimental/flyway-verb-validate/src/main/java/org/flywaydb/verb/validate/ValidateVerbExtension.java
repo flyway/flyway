@@ -23,6 +23,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import lombok.CustomLog;
 import org.flywaydb.core.api.CoreErrorCode;
 import org.flywaydb.core.api.ErrorDetails;
 import org.flywaydb.core.api.FlywayException;
@@ -36,9 +37,12 @@ import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryModel;
 import org.flywaydb.core.extensibility.VerbExtension;
 import org.flywaydb.core.internal.license.VersionPrinter;
+import org.flywaydb.core.internal.util.StopWatch;
+import org.flywaydb.core.internal.util.TimeFormat;
 import org.flywaydb.core.internal.util.ValidatePatternUtils;
 import org.flywaydb.verb.VerbUtils;
 
+@CustomLog
 public class ValidateVerbExtension implements VerbExtension {
 
     @Override
@@ -50,6 +54,9 @@ public class ValidateVerbExtension implements VerbExtension {
     public Object executeVerb(final Configuration configuration) {
 
         try {
+            StopWatch stopWatch = new StopWatch();
+            stopWatch.start();
+
             final ExperimentalDatabase experimentalDatabase = VerbUtils.getExperimentalDatabase(configuration);
             final SchemaHistoryModel schemaHistoryModel = VerbUtils.getSchemaHistoryModel(configuration, experimentalDatabase);
 
@@ -70,10 +77,19 @@ public class ValidateVerbExtension implements VerbExtension {
                         new ArrayList<>());
                 }
             }
+            stopWatch.stop();
+
+            final int count = migrations.length;
+            LOG.info(String.format("Successfully validated %d migration%s (execution time %s)",
+                count,
+                count == 1 ? "" : "s",
+                TimeFormat.format(stopWatch.getTotalTimeMillis())));
 
             if (migrations.length == 0) {
                 final ArrayList<String> warnings = new ArrayList<>();
-                warnings.add("No migrations found. Are your locations set up correctly?");
+                final String noMigrationsWarning = "No migrations found. Are your locations set up correctly?";
+                warnings.add(noMigrationsWarning);
+                LOG.warn(noMigrationsWarning);
 
                 return new ValidateResult(VersionPrinter.getVersion(),
                     experimentalDatabase.getDatabaseMetaData().databaseName(),
@@ -88,12 +104,12 @@ public class ValidateVerbExtension implements VerbExtension {
             final List<ValidateOutput> invalidMigrations = getInvalidMigrations(notIgnoredMigrations);
             if (invalidMigrations.isEmpty()) {
                 return new ValidateResult(VersionPrinter.getVersion(),
-                    experimentalDatabase.getDatabaseMetaData().databaseName(),
-                    null,
-                    true,
-                    migrations.length,
-                    invalidMigrations,
-                    new ArrayList<>());
+                experimentalDatabase.getDatabaseMetaData().databaseName(),
+                null,
+                true,
+                migrations.length,
+                invalidMigrations,
+                new ArrayList<>());
             }
             return new ValidateResult(VersionPrinter.getVersion(),
                 experimentalDatabase.getDatabaseMetaData().databaseName(),

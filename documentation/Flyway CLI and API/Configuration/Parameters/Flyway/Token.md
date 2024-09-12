@@ -30,3 +30,12 @@ token = "1234ABCD"
 FLYWAY_EMAIL=foo.bar@red-gate.com
 FLYWAY_TOKEN=1234ABCD
 ```
+
+### API
+```java
+Flyway flyway = Flyway.configure().load();
+flyway.getConfigurationExtension(PATTokenConfigurationExtension.class)
+        .setEmail("foo.bar@red-gate.com");
+flyway.getConfigurationExtension(PATTokenConfigurationExtension.class)
+        .setToken("1234ABCD");  
+```

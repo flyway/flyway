@@ -25,7 +25,10 @@ public class DatabaseConstants {
 
     public static final Pattern DATABASE_HOSTING_AZURE_URL_IDENTIFIER = Pattern.compile(".+\\.azure\\.com");
     public static final Pattern DATABASE_HOSTING_RDS_URL_IDENTIFIER = Pattern.compile(".+\\.rds\\.([\\w-]+\\.)*amazon(aws)?\\.com(\\.\\w+)?");
+    public static final Pattern DATABASE_HOSTING_EC2_URL_IDENTIFIER = Pattern.compile("^ec2.*\\.compute(-\\d+)?\\.amazonaws\\.com");
+    public static final String DATABASE_HOSTING_EC2_HOSTNAME_IDENTIFIER = "ec2amaz";
     public static final String DATABASE_HOSTING_GCP_URL_IDENTIFIER = "socketFactory=com.google.cloud";
+
     public static final String DATABASE_HOSTING_AZURE_SQL_DATABASE = "azure-sql-database";
     public static final String DATABASE_HOSTING_AZURE_SQL_MANAGED_INSTANCE = "azure-sql-managed-instance";
     public static final String DATABASE_HOSTING_AWS_RDS = "aws-rds";

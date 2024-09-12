@@ -41,7 +41,7 @@ public class ResourceNameValidator {
      * @param provider The ResourceProvider to validate
      * @param configuration The configuration to use
      */
-    public void validateSQLMigrationNaming(ResourceProvider provider, Configuration configuration) {
+    public void validateSQLMigrationNaming(ResourceProvider provider, Configuration configuration, DatabaseType databaseType) {
 
         List<String> errorsFound = new ArrayList<>();
         ResourceNameParser resourceNameParser = new ResourceNameParser(configuration);
@@ -50,7 +50,7 @@ public class ResourceNameValidator {
             String filename = resource.getFilename();
             LOG.debug("Validating " + filename);
             // Filter out special purpose files that the parser will not identify.
-            if (isSpecialResourceFile(configuration, filename)) {
+            if (isSpecialResourceFile(configuration, filename, databaseType)) {
                 continue;
             }
 
@@ -74,12 +74,8 @@ public class ResourceNameValidator {
         return provider.getResources("", configuration.getSqlMigrationSuffixes());
     }
 
-    private boolean isSpecialResourceFile(Configuration configuration, String filename) {
-        try {
-        DatabaseType databaseType = configuration.getDatabaseType();
-        return databaseType.getSpecialResourceFilenames(configuration).contains(filename.toLowerCase());
-        } catch (Exception e) {
-            return false;
-        }
+    private boolean isSpecialResourceFile(Configuration configuration, String filename, DatabaseType databaseType) {
+        return databaseType != null && databaseType.getSpecialResourceFilenames(configuration)
+            .contains(filename.toLowerCase());
     }
 }

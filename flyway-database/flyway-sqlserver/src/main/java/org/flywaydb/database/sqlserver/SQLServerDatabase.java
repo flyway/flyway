@@ -201,6 +201,10 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
         return getMainConnection().getEngineEdition();
     }
 
+    String getServerName() {
+        return getMainConnection().getServerName();
+    }
+
     boolean supportsTemporalTables() {
         // SQL Server 2016+, or Azure (which has different versioning)
         return isAzure() || getVersion().isAtLeast("13.0");
@@ -381,8 +385,10 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
             } else if (code == 8) {
                 return DATABASE_HOSTING_AZURE_SQL_MANAGED_INSTANCE;
             }
-        } else if (getMainConnection().isAwsRds()) {
+        } else if (getMainConnection().isAwsRds() || DATABASE_HOSTING_RDS_URL_IDENTIFIER.matcher(configuration.getUrl()).find()) {
             return DATABASE_HOSTING_AWS_RDS;
+        } else if (StringUtils.hasText(getServerName()) && getServerName().toLowerCase().contains(DATABASE_HOSTING_EC2_HOSTNAME_IDENTIFIER)) {
+            return DATABASE_HOSTING_AWS_VM;
         } else {
             return super.getDatabaseHosting();
         }

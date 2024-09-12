@@ -20,6 +20,7 @@
 package org.flywaydb.database.mysql;
 
 import static org.flywaydb.core.internal.database.base.DatabaseConstants.DATABASE_HOSTING_AWS_RDS;
+import static org.flywaydb.core.internal.database.base.DatabaseConstants.DATABASE_HOSTING_RDS_URL_IDENTIFIER;
 
 import lombok.CustomLog;
 import org.flywaydb.core.api.CoreMigrationType;
@@ -306,7 +307,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
     @Override
     public String getDatabaseHosting() {
-        if (getMainConnection().isAwsRds()) {
+        if (getMainConnection().isAwsRds() || DATABASE_HOSTING_RDS_URL_IDENTIFIER.matcher(configuration.getUrl()).find()) {
             return DATABASE_HOSTING_AWS_RDS;
         } else {
             return super.getDatabaseHosting();

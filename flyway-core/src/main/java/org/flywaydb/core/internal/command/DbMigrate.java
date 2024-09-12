@@ -140,6 +140,13 @@ public class DbMigrate {
         int total = 0;
         isPreviousVersioned = true;
 
+        if (configuration.isGroup() && !database.supportsDdlTransactions()) {
+            LOG.warn(
+                "Enabling the 'group' parameter is recommended only for databases that support DDL transactions. Using this parameter with "
+                    + database.getDatabaseType().getName()
+                    + " may cause undefined behavior in Flyway");
+        }
+
         while (true) {
             final boolean firstRun = total == 0;
             int count = configuration.isGroup()
