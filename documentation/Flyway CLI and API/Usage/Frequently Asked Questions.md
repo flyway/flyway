@@ -37,8 +37,11 @@ If not, [raise a new issue](https://github.com/flyway/flyway/issues?state=open).
 
 ## I have a question. Where can I ask it?
 <a name="question"></a>
+There are a number of areas that Redgate and the community monitor where you might be able to find the answer already.
 
-Post your question on [StackOverflow](http://stackoverflow.com) under the [flyway](http://stackoverflow.com/questions/tagged/flyway) tag.
+- [StackOverflow](http://stackoverflow.com) under the [flyway](http://stackoverflow.com/questions/tagged/flyway) tag.
+
+- [Redgate Hub - Flyway forum](https://forum.red-gate.com/categories/flyway-general)
 
 ## What about undo/downgrade/downward migrations?
 <a name="downgrade"></a>

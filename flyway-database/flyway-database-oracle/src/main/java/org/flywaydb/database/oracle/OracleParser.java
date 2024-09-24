@@ -267,16 +267,11 @@ public class OracleParser extends Parser {
 
 
     @Override
-    protected ParsedSqlStatement createStatement(PeekingReader reader, Recorder recorder,
-                                                 int statementPos, int statementLine, int statementCol,
-                                                 int nonCommentPartPos, int nonCommentPartLine, int nonCommentPartCol,
-                                                 StatementType statementType, boolean canExecuteInTransaction,
-                                                 Delimiter delimiter, String sql
+    protected ParsedSqlStatement createStatement(PeekingReader reader, Recorder recorder, int statementPos,
+        int statementLine, int statementCol, int nonCommentPartPos, int nonCommentPartLine, int nonCommentPartCol,
+        StatementType statementType, boolean canExecuteInTransaction, Delimiter delimiter, String sql,
+        List<Token> tokens, boolean batchable) throws IOException {
 
-
-
-            , boolean batchable
-                                                ) throws IOException {
 
 
 
@@ -338,13 +333,8 @@ public class OracleParser extends Parser {
         }
 
         return super.createStatement(reader, recorder, statementPos, statementLine, statementCol,
-                                     nonCommentPartPos, nonCommentPartLine, nonCommentPartCol,
-                                     statementType, canExecuteInTransaction, delimiter, sql
-
-
-
-                , batchable
-                                    );
+            nonCommentPartPos, nonCommentPartLine, nonCommentPartCol, statementType, canExecuteInTransaction, delimiter,
+            sql, tokens, batchable);
     }
 
     @Override

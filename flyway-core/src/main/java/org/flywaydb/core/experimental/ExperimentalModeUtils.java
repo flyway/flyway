@@ -32,7 +32,12 @@ public class ExperimentalModeUtils {
     public static boolean canUseExperimentalMode(final Configuration config) {
         if (config.getUrl().startsWith("mongodb")) {
             return true;
-        }
+        } 
+
+
+
+
+
 
         try (final var connectionFactory = new JdbcConnectionFactory(config.getDataSource(), config, null)) {
             return connectionFactory.getDatabaseType() instanceof SQLiteDatabaseType;

@@ -240,13 +240,9 @@ public abstract class Parser {
                                                           " col " + statementCol + ": " + sql);
                     }
                     return createStatement(reader, recorder, statementPos, statementLine, statementCol,
-                                           nonCommentPartPos, nonCommentPartLine, nonCommentPartCol,
-                                           statementType, canExecuteInTransaction, context.getDelimiter(), sql.trim()
-
-
-
-                            , batchable
-                                          );
+                        nonCommentPartPos, nonCommentPartLine, nonCommentPartCol, statementType,
+                        canExecuteInTransaction, context.getDelimiter(), sql.trim(), discardBlankLines(tokens),
+                        batchable);
                 }
 
                 if (tokens.isEmpty() || tokens.stream().allMatch(t -> t.getType() == TokenType.BLANK_LINES || t.getType() == TokenType.COMMENT)) {
@@ -428,15 +424,9 @@ public abstract class Parser {
     }
 
     protected ParsedSqlStatement createStatement(PeekingReader reader, Recorder recorder,
-                                                 int statementPos, int statementLine, int statementCol,
-                                                 int nonCommentPartPos, int nonCommentPartLine, int nonCommentPartCol,
-                                                 StatementType statementType, boolean canExecuteInTransaction,
-                                                 Delimiter delimiter, String sql
-
-
-
-            , boolean batchable
-                                                ) throws IOException {
+        int statementPos, int statementLine, int statementCol, int nonCommentPartPos, int nonCommentPartLine,
+        int nonCommentPartCol, StatementType statementType, boolean canExecuteInTransaction, Delimiter delimiter,
+        String sql, List<Token> tokens, boolean batchable) throws IOException {
         return new ParsedSqlStatement(statementPos, statementLine, statementCol,
                                       sql, delimiter, canExecuteInTransaction, batchable);
     }

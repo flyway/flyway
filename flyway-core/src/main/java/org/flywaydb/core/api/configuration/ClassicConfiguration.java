@@ -112,13 +112,12 @@ public class ClassicConfiguration implements Configuration {
     private final Map<String, DataSourceModel> dataSources = new HashMap<>();
     private final Map<String, ResolvedEnvironment> resolvedEnvironments = new HashMap<>();
     private final List<Callback> callbacks = new ArrayList<>();
-    private final ClasspathClassScanner classScanner;
+    private ClasspathClassScanner classScanner;
     private EnvironmentResolver environmentResolver;
     @Setter
     private ConfigurationModel modernConfig = ConfigurationModel.defaults();
     @Setter
     private String workingDirectory;
-    @Setter
     private ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
     @Setter
     private ResourceProvider resourceProvider = null;
@@ -156,6 +155,11 @@ public class ClassicConfiguration implements Configuration {
     public ClassicConfiguration(Configuration configuration) {
         this(configuration.getClassLoader());
         configure(configuration);
+    }
+
+    public void setClassLoader(ClassLoader classLoader) {
+        this.classLoader = classLoader;
+        classScanner = new ClasspathClassScanner(this.classLoader);
     }
 
     private static void parsePropertiesFromConfigExtension(HashMap<String, Map<String, Object>> configExtensionsPropertyMap,

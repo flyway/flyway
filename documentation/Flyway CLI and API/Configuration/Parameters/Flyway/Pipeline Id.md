@@ -12,6 +12,9 @@ An id for identifying your pipeline in Flyway Pipelines. Used to tell Flyway whi
 data to. Pipeline Ids are copyable from within Flyway Pipelines for use as the value to this parameter. See the Flyway
 Pipelines documentation [here](https://red-gate.com/flyway/pipelines/documentation).
 
+**Note:** Flyway Pipelines is currently in
+preview.
+
 ## Usage
 
 ### Commandline

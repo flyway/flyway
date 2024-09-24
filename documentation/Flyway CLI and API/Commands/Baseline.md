@@ -7,7 +7,7 @@ Baselines an existing database, excluding all migrations up to and including bas
 
 ![Baseline](assets/command-baseline.png)
 
-Baseline is for introducing Flyway to [existing databases](Learn More/existing-database-setup) by baselining them
+Baseline is for introducing Flyway to [existing databases](database-development-using-flyway/database-development-using-flyway-desktop/generating-migrations/creating-a-baseline-for-existing-databases) by baselining them
 at a specific version. This will cause [Migrate](Commands/migrate) to ignore all migrations
 up to and including the baseline version. Newer migrations will then be applied as usual.
 

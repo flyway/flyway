@@ -12,6 +12,9 @@ An optional name for your pipeline in Flyway Pipelines. Used at the top level of
 Pipelines what the display name of your pipeline is. Also used by Flyway Desktop as the display name for projects.
 See the Flyway Pipelines documentation [here](https://red-gate.com/flyway/pipelines/documentation).
 
+**Note:** Flyway Pipelines is currently in
+preview.
+
 ## Usage
 
 ### TOML

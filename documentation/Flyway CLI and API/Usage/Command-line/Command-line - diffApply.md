@@ -54,15 +54,19 @@ Flyway {{ site.flywayVersion }} by Redgate
 }
 </pre>
 
+This workflow would typically happen before generating migration scripts - you may want to save the corresponding state of the database alongside the migration scripts, or use the schema model as the source to generate migration scripts from.
+
 ### Applying to a database environment
 
 The `diff` command must first be run to generate the diff artifact;
-<pre class="console">&gt; flyway diff -diff.source=schemaModel -diff.target=prod</pre>
+<pre class="console">&gt; flyway diff -diff.source=schemaModel -diff.target=dev</pre>
 
-Then the `diffApply` command can be used to apply specific changes to the `prod` environment:
-<pre class="console">&gt; diffApply -diffApply.target=prod -diffApply.changes="LUl4TQxeClaiCgTdbkigq_tiRIs,O7mO.zpBl0kXLXWbnCKZOt6NP1k"
+Then the `diffApply` command can be used to apply specific changes to the `dev` environment:
+<pre class="console">&gt; diffApply -diffApply.target=dev -diffApply.changes="LUl4TQxeClaiCgTdbkigq_tiRIs,O7mO.zpBl0kXLXWbnCKZOt6NP1k"
 
 Flyway {{ site.flywayVersion }} by Redgate
 
-Applied to prod
+Applied to dev
 </pre>
+
+This workflow may be useful if you have pulled schema model changes from your version control system and want to apply them back to your development environment.

@@ -43,7 +43,7 @@ The following options can be provided to the `diff` command in the format -key=v
 
 ## Configuration
 
-- When using `schemModel` as a comparison source, it is necessary to specify the location of the schema model folder,
+- When using `schemaModel` as a comparison source, it is necessary to specify the location of the schema model folder,
   which can be done using the `schemaModelLocation` property.
   It may be necessary to specify the schemas that should be compared, which can be done using the `schemaModelSchemas`
   property. Both of these properties should be configured under the flyway namespace.
@@ -55,8 +55,13 @@ schemaModelLocation = "./SchemaModel"
 schemaModelSchemas = ["HRSchema"]
 ```
 
-- In the case where an environment shares a name with one of the other values, it can be prefixed with env: to avoid
-  ambiguity. For example, env:dev.
+- In the case where an environment shares a name with one of the other values, it can be prefixed with `env:` to avoid ambiguity. For example, `env:dev`.
+
+## Build environments
+
+A [build environment](<Concepts/Build Environment concept>) is an environment that flyway is permitted to clean, manage and run migrations against in order to see what a database would look like if we ran all the migrations from an empty environment up to latest. This is typically used when generating a new migration, as we need to see what changes are not yet captured by a migration script. 
+
+The build environment may need to be rebuilt (reprovisioned) by flyway, if a migration script has changed on disk after being executed against this environment - as a result this environment should be one you have configured as being permitted to be reprovisioned by flyway (e.g. by `flyway clean` using the `provisioner=clean` setting in the environment toml).
 
 ## Examples
 
@@ -152,9 +157,7 @@ diff artifact generated: C:\Users\Projects\diffArtifacts\artifact
 
 ### Comparing a build environment against an environment after migrating the build environment with a list of migrations
 
-To perform this scenario of `diff` as a prerequisite the build environment may have to be configured to use
-the `clean` provisioner in order to reprovision the environment if the environment needs to be cleaned. The migration
-directory contains four migrations, `V1__first.sql`, `V2__table1.sql`,`V3__view1.sql` and `V4__table2.sql` with the target
+The migration directory contains four migrations, `V1__first.sql`, `V2__table1.sql`,`V3__view1.sql` and `V4__table2.sql` with the target
 environment not being migrated to these versions. The build environment contains a table `table_3` in the schema tested in this example.
 
 As a result of this operation only versions `2 and 4` will be applied to the build environment, which will

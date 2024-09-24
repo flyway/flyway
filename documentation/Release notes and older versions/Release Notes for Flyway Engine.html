@@ -8,37 +8,64 @@
 </div>
 <div class="col-md-9">
 
-<div class="release">
-        <h2 id="10.18.0">Flyway 10.18.0 (2024-09-12)</h2>
+  <div class="release">
+        <h2 id="10.18.1">Flyway 10.18.1 (2024-09-24)</h2>
 
         <h3>Bug fixes</h3>
         <ul>
+            <li>Fixed the issue that 'Check' command should throw an Exception if current environment and build environment are the same</li>
             <li>
-                <a href="https://github.com/flyway/flyway/issues/3915">Issue 3915</a>
-                Fixed an issue that could cause Flyway to hang when a database connection is unavailable and there are a large number of pending migrations
+                <a href="https://github.com/flyway/flyway/issues/3812">Issue 3812</a>
+                Fixed the bug that Flyway failed to load Callbacks which are configured as a 'classpath'
+            </li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3812">Issue 3812</a>
+                Fixed the bug that Flyway failed to load Callbacks from default path 'db/callback'
             </li>
         </ul>
 
-        <h3>Changes</h3>
+        <h3>Java compatibility</h3>
         <ul>
-            <li>cleanOnValidationError is now deprecated</li>
-        </ul>
-
-        <h3>Database compatibility</h3>
-        <ul>
-            <li>Updated snowflake driver to 3.14.3</li>
-        </ul>
-
-        <h3>New features</h3>
-        <ul>
-            <li>Flyway now supports setting personal access token (PAT) through API</li>
-            <li>Added a warning message if 'group' parameter is enabled for databases which don't support DDL transactions</li>
+            <li>Update Parser createStatement method signature</li>
+            <li>Retire usage of https://nexus.flywaydb.org</li>
         </ul>
 
         <p>
-            Thanks to Quairix for reporting these issues.
+            Thanks to liununu for reporting these issues.
         </p>
     </div>
+
+<div class="release">
+    <h2 id="10.18.0">Flyway 10.18.0 (2024-09-12)</h2>
+
+    <h3>Bug fixes</h3>
+    <ul>
+      <li>
+        <a href="https://github.com/flyway/flyway/issues/3915">Issue 3915</a>
+        Fixed an issue that could cause Flyway to hang when a database connection is unavailable and there are a large number of pending migrations
+      </li>
+    </ul>
+
+    <h3>Changes</h3>
+    <ul>
+      <li>cleanOnValidationError is now deprecated</li>
+    </ul>
+
+    <h3>Database compatibility</h3>
+    <ul>
+      <li>Updated snowflake driver to 3.14.3</li>
+    </ul>
+
+    <h3>New features</h3>
+    <ul>
+      <li>Flyway now supports setting personal access token (PAT) through API</li>
+      <li>Added a warning message if 'group' parameter is enabled for databases which don't support DDL transactions</li>
+    </ul>
+
+    <p>
+      Thanks to Quairix for reporting these issues.
+    </p>
+  </div>
 
 <div class="release">
         <h2 id="10.17.3">Flyway 10.17.3 (2024-09-02)</h2>

@@ -11,6 +11,9 @@ redirect_from: Configuration/publish_result/
 A boolean value that tells Flyway whether or not to publish the result of your Flyway run to Flyway Pipelines. Set
 to false by default. See the Flyway Pipelines documentation [here](https://red-gate.com/flyway/pipelines/documentation).
 
+**Note:** Flyway Pipelines is currently in
+preview.
+
 ## Usage
 
 ### Commandline

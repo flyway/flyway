@@ -69,6 +69,7 @@ public interface Configuration {
 
     /**
      * Retrieves the url used to construct the dataSource. May be null if the dataSource was passed in directly.
+     * This method will trigger an environment resolution operation if no environment has been resolved yet.
      *
      * @return The url used to construct the dataSource. May be null if the dataSource was passed in directly.
      */

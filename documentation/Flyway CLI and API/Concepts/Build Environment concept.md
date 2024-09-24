@@ -4,24 +4,23 @@ subtitle: build environment
 
 # Build Environment
 
-The build environment is a separate database that is only needed in your development environment. In Flyway `Build
-environment` is also sometimes referred to as the `shadow environment`. It can start as
-an empty database and will be small because it will only contain the schema objects and static data. It won't contain
-any transactional data.
+The purpose of the build environment is to see what a database would look like, if we ran all the migrations on an empty database from V0 up to latest. To do this, flyway needs dedicated environment that flyway is allowed to manage that is used to run to migrations against.
+
+Additionally, flyway may need to rebuild this environment if the build environment contains changes that aren't in the migrations on disk (e.g. we've removed or edited migration file after it has run). Typically, this is done through `clean`, if the clean provisioner is set on the environment - however, any form of reprovisioning is supported if a different provisioner is configured.
+
+In Flyway `Build environment` is also sometimes referred to as the `shadow environment` or `shadow database`.
 
 ## Why is this useful ?
 
-The build environment can be used as a test environment which can be used to run your migrations before applying them to the
-production environment. This helps to identify the differences between your development and production environments,
-and to test migrations in a controlled environment.
+The build environment is necessary to calculate the changes between a database/schema model, and your migrations in order to generate a new migration with these changes in. Additionally, the build environment may be used as a test environment which can be used to run your migrations against before applying them to the production environment as a validation step (`flyway check`).
 
 ## How is this used ?
 
-The build environment can be used when performing a `diff`, `diffApply` or `check` command.
-The build environment can be configured as an ordinary environment in your toml file. When setting the database,
-ensure it isn't an important database as this may be cleaned and rebuilt to an empty state.
-The provisioner for the build environment should be set to [`clean`](<Configuration/Provisioners/Clean Provisioner>) in
-the toml file to ensure that it could be cleaned and emptied when needed as follows:
+The build environment can be used when performing a `diff`, `check` or `snapshot` command.
+The build environment can be configured as an ordinary environment in your toml file.
+
+When setting the database,
+ensure it a dedicated database for use by flyway as it may be cleaned/reprovisioned in order to be rebuilt to an empty state. For example, the following database uses the [`clean provisioner`](<Configuration/Provisioners/Clean Provisioner>) to tell flyway that this environment is permitted to be rebuilt using `flyway clean` if necessary:
 
 ```toml
 [environments.build]
@@ -31,7 +30,7 @@ password = "password"
 provisioner = "clean"
 ```
 
-It is best to put the build database on the same server as your development database. This could be a shared
+For local development, it is best to put the build database on the same server as your development database. This could be a shared
 centralized development environment or if you're using a local instance to develop against, then the build database can
 go there. This is especially important if there are any cross-database dependencies because the build database would have
 to reference these in order for the migration scripts to not fail when they are executed.

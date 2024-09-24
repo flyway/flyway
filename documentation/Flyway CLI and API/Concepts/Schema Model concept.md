@@ -3,13 +3,11 @@ subtitle: Schema Model
 ---
 # Schema Model
 
-A schema model is a representation of a database in a file-based format.
-Each database object is stored in a separate file containing the SQL code required to create the object.
-This makes it possible to store database schemas in a version control system and track changes over time.
+A schema model is a representation of a database in a file-based format, much like a snapshot. However, unlike a snapshot, each database object is stored in a separate file containing a human readable representation of the object. This makes it possible to store the schema of your database as it looks right now in a version control system alongside your migrations. This can be useful to track how individual objects have evolved over time.
 
 ## Why is this useful ?
 Multiple developers can update the schema model with their changes using a version control system.
-The schema model can then later be diffed with a database, and the changes applied to the database.
+The schema model can then later be diffed with a database, and the changes applied to either the database or schema model.
 This allows for a more controlled and collaborative approach to database development.
 
 ## How is this used ?
@@ -17,7 +15,7 @@ The schema model is primarily used with the `diff` and `diffApply` commands.
 In both cases the following properties should be set when using a schema model:
 
  - `schemaModelLocation` - The location of the schema model folder on disk.
- - `schemaModelSchemas` - A list of schemas contained in the schema model that should be considered when performing a diff.
+ - `schemaModelSchemas` - A list of schemas contained in the schema model that should be considered when performing a diff. This is schema model's equivalent of the `flyway.schemas` property.
 
 These two properties can be set in the toml configuration file as shown below:
 ```toml
@@ -78,9 +76,9 @@ See [here](<Concepts/Diff concept>) for more information on the `diff` command.
 A schema model can be used as the `diff.source` or `diff.target` when running the `diff` command.
 This allows the differences between the schema model and an alternative target to be calculated.
 
-For example, the following command generates a diff between the schema model folder and a prod environment.
+For example, the following command generates a diff between the schema model folder and a dev environment.
 ```
-$ flyway diff -diff.source=schemaModel -diff.target=prod
+$ flyway diff -diff.source=schemaModel -diff.target=dev
 
 diff artifact generated: C:\Users\FlywayUser\AppData\Local\Temp\flyway.artifact.diff
 +-----------------------------+--------+-------------+--------+------+

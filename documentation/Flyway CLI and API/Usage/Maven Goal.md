@@ -12,9 +12,6 @@ The Flyway Maven plugin supports **Maven 3.x** running on **Java 17**.
 ### Flyway Community Edition
 This includes Teams & Enterprise features subject to license.
 
-See [Upgrading to Teams or Enterprise](Learn More/Upgrading to Flyway Teams or Enterprise) to find out about the edition contents
-
-
 <code>pom.xml</code>
 <table class="table">
     <tr>

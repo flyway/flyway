@@ -15,8 +15,6 @@ This is a known [Gradle issue](https://github.com/gradle/gradle/issues/24390).
 ### Flyway Community Edition
 This includes Teams & Enterprise features subject to license.
 
-See [Upgrading to Teams or Enterprise](Learn More/Upgrading to Flyway Teams or Enterprise) to find out about the edition contents
-
 <code>build.gradle</code>
 <table class="table">
     <tr>

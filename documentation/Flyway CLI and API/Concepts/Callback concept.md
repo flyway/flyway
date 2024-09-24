@@ -165,6 +165,9 @@ These are the events Flyway supports:
     </tbody>
 </table>
 
+_Note: It is strongly discouraged to include any write-related callbacks for the Info command. 
+The Info command may be internally triggered by Flyway._
+
 <table class="table table-hover">
     <thead>
     <tr>
@@ -283,7 +286,6 @@ therefore not bound by the SQL callback naming convention.
 **More info:** [Java-based Callbacks](usage/API (Java)/API - hooks#callsbacks)
 
 ## Script Callbacks
-{% include teams.html %}
 
 Much like SQL callbacks, Flyway also supports the execution of callbacks written in a scripting language. The supported file extensions are the same as those supported by [script migrations](Concepts/migrations#script-migrations). For example, you could have a `beforeRepair__vacuum.ps1` callback. Script callbacks give you much more flexibility and power during the migration lifecycle. Some of the things you can achieve are:
 
@@ -300,10 +302,6 @@ beforeConnect__2.sql
 beforeConnect__a.sql
 beforeConnect__b.sql
 ```
-
-## Notes
-
-It is strongly discouraged to include any write-related callbacks for the Info command. The Info command may be internally triggered by Flyway.
 
 ## Tutorial
 

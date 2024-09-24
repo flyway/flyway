@@ -53,28 +53,18 @@ public class PostgreSQLParser extends Parser {
 
     @Override
     protected ParsedSqlStatement createStatement(PeekingReader reader, Recorder recorder,
-                                                 int statementPos, int statementLine, int statementCol,
-                                                 int nonCommentPartPos, int nonCommentPartLine, int nonCommentPartCol,
-                                                 StatementType statementType, boolean canExecuteInTransaction,
-                                                 Delimiter delimiter, String sql
+        int statementPos, int statementLine, int statementCol, int nonCommentPartPos, int nonCommentPartLine,
+        int nonCommentPartCol, StatementType statementType, boolean canExecuteInTransaction, Delimiter delimiter,
+        String sql, List<Token> tokens, boolean batchable) throws IOException {
 
-
-
-            , boolean batchable
-                                                ) throws IOException {
         if (statementType == COPY) {
             return new PostgreSQLCopyParsedStatement(nonCommentPartPos, nonCommentPartLine, nonCommentPartCol,
                                                      sql.substring(nonCommentPartPos - statementPos),
                                                      readCopyData(reader, recorder));
         }
-        return super.createStatement(reader, recorder, statementPos, statementLine, statementCol,
-                                     nonCommentPartPos, nonCommentPartLine, nonCommentPartCol,
-                                     statementType, canExecuteInTransaction, delimiter, sql
-
-
-
-                , batchable
-                                    );
+        return super.createStatement(reader, recorder, statementPos, statementLine, statementCol, nonCommentPartPos,
+            nonCommentPartLine, nonCommentPartCol, statementType, canExecuteInTransaction, delimiter, sql, tokens,
+            batchable);
     }
 
     @Override
