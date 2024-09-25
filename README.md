@@ -20,7 +20,7 @@ Aurora MySQL, Aurora PostgreSQL, Azure Synapse, Clickhouse, CockroachDB, Databri
 SBT, Ant, Spring Boot, Grails, Play!, DropWizard, Grunt, Griffon, Ninja, ...
 
 ## Documentation
-You can find our getting started guides [here](https://documentation.red-gate.com/flyway/quickstart-how-flyway-works).
+You can find our getting started guides [here](https://documentation.red-gate.com/flyway/getting-started-with-flyway/quickstart-guides).
 Our reference documentation can be found [here](https://documentation.red-gate.com/flyway/flyway-cli-and-api).
 
 ## About
