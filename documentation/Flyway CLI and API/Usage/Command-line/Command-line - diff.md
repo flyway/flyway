@@ -26,7 +26,7 @@ The following options can be provided to the `diff` command in the format -key=v
     - `<<env>>` - uses the environment named `<<env>>`
     - `empty` - models an empty database
     - `schemaModel` - the schema model folder referenced by schemaModelLocation
-    - `migrations` - uses a buildEnvironment represent that state of database after all migrations have
+    - `migrations` - uses a buildEnvironment to represent the state of database after specified migrations have been applied
     - `snapshot:<<path>>` - uses a snapshot file at the specified path
 - `diff.target` [REQUIRED] - The target to use for the diff operation. See: `diff.source`
 - `diff.buildEnvironment` - If source/target is migrations, this specifies the environment to use as the build
@@ -51,7 +51,7 @@ The following options can be provided to the `diff` command in the format -key=v
 
 ```toml
 [flyway]
-schemaModelLocation = "./SchemaModel"
+schemaModelLocation = "./schema-model"
 schemaModelSchemas = ["HRSchema"]
 ```
 

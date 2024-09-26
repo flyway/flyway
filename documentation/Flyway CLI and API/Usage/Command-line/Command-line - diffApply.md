@@ -31,7 +31,7 @@ Example configuration that sets these properties is shown below:
 
 ```toml
 [flyway]
-schemaModelLocation = "./SchemaModel"
+schemaModelLocation = "./schema-model"
 schemaModelSchemas = [ "sakila" ]
 ```
 
@@ -50,7 +50,7 @@ Flyway {{ site.flywayVersion }} by Redgate
 {
   "messages" : [ ],
   "includedDependencies" : [ ],
-  "filesChanged" : [ "C:\\Users\\Project\\SchemaModel\\MySchema\\Tables\\country.rgm" ]
+  "filesChanged" : [ "C:\\Users\\Project\\schema-model\\MySchema\\Tables\\country.rgm" ]
 }
 </pre>
 

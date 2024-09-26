@@ -357,6 +357,11 @@ public class Main {
     }
 
     private static void publishOperationResult(final Configuration configuration, final OperationResult result) {
+        if (result == null) {
+            LOG.debug("Unable to publish null operation result");
+            return;
+        }
+
         final List<OperationResultPublisher> publishers = configuration.getPluginRegister().getPlugins(
             OperationResultPublisher.class);
         for (final OperationResultPublisher publisher : publishers) {

@@ -316,7 +316,7 @@ public class ClassicConfiguration implements Configuration {
             unresolved,
             provisionerMode,
             this,
-            progress == null ? createProgress("environment") : progress);
+            progress == null ? new ProgressLoggerEmpty() : progress);
         resolvedEnvironments.put(envName, resolved);
         return resolved;
     }

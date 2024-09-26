@@ -30,7 +30,7 @@ diff artifact generated: C:\Users\FlywayUser\AppData\Local\Temp\flyway.artifact.
 $ flyway diffApply -diffApply.target=schemaModel
 
 Applied to schemaModel
- File updated: C:\Users\FlywayUser\Project\SchemaModel\sakila\Tables\inventory.rgm
+ File updated: C:\Users\FlywayUser\Project\schema-model\sakila\Tables\inventory.rgm
 ```
 
  Note:

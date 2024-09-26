@@ -20,14 +20,14 @@ In both cases the following properties should be set when using a schema model:
 These two properties can be set in the toml configuration file as shown below:
 ```toml
 [flyway]
-schemaModelLocation = "./SchemaModel"
+schemaModelLocation = "./schema-model"
 schemaModelSchemas = [ "SchemaName1", "SchemaName2" ]
 ```
 
 Below is an example of the directory structure of a schema model folder for a MySQL database with a `sakila` schema:
 ```
-$ tree SchemaModel
-SchemaModel
+$ tree schema-model
+schema-model
 ├── model.json
 └── sakila
     ├── Functions
@@ -114,7 +114,7 @@ diff artifact generated: C:\Users\FlywayUser\AppData\Local\Temp\flyway.artifact.
 $ flyway diffApply -diffApply.target=schemaModel
 
 Applied to schemaModel
- File updated: C:\Users\FlywayUser\Project\SchemaModel\sakila\Tables\inventory.rgm
+ File updated: C:\Users\FlywayUser\Project\schema-model\sakila\Tables\inventory.rgm
 ```
 
 We can see from the output above that the `inventory` table in the `sakila` schema has been updated.

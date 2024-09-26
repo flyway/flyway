@@ -14,13 +14,8 @@ This can be used to generate a snapshot of your database in its current state fo
 or to take a snapshot of a build database for use with [`check.nextSnapshot`](Configuration/Parameters/Flyway/Check/Next Snapshot)
 
 #### Configuration parameters:
-Required:
-* Conventional Configuration
-  * [url](Configuration/Parameters/Environments/url) / [user](Configuration/Parameters/Environments/user) / [password](Configuration/Parameters/Environments/password)
-* _or_ 
-  * [Environment](Configuration/Parameters/Flyway/environment) configuration
-* [snapshot.filename](Configuration/Parameters/Flyway/Snapshot Filename) parameter
-
+See [Snapshot Command](Usage/Command-line/Command-line - snapshot) for a full list of
+configuration parameters and additional examples.
 
 #### Usage example:
 
