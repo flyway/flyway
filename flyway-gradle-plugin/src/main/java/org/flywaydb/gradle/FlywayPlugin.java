@@ -29,12 +29,12 @@ import org.gradle.api.Project;
 public class FlywayPlugin implements Plugin<Project> {
     public void apply(Project project) {
         project.getExtensions().create("flyway", FlywayExtension.class);
-        project.getTasks().create("flywayClean", FlywayCleanTask.class);
-        project.getTasks().create("flywayBaseline", FlywayBaselineTask.class);
-        project.getTasks().create("flywayMigrate", FlywayMigrateTask.class);
-        project.getTasks().create("flywayUndo", FlywayUndoTask.class);
-        project.getTasks().create("flywayValidate", FlywayValidateTask.class);
-        project.getTasks().create("flywayInfo", FlywayInfoTask.class);
-        project.getTasks().create("flywayRepair", FlywayRepairTask.class);
+        project.getTasks().register("flywayClean", FlywayCleanTask.class);
+        project.getTasks().register("flywayBaseline", FlywayBaselineTask.class);
+        project.getTasks().register("flywayMigrate", FlywayMigrateTask.class);
+        project.getTasks().register("flywayUndo", FlywayUndoTask.class);
+        project.getTasks().register("flywayValidate", FlywayValidateTask.class);
+        project.getTasks().register("flywayInfo", FlywayInfoTask.class);
+        project.getTasks().register("flywayRepair", FlywayRepairTask.class);
     }
 }
