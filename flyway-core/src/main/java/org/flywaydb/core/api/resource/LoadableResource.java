@@ -20,7 +20,9 @@
 package org.flywaydb.core.api.resource;
 
 import java.io.Reader;
-import java.util.Objects;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.parser.ParsingContext;
+import org.flywaydb.core.internal.parser.PlaceholderReplacingReader;
 
 /**
  * A loadable resource.
@@ -43,5 +45,30 @@ public abstract class LoadableResource implements Resource, Comparable<LoadableR
     @Override
     public int compareTo(LoadableResource o) {
         return getRelativePath().compareTo(o.getRelativePath());
+    }
+
+    public static LoadableResource createPlaceholderReplacingLoadableResource(
+        final LoadableResource loadableResource,
+        final Configuration configuration,
+        final ParsingContext parsingContext) {
+
+        return new LoadableResource() {
+            @Override
+            public Reader read() {
+                return PlaceholderReplacingReader.create(configuration, parsingContext, loadableResource.read());
+            }
+
+            @Override
+            public String getAbsolutePath() {return loadableResource.getAbsolutePath();}
+
+            @Override
+            public String getAbsolutePathOnDisk() {return loadableResource.getAbsolutePathOnDisk();}
+
+            @Override
+            public String getFilename() {return loadableResource.getFilename();}
+
+            @Override
+            public String getRelativePath() {return loadableResource.getRelativePath();}
+        };
     }
 }

@@ -14,7 +14,7 @@ Flyway validates your migrations according to its own conventions, however as th
 
 You can read about how to configure `ignoreMigrationPatterns` [here](Configuration/Parameters/Flyway/Ignore Migration Patterns). In summary, `ignoreMigrationPatterns` allows you to specify a list of patterns of the form `type:status` and any migration that matches any of these patterns is ignored during validate.
 
-You can see a video showing how to use `ignoreMigrationPatterns` parameter [here](https://flywaydb.org/blog/customize-validation-rules-with-ignoremigrationpatterns).
+You can see a video showing how to use `ignoreMigrationPatterns` parameter [here](https://documentation.red-gate.com/fd/customize-validation-rules-with-ignoremigrationpatterns-212140651.html).
 
 ## Example: Ignore missing repeatable migrations and pending versioned migrations
 

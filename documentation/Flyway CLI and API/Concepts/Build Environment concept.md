@@ -35,6 +35,8 @@ centralized development environment or if you're using a local instance to devel
 go there. This is especially important if there are any cross-database dependencies because the build database would have
 to reference these in order for the migration scripts to not fail when they are executed.
 
+The build environment won't share the [schemas](Configuration/Parameters/Environments/Schemas) configuration from another environment. Ensure the `schemas` parameter is configured for each environment.
+
 ### Example with the `diff` and `diffApply` command:
 
 For more information on how to use the `diff` and `diffApply` commands, see

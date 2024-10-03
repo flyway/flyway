@@ -2,7 +2,7 @@
 pill: cli_diffText
 subtitle: 'Command-line: diffText'
 ---
-# Command-line: diffText
+# Command-line: diffText - Preview
 
 {% include enterprise.html %}
 

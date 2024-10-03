@@ -21,8 +21,8 @@ package org.flywaydb.core;
 
 import static org.flywaydb.core.experimental.ExperimentalModeUtils.canUseExperimentalMode;
 import static org.flywaydb.core.experimental.ExperimentalModeUtils.isExperimentalModeActivated;
+import static org.flywaydb.core.internal.logging.PreviewFeatureWarning.logPreviewFeature;
 
-import java.util.Optional;
 import lombok.CustomLog;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -162,6 +162,15 @@ public class Flyway {
      */
     @SneakyThrows
     public MigrateResult migrate() throws FlywayException {
+        if (isExperimentalModeActivated() && canUseExperimentalMode(configuration, "migrate")) {
+            logPreviewFeature("ExperimentalMigrate");
+            final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("migrate")).findFirst();
+            if (verb.isPresent()) {
+                return (MigrateResult) verb.get().executeVerb(configuration);
+            } else {
+                LOG.warn("Experimental mode for migrate is set but no verb is present");
+            }
+        }
         try (EventTelemetryModel telemetryModel = new EventTelemetryModel("migrate", flywayTelemetryManager)) {
             try {
                 return flywayExecutor.execute((migrationResolver, schemaHistory, database, defaultSchema, schemas, callbackExecutor, statementInterceptor) -> {
@@ -245,7 +254,8 @@ public class Flyway {
      * @throws FlywayException when the info retrieval failed.
      */
     public MigrationInfoService info() {
-        if (isExperimentalModeActivated() && canUseExperimentalMode(configuration)) {
+        if (isExperimentalModeActivated() && canUseExperimentalMode(configuration, "info")) {
+            logPreviewFeature("ExperimentalInfo");
             final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("info")).findFirst();
             if (verb.isPresent()) {
                 return (MigrationInfoService) verb.get().executeVerb(configuration);
@@ -333,7 +343,8 @@ public class Flyway {
      */
     public ValidateResult validateWithResult() throws FlywayException {
 
-        if (isExperimentalModeActivated() && canUseExperimentalMode(configuration)) {
+        if (isExperimentalModeActivated() && canUseExperimentalMode(configuration, "validate")) {
+            logPreviewFeature("ExperimentalValidate");
             final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("validate")).findFirst();
             if (verb.isPresent()) {
                 return (ValidateResult) verb.get().executeVerb(configuration);

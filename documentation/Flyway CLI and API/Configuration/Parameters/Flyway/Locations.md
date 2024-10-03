@@ -100,4 +100,4 @@ flyway {
 
 ## Related Reading
 
-- [Blog Post: Organising your migrations](https://flywaydb.org/blog/organising-your-migrations)
+- [Blog Post: Organising your migrations](https://www.red-gate.com/blog/organising-your-migrations)

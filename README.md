@@ -1,4 +1,4 @@
-# [Flyway](https://flywaydb.org) by [Redgate](https://www.red-gate.com/) [![Build Release Tags](https://github.com/flyway/flyway/actions/workflows/build-release.yml/badge.svg)](https://github.com/flyway/flyway/actions/workflows/build-release.yml) [![Maven Central](https://img.shields.io/maven-central/v/org.flywaydb/flyway-core?logo=apachemaven&logoColor=red)](https://search.maven.org/artifact/org.flywaydb/flyway-core) [![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
+# [Flyway](https://github.com/flyway/flyway) by [Redgate](https://www.red-gate.com/) [![Build Release Tags](https://github.com/flyway/flyway/actions/workflows/build-release.yml/badge.svg)](https://github.com/flyway/flyway/actions/workflows/build-release.yml) [![Maven Central](https://img.shields.io/maven-central/v/org.flywaydb/flyway-core?logo=apachemaven&logoColor=red)](https://search.maven.org/artifact/org.flywaydb/flyway-core) [![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
 
 ### Database Migrations Made Easy.
 
@@ -20,7 +20,7 @@ Aurora MySQL, Aurora PostgreSQL, Azure Synapse, Clickhouse, CockroachDB, Databri
 SBT, Ant, Spring Boot, Grails, Play!, DropWizard, Grunt, Griffon, Ninja, ...
 
 ## Documentation
-You can find our getting started guides [here](https://documentation.red-gate.com/flyway/quickstart-how-flyway-works).
+You can find our getting started guides [here](https://documentation.red-gate.com/flyway/getting-started-with-flyway).
 Our reference documentation can be found [here](https://documentation.red-gate.com/flyway/flyway-cli-and-api).
 
 ## About

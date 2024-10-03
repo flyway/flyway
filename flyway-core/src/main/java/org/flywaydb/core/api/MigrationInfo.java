@@ -108,7 +108,11 @@ public interface MigrationInfo extends Comparable<MigrationInfo> {
     default boolean isDescriptionMatching() {
         return getResolvedDescription() == null || getAppliedDescription() == null || getResolvedDescription().equals(getAppliedDescription());
     }
-    
+
+    default Boolean isPlaceholderReplacement() {
+        return true;
+    }
+
     default Integer getResolvedChecksum() { return null; }
     default Integer getAppliedChecksum() { return null; }
     

@@ -46,6 +46,10 @@ public class InfoVerbExtension implements VerbExtension {
                 experimentalDatabase,
                 schemaHistoryModel);
 
+            if (!experimentalDatabase.schemaHistoryTableExists(configuration.getTable())) {
+                LOG.info("Schema history table " + experimentalDatabase.quote(experimentalDatabase.getCurrentSchema(),  configuration.getTable()) + " does not exist yet");
+            }
+
             return new ExperimentalMigrationInfoService(migrations,
                 configuration,
                 experimentalDatabase.getName(),

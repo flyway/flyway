@@ -66,18 +66,13 @@ public class VerbUtils {
 
         final ExperimentalMigrationScannerManager scannerManager = new ExperimentalMigrationScannerManager(configuration);
         final Collection<LoadableResourceMetadata> resources = scannerManager.scan(configuration, parsingContext);
-        final MigrationInfo[] migrations = getMigrations(schemaHistoryModel, resources.toArray(LoadableResourceMetadata[]::new),
+        return getMigrations(schemaHistoryModel, resources.toArray(LoadableResourceMetadata[]::new),
             configuration);
-        return migrations;
     }
 
     public static SchemaHistoryModel getSchemaHistoryModel(final Configuration configuration,
         final ExperimentalDatabase experimentalDatabase) {
-        final SchemaHistoryModel schemaHistoryModel = experimentalDatabase.getSchemaHistoryModel(configuration.getTable());
-        if (!experimentalDatabase.schemaHistoryTableExists(configuration.getTable())) {
-            LOG.info("Schema history table " + experimentalDatabase.quote(experimentalDatabase.getCurrentSchema(),  configuration.getTable()) + " does not exist yet");
-        }
-        return schemaHistoryModel;
+        return experimentalDatabase.getSchemaHistoryModel(configuration.getTable());
     }
 
     public static ExperimentalDatabase getExperimentalDatabase(final Configuration configuration) throws SQLException {
@@ -259,7 +254,7 @@ public class VerbUtils {
 
     private static List<ExperimentalMigrationStateCalculator> getMigrationStateCalculators(final Configuration configuration) {
         final List<ExperimentalMigrationStateCalculator> stateCalculators = configuration.getPluginRegister()
-            .getPlugins(ExperimentalMigrationStateCalculator.class);
+            .getLicensedPlugins(ExperimentalMigrationStateCalculator.class, configuration);
         stateCalculators.add(new CoreMigrationStateCalculator());
         return stateCalculators;
     }
@@ -273,11 +268,10 @@ public class VerbUtils {
 
     private static List<LoadableResourceMetadata> getResolvedMigrations(final LoadableResourceMetadata[] sortedMigrations,
         final Configuration configuration) {
-        final List<LoadableResourceMetadata> resolvedMigrations = Arrays
+        return Arrays
             .stream(sortedMigrations)
             .map(sortedMigration -> getTypedMigration(configuration, sortedMigration))
             .toList();
-        return resolvedMigrations;
     }
 
     private static void insertResolvedSchemaHistoryItems(final List<ResolvedSchemaHistoryItem> resolvedSchemaHistoryItems,
@@ -318,4 +312,18 @@ public class VerbUtils {
         }
     }
 
+    public static String toMigrationText(final MigrationInfo migration, final boolean isExecuteInTransaction,
+        final ExperimentalDatabase database, final boolean outOfOrder) {
+        final String migrationText;
+        if (migration.getVersion() != null) {
+            migrationText = "schema " + database.doQuote(database.getCurrentSchema()) + " to version " + database.doQuote(migration.getVersion()
+                + (StringUtils.hasLength(migration.getDescription()) ? " - " + migration.getDescription() : ""))
+                + (outOfOrder ? " [out of order]" : "")
+                + (isExecuteInTransaction ? "" : " [non-transactional]");
+        } else {
+            migrationText = "schema " + database.doQuote(database.getCurrentSchema()) + " with repeatable migration " + database.doQuote(migration.getDescription())
+                + (isExecuteInTransaction ? "" : " [non-transactional]");
+        }
+        return migrationText;
+    }
 }

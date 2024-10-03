@@ -97,7 +97,7 @@ public class JsonUtils {
     public static ArrayNode parseJsonArray(final String json) {
         try {
             return (ArrayNode) getJsonMapper().readTree(json);
-        } catch (final JsonProcessingException e) {
+        } catch (final Exception e) {
             throw new FlywayException("Unable to parse JSON: " + json, e);
         }
     }

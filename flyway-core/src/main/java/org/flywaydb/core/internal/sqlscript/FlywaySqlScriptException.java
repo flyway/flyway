@@ -39,7 +39,7 @@ public class FlywaySqlScriptException extends FlywaySqlException {
 
     private final SqlStatement statement;
 
-    private static final String STATEMENT_MESSAGE = "Run Flyway with -X option to see the actual statement causing the problem";
+    public static final String STATEMENT_MESSAGE = "Run Flyway with -X option to see the actual statement causing the problem";
 
     /**
      * Creates new instance of FlywaySqlScriptException.

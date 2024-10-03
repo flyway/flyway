@@ -36,12 +36,17 @@ Flyway comes with support for the following secrets management solutions that en
 
 ### Supported databases
 Secrets Manager support is currently provided by the [AWS Secrets Manager JDBC Library](https://github.com/aws/aws-secretsmanager-jdbc) for the following databases:
-- MariaDB
-- MySQL
-- Aurora MySQL
-- Oracle
-- PostgreSQL
-- SQL Server
+
+| Database         | Url                                                 |
+|------------------|-----------------------------------------------------|
+| **MariaDB**      | jdbc-secretsmanager:mariadb://host:port/database    |
+| **MySQL**        | jdbc-secretsmanager:mysql://host:port/database      |
+| **Aurora MySQL** | jdbc-secretsmanager:mysql://host:port/database      |
+| **Oracle**       | jdbc-secretsmanager:oracle://host:port/database     |
+| **PostgreSQL**   | jdbc-secretsmanager:postgresql://host:port/database |
+| **SQL Server**   | jdbc-secretsmanager:sqlserver://host:port;databaseName=database |
+| **Redshift**     | jdbc-secretsmanager:redshift://host:port/database   |
+| **DB2**          | jdbc-secretsmanager:db2://host:port/database        |
 
 ### Configuring Flyway
 To make Flyway pull credentials from the Secrets Manager, you need to perform the following steps:

@@ -14,7 +14,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>10.18.2</version>
+    <version>10.19.0</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -129,6 +129,12 @@
             <id>flyway-community-db-support</id>
             <url>https://maven.pkg.github.com/flyway/flyway-community-db-support</url>
         </repository>
+
+
+
+
+
+
     </repositories>
 
     <properties>
@@ -145,8 +151,8 @@
         <version.derby>10.16.1.1</version.derby>
         <version.equinox>3.15.200</version.equinox>
         <version.equinoxcommon>3.10.600</version.equinoxcommon>
-        <version.gcs>2.22.5</version.gcs>
-        <version.gcsm>2.20.0</version.gcsm>
+        <version.gcs>2.43.1</version.gcs>
+        <version.gcsm>2.51.0</version.gcsm>
         <version.gradle>6.1.1</version.gradle>
         <version.gson>2.10.1</version.gson>
         <version.h2>2.2.224</version.h2>
@@ -187,7 +193,7 @@
         <version.singlestore>1.1.4</version.singlestore>
         <version.slf4j>1.7.30</version.slf4j>
         <version.snowflake>3.14.3</version.snowflake>
-        <version.spanner>2.18.1</version.spanner>
+        <version.spanner>2.22.1</version.spanner>
         <version.springjdbc>5.3.19</version.springjdbc>
         <version.sqlite>3.41.2.2</version.sqlite>
         <version.testcontainers>1.15.3</version.testcontainers>
@@ -974,6 +980,24 @@
                     <passphraseServerId>flyway-gpg</passphraseServerId>
                 </configuration>
             </plugin>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

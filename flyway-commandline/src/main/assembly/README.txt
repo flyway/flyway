@@ -1,11 +1,11 @@
 Welcome to Flyway
 -----------------
-Database Migrations Made Easy.  If you are new to flyway and trying it out for the first time we are pleased you could join the flyway community.  If you have any comments or feedback on your experience with flyway please do not hesitate to let me know and email me at adam.britt@red-gate.com.  Also to help you get started please follow our quick start guide which cam be found here: - https://documentation.red-gate.com/fd/quickstart-how-flyway-works-184127223.html
+Database Migrations Made Easy.  If you are new to flyway and trying it out for the first time we are pleased you could join the flyway community.  If you have any comments or feedback on your experience with flyway please do not hesitate to let me know and email me at adam.britt@red-gate.com.  Also to help you get started please follow our quick start guide which cam be found here: - https://documentation.red-gate.com/fd/getting-started-with-flyway-184127223.html
 
 
 Documentation
 -------------
-You can find our getting started guides here https://documentation.red-gate.com/fd/quickstart-how-flyway-works-184127223.html
+You can find our getting started guides here https://documentation.red-gate.com/fd/getting-started-with-flyway-184127223.html
 Our reference documentation can be found at https://documentation.red-gate.com/fd/flyway-cli-and-api-183306238.html
 
 

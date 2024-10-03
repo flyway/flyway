@@ -2,7 +2,7 @@
 title: Welcome To Flyway Engine
 ---
 
-Flyway Engine is an database migration tool that strongly favors simplicity and convention over configuration.
+Flyway Engine is a database migration tool that strongly favors simplicity and convention over configuration.
 
 It is based around just several core commands:
 [Migrate](Commands/migrate), [Clean](Commands/clean), [Info](Commands/info), [Validate](Commands/validate), [Undo](Commands/undo), [Baseline](Commands/baseline) and [Repair](Commands/repair).

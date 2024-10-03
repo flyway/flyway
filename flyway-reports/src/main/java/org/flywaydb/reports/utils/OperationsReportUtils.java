@@ -115,8 +115,10 @@ public class OperationsReportUtils {
                 }
             }
 
-            if (reportDetails.getHtmlReportFilename() != null) {
-                LOG.info("A Flyway report has been generated here: " + reportDetails.getHtmlReportFilename());
+            if (htmlCompositeResult.individualResults.stream().noneMatch(HtmlResult::isDeleteFileOnJvmExit)) {
+                if (reportDetails.getHtmlReportFilename() != null) {
+                    LOG.info("A Flyway report has been generated here: " + reportDetails.getHtmlReportFilename());
+                }
             }
         }
 

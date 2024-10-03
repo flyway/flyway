@@ -20,12 +20,14 @@
 package org.flywaydb.core.experimental;
 
 import java.sql.SQLException;
-import javax.sql.DataSource;
+import java.util.function.BiFunction;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.experimental.schemahistory.SchemaHistoryItem;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryModel;
 import org.flywaydb.core.extensibility.Plugin;
-import org.flywaydb.core.internal.configuration.models.EnvironmentModel;
 import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
+import org.flywaydb.core.internal.parser.Parser;
+import org.flywaydb.core.internal.parser.ParsingContext;
 
 /**
  * Interface to define new experimental database plugins.
@@ -39,6 +41,8 @@ public interface ExperimentalDatabase extends Plugin, AutoCloseable  {
      */
     DatabaseSupport supportsUrl(String url);
 
+    boolean supportsDdlTransactions();
+
     /**
      * To initialize the connection to the database. This function will vary between the connection types.
      * For example, a JDBC connection will establish a connection object.
@@ -46,6 +50,8 @@ public interface ExperimentalDatabase extends Plugin, AutoCloseable  {
      * @param environment The resolved environment to connect to.
      */
     void initialize(ResolvedEnvironment environment, Configuration configuration) throws SQLException;
+
+    void doExecute(String executionUnit);
 
     /**
      * Gets connection important metadata from the database.
@@ -70,6 +76,8 @@ public interface ExperimentalDatabase extends Plugin, AutoCloseable  {
      * @return A model representation of the schema history table and its content.
      */
     SchemaHistoryModel getSchemaHistoryModel(String tableName);
+    
+    void appendSchemaHistoryItem(SchemaHistoryItem item,  String tableName);
 
 
     /**
@@ -116,4 +124,25 @@ public interface ExperimentalDatabase extends Plugin, AutoCloseable  {
     Boolean allSchemasEmpty(String[] schemas);
 
     boolean isSchemaExists(String schema);
+
+    void createSchemas(String... schemas);
+
+    String getDatabaseType();
+
+    BiFunction<Configuration, ParsingContext, Parser> getParser();
+
+    void addToBatch(String executionUnit);
+
+    /**
+     * Executes the current batch against the database.
+     */
+    void doExecuteBatch();
+    
+    String getCurrentUser();
+
+    void startTransaction();
+
+    void commitTransaction();
+
+    void rollbackTransaction();
 }

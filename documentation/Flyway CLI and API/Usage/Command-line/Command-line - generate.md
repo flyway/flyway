@@ -2,7 +2,7 @@
 pill: cli_generate
 subtitle: 'Command-line: generate'
 ---
-# Command-line: generate
+# Command-line: generate - Preview
 
 {% include enterprise.html %}
 

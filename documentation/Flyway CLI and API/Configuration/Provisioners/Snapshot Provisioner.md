@@ -11,7 +11,6 @@ The snapshot provisioner can be used to speed up provisioning a shadow environme
 
 ## Prerequisites
 * A snapshot file generated using the [snapshot](Commands/Snapshot) command.
-* Set the environment variable `REDGATE_FLYWAY_DIFF_VERB=true`.
 
 ## To configure this provisioner
 1. Set the value of the [provisioner parameter](Configuration/Parameters/Environments/Provisioner) to `snapshot`.

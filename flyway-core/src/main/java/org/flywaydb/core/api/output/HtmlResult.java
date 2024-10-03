@@ -39,6 +39,9 @@ public class HtmlResult implements OperationResult {
     @Getter
     @Setter
     private boolean licenseFailed;
+    @Getter
+    @Setter
+    private boolean deleteFileOnJvmExit = false;
 
     public HtmlResult(final LocalDateTime timestamp, final String operation) {
         setTimestamp(timestamp);

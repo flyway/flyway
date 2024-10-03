@@ -19,6 +19,8 @@
  */
 package org.flywaydb.core.experimental;
 
+import java.util.List;
+import java.util.Map;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.sqlite.SQLiteDatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
@@ -29,10 +31,31 @@ public class ExperimentalModeUtils {
         return System.getenv("FLYWAY_EXPERIMENTAL") != null && System.getenv("FLYWAY_EXPERIMENTAL").equalsIgnoreCase("true");
     }
 
-    public static boolean canUseExperimentalMode(final Configuration config) {
+    public static boolean canUseExperimentalMode(final Configuration config,  String verb) {
+        Map<String, List<String>> acceptedVerbs = Map.of("mongodb", List.of("info", "validate", "migrate"),
+
+
+
+            "SQLite", List.of("info", "validate", "migrate"));
+
+        String database = getCurrentDatabase(config);
+
+        if (database == null) {
+            return false;
+        }
+
+        if (!acceptedVerbs.containsKey(database)) {
+            return false;
+        }
+
+        return acceptedVerbs.get(database).contains(verb);
+    }
+
+    private static String getCurrentDatabase(final Configuration config) {
         if (config.getUrl().startsWith("mongodb")) {
-            return true;
-        } 
+            return "mongodb";
+        }
+
 
 
 
@@ -40,7 +63,11 @@ public class ExperimentalModeUtils {
 
 
         try (final var connectionFactory = new JdbcConnectionFactory(config.getDataSource(), config, null)) {
-            return connectionFactory.getDatabaseType() instanceof SQLiteDatabaseType;
+            if (connectionFactory.getDatabaseType() instanceof SQLiteDatabaseType) {
+                return "SQLite";
+            }
         }
+
+        return null;
     }
 }

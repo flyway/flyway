@@ -29,10 +29,18 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.function.BiFunction;
+import org.bson.BsonDocument;
 import org.bson.Document;
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.experimental.ConnectionType;
 import org.flywaydb.core.experimental.DatabaseSupport;
@@ -41,10 +49,15 @@ import org.flywaydb.core.experimental.MetaData;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryItem;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryModel;
 import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
+import org.flywaydb.core.internal.parser.Parser;
+import org.flywaydb.core.internal.parser.ParsingContext;
 
 public class ExperimentalMongoDB implements ExperimentalDatabase {
     private MongoClient mongoClient;
     private MongoDatabase mongoDatabase;
+    private ArrayList<String> batch = new ArrayList<>();
+    
+    private String schemaHistoryTableName = null;
 
     @Override
     public DatabaseSupport supportsUrl(final String url) {
@@ -52,6 +65,11 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
             return new DatabaseSupport(true, 1);
         }
         return new DatabaseSupport(false, 0);
+    }
+
+    @Override
+    public boolean supportsDdlTransactions() {
+        return false;
     }
 
     @Override
@@ -70,6 +88,16 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
                 .build());
         }
         mongoDatabase = mongoClient.getDatabase(getDefaultSchema(configuration));
+        schemaHistoryTableName = configuration.getTable();
+    }
+
+    @Override
+    public void doExecute(final String executionUnit) {
+        try {
+            final Document result = mongoDatabase.runCommand(BsonDocument.parse(executionUnit));
+        } catch (Exception e) {
+            throw new FlywayException(e);
+        }
     }
 
     @Override
@@ -81,10 +109,16 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
 
     @Override
     public void createSchemaHistoryTable(final String tableName) {
+        
     }
 
     @Override
     public boolean schemaHistoryTableExists(final String tableName) {
+        for (final Document document : mongoDatabase.listCollections()) {
+            if (document.getString("name").equals(tableName)) {
+                return true;
+            }
+        }
         return false;
     }
 
@@ -102,7 +136,7 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
                     .type(document.getString("type"))
                     .script(document.getString("script"))
                     .checksum(document.getInteger("checksum"))
-                    .installedOn(Timestamp.valueOf(document.getString("installed_on")).toLocalDateTime())
+                    .installedOn(fromTimestampString(document.getString("installed_on")))
                     .installedBy(document.getString("installed_by"))
                     .executionTime(document.getInteger("execution_time"))
                     .success(document.getBoolean("success"))
@@ -110,6 +144,27 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
             );
         }
         return new SchemaHistoryModel(items);
+    }
+    
+    private LocalDateTime fromTimestampString(final String timestamp) {
+        String pattern = "yyyy-MM-dd HH:mm:ss.";
+        pattern = pattern + "S".repeat(timestamp.length() - pattern.length());
+        return LocalDateTime.parse(timestamp, DateTimeFormatter.ofPattern(pattern, Locale.ENGLISH));
+    }
+
+    @Override
+    public void appendSchemaHistoryItem(final SchemaHistoryItem item, final String tableName) {
+        final Document document = new Document().append("installed_rank", item.getInstalledRank())
+            .append("version", item.getVersion())
+            .append("description", item.getDescription())
+            .append("type", item.getType())
+            .append("script", item.getScript())
+            .append("checksum", item.getChecksum())
+            .append("installed_on", Timestamp.from(Instant.now()).toString())
+            .append("installed_by", item.getInstalledBy())
+            .append("execution_time", item.getExecutionTime())
+            .append("success", item.isSuccess());
+        mongoDatabase.getCollection(tableName).insertOne(document);
     }
 
     @Override
@@ -129,7 +184,16 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
                 return true;
             }
         }
-        return false;
+        
+        final SchemaHistoryModel schemaHistoryModel = getSchemaHistoryModel(schemaHistoryTableName);
+        return schemaHistoryModel.getSchemaHistoryItems().stream()
+            .filter(x -> Objects.equals(x.getType(), "SCHEMA"))
+            .anyMatch(x -> x.getDescription().substring(6, x.getDescription().length() - 7).contains(schema));
+    }
+
+    @Override
+    public void createSchemas(final String... schemas) {
+        //MongoDB does not support creating schemas
     }
 
     @Override
@@ -157,5 +221,46 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
             }
         }
         return defaultSchemaName;
+    }
+
+    @Override
+    public String getDatabaseType() {
+        return "MongoDB";
+    }
+
+    @Override
+    public void doExecuteBatch() {
+        mongoDatabase.runCommand(BsonDocument.parse(String.join(";", batch)));
+        batch.clear();
+    }
+
+    @Override
+    public void addToBatch(final String executionUnit) {
+        batch.add(executionUnit);
+    }
+
+    @Override
+    public BiFunction<Configuration, ParsingContext, Parser> getParser() {
+        return null;
+    }
+
+    @Override
+    public String getCurrentUser() {
+        return "";
+    }
+
+    @Override
+    public void startTransaction() {
+        throw new UnsupportedOperationException("Transactions are currently not supported in MongoDB, set executeInTransaction to false");
+    }
+
+    @Override
+    public void commitTransaction() {
+
+    }
+
+    @Override
+    public void rollbackTransaction() {
+
     }
 }

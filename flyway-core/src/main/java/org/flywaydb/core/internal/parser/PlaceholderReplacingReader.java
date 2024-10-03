@@ -20,6 +20,7 @@
 package org.flywaydb.core.internal.parser;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.LoadableMigrationInfo;
 import org.flywaydb.core.api.configuration.Configuration;
 
 import java.io.FilterReader;
@@ -88,6 +89,24 @@ public class PlaceholderReplacingReader extends FilterReader {
                 placeholders,
                 reader);
     }
+        public static PlaceholderReplacingReader create(Configuration configuration, ParsingContext parsingContext, LoadableMigrationInfo info) {
+            Map<String, String> placeholders = new HashMap<>();
+            Map<String, String> configurationPlaceholders = configuration.getPlaceholders();
+            Map<String, String> parsingContextPlaceholders = parsingContext.getPlaceholders();
+
+            final boolean placeholderReplacement = info.isPlaceholderReplacement() == null
+                ? configuration.isPlaceholderReplacement()
+                : info.isPlaceholderReplacement();
+            if (placeholderReplacement) {
+                placeholders.putAll(configurationPlaceholders);
+                placeholders.putAll(parsingContextPlaceholders);
+            }
+                return new PlaceholderReplacingReader(
+                    configuration.getPlaceholderPrefix(),
+                    configuration.getPlaceholderSuffix(),
+                    placeholders,
+                    info.getLoadableResource().read());
+            }
 
     public static PlaceholderReplacingReader createForScriptMigration(Configuration configuration, ParsingContext parsingContext, Reader reader) {
         Map<String, String> placeholders = new HashMap<>();

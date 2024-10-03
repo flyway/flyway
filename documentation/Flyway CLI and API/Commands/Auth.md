@@ -52,6 +52,7 @@ TOML:
 email = "foo.bar@red-gate.com"
 token = "1234ABCD"
 ```
+Full configuration available here [email](configuration/parameters/flyway/email) and [token](configuration/parameters/flyway/token)
 
 Environment variables:
 ```shell

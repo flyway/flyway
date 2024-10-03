@@ -25,7 +25,7 @@ import lombok.AllArgsConstructor;
 import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.CoreErrorCode;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.command.DbMigrate;
+import org.flywaydb.core.internal.exception.FlywayMigrateException;
 import org.flywaydb.core.internal.sqlscript.FlywaySqlScriptException;
 
 import java.io.ByteArrayOutputStream;
@@ -57,15 +57,15 @@ public class ErrorOutput implements OperationResult {
     public static ErrorOutput fromException(final Exception exception) {
         final String message = exception.getMessage();
 
-        if (exception instanceof DbMigrate.FlywayMigrateException
-            && exception.getCause() instanceof final FlywaySqlScriptException flywaySqlScriptException) {
+        if (exception instanceof final FlywayMigrateException flywayMigrateException &&
+            flywayMigrateException.getAbsolutePathOnDisk() != null) {
 
             return new ErrorOutput(
-                ((DbMigrate.FlywayMigrateException) exception).getMigrationErrorCode(),
+                flywayMigrateException.getMigrationErrorCode(),
                 message == null ? "Error occurred" : message,
                 null,
-                flywaySqlScriptException.getLineNumber(),
-                flywaySqlScriptException.getResource().getAbsolutePathOnDisk(),
+                flywayMigrateException.getLineNumber(),
+                flywayMigrateException.getAbsolutePathOnDisk(),
                 getCause(exception).orElse(null));
         }
 
@@ -89,13 +89,13 @@ public class ErrorOutput implements OperationResult {
             getCause(exception).orElse(null));
     }
 
-    public static MigrateErrorResult fromMigrateException(final DbMigrate.FlywayMigrateException exception) {
+    public static MigrateErrorResult fromMigrateException(final FlywayMigrateException exception) {
         return exception.getErrorResult();
     }
 
     public static OperationResult toOperationResult(final Exception exception) {
-        if (exception instanceof DbMigrate.FlywayMigrateException) {
-            return fromMigrateException((DbMigrate.FlywayMigrateException) exception);
+        if (exception instanceof FlywayMigrateException) {
+            return fromMigrateException((FlywayMigrateException) exception);
         } else {
             return fromException(exception);
         }

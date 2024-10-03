@@ -19,7 +19,7 @@ As the lifetime of a project increases, there will inevitably be hotfixes, delet
 
 In these cases you need a way to tell Flyway that these migrations are valid. Flyway Teams Edition provides the flexibility to do this.
 
-<a style="text-decoration: none; background: rgb(204,0,0); padding: 6px 40px; border-radius: 10px; color: white; font-weight: bold;" href="https://flywaydb.org/custom-validate-rules">Learn more about custom validate rules</a>
+<a style="text-decoration: none; background: rgb(204,0,0); padding: 6px 40px; border-radius: 10px; color: white; font-weight: bold;" href="https://www.red-gate.com/blog/customize-validation-rules-with-ignoremigrationpatterns">Learn more about custom validate rules</a>
 
 ## Usage
 See [configuration](Configuration/parameters/#validate) for validate specific configuration parameters.

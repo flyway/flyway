@@ -5,7 +5,7 @@ Database Migrations Made Easy.
 
 Documentation
 -------------
-You can find our getting started guides here https://documentation.red-gate.com/fd/quickstart-how-flyway-works-184127223.html
+You can find our getting started guides here https://documentation.red-gate.com/fd/getting-started-with-flyway-184127223.html
 Our reference documentation can be found at https://documentation.red-gate.com/fd/flyway-cli-and-api-183306238.html
 
 

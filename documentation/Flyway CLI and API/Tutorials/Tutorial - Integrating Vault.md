@@ -12,7 +12,7 @@ HashiCorp Vault is a secrets management solution, allowing you to securely store
 
 Flyway integrates with Vault's [key-value secret store](https://www.vaultproject.io/docs/secrets/kv), letting you securely store and provide access to any confidential Flyway parameters for any specified duration.
 
-This tutorial will assume you already have a Vault instance and know how to configure secrets in it. For more information on configuring secrets in Vault along with a tutorial on using Flyway, see [this blog post](https://flywaydb.org/blog/integrating-vault-to-secure-flyway-parameters).
+This tutorial will assume you already have a Vault instance and know how to configure secrets in it. For more information on configuring secrets in Vault along with a tutorial on using Flyway, see [this blog post](https://documentation.red-gate.com/fd/may-2021-integrating-vault-to-secure-flyway-parameters-212140927.html).
 
 ## Configuring Flyway to access Vault
 

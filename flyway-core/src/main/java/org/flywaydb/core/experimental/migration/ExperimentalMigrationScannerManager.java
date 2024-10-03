@@ -19,7 +19,8 @@
  */
 package org.flywaydb.core.experimental.migration;
 
-import java.io.Reader;
+import static org.flywaydb.core.api.resource.LoadableResource.createPlaceholderReplacingLoadableResource;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -32,7 +33,6 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.api.resource.LoadableResourceMetadata;
 import org.flywaydb.core.internal.parser.ParsingContext;
-import org.flywaydb.core.internal.parser.PlaceholderReplacingReader;
 import org.flywaydb.core.internal.resolver.ChecksumCalculator;
 import org.flywaydb.core.internal.resource.ResourceName;
 import org.flywaydb.core.internal.resource.ResourceNameParser;
@@ -108,7 +108,7 @@ public class ExperimentalMigrationScannerManager {
             resourceName.getVersion(),
             resourceName.getDescription(),
             resourceName.getPrefix(),
-            resource.getLeft(),
+            placeholderReplacement ? createPlaceholderReplacingLoadableResource(resource.getLeft(), configuration, parsingContext) : resource.getLeft(),
             resource.getRight(),
             checksum, 
             null);
@@ -126,32 +126,7 @@ public class ExperimentalMigrationScannerManager {
             return ChecksumCalculator.calculate(createPlaceholderReplacingLoadableResource(resource, configuration, parsingContext));
         }
         return ChecksumCalculator.calculate(resource);
-    }
-    private static LoadableResource createPlaceholderReplacingLoadableResource(
-        final LoadableResource loadableResource,
-        final Configuration configuration,
-        final ParsingContext parsingContext) {
-        
-        return new LoadableResource() {
-            @Override
-            public Reader read() {
-                return PlaceholderReplacingReader.create(configuration, parsingContext, loadableResource.read());
-            }
-
-            @Override
-            public String getAbsolutePath() {return loadableResource.getAbsolutePath();}
-
-            @Override
-            public String getAbsolutePathOnDisk() {return loadableResource.getAbsolutePathOnDisk();}
-
-            @Override
-            public String getFilename() {return loadableResource.getFilename();}
-
-            @Override
-            public String getRelativePath() {return loadableResource.getRelativePath();}
-        };        
-    }
-    
+    }    
 
     private Collection<Pair<LoadableResource, SqlScriptMetadata>> scan(final Location location, final Configuration configuration, final ParsingContext parsingContext) {
         return scanners.stream()

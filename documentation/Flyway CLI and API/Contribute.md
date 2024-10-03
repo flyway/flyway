@@ -85,7 +85,7 @@ subtitle: Contribute
     <p>Flyway wouldn't be what it is without the efforts of the many contributors. Thank you!</p>
 
     <p>
-        <a style="text-decoration: none; background: rgb(204,0,0); padding: 6px 40px; border-radius: 10px; color: white; font-weight: bold;" href="https://flywaydb.org/documentation/contribute/hallOfFame">Hall of Fame <i class="fa fa-arrow-right"></i></a>
+        <a style="text-decoration: none; background: rgb(204,0,0); padding: 6px 40px; border-radius: 10px; color: white; font-weight: bold;" href="">Hall of Fame <i class="fa fa-arrow-right"></i></a>
     </p>
 
     # Further Details

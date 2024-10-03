@@ -39,6 +39,10 @@ public interface PluginMetadata extends Plugin {
         String example = getExample();
         String documentationLink = getDocumentationLink();
 
+        if (inPreview()) {
+            result.append("(In preview)\n\n");
+        }
+
         if (description != null) {
             result.append("Description:\n");
             Arrays.stream(description.split("\n")).map(String::trim).forEach(line -> result.append(indent)
@@ -138,5 +142,9 @@ public interface PluginMetadata extends Plugin {
      */
     default String getDocumentationLink() {
         return null;
+    }
+
+    default boolean inPreview() {
+        return false;
     }
 }

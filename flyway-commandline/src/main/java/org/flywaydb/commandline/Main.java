@@ -55,13 +55,12 @@ import org.flywaydb.core.api.output.CompositeResult;
 import org.flywaydb.core.api.output.ErrorOutput;
 import org.flywaydb.core.api.output.HtmlResult;
 import org.flywaydb.core.api.output.InfoResult;
-import org.flywaydb.core.api.output.MigrateResult;
 import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.extensibility.InfoTelemetryModel;
 import org.flywaydb.core.extensibility.LicenseGuard;
-import org.flywaydb.core.internal.command.DbMigrate;
+import org.flywaydb.core.internal.exception.FlywayMigrateException;
 import org.flywaydb.core.internal.info.MigrationFilterImpl;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.license.FlywayExpiredLicenseKeyException;
@@ -215,7 +214,7 @@ public class Main {
                     executionConfiguration);
                 compositeResult.individualResults.add(operationResult);
                 if (operationResult instanceof HtmlResult
-                    && ((HtmlResult) operationResult).exceptionObject instanceof DbMigrate.FlywayMigrateException) {
+                    && ((HtmlResult) operationResult).exceptionObject instanceof FlywayMigrateException) {
                     break;
                 }
             }
@@ -291,7 +290,7 @@ public class Main {
 
 
 
-            } catch (final DbMigrate.FlywayMigrateException e) {
+            } catch (final FlywayMigrateException e) {
                 result = ErrorOutput.fromMigrateException(e);
                 final HtmlResult hr = (HtmlResult) result;
                 hr.setException(e);
@@ -443,7 +442,7 @@ public class Main {
         LOG.info("Commands");
         final List<Pair<String, String>> usages = PLUGIN_REGISTER.getPlugins(CommandExtension.class)
             .stream()
-            .flatMap(e -> e.getUsage().stream())
+            .flatMap(e -> e.getUsage().stream().map(p -> e.inPreview() ? Pair.of(p.getLeft() + " (preview)", p.getRight()) : p))
             .toList();
         final int padSize = usages.stream().max(Comparator.comparingInt(u -> u.getLeft().length())).map(u -> u.getLeft()
             .length() + 3).orElse(11);

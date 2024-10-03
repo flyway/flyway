@@ -2,7 +2,7 @@
 subtitle: Diff concept
 ---
 
-# Diff
+# Diff - Preview
 
 {% include enterprise.html %}
 

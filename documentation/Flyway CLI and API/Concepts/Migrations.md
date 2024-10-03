@@ -534,7 +534,7 @@ The following will happen:
 | `Failed (Missing)` | This migration failed and could not be resolved                                                                                                   |
 | `Failed`           | This migration failed                                                                                                                             |
 | `Failed (Future)`  | This migration failed and its version is higher than the schema history table's current version                                                   |
-| `Future`           | This migration succeeded and its version is higher than the schema history table's current version                                                |
+| `Future`           | This migration succeeded and its version is higher than the current highest resolved migration. This may be missing from your local environment                         |
 | `Out of Order`     | This migration succeeded but it was applied out of order. Rerunning the entire migration history might produce different results!                 |
 | `Outdated`         | This is a [`repeatable`](Tutorials/Tutorial Repeatable Migrations) migration that is outdated and should be re-applied                            |
 | `Superseded`       | This is a [`repeatable`](Tutorials/Tutorial Repeatable Migrations) migration that is outdated and has already been superseded by a newer one      |

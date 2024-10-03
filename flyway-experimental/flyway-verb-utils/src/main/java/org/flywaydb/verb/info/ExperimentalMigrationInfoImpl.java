@@ -21,15 +21,18 @@ package org.flywaydb.verb.info;
 
 import java.time.ZoneId;
 import java.util.Date;
+import org.flywaydb.core.api.LoadableMigrationInfo;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.api.resource.LoadableResourceMetadata;
 import org.flywaydb.core.experimental.schemahistory.ResolvedSchemaHistoryItem;
 import org.flywaydb.core.extensibility.MigrationType;
+import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
 import org.flywaydb.core.internal.util.Pair;
 
-public class ExperimentalMigrationInfoImpl implements MigrationInfo {
+public class ExperimentalMigrationInfoImpl implements LoadableMigrationInfo {
 
     private final Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata> migration;
     private final MigrationState migrationState;
@@ -76,7 +79,7 @@ public class ExperimentalMigrationInfoImpl implements MigrationInfo {
         if(migration.getLeft() != null) {
             return migration.getLeft().getScript();
         }
-        return migration.getRight().loadableResource().getRelativePath();
+        return migration.getRight().loadableResource().getAbsolutePath();
     }
 
     @Override
@@ -119,7 +122,7 @@ public class ExperimentalMigrationInfoImpl implements MigrationInfo {
     @Override
     public String getPhysicalLocation() {
         if (migration.getRight() != null) {
-            return migration.getRight().loadableResource().getRelativePath();
+            return migration.getRight().loadableResource().getAbsolutePath();
         }
         return null;
     }
@@ -143,6 +146,14 @@ public class ExperimentalMigrationInfoImpl implements MigrationInfo {
     }
 
     @Override
+    public Boolean isPlaceholderReplacement() {
+        if(migration.getRight() != null && migration.getRight().sqlScriptMetadata() != null){
+            return migration.getRight().sqlScriptMetadata().placeholderReplacement();
+        }
+        return null;
+    }
+
+    @Override
     public Integer getResolvedChecksum() {
         return migration.getRight() == null ? null : migration.getRight().checksum();
     }
@@ -160,5 +171,21 @@ public class ExperimentalMigrationInfoImpl implements MigrationInfo {
     @Override
     public String getAppliedDescription() {
         return migration.getLeft() == null ? null : migration.getLeft().getDescription();
+    }
+
+    @Override
+    public LoadableResource getLoadableResource() {
+        if (migration.getRight() != null) {
+            return migration.getRight().loadableResource();
+        }
+        return null;
+    }
+
+    @Override
+    public SqlScriptMetadata getSqlScriptMetadata() {
+        if(migration.getRight() != null) {
+            return migration.getRight().sqlScriptMetadata();
+        }
+        return null;
     }
 }

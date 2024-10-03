@@ -1,7 +1,7 @@
 ---
 subtitle: add
 ---
-# Add
+# Add - Preview
 
 ## Why is this useful ?
 The `add` command is used to create new migration scripts using following the naming convention of your existing migrations. 

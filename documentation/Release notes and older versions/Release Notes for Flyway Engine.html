@@ -9,6 +9,34 @@
 <div class="col-md-9">
 
   <div class="release">
+        <h2 id="10.19.0">Flyway 10.19.0 (2024-10-03)</h2>
+
+        <h3>Breaking changes</h3>
+        <ul>
+            <li>Extracted FlywayMigrateException to its own class</li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>Add support for DB2 ZOS</li>
+            <li>DB2 and Redshift now support AWS Secrets Manager</li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>The following flyway commands are now available in preview: add, diff, diffApply, diffText and generate.</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>Upgrade google-cloud-spanner-jdbc 2.18.1 to 2.22.1 to fix CVE-2024-7254</li>
+            <li>Upgrade google-cloud-secretmanager 2.20.0 to 2.51.0 to fix CVE-2024-7254</li>
+            <li>Upgrade google-cloud-storage version 2.22.5 to 2.43.1 to fix CVE-2024-7254</li>
+        </ul>
+
+    </div>
+
+<div class="release">
         <h2 id="10.18.2">Flyway 10.18.2 (2024-09-26)</h2>
 
         <h3>Bug fixes</h3>

@@ -51,7 +51,7 @@ public class ExperimentalMigrationInfoService implements MigrationInfoService {
 
     private MigrationInfo[] getApplicableMigrations(final MigrationInfo[] migrations, final Configuration configuration) {
         final MigrationInfo[] applicableMigrations;
-        final List<ExperimentalMigrationInfoFilter> filters = configuration.getPluginRegister().getPlugins(ExperimentalMigrationInfoFilter.class);
+        final List<ExperimentalMigrationInfoFilter> filters = configuration.getPluginRegister().getLicensedPlugins(ExperimentalMigrationInfoFilter.class, configuration);
         MigrationInfo[] tempMigrations = Arrays.copyOf(migrations, migrations.length);
         for(final ExperimentalMigrationInfoFilter filter : filters) {
             final Predicate<MigrationInfo> predicate = filter.getFilter(configuration);

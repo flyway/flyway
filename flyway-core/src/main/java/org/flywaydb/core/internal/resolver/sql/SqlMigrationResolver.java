@@ -31,7 +31,6 @@ import org.flywaydb.core.api.resource.Resource;
 import org.flywaydb.core.extensibility.LicenseGuard;
 import org.flywaydb.core.extensibility.Tier;
 import org.flywaydb.core.internal.parser.ParsingContext;
-import org.flywaydb.core.internal.parser.PlaceholderReplacingReader;
 import org.flywaydb.core.internal.resolver.ChecksumCalculator;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
@@ -41,7 +40,6 @@ import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
 import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
 
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
@@ -82,32 +80,12 @@ public class SqlMigrationResolver implements MigrationResolver {
     }
 
     private LoadableResource[] createPlaceholderReplacingLoadableResources(List<LoadableResource> loadableResources) {
-        List<LoadableResource> list = new ArrayList<>();
-
-        for (final LoadableResource loadableResource : loadableResources) {
-            LoadableResource placeholderReplacingLoadableResource = new LoadableResource() {
-                @Override
-                public Reader read() {
-                    return PlaceholderReplacingReader.create(configuration, parsingContext, loadableResource.read());
-                }
-
-                @Override
-                public String getAbsolutePath() {return loadableResource.getAbsolutePath();}
-
-                @Override
-                public String getAbsolutePathOnDisk() {return loadableResource.getAbsolutePathOnDisk();}
-
-                @Override
-                public String getFilename() {return loadableResource.getFilename();}
-
-                @Override
-                public String getRelativePath() {return loadableResource.getRelativePath();}
-            };
-
-            list.add(placeholderReplacingLoadableResource);
-        }
-
-        return list.toArray(new LoadableResource[0]);
+        return loadableResources.stream()
+            .map(loadableResource -> LoadableResource.createPlaceholderReplacingLoadableResource(
+                loadableResource,
+                configuration,
+                parsingContext))
+            .toArray(LoadableResource[]::new);
     }
 
     private Integer getChecksumForLoadableResource(boolean repeatable, List<LoadableResource> loadableResources, ResourceName resourceName, boolean placeholderReplacement) {

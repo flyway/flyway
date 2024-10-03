@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>10.18.2</version>
+    <version>10.19.0</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
 
@@ -21,12 +21,6 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>flyway-core</artifactId>
-      <version>${project.parent.version}</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>flyway-experimental-sqlite</artifactId>
       <version>${project.parent.version}</version>
       <scope>compile</scope>
     </dependency>

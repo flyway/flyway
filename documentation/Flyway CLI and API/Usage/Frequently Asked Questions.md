@@ -10,7 +10,7 @@ subtitle: FAQ
 -   [Does Flyway support undo/downgrade/downward migrations?](#downgrade)
 -   [What is the best strategy for dealing with hot fixes?](#hot-fixes)
 -   [Can multiple nodes migrate in parallel?](#parallel)
--   [Does Flyway perform a roll back if a migration fails?](#rollback)
+-   [Does Flyway perform a rollback if a migration fails?](#rollback)
 -   [Does Flyway support multiple schemas?](#multiple-schemas)
 -   [Does Flyway work with OSGi?](#osgi?)
 -   [Does Flyway support placeholder replacement?](#placeholders)
@@ -22,6 +22,7 @@ subtitle: FAQ
 -   [How do I rebuild a Schema history table ?](#rebuild-sht)
 -   [Why is the flyway_schema_history table case-sensitive?](#case-sensitive)
 -   [How can I integrate Flyway with Hibernate in a CDI environment?](#hibernate-cdi)
+-   [How can I get process Flyway's output programmatically?](#programmatic)
 
 
 ## I found a defect. Where should I report it?
@@ -60,7 +61,7 @@ will have a linear evolution.
 
 This means that the emergency fix, say version 7.1 needs to be deployed as part of the hot fix AND the new version 8.
 
-By the time version 8 will be deployed, Flyway will recognize that the migration version 7.1 has already be applied. It will ignore it and migrate to version 8.
+By the time version 8 will be deployed, Flyway will recognize that the migration version 7.1 has already been applied. It will ignore it and migrate to version 8.
 
 When recreating the database, everything with be cleanly installed in order: version 7, 7.1 and 8.
 
@@ -70,7 +71,7 @@ When recreating the database, everything with be cleanly installed in order: ver
 <a name="parallel"></a>
 Yes! Flyway uses the locking technology of your database to coordinate multiple nodes. This ensures that even if multiple instances of your application attempt to migrate the database at the same time, it still works. Cluster configurations are fully supported.
 
-## Does Flyway perform a roll back if a migration fails?
+## Does Flyway perform a rollback if a migration fails?
 <a name="rollback"></a>
 Flyway runs each migration in a separate transaction. In case of failure this transaction is rolled back. 
 
@@ -152,7 +153,7 @@ If your database doesn\'t then these are the steps to follow:
 
 ## Why does `clean` drop individual objects instead of the schema itself?
 <a name="clean-objects"></a>
-`clean` will remove what Flyway created. If Flyway also created the schema itself, `clean` will drop it. Otherwise it will only drop the objects within the schema.
+`clean` will remove what Flyway created. If Flyway also created the schema itself, `clean` will drop it. Otherwise, it will only drop the objects within the schema.
 
 ## What is the best strategy for handling database-specific sql? 
 <a name="db-specific-sql"></a>
@@ -186,7 +187,7 @@ The flyway_schema_history is case-sensitive due to the quotes used in its creati
 The name (and case) can be configured through the `flyway.table`
 property.
 
-The table is an internal Flyway implementation detail and not part of the a public API. It can therefore change from time to time.
+The table is an internal Flyway implementation detail and not part of the public API. It can therefore change from time to time.
 
 ## How can I integrate Flyway with Hibernate in a CDI environment? 
 <a name="hibernate-cdi"></a>
@@ -196,5 +197,6 @@ answer](http://stackoverflow.com/questions/11071821/cdi-extension-for-flyway).
 For Hibernate 5.X see [this
 issue](https://github.com/flyway/flyway/issues/1981).
 
-
-
+## How can I get process Flyway's output programmatically?
+<a name="programmatic"></a>
+Most of Flyway's output defaults to human-readable. By using the [outputType](Configuration/parameters/flyway/outputtype) switch, you can enable JSON format instead which will make programmatically interacting with the output much easier.

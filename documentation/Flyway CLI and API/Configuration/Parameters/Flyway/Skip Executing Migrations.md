@@ -64,10 +64,7 @@ flyway {
 
 ## Related Reading
 
-See the following articles for additional information on `skipExecutingMigrations` along with examples and use cases.
+See the following article for additional information on `skipExecutingMigrations` along with examples and use cases.
 
-- [Blog Post: Skip Executing Migrations Examples](https://flywaydb.org/blog/skipExecutingMigrations)
-    - [Hotfixes](https://flywaydb.org/blog/skipExecutingMigrations#hotfixes)
-    - [Migration Generation](https://flywaydb.org/blog/skipExecutingMigrations#migration-generation)
-    - [Deferred Migration Execution](https://flywaydb.org/blog/skipExecutingMigrations#deferred-migration-execution)
-    - [Baseline Script](https://flywaydb.org/blog/skipExecutingMigrations#intermediate-baseline)
+- [Blog Post: Skip Executing Migrations Examples](https://documentation.red-gate.com/fd/october-2020-skip-executing-migrations-examples-259621238.html)
+
