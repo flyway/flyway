@@ -9,6 +9,32 @@
 <div class="col-md-9">
 
   <div class="release">
+        <h2 id="10.20.0">Flyway 10.20.0 (2024-10-16)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fix a bug where error messages are produced when `check -drift` is run without setting `deployedSnapshot`</li>
+            <li>FLYWAY_PIPELINE_ID environment variable was previously broken but is now fixed</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>The 'createSchema' callback is now deprecated and replaced by 'beforeCreateSchema'</li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>Support PostgreSQL 17</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>jetty-server 9.4.53.v20231009 to 9.4.56.v20240826 to fix CVE-2024-8184</li>
+        </ul>
+
+    </div>
+
+<div class="release">
         <h2 id="10.19.0">Flyway 10.19.0 (2024-10-03)</h2>
 
         <h3>Breaking changes</h3>

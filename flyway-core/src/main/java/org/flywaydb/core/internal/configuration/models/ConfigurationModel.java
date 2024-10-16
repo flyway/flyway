@@ -20,13 +20,12 @@
 package org.flywaydb.core.internal.configuration.models;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.flywaydb.core.internal.util.MergeUtils;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Getter
 @Setter
@@ -37,7 +36,7 @@ public class ConfigurationModel {
     private String id;
 
     @JsonAnySetter
-    private Map<String,Object> rootConfigurations = new HashMap<>();
+    private Map<String, Object> rootConfigurations = new HashMap<>();
 
     public static ConfigurationModel defaults() {
         ConfigurationModel model = new ConfigurationModel();
@@ -52,7 +51,9 @@ public class ConfigurationModel {
 
         result.flyway = flyway != null ? flyway.merge(otherPojo.flyway) : otherPojo.flyway;
         result.environments = MergeUtils.merge(environments, otherPojo.environments, EnvironmentModel::merge);
-        result.rootConfigurations = MergeUtils.merge(rootConfigurations, otherPojo.rootConfigurations, (a,b) -> b != null ? b : a);
+        result.rootConfigurations = MergeUtils.merge(rootConfigurations,
+            otherPojo.rootConfigurations,
+            MergeUtils::mergeObjects);
         return result;
     }
 

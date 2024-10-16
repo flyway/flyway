@@ -59,6 +59,7 @@ public abstract class Migrator {
         final int totalTimeMillis,
         final int installedRank,
         final ExperimentalDatabase experimentalDatabase,
+        final String installedBy,
         final boolean success) {
         final SchemaHistoryItemBuilder schemaHistoryItem = SchemaHistoryItem.builder()
             .executionTime(totalTimeMillis)
@@ -67,7 +68,7 @@ public abstract class Migrator {
             .script(migrationInfo.getScript())
             .installedRank(installedRank)
             .checksum(migrationInfo.getChecksum())
-            .installedBy(experimentalDatabase.getCurrentUser())
+            .installedBy(installedBy)
             .success(success);
         if (migrationInfo.isVersioned()) {
             schemaHistoryItem.version(migrationInfo.getVersion().getVersion());

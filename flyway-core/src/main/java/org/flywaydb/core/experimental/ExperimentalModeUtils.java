@@ -32,11 +32,11 @@ public class ExperimentalModeUtils {
     }
 
     public static boolean canUseExperimentalMode(final Configuration config,  String verb) {
-        Map<String, List<String>> acceptedVerbs = Map.of("mongodb", List.of("info", "validate", "migrate"),
+        Map<String, List<String>> acceptedVerbs = Map.of("mongodb", List.of("info", "validate", "migrate", "clean", "baseline"),
 
 
 
-            "SQLite", List.of("info", "validate", "migrate"));
+            "SQLite", List.of("info", "validate", "migrate", "clean", "undo"));
 
         String database = getCurrentDatabase(config);
 

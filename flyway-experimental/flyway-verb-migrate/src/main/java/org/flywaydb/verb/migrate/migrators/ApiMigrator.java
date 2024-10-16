@@ -94,6 +94,7 @@ public class ApiMigrator extends Migrator{
                 configuration.getTable(),
                 configuration.isOutOfOrder(),
                 installedRank,
+                experimentalDatabase.getInstalledBy(configuration),
                 totalTimeMillis);
             throw new FlywayException(e);
         }
@@ -112,6 +113,7 @@ public class ApiMigrator extends Migrator{
             totalTimeMillis,
             installedRank,
             experimentalDatabase,
+            experimentalDatabase.getInstalledBy(configuration),
             true);
     }
 
@@ -122,6 +124,7 @@ public class ApiMigrator extends Migrator{
         final String schemaHistoryTableName,
         final boolean outOfOrder,
         final int installedRank,
+        final String installedBy,
         final int totalTimeMillis) {
         final String migrationText = toMigrationText(migrationInfo, true, experimentalDatabase, outOfOrder);
         final String failedMsg = "Migration of " + migrationText + " failed!";
@@ -130,8 +133,12 @@ public class ApiMigrator extends Migrator{
         migrateResult.setSuccess(false);
 
         LOG.error(failedMsg + " Please restore backups and roll back database and code!");
-        updateSchemaHistoryTable(schemaHistoryTableName, migrationInfo,
-            totalTimeMillis, installedRank, experimentalDatabase,
+        updateSchemaHistoryTable(schemaHistoryTableName,
+            migrationInfo,
+            totalTimeMillis,
+            installedRank,
+            experimentalDatabase,
+            installedBy,
             false);
 
         throw new FlywayMigrateException(migrationInfo,

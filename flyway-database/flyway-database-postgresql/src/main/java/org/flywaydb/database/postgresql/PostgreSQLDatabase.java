@@ -49,7 +49,7 @@ public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
 
         ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("10", Tier.PREMIUM, configuration);
 
-        recommendFlywayUpgradeIfNecessaryForMajorVersion("16");
+        recommendFlywayUpgradeIfNecessaryForMajorVersion("17");
     }
 
     @Override

@@ -88,9 +88,10 @@ public class JsonUtils {
 
     public static String getFromJson(final String json, final String key) {
         try {
-            return getJsonMapper().readTree(json).get(key).asText();
+            final var jsonNode = getJsonMapper().readTree(json).get(key);
+            return jsonNode == null ? null : jsonNode.asText();
         } catch (final JsonProcessingException e) {
-            return "";
+            throw new FlywayException("Unable to parse JSON: " + json, e);
         }
     }
 

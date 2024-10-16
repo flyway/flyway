@@ -158,7 +158,7 @@ public class FlywayModel extends FlywayEnvironmentModel {
         result.setReportEnabled(getReportEnabled().merge(otherPojo.getReportEnabled()));
         result.setPlaceholders(MergeUtils.merge(getPlaceholders(),otherPojo.getPlaceholders(), (a,b) -> b != null ? b : a));
         result.setPropertyResolvers(MergeUtils.merge(getPropertyResolvers(),otherPojo.getPropertyResolvers(), (a,b) -> b != null ? b : a)); // TODO: more granular merge
-        result.setPluginConfigurations(MergeUtils.merge(getPluginConfigurations(), otherPojo.getPluginConfigurations(), (a,b) -> b != null ? b : a));
+        result.setPluginConfigurations(MergeUtils.merge(getPluginConfigurations(), otherPojo.getPluginConfigurations(), MergeUtils::mergeObjects));
         return result;
     }
 }

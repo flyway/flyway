@@ -246,7 +246,11 @@ The Info command may be internally triggered by Flyway._
     </thead>
     <tbody>
     <tr id="createSchema">
-        <td>createSchema</td>
+        <td>createSchema [deprecated, use beforeCreateSchema]</td>
+        <td>Before automatically creating non-existent schemas</td>
+    </tr>
+    <tr id="beforeCreateSchema">
+        <td>beforeCreateSchema</td>
         <td>Before automatically creating non-existent schemas</td>
     </tr>
     <tr id="beforeConnect">
@@ -287,7 +291,7 @@ therefore not bound by the SQL callback naming convention.
 
 ## Script Callbacks
 
-Much like SQL callbacks, Flyway also supports the execution of callbacks written in a scripting language. The supported file extensions are the same as those supported by [script migrations](Concepts/migrations#script-migrations). For example, you could have a `beforeRepair__vacuum.ps1` callback. Script callbacks give you much more flexibility and power during the migration lifecycle. Some of the things you can achieve are:
+Much like SQL callbacks, Flyway also supports the execution of callbacks written in a scripting language. The supported file extensions are the same as those supported by [script migrations](concepts/migrations#Migrations-Scriptmigrations). For example, you could have a `beforeRepair__vacuum.ps1` callback. Script callbacks give you much more flexibility and power during the migration lifecycle. Some of the things you can achieve are:
 
 - Executing external tools between migrations
 - Creating or cleaning local files for migrations to use

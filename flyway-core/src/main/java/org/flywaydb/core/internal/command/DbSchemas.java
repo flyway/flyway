@@ -84,6 +84,7 @@ public class DbSchemas {
      */
     public void create(final boolean baseline) {
         callbackExecutor.onEvent(Event.CREATE_SCHEMA);
+        callbackExecutor.onEvent(Event.BEFORE_CREATE_SCHEMA);
         int retries = 0;
         while (true) {
             try {

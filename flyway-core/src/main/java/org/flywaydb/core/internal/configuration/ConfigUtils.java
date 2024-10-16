@@ -931,4 +931,15 @@ public class ConfigUtils {
             }
         });
     }
+
+    public static String getCalculatedDefaultSchema(Configuration configuration) {
+        String defaultSchemaName = configuration.getDefaultSchema();
+        final String[] schemaNames = configuration.getSchemas();
+        if (defaultSchemaName == null) {
+            if (schemaNames.length > 0) {
+                defaultSchemaName = schemaNames[0];
+            }
+        }
+        return defaultSchemaName;
+    }
 }

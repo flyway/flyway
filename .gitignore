@@ -10,7 +10,7 @@ target
 .settings
 .metadata
 .gradle
-*.h2.db
+*.db
 .DS_Store
 *.asc
 

@@ -20,19 +20,25 @@
 package org.flywaydb.core.experimental;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.function.BiFunction;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.output.CleanResult;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryItem;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryModel;
 import org.flywaydb.core.extensibility.Plugin;
 import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
+import org.flywaydb.core.internal.util.StopWatch;
+import org.flywaydb.core.internal.util.TimeFormat;
 
 /**
  * Interface to define new experimental database plugins.
  */
 public interface ExperimentalDatabase extends Plugin, AutoCloseable  {
+    Log LOG = org.flywaydb.core.api.logging.LogFactory.getLog(ExperimentalDatabase.class);
 
     /**
      * Check for if this database type supports the provided URL/Connection String.
@@ -117,11 +123,15 @@ public interface ExperimentalDatabase extends Plugin, AutoCloseable  {
     
     String getCurrentSchema();
 
+    String getDefaultSchema(Configuration configuration);
+
     /**
      * Checks if all schemas are empty.
      * @return True if all schemas are empty, false otherwise.
      */
     Boolean allSchemasEmpty(String[] schemas);
+
+    boolean isSchemaEmpty(String schema);
 
     boolean isSchemaExists(String schema);
 
@@ -145,4 +155,28 @@ public interface ExperimentalDatabase extends Plugin, AutoCloseable  {
     void commitTransaction();
 
     void rollbackTransaction();
+
+    default void doClean(final List<String> schemas, final CleanResult cleanResult) {
+        final StopWatch watch = new StopWatch();
+        for (final String schema : schemas) {
+            watch.start();
+            doCleanSchema(schema);
+            watch.stop();
+            LOG.info(String.format("Successfully cleaned schema %s (execution time %s)", quote(schema), TimeFormat.format(watch.getTotalTimeMillis())));
+            cleanResult.schemasCleaned.add(schema);
+        }
+    }
+
+    void doCleanSchema(String schema);
+
+    default String getInstalledBy(final Configuration configuration) {
+        final String installedBy = configuration.getInstalledBy();
+        return installedBy == null ? getCurrentUser() : installedBy;
+    }
+
+    default void createSchemaHistoryTableIfNotExists(final String tableName) {
+        if (!schemaHistoryTableExists(tableName)) {
+            createSchemaHistoryTable(tableName);
+        }
+    }
 }

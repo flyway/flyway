@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.HashSet;
 import java.util.Objects;
+import lombok.CustomLog;
 import org.flywaydb.core.api.CoreErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
@@ -39,6 +40,7 @@ import org.flywaydb.core.internal.resource.ResourceNameParser;
 import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
 import org.flywaydb.core.internal.util.Pair;
 
+@CustomLog
 public class ExperimentalMigrationScannerManager {
     private final List<? extends ExperimentalMigrationScanner> scanners;
 
@@ -51,6 +53,9 @@ public class ExperimentalMigrationScannerManager {
     }
 
     public Collection<LoadableResourceMetadata> scan(final Configuration configuration, final ParsingContext parsingContext) {
+        if (scanners.isEmpty()){
+            LOG.warn("No migrations scanners loaded");
+        }
         final List<LoadableResourceMetadata> resources = Arrays.stream(configuration.getLocations())
                                                                .flatMap(location -> scan(location,configuration, parsingContext).stream())
                                                                .map(resource -> getLoadableResourceMetadata(resource, configuration, parsingContext))

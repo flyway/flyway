@@ -39,6 +39,7 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.api.resource.LoadableResourceMetadata;
 import org.flywaydb.core.experimental.ExperimentalDatabase;
+import org.flywaydb.core.experimental.ExperimentalDatabasePluginResolver;
 import org.flywaydb.core.experimental.ExperimentalDatabasePluginResolverImpl;
 import org.flywaydb.core.experimental.migration.CompositeMigrationTypeResolver;
 import org.flywaydb.core.experimental.migration.ExperimentalMigrationComparator;
@@ -58,16 +59,25 @@ import org.flywaydb.verb.info.ExperimentalMigrationInfoImpl;
 
 @CustomLog
 public class VerbUtils {
+    private static boolean databaseInfoPrinted;
+
     public static MigrationInfo[] getMigrationInfos(final Configuration configuration,
         final ExperimentalDatabase experimentalDatabase,
         final SchemaHistoryModel schemaHistoryModel) {
+        final Collection<LoadableResourceMetadata> resources = scanForMigrations(configuration,
+            experimentalDatabase);
+        return getMigrations(schemaHistoryModel, resources.toArray(LoadableResourceMetadata[]::new),
+            configuration);
+    }
+
+    public static Collection<LoadableResourceMetadata> scanForMigrations(final Configuration configuration,
+        final ExperimentalDatabase experimentalDatabase) {
         final ParsingContext parsingContext = new ParsingContext();
         parsingContext.populate(experimentalDatabase, configuration);
 
         final ExperimentalMigrationScannerManager scannerManager = new ExperimentalMigrationScannerManager(configuration);
         final Collection<LoadableResourceMetadata> resources = scannerManager.scan(configuration, parsingContext);
-        return getMigrations(schemaHistoryModel, resources.toArray(LoadableResourceMetadata[]::new),
-            configuration);
+        return resources;
     }
 
     public static SchemaHistoryModel getSchemaHistoryModel(final Configuration configuration,
@@ -76,14 +86,18 @@ public class VerbUtils {
     }
 
     public static ExperimentalDatabase getExperimentalDatabase(final Configuration configuration) throws SQLException {
-        final ExperimentalDatabasePluginResolverImpl experimentalDatabasePluginResolver = new ExperimentalDatabasePluginResolverImpl(configuration.getPluginRegister());
+        final ExperimentalDatabasePluginResolver experimentalDatabasePluginResolver = new ExperimentalDatabasePluginResolverImpl(configuration.getPluginRegister());
         final Optional<ExperimentalDatabase> resolvedExperimentalDatabase = experimentalDatabasePluginResolver.resolve(configuration.getUrl());
         if (resolvedExperimentalDatabase.isEmpty()) {
             throw new FlywayException("No experimental database plugin found for URL: " + configuration.getUrl());
         }
         final ExperimentalDatabase experimentalDatabase = resolvedExperimentalDatabase.get();
         experimentalDatabase.initialize(getResolvedEnvironment(configuration), configuration);
-        LOG.info("Database: " + configuration.getUrl() + " (" + experimentalDatabase.getDatabaseMetaData().databaseProductName() + ")");
+        if (!databaseInfoPrinted) {
+            LOG.info("Database: " + configuration.getUrl() + " (" + experimentalDatabase.getDatabaseMetaData()
+                .databaseProductName() + ")");
+            databaseInfoPrinted = true;
+        }
         return experimentalDatabase;
     }
 
@@ -102,13 +116,13 @@ public class VerbUtils {
                         return migrationVersion.compareTo(other.migrationVersion);
                     }
 
-                    if (checksum == null || other.checksum == null) {
+                    if ((checksum == null || other.checksum == null) && !(checksum == null && other.checksum == null)) {
                         return checksum == null? -1 : 1;
                     }
 
                     if (migrationVersion == null && other.migrationVersion == null) {
                         return Comparator.comparing(MigrationKey::getDescription)
-                            .thenComparing(MigrationKey::getChecksum)
+                            .thenComparing(migrationKey -> migrationKey.checksum == null ? 0 : migrationKey.checksum)
                             .compare(this, other);
                     }
 
@@ -120,7 +134,7 @@ public class VerbUtils {
         }
     }
 
-    private static MigrationInfo[] getMigrations(final SchemaHistoryModel schemaHistoryModel, final LoadableResourceMetadata[] sortedMigrations, final Configuration configuration) {
+    public static MigrationInfo[] getMigrations(final SchemaHistoryModel schemaHistoryModel, final LoadableResourceMetadata[] sortedMigrations, final Configuration configuration) {
         final Map<MigrationKey, Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> migrations = new TreeMap<>();
         final MigrationTypeResolver migrationTypeResolver = new CompositeMigrationTypeResolver();
 
@@ -278,7 +292,12 @@ public class VerbUtils {
         final Map<MigrationKey, Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> migrations) {
         for(final ResolvedSchemaHistoryItem schemaHistoryItem : resolvedSchemaHistoryItems) {
             migrations.put(
-                new MigrationKey(schemaHistoryItem.getVersion(), schemaHistoryItem.getDescription(), schemaHistoryItem.getChecksum(), schemaHistoryItem.getType(), true),
+                new MigrationKey(
+                    schemaHistoryItem.getVersion(),
+                    schemaHistoryItem.getType() == CoreMigrationType.SCHEMA ? schemaHistoryItem.getScript() : schemaHistoryItem.getDescription(),
+                    schemaHistoryItem.getChecksum(),
+                    schemaHistoryItem.getType(),
+                    true),
                 Pair.of(schemaHistoryItem, null));
         }
     }

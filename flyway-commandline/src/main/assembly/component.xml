@@ -274,6 +274,8 @@
                 <include>org.flywaydb:flyway-verb-info</include>
                 <include>org.flywaydb:flyway-verb-validate</include>
                 <include>org.flywaydb:flyway-verb-migrate</include>
+                <include>org.flywaydb:flyway-verb-schemas</include>
+                <include>org.flywaydb:flyway-verb-clean</include>
                 <include>org.flywaydb:flyway-experimental-sqlite</include>
             </includes>
         </dependencySet>

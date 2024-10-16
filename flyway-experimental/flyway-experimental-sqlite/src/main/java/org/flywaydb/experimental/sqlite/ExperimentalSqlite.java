@@ -25,6 +25,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiFunction;
 import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
@@ -237,7 +238,17 @@ public class ExperimentalSqlite implements ExperimentalDatabase {
     }
 
     @Override
+    public String getDefaultSchema(Configuration configuration) {
+        return "main";
+    }
+
+    @Override
     public Boolean allSchemasEmpty(final String[] schemas) {
+        return isSchemaEmpty(null);
+    }
+
+    @Override
+    public boolean isSchemaEmpty(final String schema) {
         try (final Statement statement = connection.createStatement()) {
             final ResultSet resultSet = statement.executeQuery("SELECT COUNT(*) FROM sqlite_master");
             resultSet.next();
@@ -298,4 +309,68 @@ public class ExperimentalSqlite implements ExperimentalDatabase {
             throw new FlywayException(e);
         }
     }
+
+    @Override
+    public void doCleanSchema(String schema) {
+        final boolean foreignKeysEnabled = queryBoolean("PRAGMA foreign_keys");
+
+        // Get all tables and views
+        try {
+            final List<String> viewNames = queryForStringList("SELECT tbl_name FROM sqlite_master WHERE type='view'");
+            for (final String viewName : viewNames) {
+                try (final Statement statement = connection.createStatement()) {
+                    statement.execute("DROP VIEW " + quote(viewName));
+                }
+            }
+            final List<String> tableNames = queryForStringList("SELECT tbl_name FROM sqlite_master WHERE type='table'")
+                .stream()
+                .filter(tableName -> !tableName.equals("sqlite_sequence"))
+                .toList();
+            for (final String tableName : tableNames) {
+                try (final Statement statement = connection.createStatement()) {
+                    String dropSql = "DROP TABLE " + quote(tableName);
+                    if (foreignKeysEnabled) {
+                        // #2417: Disable foreign keys before dropping tables to avoid constraint violation errors
+                        dropSql = "PRAGMA foreign_keys = OFF; " + dropSql + "; PRAGMA foreign_keys = ON";
+                    }
+                    statement.execute(dropSql);
+                }
+            }
+            if (queryBoolean("SELECT count(tbl_name) FROM sqlite_master WHERE type='table' AND tbl_name='sqlite_sequence'")) {
+                try (final Statement statement = connection.createStatement()) {
+                    statement.execute("DELETE FROM sqlite_sequence");
+                }
+            }
+        } catch (SQLException e) {
+            throw new FlywayException(e);
+        }
+    }
+
+    private boolean queryBoolean(final String sql) {
+        try (final Statement statement = connection.createStatement()) {
+            final ResultSet resultSet = statement.executeQuery(sql);
+            resultSet.next();
+            return resultSet.getBoolean(1);
+        } catch (final SQLException e) {
+            throw new FlywayException(e);
+        }
+    }
+
+    public List<String> queryForStringList(String query) throws SQLException {
+        ResultSet resultSet = null;
+
+        List<String> result;
+        try (final Statement statement = connection.createStatement()) {
+            resultSet = statement.executeQuery(query);
+
+            result = new ArrayList<>();
+            while (resultSet.next()) {
+                result.add(resultSet.getString(1));
+            }
+        } finally {
+            JdbcUtils.closeResultSet(resultSet);
+        }
+
+        return result;
+    }            
 }

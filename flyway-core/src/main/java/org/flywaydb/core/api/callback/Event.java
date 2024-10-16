@@ -227,9 +227,13 @@ public enum Event {
      */
     AFTER_BASELINE_OPERATION_FINISH("afterInfoOperationFinish"),
     /**
-     * Fired before any non-existent schemas are created.
+     * Deprecated. Fired before any non-existent schemas are created.
      */
     CREATE_SCHEMA("createSchema"),
+    /**
+     * Fired before any non-existent schemas are created.
+     */
+    BEFORE_CREATE_SCHEMA("beforeCreateSchema"),
     /**
      * Fired before a connection is created. These must be arbitrary scripts only (e.g. ps1, cmd, sh etc.)
      * <p><i>Flyway Teams Edition only</i></p>

@@ -21,7 +21,11 @@ package org.flywaydb.core.experimental.schemahistory;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import org.flywaydb.core.api.CoreMigrationType;
+import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.extensibility.MigrationType;
 
 @RequiredArgsConstructor
 public class SchemaHistoryModel {
@@ -34,5 +38,22 @@ public class SchemaHistoryModel {
     
     public List<SchemaHistoryItem> getSchemaHistoryItems(){
         return Collections.unmodifiableList(schemaHistoryItems);
+    }
+
+    public int calculateInstalledRank(MigrationType type) {
+        if (schemaHistoryItems.isEmpty()) {
+            return type == CoreMigrationType.SCHEMA ? 0 : 1;
+        }
+        return schemaHistoryItems
+            .stream()
+            .map(SchemaHistoryItem::getInstalledRank)
+            .max(Integer::compareTo)
+            .orElse(0) + 1;
+    }
+
+    public MigrationVersion getInitialVersion() {
+        return schemaHistoryItems.stream().map(
+            SchemaHistoryItem::getVersion).filter(Objects::nonNull).map(MigrationVersion::fromVersion).max(
+            MigrationVersion::compareTo).orElse(MigrationVersion.EMPTY);
     }
 }

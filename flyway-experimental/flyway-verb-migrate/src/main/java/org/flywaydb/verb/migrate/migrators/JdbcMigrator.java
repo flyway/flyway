@@ -193,6 +193,7 @@ public class JdbcMigrator extends Migrator {
                 configuration.getTable(),
                 configuration.isOutOfOrder(),
                 installedRank,
+                experimentalDatabase.getInstalledBy(configuration),
                 executeInTransaction,
                 totalTimeMillis);
         }
@@ -211,6 +212,7 @@ public class JdbcMigrator extends Migrator {
             totalTimeMillis,
             installedRank,
             experimentalDatabase,
+            experimentalDatabase.getInstalledBy(configuration),
             true);
     }
 
@@ -287,6 +289,7 @@ public class JdbcMigrator extends Migrator {
         final String schemaHistoryTableName,
         final boolean outOfOrder,
         final int installedRank,
+        final String installedBy,
         final boolean executeInTransaction,
         final int totalTimeMillis) {
 
@@ -302,8 +305,12 @@ public class JdbcMigrator extends Migrator {
             LOG.error(failedMsg + " Changes successfully rolled back.");
         } else {
             LOG.error(failedMsg + " Please restore backups and roll back database and code!");
-            updateSchemaHistoryTable(schemaHistoryTableName, migrationInfo,
-                totalTimeMillis, installedRank, experimentalDatabase,
+            updateSchemaHistoryTable(schemaHistoryTableName,
+                migrationInfo,
+                totalTimeMillis,
+                installedRank,
+                experimentalDatabase,
+                installedBy,
                 false);
         }
         if (sqlStatement == null) {

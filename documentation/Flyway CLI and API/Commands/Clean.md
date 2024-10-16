@@ -3,7 +3,7 @@ subtitle: Clean
 ---
 # Clean
 
-Drops all objects in the configured schemas.
+Drops all objects in the configured schemas. If Flyway automatically created them, then the schemas themselves will be dropped when cleaning.
 
 ![Clean](assets/command-clean.png)
 

@@ -55,7 +55,7 @@ Go to [Google's documentation](https://cloud.google.com/bigquery/docs/reference/
 
 You will get a zip archive with many JARs inside.
 
-If you are using the Flyway command-line, you will need to extract the contents of this archive into the `flyway/drivers/` folder.
+If you are using the Flyway command-line, you will need replace the `flyway/drivers/` folder with the contents of this archive.
 
 If you are using the Flyway Maven plugin, you will need to add the contents of this archive to your classpath.
 ​

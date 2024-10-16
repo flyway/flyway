@@ -19,14 +19,13 @@
  */
 package org.flywaydb.verb.migrate;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import lombok.CustomLog;
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.CoreErrorCode;
+import org.flywaydb.core.api.CoreMigrationType;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationInfoService;
@@ -37,9 +36,7 @@ import org.flywaydb.core.api.exception.FlywayValidateException;
 import org.flywaydb.core.api.output.MigrateResult;
 import org.flywaydb.core.api.output.ValidateResult;
 import org.flywaydb.core.api.pattern.ValidatePattern;
-import org.flywaydb.core.experimental.ConnectionType;
 import org.flywaydb.core.experimental.ExperimentalDatabase;
-import org.flywaydb.core.experimental.schemahistory.SchemaHistoryItem;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryModel;
 import org.flywaydb.core.extensibility.VerbExtension;
 import org.flywaydb.core.internal.license.VersionPrinter;
@@ -51,6 +48,7 @@ import org.flywaydb.verb.info.ExperimentalMigrationInfoService;
 import org.flywaydb.verb.migrate.migrators.ApiMigrator;
 import org.flywaydb.verb.migrate.migrators.JdbcMigrator;
 import org.flywaydb.verb.migrate.migrators.Migrator;
+import org.flywaydb.verb.schemas.SchemasVerbExtension;
 
 @CustomLog
 public class MigrateVerbExtension implements VerbExtension {
@@ -74,30 +72,40 @@ public class MigrateVerbExtension implements VerbExtension {
 
         final SchemaHistoryModel schemaHistoryModel = VerbUtils.getSchemaHistoryModel(configuration,
             experimentalDatabase);
-        final boolean schemaHistoryTableExists = experimentalDatabase.schemaHistoryTableExists(configuration.getTable());
 
-        final MigrationVersion initialVersion = getInitialVersion(schemaHistoryModel);
+        final MigrationVersion initialVersion = schemaHistoryModel.getInitialVersion();
 
-        if (!schemaHistoryTableExists) {
-            LOG.info("Creating Schema History table "
-                + experimentalDatabase.quote(experimentalDatabase.getCurrentSchema(), configuration.getTable())
-                + " ...");
-            experimentalDatabase.createSchemaHistoryTable(configuration.getTable());
-        }
-        
-        final Collection<String> missingSchemas = new ArrayList<>();
-        for (final String schema : configuration.getSchemas()) {
-            if (!experimentalDatabase.isSchemaExists(schema)) {
-                missingSchemas.add(schema);
+        if (configuration.isCreateSchemas()) {
+            try {
+                new SchemasVerbExtension().executeVerb(configuration);
+            } catch (final NoClassDefFoundError e) {
+                throw new FlywayException("Schemas verb extension is required for creating schemas but is not present", e);
             }
         }
-        if (!missingSchemas.isEmpty()) {
-            experimentalDatabase.createSchemas(missingSchemas.toArray(String[]::new));
+
+        if (!experimentalDatabase.schemaHistoryTableExists(configuration.getTable())) {
+            final List<String> populatedSchemas = Arrays.stream(VerbUtils.getAllSchemasFromConfiguration(configuration))
+                .filter(experimentalDatabase::isSchemaExists)
+                .filter(x -> !experimentalDatabase.isSchemaEmpty(x))
+                .toList();
+            if (!populatedSchemas.isEmpty() && !configuration.isSkipExecutingMigrations()) {
+                if (configuration.isBaselineOnMigrate()) {
+                    new Flyway(configuration).baseline();
+                } else {
+                    throw new FlywayException("Found non-empty schema(s) "
+                        + StringUtils.collectionToCommaDelimitedString(populatedSchemas)
+                        + " but no schema history table. Use baseline()"
+                        + " or set baselineOnMigrate to true to initialize the schema history table.",
+                        CoreErrorCode.NON_EMPTY_SCHEMA_WITHOUT_SCHEMA_HISTORY_TABLE);
+                }
+            }
         }
+
+        experimentalDatabase.createSchemaHistoryTableIfNotExists(configuration.getTable());
 
         final MigrationInfo[] migrations = VerbUtils.getMigrationInfos(configuration,
             experimentalDatabase,
-            schemaHistoryModel);
+            VerbUtils.getSchemaHistoryModel(configuration, experimentalDatabase));
 
         final MigrateResult migrateResult = new MigrateResult(VersionPrinter.getVersion(),
             experimentalDatabase.getDatabaseMetaData().databaseName(),
@@ -136,7 +144,7 @@ public class MigrateVerbExtension implements VerbExtension {
 
         final List<MigrationExecutionGroup> executionGroups = migrator.createGroups(allPendingMigrations, configuration, experimentalDatabase, migrateResult, parsingContext);
 
-        int installedRank = getInstalledRank(schemaHistoryModel);
+        int installedRank = experimentalDatabase.getSchemaHistoryModel(configuration.getTable()).calculateInstalledRank(CoreMigrationType.SQL);
         for (final MigrationExecutionGroup executionGroup : executionGroups) {
             installedRank = migrator.doExecutionGroup(configuration,
                 executionGroup,
@@ -157,20 +165,6 @@ public class MigrateVerbExtension implements VerbExtension {
         }
 
         return migrateResult;
-    }
-    
-    private static int getInstalledRank(final SchemaHistoryModel schemaHistoryModel) {
-        return schemaHistoryModel.getSchemaHistoryItems()
-            .stream()
-            .map(SchemaHistoryItem::getInstalledRank)
-            .max(Integer::compareTo)
-            .orElse(0) + 1;
-    }
-
-    private static MigrationVersion getInitialVersion(final SchemaHistoryModel schemaHistoryModel) {
-        return schemaHistoryModel.getSchemaHistoryItems().stream().map(
-            SchemaHistoryItem::getVersion).filter(Objects::nonNull).map(MigrationVersion::fromVersion).max(
-            MigrationVersion::compareTo).orElse(MigrationVersion.EMPTY);
     }
 
     private static void validate(final Configuration configuration) {

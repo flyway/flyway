@@ -396,8 +396,6 @@ public interface Configuration {
      *
      * Use in conjunction with {@code cherryPick} to skip specific migrations instead of all pending ones.
      *
-     * <i>Flyway Teams only</i>
-     *
      * @return {@code true} if executing the migrations should be skipped on migrate, {@code false} if not. (default: {@code false})
      */
     boolean isSkipExecutingMigrations();

@@ -140,8 +140,8 @@ public abstract class SchemaHistory {
      * @return {@code true} if it does, {@code false} if it doesn't.
      */
     public final boolean hasSchemasMarker() {
-        List<AppliedMigration> appliedMigrations = allAppliedMigrations();
-        return !appliedMigrations.isEmpty() && appliedMigrations.get(0).getType() == CoreMigrationType.SCHEMA;
+        final List<AppliedMigration> appliedMigrations = allAppliedMigrations();
+        return !appliedMigrations.isEmpty() && appliedMigrations.stream().anyMatch(x -> x.getType() == CoreMigrationType.SCHEMA);
     }
 
     public List<String> getSchemasCreatedByFlyway() {
@@ -149,8 +149,10 @@ public abstract class SchemaHistory {
             return new ArrayList<>();
         }
 
-        return allAppliedMigrations().get(0).getScript()
-                .split(",").stream()
+        return allAppliedMigrations().stream()
+                .filter(x -> x.getType() == CoreMigrationType.SCHEMA)
+                .map(AppliedMigration::getScript)
+                .flatMap(script -> Arrays.stream(script.split(",")))
                 .map(result -> table.getDatabase().unQuote(result))
                 .collect(Collectors.toList());
     }

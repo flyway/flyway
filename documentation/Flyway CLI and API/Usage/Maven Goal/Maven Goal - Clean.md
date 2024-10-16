@@ -4,7 +4,7 @@ subtitle: 'mvn flyway:clean'
 ---
 # Maven Goal: Clean
 
-Drops all objects (tables, views, procedures, triggers, ...) in the configured schemas.<br/>
+Drops all objects (tables, views, procedures, triggers, ...) in the configured schemas. If Flyway automatically created them, then the schemas themselves will be dropped when cleaning.<br/>
 The schemas are cleaned in the order specified by the <code>schemas</code> property.
 
 <a href="Commands/clean"><img src="assets/command-clean.png" alt="clean"></a>

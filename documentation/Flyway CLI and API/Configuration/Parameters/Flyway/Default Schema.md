@@ -8,7 +8,7 @@ redirect_from: Configuration/defaultSchema/
 
 ## Description
 The default schema managed by Flyway. This schema will be the one containing the [schema history table](Concepts/migrations#schema-history-table).
-If not specified in [schemas](Configuration/parameters/environments/schemas), Flyway will automatically attempt to create and clean this schema first.
+If not specified in [schemas](Configuration/parameters/environments/schemas), Flyway will automatically attempt to create and clean this schema first. If Flyway automatically created it, then it will be dropped when cleaning.
 
 This schema will also be the default for the database connection (provided the database supports this concept).
 

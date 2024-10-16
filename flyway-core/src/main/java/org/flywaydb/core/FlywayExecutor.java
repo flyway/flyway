@@ -64,6 +64,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.flywaydb.core.api.callback.Event.CREATE_SCHEMA;
 import static org.flywaydb.core.internal.database.DatabaseTypeRegister.redactJdbcUrl;
 import static org.flywaydb.core.internal.util.DataUnits.MEGABYTE;
 
@@ -313,6 +314,10 @@ public class FlywayExecutor {
 
 
 
+
+        if (effectiveCallbacks.stream().anyMatch(x -> x.supports(CREATE_SCHEMA, null))) {
+            LOG.warn("'createSchema' callback is deprecated and will be removed in a later release. Please use 'beforeCreateSchema' callback instead.");
+        }
 
         return effectiveCallbacks;
     }

@@ -4,7 +4,7 @@ subtitle: 'gradle flywayClean'
 ---
 # Gradle Task: flywayClean
 
-Drops all objects (tables, views, procedures, triggers, ...) in the configured schemas.
+Drops all objects (tables, views, procedures, triggers, ...) in the configured schemas. If Flyway automatically created them, then the schemas themselves will be dropped when cleaning.
 
 <a href="Commands/clean"><img src="assets/command-clean.png" alt="clean"></a>
 

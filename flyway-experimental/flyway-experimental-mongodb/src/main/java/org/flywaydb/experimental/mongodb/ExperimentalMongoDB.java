@@ -48,6 +48,7 @@ import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.experimental.MetaData;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryItem;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryModel;
+import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
@@ -109,7 +110,7 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
 
     @Override
     public void createSchemaHistoryTable(final String tableName) {
-        
+        mongoDatabase.createCollection(tableName);
     }
 
     @Override
@@ -188,12 +189,13 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
         final SchemaHistoryModel schemaHistoryModel = getSchemaHistoryModel(schemaHistoryTableName);
         return schemaHistoryModel.getSchemaHistoryItems().stream()
             .filter(x -> Objects.equals(x.getType(), "SCHEMA"))
-            .anyMatch(x -> x.getDescription().substring(6, x.getDescription().length() - 7).contains(schema));
+            .flatMap(x -> Arrays.stream(x.getScript().replace("\"", "").split(",")))
+            .anyMatch(x -> x.equals(schema));
     }
 
     @Override
     public void createSchemas(final String... schemas) {
-        //MongoDB does not support creating schemas
+       
     }
 
     @Override
@@ -201,7 +203,8 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
 
     }
 
-    private boolean isSchemaEmpty(final String schema) {
+    @Override
+    public boolean isSchemaEmpty(final String schema) {
         for (final Document document : mongoClient.getDatabase(schema).listCollections()) {
             if (document.getString("name").startsWith("system")) {
                 continue;
@@ -212,15 +215,10 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
         return true;
     }
 
-    private String getDefaultSchema(final Configuration configuration) {
-        String defaultSchemaName = configuration.getDefaultSchema();
-        final String[] schemaNames = configuration.getSchemas();
-        if (defaultSchemaName == null) {
-            if (schemaNames.length > 0) {
-                defaultSchemaName = schemaNames[0];
-            }
-        }
-        return defaultSchemaName;
+    @Override
+    public String getDefaultSchema(final Configuration configuration) {
+        final String defaultSchema = ConfigUtils.getCalculatedDefaultSchema(configuration);
+        return defaultSchema == null ? "test" : defaultSchema;
     }
 
     @Override
@@ -262,5 +260,16 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
     @Override
     public void rollbackTransaction() {
 
+    }
+
+    @Override
+    public void doCleanSchema(final String schema) {
+        final MongoDatabase schemaDatabase = mongoClient.getDatabase(schema);
+        schemaDatabase.listCollections().forEach(i -> {
+            final String name = i.getString("name");
+            if (!name.startsWith("system.")) {
+                schemaDatabase.getCollection(name).drop();
+            }
+        });
     }
 }

@@ -368,7 +368,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * This should be used when you have applied a migration manually (via executing the sql yourself, or via an IDE), and
      * just want the schema history table to reflect this.
      * Use in conjunction with {@code cherryPick} to skip specific migrations instead of all pending ones.
-     * <i>Flyway Teams only</i>
      */
     @Parameter(property = ConfigUtils.SKIP_EXECUTING_MIGRATIONS)
     private Boolean skipExecutingMigrations;

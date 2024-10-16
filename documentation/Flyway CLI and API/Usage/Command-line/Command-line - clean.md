@@ -5,7 +5,7 @@ subtitle: 'Command-line: clean'
 # Command-line: clean
 
 Drops all objects (tables, views, procedures, triggers, ...) in the configured schemas.<br/>
-The schemas are cleaned in the order specified by the `schemas` property.
+The schemas are cleaned in the order specified by the `schemas` property. If Flyway automatically created them, then the schemas themselves will be dropped when cleaning.
 
 <a href="Commands/clean"><img src="assets/command-clean.png" alt="clean"></a>
 
