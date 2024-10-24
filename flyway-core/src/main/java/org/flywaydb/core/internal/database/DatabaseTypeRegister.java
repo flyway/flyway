@@ -90,9 +90,11 @@ public class DatabaseTypeRegister {
             url = redactJdbcUrl(url, BaseDatabaseType.getDefaultJDBCCredentialsPattern());
         } else {
             for (DatabaseType type : types) {
-                Pattern dbPattern = type.getJDBCCredentialsPattern();
-                if (dbPattern != null) {
-                    url = redactJdbcUrl(url, dbPattern);
+                List<Pattern> dbPatterns = type.getJDBCCredentialsPatterns();
+                if (dbPatterns != null && !dbPatterns.isEmpty()) {
+                    for (Pattern dbPattern : dbPatterns) {
+                        url = redactJdbcUrl(url, dbPattern);
+                    }
                 }
             }
         }

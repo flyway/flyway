@@ -164,7 +164,7 @@ As a result of this operation only versions `2 and 4` will be applied to the bui
 then be compared against the target environment which contains only the schema and schema_history table. The differences listed out would
 contain only the objects created from the migrations scripts run as ADD type changes since the build environment is rebuilt.
 
-<pre class="console">&gt; flyway diff -diff.source=migrations -diff.target=prod -diff.buildEnvironment="build" -diff.buildCherryPick=["2","4"] -diff.artifactFilename=.\diffArtifacts\artifact
+<pre class="console">&gt; flyway diff -diff.source=migrations -diff.target=prod -diff.buildEnvironment="build" -diff.buildCherryPick="2,4" -diff.artifactFilename=.\diffArtifacts\artifact
 
 Schema history table [HR].[HRSchema].[flyway_schema_history] does not exist yet
 Successfully validated 4 migrations (execution time 00:00.083s)

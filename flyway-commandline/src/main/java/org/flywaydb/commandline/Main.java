@@ -79,6 +79,9 @@ import org.flywaydb.core.internal.util.JsonUtils;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StringUtils;
 
+
+
+
 public class Main {
     private static Log LOG;
     private static final PluginRegister PLUGIN_REGISTER = new PluginRegister();
@@ -277,19 +280,27 @@ public class Main {
         final Configuration configuration) {
         OperationResult result = null;
         flyway.setFlywayTelemetryManager(telemetryManager);
+
         if ("clean".equals(operation)) {
             result = flyway.clean();
         } else if ("baseline".equals(operation)) {
             result = flyway.baseline();
         } else if ("migrate".equals(operation)) {
             try {
+
+
+
+
+
+
+
+                
                 result = flyway.migrate();
+                
 
 
 
-
-
-
+                
             } catch (final FlywayMigrateException e) {
                 result = ErrorOutput.fromMigrateException(e);
                 final HtmlResult hr = (HtmlResult) result;

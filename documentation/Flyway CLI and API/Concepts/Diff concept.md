@@ -74,3 +74,6 @@ Difference artifacts will remain compatible across patch versions of flyway. How
 
 ## Flyway objects
 When saving the schema of a database to a schema model, you may want to filter out flyway objects such as the schema history table. By default, `flyway diff` will filter these objects out from all comparisons. If you want to include this objects in the differences you will need to set `-diff.includeFlywayObjects=true`.
+
+## Further Reading
+See [here](<Usage/Command-line/Command-line - diff>) for more information on how to use the `diff` command.

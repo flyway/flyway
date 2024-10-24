@@ -53,6 +53,18 @@ public class VersionOrderMigrationComparator implements ExperimentalMigrationCom
                 return o1.getState().compareTo(o2.getState());
             }
 
+            if (((o1.getState() == MigrationState.BELOW_BASELINE || o1.getState() == MigrationState.BASELINE_IGNORED)
+                    && o2.getState() == MigrationState.SUCCESS) ||
+                ((o2.getState() == MigrationState.BELOW_BASELINE || o2.getState() == MigrationState.BASELINE_IGNORED)
+                    && o1.getState() == MigrationState.SUCCESS)) {
+                return o1.getState().compareTo(o2.getState());
+            }
+
+            if((o1.getState() == MigrationState.ABOVE_TARGET && o2.getState() == MigrationState.SUCCESS) ||
+                (o2.getState() == MigrationState.ABOVE_TARGET && o1.getState() == MigrationState.SUCCESS)) {
+                return o2.getState().compareTo(o1.getState());
+            }
+
             if (o1.getInstalledRank() != null && o2.getInstalledRank() != null) {
                 return Integer.compare(o1.getInstalledRank(), o2.getInstalledRank());
             }

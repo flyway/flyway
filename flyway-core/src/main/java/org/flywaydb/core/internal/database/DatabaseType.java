@@ -77,6 +77,14 @@ public interface DatabaseType extends Plugin {
     Pattern getJDBCCredentialsPattern();
 
     /**
+     * A list of regex patterns that identifies credentials in the JDBC URL, where they conform to a pattern specific to this database.
+     * The first captured group should represent the password text, so that it can be redacted if necessary.
+     *
+     * @return a list of URL regexes.
+     */
+    List<Pattern> getJDBCCredentialsPatterns();
+
+    /**
      * Get the driver class used to handle this JDBC url.
      * This will only be called if {@code matchesJDBCUrl} previously returned {@code true}.
      *

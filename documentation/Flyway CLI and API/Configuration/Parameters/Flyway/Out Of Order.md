@@ -11,6 +11,9 @@ Allows migrations to be run "out of order".
 
 If you already have versions `1.0` and `3.0` applied, and now a version `2.0` is found, it will be applied too instead of being ignored.
 
+_Note_:
+- _This parameter has no impact on Undo operation._
+
 ## Default
 false
 

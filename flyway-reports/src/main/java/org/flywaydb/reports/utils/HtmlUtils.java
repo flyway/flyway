@@ -39,10 +39,6 @@ public class HtmlUtils {
         File file = new File(filename);
 
         createDirIfNotExists(file);
-        
-        if (results.individualResults.stream().anyMatch(HtmlResult::isDeleteFileOnJvmExit)) {
-            file.deleteOnExit();
-        }
 
         try (FileWriter fileWriter = new FileWriter(file)) {
             fileWriter.write(fileContents);

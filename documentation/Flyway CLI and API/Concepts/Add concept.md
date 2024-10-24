@@ -4,7 +4,7 @@ subtitle: add
 # Add - Preview
 
 ## Why is this useful ?
-The `add` command is used to create new migration scripts using following the naming convention of your existing migrations. 
+The `add` command is used to create new migration scripts following the naming convention of your existing migrations.
 
 ### Auto-generated version
 If no version is provided to the add command then Flyway will search all configured filesystem migration locations to determine the next migration version.
@@ -49,3 +49,6 @@ NEXT_MIGRATION_FILE="$(flyway -q add -add.nameOnly=true)"
 echo "$SQL_HEADER" > "$NEXT_MIGRATION_FILE"
 echo "$SQL_CONTENT" >> "$NEXT_MIGRATION_FILE"
 ```
+
+## Further Reading
+See [here](<Usage/Command-line/Command-line - add>) for more information on how to use the `add` command.

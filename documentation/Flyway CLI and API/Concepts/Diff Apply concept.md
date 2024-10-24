@@ -37,3 +37,6 @@ Applied to schemaModel
  - To apply only a subset of changes use the `diffApply.changes` option. e.g. `-diffApply.changes="APhfajbztVFslUjNVEexkWeTBvc"`.
  - The location of the diff artifact can be changed using the `diff.artifactFilename` and `diffApply.artifactFilename` options.
  - The inverse of the diff can be performed as well by specifying the `diff.source` as the `diffApply.target`. i.e. This will apply the inverse change to the `diff.source` environment.
+
+## Further Reading
+See [here](<Usage/Command-line/Command-line - diffApply>) for more information on how to use the `diffApply` command.

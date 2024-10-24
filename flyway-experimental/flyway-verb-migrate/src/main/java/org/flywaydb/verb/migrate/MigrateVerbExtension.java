@@ -70,11 +70,6 @@ public class MigrateVerbExtension implements VerbExtension {
             throw new FlywayException(e);
         }
 
-        final SchemaHistoryModel schemaHistoryModel = VerbUtils.getSchemaHistoryModel(configuration,
-            experimentalDatabase);
-
-        final MigrationVersion initialVersion = schemaHistoryModel.getInitialVersion();
-
         if (configuration.isCreateSchemas()) {
             try {
                 new SchemasVerbExtension().executeVerb(configuration);
@@ -103,6 +98,7 @@ public class MigrateVerbExtension implements VerbExtension {
 
         experimentalDatabase.createSchemaHistoryTableIfNotExists(configuration.getTable());
 
+        final SchemaHistoryModel schemaHistoryModel = VerbUtils.getSchemaHistoryModel(configuration, experimentalDatabase);
         final MigrationInfo[] migrations = VerbUtils.getMigrationInfos(configuration,
             experimentalDatabase,
             VerbUtils.getSchemaHistoryModel(configuration, experimentalDatabase));
@@ -112,19 +108,21 @@ public class MigrateVerbExtension implements VerbExtension {
             "",
             experimentalDatabase.getDatabaseType());
 
-        migrateResult.initialSchemaVersion = initialVersion.getVersion();
-
         final MigrationInfoService migrationInfoService = new ExperimentalMigrationInfoService(migrations,
             configuration,
             experimentalDatabase.getName(),
             experimentalDatabase.allSchemasEmpty(VerbUtils.getAllSchemasFromConfiguration(configuration)));
 
+        final MigrationInfo current = migrationInfoService.current();
+        MigrationVersion initialSchemaVersion =  current != null && current.isVersioned()  ?
+            current.getVersion() : MigrationVersion.EMPTY;
+        migrateResult.initialSchemaVersion = initialSchemaVersion.getVersion();
         final MigrationInfo[] allPendingMigrations = migrationInfoService.pending();
 
         LOG.info("Current version of schema "
             + experimentalDatabase.doQuote(experimentalDatabase.getCurrentSchema())
             + ": "
-            + initialVersion);
+            + initialSchemaVersion);
 
         if (configuration.isOutOfOrder()) {
             final String outOfOrderWarning = "outOfOrder mode is active. Migration of schema " + experimentalDatabase.doQuote(

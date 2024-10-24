@@ -24,9 +24,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map.Entry;
-import java.util.Optional;
 import lombok.CustomLog;
 import org.flywaydb.commandline.Main;
+import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -37,6 +37,7 @@ import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
 import org.flywaydb.core.internal.configuration.models.EnvironmentModel;
 import org.flywaydb.core.internal.configuration.models.FlywayEnvironmentModel;
 import org.flywaydb.core.internal.util.ClassUtils;
+import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.MergeUtils;
 
 import java.io.File;
@@ -173,12 +174,6 @@ public class ModernConfigurationManager implements ConfigurationManager {
 
         }
 
-        File sqlFolder = new File(installDirectory, DEFAULT_CLI_SQL_LOCATION);
-        if (ConfigUtils.shouldUseDefaultCliSqlLocation(sqlFolder,
-            !config.getFlyway().getLocations().equals(ConfigurationModel.defaults().getFlyway().getLocations()))) {
-            config.getFlyway().setLocations(Arrays.stream(new String[]{"filesystem:" + sqlFolder.getAbsolutePath()}).collect(Collectors.toList()));
-        }
-
         if (workingDirectory != null) {
             makeRelativeLocationsBasedOnWorkingDirectory(workingDirectory, config.getFlyway().getLocations());
             makeRelativeLocationsInEnvironmentsBasedOnWorkingDirectory(workingDirectory, config.getEnvironments());
@@ -194,6 +189,8 @@ public class ModernConfigurationManager implements ConfigurationManager {
         configurePlugins(config, cfg);
 
         loadJarDirsAndAddToClasspath(installDirectory, cfg);
+
+        setDefaultSqlLocation(installDirectory, cfg);
 
         return cfg;
     }
@@ -250,6 +247,18 @@ public class ModernConfigurationManager implements ConfigurationManager {
             combineConfigurationExceptions(configurationExceptions);
         }
 
+    }
+
+    private static void setDefaultSqlLocation(final String installDirectory, final ClassicConfiguration cfg) {
+        File sqlFolder = new File(installDirectory, DEFAULT_CLI_SQL_LOCATION);
+        Location[] defaultLocations = new Locations(ConfigurationModel.defaults()
+            .getFlyway()
+            .getLocations()
+            .toArray(new String[0])).getLocations().toArray(new Location[0]);
+        if (ConfigUtils.shouldUseDefaultCliSqlLocation(sqlFolder,
+            !Arrays.equals(cfg.getLocations(), defaultLocations))) {
+            cfg.setLocations(new Location("filesystem:" + sqlFolder.getAbsolutePath()));
+        }
     }
 
     private static void loadJarDirsAndAddToClasspath(String workingDirectory, ClassicConfiguration cfg) {

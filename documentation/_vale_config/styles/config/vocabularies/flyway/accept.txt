@@ -81,6 +81,7 @@ nameOnly
 reprovision
 schemaModel
 schema_history
+schema_shadow
 
 Joao
 Tulka

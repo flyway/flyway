@@ -36,7 +36,7 @@ public class ExperimentalModeUtils {
 
 
 
-            "SQLite", List.of("info", "validate", "migrate", "clean", "undo"));
+            "SQLite", List.of("info", "validate", "migrate", "clean", "undo", "baseline"));
 
         String database = getCurrentDatabase(config);
 

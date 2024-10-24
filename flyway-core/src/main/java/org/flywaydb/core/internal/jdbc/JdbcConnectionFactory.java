@@ -145,18 +145,6 @@ public class JdbcConnectionFactory implements Closeable {
         if (url == null) {
             return "";
         }
-        return filterUrl(url);
-    }
-
-    /**
-     * Filter out URL parameters to avoid including passwords etc.
-     */
-    static String filterUrl(String url) {
-        int questionMark = url.indexOf("?");
-        if (questionMark >= 0 && !url.contains("?databaseName=")) {
-            url = url.substring(0, questionMark);
-        }
-        url = url.replaceAll("://.*:.*@", "://");
         return url;
     }
 

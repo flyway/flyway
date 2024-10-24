@@ -14,8 +14,8 @@ This allows for a more controlled and collaborative approach to database develop
 The schema model is primarily used with the `diff` and `diffApply` commands.
 In both cases the following properties should be set when using a schema model:
 
- - `schemaModelLocation` - The location of the schema model folder on disk.
- - `schemaModelSchemas` - A list of schemas contained in the schema model that should be considered when performing a diff. This is schema model's equivalent of the `flyway.schemas` property.
+ - [schemaModelLocation](<Configuration/Parameters/Flyway/Schema Model Location>) - The location of the schema model folder on disk.
+ - [schemaModelSchemas](<Configuration/Parameters/Flyway/Schema Model Schemas>) - A list of schemas contained in the schema model that should be considered when performing a diff. This is schema model's equivalent of the `flyway.schemas` property.
 
 These two properties can be set in the toml configuration file as shown below:
 ```toml

@@ -18,7 +18,7 @@ To perform `diffText` a `diff` operation must first be performed. You may either
 
 CLI configuration:
 ```
-flyway diffText -flyway.diffText.changes=["id1", "id2"]
+flyway diffText -diffText.changes="id1,id2"
 ```
 
 Toml configuration:
@@ -32,3 +32,6 @@ You may specify `-` as the set of change ids to read changes from standard in. I
 ### Note
 - If the diff artifact provided is altered by any means which would result in the commandline being unable to read the artifact, then the `diffText` command will fail.
 - The location of the diff artifact can be changed using the `diff.artifactFilename` and `diffText.artifactFilename` options.
+
+## Further Reading
+See [here](<Usage/Command-line/Command-line - diffText>) for more information on how to use the `diffText` command.

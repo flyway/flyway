@@ -12,7 +12,7 @@ Prints the object level differences for a list of changes specified from the dif
 
 ## Usage
 
-<pre class="console"><span>&gt;</span> flyway diffText -diffText.artifactFilename=./diffArtifact -flyway.diffText.changes=["id1", "id2"]</pre>
+<pre class="console"><span>&gt;</span> flyway diffText -diffText.artifactFilename=./diffArtifact -diffText.changes="id1,id2"</pre>
 
 ## Options
 - `artifactFilename` -  The file path to the diff artifact file. Defaults to the diff.artifactFilename, %temp%/flyway.artifact.diff or working directory if not configured.

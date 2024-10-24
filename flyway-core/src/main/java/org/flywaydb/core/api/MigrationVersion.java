@@ -64,6 +64,12 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
     private final String rawVersion;
 
     /**
+     * Is this version an internal predefined version?
+     */
+    @Getter
+    private boolean predefined;
+
+    /**
      * Create a MigrationVersion from a version String.
      *
      * @param version The version String. The value {@code current} will be interpreted as MigrationVersion.CURRENT,
@@ -110,6 +116,7 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
         this.versionParts.add(version);
         this.displayText = displayText;
         this.rawVersion = displayText;
+        this.predefined = true;
     }
 
     @Override

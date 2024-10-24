@@ -44,17 +44,24 @@ public class EnvironmentResolver {
         this.environmentProvisioners = new HashMap<>(environmentProvisioners);
     }
 
-    public ResolvedEnvironment resolve(final String environmentName, final EnvironmentModel environment,
-        final Configuration configuration, final ProgressLogger progress) {
+    public ResolvedEnvironment resolve(final String environmentName,
+        final EnvironmentModel environment,
+        final Configuration configuration,
+        final ProgressLogger progress) {
         return resolve(environmentName, environment, ProvisionerMode.Provision, configuration, progress);
     }
 
-    public ResolvedEnvironment resolve(final String environmentName, final EnvironmentModel environment, final ProvisionerMode mode,
-        final Configuration configuration, final ProgressLogger progress) {
+    public ResolvedEnvironment resolve(final String environmentName,
+        final EnvironmentModel environment,
+        final ProvisionerMode mode,
+        final Configuration configuration,
+        final ProgressLogger progress) {
         final Map<String, ConfigurationExtension> resolverConfigs = getEnvironmentPluginConfigMap(environment,
             configuration.getPluginRegister());
-        final PropertyResolverContext context = new PropertyResolverContextImpl(environmentName, configuration,
-            propertyResolvers,  resolverConfigs);
+        final PropertyResolverContext context = new PropertyResolverContextImpl(environmentName,
+            configuration,
+            propertyResolvers,
+            resolverConfigs);
 
         final ResolvedEnvironment result = new ResolvedEnvironment();
         result.setDriver(environment.getDriver());
@@ -67,12 +74,12 @@ public class EnvironmentResolver {
         final ProgressLogger provisionProgress = progress.subTask("provision");
         final ProgressLogger resolveProgress = progress.subTask("resolve");
 
-        final EnvironmentProvisioner provisioner = getProvisioner(environment.getProvisioner(), context, provisionProgress);
+        final EnvironmentProvisioner provisioner = getProvisioner(environment.getProvisioner(),
+            context,
+            provisionProgress);
         if (mode == ProvisionerMode.Provision) {
-            progress.log("Provisioning environment " + environmentName + " with " + provisioner.getName());
             provisioner.preProvision(context, provisionProgress);
         } else if (mode == ProvisionerMode.Reprovision) {
-            progress.log("Reprovisioning environment " + environmentName + " with " + provisioner.getName());
             provisioner.preReprovision(context, provisionProgress);
         }
 
@@ -91,45 +98,43 @@ public class EnvironmentResolver {
         result.setProvisionerMode(mode);
 
         if (mode == ProvisionerMode.Provision) {
-            progress.log("Provisioning environment " + environmentName + " with " + provisioner.getName());
             provisioner.postProvision(context, result, provisionProgress);
         } else if (mode == ProvisionerMode.Reprovision) {
-            progress.log("Reprovisioning environment " + environmentName + " with " + provisioner.getName());
             provisioner.postReprovision(context, result, provisionProgress);
         }
 
         return result;
     }
 
-    private EnvironmentProvisioner getProvisioner(final String provisionerName, final PropertyResolverContext context,
+    private EnvironmentProvisioner getProvisioner(final String provisionerName,
+        final PropertyResolverContext context,
         final ProgressLogger progress) {
         final String name = context.resolveValue(provisionerName, progress);
         if (name != null) {
             if (!environmentProvisioners.containsKey(provisionerName)) {
-                throw new FlywayException(
-                    "Unknown provisioner '" + provisionerName + "' for environment " + context.getEnvironmentName(),
-                    CoreErrorCode.CONFIGURATION);
+                throw new FlywayException("Unknown provisioner '"
+                    + provisionerName
+                    + "' for environment "
+                    + context.getEnvironmentName(), CoreErrorCode.CONFIGURATION);
             }
             return environmentProvisioners.get(provisionerName);
         }
         return new EnvironmentProvisionerNone();
     }
-    
+
     private Map<String, ConfigurationExtension> getEnvironmentPluginConfigMap(final EnvironmentModel environmentModel,
         final PluginRegister pluginRegister) {
 
         if (environmentModel.getResolvers() != null) {
 
-            return environmentModel.getResolvers()
-                .keySet()
-                .stream()
-                .collect(Collectors.toMap(key->key, v->getResolverConfig(environmentModel, pluginRegister, v)));
+            return environmentModel.getResolvers().keySet().stream().collect(Collectors.toMap(key -> key,
+                v -> getResolverConfig(environmentModel, pluginRegister, v)));
         }
         return null;
     }
 
-
-    private ConfigurationExtension getResolverConfig(final EnvironmentModel environmentModel, final PluginRegister pluginRegister,
+    private ConfigurationExtension getResolverConfig(final EnvironmentModel environmentModel,
+        final PluginRegister pluginRegister,
         final String key) {
         final Class<?> clazz = getResolverConfigClassFromKey(pluginRegister, key);
 
@@ -138,7 +143,9 @@ public class EnvironmentResolver {
                 final var data = environmentModel.getResolvers().get(key);
                 return (ConfigurationExtension) new ObjectMapper().convertValue(data, clazz);
             } catch (final IllegalArgumentException e) {
-                throw new FlywayException("Error reading resolver configuration for resolver " + key, e, CoreErrorCode.CONFIGURATION);
+                throw new FlywayException("Error reading resolver configuration for resolver " + key,
+                    e,
+                    CoreErrorCode.CONFIGURATION);
             }
         }
 
@@ -146,20 +153,15 @@ public class EnvironmentResolver {
     }
 
     private Class<? extends Plugin> getResolverClassFromKey(final PluginRegister pluginRegister, final String key) {
-        Plugin plugin = pluginRegister.getPlugins(EnvironmentProvisioner.class).stream()
-            .filter(p -> p.getName().equalsIgnoreCase(key))
-            .findFirst()
-            .orElse(null);
-
+        Plugin plugin = pluginRegister.getPlugins(EnvironmentProvisioner.class).stream().filter(p -> p.getName()
+            .equalsIgnoreCase(key)).findFirst().orElse(null);
 
         if (plugin == null) {
-            plugin = pluginRegister.getPlugins(PropertyResolver.class).stream()
-                .filter(p -> p.getName().equalsIgnoreCase(key))
-                .findFirst()
-                .orElse(null);
+            plugin = pluginRegister.getPlugins(PropertyResolver.class).stream().filter(p -> p.getName()
+                .equalsIgnoreCase(key)).findFirst().orElse(null);
         }
 
-        if (plugin!=null){
+        if (plugin != null) {
             return plugin.getClass();
         }
 
@@ -173,10 +175,10 @@ public class EnvironmentResolver {
         }
 
         final Plugin plugin = pluginRegister.getPlugin(resolverClass);
-        if (plugin instanceof final EnvironmentProvisioner environmentProvisioner){
+        if (plugin instanceof final EnvironmentProvisioner environmentProvisioner) {
             return environmentProvisioner.getConfigClass();
         }
-        if (plugin instanceof final PropertyResolver propertyResolver){
+        if (plugin instanceof final PropertyResolver propertyResolver) {
             return propertyResolver.getConfigClass();
         }
 

@@ -55,20 +55,18 @@ public class SchemasVerbExtension implements VerbExtension {
                 " Set a default schema for the connection or specify one using the defaultSchema property!");
         }
 
-        if (!missingSchemas.isEmpty() && configuration.isCreateSchemas()) {
+        if (missingSchemas.isEmpty()) {
+            return null;
+        }
+
+        if (configuration.isCreateSchemas()) {
             experimentalDatabase.createSchemas(missingSchemas.toArray(String[]::new));
         }
 
         final SchemaHistoryModel schemaHistoryModel = VerbUtils.getSchemaHistoryModel(configuration,
             experimentalDatabase);
-        final boolean schemaHistoryTableExists = experimentalDatabase.schemaHistoryTableExists(configuration.getTable());
 
-        if (!schemaHistoryTableExists) {
-            LOG.info("Creating Schema History table "
-                + experimentalDatabase.quote(experimentalDatabase.getCurrentSchema(), configuration.getTable())
-                + " ...");
-            experimentalDatabase.createSchemaHistoryTable(configuration.getTable());
-        }
+        experimentalDatabase.createSchemaHistoryTableIfNotExists(configuration.getTable());
 
         if (!missingSchemas.isEmpty()) {
             // Update SHT with created Schemas

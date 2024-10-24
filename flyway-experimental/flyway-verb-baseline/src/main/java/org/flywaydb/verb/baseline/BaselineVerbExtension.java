@@ -61,15 +61,21 @@ public class BaselineVerbExtension implements VerbExtension {
             new SchemasVerbExtension().executeVerb(configuration);
             if (!schemaHistoryTablePreExisting) {
                 createBaselineMarker(configuration, experimentalDatabase, baselineResult);
+                return baselineResult;
             }
+        } else {
+            LOG.warn("""
+                     The configuration option 'createSchemas' is false.
+                     Even though Flyway is configured not to create any schemas, the schema history table still needs a schema to reside in.
+                     You must manually create a schema for the schema history table to reside in.
+                     See https://documentation.red-gate.com/fd/migrations-184127470.html""");
         }
 
         final boolean schemaHistoryTableExists = experimentalDatabase.schemaHistoryTableExists(schemaHistoryName);
         try {
             if (!schemaHistoryTableExists) {
-                    experimentalDatabase.createSchemaHistoryTable(schemaHistoryName);
-                    createBaselineMarker(configuration, experimentalDatabase, baselineResult);
-                    return baselineResult;
+                createBaselineMarker(configuration, experimentalDatabase, baselineResult);
+                return baselineResult;
             }
 
             final SchemaHistoryModel schemaHistoryModel = experimentalDatabase.getSchemaHistoryModel(schemaHistoryName);
@@ -140,6 +146,9 @@ public class BaselineVerbExtension implements VerbExtension {
 
     private static void createBaselineMarker(final Configuration configuration,
         final ExperimentalDatabase experimentalDatabase, final BaselineResult baselineResult) {
+
+        experimentalDatabase.createSchemaHistoryTableIfNotExists(configuration.getTable());
+
         final String baselineVersion = configuration.getBaselineVersion().getVersion();
         experimentalDatabase.appendSchemaHistoryItem(SchemaHistoryItem.builder()
             .description(configuration.getBaselineDescription())

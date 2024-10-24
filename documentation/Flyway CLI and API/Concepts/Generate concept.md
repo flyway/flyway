@@ -80,3 +80,44 @@ $ cat U002__Add_NewTable.sql
 -- deployment: Dropping sakila.NewTable...
 DROP TABLE sakila.NewTable;
 ```
+
+### Baseline migrations
+It's also possible to use the `generate` command to create a baseline migration script.
+In the example below we diff the schema model and the shadow environment.
+We note from the errors in the output below that the `migrations` folder does not exist yet,
+which is expected for a new project.
+
+```
+$ flyway diff -diff.source=schemaModel -diff.target=migrations -diff.buildEnvironment=shadow
+
+ERROR: Skipping filesystem location: .\migrations (not found)
+Database: jdbc:mysql://clone-internal.red-gate.com:32881/mysql (MySQL 8.0)
+Schema history table `sakila_shadow`.`flyway_schema_history` does not exist yet
+ERROR: Skipping filesystem location: .\migrations (not found)
+Database: jdbc:mysql://clone-internal.red-gate.com:32881/mysql (MySQL 8.0)
+diff artifact generated: C:\Users\FlywayUser\AppData\Local\Temp\flyway.artifact.diff
++-----------------------------+--------+-------------+---------------+-----------------------------------------+
+| Id                          | Change | Object Type | Schema        | Name                                    |
++-----------------------------+--------+-------------+---------------+-----------------------------------------+
+| GTUNyJbY9j5j.hntdn0fEKCnbXw | Add    | Database    |               | sakila_shadow                           |
+| LHPQbjN7DZ.n6KB2Nizi4BxInds | Add    | Foreign key | sakila_shadow | address.fk_address_city                 |
+| EcdJ_YlXJ_MIpToiOhssrvLBkZY | Add    | Foreign key | sakila_shadow | city.fk_city_country                    |
+...
+| vofH2dqiRsKaH5Ddu.lDqSADDJA | Add    | View        | sakila_shadow | staff_list                              |
++-----------------------------+--------+-------------+---------------+-----------------------------------------+
+```
+
+Using the `generate` command with the `-generate.types=baseline` argument allows a baseline migration script to be
+generated from this diff:
+```
+$ flyway generate -generate.types=baseline -generate.description=initial_import -generate.addTimestamp=true
+
+Using diff artifact: C:\Users\FlywayUser\AppData\Local\Temp\flyway.artifact.diff
+ERROR: Skipping filesystem location: .\migrations (not found)
+Generating baseline migration: C:\Users\FlywayUser\Project\migrations\B001_20241014144007__initial_import.sql
+Generated: C:\Users\FlywayUser\Project\migrations\B001_20241014144007__initial_import.sql
+```
+Note that the migrations folder is created (if it doesn't exist) when the baseline migration script is generated.
+
+## Further Reading
+See [here](<Usage/Command-line/Command-line - generate>) for more information on how to use the `generate` command.

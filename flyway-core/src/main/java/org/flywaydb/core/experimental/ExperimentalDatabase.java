@@ -176,6 +176,9 @@ public interface ExperimentalDatabase extends Plugin, AutoCloseable  {
 
     default void createSchemaHistoryTableIfNotExists(final String tableName) {
         if (!schemaHistoryTableExists(tableName)) {
+            LOG.info("Creating Schema History table "
+                + quote(getCurrentSchema(), tableName)
+                + " ...");
             createSchemaHistoryTable(tableName);
         }
     }

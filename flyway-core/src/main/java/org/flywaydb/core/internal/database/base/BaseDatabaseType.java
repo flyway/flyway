@@ -50,6 +50,7 @@ import static org.flywaydb.core.internal.sqlscript.SqlScriptMetadata.getMetadata
 public abstract class BaseDatabaseType implements DatabaseType {
     // Don't grab semicolons and ampersands - they have special meaning in URLs
     private static final Pattern defaultJdbcCredentialsPattern = Pattern.compile("password=([^;&]*).*", Pattern.CASE_INSENSITIVE);
+    private static final Pattern hostJdbcCredentialsPattern = Pattern.compile("(?:jdbc:)?[^:]+://[^:]+:([^@]+)@.*", Pattern.CASE_INSENSITIVE);
 
     /**
      * This is useful for databases that allow setting this in order to easily correlate individual application with
@@ -99,6 +100,16 @@ public abstract class BaseDatabaseType implements DatabaseType {
      */
     public Pattern getJDBCCredentialsPattern() {
         return defaultJdbcCredentialsPattern;
+    }
+
+    /**
+     * A list of regex patterns that identifies credentials in the JDBC URL, where they conform to a pattern specific to this database.
+     * The first captured group should represent the password text, so that it can be redacted if necessary.
+     *
+     * @return a list of URL regexes.
+     */
+    public List<Pattern> getJDBCCredentialsPatterns() {
+        return List.of(getJDBCCredentialsPattern(), hostJdbcCredentialsPattern);
     }
 
     /**

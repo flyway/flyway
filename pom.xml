@@ -14,7 +14,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>10.20.0</version>
+    <version>10.20.1</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -916,6 +916,7 @@
                         <exclude>**/flyway</exclude>
                         <exclude>**/*_BOM.sql</exclude>
                         <exclude>**/assets/report/**</exclude>
+                        <exclude>**/afterMigrate__fix_invalid_objects.sql</exclude>
                     </excludes>
                 </configuration>
             </plugin>

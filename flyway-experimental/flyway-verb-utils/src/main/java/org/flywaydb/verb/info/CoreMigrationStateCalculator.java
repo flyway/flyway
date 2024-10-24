@@ -47,9 +47,17 @@ public class CoreMigrationStateCalculator implements ExperimentalMigrationStateC
         final Configuration configuration) {
         Optional<MigrationVersion> baselineVersion = sortedMigrations.stream()
             .filter(x -> x.getLeft() != null)
-            .filter(x -> x.getLeft().getType().equals(CoreMigrationType.BASELINE))
+            .filter(x -> x.getLeft().getType().isBaseline())
             .map(x -> x.getLeft().getVersion())
             .findFirst();
+        final boolean baselinedSchema = baselineVersion.isPresent();
+        if (baselineVersion.isEmpty()) {
+            baselineVersion = sortedMigrations.stream()
+                .filter(x -> x.getRight() != null)
+                .filter(x -> x.getRight().migrationType().isBaseline())
+                .map(x -> x.getRight().version())
+                .max(MigrationVersion::compareTo);
+        }
 
         if (baselineVersion.isEmpty() || migration.getRight().version().isNewerThan(baselineVersion.get())) {
             final MigrationVersion target = configuration.getTarget();
@@ -67,6 +75,10 @@ public class CoreMigrationStateCalculator implements ExperimentalMigrationStateC
             if (migration.getRight().sqlScriptMetadata() != null && !migration.getRight().sqlScriptMetadata().shouldExecute()) {
                 return MigrationState.IGNORED;
             }
+
+            if (migration.getRight().migrationType().isBaseline() && baselinedSchema) {
+                return MigrationState.IGNORED;
+            }
             
             if (!configuration.isOutOfOrder()) {
                 final MigrationVersion highestSHTVersion = highestSHTVersion(sortedMigrations);
@@ -78,7 +90,7 @@ public class CoreMigrationStateCalculator implements ExperimentalMigrationStateC
 
             return MigrationState.PENDING;
         } else if (migration.getRight().version().equals(baselineVersion.get())) {
-            return MigrationState.BASELINE_IGNORED;
+            return migration.getRight().migrationType().isBaseline() && !baselinedSchema ? MigrationState.PENDING : MigrationState.BASELINE_IGNORED;
         } else {
             return MigrationState.BELOW_BASELINE;
         }
@@ -184,6 +196,7 @@ public class CoreMigrationStateCalculator implements ExperimentalMigrationStateC
         return sortedMigrations.stream()
             .filter(x -> x.getLeft() != null)
             .filter(x -> x.getLeft().getType().isUndo())
+            .filter(x -> x.getLeft().getInstalledRank() > migration.getLeft().getInstalledRank())
             .anyMatch(x -> x.getLeft().getVersion().equals(migration.getLeft().getVersion()));
     }
 

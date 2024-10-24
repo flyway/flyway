@@ -405,6 +405,16 @@ public class MigrationInfoImpl implements MigrationInfo {
             } else if (o.getType().isUndo()) {
                 return -1;
             }
+
+            if (getType().isBaseline() && o.getType().isBaseline()) {
+                return 0;
+            }
+            // Baseline goes after regular
+            if (getType().isBaseline()) {
+                return 1;
+            } else if (o.getType().isBaseline()) {
+                return -1;
+            }
             return 0;
         }
 

@@ -8,7 +8,7 @@ redirect_from: /documentation/tomlconfig/
 ## How it works in Flyway
 
 ### Loading
-By default, Flyway will load TOML files from the following locations:
+By default, Flyway will load TOML files from the following locations in the order given below:
 - {installDir}/conf/flyway.toml
 - {installDir}/conf/flyway.user.toml
 - {userhome}/flyway.toml
@@ -19,6 +19,11 @@ By default, Flyway will load TOML files from the following locations:
 - {[workingDirectory](Configuration/Parameters/Flyway/Working Directory)}/flyway.user.toml
 
 These can be changed by using the [configFiles](Configuration/Parameters/Flyway/Config Files) parameter.
+
+If a parameter is defined in multiple TOML files then the value from the last loaded TOML file will take precedence and
+overwrite any previously defined value.
+Once all TOML files have been loaded, parameters will be read from environment variables and command line arguments in
+that order, and can overwrite any previously defined value.
 
 ### Root level Parameters
 Root level parameters (e.g `locations`) inherit the namespace of the table and are read using just the parameter name.

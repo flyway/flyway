@@ -8,16 +8,27 @@ redirect_from: Configuration/target/
 
 ## Description
 
-The target version up to which Flyway should consider migrations. If set to a value other than `current` or `latest`,
-this must be a valid migration version (e.g. `2.1`).
+The target version up to which Flyway should consider migrations.
+This must be a valid migration version, or one of the special values detailed later.
 
-### Targeting migrate
+## Migrate
 
 When migrating forwards, Flyway will apply all migrations up to and including the target version. Migrations with a
 higher version number will be ignored. If the target is `current`, then no versioned migrations will be
 applied but repeatable migrations will be, together with any callbacks.
 
-### Targeting undo
+### Special values
+
+- `current`: designates the current version of the schema
+- `latest`: the latest version of the schema, as defined by the migration with the highest version
+- `next`: the next version of the schema, as defined by the first pending migration
+- `<version>?`: instructs Flyway to not fail if the target version doesn't exist. In this case, Flyway will go up to but not beyond the specified target (default: fail if the target version doesn't exist) (e.g.) `target=2.1?`
+
+### Default
+
+`latest` for versioned migrations
+
+## Undo
 
 When undoing migrations, Flyway works its way up the schema history table (i.e. in reverse applied order), undoing versioned migrations until it gets to one meeting one of these conditions:
  - The migration's version number is below the target version.
@@ -27,14 +38,12 @@ Specifying a target version should be done with care, as undo scripts typically 
 
 ### Special values
 
-- `current`: designates the current version of the schema
-- `latest`: the latest version of the schema, as defined by the migration with the highest version
-- `next`: the next version of the schema, as defined by the first pending migration
-- `<version>?`: instructs Flyway to not fail if the target version doesn't exist. In this case, Flyway will go up to but not beyond the specified target (default: fail if the target version doesn't exist) (e.g.) `target=2.1?`
+- `current`, `latest`, `next`: designates the current version of the schema. Flyway will undo the latest applied migration.
+- `<version>?`: instructs Flyway to not fail if the target version doesn't exist. In this case, Flyway will go down to but not beyond the specified target (default: fail if the target version doesn't exist) (e.g.) `target=2.1?`
 
-## Default
+### Default
 
-`latest` for versioned migrations, `current` for undo migrations.
+`current` for undo migrations.
 
 ## Usage
 

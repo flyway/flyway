@@ -19,13 +19,14 @@
  */
 package org.flywaydb.core.internal.util;
 
-import com.google.common.collect.Sets;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.CustomLog;
 
 @CustomLog
@@ -76,16 +77,18 @@ public class MergeUtils {
 
         final Map<Object, Object> result = new HashMap<>();
 
-        for (final Object key : Sets.union(primary.keySet(), overrides.keySet())) {
-            final Object primaryValue = primary.get(key);
-            final Object overrideValue = overrides.get(key);
+        Stream.concat(primary.keySet().stream(), overrides.keySet().stream())
+            .distinct()
+            .forEach(key -> {
+                final Object primaryValue = primary.get(key);
+                final Object overrideValue = overrides.get(key);
 
-            if (primaryValue instanceof Map && overrideValue instanceof Map) {
-                result.put(key, mergeMaps((Map<?, ?>) primaryValue, (Map<?, ?>) overrideValue));
-            } else {
-                result.put(key, overrideValue != null ? overrideValue : primaryValue);
-            }
-        }
+                if (primaryValue instanceof Map && overrideValue instanceof Map) {
+                    result.put(key, mergeMaps((Map<?, ?>) primaryValue, (Map<?, ?>) overrideValue));
+                } else {
+                    result.put(key, overrideValue != null ? overrideValue : primaryValue);
+                }
+            });
 
         return result;
     }

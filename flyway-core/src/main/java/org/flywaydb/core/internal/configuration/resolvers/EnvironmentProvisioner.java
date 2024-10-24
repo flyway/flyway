@@ -32,13 +32,17 @@ public interface EnvironmentProvisioner extends Plugin {
         return null;
     }
 
-    default void setConfiguration(final ConfigurationExtension config) { }
+    default void setConfiguration(final ConfigurationExtension config) {}
 
-    default void preProvision(final PropertyResolverContext context, final ProgressLogger progress) { }
+    default void preProvision(final PropertyResolverContext context, final ProgressLogger progress) {}
 
-    default void preReprovision(final PropertyResolverContext context, final ProgressLogger progress) { }
+    default void preReprovision(final PropertyResolverContext context, final ProgressLogger progress) {}
 
-    default void postProvision(final PropertyResolverContext context, final ResolvedEnvironment resolvedEnvironment, final ProgressLogger progress) { }
+    default void postProvision(final PropertyResolverContext context,
+        final ResolvedEnvironment resolvedEnvironment,
+        final ProgressLogger progress) {}
 
-    default void postReprovision(final PropertyResolverContext context, final ResolvedEnvironment resolvedEnvironment, final ProgressLogger progress) { }
+    default void postReprovision(final PropertyResolverContext context,
+        final ResolvedEnvironment resolvedEnvironment,
+        final ProgressLogger progress) {}
 }

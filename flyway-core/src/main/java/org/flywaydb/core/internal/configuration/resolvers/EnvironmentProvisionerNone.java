@@ -29,7 +29,9 @@ public class EnvironmentProvisionerNone implements EnvironmentProvisioner {
     }
 
     @Override
-    public void preReprovision(PropertyResolverContext context, ProgressLogger progress) {
-        throw new FlywayException("Reprovisioning is not supported for environment " + context.getEnvironmentName());
+    public void preReprovision(final PropertyResolverContext context, final ProgressLogger progress) {
+        throw new FlywayException("Reprovisioning is not supported for `"
+            + context.getEnvironmentName()
+            + "` environment");
     }
 }
