@@ -92,6 +92,9 @@ public class MySQLDatabaseType extends BaseDatabaseType {
         }
         if (url.startsWith("jdbc:mysql:")) {
             return "com.mysql.cj.jdbc.Driver";
+        }
+        if (url.startsWith("jdbc:aws-wrapper:mysql")) {
+            return "software.amazon.jdbc.Driver";
         } else {
             return "com.mysql.jdbc.GoogleDriver";
         }
