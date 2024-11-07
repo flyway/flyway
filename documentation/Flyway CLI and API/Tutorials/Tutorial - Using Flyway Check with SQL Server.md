@@ -41,7 +41,6 @@ Our `flyway.conf` file (found in the `conf` folder), should contain the followin
 flyway.url=jdbc:sqlserver://localhost;databaseName=foobar;trustServerCertificate=true
 flyway.user=sa
 flyway.password=Flyway123
-flyway.licenseKey=<put your license key here>
 
 flyway.check.buildUrl=jdbc:sqlserver://localhost;databaseName=check_build_db;trustServerCertificate=true
 flyway.reportFilename=check_report
@@ -135,7 +134,6 @@ Inside `conf`, place a file called `flyway.conf` and add the following contents:
 flyway.url=jdbc:sqlserver://localhost;databaseName=foobar;trustServerCertificate=true
 flyway.user=sa
 flyway.password=Flyway123
-flyway.licenseKey=<put your license key here>
 
 flyway.check.buildUrl=jdbc:sqlserver://localhost;databaseName=check_build_db;trustServerCertificate=true
 flyway.reportFilename=reports/check_report
@@ -164,7 +162,8 @@ services:
     image: redgate/flyway
     command: -url=jdbc:sqlserver://db;trustServerCertificate=true -check.buildUrl=jdbc:sqlserver://db;databaseName=check_build_db;trustServerCertificate=true -password=Flyway123 -user=sa -reportFilename=reports/check_report check -changes
     environment:
-      - FLYWAY_LICENSE_KEY=<put your license key here>
+      - FLYWAY_EMAIL=<put your PAT email here>
+      - FLYWAY_TOKEN=<put your PAT here>
     volumes:
       - ./sql:/flyway/sql
       - ./reports:/flyway/reports

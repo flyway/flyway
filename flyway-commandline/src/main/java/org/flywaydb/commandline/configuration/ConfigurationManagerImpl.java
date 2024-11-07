@@ -116,6 +116,9 @@ public class ConfigurationManagerImpl implements ConfigurationManager {
             return true;
         } else {
             if (!legacyConfigFiles.isEmpty()) {
+                LOG.debug("Using legacy configuration as CONF files detected on disk or specified in commandline or environment variables: " + legacyConfigFiles.stream()
+                    .map(File::getAbsolutePath)
+                    .collect(Collectors.joining(", ")) + System.lineSeparator());
                 return false;
             }
         }

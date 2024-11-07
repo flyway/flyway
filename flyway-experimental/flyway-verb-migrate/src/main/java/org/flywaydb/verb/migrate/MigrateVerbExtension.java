@@ -117,7 +117,11 @@ public class MigrateVerbExtension implements VerbExtension {
         MigrationVersion initialSchemaVersion =  current != null && current.isVersioned()  ?
             current.getVersion() : MigrationVersion.EMPTY;
         migrateResult.initialSchemaVersion = initialSchemaVersion.getVersion();
-        final MigrationInfo[] allPendingMigrations = migrationInfoService.pending();
+        MigrationInfo[] allPendingMigrations = migrationInfoService.pending();
+
+        if (allPendingMigrations.length > 1 && configuration.getTarget().equals(MigrationVersion.NEXT)) {
+            allPendingMigrations = Arrays.copyOf(allPendingMigrations, 1);
+        }
 
         LOG.info("Current version of schema "
             + experimentalDatabase.doQuote(experimentalDatabase.getCurrentSchema())
@@ -171,7 +175,7 @@ public class MigrateVerbExtension implements VerbExtension {
         ignorePatterns.add(ValidatePattern.fromPattern("*:pending"));
         validateConfig.ignoreMigrationPatterns(ignorePatterns.toArray(ValidatePattern[]::new));
         final ValidateResult validateResult = new Flyway(validateConfig).validateWithResult();
-        if (!validateResult.validationSuccessful && !configuration.isCleanOnValidationError()) {
+        if (!validateResult.validationSuccessful) {
             throw new FlywayValidateException(validateResult.errorDetails, validateResult.getAllErrorMessages());
         }
     }    

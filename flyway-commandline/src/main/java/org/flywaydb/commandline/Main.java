@@ -356,6 +356,8 @@ public class Main {
             }
         } else if ("repair".equals(operation)) {
             result = flyway.repair();
+        } else if ("undo".equals(operation)) {
+            result = flyway.undo();
         } else {
             result = CommandExtensionUtils.runCommandExtension(configuration,
                 operation,

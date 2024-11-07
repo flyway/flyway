@@ -14,7 +14,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>10.20.1</version>
+    <version>10.21.0</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -155,7 +155,7 @@
         <version.gcsm>2.51.0</version.gcsm>
         <version.gradle>6.1.1</version.gradle>
         <version.gson>2.10.1</version.gson>
-        <version.h2>2.2.224</version.h2>
+        <version.h2>2.3.232</version.h2>
         <version.hamcrest>2.2</version.hamcrest>
         <version.hsqldb>2.7.2</version.hsqldb>
         <version.ignite>2.13.0</version.ignite>
@@ -192,7 +192,7 @@
         <version.sap>2.6.30</version.sap>
         <version.singlestore>1.1.4</version.singlestore>
         <version.slf4j>1.7.30</version.slf4j>
-        <version.snowflake>3.14.3</version.snowflake>
+        <version.snowflake>3.20.0</version.snowflake>
         <version.spanner>2.22.1</version.spanner>
         <version.springjdbc>5.3.19</version.springjdbc>
         <version.sqlite>3.41.2.2</version.sqlite>

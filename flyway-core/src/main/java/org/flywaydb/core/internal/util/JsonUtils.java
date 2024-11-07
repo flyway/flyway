@@ -22,7 +22,9 @@ package org.flywaydb.core.internal.util;
 import static org.flywaydb.core.internal.util.FileUtils.createDirIfNotExists;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -31,6 +33,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -87,12 +90,27 @@ public class JsonUtils {
     }
 
     public static String getFromJson(final String json, final String key) {
-        try {
-            final var jsonNode = getJsonMapper().readTree(json).get(key);
-            return jsonNode == null ? null : jsonNode.asText();
-        } catch (final JsonProcessingException e) {
+        if (json == null || json.isBlank()) {
+            return null;
+        }
+
+        final var factory = new JsonFactory();
+        try (final var parser = factory.createParser(json)) {
+            parser.nextToken();
+            while (parser.nextToken() != JsonToken.END_OBJECT && parser.currentToken() != null) {
+                if (parser.currentToken().isStructStart()) {
+                    // Only look at lop level fields
+                    parser.skipChildren();
+                } else if (parser.currentToken() == JsonToken.FIELD_NAME && key.equals(parser.currentName())) {
+                    parser.nextToken();
+                    return parser.getText();
+                }
+            }
+        } catch (final IOException e) {
             throw new FlywayException("Unable to parse JSON: " + json, e);
         }
+
+        return null;
     }
 
     public static ArrayNode parseJsonArray(final String json) {

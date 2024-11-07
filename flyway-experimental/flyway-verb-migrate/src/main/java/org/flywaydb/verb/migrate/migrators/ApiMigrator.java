@@ -83,8 +83,8 @@ public class ApiMigrator extends Migrator{
             } else {
                 LOG.debug("Starting migration of " + migrationText + " ...");
                 LOG.info("Migrating " + migrationText);
-                final String executionUnit = String.join("\n", Files.readAllLines(Path.of(migrationInfo.getScript())));
-                experimentalDatabase.doExecute(executionUnit);
+                final String executionUnit = String.join("\n", Files.readAllLines(Path.of(migrationInfo.getPhysicalLocation())));
+                experimentalDatabase.doExecute(executionUnit, configuration.isOutputQueryResults());
             }
         } catch (final Exception e) {
             watch.stop();

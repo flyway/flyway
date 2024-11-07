@@ -126,7 +126,7 @@ public class MongoDBDatabase extends Database<MongoDBConnection> {
         String deleteStatement =  "db.getSiblingDB('" + table.getSchema().getName() + "')." + table.getName() + ".deleteMany({ 'success': " + getBooleanFalse() + ", " +
                 (version ?
                         "'version': ? " :
-                        "'desciption': ? ") +
+                        "'description': ? ") +
                 "})";
 
         return Pair.of(deleteStatement, filter);

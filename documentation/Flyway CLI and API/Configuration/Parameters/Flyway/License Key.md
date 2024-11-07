@@ -7,6 +7,8 @@ redirect_from: Configuration/licenseKey/
 # License Key
 {% include redgate.html %}
 
+This parameter is deprecated and will be removed in a future release.
+
 This is how legacy Flyway licensing is managed to enable features in Flyway.
 
 Flyway V10 brings online authentication - see [Flyway Auth](Commands/Auth)

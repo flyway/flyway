@@ -57,7 +57,7 @@ public interface ExperimentalDatabase extends Plugin, AutoCloseable  {
      */
     void initialize(ResolvedEnvironment environment, Configuration configuration) throws SQLException;
 
-    void doExecute(String executionUnit);
+    void doExecute(String executionUnit, final boolean outputQueryResults);
 
     /**
      * Gets connection important metadata from the database.
@@ -182,4 +182,6 @@ public interface ExperimentalDatabase extends Plugin, AutoCloseable  {
             createSchemaHistoryTable(tableName);
         }
     }
+
+    void removeFailedSchemaHistoryItems(final String tableName);
 }

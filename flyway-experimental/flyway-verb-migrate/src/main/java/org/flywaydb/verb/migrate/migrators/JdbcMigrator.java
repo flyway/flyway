@@ -166,7 +166,11 @@ public class JdbcMigrator extends Migrator {
                 LOG.debug("Skipping execution of migration of " + migrationText);
             } else {
                 LOG.debug("Starting migration of " + migrationText + " ...");
-                LOG.info("Migrating " + migrationText);
+                if (!migrationInfo.getType().isUndo()) {
+                    LOG.info("Migrating " + migrationText);
+                } else {
+                    LOG.info("Undoing migration of " + migrationText);
+                }
 
                 if (migrationInfo instanceof final LoadableMigrationInfo loadableMigrationInfo) {
                     try (final SqlStatementIterator sqlStatementIterator = getSqlStatementIterator(experimentalDatabase,
@@ -179,6 +183,7 @@ public class JdbcMigrator extends Migrator {
                             doIndividualStatement(experimentalDatabase,
                                 sqlStatement,
                                 configuration.isBatch(),
+                                configuration.isOutputQueryResults(),
                                 sqlStatementIterator.hasNext(),
                                 batchNumber++);
                         }
@@ -254,6 +259,7 @@ public class JdbcMigrator extends Migrator {
     private static void doIndividualStatement(final ExperimentalDatabase experimentalDatabase,
         final SqlStatement sqlStatement,
         final boolean isBatch,
+        final boolean outputQueryResults,
         final boolean hasNextStatement,
         final int batchNumber) {
         if (isBatch) {
@@ -264,10 +270,10 @@ public class JdbcMigrator extends Migrator {
                 }
             } else {
                 experimentalDatabase.doExecuteBatch();
-                experimentalDatabase.doExecute(sqlStatement.getSql());
+                experimentalDatabase.doExecute(sqlStatement.getSql(), outputQueryResults);
             }
         } else {
-            experimentalDatabase.doExecute(sqlStatement.getSql());
+            experimentalDatabase.doExecute(sqlStatement.getSql(), outputQueryResults);
         }
     }
 
@@ -294,7 +300,12 @@ public class JdbcMigrator extends Migrator {
         final int totalTimeMillis) {
 
         final String migrationText = toMigrationText(migrationInfo, executeInTransaction, experimentalDatabase, outOfOrder);
-        final String failedMsg = "Migration of " + migrationText + " failed!";
+        final String failedMsg;
+        if (!migrationInfo.getType().isUndo()) {
+            failedMsg = "Migration of " + migrationText + " failed!";
+        } else {
+            failedMsg = "Undo of migration of " + migrationText + " failed!";
+        }
 
         migrateResult.putFailedMigration(migrationInfo, totalTimeMillis);
         migrateResult.setSuccess(false);

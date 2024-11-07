@@ -37,7 +37,7 @@ If you provide a URL/environment to `check -code` Flyway will use it to automati
 If no URL is provided, then you need to configure the dialect in a `.sqlfluff` configuration file.
 This file needs to be located in the same location as the migrations being analysed.
 
-You can find more information on configuration in the [SQLFLuff documentation](https://docs.sqlfluff.com/en/stable/configuration.html).
+You can find more information on configuration in the [SQLFLuff documentation](https://docs.sqlfluff.com/en/stable/configuration/default_configuration.html).
 
 ## Analysis engine: Regular Expressions
 {% include enterprise.html %}

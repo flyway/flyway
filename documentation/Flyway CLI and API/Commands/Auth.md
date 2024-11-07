@@ -7,7 +7,7 @@ subtitle: Auth
 
 If `auth` is run on a machine that is connected to the internet with an accessible browser, Flyway will launch a web browser prompting the user to log in with their Redgate account
 username and password. Please note that `auth` is not supported on WSL, nor when using SSH. For these cases and any where a web browser is inaccessible on the same machine that is
-running Flyway, it is recommended to use an [offline mechanism](<Configuration/Flyway Licensing>) to license Flyway.
+running Flyway, it is recommended to use an [non-interactive mechanism](<Configuration/Flyway Licensing>) to license Flyway.
 
 Upon successful login, a license permit is then saved to disk in the `Flyway CLI` directory of the Redgate app data folder. If the user is offline, a
 [link to create a license permit](https://permits.red-gate.com/offline?productCode=63) will be printed to the console. The user can then copy the license permit

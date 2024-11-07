@@ -148,10 +148,6 @@ public class ValidateVerbExtension implements VerbExtension {
         result.addAll(getChecksumChanged(migrations, pendingIgnored, appliedBaselineVersion));
         result.addAll(getDescriptionChanged(migrations, appliedBaselineVersion));
         result.addAll(getOutdatedRepeatables(migrations, pendingIgnored));
-        result.addAll(getFailedVersionedMigrations(migrations));
-        result.addAll(getFailedRepeatableMigrations(migrations));
-        result.addAll(getPendingVersionedMigrations(migrations, pendingIgnored));
-        result.addAll(getPendingRepeatableMigrations(migrations, pendingIgnored));
         if(futureFailedMigrations.isEmpty()) {
             result.addAll(getMissingMigrations(migrations));
         }else {
@@ -159,6 +155,10 @@ public class ValidateVerbExtension implements VerbExtension {
         }
         result.addAll(getMissingRepeatables(migrations));
         result.addAll(getNotIgnoredIgnored(migrations, configuration, result));
+        result.addAll(getFailedVersionedMigrations(migrations));
+        result.addAll(getFailedRepeatableMigrations(migrations));
+        result.addAll(getPendingVersionedMigrations(migrations, pendingIgnored));
+        result.addAll(getPendingRepeatableMigrations(migrations, pendingIgnored));
         return result;
     }
 
@@ -261,8 +261,7 @@ public class ValidateVerbExtension implements VerbExtension {
         return migrations.stream()
             .filter(x -> x.getState() == MigrationState.FUTURE_SUCCESS
                 || x.getState() == MigrationState.MISSING_SUCCESS
-                || x.getState() == MigrationState.FUTURE_FAILED
-                || x.getState() == MigrationState.MISSING_FAILED)
+                || x.getState() == MigrationState.FUTURE_FAILED)
             .filter(x -> !x.getState().isResolved())
             .filter(MigrationInfo::isVersioned)
             .map(x -> new ValidateOutput(x.getVersion().getVersion(),
@@ -277,8 +276,7 @@ public class ValidateVerbExtension implements VerbExtension {
         return migrations.stream()
             .filter(x -> x.getState() == MigrationState.FUTURE_SUCCESS
                 || x.getState() == MigrationState.MISSING_SUCCESS
-                || x.getState() == MigrationState.FUTURE_FAILED
-                || x.getState() == MigrationState.MISSING_FAILED)
+                || x.getState() == MigrationState.FUTURE_FAILED)
             .filter(x -> !x.getState().isResolved())
             .filter(MigrationInfo::isRepeatable)
             .map(x -> new ValidateOutput("",
@@ -362,7 +360,8 @@ public class ValidateVerbExtension implements VerbExtension {
 
     private static List<ValidateOutput> getFailedVersionedMigrations(final List<MigrationInfo> migrations) {
         return migrations.stream()
-            .filter(x -> x.getState() == MigrationState.FAILED)
+            .filter(x -> x.getState() == MigrationState.FAILED
+                || x.getState() == MigrationState.MISSING_FAILED)
             .filter(MigrationInfo::isVersioned)
             .map(x -> new ValidateOutput(x.getVersion().getVersion(),
                 x.getDescription(),
@@ -374,7 +373,8 @@ public class ValidateVerbExtension implements VerbExtension {
 
     private static List<ValidateOutput> getFailedRepeatableMigrations(final List<MigrationInfo> migrations) {
         return migrations.stream()
-            .filter(x -> x.getState() == MigrationState.FAILED)
+            .filter(x -> x.getState() == MigrationState.FAILED
+                || x.getState() == MigrationState.MISSING_FAILED)
             .filter(MigrationInfo::isRepeatable)
             .map(x -> new ValidateOutput("",
                 x.getDescription(),

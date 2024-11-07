@@ -39,3 +39,58 @@ backupVersion = "995"
 ```
 
 This example will restore the backup file located at `\\DBOps1\Backups\backup.bak` to the `MyDatabase` database in the shadow environment. The `MyDatabase` database will be at version 995. This example represents a common scenario where a user may wish to reset the shadow environment to the same state as production, so that new development migrations can then be applied to the shadow and verified.
+
+## SQL Server WITH MOVE
+
+The T-SQL "WITH MOVE" syntax makes it possible to specify the file paths on disk that data and log files should be
+restored to. This can be required in a couple of scenarios:
+
+- The directory structure on the target database doesn't match that of the source database. For example, the source
+  database stores data and log files under the `C:` drive, whilst the target database has no `C:` drive and stores
+  database files under the `D:` drive.
+- The data and log file paths embedded in the backup file are already being used by a different database. For example,
+  taking a database backup and restoring it on the same SQL Server instance but under a different database name, so
+  that the restored database exists alongside the original. In this scenario, new file paths to restore the data and log
+  files must be provided when performing the restore.
+
+The backup provisioner provides two methods for adjusting the data and log files paths when restoring a database.
+
+## Auto-generate data and log file paths
+
+The backup provisioner exposes a `generateWithMove` boolean parameter, which defaults to false. When set to true, the
+backup provisioner will auto-generate file paths for any data and log files contained within the backup file, and
+restore the backup using these generated file paths. The example toml below shows how this can be enabled:
+
+```toml
+[environments.shadow.resolvers.backup]
+backupFilePath = '/tmp/backup/backup.bak'
+backupVersion = "995"
+sqlserver.generateWithMove = true
+```
+
+## Specify data and log file paths
+
+An alternative to the `generateWithMove` parameter above is to specify the exact file path that data and log files
+should be restored to. The example toml below shows how this can be done:
+
+```toml
+[environments.shadow.resolvers.backup]
+backupFilePath = '/tmp/backup/backup.bak'
+backupVersion = "995"
+
+[[environments.shadow.resolvers.backup.sqlserver.files]]
+logicalName = "NewWorldDB"
+filePath = "/var/opt/mssql/data/NewWorldDB_shadow_data.mdf"
+
+[[environments.shadow.resolvers.backup.sqlserver.files]]
+logicalName = "NewWorldDB_log"
+filePath = "/var/opt/mssql/data/NewWorldDB_shadow_log.ldf"
+```
+
+Where:
+
+- `logicalName` is the logical name of a data or log file in the backup file.
+- `filePath` is the file path on disk where the logical file will be restored to.
+
+**Note**: When file paths are provided as above, then the `generateWithMove` parameter is ignored.
+i.e. User defined file paths take precedence over auto-generated file paths.

@@ -9,6 +9,38 @@
 <div class="col-md-9">
 
   <div class="release">
+        <h2 id="10.21.0">Flyway 10.21.0 (2024-11-07)</h2>
+
+        <h3>Breaking changes</h3>
+        <ul>
+            <li>Removed`check.url`, `check.password` and `check.username`. These undocumented historic fields have been deprecated for a while and have confusing impacts (such as not working in all check functionality). It is recommended to use environments to replace this functionality, alternatively, check does support standard `url`, `username` and `password`</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fixed an issue that the Repair command was unable to remove failed Repeatable migration entries in schema history table for MongoDB</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Backup provisioner now puts database into single user mode before restoring</li>
+            <li>Legacy Flyway keys (FL0...) are now deprecated</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>Update H2 2.3.224 to 2.3.232</li>
+            <li>Upgrade snowflake-jdbc 3.14.3 to 3.20.0 to fix CVE-2024-43382</li>
+        </ul>
+
+        <h3>Performance improvements</h3>
+        <ul>
+            <li>Improved `repair` performance when removing failed migrations</li>
+        </ul>
+
+    </div>
+
+<div class="release">
         <h2 id="10.20.1">Flyway 10.20.1 (2024-10-24)</h2>
 
         <h3>Bug fixes</h3>

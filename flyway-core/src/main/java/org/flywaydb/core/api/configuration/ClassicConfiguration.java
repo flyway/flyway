@@ -65,6 +65,7 @@ import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.experimental.ExperimentalModeUtils;
 import org.flywaydb.core.extensibility.ConfigurationExtension;
 import org.flywaydb.core.extensibility.ConfigurationProvider;
 import org.flywaydb.core.extensibility.LicenseGuard;
@@ -239,7 +240,7 @@ public class ClassicConfiguration implements Configuration {
             return model.getDataSource();
         }
 
-        if (StringUtils.hasText(getUrl())) {
+        if (StringUtils.hasText(getUrl()) && ExperimentalModeUtils.canCreateDataSource(this)) {
             DataSource dataSource = new DriverDataSource(classLoader,
                 getDriver(),
                 getUrl(),
@@ -1538,14 +1539,16 @@ public class ClassicConfiguration implements Configuration {
         getCurrentUnresolvedEnvironment().setPassword(password);
 
         requestResolvedEnvironmentRefresh(getCurrentEnvironmentName());
-        dataSources.put(getCurrentEnvironmentName(), new DataSourceModel(new DriverDataSource(classLoader,
-                null,
-                url,
-                user,
-                password,
-                this,
-                getCurrentUnresolvedEnvironment().getJdbcProperties()), true));
-
+        if (ExperimentalModeUtils.canCreateDataSource(this)) {
+            dataSources.put(getCurrentEnvironmentName(),
+                new DataSourceModel(new DriverDataSource(classLoader,
+                    null,
+                    url,
+                    user,
+                    password,
+                    this,
+                    getCurrentUnresolvedEnvironment().getJdbcProperties()), true));
+        }
         licenseGuardJdbcUrl(url);
     }
 
@@ -2052,7 +2055,7 @@ public class ClassicConfiguration implements Configuration {
             if (Stream.of(urlProp, driverProp, userProp, passwordProp).anyMatch(StringUtils::hasText)) {
                 DriverDataSource driverDataSource = null;
                 boolean isGenerated = false;
-                if (StringUtils.hasText(urlProp)) {
+                if (StringUtils.hasText(urlProp) && ExperimentalModeUtils.canCreateDataSource(this)) {
                     driverDataSource = new DriverDataSource(classLoader,
                         getDriver(),
                         getUrl(),

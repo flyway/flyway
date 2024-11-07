@@ -256,27 +256,27 @@ class JdbcTableSchemaHistory extends SchemaHistory {
     }
 
     @Override
-    public boolean removeFailedMigrations(RepairResult repairResult, MigrationPattern[] migrationPatternFilter) {
+    public boolean removeFailedMigrations(final RepairResult repairResult, final MigrationPattern[] migrationPatternFilter) {
         if (!exists()) {
             LOG.info("Repair of failed migration in Schema History table " + table + " not necessary as table doesn't exist.");
             return false;
         }
 
-        List<AppliedMigration> appliedMigrations = filterMigrations(allAppliedMigrations(), migrationPatternFilter);
+        final List<AppliedMigration> failedAppliedMigrations = filterMigrations(allAppliedMigrations(), migrationPatternFilter)
+            .stream()
+            .filter(fam -> !fam.isSuccess())
+            .toList();
 
-        boolean failed = appliedMigrations.stream().anyMatch(am -> !am.isSuccess());
-        if (!failed) {
+        if (failedAppliedMigrations.isEmpty()) {
             LOG.info("Repair of failed migration in Schema History table " + table + " not necessary. No failed migration detected.");
             return false;
         }
 
         try {
-            appliedMigrations.stream()
-                             .filter(am -> !am.isSuccess())
-                             .forEach(am -> repairResult.migrationsRemoved.add(CommandResultFactory.createRepairOutput(am)));
+            repairResult.migrationsRemoved = failedAppliedMigrations.stream().map(CommandResultFactory::createRepairOutput).toList();
 
-            for (AppliedMigration appliedMigration : appliedMigrations) {
-                Pair<String, Object> deleteStatement;
+            for (final AppliedMigration appliedMigration : failedAppliedMigrations) {
+                final Pair<String, Object> deleteStatement;
                 if (appliedMigration.getVersion() != null) {
                     deleteStatement = database.getDeleteStatement(table, true, appliedMigration.getVersion().getVersion());
                 } else {
@@ -289,7 +289,7 @@ class JdbcTableSchemaHistory extends SchemaHistory {
             }
 
             clearCache();
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             throw new FlywaySqlException("Unable to repair Schema History table " + table, e);
         }
 

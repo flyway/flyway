@@ -134,6 +134,9 @@ public class CoreMigrationStateCalculator implements ExperimentalMigrationStateC
         }
         if (migration.getRight() == null) {
             final MigrationVersion maxLocalVersion = highestLocalVersion(sortedMigrations);
+            if (migration.getLeft().isRepeatable()) {
+                return MigrationState.MISSING_FAILED;
+            }
             return migration.getLeft().getVersion().isNewerThan(maxLocalVersion) ? MigrationState.FUTURE_FAILED : MigrationState.MISSING_FAILED;
         }
         return MigrationState.FAILED;

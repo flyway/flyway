@@ -5,7 +5,7 @@ redirect_from: /documentation/awsSecretsManager/
 # Secrets Management
 {% include enterprise.html %}
 
-A problem that organizations often encounter is where to store and how to access sensitive data such as the credentials for connecting to a database or their Flyway license key.
+A problem that organizations often encounter is where to store and how to access sensitive data such as the credentials for connecting to a database.
 
 Flyway comes with support for the following secrets management solutions that enable you to successfully handle sensitive data:
 
@@ -62,7 +62,7 @@ Now you can run `migrate`, `info`, etc. and the credentials will be pulled out o
 
 ## Dapr Secret Store
 
-Flyway integrates with [Dapr's](https://docs.dapr.io/developing-applications/building-blocks/secrets/secrets-overview/) Secret Store in order to allow users to store Flyway configuration parameters securely. This can be used to securely read license keys without storing them in application configuration, and other configuration parameters can also be stored and read such as your database password or Flyway placeholders.
+Flyway integrates with [Dapr's](https://docs.dapr.io/developing-applications/building-blocks/secrets/secrets-overview/) Secret Store in order to allow users to store Flyway configuration parameters securely. This can be used to securely read license tokens without storing them in application configuration, and other configuration parameters can also be stored and read such as your database password or Flyway placeholders.
 
 Parameters stored in secrets in Dapr are read with the highest priority and will override all other configurations.
 
@@ -80,7 +80,7 @@ After configuring the above parameters, we would be able to connect to a databas
 
 ## Google Cloud Secret Manager
 
-Flyway integrates with [Google Cloud Secret Manager](https://cloud.google.com/secret-manager/) (GCSM) in order to allow users to store Flyway configuration parameters securely. This can be used to securely read license keys without storing them in application configuration, and other configuration parameters can also be stored and read such as your database password or Flyway placeholders.
+Flyway integrates with [Google Cloud Secret Manager](https://cloud.google.com/secret-manager/) (GCSM) in order to allow users to store Flyway configuration parameters securely. This can be used to securely read license tokens without storing them in application configuration, and other configuration parameters can also be stored and read such as your database password or Flyway placeholders.
 
 Parameters stored in secrets in GCSM are read with the highest priority and will override all other configurations.
 
@@ -98,7 +98,7 @@ After configuring the above parameters, we would be able to connect to a databas
 
 ## HashiCorp Vault
 
-Flyway integrates with [Vault's](https://www.vaultproject.io/) key-value engine in order to allow users to store Flyway configuration parameters securely. This can be used to securely read license keys without storing them in application configuration, and other configuration parameters can also be stored and read such as your database password or Flyway placeholders.
+Flyway integrates with [Vault's](https://www.vaultproject.io/) key-value engine in order to allow users to store Flyway configuration parameters securely. This can be used to securely read license tokens without storing them in application configuration, and other configuration parameters can also be stored and read such as your database password or Flyway placeholders.
 
 Parameters stored in secrets in Vault are read with the highest priority and will override all other configurations.
 

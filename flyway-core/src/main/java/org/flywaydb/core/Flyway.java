@@ -20,9 +20,9 @@
 package org.flywaydb.core;
 
 import static org.flywaydb.core.experimental.ExperimentalModeUtils.canUseExperimentalMode;
-import static org.flywaydb.core.experimental.ExperimentalModeUtils.isExperimentalModeActivated;
 import static org.flywaydb.core.internal.logging.PreviewFeatureWarning.logPreviewFeature;
 
+import java.lang.module.ModuleDescriptor.Version;
 import lombok.CustomLog;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -56,6 +56,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.flywaydb.core.internal.util.VersionUtils;
 
 
 
@@ -162,7 +163,7 @@ public class Flyway {
      */
     @SneakyThrows
     public MigrateResult migrate() throws FlywayException {
-        if (isExperimentalModeActivated() && canUseExperimentalMode(configuration, "migrate")) {
+        if (canUseExperimentalMode(configuration, "migrate")) {
             logPreviewFeature("ExperimentalMigrate");
             final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("migrate")).findFirst();
             if (verb.isPresent()) {
@@ -250,7 +251,7 @@ public class Flyway {
      * @throws FlywayException when the info retrieval failed.
      */
     public MigrationInfoService info() {
-        if (isExperimentalModeActivated() && canUseExperimentalMode(configuration, "info")) {
+        if (canUseExperimentalMode(configuration, "info")) {
             logPreviewFeature("ExperimentalInfo");
             final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("info")).findFirst();
             if (verb.isPresent()) {
@@ -279,7 +280,7 @@ public class Flyway {
      */
     @SneakyThrows
     public CleanResult clean() {
-        if (isExperimentalModeActivated() && canUseExperimentalMode(configuration, "clean")) {
+        if (canUseExperimentalMode(configuration, "clean")) {
             logPreviewFeature("ExperimentalClean");
             final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("clean")).findFirst();
             if (verb.isPresent()) {
@@ -348,7 +349,7 @@ public class Flyway {
      */
     public ValidateResult validateWithResult() throws FlywayException {
 
-        if (isExperimentalModeActivated() && canUseExperimentalMode(configuration, "validate")) {
+        if (canUseExperimentalMode(configuration, "validate")) {
             logPreviewFeature("ExperimentalValidate");
             final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("validate")).findFirst();
             if (verb.isPresent()) {
@@ -377,7 +378,7 @@ public class Flyway {
      */
     @SneakyThrows
     public BaselineResult baseline() throws FlywayException {
-        if (isExperimentalModeActivated() && canUseExperimentalMode(configuration, "baseline")) {
+        if (canUseExperimentalMode(configuration, "baseline")) {
             logPreviewFeature("ExperimentalBaseline");
             final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("baseline")).findFirst();
             if (verb.isPresent()) {
@@ -429,6 +430,15 @@ public class Flyway {
      */
     @SneakyThrows
     public RepairResult repair() throws FlywayException {
+        if (canUseExperimentalMode(configuration, "repair")) {
+            logPreviewFeature("ExperimentalRepair");
+            final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("repair")).findFirst();
+            if (verb.isPresent()) {
+                return (RepairResult) verb.get().executeVerb(configuration);
+            } else {
+                LOG.warn("Experimental mode for repair is set but no verb is present");
+            }
+        }
         try (EventTelemetryModel telemetryModel = new EventTelemetryModel("repair", flywayTelemetryManager)) {
             try {
                 return flywayExecutor.execute((migrationResolver, schemaHistory, database, defaultSchema, schemas, callbackExecutor, statementInterceptor) -> {
@@ -461,7 +471,7 @@ public class Flyway {
      * @throws FlywayException when undo failed.
      */
     public OperationResult undo() throws FlywayException {
-        if (isExperimentalModeActivated() && canUseExperimentalMode(configuration, "undo")) {
+        if (canUseExperimentalMode(configuration, "undo")) {
             logPreviewFeature("ExperimentalUndo");
             final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("undo")).findFirst();
             if (verb.isPresent()) {
@@ -493,6 +503,9 @@ public class Flyway {
         ValidateResult validateResult = new DbValidate(database, schemaHistory, defaultSchema, migrationResolver, configuration, callbackExecutor, ignorePatterns).validate();
 
         if (configuration.isCleanOnValidationError()) {
+            if (VersionUtils.currentVersionIsHigherThanOrEquivalentTo(Version.parse("11"))) {
+                throw new FlywayException("cleanOnValidationError has been removed");
+            }
             LOG.warn("cleanOnValidationError is deprecated and will be removed in a later release");
         }
 

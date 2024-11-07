@@ -20,6 +20,8 @@
 package org.flywaydb.commandline.configuration;
 
 import java.io.File;
+import java.lang.module.ModuleDescriptor.Version;
+import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import org.flywaydb.commandline.logging.console.ConsoleLog.Level;
 import org.flywaydb.core.api.FlywayException;
@@ -37,7 +39,9 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.flywaydb.core.internal.util.VersionUtils;
 
+@CustomLog
 public class CommandLineArguments {
     private static final String COMMUNITY_FALLBACK_FLAG = "-communityFallback";
     private static final String DEBUG_FLAG = "-X";
@@ -246,7 +250,15 @@ public class CommandLineArguments {
     }
 
     public boolean shouldSuppressPrompt() {
-        return isFlagSet(args, SUPPRESS_PROMPT_FLAG);
+        
+        if (isFlagSet(args, SUPPRESS_PROMPT_FLAG)) {
+            if (VersionUtils.currentVersionIsHigherThanOrEquivalentTo(Version.parse("11"))) {
+                LOG.info("Interactive username/password has been removed. You can safely remove the '-n' flag from your configuration");
+            }
+            return true;
+        }
+
+        return VersionUtils.currentVersionIsHigherThanOrEquivalentTo(Version.parse("11"));
     }
 
     public boolean shouldOutputJson() {

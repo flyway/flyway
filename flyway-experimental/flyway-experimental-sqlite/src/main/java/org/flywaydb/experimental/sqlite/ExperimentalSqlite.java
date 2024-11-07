@@ -22,6 +22,7 @@ package org.flywaydb.experimental.sqlite;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -39,8 +40,10 @@ import org.flywaydb.core.experimental.schemahistory.SchemaHistoryModel;
 import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
 import org.flywaydb.core.internal.database.sqlite.SQLiteParser;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
+import org.flywaydb.core.internal.jdbc.Result;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
+import org.flywaydb.core.internal.util.AsciiTable;
 import org.sqlite.SQLiteDataSource;
 
 @CustomLog
@@ -101,9 +104,10 @@ public class ExperimentalSqlite implements ExperimentalDatabase {
     }
 
     @Override
-    public void doExecute(final String executionUnit) {
+    public void doExecute(final String executionUnit, final boolean outputQueryResults) {
         try (final Statement statement = connection.createStatement()) {
-            statement.execute(executionUnit);
+            final boolean hasResult = statement.execute(executionUnit);
+            parseResults(hasResult, statement, outputQueryResults);
         } catch (SQLException e) {
             throw new FlywayException(e);
         }
@@ -346,6 +350,17 @@ public class ExperimentalSqlite implements ExperimentalDatabase {
         }
     }
 
+    @Override
+    public void removeFailedSchemaHistoryItems(final String tableName) {
+        try {
+            try (final Statement statement = connection.createStatement()) {
+                statement.execute("DELETE FROM " + quote(tableName) + " WHERE " + quote("success") + " = 0");
+            }
+        } catch (SQLException e) {
+            throw new FlywayException(e);
+        }
+    }
+
     private boolean queryBoolean(final String sql) {
         try (final Statement statement = connection.createStatement()) {
             final ResultSet resultSet = statement.executeQuery(sql);
@@ -372,5 +387,43 @@ public class ExperimentalSqlite implements ExperimentalDatabase {
         }
 
         return result;
-    }            
+    }
+
+    private void parseResults(boolean hasResults, final Statement statement, final boolean outputQueryResult) throws SQLException {
+        if (outputQueryResult) {
+            while (hasResults || (statement.getUpdateCount()) != -1) {
+                final List<String> columns;
+                final List<List<String>> data;
+                if (hasResults) {
+                    try (final ResultSet resultSet = statement.getResultSet()) {
+                        columns = new ArrayList<>();
+                        final ResultSetMetaData metadata = resultSet.getMetaData();
+                        final int columnCount = metadata.getColumnCount();
+                        for (int i = 1; i <= columnCount; i++) {
+                            columns.add(metadata.getColumnName(i));
+                        }
+
+                        data = new ArrayList<>();
+
+                        while (resultSet.next()) {
+                            final List<String> row = new ArrayList<>();
+                            for (int i = 1; i <= columnCount; i++) {
+                                row.add(resultSet.getString(i));
+                            }
+                            data.add(row);
+                        }
+                    }
+                    outputResult(new Result(-1, columns, data, ""));
+                }
+                hasResults = statement.getMoreResults();
+            }
+        }
+    }
+
+    private void outputResult(final Result result) {
+        if (result.columns() != null && !result.columns().isEmpty()) {
+            LOG.info(new AsciiTable(result.columns(), result.data(),
+                true, "", "No rows returned").render());
+        }
+    }
 }

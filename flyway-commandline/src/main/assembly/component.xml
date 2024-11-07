@@ -261,7 +261,6 @@
 
 
 
-
                 <include>org.flywaydb:flyway-database-ignite</include>
                 <include>org.flywaydb:flyway-database-tidb</include>
                 <include>org.flywaydb:flyway-database-yugabytedb</include>
@@ -278,6 +277,7 @@
                 <include>org.flywaydb:flyway-verb-clean</include>
                 <include>org.flywaydb:flyway-verb-baseline</include>
                 <include>org.flywaydb:flyway-experimental-sqlite</include>
+                <include>org.flywaydb:flyway-experimental-mongodb</include>
             </includes>
         </dependencySet>
         <dependencySet>
@@ -300,6 +300,13 @@
             <excludes>
                 <exclude>org.reactivestreams</exclude>
             </excludes>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>drivers/mongo</outputDirectory>
+            <useTransitiveFiltering>true</useTransitiveFiltering>
+            <includes>
+                <include>org.mongodb:mongodb-driver-sync</include>
+            </includes>
         </dependencySet>
         <dependencySet>
             <outputDirectory>drivers</outputDirectory>

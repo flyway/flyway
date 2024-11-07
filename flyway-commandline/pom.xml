@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>10.20.1</version>
+        <version>10.21.0</version>
     </parent>
     <artifactId>flyway-commandline</artifactId>
     <packaging>jar</packaging>
@@ -358,12 +358,6 @@
 
 
 
-
-
-
-
-
-
         <dependency>
             <groupId>com.ing.data</groupId>
             <artifactId>cassandra-jdbc-wrapper</artifactId>
@@ -468,6 +462,12 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver-sync</artifactId>
+            <version>5.1.2</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
             <groupId>org.fusesource.jansi</groupId>
             <artifactId>jansi</artifactId>
         </dependency>
@@ -518,6 +518,20 @@
             <artifactId>jackson-dataformat-xml</artifactId>
             <version>${version.jackson}</version>
         </dependency>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

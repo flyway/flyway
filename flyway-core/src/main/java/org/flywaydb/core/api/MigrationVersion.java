@@ -270,6 +270,10 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
             return 1;
         }
 
+        if (o == NEXT) {
+            return -1;
+        }
+
         if (o == LATEST) {
             return -1;
         }

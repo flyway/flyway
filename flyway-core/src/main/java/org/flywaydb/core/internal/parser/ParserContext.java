@@ -62,7 +62,7 @@ public class ParserContext {
 
     public void decreaseBlockDepth() {
         if (blockDepth == 0) {
-            throw new FlywayException("Flyway parsing bug: unable to decrease block depth below 0");
+            throw new FlywayException("Parsing failed: unable to decrease block depth below 0");
         }
         blockDepth--;
         lastClosedBlockInitiator = blockInitiators.pop();

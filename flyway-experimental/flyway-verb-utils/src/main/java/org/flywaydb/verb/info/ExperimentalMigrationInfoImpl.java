@@ -79,7 +79,7 @@ public class ExperimentalMigrationInfoImpl implements LoadableMigrationInfo {
         if(migration.getLeft() != null) {
             return migration.getLeft().getScript();
         }
-        return migration.getRight().loadableResource().getAbsolutePath();
+        return migration.getRight().loadableResource().getFilename();
     }
 
     @Override

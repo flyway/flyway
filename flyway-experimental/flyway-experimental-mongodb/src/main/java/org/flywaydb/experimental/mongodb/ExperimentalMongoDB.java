@@ -34,6 +34,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -52,6 +53,7 @@ import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
+import org.flywaydb.core.internal.util.AsciiTable;
 
 public class ExperimentalMongoDB implements ExperimentalDatabase {
     private MongoClient mongoClient;
@@ -93,9 +95,12 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
     }
 
     @Override
-    public void doExecute(final String executionUnit) {
+    public void doExecute(final String executionUnit, final boolean outputQueryResults) {
         try {
             final Document result = mongoDatabase.runCommand(BsonDocument.parse(executionUnit));
+            if (outputQueryResults) {
+                parseResults(result);
+            }
         } catch (Exception e) {
             throw new FlywayException(e);
         }
@@ -271,5 +276,25 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
                 schemaDatabase.getCollection(name).drop();
             }
         });
+    }
+
+    @Override
+    public void removeFailedSchemaHistoryItems(final String tableName) {
+        final Document document = new Document().append("success", false);
+        mongoDatabase.getCollection(tableName).deleteMany(document);
+    }
+
+    private void parseResults(final Document result) {
+        if (result.containsKey("cursor")) {
+            final Document results = (Document) result.get("cursor");
+            final Collection<Document> rows = results.getList("firstBatch", Document.class);
+            final ArrayList<String> columns = new ArrayList<>(rows.stream().findFirst().get().keySet());
+
+            final List<List<String>> processedRows = rows.stream()
+                .map(x -> x.values().stream().map(Object::toString).toList())
+                .toList();
+            final AsciiTable queryResults = new AsciiTable(columns, processedRows, true, "", "");
+            LOG.info(queryResults.render());
+        }
     }
 }
