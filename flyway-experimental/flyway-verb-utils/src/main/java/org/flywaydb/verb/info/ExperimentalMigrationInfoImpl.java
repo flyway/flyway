@@ -174,6 +174,16 @@ public class ExperimentalMigrationInfoImpl implements LoadableMigrationInfo {
     }
 
     @Override
+    public MigrationType getResolvedType() {
+        return migration.getRight() == null ? null : migration.getRight().migrationType();
+    }
+
+    @Override
+    public MigrationType getAppliedType() {
+        return migration.getLeft() == null ? null : migration.getLeft().getType();
+    }
+
+    @Override
     public LoadableResource getLoadableResource() {
         if (migration.getRight() != null) {
             return migration.getRight().loadableResource();

@@ -11,7 +11,7 @@ subtitle: flyway.check.majorTolerance
 ## Description
 You can configure your pipeline to fail when specified static code analysis rules beyond a given tolerance level are violated.
 
-`majorTolerance` sets the The number of major rules violations to be tolerated before throwing an error
+`majorTolerance` sets the number of major rules violations to be tolerated before throwing an error
 
 If the total number of [majorRules](Configuration/Parameters/Flyway/Check/Major Rules) violations exceeds the `majorTolerance`, Flyway will fail.
 

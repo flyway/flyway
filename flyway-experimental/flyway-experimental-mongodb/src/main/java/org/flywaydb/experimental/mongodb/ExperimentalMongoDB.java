@@ -27,6 +27,7 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Updates;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -41,6 +42,7 @@ import java.util.Objects;
 import java.util.function.BiFunction;
 import org.bson.BsonDocument;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.experimental.ConnectionType;
@@ -249,7 +251,7 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
 
     @Override
     public String getCurrentUser() {
-        return "";
+        return null;
     }
 
     @Override
@@ -282,6 +284,16 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
     public void removeFailedSchemaHistoryItems(final String tableName) {
         final Document document = new Document().append("success", false);
         mongoDatabase.getCollection(tableName).deleteMany(document);
+    }
+
+    @Override
+    public void updateSchemaHistoryItem(final SchemaHistoryItem item, final String tableName) {
+        final Document query = new Document().append("installed_rank", item.getInstalledRank());
+        final Bson updates = Updates.combine(
+            Updates.set("checksum", item.getChecksum()),
+            Updates.set("description", item.getDescription()),
+            Updates.set("type", item.getType()));
+        mongoDatabase.getCollection(tableName).updateOne(query, updates);
     }
 
     private void parseResults(final Document result) {

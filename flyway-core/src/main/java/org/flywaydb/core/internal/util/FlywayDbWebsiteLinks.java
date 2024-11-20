@@ -70,4 +70,7 @@ public class FlywayDbWebsiteLinks {
     public static final String COMMUNITY_CONTRIBUTED_DATABASES = "https://rd.gt/3SXtLDt";
 
     public static final String ORACLE_DATABASE = "https://rd.gt/3SISqKJ";
+
+    public static final String OFFLINE_LICENSE_PERMITS = "https://rd.gt/3UHAJwO";
+    public static final String V10_BLOG = "https://rd.gt/4hA3C7Y";
 }

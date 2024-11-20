@@ -46,8 +46,8 @@ public class ConfigurationValidator {
         }
 
         for (String key : configuration.getPlaceholders().keySet()) {
-            if (key.toLowerCase(Locale.ENGLISH).startsWith("flyway:")) {
-                throw new FlywayException("Invalid placeholder ('flyway:' prefix is reserved): " + key);
+            if (key.toLowerCase(Locale.ENGLISH).startsWith("flyway" + configuration.getPlaceholderSeparator())) {
+                throw new FlywayException("Invalid placeholder ('flyway"+ configuration.getPlaceholderSeparator() + "' prefix is reserved): " + key);
             }
         }
     }

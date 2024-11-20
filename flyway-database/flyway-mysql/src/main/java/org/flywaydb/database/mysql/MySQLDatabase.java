@@ -195,7 +195,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
                 "    `execution_time` INT NOT NULL,\n" +
                 "    `success` BOOL NOT NULL,\n" +
                 "    CONSTRAINT " + getConstraintName(table.getName()) + " PRIMARY KEY (`installed_rank`)\n" +
-                ")" + tablespace + " ENGINE=InnoDB" +
+                ")" + tablespace +
                 baselineMarker +
                 ";\n" +
                 "CREATE INDEX `" + table.getName() + "_s_idx` ON " + table + " (`success`);";

@@ -276,6 +276,7 @@
                 <include>org.flywaydb:flyway-verb-schemas</include>
                 <include>org.flywaydb:flyway-verb-clean</include>
                 <include>org.flywaydb:flyway-verb-baseline</include>
+                <include>org.flywaydb:flyway-verb-repair</include>
                 <include>org.flywaydb:flyway-experimental-sqlite</include>
                 <include>org.flywaydb:flyway-experimental-mongodb</include>
             </includes>

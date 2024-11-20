@@ -7,11 +7,10 @@ redirect_from: Configuration/licenseKey/
 # License Key
 {% include redgate.html %}
 
-This parameter is deprecated and will be removed in a future release.
+__This parameter is deprecated and will be removed in a future release.__
 
-This is how legacy Flyway licensing is managed to enable features in Flyway.
+For an overview of ways to license Flyway see [Flyway Licensing](<Configuration/Flyway Licensing>)
 
-Flyway V10 brings online authentication - see [Flyway Auth](Commands/Auth)
 ## Description
 
 Your Flyway license key (`FL01...`) when using Flyway Teams. This should be 516 alpha numeric characters, beginning with `FL`.

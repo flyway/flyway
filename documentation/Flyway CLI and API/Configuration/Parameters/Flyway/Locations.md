@@ -42,9 +42,12 @@ Locations can contain wildcards. This allows matching against a path pattern ins
 
 ## Default
 
-**API/Maven/Gradle:**
+**API:**
 
 classpath:db/migration
+
+**Maven/Gradle:**
+filesystem:src/main/resources/db/migration
 
 **Commandline:**
 

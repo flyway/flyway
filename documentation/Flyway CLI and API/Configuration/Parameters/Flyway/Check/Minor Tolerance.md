@@ -11,7 +11,7 @@ subtitle: flyway.check.minorTolerance
 ## Description
 You can configure your pipeline to fail when specified static code analysis rules beyond a given tolerance level are violated.
 
-`minorTolerance` sets the The number of minor rules violations to be tolerated before throwing an error
+`minorTolerance` sets the number of minor rules violations to be tolerated before throwing an error
 
 If the total number of [minorRules](Configuration/Parameters/Flyway/Check/Minor Rules) violations exceeds the `minorTolerance`, Flyway will fail.
 

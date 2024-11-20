@@ -8,7 +8,7 @@ subtitle: Diff concept
 
 ## Why is this useful ?
 
-The `diff` command calculates the differences between a configured source and target. This command can be used with the `generate`, `diffApply` and `diffText` commands to generate scripts and apply changes.
+The `diff` command calculates the differences between a configured source and target. This command can be used with the `generate`, `model` and `diffText` commands to generate scripts and apply changes.
 
 ## How is this used ?
 
@@ -38,18 +38,16 @@ diff artifact generated: C:\Users\Projects\diffArtifacts\artifact
 ```
 
 The object level differences indicated as an ADD type are objects that were found only in the development database whereas the
-DELETE type changes are objects found only in the schema model. Following this command you can perform a `diffApply`
+DELETE type changes are objects found only in the schema model. Following this command you can perform a `model`
 command to apply the changes listed above to the schema model as below.
 
 ```
-$ flyway diffApply
+$ flyway model
 
 Flyway {{ site.flywayVersion }} by Redgate
 
 Applied to schemaModel
 ```
-
-Note that by default commands such as `diffApply` and `generate` will act as if they are moving changes to the `source` to the `target` specified by diff. You can move changes in the opposite direction by specifying what the target should be e.g. `diffApply -diffApply.target=<<source-here>>`.
 
 Once the changes are applied as above upon re-running the `diff` command in the first step there would no longer be any
 changes between the schema model folder and the dev environment as below.
@@ -66,7 +64,7 @@ diff artifact generated: C:\Users\Projects\diffArtifacts\artifact
 
 ## Difference artifacts
 
-The diff command stores the calculated changes in a differences artifact which is read by subsequent commands such as `generate` and `diffApply`. By default, this is stored in a temporary location and overwritten after each run of `diff`, but you can specify where `diff` and the subsequent commands should look write & read this file from. This might be useful if you need to combine changes from more than one source.
+The diff command stores the calculated changes in a differences artifact which is read by subsequent commands such as `generate` and `model`. By default, this is stored in a temporary location and overwritten after each run of `diff`, but you can specify where `diff` and the subsequent commands should look for this file. This might be useful if you need to combine changes from more than one source.
 
 The changes captured in a difference artifact are always the changes that were present at the time `diff` was run. If the source or target environments have changed in between calls to, for example, `diff` and `generate` then the generated script will not pick up these changes. As a result, it is intended that difference artifacts are short-lived. 
 

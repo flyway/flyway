@@ -29,6 +29,7 @@ import org.flywaydb.core.api.CoreMigrationType;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationInfoService;
+import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
@@ -43,6 +44,7 @@ import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.TimeFormat;
+import org.flywaydb.core.internal.util.ValidatePatternUtils;
 import org.flywaydb.verb.VerbUtils;
 import org.flywaydb.verb.info.ExperimentalMigrationInfoService;
 import org.flywaydb.verb.migrate.migrators.ApiMigrator;
@@ -128,6 +130,9 @@ public class MigrateVerbExtension implements VerbExtension {
             + ": "
             + initialSchemaVersion);
 
+        // To maintain consistency with legacy code, perform an additional round of validation regardless of whether validateOnMigrate is enabled
+        secondValidate(migrationInfoService, configuration, experimentalDatabase.doQuote(experimentalDatabase.getCurrentSchema()));
+
         if (configuration.isOutOfOrder()) {
             final String outOfOrderWarning = "outOfOrder mode is active. Migration of schema " + experimentalDatabase.doQuote(
                 experimentalDatabase.getCurrentSchema()) + " may not be reproducible.";
@@ -178,7 +183,32 @@ public class MigrateVerbExtension implements VerbExtension {
         if (!validateResult.validationSuccessful) {
             throw new FlywayValidateException(validateResult.errorDetails, validateResult.getAllErrorMessages());
         }
-    }    
+    }
+    
+    private static void secondValidate(MigrationInfoService infoService, Configuration configuration, String schema) {
+        List<MigrationInfo> failed = Arrays.stream(infoService.all())
+            .filter(migrationInfo -> migrationInfo.getState().isFailed())
+            .toList();
+
+        if (failed.isEmpty()) {
+            return;
+        }
+
+        final MigrationInfo firstFailure = failed.get(0);
+
+        if (failed.size() == 1
+            && firstFailure.getState() == MigrationState.FUTURE_FAILED
+            && ValidatePatternUtils.isFutureIgnored(configuration.getIgnoreMigrationPatterns())) {
+            LOG.warn("Schema " + schema + " contains a failed future migration to version " + firstFailure.getVersion() + " !");
+            return;
+        }
+
+        if (firstFailure.isRepeatable()) {
+            throw new FlywayException("Schema " + schema + " contains a failed repeatable migration (" + "\"" + firstFailure.getDescription() + "\"" + ") !");
+        }
+
+        throw new FlywayException("Schema " + schema + " contains a failed migration to version " + firstFailure.getVersion() + " !");
+    }
 
     private void logSummary(final int migrationSuccessCount,
         final long executionTime,

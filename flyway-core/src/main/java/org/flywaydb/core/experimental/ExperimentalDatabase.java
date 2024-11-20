@@ -20,8 +20,11 @@
 package org.flywaydb.core.experimental;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.output.CleanResult;
@@ -184,4 +187,23 @@ public interface ExperimentalDatabase extends Plugin, AutoCloseable  {
     }
 
     void removeFailedSchemaHistoryItems(final String tableName);
+
+    void updateSchemaHistoryItem(SchemaHistoryItem item, final String tableName);
+
+    default String redactUrl(final String url) {
+        String redactedUrl = url;
+        for (final Pattern pattern : getUrlRedactionPatterns()) {
+            final Matcher matcher = pattern.matcher(url);
+            if (matcher.find()) {
+                final String password = matcher.group(1);
+                redactedUrl = redactedUrl.replace(password, "********");
+            }
+        }
+        return redactedUrl;
+    }
+
+    default Pattern[] getUrlRedactionPatterns() {
+        return new Pattern[] {Pattern.compile("password=([^;&]*).*", Pattern.CASE_INSENSITIVE),
+                              Pattern.compile("(?:jdbc:)?[^:]+://[^:]+:([^@]+)@.*", Pattern.CASE_INSENSITIVE)};
+    }
 }

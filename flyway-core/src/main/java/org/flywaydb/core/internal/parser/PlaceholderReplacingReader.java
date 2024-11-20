@@ -32,6 +32,7 @@ import java.util.Map;
 public class PlaceholderReplacingReader extends FilterReader {
     private final String prefix;
     private final String suffix;
+    private final String separator;
     private final CaseInsensitiveMap placeholders = new CaseInsensitiveMap();
 
     private final StringBuilder buffer = new StringBuilder();
@@ -68,10 +69,15 @@ public class PlaceholderReplacingReader extends FilterReader {
         }
     }
 
-    public PlaceholderReplacingReader(String prefix, String suffix, Map<String, String> placeholders, Reader in) {
+    public PlaceholderReplacingReader(final String prefix,
+        final String suffix,
+        final String separator,
+        final Map<String, String> placeholders,
+        final Reader in) {
         super(in);
         this.prefix = prefix;
         this.suffix = suffix;
+        this.separator = separator;
         this.placeholders.putAll(placeholders);
     }
 
@@ -84,10 +90,11 @@ public class PlaceholderReplacingReader extends FilterReader {
         placeholders.putAll(parsingContextPlaceholders);
 
         return new PlaceholderReplacingReader(
-                configuration.getPlaceholderPrefix(),
-                configuration.getPlaceholderSuffix(),
-                placeholders,
-                reader);
+            configuration.getPlaceholderPrefix(),
+            configuration.getPlaceholderSuffix(),
+            configuration.getPlaceholderSeparator(),
+            placeholders,
+            reader);
     }
         public static PlaceholderReplacingReader create(Configuration configuration, ParsingContext parsingContext, LoadableMigrationInfo info) {
             Map<String, String> placeholders = new HashMap<>();
@@ -104,6 +111,7 @@ public class PlaceholderReplacingReader extends FilterReader {
                 return new PlaceholderReplacingReader(
                     configuration.getPlaceholderPrefix(),
                     configuration.getPlaceholderSuffix(),
+                    configuration.getPlaceholderSeparator(),
                     placeholders,
                     info.getLoadableResource().read());
             }
@@ -119,6 +127,7 @@ public class PlaceholderReplacingReader extends FilterReader {
         return new PlaceholderReplacingReader(
                 configuration.getScriptPlaceholderPrefix(),
                 configuration.getScriptPlaceholderSuffix(),
+                "_",
                 placeholders,
                 reader);
     }
@@ -180,7 +189,7 @@ public class PlaceholderReplacingReader extends FilterReader {
             if (!placeholders.containsKey(placeholder)) {
                 String canonicalPlaceholder = prefix + placeholder + suffix;
 
-                if (placeholder.contains("flyway:")) {
+                if (placeholder.startsWith("flyway" + separator)) {
                     throw new FlywayException("Failed to populate value for default placeholder: "
                                                       + canonicalPlaceholder);
                 }

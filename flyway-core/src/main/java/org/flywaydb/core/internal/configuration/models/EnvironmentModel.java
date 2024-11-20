@@ -19,6 +19,7 @@
  */
 package org.flywaydb.core.internal.configuration.models;
 
+import java.util.HashMap;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -42,7 +43,7 @@ public class EnvironmentModel {
     private Integer connectRetries;
     private Integer connectRetriesInterval;
     private String initSql;
-    private Map<String, String> jdbcProperties;
+    private Map<String, String> jdbcProperties = new HashMap<>();
     private Map<String, Map<String, Object>> resolvers;
     private String provisioner;
     private FlywayEnvironmentModel flyway = new FlywayEnvironmentModel();

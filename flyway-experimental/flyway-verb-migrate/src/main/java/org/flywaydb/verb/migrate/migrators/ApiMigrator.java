@@ -23,9 +23,11 @@ import static org.flywaydb.verb.VerbUtils.toMigrationText;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.LoadableMigrationInfo;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -35,6 +37,7 @@ import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.internal.exception.FlywayMigrateException;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.util.StopWatch;
+import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.verb.migrate.MigrationExecutionGroup;
 
 @CustomLog
@@ -75,14 +78,18 @@ public class ApiMigrator extends Migrator{
         watch.start();
 
         final boolean outOfOrder = migrationInfo.getState() == MigrationState.OUT_OF_ORDER && configuration.isOutOfOrder();
-        final String migrationText = toMigrationText(migrationInfo, true, experimentalDatabase, outOfOrder);
+        final String migrationText = toMigrationText(migrationInfo, false, experimentalDatabase, outOfOrder);
 
         try {
             if (configuration.isSkipExecutingMigrations()) {
                 LOG.debug("Skipping execution of migration of " + migrationText);
             } else {
                 LOG.debug("Starting migration of " + migrationText + " ...");
-                LOG.info("Migrating " + migrationText);
+                if (!migrationInfo.getType().isUndo()) {
+                    LOG.info("Migrating " + migrationText);
+                } else {
+                    LOG.info("Undoing migration of " + migrationText);
+                }
                 final String executionUnit = String.join("\n", Files.readAllLines(Path.of(migrationInfo.getPhysicalLocation())));
                 experimentalDatabase.doExecute(executionUnit, configuration.isOutputQueryResults());
             }
@@ -96,7 +103,6 @@ public class ApiMigrator extends Migrator{
                 installedRank,
                 experimentalDatabase.getInstalledBy(configuration),
                 totalTimeMillis);
-            throw new FlywayException(e);
         }
 
         watch.stop();
@@ -126,8 +132,13 @@ public class ApiMigrator extends Migrator{
         final int installedRank,
         final String installedBy,
         final int totalTimeMillis) {
-        final String migrationText = toMigrationText(migrationInfo, true, experimentalDatabase, outOfOrder);
-        final String failedMsg = "Migration of " + migrationText + " failed!";
+        final String migrationText = toMigrationText(migrationInfo, false, experimentalDatabase, outOfOrder);
+        final String failedMsg;
+        if (!migrationInfo.getType().isUndo()) {
+            failedMsg = "Migration of " + migrationText + " failed!";
+        } else {
+            failedMsg = "Undo of migration of " + migrationText + " failed!";
+        }
 
         migrateResult.putFailedMigration(migrationInfo, totalTimeMillis);
         migrateResult.setSuccess(false);
@@ -142,7 +153,27 @@ public class ApiMigrator extends Migrator{
             false);
 
         throw new FlywayMigrateException(migrationInfo,
-            e.getMessage(),
+            calculateErrorMessage(e, migrationInfo),
             true, migrateResult);
+    }
+
+    private String calculateErrorMessage(final Exception e, final MigrationInfo migrationInfo) {
+        final String title = "Script " + Paths.get(migrationInfo.getScript()).getFileName() + " failed";
+        final String underline = StringUtils.trimOrPad("", title.length(), '-');
+
+        final StringBuilder messageBuilder = new StringBuilder().append(title).append("\n").append(underline).append(
+            "\n");
+        messageBuilder.append("Message    : ").append(e.getMessage()).append("\n");
+
+        if (migrationInfo instanceof final LoadableMigrationInfo loadableMigrationInfo) {
+            messageBuilder.append("Location   : ")
+                .append(loadableMigrationInfo.getLoadableResource().getAbsolutePath())
+                .append(" (")
+                .append(loadableMigrationInfo.getLoadableResource().getAbsolutePathOnDisk())
+                .append(")\n");
+        } else {
+            messageBuilder.append("Location   : ").append(migrationInfo.getPhysicalLocation());
+        }
+        return messageBuilder.toString();
     }
 }

@@ -15,12 +15,11 @@ Benefits of using the backup provisioner:
 
 ## Prerequisites
 * A database backup `.bak` file, which could be a backup of production database for example. This backup file needs to be in a location accessible to the database server that will be provisioned i.e. on the database server itself or on a network share.
-* The environment [URL](Configuration/Parameters/Environments/URL) must have the `databaseName` parameter set to the name of the database that the backup will be restored to.
-* The database `databaseName` must already exist on the database server that will be provisioned, but can be empty.
+* The environment [URL](Configuration/Parameters/Environments/URL) must have the `databaseName` parameter set to the name of the database that the backup will be restored to. If this database doesn't yet exist on the target server then it will be created by the backup provisioner.
 
 ## To configure this provisioner:
 1. Set the value of the [provisioner parameter](Configuration/Parameters/Environments/Provisioner) to `backup`.
-2. Populate the following resolver properties in the TOML configuration on as command line arguments:
+2. Populate the following resolver properties in the TOML configuration or as command line arguments:
     - `backupFilePath` - (Required) The file path of the backup file. Note: this needs to be accessible/relative to the database server that is being provisioned.
     - `backupVersion` - (Optional) The migration version the backup file represents. This property is required when the backup file doesn't contain a `flyway_schema_history` table. In this scenario a `flyway_schema_history` table will be created once the backup has been restored and a baseline entry with version `backupVersion` will be inserted into the `flyway_schema_history` table. If the backup file does contain a `flyway_schema_history` table then this property is optional. If left unset then the `flyway_schema_history` table from the backup will be restored unaltered, otherwise the `flyway_schema_history` will be updated to baseline version `backupVersion`.
   

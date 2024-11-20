@@ -10,7 +10,7 @@ subtitle: 'Command-line: diff'
 Compares two comparison sources and returns a summary of the differences. A comparison source can either be a database
 environment, build environment, a schema model folder, a snapshot or empty type.
 Additionally, the `diff` command will generate and store the differences between the two comparison sources in the artifact
-that can subsequently be used with the `generate`, `diffApply` and `diffText` commands.
+that can subsequently be used with the `generate`, `model` and `diffText` commands.
 
 <img src="assets/command-diff.png" alt="diff">
 

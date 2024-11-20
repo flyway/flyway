@@ -22,6 +22,7 @@ package org.flywaydb.core.experimental.schemahistory;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.CoreMigrationType;
 import org.flywaydb.core.api.MigrationVersion;
@@ -38,6 +39,10 @@ public class SchemaHistoryModel {
     
     public List<SchemaHistoryItem> getSchemaHistoryItems(){
         return Collections.unmodifiableList(schemaHistoryItems);
+    }
+
+    public Optional<SchemaHistoryItem> getSchemaHistoryItem(final int installedRank){
+        return getSchemaHistoryItems().stream().filter(x -> x.getInstalledRank() == installedRank).findFirst();
     }
 
     public int calculateInstalledRank(MigrationType type) {

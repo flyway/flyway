@@ -3,25 +3,24 @@ subtitle: Auth
 ---
 # Auth
 
-`auth` initiates an online or offline license acquisition flow that can be used instead of the legacy [license key](Configuration/Parameters/Flyway/License Key) workflow.
+`auth` initiates an online license acquisition flow.
+
+For an overview of ways to license Flyway see [Flyway Licensing](<Configuration/Flyway Licensing>)
 
 If `auth` is run on a machine that is connected to the internet with an accessible browser, Flyway will launch a web browser prompting the user to log in with their Redgate account
-username and password. Please note that `auth` is not supported on WSL, nor when using SSH. For these cases and any where a web browser is inaccessible on the same machine that is
-running Flyway, it is recommended to use an [non-interactive mechanism](<Configuration/Flyway Licensing>) to license Flyway.
+username and password. 
 
-Upon successful login, a license permit is then saved to disk in the `Flyway CLI` directory of the Redgate app data folder. If the user is offline, a
-[link to create a license permit](https://permits.red-gate.com/offline?productCode=63) will be printed to the console. The user can then copy the license permit
-from that site and paste it into the console to authorize Flyway.
-
+- `auth` needs to be able to launch a web browser and so doesn't work on WSL or when interacting with Flyway over SSH. For these cases it is recommended to use a [non-interactive mechanism](<Configuration/Flyway Licensing>) to license Flyway.
+- If you need an offline licensing mechanism please look at [License Permits](<Configuration/License Permits>)
 
 ## Flags:
 
-| Parameter             | Edition            |  Description
-|-----------------------|--------------------| -----------------------------------------------------
-| -IAgreeToTheEula      | All                | (Mandatory) By using this option you consent to the [Redgate EULA](https://www.red-gate.com/eula)
-| -logout               | All                | Logs a user out of their authorized session of Flyway
-| -startTeamsTrial      | All                | Starts a Teams trial
-| -startEnterpriseTrial | All                | Starts an Enterprise trial
+| Parameter               | Edition   | Description                                                                                       |
+|-------------------------|-----------|---------------------------------------------------------------------------------------------------|
+| `-IAgreeToTheEula`      | Community | (Mandatory) By using this option you consent to the [Redgate EULA](https://www.red-gate.com/eula) |
+| `-logout`               | Community | Logs a user out of their authorized session of Flyway                                             |
+| `-startTeamsTrial`      | Community | Starts a Teams trial                                                                              |
+| `-startEnterpriseTrial` | Community | Starts an Enterprise trial                                                                        |
 
 ## Logout
 
@@ -31,6 +30,7 @@ logged out of their session and Flyway will run as Community Edition. If a valid
 honor these as authorizations and logout will not remove them.
 
 ## App Data Folder Locations
+Flyway stores permits in a central location rather than it's installation location.
 
 ### Windows
 

@@ -22,6 +22,8 @@ package org.flywaydb.commandline.configuration;
 import java.io.File;
 import java.lang.module.ModuleDescriptor.Version;
 import lombok.CustomLog;
+import java.lang.reflect.Field;
+import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import org.flywaydb.commandline.logging.console.ConsoleLog.Level;
 import org.flywaydb.core.api.FlywayException;
@@ -29,6 +31,7 @@ import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.flywaydb.core.extensibility.CommandExtension;
+import org.flywaydb.core.extensibility.ConfigurationExtension;
 import org.flywaydb.core.internal.configuration.models.EnvironmentModel;
 import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
@@ -64,14 +67,26 @@ public class CommandLineArguments {
     private static final String INFO_SINCE_VERSION = "infoSinceVersion";
     private static final String INFO_UNTIL_VERSION = "infoUntilVersion";
     private static final String INFO_OF_STATE = "infoOfState";
-    private static final Set<String> COMMAND_LINE_ONLY_OPTIONS = new HashSet<>(Arrays.asList(
-        OUTPUT_FILE, COLOR, WORKING_DIRECTORY, INFO_SINCE_DATE,
-        INFO_UNTIL_DATE, INFO_SINCE_VERSION, INFO_UNTIL_VERSION, INFO_OF_STATE));
+    private static final Set<String> COMMAND_LINE_ONLY_OPTIONS = new HashSet<>(Arrays.asList(OUTPUT_FILE,
+        COLOR,
+        WORKING_DIRECTORY,
+        INFO_SINCE_DATE,
+        INFO_UNTIL_DATE,
+        INFO_SINCE_VERSION,
+        INFO_UNTIL_VERSION,
+        INFO_OF_STATE));
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm");
     private static final List<String> VALID_OPERATIONS_AND_FLAGS = getValidOperationsAndFlags();
 
     private final PluginRegister pluginRegister;
     private final String[] args;
+
+    static Collection<String>  getParametersByNamespace(final String namespace) {
+      return (new ClassicConfiguration()).getPluginRegister().getPlugins(ConfigurationExtension.class).stream()
+          .filter(p -> p.getNamespace().equalsIgnoreCase(namespace)).flatMap(configurationExtension -> Arrays.stream(
+          configurationExtension.getClass().getDeclaredFields()).map(Field::getName).toList().stream()).collect(
+          Collectors.toCollection(ArrayList::new));
+    }
 
     public enum PrintUsage {
         PRINT_NONE,
@@ -81,14 +96,11 @@ public class CommandLineArguments {
 
     public CommandLineArguments(PluginRegister pluginRegister, String... args) {
         this.pluginRegister = pluginRegister;
-        this.args = Arrays.stream(args)
-            .filter(StringUtils::hasText)
-            .toArray(String[]::new);
+        this.args = Arrays.stream(args).filter(StringUtils::hasText).toArray(String[]::new);
     }
 
     private static List<String> getValidOperationsAndFlags() {
-        List<String> operationsAndFlags = new ArrayList<>(Arrays.asList(
-            DEBUG_FLAG,
+        List<String> operationsAndFlags = new ArrayList<>(Arrays.asList(DEBUG_FLAG,
             QUIET_FLAG,
             COMMUNITY_FALLBACK_FLAG,
             SUPPRESS_PROMPT_FLAG,
@@ -116,11 +128,8 @@ public class CommandLineArguments {
     }
 
     private static String getArgumentValue(String argName, String[] allArgs) {
-        return Arrays.stream(allArgs)
-            .filter(arg -> arg.startsWith("-" + argName + "="))
-            .findFirst()
-            .map(CommandLineArguments::parseConfigurationOptionValueFromArg)
-            .orElse("");
+        return Arrays.stream(allArgs).filter(arg -> arg.startsWith("-" + argName + "=")).findFirst().map(
+            CommandLineArguments::parseConfigurationOptionValueFromArg).orElse("");
     }
 
     private static String parseConfigurationOptionValueFromArg(String arg) {
@@ -135,11 +144,10 @@ public class CommandLineArguments {
         List<String> flags = Arrays.stream(args).filter(x -> x.startsWith("-")).collect(Collectors.toList());
         List<String> operations = Arrays.stream(args).filter(arg -> !arg.startsWith("-")).collect(Collectors.toList());
 
-        pluginRegister.getPlugins(CommandExtension.class)
-            .forEach(extension -> flags.stream()
-                .map(extension::getCommandForFlag)
-                .filter(Objects::nonNull)
-                .forEach(operations::add));
+        pluginRegister.getPlugins(CommandExtension.class).forEach(extension -> flags.stream()
+            .map(extension::getCommandForFlag)
+            .filter(Objects::nonNull)
+            .forEach(operations::add));
 
         return operations;
     }
@@ -150,24 +158,61 @@ public class CommandLineArguments {
             .collect(Collectors.toList());
     }
 
-    private static Map<String, String> getConfigurationFromArgs(String[] args, boolean isModernConfig) {
-        return Arrays.stream(args)
+    private static Map<String, String> getConfigurationFromArgs(final String[] args, final boolean isModernConfig) {
+        //scoped configuration processing.
+        boolean processingValid = true;
+        String validNamespace = "";
+        final String[] processedArgs = new String[args.length];
+        for (int i = 0; i < args.length; i++) {
+            final String arg = args[i];
+            if (!arg.startsWith("-")) {
+                //it's a verb, lets set the namespace to this.
+                validNamespace = arg;
+                processedArgs[i] = arg;
+            } else {
+                if (arg.contains("=")) {
+                    //it's a param, lets scope it.
+                    final String paramName = arg.substring(1, arg.contains("=") ? arg.indexOf("=") : arg.length());
+                    final String paramValue = arg.substring(arg.indexOf("=") + 1);
+                    if (paramName.contains(".")) {
+                        //there's a `.` in this param name so likely namespaced so lets break out of the scoping and process as normal.
+                        processingValid = false;
+                        break;
+                    } else {
+                        final var paramsInNamespace = getParametersByNamespace(validNamespace);
+                        if (paramsInNamespace != null && paramsInNamespace.contains(paramName)) {
+                            final String replacedParamName = "-" + (validNamespace.isEmpty() ? "" : validNamespace + "." ) + paramName;
+                            processedArgs[i] = replacedParamName + "=" + paramValue;
+                        } else {
+                            //the namespace doesn't have a field for this param, so lets just process it as normal.
+                            processedArgs[i] = arg;
+                        }
+                    }
+                } else {
+                    //this is a flag - currently excluding flags from scoping
+                    processedArgs[i] = arg;
+                }
+            }
+        }
+
+        return Arrays.stream(processingValid ? processedArgs : args)
             .filter(CommandLineArguments::isConfigurationArg)
             .filter(arg -> !arg.startsWith("-" + CONFIG_FILES + "="))
             .filter(arg -> !arg.startsWith("-" + CONFIG_FILE_ENCODING + "="))
             .filter(arg -> !arg.startsWith("-environments."))
             .filter(f -> !isConfigurationOptionCommandlineOnly(getConfigurationOptionNameFromArg(f)))
             .collect(Collectors.toMap(p -> (Arrays.stream((EnvironmentModel.class).getDeclaredFields())
-                    .anyMatch(x -> x.getName().equals(getConfigurationOptionNameFromArg(p))) && isModernConfig
-                    ? "environments." + ClassicConfiguration.TEMP_ENVIRONMENT_NAME + "."
-                    : "flyway.")
-                    + getConfigurationOptionNameFromArg(p),
+                    .anyMatch(x -> x.getName().equals(getConfigurationOptionNameFromArg(p))) && isModernConfig ?
+                    "environments."
+                        + ClassicConfiguration.TEMP_ENVIRONMENT_NAME
+                        + "." : "flyway.") + getConfigurationOptionNameFromArg(p),
                 CommandLineArguments::parseConfigurationOptionValueFromArg));
     }
 
     private static Map<String, Map<String, String>> getEnvironmentConfigurationFromArgs(String[] args) {
         Map<String, String> envConfigs = Arrays.stream(args)
-            .filter(arg -> arg.toLowerCase().startsWith("-environments.") && arg.contains("="))
+            .filter(arg -> arg.toLowerCase()
+                .startsWith("-environments.") && arg.contains("="))
             .collect(Collectors.toMap(p -> getConfigurationOptionNameFromArg(p).substring("environments.".length()),
                 CommandLineArguments::parseConfigurationOptionValueFromArg));
 
@@ -204,9 +249,7 @@ public class CommandLineArguments {
     }
 
     public List<String> getFlags() {
-        return Arrays.stream(args)
-            .filter(a -> a.startsWith("-") && !a.contains("="))
-            .collect(Collectors.toList());
+        return Arrays.stream(args).filter(a -> a.startsWith("-") && !a.contains("=")).collect(Collectors.toList());
     }
 
     public void validate() {
@@ -218,7 +261,8 @@ public class CommandLineArguments {
             .findAny()
             .ifPresent(i -> {
                 if (i < args.length - 1 && "=".equals(args[i + 1])) {
-                    throw new FlywayException("Invalid configuration argument: " + args[i]
+                    throw new FlywayException("Invalid configuration argument: "
+                        + args[i]
                         + ". Please check you have not included any spaces in your configuration argument.");
                 } else {
                     throw new FlywayException("Invalid flag: " + args[i]);
@@ -228,14 +272,16 @@ public class CommandLineArguments {
         String outputTypeValue = getArgumentValue(OUTPUT_TYPE, args).toLowerCase();
 
         if (!("json".equals(outputTypeValue) || "".equals(outputTypeValue))) {
-            throw new FlywayException(
-                "'" + outputTypeValue + "' is an invalid value for the -outputType option. Use 'json'.");
+            throw new FlywayException("'"
+                + outputTypeValue
+                + "' is an invalid value for the -outputType option. Use 'json'.");
         }
 
         String colorArgumentValue = getArgumentValue(COLOR, args);
 
         if (!Color.isValid(colorArgumentValue)) {
-            throw new FlywayException("'" + colorArgumentValue
+            throw new FlywayException("'"
+                + colorArgumentValue
                 + "' is an invalid value for the -color option. Use 'always', 'never', or 'auto'.");
         }
     }
@@ -250,7 +296,7 @@ public class CommandLineArguments {
     }
 
     public boolean shouldSuppressPrompt() {
-        
+
         if (isFlagSet(args, SUPPRESS_PROMPT_FLAG)) {
             if (VersionUtils.currentVersionIsHigherThanOrEquivalentTo(Version.parse("11"))) {
                 LOG.info("Interactive username/password has been removed. You can safely remove the '-n' flag from your configuration");
@@ -272,14 +318,11 @@ public class CommandLineArguments {
             getHelpTextForOperations(helpText);
 
             return PrintUsage.PRINT_ORIGINAL;
-
         } else if (getOperations().isEmpty()) {
             return PrintUsage.PRINT_SHORT;
         } else {
             return PrintUsage.PRINT_NONE;
         }
-
-
     }
 
     private void getHelpTextForOperations(StringBuilder helpText) {
@@ -289,7 +332,8 @@ public class CommandLineArguments {
         }
 
         for (String operation : getOperations()) {
-            String helpTextForOperation = pluginRegister.getPlugins(CommandExtension.class).stream()
+            String helpTextForOperation = pluginRegister.getPlugins(CommandExtension.class)
+                .stream()
                 .filter(e -> e.handlesCommand(operation))
                 .map(CommandExtension::getHelpText)
                 .collect(Collectors.joining("\n\n"));
@@ -298,9 +342,7 @@ public class CommandLineArguments {
                 helpText.append(helpTextForOperation).append("\n\n");
             }
         }
-
     }
-
 
     public Level getLogLevel() {
         if (isFlagSet(args, QUIET_FLAG)) {
@@ -327,26 +369,21 @@ public class CommandLineArguments {
     public List<String> getConfigFiles() {
         String workingDirectory = getWorkingDirectoryOrNull();
 
-        return getConfigFilesFromArgs(args)
-            .stream()
-            .map(File::new)
-            .map(file -> !file.isAbsolute() && workingDirectory != null
-                ? new File(workingDirectory, file.getPath()).getAbsolutePath()
-                : file.getAbsolutePath())
-            .collect(Collectors.toList());
+        return getConfigFilesFromArgs(args).stream().map(File::new).map(file -> !file.isAbsolute()
+            && workingDirectory != null
+            ? new File(workingDirectory, file.getPath()).getAbsolutePath()
+            : file.getAbsolutePath()).collect(Collectors.toList());
     }
 
     public List<File> getConfigFilePathsFromEnv(boolean loadToml) {
         String workingDirectory = getWorkingDirectoryOrNull();
         String[] fileLocations = StringUtils.tokenizeToStringArray(System.getenv("FLYWAY_CONFIG_FILES"), ",");
 
-        return fileLocations == null ? new ArrayList<>() : Arrays.stream(fileLocations)
-            .filter(loadToml ? f -> f.endsWith(".toml") : f -> !f.endsWith(".toml"))
-            .map(File::new)
-            .map(file -> !file.isAbsolute() && workingDirectory != null
-                ? new File(workingDirectory, file.getPath())
-                : file)
-            .collect(Collectors.toList());
+        return fileLocations == null ? new ArrayList<>() : Arrays.stream(fileLocations).filter(loadToml
+            ? f -> f.endsWith(".toml")
+            : f -> !f.endsWith(".toml")).map(File::new).map(file -> !file.isAbsolute() && workingDirectory != null
+            ? new File(workingDirectory, file.getPath())
+            : file).collect(Collectors.toList());
     }
 
     public String getOutputFile() {
@@ -409,9 +446,14 @@ public class CommandLineArguments {
         try {
             return DATE_FORMAT.parse(dateStr);
         } catch (ParseException e) {
-            throw new FlywayException("'" + dateStr + "' is an invalid value for the " + argument + " option. " +
-                "The expected format is 'dd/mm/yyyy hh:mm', like '13/10/2020 16:30'. " +
-                "See the Flyway documentation for help: " + FlywayDbWebsiteLinks.FILTER_INFO_OUTPUT);
+            throw new FlywayException("'"
+                + dateStr
+                + "' is an invalid value for the "
+                + argument
+                + " option. "
+                + "The expected format is 'dd/mm/yyyy hh:mm', like '13/10/2020 16:30'. "
+                + "See the Flyway documentation for help: "
+                + FlywayDbWebsiteLinks.FILTER_INFO_OUTPUT);
         }
     }
 
@@ -460,10 +502,7 @@ public class CommandLineArguments {
                 return AUTO;
             }
 
-            return Arrays.stream(values())
-                .filter(color -> color.value.equals(value))
-                .findFirst()
-                .orElse(null);
+            return Arrays.stream(values()).filter(color -> color.value.equals(value)).findFirst().orElse(null);
         }
 
         public static boolean isValid(String value) {

@@ -37,21 +37,21 @@ to reference these in order for the migration scripts to not fail when they are 
 
 The build environment won't share the [schemas](Configuration/Parameters/Environments/Schemas) configuration from another environment. Ensure the `schemas` parameter is configured for each environment.
 
-### Example with the `diff` and `diffApply` command:
+### Example with the `diff` and `model` command:
 
-For more information on how to use the `diff` and `diffApply` commands, see
-the [Diff](<Concepts/Diff concept>) and [Diff Apply](<Concepts/Diff Apply concept>) pages.
+For more information on how to use the `diff` and `model` commands, see
+the [Diff](<Concepts/Diff concept>) and [Model](<Concepts/Model concept>) pages.
 
-Build environment could be used as a target or source in the `diff` and `diffApply` commands. For example, the following
-command is chaining diff with a diffApply operation.
+Build environment could be used as a target or source with the `diff` command. For example, the following
+command chains the diff command with the model command to update the schema model.
 
 Firstly the diff command would be executed. As a result of this, the build environment would be cleaned and emptied and 
-then migrated to the first version. Following this the build environment would be compared against the dev environment generating a diff artifact using the `diff` command.
-All differences are then applied to the target dev environment.
+then migrated to the first version. Following this the build environment would be compared against the schema model generating a diff artifact using the `diff` command.
+All differences are then applied to the schema model.
 
 ```
-$ flyway diff diffApply -diff.source=migrations -diff.target=dev -diff.buildEnvironment="build" -diff.buildVersion="1"
--diff.rebuild=true -diffApply.target=dev
+$ flyway diff model -diff.source=migrations -diff.target=schemaModel -diff.buildEnvironment="build" -diff.buildVersion="1"
+-diff.rebuild=true
 
 Flyway {{ site.flywayVersion }} by Redgate
 INFO: Successfully dropped post-schema database level objects (execution time 00:00.059s)
@@ -69,7 +69,8 @@ diff artifact generated: C:\Users\Projects\artifact
 | cFfTuinTzlVluhBSmi5ZXQB4kSA | Add    | Table       | HRSchema | table_1   |
 +-----------------------------+--------+-------------+----------+-----------+
 
-Applied to dev
+Applied to schemaModel
+ File updated: C:\Users\FlywayUser\Project\schema-model\HRSchema\Tables\table_1.sql
 ```
 
 

@@ -88,6 +88,9 @@ To make this more of a native Mongo experience, we recommend changing the [sqlMi
 [flyway]
 sqlMigrationSuffixes = [".js"]
 ```
+### Limitations
+
+- You can't currently do a [Dry-run](<Concepts/Dry Runs>) operation with MongoDB.
 
 ### Known issues
 

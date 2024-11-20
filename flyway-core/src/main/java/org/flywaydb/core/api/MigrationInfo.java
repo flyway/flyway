@@ -109,6 +109,10 @@ public interface MigrationInfo extends Comparable<MigrationInfo> {
         return getResolvedDescription() == null || getAppliedDescription() == null || getResolvedDescription().equals(getAppliedDescription());
     }
 
+    default boolean isTypeMatching() {
+        return getResolvedType() == null || getAppliedType() == null || getResolvedType().equals(getAppliedType());
+    }
+
     default Boolean isPlaceholderReplacement() {
         return true;
     }
@@ -118,4 +122,11 @@ public interface MigrationInfo extends Comparable<MigrationInfo> {
     
     default String getResolvedDescription() { return null; }
     default String getAppliedDescription() { return null; }
+
+    default MigrationType getResolvedType() { return null; }
+    default MigrationType getAppliedType() { return null; }
+
+    default boolean isApplied() {
+        return getInstalledRank() != null;
+    }
 }

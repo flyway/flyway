@@ -2,7 +2,8 @@
 
 ### Database Migrations Made Easy.
 
-![Flyway](https://flywaydb.org/assets/logo/flyway-logo.png "Flyway")
+![Flyway](https://documentation.red-gate.com/download/attachments/138346876/FD?version=3&modificationDate=1633982869952&api=v2 "Flyway")
+
 
 #### Evolve your database schema easily and reliably across all your instances.
 Simple, focused and powerful.
@@ -22,6 +23,9 @@ SBT, Ant, Spring Boot, Grails, Play!, DropWizard, Grunt, Griffon, Ninja, ...
 ## Documentation
 You can find our getting started guides [here](https://documentation.red-gate.com/flyway/getting-started-with-flyway).
 Our reference documentation can be found [here](https://documentation.red-gate.com/flyway/flyway-cli-and-api).
+
+## Download
+You can downlod Flyway from [here](https://documentation.red-gate.com/fd/flyway-open-source-224002364.html)
 
 ## About
 Flyway is brought to you by [Redgate](https://www.red-gate.com/) with the help of many contributors.

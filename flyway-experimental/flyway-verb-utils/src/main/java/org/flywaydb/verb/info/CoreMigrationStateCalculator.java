@@ -102,8 +102,8 @@ public class CoreMigrationStateCalculator implements ExperimentalMigrationStateC
             return MigrationState.SUCCESS;
         }
 
-        if (migration.getRight() == null && migration.getLeft().getType().isBaseline()) {
-            return MigrationState.BASELINE;
+        if (migration.getLeft().getType().isBaseline()) {
+            return migration.getLeft().isSuccess() ? MigrationState.BASELINE : MigrationState.FAILED;
         }
 
         if (migration.getLeft().isSuccess()) {
@@ -175,7 +175,10 @@ public class CoreMigrationStateCalculator implements ExperimentalMigrationStateC
         final boolean futureDelete = sortedMigrations.stream()
             .filter(x -> x.getLeft() != null)
             .filter(x -> x.getLeft().getType() == CoreMigrationType.DELETE)
-            .anyMatch(x -> x.getLeft().getVersion().equals(migration.getLeft().getVersion()));
+            .filter(x -> x.getLeft().isRepeatable() == migration.getLeft().isRepeatable())
+            .anyMatch(x -> x.getLeft().isRepeatable()
+                ? x.getLeft().getDescription().equals(migration.getLeft().getDescription())
+                : x.getLeft().getVersion().equals(migration.getLeft().getVersion()));
         if (futureDelete && migration.getLeft().getType() != CoreMigrationType.DELETE) {
             return MigrationState.DELETED;
         }

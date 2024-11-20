@@ -39,6 +39,7 @@ repeatables
 (?i)TOML
 (?i)url
 Xerial
+[Nn]amespacing
 
 baselineVersion
 
@@ -64,7 +65,6 @@ beforeValidate
 buildEnvironment
 
 createSchema
-diffApply
 diffText
 env
 errorOverride

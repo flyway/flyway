@@ -2,7 +2,7 @@
 subtitle: CockroachDB
 ---
 # CockroachDB
-- **Verified Versions:** 1.1, 21.1
+- **Verified Versions:** v21.1, v24.2
 - **Maintainer:** Redgate
 
 ## Supported Versions and Support Levels

@@ -92,7 +92,7 @@ public class VerbUtils {
         final ExperimentalDatabase experimentalDatabase = resolvedExperimentalDatabase.get();
         experimentalDatabase.initialize(getResolvedEnvironment(configuration), configuration);
         if (!databaseInfoPrinted) {
-            LOG.info("Database: " + configuration.getUrl() + " (" + experimentalDatabase.getDatabaseMetaData()
+            LOG.info("Database: " + experimentalDatabase.redactUrl(configuration.getUrl()) + " (" + experimentalDatabase.getDatabaseMetaData()
                 .databaseProductName() + ")");
             databaseInfoPrinted = true;
         }
@@ -254,24 +254,32 @@ public class VerbUtils {
         });
     }
 
-    private static List<Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> findMigrationsByResourceMetadata(List<Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> migrations,
-        LoadableResourceMetadata resourceMetadata) {
+    private static List<Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> findMigrationsByResourceMetadata(
+        final List<Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> migrations,
+        final LoadableResourceMetadata resourceMetadata) {
 
-        List<Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> result = new ArrayList<>();
+        final List<Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> result = new ArrayList<>();
 
-        for (Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata> migration: migrations) {
-            ResolvedSchemaHistoryItem item = migration.getLeft();
+        for (final Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata> migration: migrations) {
+            final ResolvedSchemaHistoryItem item = migration.getLeft();
             if (item != null) {
-                boolean versionMatched = item.isRepeatable() ? item.getDescription().equals(resourceMetadata.description())
+                final boolean versionMatched = item.isRepeatable() ? item.getDescription().equals(resourceMetadata.description())
                     && item.getChecksum().equals(resourceMetadata.checksum()) :
                     item.getVersion().equals(resourceMetadata.version());
-                if (versionMatched && item.getType().equals(resourceMetadata.migrationType())) {
+                if (versionMatched && typesCompatible(resourceMetadata, item)) {
                     result.add(migration);
                 }
             }
         }
 
         return result;
+    }
+
+    private static boolean typesCompatible(final LoadableResourceMetadata resourceMetadata,
+        final ResolvedSchemaHistoryItem item) {
+        return item.getType().isBaseline() == resourceMetadata.migrationType().isBaseline()
+            && item.getType() != CoreMigrationType.BASELINE
+            && item.getType().isUndo() == resourceMetadata.migrationType().isUndo();
     }
 
     public static String[] getAllSchemasFromConfiguration(Configuration configuration) {
@@ -295,5 +303,11 @@ public class VerbUtils {
                 + (isExecuteInTransaction ? "" : " [non-transactional]");
         }
         return migrationText;
+    }
+
+    public static List<MigrationInfo> removeIgnoredMigrations(final Configuration configuration,
+        final MigrationInfo[] migrations) {
+        return Arrays.stream(migrations).filter(x -> Arrays.stream(configuration.getIgnoreMigrationPatterns())
+            .noneMatch(pattern -> pattern.matchesMigration(x.isVersioned(), x.getState()))).toList();
     }
 }

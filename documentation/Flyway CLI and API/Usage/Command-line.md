@@ -137,6 +137,67 @@ equals `=` and ampersands `&`. For example:
 
 <pre class="console"><span>&gt;</span> ./flyway info -url='"jdbc:snowflake://ab12345.snowflakecomputing.com/?db=demo_db&user=foo"'</pre>
 
+### Commandline Namespacing
+
+Flyway commandline arguments follow the same namespacing as the configuration files, with the `flyway` part assumed. 
+For example, the `flyway.url` configuration parameter can be set on the commandline as `flyway -url=jdbc://xxx`.
+To avoid conflicts, many plugins and extensions use a different namespace, such as `flyway.init` or `flyway.diff`.
+When configuring these, there are two options;
+
+**Option 1**: Use the full namespace on the commandline:
+```powershell
+flyway init -init.databaseType=sqlserver 
+```
+**Option 2**: Use scoped namespacing:
+
+*When the namespace is the same as the verb, you can configure parameters for that verb directly following that verb and 
+have the namespace assumed;* 
+```powershell
+flyway init -databaseType=sqlserver 
+```
+*this will be interpreted as `flyway.init.databaseType=sqlserver`. When using scoped namespacing, you must have the 
+parameters follow the verb and proceeding other verbs.*
+
+This will fail, as the `info` verb is not expecting the `databaseType` parameter:
+```powershell
+flyway init info -databaseType=sqlserver 
+```
+
+to allow for this to work, you have to ensure a logical order; for the above, either of the following would work;
+```powershell
+flyway info init -databaseType=sqlserver 
+```
+
+```powershell
+flyway init -databaseType=sqlserver info 
+```
+
+In both cases, the `databaseType` comes after the `init` verb and before any other verb, 
+so it is assumed to be `flyway.init.databaseType=sqlserver
+
+#### Backwards Compatibility:
+Scoped namespacing is automatically disabled when ANY namespace is used. This is to maintain backwards compatibility with 
+scripts written for older versions of Flyway. To clarify, the following two examples will work;
+
+```powershell
+flyway init -databaseType=sqlserver -projectName=myProject
+```
+
+```powershell
+flyway init -init.databaseType=sqlserver -init.projectName=myProject 
+```
+
+but the following will not;
+
+```powershell
+flyway init -init.databaseType=sqlserver -projectName=myProject 
+```
+
+because the `databaseType` parameter is namespaced, scoped namespacing is disabled and thus `projectName` is assumed to be 
+`flyway.projectName` and not `flyway.init.projectName`.
+
+
+
 ### Configuration from standard input
 
 See [Configuration from Standard Input](Configuration/Configuration from Standard Input)

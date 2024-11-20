@@ -19,6 +19,13 @@
  */
 package org.flywaydb.core.internal.database;
 
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -27,20 +34,20 @@ import org.flywaydb.core.internal.database.base.CommunityDatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.plugin.PluginRegister;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
 @CustomLog
 public class DatabaseTypeRegister {
 
-    private static final List<DatabaseType> SORTED_DATABASE_TYPES = new PluginRegister().getPlugins(DatabaseType.class).stream().sorted().collect(Collectors.toList());
+    private static final List<DatabaseType> SORTED_DATABASE_TYPES = new PluginRegister().getPlugins(DatabaseType.class)
+        .stream()
+        .sorted()
+        .toList();
 
-    public static DatabaseType getDatabaseTypeForUrl(String url, Configuration configuration) {
-        List<DatabaseType> typesAcceptingUrl =  getDatabaseTypesForUrl(url, configuration);
+    public static List<DatabaseType> getDatabaseTypes() {
+        return new ArrayList<>(SORTED_DATABASE_TYPES);
+    }
+
+    public static DatabaseType getDatabaseTypeForUrl(final String url, final Configuration configuration) {
+        final List<DatabaseType> typesAcceptingUrl = getDatabaseTypesForUrl(url, configuration);
 
         if (typesAcceptingUrl.isEmpty()) {
             throw new FlywayException("No database found to handle " + redactJdbcUrl(url, typesAcceptingUrl));
@@ -49,50 +56,50 @@ public class DatabaseTypeRegister {
         }
     }
 
-    public static List<DatabaseType> getDatabaseTypesForUrl(String url, Configuration configuration) {
-        List<DatabaseType> typesAcceptingUrl =  SORTED_DATABASE_TYPES.stream()
-            .filter(type -> configuration == null ||
-                configuration.isCommunityDBSupportEnabled() ||
-                !(type instanceof CommunityDatabaseType))
-            .filter(type -> type.handlesJDBCUrl(url))
-            .toList();
+    public static List<DatabaseType> getDatabaseTypesForUrl(final String url, final Configuration configuration) {
+        final List<DatabaseType> typesAcceptingUrl = SORTED_DATABASE_TYPES.stream().filter(type -> configuration == null
+            || configuration.isCommunityDBSupportEnabled()
+            || !(type instanceof CommunityDatabaseType)).filter(type -> type.handlesJDBCUrl(url)).toList();
 
         if (typesAcceptingUrl.size() > 1) {
             final String typeNames = String.join(",", typesAcceptingUrl.stream().map(DatabaseType::getName).toList());
 
-            LOG.debug("Multiple databases found that handle url '" + redactJdbcUrl(url, typesAcceptingUrl) + "': " + typeNames);
+            LOG.debug("Multiple databases found that handle url '"
+                + redactJdbcUrl(url, typesAcceptingUrl)
+                + "': "
+                + typeNames);
         }
 
         return typesAcceptingUrl;
     }
 
-    public static DatabaseType getDatabaseTypeForEngineName(String engineName, Configuration configuration) {
-        return SORTED_DATABASE_TYPES.stream()
-            .filter(type -> configuration == null ||
-                configuration.isCommunityDBSupportEnabled() ||
-                !(type instanceof CommunityDatabaseType))
-            .filter(type -> type.getSupportedEngines().stream().anyMatch(engineName::equalsIgnoreCase))
-            .findFirst()
-            .orElseThrow(() -> new FlywayException("No database found to handle " + engineName + " engine"));
+    public static DatabaseType getDatabaseTypeForEngineName(final String engineName,
+        final Configuration configuration) {
+        return SORTED_DATABASE_TYPES.stream().filter(type -> configuration == null
+            || configuration.isCommunityDBSupportEnabled()
+            || !(type instanceof CommunityDatabaseType)).filter(type -> type.getSupportedEngines()
+            .stream()
+            .anyMatch(engineName::equalsIgnoreCase)).findFirst().orElseThrow(() -> new FlywayException(
+            "No database found to handle " + engineName + " engine"));
     }
 
-    public static String redactJdbcUrl(String url) {
+    public static String redactJdbcUrl(final String url) {
         return redactJdbcUrl(url, (Configuration) null);
     }
 
-    public static String redactJdbcUrl(String url, final Configuration configuration) {
-        List<DatabaseType> types = getDatabaseTypesForUrl(url, configuration);
+    public static String redactJdbcUrl(final String url, final Configuration configuration) {
+        final List<DatabaseType> types = getDatabaseTypesForUrl(url, configuration);
         return redactJdbcUrl(url, types);
     }
 
-    public static String redactJdbcUrl(String url, final List<DatabaseType> types) {
+    public static String redactJdbcUrl(String url, final Collection<? extends DatabaseType> types) {
         if (types.isEmpty()) {
             url = redactJdbcUrl(url, BaseDatabaseType.getDefaultJDBCCredentialsPattern());
         } else {
-            for (DatabaseType type : types) {
-                List<Pattern> dbPatterns = type.getJDBCCredentialsPatterns();
+            for (final DatabaseType type : types) {
+                final List<Pattern> dbPatterns = type.getJDBCCredentialsPatterns();
                 if (dbPatterns != null && !dbPatterns.isEmpty()) {
-                    for (Pattern dbPattern : dbPatterns) {
+                    for (final Pattern dbPattern : dbPatterns) {
                         url = redactJdbcUrl(url, dbPattern);
                     }
                 }
@@ -101,26 +108,27 @@ public class DatabaseTypeRegister {
         return url;
     }
 
-    private static String redactJdbcUrl(String url, Pattern pattern) {
-        Matcher matcher = pattern.matcher(url);
+    private static String redactJdbcUrl(final String url, final Pattern pattern) {
+        final Matcher matcher = pattern.matcher(url);
         if (matcher.find()) {
-            String password = matcher.group(1);
+            final String password = matcher.group(1);
             return url.replace(password, "********");
         }
         return url;
     }
 
-    public static DatabaseType getDatabaseTypeForConnection(Connection connection, Configuration configuration) {
-        DatabaseMetaData databaseMetaData = JdbcUtils.getDatabaseMetaData(connection);
-        String databaseProductName = JdbcUtils.getDatabaseProductName(databaseMetaData);
-        String databaseProductVersion = JdbcUtils.getDatabaseProductVersion(databaseMetaData);
+    public static DatabaseType getDatabaseTypeForConnection(final Connection connection,
+        final Configuration configuration) {
+        final DatabaseMetaData databaseMetaData = JdbcUtils.getDatabaseMetaData(connection);
+        final String databaseProductName = JdbcUtils.getDatabaseProductName(databaseMetaData);
+        final String databaseProductVersion = JdbcUtils.getDatabaseProductVersion(databaseMetaData);
 
-        return SORTED_DATABASE_TYPES.stream()
-            .filter(type -> configuration == null ||
-                configuration.isCommunityDBSupportEnabled() ||
-                !(type instanceof CommunityDatabaseType))
-            .filter(type -> type.handlesDatabaseProductNameAndVersion(databaseProductName, databaseProductVersion, connection))
-            .findFirst()
-            .orElseThrow(() -> new FlywayException("Unsupported Database: " + databaseProductName));
+        return SORTED_DATABASE_TYPES.stream().filter(type -> configuration == null
+            || configuration.isCommunityDBSupportEnabled()
+            || !(type instanceof CommunityDatabaseType)).filter(type -> type.handlesDatabaseProductNameAndVersion(
+            databaseProductName,
+            databaseProductVersion,
+            connection)).findFirst().orElseThrow(() -> new FlywayException("Unsupported Database: "
+            + databaseProductName));
     }
 }

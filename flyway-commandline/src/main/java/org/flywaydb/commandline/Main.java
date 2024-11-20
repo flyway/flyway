@@ -35,6 +35,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import lombok.SneakyThrows;
 import org.flywaydb.commandline.configuration.CommandLineArguments;
 import org.flywaydb.commandline.configuration.ConfigurationManagerImpl;
@@ -60,6 +61,7 @@ import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.extensibility.InfoTelemetryModel;
 import org.flywaydb.core.extensibility.LicenseGuard;
+import org.flywaydb.core.extensibility.RootTelemetryModel;
 import org.flywaydb.core.internal.exception.FlywayMigrateException;
 import org.flywaydb.core.internal.info.MigrationFilterImpl;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
@@ -89,11 +91,11 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         int exitCode = 0;
+        JavaVersionPrinter.printJavaVersion();
 
         final FlywayTelemetryManager flywayTelemetryManager = getFlywayTelemetryManager();
 
         try {
-            JavaVersionPrinter.printJavaVersion();
             final CommandLineArguments commandLineArguments = new CommandLineArguments(PLUGIN_REGISTER, args);
             LOG = initLogging(Main.class, commandLineArguments);
 
@@ -112,9 +114,9 @@ public class Main {
                 }
 
                 if (flywayTelemetryManager != null) {
-                    flywayTelemetryManager.setRootTelemetryModel(populateRootTelemetry(flywayTelemetryManager.getRootTelemetryModel(),
+                    flywayTelemetryManager.setRootTelemetryModel(CompletableFuture.supplyAsync(() -> populateRootTelemetry(flywayTelemetryManager.getRootTelemetryModel(),
                         configuration,
-                        LicenseGuard.getPermit(configuration)));
+                        LicenseGuard.getPermit(configuration))));
                 }
 
                 if (!commandLineArguments.skipCheckForUpdate()) {
@@ -172,9 +174,10 @@ public class Main {
 
         final var telemetryStartSpan = new EventTelemetryModel("telemetry-startup", null);
         final var flywayTelemetryManager = new FlywayTelemetryManager(PLUGIN_REGISTER);
-        flywayTelemetryManager.setRootTelemetryModel(populateRootTelemetry(flywayTelemetryManager.getRootTelemetryModel(),
+        flywayTelemetryManager.setRootTelemetryModel(CompletableFuture.supplyAsync(() -> populateRootTelemetry(
+            flywayTelemetryManager.getRootTelemetryModel(),
             null,
-            null));
+            null)));
         flywayTelemetryManager.logEvent(telemetryStartSpan);
         return flywayTelemetryManager;
     }

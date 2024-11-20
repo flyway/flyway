@@ -65,7 +65,7 @@ public class VersionOrderMigrationComparator implements ExperimentalMigrationCom
                 return o2.getState().compareTo(o1.getState());
             }
 
-            if (o1.getInstalledRank() != null && o2.getInstalledRank() != null) {
+            if (o1.isApplied() && o2.isApplied()) {
                 return Integer.compare(o1.getInstalledRank(), o2.getInstalledRank());
             }
             

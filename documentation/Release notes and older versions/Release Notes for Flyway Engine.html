@@ -9,6 +9,35 @@
 <div class="col-md-9">
 
   <div class="release">
+        <h2 id="10.22.0">Flyway 10.22.0 (2024-11-20)</h2>
+
+        <h3>Breaking changes</h3>
+        <ul>
+            <li>(Preview) the preview verb 'diffApply' has been replaced with the verb 'model'</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fix error message when using unpopulated default placeholders with configured seperators</li>
+            <li>Fixed an issue where the 'Placeholders' configuration erased the 'jdbcProperties' configuration</li>
+            <li>Resolved issue where Flyway would fail to publish an event to Flyway Pipelines using a PAT token in conjunction with using an offline permit for licensing</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>collations will now be dropped on postgres</li>
+            <li>MySQL schema history table will create using default storage engine instead of being forced to `InnoDB`</li>
+            <li>addTimestamp boolean option for generate and add verbs has been replaced with timestamp=always|auto|never option</li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>**Scoped Namespaces**: when configuring on the command line, you can skip namespaces if they match the verb of which you are in the scope of. For example, rather than `flyway init -init.projectName=test` you can now shortcut to `flyway init -projectName=test`.</li>
+        </ul>
+
+    </div>
+
+<div class="release">
         <h2 id="10.21.0">Flyway 10.21.0 (2024-11-07)</h2>
 
         <h3>Breaking changes</h3>

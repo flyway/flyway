@@ -21,6 +21,7 @@ package org.flywaydb.experimental.sqlite;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -217,7 +218,7 @@ public class ExperimentalSqlite implements ExperimentalDatabase {
                 .append(item.getChecksum())
                 .append(", ")
                 .append("'")
-                .append(item.getInstalledBy())
+                .append(item.getInstalledBy() == null ? "" : item.getInstalledBy())
                 .append("', ")
                 .append(item.getExecutionTime())
                 .append(", ")
@@ -355,6 +356,34 @@ public class ExperimentalSqlite implements ExperimentalDatabase {
         try {
             try (final Statement statement = connection.createStatement()) {
                 statement.execute("DELETE FROM " + quote(tableName) + " WHERE " + quote("success") + " = 0");
+            }
+        } catch (SQLException e) {
+            throw new FlywayException(e);
+        }
+    }
+
+    @Override
+    public void updateSchemaHistoryItem(final SchemaHistoryItem item, final String tableName) {
+        try {
+            final String sql = new StringBuilder().append("UPDATE ")
+                .append(quote(tableName))
+                .append(" SET ")
+                .append(quote("description"))
+                .append("=? , ")
+                .append(quote("type"))
+                .append("=? , ")
+                .append(quote("checksum"))
+                .append("=?")
+                .append(" WHERE ")
+                .append(quote("installed_rank"))
+                .append("=?")
+                .toString();
+            try (final PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setString(1, item.getDescription());
+                statement.setString(2, item.getType());
+                statement.setInt(3, item.getChecksum());
+                statement.setInt(4, item.getInstalledRank());
+                statement.execute();
             }
         } catch (SQLException e) {
             throw new FlywayException(e);

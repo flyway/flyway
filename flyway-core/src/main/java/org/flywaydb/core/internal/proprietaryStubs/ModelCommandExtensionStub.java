@@ -27,10 +27,10 @@ import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.internal.license.FlywayRedgateEditionRequiredException;
 
-public class DiffApplyCommandExtensionStub implements CommandExtension {
-    private static final String FEATURE_NAME = "DiffApply";
-    public static final String COMMAND = "diffApply";
-    public static final String DESCRIPTION = "Allows differences found by running the diff command to be applied to a target database environment or schema model";
+public class ModelCommandExtensionStub implements CommandExtension {
+    private static final String FEATURE_NAME = "model";
+    public static final String COMMAND = "model";
+    public static final String DESCRIPTION = "Allows differences found by running the diff command to be applied to the schema model";
 
     @Override
     public boolean handlesCommand(final String command) {

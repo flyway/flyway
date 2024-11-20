@@ -2039,7 +2039,7 @@ public class ClassicConfiguration implements Configuration {
             setFailOnMissingLocations(failOnMissingLocationsProp);
         }
 
-        Map<String, String> jdbcPropertiesFromProps = getPropertiesUnderNamespace(props, getPlaceholders(),
+        Map<String, String> jdbcPropertiesFromProps = getPropertiesUnderNamespace(props, getJdbcProperties(),
             ConfigUtils.JDBC_PROPERTIES_PREFIX);
         if (!jdbcPropertiesFromProps.isEmpty()) {
             setJdbcProperties(jdbcPropertiesFromProps);

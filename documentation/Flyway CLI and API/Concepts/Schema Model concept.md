@@ -11,7 +11,7 @@ The schema model can then later be diffed with a database, and the changes appli
 This allows for a more controlled and collaborative approach to database development.
 
 ## How is this used ?
-The schema model is primarily used with the `diff` and `diffApply` commands.
+The schema model is primarily used with the `diff` and `model` commands.
 In both cases the following properties should be set when using a schema model:
 
  - [schemaModelLocation](<Configuration/Parameters/Flyway/Schema Model Location>) - The location of the schema model folder on disk.
@@ -88,19 +88,18 @@ diff artifact generated: C:\Users\FlywayUser\AppData\Local\Temp\flyway.artifact.
 +-----------------------------+--------+-------------+--------+------+
 ```
 
-These differences can then be used with the `diffApply` command which is discussed below.
+These differences can then be used with the `model` command which is discussed below.
 
-### Usage with `diffApply`
-See [here](<Concepts/Diff Apply concept>) for more information on the `diffApply` command.
+### Usage with `model`
+See [here](<Concepts/Model concept>) for more information on the `model` command.
 
-The `diffApply` command applies the differences from a diff artifact to a target, which can be a schema model.
-Therefore, we can use the `diffApply` command to update a schema model.
+The `model` command applies the differences from a diff artifact to the schema model.
 
-**Note:** Whilst the schema model can be updated by hand, it is recommended to use the `diff` and `diffApply` commands
+**Note:** Whilst the schema model can be updated by hand, it is recommended to use the `diff` and `model` commands
 to ensure that any changes made are valid and applied correctly.
 
 For example, the following commands generate a diff between a dev environment and the schema model folder.
-All the differences are then applied to the schema model folder using the `diffApply` command.
+All the differences are then applied to the schema model folder using the `model` command.
 ```
 $ flyway diff -diff.source=dev -diff.target=schemaModel
 
@@ -111,7 +110,7 @@ diff artifact generated: C:\Users\FlywayUser\AppData\Local\Temp\flyway.artifact.
 | APhfajbztVFslUjNVEexkWeTBvc | Edit   | Table       | sakila | inventory |
 +-----------------------------+--------+-------------+--------+-----------+
 
-$ flyway diffApply -diffApply.target=schemaModel
+$ flyway model
 
 Applied to schemaModel
  File updated: C:\Users\FlywayUser\Project\schema-model\sakila\Tables\inventory.rgm

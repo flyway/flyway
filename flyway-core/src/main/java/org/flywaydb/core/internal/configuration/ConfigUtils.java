@@ -19,7 +19,9 @@
  */
 package org.flywaydb.core.internal.configuration;
 
+import java.util.HashSet;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.CustomLog;
@@ -28,6 +30,7 @@ import org.apache.commons.text.similarity.FuzzyScore;
 import org.flywaydb.core.api.CoreErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
+import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.ConfigurationExtension;
 import org.flywaydb.core.internal.command.clean.CleanModel;
@@ -39,6 +42,7 @@ import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.FileUtils;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.io.BufferedReader;
@@ -144,8 +148,12 @@ public class ConfigUtils {
     public static final String FLYWAY_PLUGINS_PREFIX = "flyway.plugins.";
 
     private static final PluginRegister PLUGIN_REGISTER = new PluginRegister();
+    
+    private static final Set<String> DEPRECATED_PLUGINS_WARNED = new HashSet<>();
 
-    private static final Map<String, String> JDBC_PROPERTY_ENVIRONMENT_VARIABLE_MAP = Map.of("FLYWAY_JDBC_PROPERTIES_ACCESSTOKEN", "accessToken");
+    private static final Map<String, String> JDBC_PROPERTY_ENVIRONMENT_VARIABLE_MAP = Map.of(
+        "FLYWAY_JDBC_PROPERTIES_ACCESSTOKEN",
+        "accessToken");
 
     /**
      * Converts Flyway-specific environment variables to their matching properties.
@@ -281,11 +289,13 @@ public class ConfigUtils {
             return SCRIPT_PLACEHOLDER_SUFFIX;
         }
         if (key.matches("FLYWAY_PLACEHOLDERS_.+")) {
-            return PLACEHOLDERS_PROPERTY_PREFIX + key.substring("FLYWAY_PLACEHOLDERS_".length()).toLowerCase(Locale.ENGLISH);
+            return PLACEHOLDERS_PROPERTY_PREFIX + key.substring("FLYWAY_PLACEHOLDERS_".length())
+                .toLowerCase(Locale.ENGLISH);
         }
 
         if (key.matches("FLYWAY_JDBC_PROPERTIES_.+")) {
-            return JDBC_PROPERTIES_PREFIX + JDBC_PROPERTY_ENVIRONMENT_VARIABLE_MAP.getOrDefault(key, key.substring("FLYWAY_JDBC_PROPERTIES_".length()).toLowerCase(Locale.ENGLISH));
+            return JDBC_PROPERTIES_PREFIX + JDBC_PROPERTY_ENVIRONMENT_VARIABLE_MAP.getOrDefault(key,
+                key.substring("FLYWAY_JDBC_PROPERTIES_".length()).toLowerCase(Locale.ENGLISH));
         }
 
         if ("FLYWAY_REPEATABLE_SQL_MIGRATION_PREFIX".equals(key)) {
@@ -366,6 +376,14 @@ public class ConfigUtils {
             return CONFIGURATIONS;
         }
 
+        if (key.startsWith("FLYWAY_PLUGINS") && !DEPRECATED_PLUGINS_WARNED.contains(key)) {
+            LOG.warn("Deprecated property configured through environment variable: '"
+                + key
+                + "'. Please see "
+                + FlywayDbWebsiteLinks.V10_BLOG);
+            DEPRECATED_PLUGINS_WARNED.add(key);
+        }
+
         for (ConfigurationExtension configurationExtension : PLUGIN_REGISTER.getPlugins(ConfigurationExtension.class)) {
             String configurationParameter = configurationExtension.getConfigurationParameterFromEnvironmentVariable(key);
             if (configurationParameter != null) {
@@ -377,37 +395,38 @@ public class ConfigUtils {
     }
 
     /**
-     * Load configuration files from the default locations:
-     * $installationDir$/conf/flyway.conf
-     * $user.home$/flyway.conf
+     * Load configuration files from the default locations: $installationDir$/conf/flyway.conf $user.home$/flyway.conf
      * $workingDirectory$/flyway.conf
      *
      * @param encoding The conf file encoding.
-     *
      * @throws FlywayException When the configuration failed.
      */
-    public static Map<String, String> loadDefaultConfigurationFiles(File installationDir, String workingDirectory,
+    public static Map<String, String> loadDefaultConfigurationFiles(File installationDir,
+        String workingDirectory,
         String encoding) {
         Map<String, String> configMap = new HashMap<>();
-        configMap.putAll(ConfigUtils.loadConfigurationFile(
-            new File(installationDir.getAbsolutePath() + "/conf/" + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
-        configMap.putAll(ConfigUtils.loadConfigurationFile(
-            new File(System.getProperty("user.home") + "/" + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
+        configMap.putAll(ConfigUtils.loadConfigurationFile(new File(installationDir.getAbsolutePath()
+            + "/conf/"
+            + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
+        configMap.putAll(ConfigUtils.loadConfigurationFile(new File(System.getProperty("user.home")
+            + "/"
+            + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
         configMap.putAll(ConfigUtils.loadConfigurationFile(new File(ConfigUtils.CONFIG_FILE_NAME), encoding, false));
         if (workingDirectory != null) {
-            configMap.putAll(
-                ConfigUtils.loadConfigurationFile(new File(workingDirectory + "/" + ConfigUtils.CONFIG_FILE_NAME),
-                    encoding, false));
+            configMap.putAll(ConfigUtils.loadConfigurationFile(new File(workingDirectory
+                + "/"
+                + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
         }
         return configMap;
     }
 
     public static List<File> getDefaultLegacyConfigurationFiles(final File installationDir,
         final String workingDirectory) {
-        final List<File> defaultList = new ArrayList<>(
-            List.of(new File(installationDir.getAbsolutePath() + "/conf/" + ConfigUtils.CONFIG_FILE_NAME),
-                new File(System.getProperty("user.home") + "/" + ConfigUtils.CONFIG_FILE_NAME),
-                new File(ConfigUtils.CONFIG_FILE_NAME)));
+        final List<File> defaultList = new ArrayList<>(List.of(new File(installationDir.getAbsolutePath()
+                + "/conf/"
+                + ConfigUtils.CONFIG_FILE_NAME),
+            new File(System.getProperty("user.home") + "/" + ConfigUtils.CONFIG_FILE_NAME),
+            new File(ConfigUtils.CONFIG_FILE_NAME)));
         if (workingDirectory != null) {
             defaultList.add(new File(workingDirectory + "/" + ConfigUtils.CONFIG_FILE_NAME));
         }
@@ -416,13 +435,13 @@ public class ConfigUtils {
 
     public static List<File> getDefaultTomlConfigFileLocations(final File installationDir,
         final String workingDirectory) {
-        final List<File> defaultList = new ArrayList<>(
-            List.of(new File(installationDir.getAbsolutePath() + "/conf/flyway.toml"),
-                new File(installationDir.getAbsolutePath() + "/conf/flyway.user.toml"),
-                new File(System.getProperty("user.home") + "/flyway.toml"),
-                new File(System.getProperty("user.home") + "/flyway.user.toml"),
-                new File("flyway.toml"),
-                new File("flyway.user.toml")));
+        final List<File> defaultList = new ArrayList<>(List.of(new File(installationDir.getAbsolutePath()
+                + "/conf/flyway.toml"),
+            new File(installationDir.getAbsolutePath() + "/conf/flyway.user.toml"),
+            new File(System.getProperty("user.home") + "/flyway.toml"),
+            new File(System.getProperty("user.home") + "/flyway.user.toml"),
+            new File("flyway.toml"),
+            new File("flyway.user.toml")));
         if (workingDirectory != null) {
             defaultList.add(new File(workingDirectory + "/flyway.toml"));
             defaultList.add(new File(workingDirectory + "/flyway.user.toml"));
@@ -436,12 +455,11 @@ public class ConfigUtils {
      * @param configFile    The configuration file to load.
      * @param encoding      The encoding of the configuration file.
      * @param failIfMissing Whether to fail if the file is missing.
-     *
      * @return The properties from the configuration file. An empty Map if none.
-     *
      * @throws FlywayException When the configuration file could not be loaded.
      */
-    public static Map<String, String> loadConfigurationFile(File configFile, String encoding, boolean failIfMissing) throws FlywayException {
+    public static Map<String, String> loadConfigurationFile(File configFile, String encoding, boolean failIfMissing)
+        throws FlywayException {
         String errorMessage = "Unable to load config file: " + configFile.getAbsolutePath();
 
         if ("-".equals(configFile.getName())) {
@@ -503,7 +521,6 @@ public class ConfigUtils {
      * Reads the configuration from a Reader.
      *
      * @return The properties from the configuration file. An empty Map if none.
-     *
      * @throws FlywayException When the configuration could not be read.
      */
     public static Map<String, String> loadConfigurationFromReader(Reader reader) throws FlywayException {
@@ -569,7 +586,8 @@ public class ConfigUtils {
             String variableValue = environmentVariables.getOrDefault(variableName, "");
 
             LOG.debug("Expanding environment variable in config: " + variableName + " -> " + variableValue);
-            expandedValue = expandedValue.replaceAll(Pattern.quote(matcher.group(0)), Matcher.quoteReplacement(variableValue));
+            expandedValue = expandedValue.replaceAll(Pattern.quote(matcher.group(0)),
+                Matcher.quoteReplacement(variableValue));
         }
 
         return expandedValue;
@@ -621,9 +639,7 @@ public class ConfigUtils {
     /**
      * @param config The config.
      * @param key    The property name.
-     *
      * @return The property value as a boolean if it exists, otherwise {@code null}.
-     *
      * @throws FlywayException when the property value is not a valid boolean.
      */
     public static Boolean removeBoolean(Map<String, String> config, String key) {
@@ -638,7 +654,7 @@ public class ConfigUtils {
         }
         if (!"true".equalsIgnoreCase(value) && !"false".equalsIgnoreCase(value)) {
             throw new FlywayException("Invalid value for " + key + " (should be either true or false): " + value,
-                                      CoreErrorCode.CONFIGURATION);
+                CoreErrorCode.CONFIGURATION);
         }
         return Boolean.valueOf(value);
     }
@@ -646,9 +662,7 @@ public class ConfigUtils {
     /**
      * @param config The config.
      * @param key    The property name.
-     *
      * @return The property value as an integer if it exists, otherwise {@code null}.
-     *
      * @throws FlywayException When the property value is not a valid integer.
      */
     public static Integer removeInteger(Map<String, String> config, String key) {
@@ -660,7 +674,7 @@ public class ConfigUtils {
             return Integer.valueOf(value);
         } catch (NumberFormatException e) {
             throw new FlywayException("Invalid value for " + key + " (should be an integer): " + value,
-                                      CoreErrorCode.CONFIGURATION);
+                CoreErrorCode.CONFIGURATION);
         }
     }
 
@@ -688,12 +702,14 @@ public class ConfigUtils {
     }
 
     private static Map<String, String> getConfigurationMapFromModel(final ConfigurationModel config) {
-        final Map<String, String> configMap = new TreeMap<>(ClassUtils.getGettableFieldValues(config.getFlyway(), "flyway."));
+        final Map<String, String> configMap = new TreeMap<>(ClassUtils.getGettableFieldValues(config.getFlyway(),
+            "flyway."));
         config.getEnvironments().forEach((name, env) -> configMap.putAll(getEnvironmentMap(env, name)));
 
         config.getFlyway().getPluginConfigurations().forEach((name, pluginConfig) -> {
             if (pluginConfig instanceof Map<?, ?>) {
-                ((Map<?, ?>) pluginConfig).forEach((key, value) -> configMap.put("flyway." + name + "." + key, value.toString()));
+                ((Map<?, ?>) pluginConfig).forEach((key, value) -> configMap.put("flyway." + name + "." + key,
+                    value.toString()));
             } else {
                 configMap.put("flyway." + name, pluginConfig.toString());
             }
@@ -708,8 +724,7 @@ public class ConfigUtils {
     }
 
     public static Map<String, String> getEnvironmentMap(EnvironmentModel model, String envKey) {
-        return ClassUtils.getGettableFieldValues(model,
-            "environments." + envKey + ".");
+        return ClassUtils.getGettableFieldValues(model, "environments." + envKey + ".");
     }
 
     public static void dumpConfigurationMap(Map<String, String> config, String configMessage) {
@@ -738,22 +753,42 @@ public class ConfigUtils {
         return dump.toString();
     }
 
-    public static List<String> getPossibleFlywayConfigurations(final String unknownConfig, FlywayEnvironmentModel model) {
+    private static List<String> findPossibleNamespaces(final String unknownConfig) {
+        return new ClassicConfiguration().getPluginRegister()
+            .getPlugins(ConfigurationExtension.class)
+            .stream()
+            .filter(p -> ClassUtils.getGettableFieldValues(p, "").containsKey(unknownConfig))
+            .map(ConfigurationExtension::getNamespace)
+            .collect(Collectors.toList());
+    }
+
+    public static List<String> getPossibleFlywayConfigurations(final String unknownConfig,
+        FlywayEnvironmentModel model) {
+        final var namespaces = findPossibleNamespaces(unknownConfig);
+
+        if (!namespaces.isEmpty()) {
+            return namespaces.stream().map(namespace -> namespace + "." + unknownConfig).collect(Collectors.toList());
+        }
+
         final List<String> config;
-        if (model instanceof final FlywayModel flywayModel){
+        if (model instanceof final FlywayModel flywayModel) {
             config = ClassUtils.getGettableField(flywayModel);
         } else {
             config = ClassUtils.getGettableField(model);
         }
+
         final FuzzyScore score = new FuzzyScore(Locale.ENGLISH);
-        final Entry<Integer, List<String>> possibleConfigurations = config.stream()
-            .filter(key -> !key.equals(unknownConfig))
-            .filter(key -> ((double)score.fuzzyScore(unknownConfig, key)) / ((double)score.fuzzyScore(unknownConfig, unknownConfig)) >= 0.25)
-            .collect(Collectors.groupingBy(key -> score.fuzzyScore(unknownConfig, key), TreeMap::new, Collectors.toList()))
-            .lastEntry();
+        final Entry<Integer, List<String>> possibleConfigurations = config.stream().filter(key -> !key.equals(
+            unknownConfig)).filter(key -> ((double) score.fuzzyScore(unknownConfig, key)) / ((double) score.fuzzyScore(
+            unknownConfig,
+            unknownConfig)) >= 0.25).collect(Collectors.groupingBy(key -> score.fuzzyScore(unknownConfig, key),
+            TreeMap::new,
+            Collectors.toList())).lastEntry();
+
         if (possibleConfigurations == null) {
             return List.of();
         }
+
         return possibleConfigurations.getValue();
     }
 
@@ -774,17 +809,23 @@ public class ConfigUtils {
         if (!unknownFlywayProperties.isEmpty()) {
             String property = (unknownFlywayProperties.size() == 1) ? "property" : "properties";
             String message = String.format("Unknown configuration %s: %s",
-                                           property,
-                                           StringUtils.arrayToCommaDelimitedString(unknownFlywayProperties.toArray()));
+                property,
+                StringUtils.arrayToCommaDelimitedString(unknownFlywayProperties.toArray()));
 
-            message += ". Please check your " + (prefix == null ? "script config files" : "conf files or commandline parameters");
+            message += ". Please check your " + (prefix == null
+                ? "script config files"
+                : "conf files or commandline parameters");
             throw new FlywayException(message, CoreErrorCode.CONFIGURATION);
         }
     }
 
     public static CleanModel getCleanModel(Configuration conf) {
-        ConfigurationExtension extensionNew = conf.getPluginRegister().getLicensedPlugin("SQLServerConfigurationExtension", conf);
-        ConfigurationExtension extensionDepreciated = conf.getPluginRegister().getLicensedPlugin("CleanModeConfigurationExtension", conf);
+        ConfigurationExtension extensionNew = conf.getPluginRegister().getLicensedPlugin(
+            "SQLServerConfigurationExtension",
+            conf);
+        ConfigurationExtension extensionDepreciated = conf.getPluginRegister().getLicensedPlugin(
+            "CleanModeConfigurationExtension",
+            conf);
         CleanModel cleanModelNew = null;
         CleanModel cleanModelDepreciated = null;
 
@@ -805,8 +846,12 @@ public class ConfigUtils {
     }
 
     public static void setCleanModel(Configuration conf, CleanModel model) {
-        ConfigurationExtension extensionNew = conf.getPluginRegister().getLicensedPlugin("SQLServerConfigurationExtension", conf);
-        ConfigurationExtension extensionDepreciated = conf.getPluginRegister().getLicensedPlugin("CleanModeConfigurationExtension", conf);
+        ConfigurationExtension extensionNew = conf.getPluginRegister().getLicensedPlugin(
+            "SQLServerConfigurationExtension",
+            conf);
+        ConfigurationExtension extensionDepreciated = conf.getPluginRegister().getLicensedPlugin(
+            "CleanModeConfigurationExtension",
+            conf);
 
         if (extensionNew != null) {
             ClassUtils.setFieldValue(extensionNew, "clean", model);
@@ -831,15 +876,18 @@ public class ConfigUtils {
     public static void warnIfUsingDeprecatedMigrationsFolder(File folder, String fileExtension) {
         try {
             if (Arrays.stream(folder.listFiles()).anyMatch(f -> f.getName().endsWith(fileExtension))) {
-                LOG.warn("Storing migrations in '" + folder.getName() + "' is not recommended and default scanning of this location may be deprecated in a future release");
+                LOG.warn("Storing migrations in '"
+                    + folder.getName()
+                    + "' is not recommended and default scanning of this location may be deprecated in a future release");
             }
         } catch (Exception ignored) {
         }
     }
 
-    public static void makeRelativeLocationsBasedOnWorkingDirectory(String workingDirectory, Map<String, String> config) {
+    public static void makeRelativeLocationsBasedOnWorkingDirectory(String workingDirectory,
+        Map<String, String> config) {
         String locationString = config.get(ConfigUtils.LOCATIONS);
-        String[] locations = new String[]{ Location.FILESYSTEM_PREFIX};
+        String[] locations = new String[] { Location.FILESYSTEM_PREFIX };
         if (StringUtils.hasText(locationString)) {
             locations = locationString.split(",");
         }
@@ -855,7 +903,8 @@ public class ConfigUtils {
         locations.addAll(Arrays.asList(locationsArray));
     }
 
-    public static void makeRelativeLocationsInEnvironmentsBasedOnWorkingDirectory(String workingDirectory, Map<String, EnvironmentModel> environments) {
+    public static void makeRelativeLocationsInEnvironmentsBasedOnWorkingDirectory(String workingDirectory,
+        Map<String, EnvironmentModel> environments) {
         environments.forEach((key, model) -> {
             List<String> locations = model.getFlyway().getLocations();
             if (locations != null) {
@@ -906,22 +955,21 @@ public class ConfigUtils {
             jarDirs = jarDirsString.split(",");
         }
 
-        jarDirs = Arrays.stream(jarDirs)
-            .map(dir -> getFilenameWithWorkingDirectory(dir, workingDirectory))
-            .toArray(String[]::new);
+        jarDirs = Arrays.stream(jarDirs).map(dir -> getFilenameWithWorkingDirectory(dir, workingDirectory)).toArray(
+            String[]::new);
 
         config.put(ConfigUtils.JAR_DIRS, StringUtils.arrayToCommaDelimitedString(jarDirs));
     }
 
     public static void makeRelativeJarDirsBasedOnWorkingDirectory(String workingDirectory, List<String> jarDirs) {
-        List<String> jarDirsUpdated = jarDirs.stream()
-            .map(dir -> getFilenameWithWorkingDirectory(dir, workingDirectory))
-            .toList();
+        List<String> jarDirsUpdated = jarDirs.stream().map(dir -> getFilenameWithWorkingDirectory(dir,
+            workingDirectory)).toList();
         jarDirs.clear();
         jarDirs.addAll(jarDirsUpdated);
     }
 
-    public static void makeRelativeJarDirsInEnvironmentsBasedOnWorkingDirectory(String workingDirectory, Map<String, EnvironmentModel> environments) {
+    public static void makeRelativeJarDirsInEnvironmentsBasedOnWorkingDirectory(String workingDirectory,
+        Map<String, EnvironmentModel> environments) {
         environments.forEach((key, model) -> {
             List<String> jarDirs = model.getFlyway().getJarDirs();
             if (jarDirs != null) {

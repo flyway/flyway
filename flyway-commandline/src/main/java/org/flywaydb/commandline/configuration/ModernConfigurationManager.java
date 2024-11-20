@@ -37,6 +37,7 @@ import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
 import org.flywaydb.core.internal.configuration.models.EnvironmentModel;
 import org.flywaydb.core.internal.configuration.models.FlywayEnvironmentModel;
 import org.flywaydb.core.internal.util.ClassUtils;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.MergeUtils;
 
@@ -353,15 +354,22 @@ public class ModernConfigurationManager implements ConfigurationManager {
                 MergeUtils.mergeModel(newConfigurationExtension, configurationExtension);
 
                 if (!values.isEmpty()) {
-                    for (Map.Entry<String, Object> entry : values.entrySet()) {
+                    for (final Map.Entry<String, Object> entry : values.entrySet()) {
+                        if ("plugins".equals(namespace)) {
+                            LOG.warn("Deprecated namespace configured: 'plugins."
+                                + entry.getKey()
+                                + "'. Please see "
+                                + FlywayDbWebsiteLinks.V10_BLOG);
+                        }
                         if (entry.getValue() instanceof Map<?, ?> && namespace.isEmpty()) {
-                            Map<String, Object> temp = (Map<String, Object>) entry.getValue();
+                            final Map<String, Object> temp = (Map<String, Object>) entry.getValue();
                             configuredPluginParameters.addAll(temp.keySet());
                         } else {
                             configuredPluginParameters.add(entry.getKey());
                         }
                     }
-                }
+                }                
+               
             } catch (final IllegalArgumentException e) {
                 final var fullFieldName = getFullFieldNameFromException(namespace, e);
                 var message = String.format(UNABLE_TO_PARSE_FIELD, fullFieldName);

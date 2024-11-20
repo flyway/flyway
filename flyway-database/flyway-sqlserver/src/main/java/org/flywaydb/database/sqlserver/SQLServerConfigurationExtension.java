@@ -25,10 +25,6 @@ import lombok.Setter;
 import org.flywaydb.core.extensibility.ConfigurationExtension;
 import org.flywaydb.core.internal.command.clean.CleanModel;
 
-import java.util.Map;
-
-import static org.flywaydb.core.internal.configuration.ConfigUtils.FLYWAY_PLUGINS_PREFIX;
-
 @Getter
 @Setter
 @CustomLog
