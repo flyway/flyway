@@ -44,3 +44,4 @@ tns_entry
 truststore
 [Uu]nprefixed
 walkthrough
+[Ss]erverless

@@ -2,7 +2,7 @@
 pill: cli_model
 subtitle: 'Command-line: model'
 ---
-# Command-line: model - Preview
+# Command-line: model
 
 {% include enterprise.html %}
 

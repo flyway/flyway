@@ -69,7 +69,6 @@ See [configuration](Configuration/parameters) for a full list of supported confi
     <target>1.1</target>
     <mixed>false</mixed>
     <group>false</group>
-    <cleanOnValidationError>false</cleanOnValidationError>
     <installedBy>my-user</installedBy>
     <skip>false</skip>
     <configFiles>

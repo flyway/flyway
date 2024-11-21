@@ -1,7 +1,7 @@
 ---
 subtitle: Generate
 ---
-# Generate - Preview
+# Generate
 
 {% include enterprise.html %}
 

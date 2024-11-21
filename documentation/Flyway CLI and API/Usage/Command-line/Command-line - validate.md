@@ -51,7 +51,6 @@ flyway.callbacks=com.mycomp.project.CustomCallback,com.mycomp.project.AnotherCal
 flyway.skipDefaultCallbacks=false
 flyway.target=5.1
 flyway.outOfOrder=false
-flyway.cleanOnValidationError=false
 flyway.oracle.sqlplus=true
 flyway.oracle.sqlplusWarn=true
 flyway.workingDirectory=C:/myProject

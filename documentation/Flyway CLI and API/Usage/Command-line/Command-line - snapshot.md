@@ -20,15 +20,15 @@ A snapshot captures the schema of a specified source into a file for subsequent 
 
 The following options can be provided to the `snapshot` command in the format -key=value:
 - `snapshot.filename` [REQUIRED] - Destination filename for the snapshot 
-- `snapshot.source` (preview) - The source from which a snapshot should be generated. Valid values:
+- `snapshot.source` - The source from which a snapshot should be generated. Valid values:
     - `<<env>>` - uses the environment named `<<env>>`
     - `empty` - models an empty database
     - `schemaModel` - the schema model folder referenced by schemaModelLocation
     - `migrations` - uses a buildEnvironment to represent the state of database after specified migrations have been applied
-- `snapshot.buildEnvironment` (preview) - If source is migrations, this specifies the environment to use as the build environment
-- `snapshot.buildVersion` (preview) - If source is migrations, this specifies migration version to migrate the build environment to
-- `snapshot.buildCherryPick` (preview) - If source is migrations, this specifies list of migrations to migrate the build environment with
-- `snapshot.rebuild` (preview) - If source is migrations, forces a reprovision (rebuild) of the build environment
+- `snapshot.buildEnvironment` - If source is migrations, this specifies the environment to use as the build environment
+- `snapshot.buildVersion` - If source is migrations, this specifies migration version to migrate the build environment to
+- `snapshot.buildCherryPick` - If source is migrations, this specifies list of migrations to migrate the build environment with
+- `snapshot.rebuild` - If source is migrations, forces a reprovision (rebuild) of the build environment
 
 ## Examples
 

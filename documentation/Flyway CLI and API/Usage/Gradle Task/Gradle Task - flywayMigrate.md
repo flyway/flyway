@@ -53,7 +53,6 @@ flyway {
     outOfOrder = false
     outputQueryResults = false
     validateOnMigrate = true
-    cleanOnValidationError = false
     mixed = false
     group = false
     cleanDisabled = false

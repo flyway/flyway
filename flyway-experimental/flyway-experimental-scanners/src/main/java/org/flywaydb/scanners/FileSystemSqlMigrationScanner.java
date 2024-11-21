@@ -39,7 +39,7 @@ public class FileSystemSqlMigrationScanner extends BaseSqlMigrationScanner {
 
         final File dir = new File(path);
 
-        return scan(dir, location, configuration, parsingContext);
+        return scanFromFileSystem(dir, location, configuration, parsingContext);
     }
 
     @Override

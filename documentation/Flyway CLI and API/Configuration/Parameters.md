@@ -66,7 +66,6 @@ subtitle: placeholder page
 
 ### Clean
 - [cleanDisabled](configuration/parameters/flyway/Clean Disabled)
-- [cleanOnValidationError](configuration/parameters/flyway/Clean On Validation Error)
 
 ### Validate
 - [ignoreMigrationPatterns](configuration/parameters/flyway/Ignore Migration Patterns)

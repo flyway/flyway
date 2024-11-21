@@ -3,7 +3,7 @@ pill: cli_diff
 subtitle: 'Command-line: diff'
 ---
 
-# Command-line: diff - Preview
+# Command-line: diff
 
 {% include enterprise.html %}
 

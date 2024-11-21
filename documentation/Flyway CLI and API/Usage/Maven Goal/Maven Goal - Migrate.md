@@ -78,7 +78,6 @@ See [configuration](Configuration/parameters) for a full list of supported confi
     <outOfOrder>false</outOfOrder>
     <outputQueryResults>false</outputQueryResults>
     <validateOnMigrate>true</validateOnMigrate>
-    <cleanOnValidationError>false</cleanOnValidationError>
     <mixed>false</mixed>
     <group>false</group>
     <cleanDisabled>false</cleanDisabled>

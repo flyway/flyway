@@ -54,7 +54,6 @@ flyway {
     skipDefaultCallbacks = false
     target = '1.1'
     outOfOrder = false
-    cleanOnValidationError = false
     oracleSqlplus = true 
     oracleSqlplusWarn = true 
     workingDirectory = 'C:/myproject'

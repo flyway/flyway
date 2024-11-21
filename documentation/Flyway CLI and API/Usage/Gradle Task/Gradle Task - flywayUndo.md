@@ -48,7 +48,6 @@ flyway {
     target = '1.1'
     mixed = false
     group = false
-    cleanOnValidationError = false
     installedBy = "my-user"
     errorOverrides = ['99999:17110:E', '42001:42001:W']
     dryRunOutput = '/my/sql/dryrun-outputfile.sql'

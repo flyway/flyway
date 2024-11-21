@@ -11,16 +11,17 @@ subtitle: Aurora MySQL
 
 ## Drivers
 
-| Item                               | Details                                                                                                |
-|------------------------------------|--------------------------------------------------------------------------------------------------------|
-| **URL format**                     | <code>jdbc:mysql://<i>instance</i>.<i>region</i>.rds.amazonaws.com:<i>port</i>/<i>database?usePipelineAuth=false&useBatchMultiSend=false</i></code> |
-| **SSL support**                    | Yes - add `?useSsl=true`                                                                               |
-| **Ships with Flyway Command-line** | No                                                                                                    |
-| **Maven Central coordinates**      | `mysql:mysql-connector-java`                                                                           |
-| **Supported versions**             | `8.0.12` and later                                                                                     |
-| **Default Java class**             | `com.mysql.jdbc.Driver`                                                                                |
+| Item                               | Details                                                                                                                                                                                                                                                                                                                                                      |
+|------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **URL format**                     | <code>jdbc:mysql://<i>instance</i>.<i>region</i>.rds.amazonaws.com:<i>port</i>/<i>database?usePipelineAuth=false&useBatchMultiSend=false</i></code> <br> **aws-advanced-jdbc-wrapper:** <br> <code>jdbc:aws-wrapper:mysql://<i>instance</i>.<i>region</i>.rds.amazonaws.com:<i>port</i>/<i>database?usePipelineAuth=false&useBatchMultiSend=false</i></code> |
+| **SSL support**                    | Yes - add `?useSsl=true`                                                                                                                                                                                                                                                                                                                                     |
+| **Ships with Flyway Command-line** | No                                                                                                                                                                                                                                                                                                                                                           |
+| **Maven Central coordinates**      | `mysql:mysql-connector-java`                                                                                                                                                                                                                                                                                                                                 |
+| **Supported versions**             | `8.0.12` and later                                                                                                                                                                                                                                                                                                                                           |
+| **Default Java class**             | `com.mysql.jdbc.Driver`   <br> **aws-advanced-jdbc-wrapper:** <br> `software.amazon.jdbc.Driver`                                                                                                                                                                                                                                                                                                                                   |
 
 _Note the additional parameters in the connection string, see [About Mariadb ConnectorJ](https://mariadb.com/kb/en/about-mariadb-connector-j/) for details on Aurora compatibility._
+_aws-advanced-wrapper support is a community addition and not maintained by Redgate_
 ## SQL Script Syntax
 
 - [Standard SQL syntax](Concepts/migrations#sql-based-migrations#syntax) with statement delimiter **;**

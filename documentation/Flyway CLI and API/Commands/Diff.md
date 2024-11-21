@@ -2,7 +2,7 @@
 subtitle: Diff
 ---
 
-# Diff - Preview
+# Diff
 
 The `diff` command calculates the differences between a specified source and target.
 The result of a diff command can then be used with the `generate`, `model` and `diffText` commands to generate scripts and apply changes.

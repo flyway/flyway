@@ -20,9 +20,12 @@
 package org.flywaydb.scanners;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
@@ -43,9 +46,19 @@ public class ClasspathSqlMigrationScanner extends BaseSqlMigrationScanner {
 
         LOG.debug("Scanning for classpath resources at '" + location.getRootPath() + "'");
         
-        final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        final URL resource = classLoader.getResource(location.getRootPath());
-        if(resource == null) {
+        final ClassLoader classLoader = configuration.getClassLoader();
+        List<URL> locationUrls = new ArrayList<>();
+        Enumeration<URL> urls;
+        try {
+            urls = classLoader.getResources(location.getRootPath());
+            while (urls.hasMoreElements()) {
+                locationUrls.add(urls.nextElement());
+            }
+        } catch (IOException e) {
+            LOG.error("Unable to resolve location " + location + " (ClassLoader: " + classLoader + "): " + e.getMessage() + ".");
+        }
+
+        if(locationUrls.isEmpty()) {
             if (configuration.isFailOnMissingLocations()) {
                 throw new FlywayException("Failed to find classpath location: " + location.getRootPath());
             }
@@ -53,14 +66,33 @@ public class ClasspathSqlMigrationScanner extends BaseSqlMigrationScanner {
             LOG.error("Skipping classpath location: " + location.getRootPath());
             return Collections.emptyList();
         }
-        final File directory = new File(resource.getPath());
-        return scan(directory, location, configuration, parsingContext);
+
+        for (URL locationUrl: locationUrls) {
+            LOG.debug("Scanning URL: " + locationUrl.toExternalForm());
+
+            String protocol = locationUrl.getProtocol();
+            if ("file".equals(protocol)) {
+                return scanFromFileSystem(new File(locationUrl.getPath()), location, configuration, parsingContext);
+            } else if ("jar".equals(protocol)) {
+                return scanFromJar();
+            }
+        }
+
+        return Collections.emptyList();
     }
 
     @Override
     boolean matchesPath(final String path, final Location location) {
-        final String rootPath = Thread.currentThread().getContextClassLoader().getResource(".").getPath();
-        final String remainingPath = path.substring(rootPath.length() - 1).replace("\\", "/");
+        final String rootPath = new File(Thread.currentThread()
+            .getContextClassLoader()
+            .getResource(".")
+            .getPath()).getAbsolutePath();
+        String remainingPath = path.replace("\\", "/").substring(rootPath.length() + 1);
+
         return location.matchesPath(remainingPath);
+    }
+
+    private Collection<Pair<LoadableResource, SqlScriptMetadata>> scanFromJar() {
+        return Collections.emptyList();
     }
 }

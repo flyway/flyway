@@ -78,7 +78,6 @@ See [configuration](Configuration/parameters) for a full list of supported confi
     <skipDefaultCallbacks>false</skipDefaultCallbacks>
     <target>1.1</target>
     <outOfOrder>false</outOfOrder>
-    <cleanOnValidationError>false</cleanOnValidationError>
     <oracle.sqlplus>true</oracle.sqlplus>
     <oracle.sqlplusWarn>true</oracle.sqlplusWarn>
     <skip>false</skip>

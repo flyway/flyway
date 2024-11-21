@@ -1,7 +1,7 @@
 ---
 subtitle: Model
 ---
-# Model - Preview
+# Model
 
 The `model` command allows differences found by running the diff command to be applied to the schema model.
 

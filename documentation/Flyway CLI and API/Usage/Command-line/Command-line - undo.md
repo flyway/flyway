@@ -48,7 +48,6 @@ flyway.outputQueryResults=false
 flyway.target=5.1
 flyway.mixed=false
 flyway.group=false
-flyway.cleanOnValidationError=false
 flyway.installedBy=my-user
 flyway.errorOverrides=99999:17110:E,42001:42001:W
 flyway.dryRunOutput=/my/sql/dryrun-outputfile.sql

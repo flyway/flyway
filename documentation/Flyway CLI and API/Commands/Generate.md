@@ -2,7 +2,7 @@
 subtitle: Generate
 ---
 
-# Generate - Preview
+# Generate
 
 The `generate` command allows migration scripts to be generated based on the differences found by running the `diff` command.
 

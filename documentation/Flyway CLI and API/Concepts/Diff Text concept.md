@@ -1,7 +1,7 @@
 ---
 subtitle: Diff Text concept
 ---
-# Diff Text - Preview
+# Diff Text
 
 {% include enterprise.html %}
 

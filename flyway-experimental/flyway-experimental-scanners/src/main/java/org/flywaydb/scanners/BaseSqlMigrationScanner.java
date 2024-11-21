@@ -43,7 +43,7 @@ import org.flywaydb.core.internal.util.Pair;
 @CustomLog
 public abstract class BaseSqlMigrationScanner implements ExperimentalMigrationScanner {
    
-    public Collection<Pair<LoadableResource, SqlScriptMetadata>> scan(final File dir, final Location location, final Configuration configuration, final ParsingContext parsingContext) {
+    protected Collection<Pair<LoadableResource, SqlScriptMetadata>> scanFromFileSystem(final File dir, final Location location, final Configuration configuration, final ParsingContext parsingContext) {
         final DirectoryValidationResult validationResult = getDirectoryValidationResult(dir);
         final String fileOrClasspath = location.isFileSystem() ? "filesystem" : "classpath";
         if (validationResult != DirectoryValidationResult.VALID) {

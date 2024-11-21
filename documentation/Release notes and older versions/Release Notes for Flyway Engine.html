@@ -9,6 +9,30 @@
 <div class="col-md-9">
 
   <div class="release">
+        <h2 id="11.0.0">Flyway 11.0.0 (2024-11-21)</h2>
+
+        <h3>Breaking changes</h3>
+        <ul>
+            <li>Stop deploying to deprecated `org.flywaydb.enterprise` group ID on the <a href="https://download.red-gate.com/maven/release/">Redgate Maven Repository</a>. Please use `com.redgate.flyway`</li>
+            <li>`cleanOnValidationError` function and configuration has been removed. An error will be thrown if this feature is configured</li>
+            <li>Flyway will no longer provide an interactive method to input database usernames and passwords. Please use other configuration or URL methods</li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>The following flyway commands are now out of preview: 'add', 'diff', 'model', 'diffText' and 'generate'</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3970">Issue 3970</a>
+                Add AWS Advanced MySQL wrapper support
+            </li>
+        </ul>
+
+        <p>
+            Thanks to seungdangdang for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
         <h2 id="10.22.0">Flyway 10.22.0 (2024-11-20)</h2>
 
         <h3>Breaking changes</h3>

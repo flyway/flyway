@@ -89,3 +89,4 @@ See [SQL Server](<Supported Databases/SQL Server Database>)
 
 - See [SQL Server](<Supported Databases/SQL Server Database>)
 - The JTDS driver does not support Azure Synapse
+- Flyway only supports the use of dedicated pools, attempting to use serverless pools will return an 'Unknown SQL Server engine edition: 11' exception.

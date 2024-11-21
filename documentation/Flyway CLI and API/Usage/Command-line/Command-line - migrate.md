@@ -53,7 +53,6 @@ flyway.target=5.1
 flyway.outOfOrder=false
 flyway.outputQueryResults=false
 flyway.validateOnMigrate=true
-flyway.cleanOnValidationError=false
 flyway.mixed=false
 flyway.group=false
 flyway.cleanDisabled=false

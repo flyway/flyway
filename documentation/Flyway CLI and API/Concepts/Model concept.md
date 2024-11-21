@@ -1,7 +1,7 @@
 ---
 subtitle: Model
 ---
-# Model - Preview
+# Model
 
 {% include enterprise.html %}
 
