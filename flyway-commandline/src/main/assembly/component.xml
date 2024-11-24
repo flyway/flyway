@@ -193,7 +193,13 @@
             <useTransitiveFiltering>true</useTransitiveFiltering>
             <includes>
                 <include>com.microsoft.azure:msal4j</include>
+                <include>com.azure:azure-identity</include>
+                <include>org.reactivestreams:reactive-streams</include>
+                <include>io.netty:*</include>
             </includes>
+            <excludes>
+                <exclude>com.microsoft.azure:msal4j-persistence-extension</exclude>
+            </excludes>
         </dependencySet>
         <dependencySet>
             <outputDirectory>lib/oracle_wallet</outputDirectory>
