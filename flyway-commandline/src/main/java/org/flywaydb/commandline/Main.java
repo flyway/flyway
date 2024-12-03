@@ -524,7 +524,6 @@ public class Main {
             LOG.info(indent + "validateOnMigrate              Validate when running migrate");
             LOG.info(indent + "validateMigrationNaming        Validate file names of SQL migrations (including callbacks)");
             LOG.info(indent + "ignoreMigrationPatterns        Patterns of migrations and states to ignore during validate");
-            LOG.info(indent + "cleanOnValidationError         [Deprecated] Automatically clean on a validation error");
             LOG.info(indent + "cleanDisabled                  Whether to disable clean");
             LOG.info(indent + "baselineVersion                Version to tag schema with when executing baseline");
             LOG.info(indent + "baselineDescription            Description to tag schema with when executing baseline");
@@ -547,7 +546,6 @@ public class Main {
         LOG.info("Flags");
         LOG.info(indent + "-X                Print debug output");
         LOG.info(indent + "-q                Suppress all output, except for errors and warnings");
-        LOG.info(indent + "-n                Suppress prompting for a user and password");
         LOG.info(indent + "--help, -h, -?    Print this usage info and exit");
         LOG.info("");
         LOG.info("Flyway Usage Example");

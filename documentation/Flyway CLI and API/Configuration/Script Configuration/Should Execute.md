@@ -16,13 +16,13 @@ This file contains the options for this migration script
 ### Configuration File
 
 ```properties
-shouldExecute=expression
+shouldExecute=<expression>
 ```
 
 Where `expression` evaluates to a boolean value
 - Either `true` or `false`
-- `A==B` or `A!=B` where `A` and `B` are themselves values and not expressions
--  Combinations of these using `&&` (AND), `||` (OR) and parentheses `( )`
+- `<A>==<B>` or `<A>!=<B>` where `<A>` and `<B>` are  [placeholders](Configuration/parameters/flyway/placeholders) or literal values.
+- Combinations of these using `&&` (AND), `||` (OR) and parentheses `( )`
 
 Flyway will change behavior for this migration depending on the expression evaluation:
 - If it evaluates to true, this migration is executed

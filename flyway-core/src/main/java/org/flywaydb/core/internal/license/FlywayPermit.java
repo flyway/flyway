@@ -96,6 +96,8 @@ public class FlywayPermit implements Serializable {
     public void print() {
         if (this.tier == null) {
             LOG.info("Flyway OSS Edition " + VersionPrinter.getVersion() + " by Redgate");
+            LOG.info("");
+            return;
         } else {
             LOG.info("Flyway " + this.tier.getDisplayName() + " Edition " + VersionPrinter.getVersion() + " by Redgate");
         }

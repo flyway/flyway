@@ -150,10 +150,6 @@ public class LicenseGuard {
 
 
 
-
-
-
-
          return OSS_PERMIT;
 
     }

@@ -154,3 +154,9 @@ The new configuration format allows separating configuration into domains (table
 You may have a parameter under the wrong table. Check the namespace it is under and move it to the correct table. Environment specific parameters are listed [here](configuration/parameters/environments).
 
 You may also be trying to configure a teams/enterprise config parameter in OSS edition. Check the [parameters](configuration/parameters) for the list of parameters that are not available in OSS edition.
+
+
+### Why am I getting "Unknown escape sequence" errors?
+
+Values in double quotes allow for escape sequences initiated with a `\` as per the [TOML definition](https://toml.io/en/v0.3.0#string).
+Alternatively, you can use single quotes for the value to be treated as a string literal, where no escaping is necessary.

@@ -295,16 +295,10 @@ public class CommandLineArguments {
         return false;
     }
 
-    public boolean shouldSuppressPrompt() {
-
+    public void warnIfSuppressPromptSet() {
         if (isFlagSet(args, SUPPRESS_PROMPT_FLAG)) {
-            if (VersionUtils.currentVersionIsHigherThanOrEquivalentTo(Version.parse("11"))) {
-                LOG.info("Interactive username/password has been removed. You can safely remove the '-n' flag from your configuration");
-            }
-            return true;
+            LOG.info("Interactive username/password has been removed. You can safely remove the '-n' flag from your configuration");
         }
-
-        return VersionUtils.currentVersionIsHigherThanOrEquivalentTo(Version.parse("11"));
     }
 
     public boolean shouldOutputJson() {

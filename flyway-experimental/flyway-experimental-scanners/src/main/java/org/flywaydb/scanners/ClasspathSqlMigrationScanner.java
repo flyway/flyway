@@ -21,18 +21,28 @@ package org.flywaydb.scanners;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.JarURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.stream.Collectors;
 import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.parser.ParsingContext;
+import org.flywaydb.core.internal.resource.ResourceName;
+import org.flywaydb.core.internal.resource.ResourceNameParser;
+import org.flywaydb.core.internal.resource.classpath.ClassPathResource;
 import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
 import org.flywaydb.core.internal.util.Pair;
 
@@ -67,18 +77,19 @@ public class ClasspathSqlMigrationScanner extends BaseSqlMigrationScanner {
             return Collections.emptyList();
         }
 
+        Collection<Pair<LoadableResource, SqlScriptMetadata>> classPathMigrations = new ArrayList<>();
         for (URL locationUrl: locationUrls) {
             LOG.debug("Scanning URL: " + locationUrl.toExternalForm());
 
             String protocol = locationUrl.getProtocol();
             if ("file".equals(protocol)) {
-                return scanFromFileSystem(new File(locationUrl.getPath()), location, configuration, parsingContext);
+                classPathMigrations.addAll(scanFromFileSystem(new File(locationUrl.getPath()), location, configuration, parsingContext));
             } else if ("jar".equals(protocol)) {
-                return scanFromJar();
+                classPathMigrations.addAll(scanFromJarFile(location, locationUrl, configuration, parsingContext));
             }
         }
 
-        return Collections.emptyList();
+        return classPathMigrations;
     }
 
     @Override
@@ -92,7 +103,78 @@ public class ClasspathSqlMigrationScanner extends BaseSqlMigrationScanner {
         return location.matchesPath(remainingPath);
     }
 
-    private Collection<Pair<LoadableResource, SqlScriptMetadata>> scanFromJar() {
-        return Collections.emptyList();
+    private Collection<Pair<LoadableResource, SqlScriptMetadata>> scanFromJarFile(final Location location, URL locationUrl, Configuration configuration, final ParsingContext parsingContext) {
+        Set<String> resourceNames = findResourceNames(location.getRootPath(), locationUrl);
+
+        return resourceNames.stream()
+            .map(resourceName -> processJarResource(location,
+                locationUrl,
+                configuration,
+                resourceName,
+                parsingContext))
+            .filter(x -> {
+                ResourceName name = new ResourceNameParser(configuration).parse(x.getLeft().getFilename());
+                return name.isValid() && !"".equals(name.getSuffix());
+            })
+            .collect(Collectors.toSet());
+    }
+
+    private Pair<LoadableResource, SqlScriptMetadata> processJarResource(final Location location,
+        final URL locationUrl,
+        final Configuration configuration,
+        final String resourceName,
+        final ParsingContext parsingContext) {
+
+        final ClassPathResource classPathResource = new ClassPathResource(location,
+            resourceName,
+            configuration.getClassLoader(),
+            configuration.getEncoding(),
+            locationUrl.getPath(),
+            configuration.isStream());
+        return Pair.of(classPathResource, null);
+    }
+
+    private Set<String> findResourceNames(final String location, final URL locationUrl) {
+        JarFile jarFile;
+        try {
+            URLConnection con = locationUrl.openConnection();
+            if (con instanceof final JarURLConnection jarCon) {
+                jarCon.setUseCaches(false);
+                jarFile = jarCon.getJarFile();
+            } else {
+                return Collections.emptySet();
+            }
+        } catch (IOException e) {
+            LOG.warn("Unable to determine jar from url (" + locationUrl + "): " + e.getMessage());
+            return Collections.emptySet();
+        }
+
+        try {
+            return findResourceNamesFromJarFile(jarFile, location);
+        } finally {
+            try {
+                jarFile.close();
+            } catch (IOException ignored) {
+            }
+        }
+    }
+
+    private Set<String> findResourceNamesFromJarFile(final JarFile jarFile, final String location) {
+        String toScan = location + (location.endsWith("/") ? "" : "/");
+        Set<String> resourceNames = new TreeSet<>();
+
+        Enumeration<JarEntry> entries = jarFile.entries();
+        while (entries.hasMoreElements()) {
+            JarEntry entry = entries.nextElement();
+            if (entry.isDirectory()) {
+                continue;
+            }
+            String entryName = entry.getName();
+            if (entryName.startsWith(toScan)) {
+                resourceNames.add(entryName);
+            }
+        }
+
+        return resourceNames;
     }
 }

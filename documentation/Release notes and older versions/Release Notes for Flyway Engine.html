@@ -9,6 +9,26 @@
 <div class="col-md-9">
 
   <div class="release">
+        <h2 id="11.0.1">Flyway 11.0.1 (2024-12-03)</h2>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3432">Issue 3432</a>
+                Increase block depth for WHILE, LOOP and REPEAT keywords in HSQLDB
+            </li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3986">Issue 3986</a>
+                Update azure-identity to 1.14.2
+            </li>
+        </ul>
+
+        <p>
+            Thanks to wangbfqq and ExtraClock for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
         <h2 id="11.0.0">Flyway 11.0.0 (2024-11-21)</h2>
 
         <h3>Breaking changes</h3>
@@ -16,10 +36,12 @@
             <li>Stop deploying to deprecated `org.flywaydb.enterprise` group ID on the <a href="https://download.red-gate.com/maven/release/">Redgate Maven Repository</a>. Please use `com.redgate.flyway`</li>
             <li>`cleanOnValidationError` function and configuration has been removed. An error will be thrown if this feature is configured</li>
             <li>Flyway will no longer provide an interactive method to input database usernames and passwords. Please use other configuration or URL methods</li>
+            <li>Environments used with the 'check' command must have a provisioner defined or the '-cleanDisabled=false' parameter must instead be specified when running the check command. Please see <a href="https://documentation.red-gate.com/flyway/learn-more-about-flyway/troubleshooting/error-running-flyway-check-clean-is-disabled">here</a> for more information.</li>
         </ul>
 
         <h3>New features</h3>
         <ul>
+            <li>The `prepare` and `deploy` flyway commands have been added, enabling a state-based deployment directly from a schema model or another database</li>
             <li>The following flyway commands are now out of preview: 'add', 'diff', 'model', 'diffText' and 'generate'</li>
             <li>
                 <a href="https://github.com/flyway/flyway/issues/3970">Issue 3970</a>
@@ -58,6 +80,10 @@
         <ul>
             <li>**Scoped Namespaces**: when configuring on the command line, you can skip namespaces if they match the verb of which you are in the scope of. For example, rather than `flyway init -init.projectName=test` you can now shortcut to `flyway init -projectName=test`.</li>
         </ul>
+  
+        <p>
+          Thanks to Mihitoko and kantselovich for reporting these issues.
+        </p>
 
     </div>
 
@@ -108,6 +134,10 @@
             <li>Drift results are now sent to Flyway Service when the service is enabled</li>
         </ul>
 
+        <p>
+          Thanks to gsmet and tdg5 for reporting these issues.
+        </p>
+
     </div>
 
 <div class="release">
@@ -133,7 +163,9 @@
         <ul>
             <li>jetty-server 9.4.53.v20231009 to 9.4.56.v20240826 to fix CVE-2024-8184</li>
         </ul>
-
+        <p>
+          Thanks to cowwoc for reporting these issues.
+        </p>
     </div>
 
 <div class="release">
@@ -760,7 +792,13 @@
         <ul>
             <li>Use instance variable of defaultProperties in DriverDataSource constructor instead of parameter variable</li>
         </ul>
-
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>Add additional connection attributes when connecting to SingleStore</li>
+        </ul>
+        <p>
+            Thanks to AdalbertMemSQL for reporting these issues.
+        </p>
     </div>
 
 <div class="release">

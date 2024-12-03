@@ -82,9 +82,7 @@ public class LegacyConfigurationManager implements ConfigurationManager {
 
         final FluentConfiguration configuration = new FluentConfiguration(classLoader).configuration(config).workingDirectory(workingDirectory);
 
-        if (!commandLineArguments.shouldSuppressPrompt()) {
-            promptForCredentialsIfMissing(config, configuration);
-        }
+        commandLineArguments.warnIfSuppressPromptSet();
 
         return configuration;
     }
@@ -131,57 +129,6 @@ public class LegacyConfigurationManager implements ConfigurationManager {
         combinedConfiguration.putAll(newConfiguration);
 
         return combinedConfiguration;
-    }
-
-    /**
-     * If no user or password has been provided, prompt for it. If you want to avoid the prompt, pass in an empty user
-     * or password.
-     *
-     * @param config The properties object to load to configuration into.
-     * @return
-     */
-    private void promptForCredentialsIfMissing(final Map<String, String> config,  final FluentConfiguration configuration) {
-        final Console console = System.console();
-        if (console == null) {
-            // We are running in an automated build. Prompting is not possible.
-            return;
-        }
-
-        if (!config.containsKey(ConfigUtils.URL)) {
-            // URL is not set. We are doomed for failure anyway.
-            return;
-        }
-
-        final String url = config.get(ConfigUtils.URL);
-
-        boolean interactivePrompted =  false;
-
-        final boolean hasUser = config.containsKey(ConfigUtils.USER);
-
-        if (!hasUser
-
-
-
-                && needsUser(url, config.getOrDefault(ConfigUtils.PASSWORD, null), configuration)) {
-            configuration.dataSource(configuration.getUrl(),console.readLine("Database user: "), configuration.getPassword());
-            interactivePrompted = true;
-        }
-
-        final boolean hasPassword = config.containsKey(ConfigUtils.PASSWORD);
-
-        if (!hasPassword
-
-
-
-                && needsPassword(url, config.get(ConfigUtils.USER), configuration)) {
-            final char[] password = console.readPassword("Database password: ");
-            configuration.dataSource(configuration.getUrl(), configuration.getUser(), password == null ? "" : String.valueOf(password));
-            interactivePrompted = true;
-        }
-
-        if (interactivePrompted) {
-            LOG.warn("Interactive prompt behavior is deprecated and will be removed in a future release - please consider alternatives like secrets management tools or environment variables");
-        }
     }
 
     /**

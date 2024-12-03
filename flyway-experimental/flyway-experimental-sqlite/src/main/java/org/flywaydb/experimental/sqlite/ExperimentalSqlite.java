@@ -71,7 +71,7 @@ public class ExperimentalSqlite implements ExperimentalDatabase {
     }
 
     @Override
-    public void initialize(final ResolvedEnvironment environment, final Configuration configuration) throws SQLException {
+    public void initialize(final ResolvedEnvironment environment, final Configuration configuration) {
         final String url = environment.getUrl() + "?allowMultiQueries=true";
         final SQLiteDataSource dataSource = new SQLiteDataSource();
         dataSource.setUrl(url);

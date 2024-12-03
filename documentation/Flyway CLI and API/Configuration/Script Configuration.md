@@ -35,7 +35,7 @@ See [`shouldExecute`](<Configuration/Script Configuration/Should Execute>) param
 
 ### Usage
 
-```shouldExecute=(${environment}==test)```
+```shouldExecute=(${flyway:environment}==test)```
 
 ## Placeholder Replacement
 

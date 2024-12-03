@@ -21,8 +21,11 @@ package org.flywaydb.core.experimental;
 
 import java.util.List;
 import java.util.Map;
+import lombok.CustomLog;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.configuration.ConfigurationValidator;
 
+@CustomLog
 public class ExperimentalModeUtils {
 
     private static final Map<String, List<String>> ACCEPTED_VERBS = Map.of("mongodb",
@@ -34,7 +37,7 @@ public class ExperimentalModeUtils {
         "SQLite",
         List.of("info", "validate", "migrate", "clean", "undo", "baseline", "repair"));
 
-    private static boolean isExperimentalModeActivated() {
+    public static boolean isExperimentalModeActivated() {
         return System.getenv("FLYWAY_EXPERIMENTAL") != null && System.getenv("FLYWAY_EXPERIMENTAL").equalsIgnoreCase("true");
     }
 
@@ -42,6 +45,13 @@ public class ExperimentalModeUtils {
         if (!isExperimentalModeActivated()) {
             return false;
         }
+
+        if (useLegacyAsDryRunSet(config)) {
+            LOG.warn("Dry run is not supported in experimental databases, falling back to legacy databases");
+            return false;
+        }
+
+        new ConfigurationValidator().validate(config);
 
         String database = getCurrentDatabase(config);
 
@@ -57,7 +67,7 @@ public class ExperimentalModeUtils {
     }
 
     public static boolean canCreateDataSource(final Configuration config) {
-        if (!isExperimentalModeActivated()) {
+        if (!isExperimentalModeActivated() || useLegacyAsDryRunSet(config)) {
             return true;
         }
 
@@ -68,6 +78,10 @@ public class ExperimentalModeUtils {
         }
 
         return !"mongodb".equals(database);
+    }
+
+    private static boolean useLegacyAsDryRunSet(final Configuration config) {
+        return config.getDryRunOutput() != null;
     }
 
     private static String getCurrentDatabase(final Configuration config) {

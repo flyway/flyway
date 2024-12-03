@@ -28,35 +28,6 @@ We can achieve this by creating script configuration files:
 
 With this, if we run `flyway migrate -defaultSchema="A"` then only `V1` will be executed, and `V2` will be ignored.
 
-### Customize execution with placeholders - injecting environments
-
-When working with databases you often have different environments such as test, development, or production. 
-In each of these environments you might want to execute different migrations, and this can be achieved by injecting the environment with a placeholder
-
-Assume we have the following migrations:
-
-```
-V1__tst_migration_1.sql
-V2__dev_migration_1.sql
-```
-
-Migration `V1` should only be executed in the `test` environment and `V2` in the `development` environment.
-
-Then we would set up the script configuration files as follows:
-
-```
-V1__tst_migration_1.sql.conf
-shouldExecute=(${environment}==test)
-
-V2__dev_migration_1.sql.conf
-shouldExecute=(${environment}==development)
-```
-
-Now, if we set the value of the `${environment}` placeholder to contain the environment we are running Flyway in, we can achieve our desired result.
-
-- Running `flyway -placeholders.environment=test migrate` will only apply `V1`. 
-- Running `flyway -placeholders.environment=development migrate` will only apply `V2`
-
 ### The benefit of setting `shouldExecute=false`
 
 Initially it may not be obvious how defining `shouldExecute` as `false` would be useful, since this just has the same effect as using [`cherryPick`](<Configuration/parameters/flyway/cherry pick>) with all the migrations you do want to execute.

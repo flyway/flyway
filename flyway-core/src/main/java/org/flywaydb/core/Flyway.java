@@ -186,7 +186,7 @@ public class Flyway {
                         List<ValidatePattern> ignorePatterns = new ArrayList<>(Arrays.asList(configuration.getIgnoreMigrationPatterns()));
                         ignorePatterns.add(ValidatePattern.fromPattern("*:pending"));
                         ValidateResult validateResult = doValidate(database, migrationResolver, schemaHistory, defaultSchema, schemas, callbackExecutor, ignorePatterns.toArray(new ValidatePattern[0]));
-                        if (!validateResult.validationSuccessful && !configuration.isCleanOnValidationError()) {
+                        if (!validateResult.validationSuccessful) {
                             throw new FlywayValidateException(validateResult.errorDetails, validateResult.getAllErrorMessages());
                         }
                     }
@@ -326,7 +326,7 @@ public class Flyway {
      */
     public void validate() throws FlywayException {
         final ValidateResult validateResult = validateWithResult();
-        if (!validateResult.validationSuccessful && !configuration.isCleanOnValidationError()) {
+        if (!validateResult.validationSuccessful) {
             throw new FlywayValidateException(validateResult.errorDetails, validateResult.getAllErrorMessages());
         }
     }
@@ -503,16 +503,8 @@ public class Flyway {
         ValidateResult validateResult = new DbValidate(database, schemaHistory, defaultSchema, migrationResolver, configuration, callbackExecutor, ignorePatterns).validate();
 
         if (configuration.isCleanOnValidationError()) {
-            if (VersionUtils.currentVersionIsHigherThanOrEquivalentTo(Version.parse("11"))) {
-                throw new FlywayException("cleanOnValidationError has been removed");
-            }
-            LOG.warn("cleanOnValidationError is deprecated and will be removed in a later release");
+            throw new FlywayException("cleanOnValidationError has been removed");
         }
-
-        if (!validateResult.validationSuccessful && configuration.isCleanOnValidationError()) {
-            doClean(database, schemaHistory, defaultSchema, schemas, callbackExecutor);
-        }
-
         return validateResult;
     }
 

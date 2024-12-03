@@ -58,7 +58,7 @@ public interface ExperimentalDatabase extends Plugin, AutoCloseable  {
      * However, an API connection may require this function to create an authentication object instead.
      * @param environment The resolved environment to connect to.
      */
-    void initialize(ResolvedEnvironment environment, Configuration configuration) throws SQLException;
+    void initialize(ResolvedEnvironment environment, Configuration configuration);
 
     void doExecute(String executionUnit, final boolean outputQueryResults);
 

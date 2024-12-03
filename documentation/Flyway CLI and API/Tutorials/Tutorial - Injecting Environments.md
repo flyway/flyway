@@ -26,15 +26,15 @@ V3__prd_migration_1.sql
 
 `V1` should only be executed in the `development` environment, `V2` in the `test` environment and `V3` in the `production` environment.
 
-Migration `V1`'s script configuration file `V1__dev_migration_1.sql.conf` will need the line `shouldExecute=${environment}==development`.<br/>
-Migration `V2`'s script configuration file `V2__tst_migration_1.sql.conf` will need the line `shouldExecute=${environment}==test`.<br/>
-Migration `V3`'s script configuration file `V3__prd_migration_1.sql.conf` will need the line `shouldExecute=${environment}==production`.
+Migration `V1`'s script configuration file `V1__dev_migration_1.sql.conf` will need the line `shouldExecute=${flyway:environment}==development`.<br/>
+Migration `V2`'s script configuration file `V2__tst_migration_1.sql.conf` will need the line `shouldExecute=${flyway:environment}==test`.<br/>
+Migration `V3`'s script configuration file `V3__prd_migration_1.sql.conf` will need the line `shouldExecute=${flyway:environment}==production`.
 
-If we set the value of the `${environment}` placeholder to contain the environment we are running Flyway in, we can achieve our desired result.
+If we set the value of the environment we are running Flyway in, we can achieve our desired result.
 
 Running:
 
-`flyway -placeholders.environment=development migrate`
+`flyway -environment=development migrate`
 
 Will only apply `V1`. Similarly, running:
 

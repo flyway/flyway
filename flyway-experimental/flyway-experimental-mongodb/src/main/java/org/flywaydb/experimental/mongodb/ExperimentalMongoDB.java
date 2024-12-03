@@ -28,7 +28,8 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Updates;
-import java.sql.SQLException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -56,13 +57,16 @@ import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.util.AsciiTable;
+import org.flywaydb.core.internal.util.FileUtils;
 
 public class ExperimentalMongoDB implements ExperimentalDatabase {
     private MongoClient mongoClient;
     private MongoDatabase mongoDatabase;
     private ArrayList<String> batch = new ArrayList<>();
+    private ConnectionType connectionType;
     
     private String schemaHistoryTableName = null;
+    private MongoshCredential mongoshCredential = null;
 
     @Override
     public DatabaseSupport supportsUrl(final String url) {
@@ -78,17 +82,31 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
     }
 
     @Override
-    public void initialize(final ResolvedEnvironment environment, final Configuration configuration) throws SQLException {
+    public void initialize(final ResolvedEnvironment environment, final Configuration configuration) {
+        if (configuration.getSqlMigrationSuffixes().length > 1) {
+            throw new FlywayException("Multiple `sqlMigrationSuffixes` currently not supported for MongoDB: "
+                + Arrays.toString(configuration.getSqlMigrationSuffixes()));
+        }
+        final String migrationSuffix = configuration.getSqlMigrationSuffixes()[0];
+        if (!".js".equals(migrationSuffix) && !".json".equals(migrationSuffix)) {
+            throw new FlywayException("`sqlMigrationSuffixes` is not configured with an accepted MongoDB suffix ('.js' or '.json'): "
+                + migrationSuffix);
+        }
+        connectionType = ".json".equals(migrationSuffix) ? ConnectionType.API : ConnectionType.EXECUTABLE;
+
+        if (connectionType == ConnectionType.EXECUTABLE) {
+            mongoshCredential = new MongoshCredential(environment.getUrl(), environment.getUser(), environment.getPassword());
+        }
+
         final ConnectionString connectionString = new ConnectionString(configuration.getUrl());
         if (connectionString.getCredential() != null) {
             mongoClient = MongoClients.create(environment.getUrl());
         } else {
-            final MongoCredential credential = MongoCredential.createScramSha256Credential(configuration.getUser(),
+            final MongoCredential credential = MongoCredential.createCredential(configuration.getUser(),
                 "admin",
                 configuration.getPassword().toCharArray());
             mongoClient = MongoClients.create(MongoClientSettings.builder()
-                .applyToClusterSettings(builder -> builder.hosts(List.of(new ServerAddress(connectionString.getHosts()
-                    .get(0)))))
+                .applyConnectionString(connectionString)
                 .credential(credential)
                 .build());
         }
@@ -98,21 +116,31 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
 
     @Override
     public void doExecute(final String executionUnit, final boolean outputQueryResults) {
-        try {
-            final Document result = mongoDatabase.runCommand(BsonDocument.parse(executionUnit));
-            if (outputQueryResults) {
-                parseResults(result);
-            }
-        } catch (Exception e) {
-            throw new FlywayException(e);
+        switch (connectionType) {
+            case API:
+                try {
+                    final Document result = mongoDatabase.runCommand(BsonDocument.parse(executionUnit));
+                    if (outputQueryResults) {
+                        parseResults(result);
+                    }
+                } catch (Exception e) {
+                    throw new FlywayException(e);
+                }
+                return;
+            case EXECUTABLE:
+                doExecuteWithMongosh(executionUnit, outputQueryResults);
+                return;
+            default:
+                throw new FlywayException("No support for this connection type");
         }
+
     }
 
     @Override
     public MetaData getDatabaseMetaData() {
         final Document buildInfo = mongoDatabase.runCommand(new Document("buildInfo", 1));
         final String version = buildInfo.getString("version");
-        return new MetaData("Mongo DB", version, ConnectionType.API, getCurrentSchema());
+        return new MetaData("Mongo DB", version, connectionType, getCurrentSchema());
     }
 
     @Override
@@ -307,6 +335,34 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
                 .toList();
             final AsciiTable queryResults = new AsciiTable(columns, processedRows, true, "", "");
             LOG.info(queryResults.render());
+        }
+    }
+
+    private void doExecuteWithMongosh(final String executionUnit, final boolean outputQueryResults) {
+        final List<String> commands = new ArrayList<>(List.of("mongosh", mongoshCredential.url()));
+        if (mongoshCredential.username() != null) {
+            commands.addAll(List.of("--username", mongoshCredential.username()));
+        }
+        if (mongoshCredential.password() != null) {
+            commands.addAll(List.of("--password", mongoshCredential.password()));
+        }
+        commands.addAll(List.of("--eval", executionUnit));
+
+        final var processBuilder = new ProcessBuilder(commands);
+        /* Required to stop system-stubs throwing Exception */
+        processBuilder.environment();
+
+        try {
+            final Process process = processBuilder.start();
+            int exitCode = process.waitFor();
+
+            if (exitCode != 0) {
+                final String stdErr = FileUtils.copyToString(new InputStreamReader(process.getErrorStream(),
+                    StandardCharsets.UTF_8)).strip();
+                throw new FlywayException(stdErr + " (ExitCode: " + exitCode + ")");
+            }
+        } catch (Exception e) {
+            throw new FlywayException(e);
         }
     }
 }

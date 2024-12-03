@@ -48,6 +48,7 @@ import org.flywaydb.core.internal.util.ValidatePatternUtils;
 import org.flywaydb.verb.VerbUtils;
 import org.flywaydb.verb.info.ExperimentalMigrationInfoService;
 import org.flywaydb.verb.migrate.migrators.ApiMigrator;
+import org.flywaydb.verb.migrate.migrators.ExecutableMigrator;
 import org.flywaydb.verb.migrate.migrators.JdbcMigrator;
 import org.flywaydb.verb.migrate.migrators.Migrator;
 import org.flywaydb.verb.schemas.SchemasVerbExtension;
@@ -138,6 +139,8 @@ public class MigrateVerbExtension implements VerbExtension {
                 experimentalDatabase.getCurrentSchema()) + " may not be reproducible.";
             LOG.warn(outOfOrderWarning);
             migrateResult.addWarning(outOfOrderWarning);
+        } else {
+            allPendingMigrations = removeOutOfOrderPendingMigrations(allPendingMigrations);
         }
 
         final ParsingContext parsingContext = new ParsingContext();
@@ -146,7 +149,7 @@ public class MigrateVerbExtension implements VerbExtension {
         final Migrator migrator = switch (experimentalDatabase.getDatabaseMetaData().connectionType()) {
             case API -> new ApiMigrator();
             case JDBC -> new JdbcMigrator();
-            case EXECUTABLE -> null;
+            case EXECUTABLE -> new ExecutableMigrator();
         };
 
         final List<MigrationExecutionGroup> executionGroups = migrator.createGroups(allPendingMigrations, configuration, experimentalDatabase, migrateResult, parsingContext);
@@ -208,6 +211,19 @@ public class MigrateVerbExtension implements VerbExtension {
         }
 
         throw new FlywayException("Schema " + schema + " contains a failed migration to version " + firstFailure.getVersion() + " !");
+    }
+
+    private MigrationInfo[] removeOutOfOrderPendingMigrations(MigrationInfo[] migrations) {
+        List<MigrationInfo> result = new ArrayList<>();
+
+        for(MigrationInfo migration: migrations) {
+            if (!migration.isVersioned() || result.isEmpty()
+                || migration.getVersion().isNewerThan(result.get(result.size() - 1).getVersion())) {
+                result.add(migration);
+            }
+        }
+
+        return result.toArray(MigrationInfo[]::new);
     }
 
     private void logSummary(final int migrationSuccessCount,
