@@ -22,14 +22,16 @@ package org.flywaydb.core.experimental;
 import java.util.List;
 import java.util.Map;
 import lombok.CustomLog;
+import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.extensibility.LicenseGuard;
+import org.flywaydb.core.extensibility.RootTelemetryModel;
 import org.flywaydb.core.internal.configuration.ConfigurationValidator;
 
 @CustomLog
 public class ExperimentalModeUtils {
 
-    private static final Map<String, List<String>> ACCEPTED_VERBS = Map.of("mongodb",
-        List.of("info", "validate", "migrate", "clean", "baseline", "repair", "undo"),
+    private static final Map<String, List<String>> EXPERIMENTAL_DATABASES = Map.of(
 
 
 
@@ -37,12 +39,18 @@ public class ExperimentalModeUtils {
         "SQLite",
         List.of("info", "validate", "migrate", "clean", "undo", "baseline", "repair"));
 
-    public static boolean isExperimentalModeActivated() {
-        return System.getenv("FLYWAY_EXPERIMENTAL") != null && System.getenv("FLYWAY_EXPERIMENTAL").equalsIgnoreCase("true");
+    private static final Map<String, List<String>> DEFAULT_DATABASES = Map.of("mongodb",
+        List.of("info", "validate", "migrate", "clean", "baseline", "repair", "undo"));
+
+    private static boolean isExperimentalModeActivated(final Configuration configuration) {
+        if ("OSS".equals(LicenseGuard.getTierAsString(configuration))) {
+            return System.getenv("FLYWAY_NATIVE_CONNECTORS") == null || System.getenv("FLYWAY_NATIVE_CONNECTORS").equalsIgnoreCase("true");
+        }
+        return System.getenv("FLYWAY_NATIVE_CONNECTORS") != null && System.getenv("FLYWAY_NATIVE_CONNECTORS").equalsIgnoreCase("true");
     }
 
-    public static boolean canUseExperimentalMode(final Configuration config,  String verb) {
-        if (!isExperimentalModeActivated()) {
+    public static boolean canUseExperimentalMode(final Configuration config,  final String verb) {
+        if (!isExperimentalModeActivated(config)) {
             return false;
         }
 
@@ -59,25 +67,41 @@ public class ExperimentalModeUtils {
             return false;
         }
 
-        if (!ACCEPTED_VERBS.containsKey(database)) {
-            return false;
+        if (DEFAULT_DATABASES.containsKey(database)) {
+            return DEFAULT_DATABASES.get(database).contains(verb);
         }
 
-        return ACCEPTED_VERBS.get(database).contains(verb);
+        if (EXPERIMENTAL_DATABASES.containsKey(database)
+        && System.getenv("FLYWAY_NATIVE_CONNECTORS") != null) {
+            return EXPERIMENTAL_DATABASES.get(database).contains(verb);
+        }
+
+        return false;
     }
 
     public static boolean canCreateDataSource(final Configuration config) {
-        if (!isExperimentalModeActivated() || useLegacyAsDryRunSet(config)) {
+        if (useLegacyAsDryRunSet(config)) {
             return true;
         }
 
         final String database = getCurrentDatabase(config);
-
-        if (database == null) {
-            return true;
+        if (isExperimentalModeActivated(config)) {
+            return !"mongodb".equals(database);
         }
 
-        return !"mongodb".equals(database);
+        return true;
+    }
+
+    public static void logExperimentalDataTelemetry(final FlywayTelemetryManager flywayTelemetryManager, final MetaData metaData) {
+        if (flywayTelemetryManager != null) {
+            RootTelemetryModel rootTelemetryModel = flywayTelemetryManager.getRootTelemetryModel();
+            if (rootTelemetryModel != null) {
+                rootTelemetryModel.setDatabaseEngine(metaData.databaseProductName());
+                rootTelemetryModel.setDatabaseVersion(metaData.databaseProductVersion());
+                rootTelemetryModel.setConnectionType(metaData.connectionType().name());
+                rootTelemetryModel.setExperimentalMode(true);
+            }
+        }
     }
 
     private static boolean useLegacyAsDryRunSet(final Configuration config) {
@@ -85,7 +109,11 @@ public class ExperimentalModeUtils {
     }
 
     private static String getCurrentDatabase(final Configuration config) {
-        if (config.getUrl().startsWith("mongodb")) {
+        if (config.getUrl() == null) {
+            return null;
+        }
+
+        if (config.getUrl().startsWith("mongodb") || config.getUrl().startsWith("jdbc:mongodb")) {
             return "mongodb";
         }
 

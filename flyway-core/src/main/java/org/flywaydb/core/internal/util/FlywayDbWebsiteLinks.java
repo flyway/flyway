@@ -73,4 +73,6 @@ public class FlywayDbWebsiteLinks {
 
     public static final String OFFLINE_LICENSE_PERMITS = "https://rd.gt/3UHAJwO";
     public static final String V10_BLOG = "https://rd.gt/4hA3C7Y";
+    public static final String MONGOSH = "https://rd.gt/3VudXc6";
+    public static final String OSS_DOCKER_REPOSITORY = "https://rd.gt/3OSaoZA";
 }

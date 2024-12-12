@@ -19,9 +19,12 @@
  */
 package org.flywaydb.verb.clean;
 
+import static org.flywaydb.core.experimental.ExperimentalModeUtils.logExperimentalDataTelemetry;
+
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.CleanResult;
@@ -37,7 +40,7 @@ public class CleanVerbExtension implements VerbExtension {
     }
 
     @Override
-    public Object executeVerb(final Configuration configuration) {
+    public Object executeVerb(final Configuration configuration, FlywayTelemetryManager flywayTelemetryManager) {
         if (configuration.isCleanDisabled()) {
             throw new FlywayException("Unable to execute clean as it has been disabled with the 'flyway.cleanDisabled' property.");
         }
@@ -50,6 +53,8 @@ public class CleanVerbExtension implements VerbExtension {
         } catch (final Exception e) {
             throw new FlywayException(e);
         }
+
+        logExperimentalDataTelemetry(flywayTelemetryManager, experimentalDatabase.getDatabaseMetaData());
 
         final List<String> schemas = new LinkedList<>(Arrays.asList(configuration.getSchemas()));
         final String defaultSchema = experimentalDatabase.getDefaultSchema(configuration);

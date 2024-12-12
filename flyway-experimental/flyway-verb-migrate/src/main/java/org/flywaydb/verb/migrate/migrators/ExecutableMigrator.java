@@ -62,6 +62,12 @@ public class ExecutableMigrator extends Migrator{
         final ParsingContext parsingContext,
         final int installedRank) {
 
+        final boolean executeInTransaction = configuration.isExecuteInTransaction()
+            && executionGroup.shouldExecuteInTransaction();
+        if (executeInTransaction) {
+            experimentalDatabase.startTransaction();
+        }
+
         doIndividualMigration(executionGroup.migrations().get(0), experimentalDatabase, configuration, migrateResult, installedRank);
 
         return installedRank + 1;

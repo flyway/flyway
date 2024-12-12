@@ -73,7 +73,7 @@ public class ClasspathSqlMigrationScanner extends BaseSqlMigrationScanner {
                 throw new FlywayException("Failed to find classpath location: " + location.getRootPath());
             }
 
-            LOG.error("Skipping classpath location: " + location.getRootPath());
+            LOG.debug("Skipping classpath location: " + location.getRootPath());
             return Collections.emptyList();
         }
 

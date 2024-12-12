@@ -9,6 +9,37 @@
 <div class="col-md-9">
 
   <div class="release">
+        <h2 id="11.1.0">Flyway 11.1.0 (2024-12-12)</h2>
+
+        <h3>Breaking changes</h3>
+        <ul>
+            <li>Upgraded to .NET 9. Existing workflows that do not depend on .NET should not need to change</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Improve error output of un-parsable TOML configuration to display line and point of failure</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3438">Issue 3438</a>
+                Snowflake will only drop `USER PROCEDURES` instead of all `PROCEDURES`
+            </li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3601">Issue 3601</a>
+                Snowflake will now drop stages when running clean
+            </li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>Native connectors for MongoDB released and enabled in OSS edition - <a href="https://documentation.red-gate.com/fd/flyway-native-connectors-mongodb-271583122.html">Native connectors blog post</a></li>
+        </ul>
+
+        <p>
+            Thanks to iapethus and vgw-chriskruger for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
         <h2 id="11.0.1">Flyway 11.0.1 (2024-12-03)</h2>
 
         <h3>Changes</h3>

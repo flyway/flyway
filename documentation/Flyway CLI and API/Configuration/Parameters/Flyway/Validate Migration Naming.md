@@ -11,6 +11,8 @@ Whether to ignore migration files whose names do not match the naming convention
 
 If `false`, files with invalid names are ignored and Flyway continues normally. If `true`, Flyway fails fast and lists the offending files.
 
+_Note: This parameter is [not respected by Native Connectors](https://documentation.red-gate.com/display/FD/Flyway+Native+Connectors+-+MongoDB), and is always treated as false._
+
 ## Default
 false
 

@@ -163,16 +163,17 @@ public class Flyway {
      */
     @SneakyThrows
     public MigrateResult migrate() throws FlywayException {
-        if (canUseExperimentalMode(configuration, "migrate")) {
-            logPreviewFeature("ExperimentalMigrate");
-            final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("migrate")).findFirst();
-            if (verb.isPresent()) {
-                return (MigrateResult) verb.get().executeVerb(configuration);
-            } else {
-                LOG.warn("Experimental mode for migrate is set but no verb is present");
-            }
-        }
         try (EventTelemetryModel telemetryModel = new EventTelemetryModel("migrate", flywayTelemetryManager)) {
+            if (canUseExperimentalMode(configuration, "migrate")) {
+                logPreviewFeature("ExperimentalMigrate");
+                final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("migrate")).findFirst();
+                if (verb.isPresent()) {
+                    return (MigrateResult) verb.get().executeVerb(configuration, flywayTelemetryManager);
+                } else {
+                    LOG.warn("Experimental mode for migrate is set but no verb is present");
+                }
+            }
+
             try {
                 return flywayExecutor.execute((migrationResolver, schemaHistory, database, defaultSchema, schemas, callbackExecutor, statementInterceptor) -> {
 
@@ -255,7 +256,7 @@ public class Flyway {
             logPreviewFeature("ExperimentalInfo");
             final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("info")).findFirst();
             if (verb.isPresent()) {
-                return (MigrationInfoService) verb.get().executeVerb(configuration);
+                return (MigrationInfoService) verb.get().executeVerb(configuration, flywayTelemetryManager);
             } else {
                 LOG.warn("Experimental mode for info is set but no verb is present");
             }
@@ -280,16 +281,17 @@ public class Flyway {
      */
     @SneakyThrows
     public CleanResult clean() {
-        if (canUseExperimentalMode(configuration, "clean")) {
-            logPreviewFeature("ExperimentalClean");
-            final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("clean")).findFirst();
-            if (verb.isPresent()) {
-                return (CleanResult) verb.get().executeVerb(configuration);
-            } else {
-                LOG.warn("Experimental mode for clean is set but no verb is present");
-            }
-        }
         try (EventTelemetryModel telemetryModel = new EventTelemetryModel("clean", flywayTelemetryManager)) {
+            if (canUseExperimentalMode(configuration, "clean")) {
+                logPreviewFeature("ExperimentalClean");
+                final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("clean")).findFirst();
+                if (verb.isPresent()) {
+                    return (CleanResult) verb.get().executeVerb(configuration, flywayTelemetryManager);
+                } else {
+                    LOG.warn("Experimental mode for clean is set but no verb is present");
+                }
+            }
+
             try {
                 return flywayExecutor.execute((migrationResolver, schemaHistory, database, defaultSchema, schemas, callbackExecutor, statementInterceptor) -> {
                     CleanResult cleanResult = doClean(database, schemaHistory, defaultSchema, schemas, callbackExecutor);
@@ -348,12 +350,11 @@ public class Flyway {
      * @throws FlywayException when something went wrong during validation.
      */
     public ValidateResult validateWithResult() throws FlywayException {
-
         if (canUseExperimentalMode(configuration, "validate")) {
             logPreviewFeature("ExperimentalValidate");
             final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("validate")).findFirst();
             if (verb.isPresent()) {
-                return (ValidateResult) verb.get().executeVerb(configuration);
+                return (ValidateResult) verb.get().executeVerb(configuration, flywayTelemetryManager);
             } else {
                 LOG.warn("Experimental mode for validate is set but no verb is present");
             }
@@ -378,16 +379,17 @@ public class Flyway {
      */
     @SneakyThrows
     public BaselineResult baseline() throws FlywayException {
-        if (canUseExperimentalMode(configuration, "baseline")) {
-            logPreviewFeature("ExperimentalBaseline");
-            final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("baseline")).findFirst();
-            if (verb.isPresent()) {
-                return (BaselineResult) verb.get().executeVerb(configuration);
-            } else {
-                LOG.warn("Experimental mode for baseline is set but no verb is present");
-            }
-        }
         try (EventTelemetryModel telemetryModel = new EventTelemetryModel("baseline", flywayTelemetryManager)) {
+            if (canUseExperimentalMode(configuration, "baseline")) {
+                logPreviewFeature("ExperimentalBaseline");
+                final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("baseline")).findFirst();
+                if (verb.isPresent()) {
+                    return (BaselineResult) verb.get().executeVerb(configuration, flywayTelemetryManager);
+                } else {
+                    LOG.warn("Experimental mode for baseline is set but no verb is present");
+                }
+            }
+
             try {
                 return flywayExecutor.execute((migrationResolver, schemaHistory, database, defaultSchema, schemas, callbackExecutor, statementInterceptor) -> {
                     if (configuration.isCreateSchemas()) {
@@ -430,16 +432,17 @@ public class Flyway {
      */
     @SneakyThrows
     public RepairResult repair() throws FlywayException {
-        if (canUseExperimentalMode(configuration, "repair")) {
-            logPreviewFeature("ExperimentalRepair");
-            final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("repair")).findFirst();
-            if (verb.isPresent()) {
-                return (RepairResult) verb.get().executeVerb(configuration);
-            } else {
-                LOG.warn("Experimental mode for repair is set but no verb is present");
-            }
-        }
         try (EventTelemetryModel telemetryModel = new EventTelemetryModel("repair", flywayTelemetryManager)) {
+            if (canUseExperimentalMode(configuration, "repair")) {
+                logPreviewFeature("ExperimentalRepair");
+                final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("repair")).findFirst();
+                if (verb.isPresent()) {
+                    return (RepairResult) verb.get().executeVerb(configuration, flywayTelemetryManager);
+                } else {
+                    LOG.warn("Experimental mode for repair is set but no verb is present");
+                }
+            }
+
             try {
                 return flywayExecutor.execute((migrationResolver, schemaHistory, database, defaultSchema, schemas, callbackExecutor, statementInterceptor) -> {
                     RepairResult repairResult = new DbRepair(database, migrationResolver, schemaHistory, callbackExecutor, configuration).repair();
@@ -471,27 +474,29 @@ public class Flyway {
      * @throws FlywayException when undo failed.
      */
     public OperationResult undo() throws FlywayException {
-        if (canUseExperimentalMode(configuration, "undo")) {
-            logPreviewFeature("ExperimentalUndo");
-            final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("undo")).findFirst();
-            if (verb.isPresent()) {
-                return (OperationResult) verb.get().executeVerb(configuration);
-            } else {
-                LOG.warn("Experimental mode for undo is set but no verb is present");
+        try (EventTelemetryModel telemetryModel = new EventTelemetryModel("undo", flywayTelemetryManager)) {
+            if (canUseExperimentalMode(configuration, "undo")) {
+                logPreviewFeature("ExperimentalUndo");
+                final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("undo")).findFirst();
+                if (verb.isPresent()) {
+                    return (OperationResult) verb.get().executeVerb(configuration, flywayTelemetryManager);
+                } else {
+                    LOG.warn("Experimental mode for undo is set but no verb is present");
+                }
             }
-        }
-        try {
-            return runCommand("undo", Collections.emptyList());
-        } catch (FlywayException e) {
-            if (e.getMessage().startsWith("No command extension found")) {
-                throw new FlywayException("The command 'undo' was not recognized. Make sure you have added 'flyway-proprietary' as a dependency.", e);
+            try {
+                return runCommand("undo", Collections.emptyList());
+            } catch (FlywayException e) {
+                if (e.getMessage().startsWith("No command extension found")) {
+                    throw new FlywayException("The command 'undo' was not recognized. Make sure you have added 'flyway-proprietary' as a dependency.", e);
+                }
+                throw e;
             }
-            throw e;
         }
     }
 
     private OperationResult runCommand(String command, List<String> flags) {
-        return CommandExtensionUtils.runCommandExtension(configuration, command, flags, null);
+        return CommandExtensionUtils.runCommandExtension(configuration, command, flags, flywayTelemetryManager);
     }
 
     private CleanResult doClean(Database database, SchemaHistory schemaHistory, Schema defaultSchema, Schema[] schemas, CallbackExecutor callbackExecutor) {

@@ -19,8 +19,11 @@
  */
 package org.flywaydb.verb.info;
 
+import static org.flywaydb.core.experimental.ExperimentalModeUtils.logExperimentalDataTelemetry;
+
 import java.sql.SQLException;
 import lombok.CustomLog;
+import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -35,12 +38,12 @@ public class InfoVerbExtension implements VerbExtension {
     }
 
     @Override
-    public Object executeVerb(final Configuration configuration) {
-        LOG.debug("InfoVerbExtension.executeVerb");
-
+    public Object executeVerb(final Configuration configuration, FlywayTelemetryManager flywayTelemetryManager) {
         try {
             final var experimentalDatabase = VerbUtils.getExperimentalDatabase(configuration);
             final var schemaHistoryModel = VerbUtils.getSchemaHistoryModel(configuration, experimentalDatabase);
+
+            logExperimentalDataTelemetry(flywayTelemetryManager, experimentalDatabase.getDatabaseMetaData());
 
             final MigrationInfo[] migrations = VerbUtils.getMigrationInfos(configuration,
                 experimentalDatabase,

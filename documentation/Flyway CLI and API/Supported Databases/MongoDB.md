@@ -12,16 +12,32 @@ subtitle: MongoDB
 
 {% include database-boilerplate.html %}
 
+## Native Connectors
+
+If you are on the OSS edition, you will have Native Connectors on by default. Otherwise, you may have switched it on.
+
+If you have, you should consult the [MongoDB - Native Connectors](/supported-databases/mongodb/mongodb---native-connectors) documentation instead of this page.
+
 ## Driver
 
 | Item                               | Details                                                                                                                                 |
-|------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
 | **URL format**                     | <code>jdbc:mongodb://<i>ip address:port number/database_name</i></code> <code>jdbc:mongodb+srv://<i>ip address/database_name</i></code> |
 | **SSL support**                    | No                                                                                                                                      |
 | **Ships with Flyway Command-line** | Yes (Redgate Distribution only while in preview)                                                                                        |
 | **Maven Central coordinates**      | n/a                                                                                                                                     |
 | **Supported versions**             | `7` and later (including Mongo Atlas)                                                                                                   |
 | **Default Java class**             | `com.dbschema.MongoJdbcDriver`                                                                                                          |
+
+## Terminology
+We have to map Flyway concepts and language rooted in the relational database world to MongoDB - this is how Flyway sees the mapping:
+  
+| MongoDB Concept | Flyway Concept  |
+| --------------- | --------------- |
+| database        | database/schema |
+| collection      | table           |
+| row             | document        |
+| transaction     | transaction     |
 
 ## Using Flyway with MongoDB
 

@@ -10,6 +10,8 @@ Flyway comes with support for placeholder replacement in:
 - [SQL migrations](Configuration/Placeholders Configuration#sql-migration-placeholders)
 - [Script migrations](Configuration/Placeholders Configuration#script-migration-placeholders)
 
+Flyway does [not currently support placeholder replacement](https://documentation.red-gate.com/display/FD/Flyway+Native+Connectors+-+MongoDB) in conjunction with Native Connectors.
+
 # SQL Migration Placeholders
 In addition to regular SQL syntax, Flyway also supports placeholder replacement with configurable prefixes and suffixes.
 By default it looks for Ant-style placeholders like `${myplaceholder}`. This can be very useful to abstract differences

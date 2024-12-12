@@ -21,10 +21,10 @@ if "%JAVA_ARGS%"=="" (
   set JAVA_ARGS=
 )
 
-if "%FLYWAY_EXPERIMENTAL%"=="true" (
-  %JAVA_CMD% -Djava.library.path="%INSTALLDIR%\native" %JAVA_ARGS% -cp "%CLASSPATH%;%INSTALLDIR%\lib\*;%INSTALLDIR%\lib\plugins\*;%INSTALLDIR%\lib\aad\*;%INSTALLDIR%\lib\oracle_wallet\*;%INSTALLDIR%\lib\flyway\*;%INSTALLDIR%\lib\netty\*;%INSTALLDIR%\drivers\*;%INSTALLDIR%\drivers\gcp\*;%INSTALLDIR%\drivers\cassandra\*;%INSTALLDIR%\drivers\mongo\*" org.flywaydb.commandline.Main %*
-) else (
+if "%FLYWAY_NATIVE_CONNECTORS%"=="false" (
   %JAVA_CMD% -Djava.library.path="%INSTALLDIR%\native" %JAVA_ARGS% -cp "%CLASSPATH%;%INSTALLDIR%\lib\*;%INSTALLDIR%\lib\plugins\*;%INSTALLDIR%\lib\aad\*;%INSTALLDIR%\lib\oracle_wallet\*;%INSTALLDIR%\lib\flyway\*;%INSTALLDIR%\lib\netty\*;%INSTALLDIR%\drivers\*;%INSTALLDIR%\drivers\gcp\*;%INSTALLDIR%\drivers\cassandra\*" org.flywaydb.commandline.Main %*
+ ) else (
+  %JAVA_CMD% -Djava.library.path="%INSTALLDIR%\native" %JAVA_ARGS% -cp "%CLASSPATH%;%INSTALLDIR%\lib\*;%INSTALLDIR%\lib\plugins\*;%INSTALLDIR%\lib\aad\*;%INSTALLDIR%\lib\oracle_wallet\*;%INSTALLDIR%\lib\flyway\*;%INSTALLDIR%\lib\netty\*;%INSTALLDIR%\drivers\*;%INSTALLDIR%\drivers\gcp\*;%INSTALLDIR%\drivers\cassandra\*;%INSTALLDIR%\drivers\mongo\*" org.flywaydb.commandline.Main %*
 )
 
 @REM Exit using the same code returned from Java

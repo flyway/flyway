@@ -255,9 +255,14 @@ public class ExperimentalSqlite implements ExperimentalDatabase {
     @Override
     public boolean isSchemaEmpty(final String schema) {
         try (final Statement statement = connection.createStatement()) {
-            final ResultSet resultSet = statement.executeQuery("SELECT COUNT(*) FROM sqlite_master");
-            resultSet.next();
-            return resultSet.getInt(1) == 0;
+            final ResultSet resultSet = statement.executeQuery("SELECT tbl_name FROM sqlite_master WHERE type='table'");
+            final List<String> result = new ArrayList<>();
+            while (resultSet.next()) {
+                result.add(resultSet.getString(1));
+            }
+            final List<String> ignoredSystemTableNames = List.of("android_metadata", "sqlite_sequence");
+
+            return ignoredSystemTableNames.containsAll(result);
         } catch (final SQLException e) {
             throw new FlywayException(e);
         }

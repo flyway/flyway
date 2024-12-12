@@ -44,6 +44,9 @@ public class RootTelemetryModel {
     private String containerType;
     private String secretsManagementType;
     private String databaseHosting;
+    private boolean isExperimentalMode;
+    private String connectionType;
+    private String customParameters;
 
     private Instant startTime = Instant.now();
 }

@@ -55,7 +55,13 @@ public abstract class BaseSqlMigrationScanner implements ExperimentalMigrationSc
                                               + ")");
             }
 
-            LOG.error("Skipping " + fileOrClasspath + " location: " + location.getRootPath() + " (" + validationResult + ")");
+            String message = "Skipping " + fileOrClasspath + " location: " + location.getRootPath() + " (" + validationResult + ")";
+            if (location.isFileSystem()) {
+                LOG.error(message);
+            } else {
+                LOG.debug(message);
+            }
+
             return Collections.emptyList();
         }
 
@@ -63,7 +69,7 @@ public abstract class BaseSqlMigrationScanner implements ExperimentalMigrationSc
                                                                           dir,
                                                                           configuration.isFailOnMissingLocations(),
                                                                           new ResourceNameParser(configuration),
-                                                                          fileOrClasspath);
+                                                                          location.isFileSystem());
         return resourceNames.stream()
             .filter(path -> matchesPath(path, location))
             .map(resourceName -> processResource(
@@ -138,12 +144,12 @@ public abstract class BaseSqlMigrationScanner implements ExperimentalMigrationSc
                                                         final File folder,
                                                         final boolean throwOnMissingLocations,
                                                         final ResourceNameParser resourceNameParser,
-                                                        final String fileOrClasspath) {
+                                                        final boolean isFileSystem) {
         final String path = folder.getPath();
         LOG.debug("Scanning for resources in path: " + folder.getPath() + " (" + scanRootLocation + ")");
 
         final Set<String> resourceNames = new TreeSet<>();
-
+        final String fileOrClasspath = isFileSystem ? "filesystem" : "classpath";
         final File[] files = folder.listFiles();
 
         if (files == null) {
@@ -155,11 +161,15 @@ public abstract class BaseSqlMigrationScanner implements ExperimentalMigrationSc
                                               + ")");
             }
 
-            LOG.error("Skipping " + fileOrClasspath + " location: "
-                          + path
-                          + " ("
-                          + DirectoryValidationResult.UNABLE_TO_ACCESS_FOLDER
-                          + ")");
+            String message = "Skipping " + fileOrClasspath + " location: " + path + " ("
+                + DirectoryValidationResult.UNABLE_TO_ACCESS_FOLDER + ")";
+
+            if (isFileSystem) {
+                LOG.error(message);
+            } else {
+                LOG.debug(message);
+            }
+
             return Collections.emptySet();
         }
 
@@ -177,7 +187,7 @@ public abstract class BaseSqlMigrationScanner implements ExperimentalMigrationSc
                 resourceNames.addAll(findResourceNamesFromFileSystem(scanRootLocation,
                                                                      file,
                                                                      throwOnMissingLocations,
-                                                                     resourceNameParser, fileOrClasspath));
+                                                                     resourceNameParser, isFileSystem));
             }
         });
 

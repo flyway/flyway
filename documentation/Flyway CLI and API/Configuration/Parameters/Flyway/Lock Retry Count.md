@@ -11,6 +11,8 @@ At the start of a migration, Flyway will attempt to take a lock to prevent compe
 If this lock cannot be obtained straight away, Flyway will retry at 1s intervals, until this count is reached, at which
 point it will abandon the migration. A value of -1 indicates that Flyway should keep retrying indefinitely.
 
+_Note: Locking is [not currently implemented in Native Connectors](https://documentation.red-gate.com/display/FD/Flyway+Native+Connectors+-+MongoDB)._
+
 ## Default
 <i>Retry 50 times then fail</i>
 

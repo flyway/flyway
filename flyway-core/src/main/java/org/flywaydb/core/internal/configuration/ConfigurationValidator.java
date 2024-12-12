@@ -38,7 +38,7 @@ public class ConfigurationValidator {
                                       CoreErrorCode.CONFIGURATION);
         }
 
-        if (ExperimentalModeUtils.isExperimentalModeActivated()
+        if (!ExperimentalModeUtils.canCreateDataSource(configuration)
           && !StringUtils.hasText(configuration.getUrl())) {
             String errorMessage = "Unable to connect to the database. A URL must be configured to use Experimental Mode!";
             throw new FlywayException(errorMessage, CoreErrorCode.CONFIGURATION);

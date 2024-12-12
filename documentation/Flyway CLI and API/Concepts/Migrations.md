@@ -254,6 +254,8 @@ These would typically be things like
 - BLOB &amp; CLOB changes
 - Advanced bulk data changes (Recalculations, advanced format changes, ...)
 
+_Note: Java-based migrations are [not currently supported by Native Connectors](https://documentation.red-gate.com/display/FD/Flyway+Native+Connectors+-+MongoDB)._ 
+
 ### Naming
 
 In order to be picked up by Flyway, Java-based Migrations must implement the
@@ -381,6 +383,8 @@ public class V1_2__Another_user extends BaseJavaMigration {
 ## Script migrations
 
 Sometimes it may be more desirable to use a scripting language for migrations. Flyway currently supports the `.ps1`, `.bat`, `.cmd`, `.sh`, `.bash`, `.py` file extensions as migrations, and on non-windows platforms it also supports migrations without extensions (assuming a valid [shebang](https://en.wikipedia.org/wiki/Shebang_(Unix))).
+
+_Note: Script migrations are [not currently supported by Native Connectors](https://documentation.red-gate.com/display/FD/Flyway+Native+Connectors+-+MongoDB)._
 
 These migrations follow the same [naming scheme](Concepts/migrations#naming) as SQL migrations, with only the file extension being different. For example `V1__execute_batch_tool.ps1` is a valid migration.
 

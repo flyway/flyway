@@ -50,6 +50,9 @@ public class VersionOrderMigrationComparator implements ExperimentalMigrationCom
                 || o2.getState() == MigrationState.BASELINE_IGNORED
                 || o2.getState() == MigrationState.BASELINE;
             if(o1BaselineOrdering && o2BaselineOrdering) {
+                if (o1.getState() == o2.getState()) {
+                    return o1.getVersion().compareTo(o2.getVersion());
+                }
                 return o1.getState().compareTo(o2.getState());
             }
 

@@ -19,10 +19,10 @@
  */
 package org.flywaydb.commandline.utils;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.experimental.ExtensionMethod;
@@ -31,9 +31,11 @@ import org.flywaydb.core.api.output.InfoOutput;
 import org.flywaydb.core.extensibility.RootTelemetryModel;
 import org.flywaydb.core.extensibility.Tier;
 import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
+import org.flywaydb.core.internal.configuration.models.FlywayModel;
 import org.flywaydb.core.internal.license.EncryptionUtils;
 import org.flywaydb.core.internal.license.FlywayPermit;
 import org.flywaydb.core.internal.license.VersionPrinter;
+import org.flywaydb.core.internal.util.DockerUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.util.ArrayList;
@@ -49,13 +51,6 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @ExtensionMethod(Tier.class)
 public class TelemetryUtils {
-
-    private static final String NON_REDGATE_DOCKER = "Non-Redgate Docker";
-    private static final String NON_REDGATE_CONTAINER = "Non-Redgate Container";
-    private static final String UNKNOWN = "Unknown";
-    private static final String NOT_CONTAINER = "Not container";
-    private static final String REDGATE_DOCKER = "Redgate Docker";
-
     public static RootTelemetryModel populateRootTelemetry(RootTelemetryModel rootTelemetryModel, Configuration configuration, FlywayPermit flywayPermit) {
 
         rootTelemetryModel.setApplicationVersion(VersionPrinter.getVersion());
@@ -77,61 +72,52 @@ public class TelemetryUtils {
                 if (StringUtils.hasText(modernConfig.getId())) {
                     rootTelemetryModel.setProjectId(EncryptionUtils.hashString(modernConfig.getId(), "fur"));
                 }
-                boolean resolversPresent = !(modernConfig.getFlyway().getMigrationResolvers() == null || modernConfig.getFlyway().getMigrationResolvers().isEmpty());
-                rootTelemetryModel.setCustomMigrationResolver(resolversPresent);
-
             }
+
+            boolean resolversPresent = configuration.getResolvers().length != 0;
+            rootTelemetryModel.setCustomMigrationResolver(resolversPresent);
 
             rootTelemetryModel.setSecretsManagementType(getSecretsManagementType(configuration));
+
+            final Map<String, Boolean> customParameters = new HashMap<>();
+            FlywayModel defaults = FlywayModel.defaults();
+            customParameters.put("validateOnMigrate", configuration.isValidateOnMigrate() != defaults.getValidateOnMigrate());
+            customParameters.put("validateMigrationNaming", configuration.isValidateMigrationNaming() != defaults.getValidateMigrationNaming());
+            customParameters.put("target", !Objects.equals(configuration.getTarget().getName(),
+                defaults.getTarget()));
+            customParameters.put("stream", configuration.isStream() != defaults.getStream());
+            customParameters.put("reportEnabled", configuration.isReportEnabled() != defaults.getReportEnabled());
+            customParameters.put("lockRetryCount", configuration.getLockRetryCount() != defaults.getLockRetryCount());
+            customParameters.put("failOnMissingLocations", configuration.isFailOnMissingLocations() != defaults.getFailOnMissingLocations());
+            customParameters.put("outputQueryResults", configuration.isOutputQueryResults() != defaults.getOutputQueryResults());
+            customParameters.put("batch", configuration.isBatch() != defaults.getBatch());
+            customParameters.put("createSchemas", configuration.isCreateSchemas() != defaults.getCreateSchemas());
+            customParameters.put("baselineOnMigrate", configuration.isBaselineOnMigrate() != defaults.getBaselineOnMigrate());
+            customParameters.put("group", configuration.isGroup() != defaults.getGroup());
+            customParameters.put("mixed", configuration.isMixed() != defaults.getMixed());
+            customParameters.put("outOfOrder", configuration.isOutOfOrder() != defaults.getOutOfOrder());
+            customParameters.put("communityDBSupportEnabled", configuration.isCommunityDBSupportEnabled() != defaults.getCommunityDBSupportEnabled());
+            customParameters.put("skipDefaultResolvers", configuration.isSkipDefaultResolvers() != defaults.getSkipDefaultResolvers());
+            customParameters.put("skipDefaultCallbacks", configuration.isSkipDefaultCallbacks() != defaults.getSkipDefaultCallbacks());
+            customParameters.put("skipExecutingMigrations", configuration.isSkipExecutingMigrations() != defaults.getSkipExecutingMigrations());
+            customParameters.put("executeInTransaction", configuration.isExecuteInTransaction() != defaults.getExecuteInTransaction());
+            customParameters.put("encoding", !Objects.equals(configuration.getEncoding().name(), defaults.getEncoding()));
+            customParameters.put("detectEncoding", configuration.isDetectEncoding() != defaults.getDetectEncoding());
+            customParameters.put("table", !Objects.equals(configuration.getTable(), defaults.getTable()));
+
+            List<String> parameterNames = new ArrayList<>();
+            customParameters.forEach((paramName, isSet) -> {
+                if (isSet) {
+                    parameterNames.add(paramName);
+                }
+            });
+            rootTelemetryModel.setCustomParameters(String.join(",", parameterNames));
+
         }
         
-        rootTelemetryModel.setContainerType(getContainerType(Paths::get));
+        rootTelemetryModel.setContainerType(DockerUtils.getContainerType(Paths::get));
 
         return rootTelemetryModel;
-    }
-    
-    public static String getContainerType(java.util.function.Function<String, Path> getPath){
-        final var redgateDocker = System.getenv("REDGATE_DOCKER");
-        if("true".equals(redgateDocker)) {
-            return REDGATE_DOCKER;
-        }
-        
-        final var osName = System.getProperty("os.name", "generic");
-        if(osName.startsWith("Windows")) {
-            return NOT_CONTAINER;
-        }
-
-        // https://www.baeldung.com/linux/is-process-running-inside-container
-        final var cgroupPath = getPath.apply("/proc/1/cgroup");
-        if(Files.exists(cgroupPath)) {
-            try (final var lines = Files.lines(cgroupPath)) {
-                final var groups = lines.map(x -> x.split(":")[2]).toList();
-                if (groups.stream().anyMatch(line -> line.startsWith("/docker"))) {
-                    return NON_REDGATE_DOCKER;
-                }
-                if (groups.stream().anyMatch(line -> line.startsWith("/lxc"))) {
-                    return NON_REDGATE_CONTAINER;
-                }
-            } catch (IOException e) {
-                return UNKNOWN;
-            }
-        }
-
-        final var schedPath = getPath.apply("/proc/1/sched");
-        if(Files.exists(schedPath)) {
-            try (final var lines = Files.lines(schedPath)){
-                final var firstLine = lines.findFirst();
-                if (firstLine.isPresent()) {
-                    if (firstLine.get().contains("init") || firstLine.get().contains("system")) {
-                        return NOT_CONTAINER;
-                    }
-                }
-            } catch (IOException e) {
-                return UNKNOWN;
-            }
-        }
-
-        return UNKNOWN;
     }
 
     /**

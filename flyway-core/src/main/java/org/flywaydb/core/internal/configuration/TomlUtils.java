@@ -23,11 +23,13 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.dataformat.toml.TomlStreamReadException;
 import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
 import org.flywaydb.core.internal.configuration.models.EnvironmentModel;
+import org.flywaydb.core.internal.util.FileUtils;
 import org.flywaydb.core.internal.util.ObjectMapperFactory;
 import org.flywaydb.core.internal.util.Pair;
 
@@ -126,15 +128,29 @@ public class TomlUtils {
                     .reduce(defaultConfig, ConfigurationModel::merge);
     }
 
-    static ConfigurationModel loadConfigurationFile(File configFile) {
+    static ConfigurationModel loadConfigurationFile(final File configFile) {
         try {
-            ConfigurationModel tomlConfig = ObjectMapperFactory.getObjectMapper(configFile.toString())
+            final ConfigurationModel tomlConfig = ObjectMapperFactory.getObjectMapper(configFile.toString())
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .readerFor(ConfigurationModel.class)
                 .readValue(configFile);
             ConfigUtils.dumpConfigurationModel(tomlConfig, "Loading config file: " + configFile.getAbsolutePath());
             return tomlConfig;
-        } catch (IOException e) {
+        } catch (final TomlStreamReadException tomlread) {
+            final String line = FileUtils.readLine(configFile, tomlread.getLocation().getLineNr());
+            final StringBuilder highlight = new StringBuilder(line);
+            highlight.insert(tomlread.getLocation().getColumnNr() - 1, "^");
+            final String message = "Error parsing config file at [line "
+                + tomlread.getLocation().getLineNr()
+                + ", column "
+                + tomlread.getLocation().getColumnNr()
+                + "], syntax error shown by ^: "
+                + highlight
+                + "\n\tin "
+                + configFile.getAbsolutePath();
+            //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
+            throw new FlywayException(message);
+        } catch (final IOException e) {
             throw new FlywayException("Unable to load config file: " + configFile.getAbsolutePath(), e);
         }
     }

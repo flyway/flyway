@@ -11,6 +11,8 @@ over and over again</strong>. This could be recompiling procedures, updating mat
 For this reason, Flyway offers you the possibility to **hook into its lifecycle** by using Callbacks.
 In order to use these callbacks, name a script after the callback name (ie. afterMigrate.sql) and drop it alongside your other scripts in your migrations folder. Flyway will then invoke it when the execution event criteria listed below is met.
 
+_Note: Callbacks are [not supported by Native Connectors](https://documentation.red-gate.com/display/FD/Flyway+Native+Connectors+-+MongoDB)._
+
 These are the events Flyway supports:
 <table class="table table-hover">
     <thead>

@@ -19,11 +19,14 @@
  */
 package org.flywaydb.verb.migrate;
 
+import static org.flywaydb.core.experimental.ExperimentalModeUtils.logExperimentalDataTelemetry;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import lombok.CustomLog;
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.api.CoreErrorCode;
 import org.flywaydb.core.api.CoreMigrationType;
 import org.flywaydb.core.api.FlywayException;
@@ -52,6 +55,7 @@ import org.flywaydb.verb.migrate.migrators.ExecutableMigrator;
 import org.flywaydb.verb.migrate.migrators.JdbcMigrator;
 import org.flywaydb.verb.migrate.migrators.Migrator;
 import org.flywaydb.verb.schemas.SchemasVerbExtension;
+import org.flywaydb.verb.validate.ValidateVerbExtension;
 
 @CustomLog
 public class MigrateVerbExtension implements VerbExtension {
@@ -62,9 +66,9 @@ public class MigrateVerbExtension implements VerbExtension {
     }
 
     @Override
-    public Object executeVerb(final Configuration configuration) {
+    public Object executeVerb(final Configuration configuration, FlywayTelemetryManager flywayTelemetryManager) {
         if (configuration.isValidateOnMigrate()) {
-            validate(configuration);
+            validate(configuration, flywayTelemetryManager);
         }
         final ExperimentalDatabase experimentalDatabase;
         try {
@@ -73,9 +77,11 @@ public class MigrateVerbExtension implements VerbExtension {
             throw new FlywayException(e);
         }
 
+        logExperimentalDataTelemetry(flywayTelemetryManager, experimentalDatabase.getDatabaseMetaData());
+
         if (configuration.isCreateSchemas()) {
             try {
-                new SchemasVerbExtension().executeVerb(configuration);
+                new SchemasVerbExtension().executeVerb(configuration, flywayTelemetryManager);
             } catch (final NoClassDefFoundError e) {
                 throw new FlywayException("Schemas verb extension is required for creating schemas but is not present", e);
             }
@@ -177,12 +183,12 @@ public class MigrateVerbExtension implements VerbExtension {
         return migrateResult;
     }
 
-    private static void validate(final Configuration configuration) {
+    private static void validate(final Configuration configuration, FlywayTelemetryManager flywayTelemetryManager) {
         final FluentConfiguration validateConfig = new FluentConfiguration().configuration(configuration);
         final List<ValidatePattern> ignorePatterns = new ArrayList<>(Arrays.asList(configuration.getIgnoreMigrationPatterns()));
         ignorePatterns.add(ValidatePattern.fromPattern("*:pending"));
         validateConfig.ignoreMigrationPatterns(ignorePatterns.toArray(ValidatePattern[]::new));
-        final ValidateResult validateResult = new Flyway(validateConfig).validateWithResult();
+        final ValidateResult validateResult = (ValidateResult) new ValidateVerbExtension().executeVerb(validateConfig, flywayTelemetryManager);
         if (!validateResult.validationSuccessful) {
             throw new FlywayValidateException(validateResult.errorDetails, validateResult.getAllErrorMessages());
         }

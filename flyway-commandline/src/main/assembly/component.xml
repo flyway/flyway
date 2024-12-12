@@ -18,22 +18,21 @@
   =========================LICENSE_END==================================
   -->
 <component xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/component/1.1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/component/1.1.2 http://maven.apache.org/xsd/component-1.1.2.xsd">
+  xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/component/1.1.2 http://maven.apache.org/xsd/component-1.1.2.xsd">
     <fileSets>
+
         <fileSet>
-            <directory>src/main/assembly</directory>
+            <directory>src/main/assembly/oss</directory>
             <outputDirectory></outputDirectory>
             <includes>
                 <include>flyway.cmd</include>
-
                 <include>README.txt</include>
-
             </includes>
             <fileMode>644</fileMode>
             <filtered>true</filtered>
         </fileSet>
         <fileSet>
-            <directory>src/main/assembly</directory>
+            <directory>src/main/assembly/oss</directory>
             <outputDirectory></outputDirectory>
             <includes>
                 <include>flyway</include>
@@ -42,6 +41,26 @@
             <lineEnding>unix</lineEnding>
             <filtered>true</filtered>
         </fileSet>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

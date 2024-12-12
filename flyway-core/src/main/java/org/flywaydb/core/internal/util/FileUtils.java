@@ -285,4 +285,20 @@ public class FileUtils {
             }
         }
     }
+
+    public static String readLine(final File file, final int lineNumber) {
+        try (final BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            int currentLineNumber = 0;
+            while ((line = reader.readLine()) != null) {
+                currentLineNumber++;
+                if (currentLineNumber == lineNumber) {
+                    return line;
+                }
+            }
+        } catch (IOException e) {
+            throw new FlywayException("Unable to read line " + lineNumber + " from " + file.getAbsolutePath(), e);
+        }
+        throw new FlywayException("Unable to read line " + lineNumber + " from " + file.getAbsolutePath());
+    }
 }

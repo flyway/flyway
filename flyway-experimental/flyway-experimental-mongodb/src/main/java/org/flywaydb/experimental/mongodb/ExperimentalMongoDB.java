@@ -22,7 +22,6 @@ package org.flywaydb.experimental.mongodb;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoCredential;
-import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
@@ -57,7 +56,9 @@ import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.util.AsciiTable;
+import org.flywaydb.core.internal.util.DockerUtils;
 import org.flywaydb.core.internal.util.FileUtils;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
 public class ExperimentalMongoDB implements ExperimentalDatabase {
     private MongoClient mongoClient;
@@ -70,7 +71,8 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
 
     @Override
     public DatabaseSupport supportsUrl(final String url) {
-        if (url.startsWith("mongodb:") || url.startsWith("mongodb+srv:")) {
+        if (url.startsWith("mongodb:") || url.startsWith("mongodb+srv:")
+            || url.startsWith("jdbc:mongodb:") || url.startsWith("jdbc:mongodb+srv:")) {
             return new DatabaseSupport(true, 1);
         }
         return new DatabaseSupport(false, 0);
@@ -94,7 +96,13 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
         }
         connectionType = ".json".equals(migrationSuffix) ? ConnectionType.API : ConnectionType.EXECUTABLE;
 
+        if (environment.getUrl().startsWith("jdbc:")) {
+            LOG.info("JDBC prefix stripped from url: " + redactUrl(environment.getUrl()));
+            environment.setUrl(environment.getUrl().replaceFirst("jdbc:", ""));
+        }
+
         if (connectionType == ConnectionType.EXECUTABLE) {
+            checkMongoshInstalled();
             mongoshCredential = new MongoshCredential(environment.getUrl(), environment.getUser(), environment.getPassword());
         }
 
@@ -284,7 +292,8 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
 
     @Override
     public void startTransaction() {
-        throw new UnsupportedOperationException("Transactions are currently not supported in MongoDB, set executeInTransaction to false");
+        LOG.warn("Transactions are currently not supported for MongoDB in Flyway. Migrations will be executed outside of a transaction. "
+            + "Set `executeInTransaction` to false to remove this warning.");
     }
 
     @Override
@@ -353,6 +362,7 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
         processBuilder.environment();
 
         try {
+            LOG.debug("Executing mongosh");
             final Process process = processBuilder.start();
             int exitCode = process.waitFor();
 
@@ -363,6 +373,23 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
             }
         } catch (Exception e) {
             throw new FlywayException(e);
+        }
+    }
+
+    private void checkMongoshInstalled() {
+        List<String> commands = Arrays.asList("mongosh", "--version");
+        LOG.debug("Executing " + String.join(" ", commands));
+        final ProcessBuilder processBuilder = new ProcessBuilder(commands);
+        processBuilder.environment();
+        try {
+            processBuilder.start();
+        } catch (final Exception e) {
+            if (DockerUtils.isContainer()) {
+                throw new FlywayException("Mongosh is not installed on this docker image. Please use the Mongo docker image on our repository: "
+                    + FlywayDbWebsiteLinks.OSS_DOCKER_REPOSITORY);
+            }
+            throw new FlywayException("Mongosh is required for .js migrations and is not currently installed. Information on how to install Mongosh can be found here: "
+                + FlywayDbWebsiteLinks.MONGOSH);
         }
     }
 }

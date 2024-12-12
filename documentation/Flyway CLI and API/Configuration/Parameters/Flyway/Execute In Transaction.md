@@ -8,6 +8,8 @@ subtitle: flyway.executeInTransaction
 ## Description
 Whether Flyway should execute SQL within a transaction. <br/>
 
+_Note: This parameter does [not apply to Native Connectors](https://documentation.red-gate.com/display/FD/Flyway+Native+Connectors+-+MongoDB)._
+
 ## Default
 true
 

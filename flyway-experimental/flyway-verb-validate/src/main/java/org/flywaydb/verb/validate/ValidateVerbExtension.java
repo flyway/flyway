@@ -19,14 +19,15 @@
  */
 package org.flywaydb.verb.validate;
 
+import static org.flywaydb.core.experimental.ExperimentalModeUtils.logExperimentalDataTelemetry;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import lombok.CustomLog;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.api.CoreErrorCode;
 import org.flywaydb.core.api.ErrorDetails;
 import org.flywaydb.core.api.FlywayException;
@@ -55,7 +56,7 @@ public class ValidateVerbExtension implements VerbExtension {
     }
 
     @Override
-    public Object executeVerb(final Configuration configuration) {
+    public Object executeVerb(final Configuration configuration, FlywayTelemetryManager flywayTelemetryManager) {
 
         try {
             StopWatch stopWatch = new StopWatch();
@@ -63,6 +64,8 @@ public class ValidateVerbExtension implements VerbExtension {
 
             final ExperimentalDatabase experimentalDatabase = VerbUtils.getExperimentalDatabase(configuration);
             final SchemaHistoryModel schemaHistoryModel = VerbUtils.getSchemaHistoryModel(configuration, experimentalDatabase);
+
+            logExperimentalDataTelemetry(flywayTelemetryManager, experimentalDatabase.getDatabaseMetaData());
 
             final MigrationInfo[] migrations = VerbUtils.getMigrationInfos(configuration,
                 experimentalDatabase,
@@ -87,30 +90,30 @@ public class ValidateVerbExtension implements VerbExtension {
             }
             stopWatch.stop();
 
-            final int count = migrations.length;
-            LOG.info(String.format("Successfully validated %d migration%s (execution time %s)",
-                count,
-                count == 1 ? "" : "s",
-                TimeFormat.format(stopWatch.getTotalTimeMillis())));
-
-            if (migrations.length == 0) {
-                final ArrayList<String> warnings = new ArrayList<>();
-                final String noMigrationsWarning = "No migrations found. Are your locations set up correctly?";
-                warnings.add(noMigrationsWarning);
-                LOG.warn(noMigrationsWarning);
-
-                return new ValidateResult(VersionPrinter.getVersion(),
-                    experimentalDatabase.getDatabaseMetaData().databaseName(),
-                    null,
-                    true,
-                    migrations.length,
-                    new ArrayList<>(),
-                    warnings);
-            }
-
             final List<MigrationInfo> notIgnoredMigrations = VerbUtils.removeIgnoredMigrations(configuration, migrations);
             final List<ValidateOutput> invalidMigrations = getInvalidMigrations(notIgnoredMigrations, configuration);
             if (invalidMigrations.isEmpty()) {
+                final int count = migrations.length;
+                LOG.info(String.format("Successfully validated %d migration%s (execution time %s)",
+                    count,
+                    count == 1 ? "" : "s",
+                    TimeFormat.format(stopWatch.getTotalTimeMillis())));
+
+                if (migrations.length == 0) {
+                    final ArrayList<String> warnings = new ArrayList<>();
+                    final String noMigrationsWarning = "No migrations found. Are your locations set up correctly?";
+                    warnings.add(noMigrationsWarning);
+                    LOG.warn(noMigrationsWarning);
+
+                    return new ValidateResult(VersionPrinter.getVersion(),
+                        experimentalDatabase.getDatabaseMetaData().databaseName(),
+                        null,
+                        true,
+                        migrations.length,
+                        new ArrayList<>(),
+                        warnings);
+                }
+
                 return new ValidateResult(VersionPrinter.getVersion(),
                 experimentalDatabase.getDatabaseMetaData().databaseName(),
                 null,
@@ -193,6 +196,7 @@ public class ValidateVerbExtension implements VerbExtension {
         errorMessage.append(" (");
         errorMessage.append(mismatch.getResolvedType().name());
         errorMessage.append(")");
+        errorMessage.append("\nEither revert the changes to the migration, or run repair to update the schema history.");
         return new ValidateOutput(version.getVersion(),
             mismatch.getDescription(),
             mismatch.getPhysicalLocation(),
@@ -214,7 +218,8 @@ public class ValidateVerbExtension implements VerbExtension {
                 new ErrorDetails(CoreErrorCode.CHECKSUM_MISMATCH,
                     "Migration checksum mismatch for migration " + migrationIdentifier +
                         "\n-> Applied to database : " + x.getAppliedChecksum() +
-                        "\n-> Resolved locally    : " + x.getResolvedChecksum()));
+                        "\n-> Resolved locally    : " + x.getResolvedChecksum() +
+                        "\nEither revert the changes to the migration, or run repair to update the schema history."));
             })
             .toList();
     }
@@ -230,7 +235,8 @@ public class ValidateVerbExtension implements VerbExtension {
                 new ErrorDetails(CoreErrorCode.DESCRIPTION_MISMATCH,
                     "Migration description mismatch for migration version " + x.getVersion().getVersion() +
                         "\n-> Applied to database : " + x.getAppliedDescription() +
-                        "\n-> Resolved locally    : " + x.getResolvedDescription())))
+                        "\n-> Resolved locally    : " + x.getResolvedDescription() +
+                        "\nEither revert the changes to the migration, or run repair to update the schema history.")))
             .toList();
     }
     
