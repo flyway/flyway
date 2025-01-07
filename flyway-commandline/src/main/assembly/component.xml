@@ -2,7 +2,7 @@
   ========================LICENSE_START=================================
   flyway-commandline
   ========================================================================
-  Copyright (C) 2010 - 2024 Red Gate Software Ltd
+  Copyright (C) 2010 - 2025 Red Gate Software Ltd
   ========================================================================
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -22,17 +22,19 @@
     <fileSets>
 
         <fileSet>
-            <directory>src/main/assembly/oss</directory>
+            <directory>src/main/assembly</directory>
             <outputDirectory></outputDirectory>
             <includes>
                 <include>flyway.cmd</include>
+
                 <include>README.txt</include>
+
             </includes>
             <fileMode>644</fileMode>
             <filtered>true</filtered>
         </fileSet>
         <fileSet>
-            <directory>src/main/assembly/oss</directory>
+            <directory>src/main/assembly</directory>
             <outputDirectory></outputDirectory>
             <includes>
                 <include>flyway</include>
@@ -176,6 +178,7 @@
 
 
 
+
     </fileSets>
     <dependencySets>
         <dependencySet>
@@ -186,6 +189,9 @@
                 <include>org.fusesource.jansi:jansi</include>
                 <include>com.google.code.gson:gson</include>
             </includes>
+            <excludes>
+                <exclude>org.reactivestreams:reactive-streams</exclude>
+            </excludes>
         </dependencySet>
         <dependencySet>
             <outputDirectory>lib</outputDirectory>
@@ -211,6 +217,7 @@
             </includes>
             <excludes>
                 <exclude>io.netty:netty-*</exclude>
+                <exclude>org.reactivestreams:reactive-streams</exclude>
             </excludes>
         </dependencySet>
         <dependencySet>
@@ -222,6 +229,7 @@
                 <include>com.microsoft.azure:azure-core</include>
                 <include>com.microsoft.azure:azure-core-http-netty</include>
                 <include>com.microsoft.azure:azure-json</include>
+                <include>org.reactivestreams:reactive-streams</include>
             </includes>
             <excludes>
                 <exclude>com.microsoft.azure:msal4j-persistence-extension</exclude>
@@ -268,6 +276,7 @@
                 <include>org.flywaydb:flyway-firebird</include>
                 <include>org.flywaydb:flyway-database-cassandra</include>
                 <include>org.flywaydb:flyway-reports</include>
+
 
 
 

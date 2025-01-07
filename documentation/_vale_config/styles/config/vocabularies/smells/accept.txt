@@ -9,7 +9,7 @@ cmd
 database_name
 default_build
 [Dd]ev
-[Dd]atasource
+[Dd]ata[Ss]ource
 [Ee]g
 [Ee]nums
 erroring

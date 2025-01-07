@@ -1,0 +1,15 @@
+bin
+build
+target
+*.iml
+*.ipr
+*.iws
+*.ids
+.project
+.classpath
+.settings
+.metadata
+.idea
+.gradle
+*.h2.db
+.DS_Store

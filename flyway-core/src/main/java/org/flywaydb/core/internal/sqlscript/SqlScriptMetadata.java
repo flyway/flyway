@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2025 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,7 +104,7 @@ public class SqlScriptMetadata {
     public static SqlScriptMetadata fromResource(LoadableResource resource, Parser parser, Configuration config) {
         if (resource != null) {
             LOG.debug("Found script configuration: " + resource.getFilename());
-            var unmappedMetadata = ConfigUtils.loadConfigurationFromReader(resource.read());
+            var unmappedMetadata = ConfigUtils.loadConfigurationFromReader(resource.read(), true);
             if (parser == null) {
                 return new SqlScriptMetadata(unmappedMetadata, unmappedMetadata, config);
             }

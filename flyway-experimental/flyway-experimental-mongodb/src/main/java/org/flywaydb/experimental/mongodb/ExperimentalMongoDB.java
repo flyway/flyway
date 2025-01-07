@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-experimental-mongodb
  * ========================================================================
- * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2025 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -108,13 +108,17 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
 
         final ConnectionString connectionString = new ConnectionString(configuration.getUrl());
         if (connectionString.getCredential() != null) {
-            mongoClient = MongoClients.create(environment.getUrl());
+            mongoClient = MongoClients.create(MongoClientSettings.builder()
+                .applyConnectionString(connectionString)
+                .applicationName(APPLICATION_NAME)
+                .build());
         } else {
             final MongoCredential credential = MongoCredential.createCredential(configuration.getUser(),
                 "admin",
                 configuration.getPassword().toCharArray());
             mongoClient = MongoClients.create(MongoClientSettings.builder()
                 .applyConnectionString(connectionString)
+                .applicationName(APPLICATION_NAME)
                 .credential(credential)
                 .build());
         }

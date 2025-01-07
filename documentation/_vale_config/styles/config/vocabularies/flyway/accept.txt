@@ -17,7 +17,6 @@ jarDirs
 (?i)JavaScript
 Javadoc
 (?i)JDBC
-[Jj]etbrains
 jConnect
 JRE
 (?i)JSON

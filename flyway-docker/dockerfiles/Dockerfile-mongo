@@ -1,0 +1,34 @@
+FROM bash:5 AS untar
+
+WORKDIR /flyway
+
+ARG FLYWAY_VERSION
+
+COPY flyway-commandline-${FLYWAY_VERSION}.tar.gz .
+
+RUN gzip -d flyway-commandline-${FLYWAY_VERSION}.tar.gz \
+  && tar -xf flyway-commandline-${FLYWAY_VERSION}.tar --strip-components=1 \
+  && rm flyway-commandline-${FLYWAY_VERSION}.tar \
+  && chmod -R a+r /flyway \
+  && chmod a+x /flyway/flyway
+
+FROM eclipse-temurin:17-jre-jammy AS flyway
+
+ARG FLYWAY_VERSION
+LABEL "org.opencontainers.image.version"="${FLYWAY_VERSION}"
+
+WORKDIR /flyway
+
+COPY --from=untar /flyway /flyway
+
+ENV PATH="/flyway:${PATH}"
+
+ENTRYPOINT ["flyway"]
+CMD ["-?"]
+
+FROM flyway as mongo
+
+RUN wget -qO- https://www.mongodb.org/static/pgp/server-8.0.asc | tee /etc/apt/trusted.gpg.d/server-8.0.asc
+RUN echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/8.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-8.0.list
+RUN apt-get update
+RUN apt-get install -y mongodb-mongosh

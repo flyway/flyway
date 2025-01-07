@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-commandline
  * ========================================================================
- * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2025 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,6 +60,7 @@ import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeJ
 import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeJarDirsInEnvironmentsBasedOnWorkingDirectory;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeLocationsBasedOnWorkingDirectory;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeLocationsInEnvironmentsBasedOnWorkingDirectory;
+import static org.flywaydb.core.internal.configuration.ConfigUtils.warnForUnknownEnvParameters;
 import static org.flywaydb.core.internal.util.ExceptionUtils.getFlywayExceptionMessage;
 
 @CustomLog
@@ -171,9 +172,9 @@ public class ModernConfigurationManager implements ConfigurationManager {
                 throw new FlywayException(
                     String.format("Failed to configure parameter: '%s' in your '%s' environment", fieldName, envKey));
             }
-
-
         }
+
+        warnForUnknownEnvParameters(config.getEnvironments());
 
         if (workingDirectory != null) {
             makeRelativeLocationsBasedOnWorkingDirectory(workingDirectory, config.getFlyway().getLocations());

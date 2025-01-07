@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-experimental-scanners
  * ========================================================================
- * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2025 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@
  * =========================LICENSE_END==================================
  */
 package org.flywaydb.scanners;
+
+import static org.flywaydb.scanners.ScannerUtils.validateMigrationNaming;
 
 import java.io.File;
 import java.io.IOException;
@@ -103,20 +105,26 @@ public class ClasspathSqlMigrationScanner extends BaseSqlMigrationScanner {
         return location.matchesPath(remainingPath);
     }
 
-    private Collection<Pair<LoadableResource, SqlScriptMetadata>> scanFromJarFile(final Location location, URL locationUrl, Configuration configuration, final ParsingContext parsingContext) {
-        Set<String> resourceNames = findResourceNames(location.getRootPath(), locationUrl);
+    private Collection<Pair<LoadableResource, SqlScriptMetadata>> scanFromJarFile(final Location location,
+        final URL locationUrl, final Configuration configuration, final ParsingContext parsingContext) {
+        final Set<String> resourceNames = findResourceNames(location.getRootPath(), locationUrl);
 
-        return resourceNames.stream()
+        final List<Pair<LoadableResource, SqlScriptMetadata>> fileList =  resourceNames.stream()
             .map(resourceName -> processJarResource(location,
                 locationUrl,
                 configuration,
                 resourceName,
-                parsingContext))
-            .filter(x -> {
-                ResourceName name = new ResourceNameParser(configuration).parse(x.getLeft().getFilename());
-                return name.isValid() && !"".equals(name.getSuffix());
-            })
-            .collect(Collectors.toSet());
+                parsingContext)).toList();
+
+        final List<Pair<String, ResourceName>> resources = fileList.stream()
+            .map(x -> Pair.of(x.getLeft().getFilename(),
+                new ResourceNameParser(configuration).parse(x.getLeft().getFilename()))).toList();
+        validateMigrationNaming(resources, configuration.isValidateMigrationNaming(), configuration.getSqlMigrationSuffixes());
+
+        return fileList.stream().filter(x -> {
+            final ResourceName name = new ResourceNameParser(configuration).parse(x.getLeft().getFilename());
+            return name.isValid() && !"".equals(name.getSuffix());
+        }).collect(Collectors.toSet());
     }
 
     private Pair<LoadableResource, SqlScriptMetadata> processJarResource(final Location location,

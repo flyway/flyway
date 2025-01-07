@@ -7,7 +7,9 @@ subtitle: flyway.kerberosConfigFile
 {% include teams.html %}
 
 ## Description
-The path to the your Kerberos configuration file (e.g. `krb5.ini`) for use in Kerberos authentication.
+The path to your Kerberos configuration file (e.g. `krb5.ini`) for use in Kerberos authentication.
+
+_Note: Flyway only supports Kerberos for the Baseline, Clean, Info, Migrate, Repair and Undo commands. Other commands do not support Kerberos._
 
 ## Usage
 

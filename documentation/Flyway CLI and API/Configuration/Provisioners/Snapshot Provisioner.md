@@ -19,6 +19,28 @@ The snapshot provisioner can be used to speed up provisioning a shadow environme
     - `snapshotVersion` - (Required) The migration version the snapshot represents. This version will be inserted as the baseline version into the `flyway_schema_history` table of the provisioned database.
     - `cleanOnReprovision` - (Optional) When set to true this option forces a clean of the provisioned database before the snapshot is applied. This option may be required when it's not possible to apply the snapshot to the database. For example, if applying the snapshot needs to re-add a non-null column to a table that has data in it.
 
+## Database creation
+The snapshot provisioner will create the database contained in the JDBC URL if it does not already exist, for the supported database engines listed below.
+For other database engines, the database specified must already exist before the snapshot provisioner is used.
+
+### SQL Server
+`MyDatabase` will be created if it doesn't already exist based on the following JDBC URL:
+```
+jdbc:sqlserver://localhost:1433;databaseName=MyDatabase;trustServerCertificate=true
+```
+
+### PostgreSQL
+`my_database` will be created if it doesn't already exist based on the following JDBC URL:
+```
+jdbc:postgresql://localhost:5430/my_database?ssl=true
+```
+
+### MySQL
+`my_database` will be created if it doesn't already exist based on the following JDBC URL:
+```
+jdbc:mysql://localhost:3306/my_database?useSSL=false
+```
+
 ## Example
 The snapshot provisioner can be used in the TOML configuration as follows:
 ```toml

@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2025 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import org.flywaydb.core.api.FlywayException;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ExceptionUtils {
+    public static final String CONTACT_EMAIL = "DatabaseDevOps@red-gate.com";
     /**
      * @return The root cause or the throwable itself if it doesn't have a cause.
      */

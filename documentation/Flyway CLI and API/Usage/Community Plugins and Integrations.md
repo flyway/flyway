@@ -28,7 +28,7 @@ and much more.
     {% include plugin.html name="Micronaut" logo="micronaut.png" url="https://github.com/micronaut-projects/micronaut-flyway" info="Modern, JVM-based, full-stack framework" %}
     {% include plugin.html name="Ninja" logo="ninja.png" url="http://www.ninjaframework.org/documentation/working_with_relational_dbs/db_migrations.html" info="Full stack web framework for Java" %}
     {% include plugin.html name="NPM" logo="npm.svg" url="https://www.npmjs.com/package/flywaydb-cli" info="Package manager for JavaScript" %}
-    {% include plugin.html name="NuGet" logo="nuget.png" url="https://www.nuget.org/packages/Flyway.CommandLine" info="The package manager for .NET" %}
+    {% include plugin.html name="NuGet" logo="nuget.png" url="https://www.nuget.org/packages/flyway.commandLine" info="The package manager for .NET" %}
     {% include plugin.html name="Play" logo="play.png" url="Usage/Community Plugins and Integrations/Community Plugins and Integrations (Play)" info="High velocity web framework for Java and Scala" %}
     {% include plugin.html name="PowerShell" logo="powershell.svg" url="https://github.com/cdavid15/flyway-ps-cli" info="Windows command-line shell designed especially for system administrators" %}
     {% include plugin.html name="Quarkus" logo="quarkus.png" url="https://quarkus.io/guides/flyway-guide" info="Kubernetes Native Java stack tailored for GraalVM & OpenJDK HotSpot" %}

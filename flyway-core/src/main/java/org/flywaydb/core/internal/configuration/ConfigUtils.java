@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2025 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -523,16 +523,24 @@ public class ConfigUtils {
      * @return The properties from the configuration file. An empty Map if none.
      * @throws FlywayException When the configuration could not be read.
      */
-    public static Map<String, String> loadConfigurationFromReader(Reader reader) throws FlywayException {
+    public static Map<String, String> loadConfigurationFromReader(final Reader reader) throws FlywayException {
+        return loadConfigurationFromReader(reader, false);
+    }
+
+    public static Map<String, String> loadConfigurationFromReader(final Reader reader, final boolean raw) throws FlywayException {
         try {
             String contents = FileUtils.copyToString(reader);
-            return loadConfigurationFromString(contents);
+            return loadConfigurationFromString(contents, raw);
         } catch (IOException e) {
             throw new FlywayException("Unable to read config", e);
         }
     }
 
-    public static Map<String, String> loadConfigurationFromString(String configuration) throws IOException {
+    public static Map<String, String> loadConfigurationFromString(final String configuration) throws IOException {
+        return loadConfigurationFromString(configuration, false);
+    }
+
+    public static Map<String, String> loadConfigurationFromString(final String configuration, final boolean raw) throws IOException {
         String[] lines = configuration.replace("\r\n", "\n").split("\n");
 
         StringBuilder confBuilder = new StringBuilder();
@@ -571,7 +579,9 @@ public class ConfigUtils {
         String contents = confBuilder.toString();
 
         Properties properties = new Properties();
-        contents = expandEnvironmentVariables(contents, System.getenv());
+        if (!raw) {
+            contents = expandEnvironmentVariables(contents, System.getenv());
+        }
         properties.load(new StringReader(contents));
         return propertiesToMap(properties);
     }
@@ -989,5 +999,14 @@ public class ConfigUtils {
             }
         }
         return defaultSchemaName;
+    }
+
+    public static void warnForUnknownEnvParameters(Map<String, EnvironmentModel> environments) {
+        environments.forEach((envName, envModel) -> {
+            if (!envModel.getUnknownConfigurations().isEmpty()) {
+                LOG.debug("Unknown parameters configured in Environment " + envName + ": " +
+                    String.join(",", envModel.getUnknownConfigurations().keySet()));
+            }
+        });
     }
 }

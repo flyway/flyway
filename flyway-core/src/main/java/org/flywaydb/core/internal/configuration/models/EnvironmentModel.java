@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2025 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,13 @@
  */
 package org.flywaydb.core.internal.configuration.models;
 
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import java.util.HashMap;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.ExtensionMethod;
+import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.MergeUtils;
 
 import java.util.ArrayList;
@@ -48,6 +50,10 @@ public class EnvironmentModel {
     private String provisioner;
     private FlywayEnvironmentModel flyway = new FlywayEnvironmentModel();
 
+    @JsonAnySetter
+    @Getter(onMethod = @__(@ClassUtils.DoNotMapForLogging))
+    private Map<String,Object> unknownConfigurations = new HashMap<>();
+
     public EnvironmentModel merge(EnvironmentModel otherPojo) {
         EnvironmentModel result = new EnvironmentModel();
         result.url = MergeUtils.merge(url, otherPojo.url);
@@ -62,6 +68,7 @@ public class EnvironmentModel {
         result.resolvers = MergeUtils.merge(resolvers, otherPojo.resolvers, EnvironmentModel::MergeResolvers);
         result.provisioner = MergeUtils.merge(provisioner, otherPojo.provisioner);
         result.flyway = flyway.merge(otherPojo.flyway);
+        result.unknownConfigurations = MergeUtils.merge(unknownConfigurations, otherPojo.unknownConfigurations, MergeUtils::mergeObjects);
         return result;
     }
 

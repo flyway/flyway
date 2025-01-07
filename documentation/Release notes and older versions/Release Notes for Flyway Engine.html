@@ -9,6 +9,29 @@
 <div class="col-md-9">
 
   <div class="release">
+        <h2 id="11.1.1">Flyway 11.1.1 (2025-01-07)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>the shouldExecuteExpression field now displays the expression correctly in the JSON output of the info command</li>
+            <li>Fixed an issue where 'deploy' could fail due to null results despite having executed correctly</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Native Connectors now supports `validateMigrationNaming`</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3986">Issue 3986</a>
+                ship library `org-reactive-streams`
+            </li>
+        </ul>
+
+        <p>
+            Thanks to ExtraClock for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
         <h2 id="11.1.0">Flyway 11.1.0 (2024-12-12)</h2>
 
         <h3>Breaking changes</h3>

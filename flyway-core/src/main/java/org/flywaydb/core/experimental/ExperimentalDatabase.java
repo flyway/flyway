@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2025 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ import org.flywaydb.core.internal.util.TimeFormat;
  */
 public interface ExperimentalDatabase extends Plugin, AutoCloseable  {
     Log LOG = org.flywaydb.core.api.logging.LogFactory.getLog(ExperimentalDatabase.class);
+    String APPLICATION_NAME = "Flyway by Redgate";
 
     /**
      * Check for if this database type supports the provided URL/Connection String.

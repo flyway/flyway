@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-commandline
  * ========================================================================
- * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2025 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.experimental.ExtensionMethod;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.api.output.InfoOutput;
 import org.flywaydb.core.extensibility.RootTelemetryModel;
 import org.flywaydb.core.extensibility.Tier;
@@ -112,6 +113,10 @@ public class TelemetryUtils {
                 }
             });
             rootTelemetryModel.setCustomParameters(String.join(",", parameterNames));
+
+            // ModernConfigurationManager creates a ClassicConfiguration
+            // LegacyConfigurationManager creates a FluentConfiguration
+            rootTelemetryModel.setLegacyMode(configuration instanceof FluentConfiguration);
 
         }
         

@@ -13,6 +13,8 @@ This is mainly used for setting some state on the connection that needs to be sh
 
 This could effectively be considered an environment specific afterConnect [callback](Concepts/Callback concept).
 
+Please note that this parameter defines an "Initial SQL command," not an "Initialization SQL command." It may be executed multiple times, as it runs immediately after each database connection is established.
+
 ## Usage
 
 ### Commandline

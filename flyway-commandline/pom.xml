@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>11.1.0</version>
+        <version>11.1.1</version>
     </parent>
     <artifactId>flyway-commandline</artifactId>
     <packaging>jar</packaging>
@@ -358,6 +358,12 @@
 
 
 
+
+
+
+
+
+
         <dependency>
             <groupId>com.ing.data</groupId>
             <artifactId>cassandra-jdbc-wrapper</artifactId>
@@ -518,6 +524,13 @@
             <artifactId>jackson-dataformat-xml</artifactId>
             <version>${version.jackson}</version>
         </dependency>
+
+
+
+
+
+
+
 
 
 

@@ -4,7 +4,7 @@ subtitle: MongoDB
 # MongoDB - Preview
 - **Verified Versions:** V7
 - **Maintainer:** Redgate
-- **JDBC Driver:** Jetbrains Datagrip MongoDB Driver.
+- **JDBC Driver:** JetBrains Datagrip MongoDB Driver.
     - Binaries: [here](https://www.jetbrains.com/datagrip/jdbc-drivers/),
     - Source: [here](https://github.com/DataGrip/mongo-jdbc-driver)
   

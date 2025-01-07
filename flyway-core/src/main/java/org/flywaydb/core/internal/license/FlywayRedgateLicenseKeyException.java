@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2024 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2025 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,11 @@
  */
 package org.flywaydb.core.internal.license;
 
+import static org.flywaydb.core.internal.util.ExceptionUtils.CONTACT_EMAIL;
+
 public class FlywayRedgateLicenseKeyException extends FlywayLicensingException {
     public FlywayRedgateLicenseKeyException() {
         super("A Redgate license key was provided; fell back to Community Edition. " +
-                      "Please contact sales at sales@flywaydb.org for license information.");
+                      "Please contact sales at " + CONTACT_EMAIL + " for license information.");
     }
 }
