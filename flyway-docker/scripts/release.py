@@ -17,10 +17,10 @@ if __name__ == "__main__":
     if edition == "flyway":
         # Multi-arch images are pushed using the buildx command
         release_commands.append(get_buildx_command(edition, version, "", ".", False, True))
-        tags.extend(utils.generate_tags(version, "-alpine"))
+        release_commands.append(get_buildx_command(edition, version, "-alpine", "alpine", False, True))
         tags.extend(utils.generate_tags(version, "-azure"))
         release_commands.append(get_buildx_command(edition, version, "", ".", True, True))
-        tags.extend(utils.generate_tags(version, "-alpine-mongo"))
+        release_commands.append(get_buildx_command(edition, version, "-alpine", "alpine", True, True))
         tags.extend(utils.generate_tags(version, "-azure-mongo"))
     else:
         tags.extend(utils.generate_tags(version, ""))

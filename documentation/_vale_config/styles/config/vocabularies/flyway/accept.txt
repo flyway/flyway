@@ -2,11 +2,13 @@ Adoptium
 (?i)AWS
 [Bb]oolean
 [Cc]lasspath
+clobs
 (?i)configFiles
 (?i)Dapr
 [Dd]atagrip
 Dockerfile
 [Dd]ropwizard
+fulltext
 flyway[.-]
 flyway_schema_history
 (?i)GitHub
@@ -20,12 +22,18 @@ Javadoc
 jConnect
 JRE
 (?i)JSON
+(?i)jTds
 Kerberos
 LF
 [Ll]inux
 [Mm]aven
 -maven
 maven-
+nchar
+ntext
+nullability
+nvarchar
+nvarchars
 OSGi
 (?i)Powershell
 [Rr]edgate
@@ -39,6 +47,10 @@ repeatables
 (?i)url
 Xerial
 [Nn]amespacing
+varchar
+varchars
+varray
+varrays
 
 baselineVersion
 
@@ -78,6 +90,7 @@ flywayValidate
 
 nameOnly
 reprovision
+rerunnable
 schemaModel
 schema_history
 schema_shadow

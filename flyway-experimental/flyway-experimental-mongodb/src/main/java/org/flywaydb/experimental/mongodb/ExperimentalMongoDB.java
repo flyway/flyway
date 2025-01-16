@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.function.BiFunction;
+import java.util.concurrent.TimeUnit;
 import org.bson.BsonDocument;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -368,7 +369,11 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
         try {
             LOG.debug("Executing mongosh");
             final Process process = processBuilder.start();
-            int exitCode = process.waitFor();
+            final boolean exited = process.waitFor(5, TimeUnit.MINUTES);
+            if (!exited) {
+                throw new FlywayException("Mongosh execution timeout. Consider using smaller migrations");
+            }
+            final int exitCode  = process.exitValue();
 
             if (exitCode != 0) {
                 final String stdErr = FileUtils.copyToString(new InputStreamReader(process.getErrorStream(),
@@ -376,6 +381,9 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
                 throw new FlywayException(stdErr + " (ExitCode: " + exitCode + ")");
             }
         } catch (Exception e) {
+            if (e.getMessage().contains("The filename or extension is too long")) {
+                throw new FlywayException("Mongosh execution failed. Consider using smaller migrations");
+            }
             throw new FlywayException(e);
         }
     }

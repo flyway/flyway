@@ -24,9 +24,9 @@ else
 fi
 
 if [ -n "$FLYWAY_NATIVE_CONNECTORS" ] && [ "$FLYWAY_NATIVE_CONNECTORS" == "false" ]; then
-  CP="$CLASSPATH:$INSTALLDIR/lib/*:$INSTALLDIR/lib/aad/*:$INSTALLDIR/lib/plugins/*:$INSTALLDIR/lib/oracle_wallet/*:$INSTALLDIR/lib/flyway/*:$INSTALLDIR/lib/netty/*:$INSTALLDIR/drivers/*:$INSTALLDIR/drivers/gcp/*:$INSTALLDIR/drivers/cassandra/*"
+  CP="$CLASSPATH:$INSTALLDIR/lib/*:$INSTALLDIR/lib/aad/*:$INSTALLDIR/lib/plugins/*:$INSTALLDIR/lib/oracle_wallet/*:$INSTALLDIR/lib/flyway/*:$INSTALLDIR/lib/netty/*:$INSTALLDIR/lib/opentelemetry/*:$INSTALLDIR/drivers/*:$INSTALLDIR/drivers/gcp/*:$INSTALLDIR/drivers/cassandra/*"
 else
-  CP="$CLASSPATH:$INSTALLDIR/lib/*:$INSTALLDIR/lib/aad/*:$INSTALLDIR/lib/plugins/*:$INSTALLDIR/lib/oracle_wallet/*:$INSTALLDIR/lib/flyway/*:$INSTALLDIR/lib/netty/*:$INSTALLDIR/drivers/*:$INSTALLDIR/drivers/gcp/*:$INSTALLDIR/drivers/cassandra/*:$INSTALLDIR/drivers/mongo/*"
+  CP="$CLASSPATH:$INSTALLDIR/lib/*:$INSTALLDIR/lib/aad/*:$INSTALLDIR/lib/plugins/*:$INSTALLDIR/lib/oracle_wallet/*:$INSTALLDIR/lib/flyway/*:$INSTALLDIR/lib/netty/*:$INSTALLDIR/lib/opentelemetry/*:$INSTALLDIR/drivers/*:$INSTALLDIR/drivers/gcp/*:$INSTALLDIR/drivers/cassandra/*:$INSTALLDIR/drivers/mongo/*"
 fi
 
 

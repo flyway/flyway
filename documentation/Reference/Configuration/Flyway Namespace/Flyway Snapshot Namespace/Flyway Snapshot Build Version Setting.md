@@ -1,0 +1,36 @@
+---
+subtitle: flyway.snapshot.buildVersion
+---
+
+## Description
+
+If snapshot source is `"migrations"`, this specifies migration version to migrate the build environment to.
+
+## Type
+
+String
+
+## Default
+
+<i>none</i>
+
+## Usage
+
+### Flyway Desktop
+
+This can't be added to a configuration file via Flyway Desktop.
+
+### Command-line
+
+```bash
+./flyway snapshot -source="migrations" -buildVersion="001"
+```
+
+### TOML Configuration File
+
+It is unlikely to be desirable to specify this in a config file, but it is possible:
+
+```toml
+[flyway.snapshot]
+buildVersion = [ "001" ]
+```

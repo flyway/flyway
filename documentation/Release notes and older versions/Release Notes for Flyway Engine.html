@@ -9,6 +9,59 @@
 <div class="col-md-9">
 
   <div class="release">
+        <h2 id="11.2.0">Flyway 11.2.0 (2025-01-16)</h2>
+
+        <h3>Breaking changes</h3>
+        <ul>
+            <li>Removed ARM V7 support from docker images</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>check changes will not require a target url/environment when provided with snapshots</li>
+            <li>Converting .conf files to toml using `flyway init` now preserves conf defaults</li>
+            <li>Fixed issue where converting a .conf file to toml in place via `flyway init` might not rename the original .conf file to .conf.bak</li>
+            <li>Native connectors respects set schema for Mongodb using Mongosh</li>
+            <li>Fixed an issue where callbacks were incorrectly loaded as migrations when Native Connectors mode was enabled</li>
+            <li>check no longer fails for SQLServer with the error: "Database passed into LiveSQLProvider needs to have DbConnectionInstructions"</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>check changes will now prefer using a given deployment snapshot over the live environment. In cases where drift appears in the live environment, this will mean that drift will now be excluded from the change report when possible.</li>
+            <li>the default filter file created upon SqlServer project initialization now ignores certificates</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/4010">Issue 4010</a>
+                Snowflake now supports `COMMENT IF EXISTS`
+            </li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>Update databricks to 10.16.4</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/4005">Issue 4005</a>
+                Update Databricks JDBC driver to 2.6.40
+            </li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>placeholders support in Native Connectors</li>
+            <li>Include ARM 64 in the Alpine docker image</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>Updated Java version shipped with Docker and CLI to 21</li>
+        </ul>
+
+        <p>
+            Thanks to nicolashenry and mlorek for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
         <h2 id="11.1.1">Flyway 11.1.1 (2025-01-07)</h2>
 
         <h3>Bug fixes</h3>

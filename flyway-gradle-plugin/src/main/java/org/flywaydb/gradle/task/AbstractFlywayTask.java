@@ -19,6 +19,23 @@
  */
 package org.flywaydb.gradle.task;
 
+import static org.flywaydb.core.internal.configuration.ConfigUtils.FLYWAY_PLUGINS_PREFIX;
+import static org.flywaydb.core.internal.configuration.ConfigUtils.putIfSet;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
@@ -34,19 +51,6 @@ import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetOutput;
 import org.gradle.api.tasks.TaskAction;
-
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.*;
-
-import static org.flywaydb.core.internal.configuration.ConfigUtils.FLYWAY_PLUGINS_PREFIX;
-import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeLocationsBasedOnWorkingDirectory;
-import static org.flywaydb.core.internal.configuration.ConfigUtils.putIfSet;
 
 /**
  * A base class for all Flyway tasks.
@@ -384,7 +388,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     /**
      * Ignore migrations that match this comma-separated list of patterns when validating migrations.
      * Each pattern is of the form <migration_type>:<migration_state>
-     * See https://documentation.red-gate.com/flyway/flyway-cli-and-api/configuration/parameters/flyway/ignore-migration-patterns for full details
+     * See https://documentation.red-gate.com/flyway/reference/configuration/flyway-namespace/flyway-ignore-migration-patterns-setting for full details
      * Example: repeatable:missing,versioned:pending,*:failed
      * (default: *:future)
      */

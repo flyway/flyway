@@ -22,7 +22,7 @@ SBT, Ant, Spring Boot, Grails, Play!, DropWizard, Grunt, Griffon, Ninja, ...
 
 ## Documentation
 You can find our getting started guides [here](https://documentation.red-gate.com/flyway/getting-started-with-flyway).
-Our reference documentation can be found [here](https://documentation.red-gate.com/flyway/flyway-cli-and-api).
+Our reference documentation can be found [here](https://documentation.red-gate.com/flyway/reference).
 
 ## Download
 You can download Flyway from [here](https://documentation.red-gate.com/fd/flyway-open-source-224002364.html)
@@ -32,10 +32,10 @@ Flyway is brought to you by [Redgate](https://www.red-gate.com/) with the help o
 
 See our post [Flyway V10 has landed](https://documentation.red-gate.com/flyway/flyway-blog/flyway-v10-has-landed) for our current major changes and improvements for the community
 ## How to contribute
-Please visit our [contribution page](https://documentation.red-gate.com/flyway/flyway-cli-and-api/contribute) to find out how you can contribute in various ways to the project.
+Please visit our [contribution page](https://documentation.red-gate.com/flyway/reference/contribute) to find out how you can contribute in various ways to the project.
 
 ## License
-Copyright © [Red Gate Software Ltd](http://www.red-gate.com) 2010-2024
+Copyright © [Red Gate Software Ltd](http://www.red-gate.com) 2010-2025
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

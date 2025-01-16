@@ -21,23 +21,23 @@ package org.flywaydb.verb.migrate.migrators;
 
 import static org.flywaydb.verb.VerbUtils.toMigrationText;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import lombok.CustomLog;
-import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.LoadableMigrationInfo;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.CommandResultFactory;
 import org.flywaydb.core.api.output.MigrateResult;
+import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.internal.exception.FlywayMigrateException;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.verb.ErrorUtils;
+import org.flywaydb.verb.FileReadingWithPlaceholderReplacement;
 import org.flywaydb.verb.migrate.MigrationExecutionGroup;
 
 @CustomLog
@@ -63,7 +63,7 @@ public class ApiMigrator extends Migrator{
             experimentalDatabase.startTransaction();
         }
         for (final MigrationInfo migrationInfo : executionGroup.migrations()) {
-            doIndividualMigration(migrationInfo, experimentalDatabase, configuration, migrateResult, rank);
+            doIndividualMigration(migrationInfo, experimentalDatabase, configuration, migrateResult, rank, parsingContext);
             rank++;
         }
         if (executeInTransaction) {
@@ -73,7 +73,7 @@ public class ApiMigrator extends Migrator{
     }
 
     private void doIndividualMigration(final MigrationInfo migrationInfo, final ExperimentalDatabase experimentalDatabase,
-        final Configuration configuration, final MigrateResult migrateResult, final int installedRank) {
+        final Configuration configuration, final MigrateResult migrateResult, final int installedRank, final ParsingContext parsingContext) {
         final StopWatch watch = new StopWatch();
         watch.start();
 
@@ -90,7 +90,8 @@ public class ApiMigrator extends Migrator{
                 } else {
                     LOG.info("Undoing migration of " + migrationText);
                 }
-                final String executionUnit = String.join("\n", Files.readAllLines(Path.of(migrationInfo.getPhysicalLocation())));
+
+                final String executionUnit = FileReadingWithPlaceholderReplacement.readFile(configuration, parsingContext, migrationInfo.getPhysicalLocation());
                 experimentalDatabase.doExecute(executionUnit, configuration.isOutputQueryResults());
             }
         } catch (final Exception e) {
@@ -158,22 +159,18 @@ public class ApiMigrator extends Migrator{
     }
 
     private String calculateErrorMessage(final Exception e, final MigrationInfo migrationInfo) {
+
         final String title = "Script " + Paths.get(migrationInfo.getScript()).getFileName() + " failed";
-        final String underline = StringUtils.trimOrPad("", title.length(), '-');
 
-        final StringBuilder messageBuilder = new StringBuilder().append(title).append("\n").append(underline).append(
-            "\n");
-        messageBuilder.append("Message    : ").append(e.getMessage()).append("\n");
-
+        LoadableResource loadableResource = null;
         if (migrationInfo instanceof final LoadableMigrationInfo loadableMigrationInfo) {
-            messageBuilder.append("Location   : ")
-                .append(loadableMigrationInfo.getLoadableResource().getAbsolutePath())
-                .append(" (")
-                .append(loadableMigrationInfo.getLoadableResource().getAbsolutePathOnDisk())
-                .append(")\n");
-        } else {
-            messageBuilder.append("Location   : ").append(migrationInfo.getPhysicalLocation());
+            loadableResource = loadableMigrationInfo.getLoadableResource();
         }
-        return messageBuilder.toString();
+
+        return ErrorUtils.calculateErrorMessage(e, title,
+            loadableResource,
+            migrationInfo.getPhysicalLocation(),
+            null,
+            "Message    : " + e.getMessage() + "\n");
     }
 }

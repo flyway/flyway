@@ -59,16 +59,7 @@ import org.flywaydb.verb.info.ExperimentalMigrationInfoImpl;
 public class VerbUtils {
     private static boolean databaseInfoPrinted;
 
-    public static MigrationInfo[] getMigrationInfos(final Configuration configuration,
-        final ExperimentalDatabase experimentalDatabase,
-        final SchemaHistoryModel schemaHistoryModel) {
-        final Collection<LoadableResourceMetadata> resources = scanForMigrations(configuration,
-            experimentalDatabase);
-        return getMigrations(schemaHistoryModel, resources.toArray(LoadableResourceMetadata[]::new),
-            configuration);
-    }
-
-    public static Collection<LoadableResourceMetadata> scanForMigrations(final Configuration configuration,
+    public static Collection<LoadableResourceMetadata> scanForResources(final Configuration configuration,
         final ExperimentalDatabase experimentalDatabase) {
         final ParsingContext parsingContext = new ParsingContext();
         parsingContext.populate(experimentalDatabase, configuration);
@@ -184,13 +175,20 @@ public class VerbUtils {
 
     private static LoadableResourceMetadata getTypedMigration(final Configuration configuration,
         final LoadableResourceMetadata sortedMigration) {
+
+        MigrationType migrationType = getMigrationType(sortedMigration.loadableResource(), configuration);
+
+        if (migrationType == null) {
+            return null;
+        }
+
         return new LoadableResourceMetadata(sortedMigration.version(),
             sortedMigration.description(),
             sortedMigration.prefix(),
             sortedMigration.loadableResource(),
             sortedMigration.sqlScriptMetadata(),
             sortedMigration.checksum(),
-            getMigrationType(sortedMigration.loadableResource(), configuration));
+            migrationType);
     }
 
     private static MigrationType getMigrationType(final LoadableResource resource, final Configuration configuration) {
@@ -228,6 +226,7 @@ public class VerbUtils {
         return Arrays
             .stream(sortedMigrations)
             .map(sortedMigration -> getTypedMigration(configuration, sortedMigration))
+            .filter(Objects::nonNull)
             .toList();
     }
 

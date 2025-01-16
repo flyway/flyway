@@ -1,0 +1,21 @@
+---
+subtitle: redgateCompare.oracle.options.ignores
+---
+
+This namespace contains the configurations relating to Oracle storage.
+
+## Settings
+
+| Setting                                                                                                                                                                                          | Type    | Description                                                                                                      |
+|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|------------------------------------------------------------------------------------------------------------------|
+| [`includeAllStorage`](<Configuration/Redgate Compare Namespace/Redgate Compare Oracle Namespace/Oracle Storage Options Namespace/Oracle Include All Storage Setting>)                            | Boolean | Include all storage properties (physical properties) on tables and indexes when comparing and deploying schemas. | 
+| [`includeStorageCompression`](<Configuration/Redgate Compare Namespace/Redgate Compare Oracle Namespace/Oracle Storage Options Namespace/Oracle Include Storage Compression Setting>)            | Boolean | Include compression clause.                                                                                      | 
+| [`includeStorageDeferredSegments`](<Configuration/Redgate Compare Namespace/Redgate Compare Oracle Namespace/Oracle Storage Options Namespace/Oracle Include Storage Deferred Segments Setting>) | Boolean | Include `DEFERRED SEGMENT CREATION` clause.                                                                      | 
+| [`includeStorageExtents`](<Configuration/Redgate Compare Namespace/Redgate Compare Oracle Namespace/Oracle Storage Options Namespace/Oracle Include Storage Extents Setting>)                    | Boolean | Include storage extents `INITIAL`, `NEXT`, `MINEXTENTS` and `MAXEXTENTS`.                                        | 
+| [`includeStorageIlmPolicies`](<Configuration/Redgate Compare Namespace/Redgate Compare Oracle Namespace/Oracle Storage Options Namespace/Oracle Include Storage ILM Policies Setting>)           | Boolean | Include Information Lifecycle Management policies.                                                               | 
+| [`includeStorageIniTrans`](<Configuration/Redgate Compare Namespace/Redgate Compare Oracle Namespace/Oracle Storage Options Namespace/Oracle Include Storage INITRANS Setting>)                  | Boolean | Include `INITRANS` clause.                                                                                       | 
+| [`includeStorageLobsAndVarrays`](<Configuration/Redgate Compare Namespace/Redgate Compare Oracle Namespace/Oracle Storage Options Namespace/Oracle Include Storage Lobs And Varrays Setting>)    | Boolean | Include lob and varray clauses.                                                                                  | 
+| [`includeStorageLogging`](<Configuration/Redgate Compare Namespace/Redgate Compare Oracle Namespace/Oracle Storage Options Namespace/Oracle Include Storage Logging Setting>)                    | Boolean | Include the `LOGGING` / `NOLOGGING` clause.                                                                      | 
+| [`includeStoragePartitioning`](<Configuration/Redgate Compare Namespace/Redgate Compare Oracle Namespace/Oracle Storage Options Namespace/Oracle Include Storage Partitioning Setting>)          | Boolean | Include partitioning of tables and indexes.                                                                      | 
+| [`includeStoragePctFree`](<Configuration/Redgate Compare Namespace/Redgate Compare Oracle Namespace/Oracle Storage Options Namespace/Oracle Include Storage PCTFREE Setting>)                    | Boolean | Include `PCTFREE` clause.                                                                                        | 
+| [`includeStorageTablespace`](<Configuration/Redgate Compare Namespace/Redgate Compare Oracle Namespace/Oracle Storage Options Namespace/Oracle Include Storage Tablespace Setting>)              | Boolean | Include tablespace of tables and indexes.                                                                        | 

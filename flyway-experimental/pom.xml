@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>11.1.1</version>
+    <version>11.2.0</version>
   </parent>
 
   <packaging>pom</packaging>
@@ -26,6 +26,8 @@
     <module>flyway-verb-clean</module>
     <module>flyway-verb-schemas</module>
     <module>flyway-verb-repair</module>
+    <module>flyway-experimental-callbacks</module>
+
 
 
 

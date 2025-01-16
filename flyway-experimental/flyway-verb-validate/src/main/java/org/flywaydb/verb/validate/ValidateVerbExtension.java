@@ -23,6 +23,7 @@ import static org.flywaydb.core.experimental.ExperimentalModeUtils.logExperiment
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import lombok.CustomLog;
 import java.util.Set;
@@ -37,6 +38,7 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.ValidateOutput;
 import org.flywaydb.core.api.output.ValidateResult;
+import org.flywaydb.core.api.resource.LoadableResourceMetadata;
 import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryModel;
 import org.flywaydb.core.extensibility.VerbExtension;
@@ -67,9 +69,11 @@ public class ValidateVerbExtension implements VerbExtension {
 
             logExperimentalDataTelemetry(flywayTelemetryManager, experimentalDatabase.getDatabaseMetaData());
 
-            final MigrationInfo[] migrations = VerbUtils.getMigrationInfos(configuration,
-                experimentalDatabase,
-                schemaHistoryModel);
+            final Collection<LoadableResourceMetadata> resources = VerbUtils.scanForResources(configuration,
+                experimentalDatabase);
+            final MigrationInfo[] migrations = VerbUtils.getMigrations(schemaHistoryModel,
+                resources.toArray(LoadableResourceMetadata[]::new),
+                configuration);
 
             if (!experimentalDatabase.schemaHistoryTableExists(configuration.getTable())) {
                 LOG.info("Schema history table " + experimentalDatabase.quote(experimentalDatabase.getCurrentSchema(),  configuration.getTable()) + " does not exist yet");

@@ -1,4 +1,4 @@
-# More information on the parameters can be found here: https://documentation.red-gate.com/flyway/flyway-cli-and-api/configuration/parameters
+# More information on the parameters can be found here: https://documentation.red-gate.com/flyway/reference/configuration
 
 [environments.sample]
 url = "jdbc:h2:mem:db"
