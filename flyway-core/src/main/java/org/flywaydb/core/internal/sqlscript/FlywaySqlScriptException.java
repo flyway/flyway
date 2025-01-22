@@ -39,6 +39,8 @@ public class FlywaySqlScriptException extends FlywaySqlException {
 
     private final SqlStatement statement;
 
+    private final String decoratedMessage;
+
     public static final String STATEMENT_MESSAGE = "Run Flyway with -X option to see the actual statement causing the problem";
 
     /**
@@ -52,6 +54,16 @@ public class FlywaySqlScriptException extends FlywaySqlException {
         super(resource == null ? "Script failed" : "Script " + resource.getFilename() + " failed", sqlException);
         this.resource = resource;
         this.statement = statement;
+
+        String decoratedMessage = super.getMessage();
+        if (resource != null) {
+            decoratedMessage += "Location   : " + resource.getAbsolutePath() + " (" + resource.getAbsolutePathOnDisk() + ")\n";
+        }
+        if (statement != null) {
+            decoratedMessage += "Line       : " + getLineNumber() + "\n";
+            decoratedMessage += "Statement  : " + (LOG.isDebugEnabled() ? getStatement() : STATEMENT_MESSAGE) + "\n";
+        }
+        this.decoratedMessage = decoratedMessage;
     }
 
     /**
@@ -74,14 +86,6 @@ public class FlywaySqlScriptException extends FlywaySqlException {
 
     @Override
     public String getMessage() {
-        String message = super.getMessage();
-        if (resource != null) {
-            message += "Location   : " + resource.getAbsolutePath() + " (" + resource.getAbsolutePathOnDisk() + ")\n";
-        }
-        if (statement != null) {
-            message += "Line       : " + getLineNumber() + "\n";
-            message += "Statement  : " + (LOG.isDebugEnabled() ? getStatement() : STATEMENT_MESSAGE) + "\n";
-        }
-        return message;
+        return decoratedMessage;
     }
 }
