@@ -85,8 +85,8 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
             return true;
         } catch (SQLException e) {
             LOG.debug("Disabled user variable reset as "
-                    + (database.isMariaDB() ? USER_VARIABLES_TABLE_MARIADB : USER_VARIABLES_TABLE_MYSQL)
-                    + " cannot be queried (SQL State: " + e.getSQLState() + ", Error Code: " + e.getErrorCode() + ")");
+                              + (database.isMariaDB() ? USER_VARIABLES_TABLE_MARIADB : USER_VARIABLES_TABLE_MYSQL)
+                              + " cannot be queried (SQL State: " + e.getSQLState() + ", Error Code: " + e.getErrorCode() + ")");
             return false;
         } catch (Exception e) {
             LOG.debug("Disabled user variable reset as "
@@ -100,7 +100,7 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
     protected void doRestoreOriginalState() throws SQLException {
         resetUserVariables();
         jdbcTemplate.execute("SET " + FOREIGN_KEY_CHECKS + "=?, " + SQL_SAFE_UPDATES + "=?",
-                originalForeignKeyChecks, originalSqlSafeUpdates);
+                             originalForeignKeyChecks, originalSqlSafeUpdates);
     }
 
     // #2197: prevent user-defined variables from leaking beyond the scope of a migration
