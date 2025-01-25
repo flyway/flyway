@@ -27,9 +27,7 @@
         <dependency>
             <groupId>com.github.kornilova203</groupId>
             <artifactId>mongo-jdbc-driver</artifactId>
-            <version>1.20</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/mongo-jdbc-standalone-1.20.jar</systemPath>
+            <version>1.19</version>
         </dependency>
     </dependencies>
 
