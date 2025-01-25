@@ -22,13 +22,11 @@ package org.flywaydb.verb.info;
 import static org.flywaydb.core.experimental.ExperimentalModeUtils.logExperimentalDataTelemetry;
 
 import java.sql.SQLException;
-import java.util.Collection;
 import lombok.CustomLog;
 import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.resource.LoadableResourceMetadata;
 import org.flywaydb.core.extensibility.VerbExtension;
 import org.flywaydb.verb.VerbUtils;
 
@@ -47,11 +45,9 @@ public class InfoVerbExtension implements VerbExtension {
 
             logExperimentalDataTelemetry(flywayTelemetryManager, experimentalDatabase.getDatabaseMetaData());
 
-            final Collection<LoadableResourceMetadata> resources = VerbUtils.scanForResources(configuration,
-                experimentalDatabase);
-            final MigrationInfo[] migrations = VerbUtils.getMigrations(schemaHistoryModel,
-                resources.toArray(LoadableResourceMetadata[]::new),
-                configuration);
+            final MigrationInfo[] migrations = VerbUtils.getMigrationInfos(configuration,
+                experimentalDatabase,
+                schemaHistoryModel);
 
             if (!experimentalDatabase.schemaHistoryTableExists(configuration.getTable())) {
                 LOG.info("Schema history table " + experimentalDatabase.quote(experimentalDatabase.getCurrentSchema(),  configuration.getTable()) + " does not exist yet");

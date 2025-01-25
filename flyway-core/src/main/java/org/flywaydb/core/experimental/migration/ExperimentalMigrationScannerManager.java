@@ -23,7 +23,6 @@ import static org.flywaydb.core.api.resource.LoadableResource.createPlaceholderR
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.HashSet;
 import java.util.Objects;
@@ -55,10 +54,8 @@ public class ExperimentalMigrationScannerManager {
 
     public Collection<LoadableResourceMetadata> scan(final Configuration configuration, final ParsingContext parsingContext) {
         if (scanners.isEmpty()){
-            LOG.warn("Native Connectors Mode is set but no migrations scanners loaded");
-            return Collections.emptyList();
+            LOG.warn("No migrations scanners loaded");
         }
-
         final List<LoadableResourceMetadata> resources = Arrays.stream(configuration.getLocations())
                                                                .flatMap(location -> scan(location,configuration, parsingContext).stream())
                                                                .map(resource -> getLoadableResourceMetadata(resource, configuration, parsingContext))

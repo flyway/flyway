@@ -22,7 +22,6 @@ package org.flywaydb.verb.repair;
 import static org.flywaydb.core.experimental.ExperimentalModeUtils.logExperimentalDataTelemetry;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import lombok.CustomLog;
 import org.flywaydb.core.FlywayTelemetryManager;
@@ -33,7 +32,6 @@ import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.RepairOutput;
 import org.flywaydb.core.api.output.RepairResult;
-import org.flywaydb.core.api.resource.LoadableResourceMetadata;
 import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryItem;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryModel;
@@ -69,11 +67,7 @@ public class RepairVerbExtension implements VerbExtension {
         removeFailedMigrations(configuration, repairResult, experimentalDatabase);
 
         final SchemaHistoryModel postRemovalSchemaHistoryModel = VerbUtils.getSchemaHistoryModel(configuration, experimentalDatabase);
-        final Collection<LoadableResourceMetadata> resources = VerbUtils.scanForResources(configuration,
-            experimentalDatabase);
-        final MigrationInfo[] migrations = VerbUtils.getMigrations(postRemovalSchemaHistoryModel,
-            resources.toArray(LoadableResourceMetadata[]::new),
-            configuration);
+        final MigrationInfo[] migrations = VerbUtils.getMigrationInfos(configuration, experimentalDatabase, postRemovalSchemaHistoryModel);
 
         markRemovedMigrationsAsDeleted(configuration, migrations, repairResult, postRemovalSchemaHistoryModel, experimentalDatabase);
 

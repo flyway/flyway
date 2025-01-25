@@ -23,7 +23,6 @@ import static org.flywaydb.core.experimental.ExperimentalModeUtils.logExperiment
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import lombok.CustomLog;
 import org.flywaydb.core.Flyway;
@@ -35,14 +34,12 @@ import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationInfoService;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.api.exception.FlywayValidateException;
 import org.flywaydb.core.api.output.MigrateResult;
 import org.flywaydb.core.api.output.ValidateResult;
 import org.flywaydb.core.api.pattern.ValidatePattern;
-import org.flywaydb.core.api.resource.LoadableResourceMetadata;
 import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryModel;
 import org.flywaydb.core.extensibility.VerbExtension;
@@ -51,7 +48,6 @@ import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.TimeFormat;
 import org.flywaydb.core.internal.util.ValidatePatternUtils;
-import org.flywaydb.experimental.callbacks.CallbackManager;
 import org.flywaydb.verb.VerbUtils;
 import org.flywaydb.verb.info.ExperimentalMigrationInfoService;
 import org.flywaydb.verb.migrate.migrators.ApiMigrator;
@@ -109,15 +105,9 @@ public class MigrateVerbExtension implements VerbExtension {
             }
         }
 
-        final SchemaHistoryModel schemaHistoryModel = VerbUtils.getSchemaHistoryModel(configuration, experimentalDatabase);
-        final Collection<LoadableResourceMetadata> resources = VerbUtils.scanForResources(configuration,
-            experimentalDatabase);
-
-        CallbackManager callbackManager = new CallbackManager(resources);
-
-        final MigrationInfo[] migrations = VerbUtils.getMigrations(schemaHistoryModel,
-            resources.toArray(LoadableResourceMetadata[]::new),
-            configuration);
+        final MigrationInfo[] migrations = VerbUtils.getMigrationInfos(configuration,
+            experimentalDatabase,
+            VerbUtils.getSchemaHistoryModel(configuration, experimentalDatabase));
 
         experimentalDatabase.createSchemaHistoryTableIfNotExists(configuration.getTable());
 
@@ -168,8 +158,6 @@ public class MigrateVerbExtension implements VerbExtension {
         };
 
         final List<MigrationExecutionGroup> executionGroups = migrator.createGroups(allPendingMigrations, configuration, experimentalDatabase, migrateResult, parsingContext);
-
-        callbackManager.handleEvent(Event.BEFORE_MIGRATE, experimentalDatabase, configuration, parsingContext);
 
         int installedRank = experimentalDatabase.getSchemaHistoryModel(configuration.getTable()).calculateInstalledRank(CoreMigrationType.SQL);
         for (final MigrationExecutionGroup executionGroup : executionGroups) {

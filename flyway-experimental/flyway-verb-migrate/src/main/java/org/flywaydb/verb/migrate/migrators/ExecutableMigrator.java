@@ -21,6 +21,8 @@ package org.flywaydb.verb.migrate.migrators;
 
 import static org.flywaydb.verb.VerbUtils.toMigrationText;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
@@ -31,14 +33,11 @@ import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.CommandResultFactory;
 import org.flywaydb.core.api.output.MigrateResult;
-import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.internal.exception.FlywayMigrateException;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.verb.ErrorUtils;
-import org.flywaydb.verb.FileReadingWithPlaceholderReplacement;
 import org.flywaydb.verb.migrate.MigrationExecutionGroup;
 
 @CustomLog
@@ -69,13 +68,13 @@ public class ExecutableMigrator extends Migrator{
             experimentalDatabase.startTransaction();
         }
 
-        doIndividualMigration(executionGroup.migrations().get(0), experimentalDatabase, configuration, migrateResult, installedRank, parsingContext);
+        doIndividualMigration(executionGroup.migrations().get(0), experimentalDatabase, configuration, migrateResult, installedRank);
 
         return installedRank + 1;
     }
 
     private void doIndividualMigration(final MigrationInfo migrationInfo, final ExperimentalDatabase experimentalDatabase,
-        final Configuration configuration, final MigrateResult migrateResult, final int installedRank, final ParsingContext parsingContext) {
+        final Configuration configuration, final MigrateResult migrateResult, final int installedRank) {
         final StopWatch watch = new StopWatch();
         watch.start();
 
@@ -92,8 +91,7 @@ public class ExecutableMigrator extends Migrator{
                 } else {
                     LOG.info("Undoing migration of " + migrationText);
                 }
-
-                final String executionUnit = FileReadingWithPlaceholderReplacement.readFile(configuration, parsingContext, migrationInfo.getPhysicalLocation());
+                final String executionUnit = String.join("\n", Files.readAllLines(Path.of(migrationInfo.getPhysicalLocation())));
                 experimentalDatabase.doExecute(executionUnit, configuration.isOutputQueryResults());
             }
         } catch (final Exception e) {
@@ -161,18 +159,22 @@ public class ExecutableMigrator extends Migrator{
     }
 
     private String calculateErrorMessage(final Exception e, final MigrationInfo migrationInfo) {
-
         final String title = "Script " + Paths.get(migrationInfo.getScript()).getFileName() + " failed";
+        final String underline = StringUtils.trimOrPad("", title.length(), '-');
 
-        LoadableResource loadableResource = null;
+        final StringBuilder messageBuilder = new StringBuilder().append(title).append("\n").append(underline).append(
+            "\n");
+        messageBuilder.append("Message    : ").append(e.getMessage()).append("\n");
+
         if (migrationInfo instanceof final LoadableMigrationInfo loadableMigrationInfo) {
-            loadableResource = loadableMigrationInfo.getLoadableResource();
+            messageBuilder.append("Location   : ")
+                .append(loadableMigrationInfo.getLoadableResource().getAbsolutePath())
+                .append(" (")
+                .append(loadableMigrationInfo.getLoadableResource().getAbsolutePathOnDisk())
+                .append(")\n");
+        } else {
+            messageBuilder.append("Location   : ").append(migrationInfo.getPhysicalLocation());
         }
-
-        return ErrorUtils.calculateErrorMessage(e, title,
-            loadableResource,
-            migrationInfo.getPhysicalLocation(),
-            null,
-            "Message    : " + e.getMessage() + "\n");
+        return messageBuilder.toString();
     }
 }

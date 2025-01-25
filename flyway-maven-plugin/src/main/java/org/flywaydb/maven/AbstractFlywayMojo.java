@@ -19,17 +19,6 @@
  */
 package org.flywaydb.maven;
 
-import static org.flywaydb.core.internal.configuration.ConfigUtils.FLYWAY_PLUGINS_PREFIX;
-import static org.flywaydb.core.internal.configuration.ConfigUtils.putArrayIfSet;
-import static org.flywaydb.core.internal.configuration.ConfigUtils.putIfSet;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Component;
@@ -52,6 +41,13 @@ import org.flywaydb.core.internal.logging.EvolvingLog;
 import org.flywaydb.core.internal.logging.buffered.BufferedLog;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.StringUtils;
+
+import java.io.File;
+import java.util.*;
+
+import static org.flywaydb.core.internal.configuration.ConfigUtils.FLYWAY_PLUGINS_PREFIX;
+import static org.flywaydb.core.internal.configuration.ConfigUtils.putArrayIfSet;
+import static org.flywaydb.core.internal.configuration.ConfigUtils.putIfSet;
 
 /**
  * Common base class for all mojos with all common attributes.
@@ -387,7 +383,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     /**
      * Ignore migrations that match this comma-separated list of patterns when validating migrations.
      * Each pattern is of the form <migration_type>:<migration_state>
-     * See https://documentation.red-gate.com/flyway/reference/configuration/flyway-namespace/flyway-ignore-migration-patterns-setting for full details
+     * See https://documentation.red-gate.com/flyway/flyway-cli-and-api/configuration/parameters/flyway/ignore-migration-patterns for full details
      * Example: repeatable:missing,versioned:pending,*:failed
      * (default: *:future)
      */

@@ -179,7 +179,7 @@ recommend that a file or class name and description of purpose be included on
 the same “printed page” as the copyright notice for easier identification within
 third-party archives.
 
-    Copyright © Red Gate Software Ltd 2010-2025
+    Copyright © Red Gate Software Ltd 2010-2024
     
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

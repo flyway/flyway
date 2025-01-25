@@ -22,7 +22,6 @@ package org.flywaydb.verb.migrate.migrators;
 import static org.flywaydb.core.internal.sqlscript.FlywaySqlScriptException.STATEMENT_MESSAGE;
 import static org.flywaydb.verb.VerbUtils.toMigrationText;
 
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -35,7 +34,6 @@ import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.CommandResultFactory;
 import org.flywaydb.core.api.output.MigrateResult;
-import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.experimental.ConnectionType;
 import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.internal.exception.FlywayMigrateException;
@@ -48,7 +46,6 @@ import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.verb.ErrorUtils;
 import org.flywaydb.verb.migrate.MigrationExecutionGroup;
 
 @CustomLog
@@ -343,25 +340,32 @@ public class JdbcMigrator extends Migrator {
     private String calculateErrorMessage(final Exception e,
         final MigrationInfo migrationInfo,
         final SqlStatement sqlStatement) {
-
         final String title = "Script " + Paths.get(migrationInfo.getScript()).getFileName() + " failed";
+        final String underline = StringUtils.trimOrPad("", title.length(), '-');
 
-        String message = null;
+        final StringBuilder messageBuilder = new StringBuilder().append(title).append("\n").append(underline).append(
+            "\n");
+
         if (e.getCause() instanceof final SQLException sqlException) {
-            message = ExceptionUtils.toMessage(sqlException);
+            messageBuilder.append(ExceptionUtils.toMessage(sqlException));
         }
 
-        LoadableResource loadableResource = null;
         if (migrationInfo instanceof final LoadableMigrationInfo loadableMigrationInfo) {
-            loadableResource = loadableMigrationInfo.getLoadableResource();
+            messageBuilder.append("Location   : ")
+                .append(loadableMigrationInfo.getLoadableResource().getAbsolutePath())
+                .append(" (")
+                .append(loadableMigrationInfo.getLoadableResource().getAbsolutePathOnDisk())
+                .append(")\n");
+        } else {
+            messageBuilder.append("Location   : ").append(migrationInfo.getPhysicalLocation());
         }
-
-        return ErrorUtils.calculateErrorMessage(e,
-            title,
-            loadableResource,
-            migrationInfo.getPhysicalLocation(),
-            sqlStatement,
-            message);
+        if (sqlStatement != null) {
+            messageBuilder.append("Line       : ").append(sqlStatement.getLineNumber()).append("\n");
+            messageBuilder.append("Statement  : ").append(LOG.isDebugEnabled()
+                ? sqlStatement.getSql()
+                : STATEMENT_MESSAGE).append("\n");
+        }
+        return messageBuilder.toString();
     }
 
     private void validateMixedStatements(final Configuration configuration,

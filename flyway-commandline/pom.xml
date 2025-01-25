@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>11.2.0</version>
+        <version>11.1.1</version>
     </parent>
     <artifactId>flyway-commandline</artifactId>
     <packaging>jar</packaging>
@@ -13,7 +13,7 @@
 
 
 
-        <jre.version>21.0.5</jre.version>
+        <jre.version>17.0.11</jre.version>
     </properties>
 
     <dependencies>
@@ -157,7 +157,7 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-databricks</artifactId>
-            <version>10.16.4</version>
+            <version>10.16.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -423,7 +423,7 @@
         <dependency>
             <groupId>com.databricks</groupId>
             <artifactId>databricks-jdbc</artifactId>
-            <version>2.6.40</version>
+            <version>2.6.38</version>
             <scope>runtime</scope>
         </dependency>
         <!-- #2136: JNA is required for MariaDB with unix sockets -->
@@ -587,14 +587,6 @@
 
 
 
-
-
-
-
-
-
-
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>flyway-verb-info</artifactId>
@@ -671,12 +663,6 @@
             <version>${project.parent.version}</version>
             <scope>runtime</scope>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>flyway-experimental-callbacks</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
     </dependencies>
     <dependencyManagement>
         <dependencies>
@@ -687,7 +673,7 @@
                 <version>${jre.version}</version>
                 <type>zip</type>
                 <scope>system</scope>
-                <systemPath>${basedir}/src/main/assembly/OpenJDK21U-jre_x64_windows_hotspot_${jre.version}_11.zip</systemPath>
+                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_x64_windows_hotspot_${jre.version}_9.zip</systemPath>
             </dependency>
             <dependency>
                 <groupId>net.adoptium</groupId>
@@ -696,7 +682,7 @@
                 <version>${jre.version}</version>
                 <type>tar.gz</type>
                 <scope>system</scope>
-                <systemPath>${basedir}/src/main/assembly/OpenJDK21U-jre_x64_linux_hotspot_${jre.version}_11.tar.gz</systemPath>
+                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_x64_linux_hotspot_${jre.version}_9.tar.gz</systemPath>
             </dependency>
             <dependency>
                 <groupId>net.adoptium</groupId>
@@ -705,7 +691,7 @@
                 <version>${jre.version}</version>
                 <type>tar.gz</type>
                 <scope>system</scope>
-                <systemPath>${basedir}/src/main/assembly/OpenJDK21U-jre_x64_alpine-linux_hotspot_${jre.version}_11.tar.gz</systemPath>
+                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_x64_alpine-linux_hotspot_${jre.version}_9.tar.gz</systemPath>
             </dependency>
             <dependency>
                 <groupId>net.adoptium</groupId>
@@ -714,7 +700,7 @@
                 <version>${jre.version}</version>
                 <type>tar.gz</type>
                 <scope>system</scope>
-                <systemPath>${basedir}/src/main/assembly/OpenJDK21U-jre_x64_mac_hotspot_${jre.version}_11.tar.gz</systemPath>
+                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_x64_mac_hotspot_${jre.version}_9.tar.gz</systemPath>
             </dependency>
             <dependency>
                 <groupId>net.adoptium</groupId>
@@ -723,7 +709,7 @@
                 <version>${jre.version}</version>
                 <type>tar.gz</type>
                 <scope>system</scope>
-                <systemPath>${basedir}/src/main/assembly/OpenJDK21U-jre_aarch64_mac_hotspot_${jre.version}_11.tar.gz</systemPath>
+                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_aarch64_mac_hotspot_${jre.version}_9.tar.gz</systemPath>
             </dependency>
         </dependencies>
     </dependencyManagement>
