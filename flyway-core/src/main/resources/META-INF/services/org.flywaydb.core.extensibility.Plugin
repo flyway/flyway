@@ -25,3 +25,4 @@ org.flywaydb.core.internal.proprietaryStubs.PrepareCommandExtensionStub
 org.flywaydb.core.internal.proprietaryStubs.PATTokenConfigurationExtensionStub
 org.flywaydb.core.internal.publishing.PublishingConfigurationExtension
 org.flywaydb.core.experimental.migration.CoreMigrationTypeResolver
+org.flywaydb.core.internal.NullFlywayTelemetryManager

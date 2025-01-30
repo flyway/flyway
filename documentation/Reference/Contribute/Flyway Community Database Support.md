@@ -49,25 +49,25 @@ You should be able to open the project and see a number of modules.
     *   `getRawCreateScript()` - to return SQL appropriate for your database to create the schema history table. Refer to an existing database type to see the column types needed. The table name will be provided by the table argument. If the baseline argument is true, this method should also insert a row for the baseline migration.
     *   `supportsDdlTransactions()` - to return whether the database can support executing DDL statements inside a transaction or not.
     *   `getBooleanTrue()` and `getBooleanFalse()` - to return string representations of the Boolean values as used in your database's dialect of SQL. Typically these are "true" and "false", but could be, for example, "1" and "0"
-    *   `catalogIsSchema()` - to return true if the database uses a catalog to represent a single schema (eg. MySQL, SQLite); false if a catalog is a collection of schemas.
+    *   `catalogIsSchema()` - to return true if the database uses a catalog to represent a single schema (for example: MySQL, SQLite); false if a catalog is a collection of schemas.
     *   You **may** need to provide your own implementations of these methods:
         *   `getSelectStatement()` - to return SQL appropriate for your database to select all rows from the history table with installed\_rank greater than a parameter value.
         *   `getInsertStatement()` - to return SQL appropriate to insert a row into the history table with nine parameter values (corresponding to the table columns in order).
-        *   `supportsEmptyMigrationDescription()` - if your database can't support an empty string in the description column of the history table verbatim (eg. Oracle implicitly converts it to `NULL`), override this to return false.
+        *   `supportsEmptyMigrationDescription()` - if your database can't support an empty string in the description column of the history table verbatim (for example, Oracle implicitly converts it to `NULL`), override this to return false.
         *   `doQuote()` - to return an escaped version of an identifier for use in SQL. Typically this is the provided value with a double-quote added either side, but could be, for example, square brackets either side as in SQL Server.
 
 1.  You may want to add overrides for `FooParser` to customize it to fit the SQL dialect your database uses:
     *   The constructor should call the superclass constructor with a peek depth. This determines how far in advance the parser looks to determine the nature of various symbols. 2 is a reasonable start, unless you know your database has two-character entities (like SnowflakeDB's `$$` for javascript delimiters) in which case start at 3.
     *   `getDefaultDelimiter()` if your database uses something other than a semicolon to delimit separate statements
-    *   `getIdentifierQuote()` if your database uses something other than a double-quote to escape identifiers (eg. MySQL uses backticks)
+    *   `getIdentifierQuote()` if your database uses something other than a double-quote to escape identifiers (for example, MySQL uses backticks)
     *   `getAlternativeIdentifierQuote()` if your database has a second way to escape identifiers in addition to double-quotes.
-    *   `getAlternativeStringLiteralQuote()` if your database has a second way to mark string literals in addition to single-quotes (eg. MySql allows double-quotes)
+    *   `getAlternativeStringLiteralQuote()` if your database has a second way to mark string literals in addition to single-quotes (for example, MySql allows double-quotes)
     *   `getValidKeywords()` if your database has a different set of valid keywords to the standard ones. It's not strictly necessary to include keywords that can't be found in migration scripts.
     *   There are other overrides available for handling more complex SQL.
 
 1. Add overrides for `FooSchema` to customize it to fit the SQL dialect your database uses:
     *   `doExists()` - to query whether the schema described exists in the database
-    *   `doEmpty()` - to query whether the schema contains any sub-objects eg. tables, views, procedures.
+    *   `doEmpty()` - to query whether the schema contains any sub-objects; For example: tables, views, procedures.
     *   `getObjectCount()` - to query the number of objects of a given type that exist in the schema
     *   `doCreate()` - to create the schema in the database
     *   `doDrop()` - to drop the schema in the database

@@ -73,7 +73,7 @@ The filter can contain one or more of the following, each of which whitelists a 
 
 -
 
-`A` - Allows letters (characters in the following Unicode categories: "Uppercase letter (Lu)", "Lowercase letter (Ll)", "Titlecase letter (Lt)", "Modifier letter (Lm)" or "Other letter (Lo)")
+`A` - Allows letters (characters in the following Unicode categories: "Uppercase letter (Lu)", "Lowercase letter (Ll)", "Title case letter (Lt)", "Modifier letter (Lm)" or "Other letter (Lo)")
 
 - `a` - Allows ASCII letters
 - `D` - Allows Digits (characters in the "Decimal number (Nd)" Unicode category)

@@ -14,7 +14,7 @@ See [Drift analysis](https://documentation.red-gate.com/display/FD/Drift+analysi
 
 ## Usage examples
 
-### Generating report based upon environment
+### Generating report based upon a target environment
 
 ```bash
 flyway check -drift -buildEnvironment="build" -environment="production"
@@ -33,36 +33,34 @@ flyway check -drift -buildEnvironment="build" -appliedMigrations="$(cat appliedM
 This approach captures a snapshot of the updated build database, and uses this as the basis for the comparison against the target database which underlies the report.
 This assumes that the migrations deployed to the target environment represent the full state of that database at the point of last deployment.
 
-### Generating report based upon snapshots
+### Generating report based upon a snapshot
 
 ```bash
-flyway check -drift -deployedSnapshot="C:\snapshot1.json" -nextSnapshot="C:\snapshot2.json"
+flyway check -drift -deployedSnapshot="C:\snapshot1.json" -environment="Production"
 ```
-
-The comparison which underlies the report is generated from the specified snapshots.
+The comparison which underlies the report is generated from the specified snapshot and a target database. 
 
 ## Parameters
 
 ### Conditionally required
 
-#### When generating report based upon configured build environment
+#### When generating report using a build environment
 
 | Parameter                                                                                                            | Namespace | Description           |
 |----------------------------------------------------------------------------------------------------------------------|-----------|-----------------------|
 | [`buildEnvironment`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Build Environment Setting>) | check     | Build environment id. |
 
-#### When generating report based upon build environment defined inline
+#### When generating report using a build environment defined inline
 
 | Parameter                                                                                            | Namespace | Description                 |
 |------------------------------------------------------------------------------------------------------|-----------|-----------------------------|
 | [`buildUrl`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Build URL Setting>) | check     | URL for the build database. |
 
-#### When generating report based upon snapshots
+#### When generating report using a target snapshot
 
 | Parameter                                                                                                            | Namespace | Description                                                                                  |
 |----------------------------------------------------------------------------------------------------------------------|-----------|----------------------------------------------------------------------------------------------|
 | [`deployedSnapshot`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Deployed Snapshot Setting>) | check     | A snapshot containing all applied migrations and thus matching what should be in the target. |
-| [`nextSnapshot`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Next Snapshot Setting>)         | check     | A snapshot containing all migrations including those that are pending.                       |
 
 ### Optional
 

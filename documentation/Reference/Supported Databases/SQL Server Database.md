@@ -28,7 +28,7 @@ SQL-Server-specific configuration can be found [here](<Configuration/Flyway Name
 
 ## Java Usage
 
-SQLServer support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
+SQL Server support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
 
 ### Maven
 

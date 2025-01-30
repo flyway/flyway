@@ -61,7 +61,7 @@ dependencies {
 ### Compatibility
     
 - DDL exported by HSQLDB can be used unchanged in a Flyway migration
-- Any HSQLDB SQL script executed by Flyway, can be executed by the Hsql tools (after the placeholders have been replaced)
+- Any HSQLDB SQL script executed by Flyway, can be executed by the HSQL tools (after the placeholders have been replaced)
 
 ### Example
 

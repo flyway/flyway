@@ -7,7 +7,13 @@ subtitle: flyway.reportEnabled
 
 ## Description
 
-Whether to enable generating a report file.
+Whether to enable generation of a report file.
+
+Flyway's reports solve the problem of reporting on what Flyway did - it does not produce additional information but packages up the CLI output in a more convenient manner.
+
+ You might want this to:
+ * Have a record of what happened when for audit or reporting purposes
+ * Understand and be able to communicate status or failures in a more easily shareable manner than the raw CLI output logs
 
 ## Type
 

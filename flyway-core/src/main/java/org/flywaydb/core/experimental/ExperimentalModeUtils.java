@@ -25,7 +25,6 @@ import lombok.CustomLog;
 import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.LicenseGuard;
-import org.flywaydb.core.extensibility.RootTelemetryModel;
 import org.flywaydb.core.internal.configuration.ConfigurationValidator;
 
 @CustomLog
@@ -94,13 +93,7 @@ public class ExperimentalModeUtils {
 
     public static void logExperimentalDataTelemetry(final FlywayTelemetryManager flywayTelemetryManager, final MetaData metaData) {
         if (flywayTelemetryManager != null) {
-            RootTelemetryModel rootTelemetryModel = flywayTelemetryManager.getRootTelemetryModel();
-            if (rootTelemetryModel != null) {
-                rootTelemetryModel.setDatabaseEngine(metaData.databaseProductName());
-                rootTelemetryModel.setDatabaseVersion(metaData.databaseProductVersion());
-                rootTelemetryModel.setConnectionType(metaData.connectionType().name());
-                rootTelemetryModel.setExperimentalMode(true);
-            }
+            flywayTelemetryManager.notifyExperimentalMetadataChanged(metaData);
         }
     }
 

@@ -22,15 +22,20 @@ package org.flywaydb.verb.clean;
 import static org.flywaydb.core.experimental.ExperimentalModeUtils.logExperimentalDataTelemetry;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.CleanResult;
+import org.flywaydb.core.api.resource.LoadableResourceMetadata;
 import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.extensibility.VerbExtension;
 import org.flywaydb.core.internal.license.VersionPrinter;
+import org.flywaydb.core.internal.parser.ParsingContext;
+import org.flywaydb.experimental.callbacks.CallbackManager;
 import org.flywaydb.verb.VerbUtils;
 
 public class CleanVerbExtension implements VerbExtension {
@@ -54,6 +59,16 @@ public class CleanVerbExtension implements VerbExtension {
             throw new FlywayException(e);
         }
 
+        final Collection<LoadableResourceMetadata> resources = VerbUtils.scanForResources(configuration,
+            experimentalDatabase);
+
+        CallbackManager callbackManager = new CallbackManager(resources, configuration.isSkipDefaultCallbacks());
+
+        final ParsingContext parsingContext = new ParsingContext();
+        parsingContext.populate(experimentalDatabase, configuration);
+
+        callbackManager.handleEvent(Event.BEFORE_CLEAN, experimentalDatabase, configuration, parsingContext);
+
         logExperimentalDataTelemetry(flywayTelemetryManager, experimentalDatabase.getDatabaseMetaData());
 
         final List<String> schemas = new LinkedList<>(Arrays.asList(configuration.getSchemas()));
@@ -65,7 +80,14 @@ public class CleanVerbExtension implements VerbExtension {
         final CleanResult cleanResult = new CleanResult(VersionPrinter.getVersion(), experimentalDatabase.getDatabaseMetaData().databaseName());
         cleanResult.operation = "clean";
 
-        experimentalDatabase.doClean(schemas, cleanResult);
+        try {
+            experimentalDatabase.doClean(schemas, cleanResult);
+        } catch (FlywayException e) {
+            callbackManager.handleEvent(Event.AFTER_CLEAN_ERROR, experimentalDatabase, configuration, parsingContext);
+            throw e;
+        }
+
+        callbackManager.handleEvent(Event.AFTER_CLEAN, experimentalDatabase, configuration, parsingContext);
 
         return cleanResult;
     }

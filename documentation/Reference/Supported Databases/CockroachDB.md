@@ -83,8 +83,8 @@ INSERT INTO ${tableName} (name) VALUES ('Mr. T');
 
 ## Limitations
 
-- No support for psql meta-commands with no JDBC equivalent like `\set`
+- No support for PSQL meta-commands with no JDBC equivalent like `\set`
 
 ## Additional Information
 
-- See CockroachDB's walkthrough on using Flyway [here](https://www.cockroachlabs.com/docs/stable/flyway.html)
+- See CockroachDB's walk-through on using Flyway [here](https://www.cockroachlabs.com/docs/stable/flyway.html)

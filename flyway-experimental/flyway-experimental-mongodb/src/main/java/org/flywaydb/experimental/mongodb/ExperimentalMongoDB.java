@@ -65,6 +65,7 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
     private MongoClient mongoClient;
     private MongoDatabase mongoDatabase;
     private ArrayList<String> batch = new ArrayList<>();
+    private MetaData metaData;
     private ConnectionType connectionType;
     
     private String schemaHistoryTableName = null;
@@ -125,6 +126,7 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
         }
         mongoDatabase = mongoClient.getDatabase(getDefaultSchema(configuration));
         schemaHistoryTableName = configuration.getTable();
+        metaData = getDatabaseMetaData();
     }
 
     @Override
@@ -151,6 +153,10 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
 
     @Override
     public MetaData getDatabaseMetaData() {
+        if (this.metaData != null) {
+            return metaData;
+        }
+
         final Document buildInfo = mongoDatabase.runCommand(new Document("buildInfo", 1));
         final String version = buildInfo.getString("version");
         return new MetaData("Mongo DB", version, connectionType, getCurrentSchema());
@@ -283,6 +289,11 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
     @Override
     public void addToBatch(final String executionUnit) {
         batch.add(executionUnit);
+    }
+
+    @Override
+    public int getBatchSize() {
+        return batch.size();
     }
 
     @Override

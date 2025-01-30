@@ -330,6 +330,8 @@
                 <include>org.flywaydb:flyway-database-oceanbase</include>
                 <include>org.flywaydb:flyway-database-databricks</include>
                 <include>org.flywaydb:flyway-database-db2zos</include>
+                <include>org.flywaydb:flyway-database-timeplus</include>
+                <include>org.flywaydb:flyway-database-duckdb</include>
                 <include>org.flywaydb:flyway-verb-utils</include>
                 <include>org.flywaydb:flyway-experimental-scanners</include>
                 <include>org.flywaydb:flyway-verb-info</include>

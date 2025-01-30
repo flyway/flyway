@@ -15,13 +15,13 @@ All editions are supported, including XE.
 
 ## Driver
 
-| Item                               | Details                                                                                                                        |
-|------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|
-| **URL format**                     | <code>jdbc:oracle:thin:@//<i>host</i>:<i>port</i>/<i>service</i></code>  <br><code>jdbc:oracle:thin:@<i>tns_entry</i></code> * |
-| **Ships with Flyway Command-line** | Yes                                                                                                                            |
-| **Maven Central coordinates**      | `com.oracle.database.jdbc:ojdbc8`                                                                                              |
-| **Supported versions**             | `18.3.0.0` and later                                                                                                           |
-| **Default Java class**             | `oracle.jdbc.OracleDriver`                                                                                                     |
+| Item                               | Details                                                                    |
+| ---------------------------------- | -------------------------------------------------------------------------- |
+| **URL format**                     | `jdbc:oracle:thin:@//host:port/service` <br> `jdbc:oracle:thin:@tns_entry` |
+| **Ships with Flyway Command-line** | Yes                                                                        |
+| **Maven Central coordinates**      | `com.oracle.database.jdbc:ojdbc11`                                         |
+| **Supported versions**             | `21.1.0.0` and later                                                       |
+| **Default Java class**             | `oracle.jdbc.OracleDriver`                                                 |
 
 \* `TNS_ADMIN` environment variable must point to the directory of where `tnsnames.ora` resides
 
@@ -242,9 +242,9 @@ flyway.oracle.kerberosCacheFile=/tmp/krb5cc_123
 
 {% include teams.html %}
 
-Flyway allows you to proxy through other users during migrations. You can read about how to enable proxying for users [here](https://docs.oracle.com/cd/E11882_01/java.112/e16548/proxya.htm#JJDBC28352).
+Flyway allows you to proxy through other users during migrations. You can read about how to enable proxy authentication for users [here](https://docs.oracle.com/cd/E11882_01/java.112/e16548/proxya.htm#JJDBC28352).
 
-To configure Flyway to use a proxy connection, you need to add to [jdbcProperties](<Configuration/Environments Namespace/Environment JDBC Properties Namespace>) a key `PROXY_USER_NAME` whose value is the name of the user you are trying to proxy as. For example, if you connect as user `A` to Flyway (i.e. `flyway.user=A`) and you want to proxy as user `B` for migrations, you need to add `flyway.jdbcproperties.PROXY_USER_NAME=B`.
+To configure Flyway to use a proxy connection, you need to add to [`jdbcProperties`](<Configuration/Environments Namespace/Environment JDBC Properties Namespace>) a key `PROXY_USER_NAME` whose value is the name of the user you are trying to proxy as. For example, if you connect as user `A` to Flyway (i.e. `flyway.user=A`) and you want to proxy as user `B` for migrations, you need to add `flyway.jdbcproperties.PROXY_USER_NAME=B`.
 
 ## Limitations
 
@@ -264,7 +264,7 @@ As much as possible, Flyway aims to emulate the behavior of the SQL*Plus client 
   SQL*Plus client; in general abbreviations are supported by Flyway as documented [here](https://docs.oracle.com/cd/B19306_01/server.102/b14357/ch12041.htm),
   so for example `SHOW ERRORS` can be abbreviated to `SHO ERR`, but not `SHOW ERROR` (which is accepted by the client).
 
-- SQL*Plus is known to replace CRLF pairs in string literals with single LFs. Flyway will not do this - instead it preserves scripts as they are written
+- SQL*Plus is known to replace CRLF pairs in string literals with a single LF. Flyway will not do this - instead it preserves scripts as they are written
 
 If you encounter a discrepancy between the Oracle SQL*Plus client and Flyway, let us know via the official support email.
 

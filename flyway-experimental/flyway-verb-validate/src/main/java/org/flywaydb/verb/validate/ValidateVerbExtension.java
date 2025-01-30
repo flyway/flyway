@@ -35,6 +35,7 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.ValidateOutput;
 import org.flywaydb.core.api.output.ValidateResult;
@@ -43,10 +44,12 @@ import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryModel;
 import org.flywaydb.core.extensibility.VerbExtension;
 import org.flywaydb.core.internal.license.VersionPrinter;
+import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.ValidatePatternUtils;
+import org.flywaydb.experimental.callbacks.CallbackManager;
 import org.flywaydb.verb.VerbUtils;
 
 @CustomLog
@@ -71,6 +74,14 @@ public class ValidateVerbExtension implements VerbExtension {
 
             final Collection<LoadableResourceMetadata> resources = VerbUtils.scanForResources(configuration,
                 experimentalDatabase);
+
+            CallbackManager callbackManager = new CallbackManager(resources, configuration.isSkipDefaultCallbacks());
+
+            final ParsingContext parsingContext = new ParsingContext();
+            parsingContext.populate(experimentalDatabase, configuration);
+
+            callbackManager.handleEvent(Event.BEFORE_VALIDATE, experimentalDatabase, configuration, parsingContext);
+
             final MigrationInfo[] migrations = VerbUtils.getMigrations(schemaHistoryModel,
                 resources.toArray(LoadableResourceMetadata[]::new),
                 configuration);
@@ -103,6 +114,8 @@ public class ValidateVerbExtension implements VerbExtension {
                     count == 1 ? "" : "s",
                     TimeFormat.format(stopWatch.getTotalTimeMillis())));
 
+                callbackManager.handleEvent(Event.AFTER_VALIDATE, experimentalDatabase, configuration, parsingContext);
+
                 if (migrations.length == 0) {
                     final ArrayList<String> warnings = new ArrayList<>();
                     final String noMigrationsWarning = "No migrations found. Are your locations set up correctly?";
@@ -126,6 +139,9 @@ public class ValidateVerbExtension implements VerbExtension {
                 invalidMigrations,
                 new ArrayList<>());
             }
+
+            callbackManager.handleEvent(Event.AFTER_VALIDATE_ERROR, experimentalDatabase, configuration, parsingContext);
+
             return new ValidateResult(VersionPrinter.getVersion(),
                 experimentalDatabase.getDatabaseMetaData().databaseName(),
                 new ErrorDetails(CoreErrorCode.VALIDATE_ERROR, "Migrations have failed validation"),

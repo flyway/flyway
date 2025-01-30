@@ -5,18 +5,19 @@ subtitle: Model
 ## Description
 
 The `model` command allows differences found by running the diff command to be applied to the schema model.
-The schema model must be one of the comparison sources used to create the diff artifact.
+The schema model must be one of the comparison sources used in the diff artifact provided to `model`.
 
 See [Schema Model](https://documentation.red-gate.com/display/FD/Schema+Model) for more information.
 
 ## Usage examples
 
-### Applying to the schema model
+### Saving changes from a database to the schema model
 
-```bash
-flyway diff -source=dev -target=schemaModel
-flyway model -outputType=json
-```
+The `diff` command must first be run to discover the changes (see `diff.artifactFilename`) that can be saved to the schema model. The `diff` command can be combined with `model` into a single flyway call with verb chaining.
+
+For example, the following command generates a diff between a database environment called `dev` and the schema model, saving the changes back into the schema model:
+
+<pre class="console">&gt; flyway diff model -diff.source=dev -diff.target=schemaModel</pre>
 
 ## Parameters
 

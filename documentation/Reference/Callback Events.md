@@ -7,7 +7,7 @@ Flyway offers you the possibility to **hook into its lifecycle** by using Callba
 
 For more information see [Callbacks](https://documentation.red-gate.com/display/FD/Callbacks).
 
-_Note: Callbacks are [not supported by Native Connectors](https://documentation.red-gate.com/display/FD/Flyway+Native+Connectors+-+MongoDB)._
+_Note: Callbacks are [partially supported by Native Connectors](https://documentation.red-gate.com/display/FD/Flyway+Native+Connectors+-+MongoDB)._
 
 ## List of events
 

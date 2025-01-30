@@ -5,7 +5,7 @@ subtitle: flyway.db2z.sqlId
 
 ## Description
 
-(Required) The SQLID to be used in execution.
+The SQLID to be used in execution.
 This is the user under which it will create objects like tables etc. As creator, this user will get all rights on the object.
 If not explicitly set, the DB2z community support plugin will use the schema name as SQLID.
 

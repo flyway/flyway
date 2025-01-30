@@ -19,13 +19,8 @@
  */
 package org.flywaydb.verb.migrate.migrators;
 
-import static org.flywaydb.core.internal.sqlscript.FlywaySqlScriptException.STATEMENT_MESSAGE;
-
-import java.nio.file.Paths;
-import java.sql.SQLException;
 import java.util.List;
 import lombok.CustomLog;
-import org.flywaydb.core.api.LoadableMigrationInfo;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.MigrateResult;
@@ -33,9 +28,7 @@ import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryItem;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryItem.SchemaHistoryItemBuilder;
 import org.flywaydb.core.internal.parser.ParsingContext;
-import org.flywaydb.core.internal.sqlscript.SqlStatement;
-import org.flywaydb.core.internal.util.ExceptionUtils;
-import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.experimental.callbacks.CallbackManager;
 import org.flywaydb.verb.migrate.MigrationExecutionGroup;
 
 @CustomLog
@@ -52,7 +45,7 @@ public abstract class Migrator {
         final ExperimentalDatabase experimentalDatabase,
         final MigrateResult migrateResult,
         final ParsingContext parsingContext,
-        final int installedRank);
+        final int installedRank, final CallbackManager callbackManager);
 
     static void updateSchemaHistoryTable(final String tableName,
         final MigrationInfo migrationInfo,

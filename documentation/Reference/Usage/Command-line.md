@@ -111,7 +111,7 @@ Some command-line arguments will need care as specific characters may be interpr
 shell you are working in. The `url` parameter is particularly affected when it contains extra parameters with
 equals `=` and ampersands `&`. For example:
 
-**bash**, **macOS terminal** and **Windows cmd**: use double-quotes:
+**bash**, **macOS terminal** and **Windows command line**: use double-quotes:
 
 <pre class="console"><span>&gt;</span> flyway info -url="jdbc:snowflake://ab12345.snowflakecomputing.com/?db=demo_db&user=foo"</pre>
 
@@ -182,7 +182,7 @@ but the following will not;
 flyway init -init.databaseType=sqlserver -projectName=myProject 
 ```
 
-because the `databaseType` parameter is namespaced, scoped namespacing is disabled and thus `projectName` is assumed to be 
+because the `databaseType` parameter is declared in a namespace, scoped namespacing is disabled and thus `projectName` is assumed to be 
 `flyway.projectName` and not `flyway.init.projectName`.
 
 ### Configuration from standard input
@@ -211,7 +211,7 @@ authentication is being used.
 If you need to pass custom arguments to Flyway's JVM, you can do so by setting the `JAVA_ARGS` environment variable, either at runtime or persistently on the host system.
 They will then automatically be taken into account when launching Flyway. This is particularly useful when needing to set JVM system properties.
 
-Runtime example (Windows cmd)
+Runtime example (Windows command line)
 <pre class="console"><span>&gt;</span> set JAVA_ARGS=-Xms308M -Xmx432M</pre>
 The corresponding system environment variable would be
 Name: JAVA_ARGS
@@ -280,7 +280,7 @@ with normal command-line tools, for example:
 
 <pre class="console"><span>&gt;</span> flyway migrate -X <strong>| sls -Pattern 'term-to-filter-out' -NoMatch</strong></pre>
 
-**Windows cmd**
+**Windows command line**
 
 <pre class="console"><span>&gt;</span> flyway migrate -X <strong>| findstr /v /c:"term-to-filter-out"</strong></pre>
 

@@ -3,8 +3,8 @@ import os
 import subprocess
 
 
-def build_non_multi_arch_standard_flyway_image(version):
-    build_command = f'docker build --target flyway --pull --build-arg FLYWAY_VERSION={version} -q -f ./dockerfiles/Dockerfile .'
+def build_non_multi_arch_standard_flyway_image(version,folder=""):
+    build_command = f'docker build --target flyway --pull --build-arg FLYWAY_VERSION={version} -q -f ./dockerfiles/{folder}/Dockerfile .'
     print(build_command)
     return subprocess.run(build_command, capture_output=True, encoding="UTF_8", check=True, shell=True).stdout.strip()
     
@@ -18,6 +18,7 @@ if __name__ == "__main__":
     
     if edition == "flyway":
         images[0] = build_non_multi_arch_standard_flyway_image(version)
+        images[1] = build_non_multi_arch_standard_flyway_image(version, "alpine")
     
     test_sql_path = os.getcwd() + "/test-sql"
 

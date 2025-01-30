@@ -27,6 +27,8 @@ import java.util.List;
 @CustomLog
 public class PreviewFeatureWarning {
     private static final List<String> LOGGED_FEATURES = new ArrayList<>();
+    
+    public static final String NATIVE_CONNECTORS = "Native Connectors";
     public static boolean isPreviewFeatureEnabled(String featureName, String environmentVariable, boolean showHowToEnable) {
         if (System.getenv(environmentVariable) != null) {
             logPreviewFeature(featureName);

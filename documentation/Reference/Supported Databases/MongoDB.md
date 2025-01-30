@@ -24,7 +24,7 @@ If you have, you should consult the [MongoDB - Native Connectors](/supported-dat
 
 | Item                               | Details                                                                                                                                 |
 |------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
-| **URL format**                     | <code>jdbc:mongodb://<i>ip address:port number/database_name</i></code> <code>jdbc:mongodb+srv://<i>ip address/database_name</i></code> |
+| **URL format**                     | `jdbc:mongodb://ip address:port number/database-name` `jdbc:mongodb+srv://ip address/database_name` |
 | **SSL support**                    | No                                                                                                                                      |
 | **Ships with Flyway Command-line** | Yes (Redgate Distribution only while in preview)                                                                                        |
 | **Maven Central coordinates**      | n/a                                                                                                                                     |
@@ -89,7 +89,7 @@ We have to map Flyway concepts and language rooted in the relational database wo
 
 You must configure a JDBC URL that points to your database. You can configure a connection using this sample URL as an example:
 
-<code>jdbc:mongodb://<i>ip address</i>:<i>port number</i>/<i>database_name</i></code>
+`jdbc:mongodb://ip address:port number/database-name`
 
 We need to fetch three things to complete this url:
 

@@ -20,6 +20,7 @@
 package org.flywaydb.core;
 
 import static org.flywaydb.core.experimental.ExperimentalModeUtils.canUseExperimentalMode;
+import static org.flywaydb.core.internal.logging.PreviewFeatureWarning.NATIVE_CONNECTORS;
 import static org.flywaydb.core.internal.logging.PreviewFeatureWarning.logPreviewFeature;
 
 import java.lang.module.ModuleDescriptor.Version;
@@ -165,12 +166,13 @@ public class Flyway {
     public MigrateResult migrate() throws FlywayException {
         try (EventTelemetryModel telemetryModel = new EventTelemetryModel("migrate", flywayTelemetryManager)) {
             if (canUseExperimentalMode(configuration, "migrate")) {
-                logPreviewFeature("ExperimentalMigrate");
+                logPreviewFeature(NATIVE_CONNECTORS);
                 final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("migrate")).findFirst();
                 if (verb.isPresent()) {
+                    LOG.debug("Native Connectors for migrate is set and a verb is present");
                     return (MigrateResult) verb.get().executeVerb(configuration, flywayTelemetryManager);
                 } else {
-                    LOG.warn("Experimental mode for migrate is set but no verb is present");
+                    LOG.warn("Native Connectors for migrate is set but no verb is present");
                 }
             }
 
@@ -253,12 +255,13 @@ public class Flyway {
      */
     public MigrationInfoService info() {
         if (canUseExperimentalMode(configuration, "info")) {
-            logPreviewFeature("ExperimentalInfo");
+            logPreviewFeature(NATIVE_CONNECTORS);
             final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("info")).findFirst();
             if (verb.isPresent()) {
+                LOG.debug("Native Connectors for info is set and a verb is present");
                 return (MigrationInfoService) verb.get().executeVerb(configuration, flywayTelemetryManager);
             } else {
-                LOG.warn("Experimental mode for info is set but no verb is present");
+                LOG.warn("Native Connectors for info is set but no verb is present");
             }
         }
         return flywayExecutor.execute((migrationResolver, schemaHistory, database, defaultSchema, schemas, callbackExecutor, statementInterceptor) -> {
@@ -283,12 +286,13 @@ public class Flyway {
     public CleanResult clean() {
         try (EventTelemetryModel telemetryModel = new EventTelemetryModel("clean", flywayTelemetryManager)) {
             if (canUseExperimentalMode(configuration, "clean")) {
-                logPreviewFeature("ExperimentalClean");
+                logPreviewFeature(NATIVE_CONNECTORS);
                 final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("clean")).findFirst();
                 if (verb.isPresent()) {
+                    LOG.debug("Native Connectors for clean is set and a verb is present");
                     return (CleanResult) verb.get().executeVerb(configuration, flywayTelemetryManager);
                 } else {
-                    LOG.warn("Experimental mode for clean is set but no verb is present");
+                    LOG.warn("Native Connectors for clean is set but no verb is present");
                 }
             }
 
@@ -351,12 +355,13 @@ public class Flyway {
      */
     public ValidateResult validateWithResult() throws FlywayException {
         if (canUseExperimentalMode(configuration, "validate")) {
-            logPreviewFeature("ExperimentalValidate");
+            logPreviewFeature(NATIVE_CONNECTORS);
             final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("validate")).findFirst();
             if (verb.isPresent()) {
+                LOG.debug("Native Connectors for validate is set and a verb is present");
                 return (ValidateResult) verb.get().executeVerb(configuration, flywayTelemetryManager);
             } else {
-                LOG.warn("Experimental mode for validate is set but no verb is present");
+                LOG.warn("Native Connectors for validate is set but no verb is present");
             }
         }
         return flywayExecutor.execute((migrationResolver, schemaHistory, database, defaultSchema, schemas, callbackExecutor, statementInterceptor) -> {
@@ -381,12 +386,13 @@ public class Flyway {
     public BaselineResult baseline() throws FlywayException {
         try (EventTelemetryModel telemetryModel = new EventTelemetryModel("baseline", flywayTelemetryManager)) {
             if (canUseExperimentalMode(configuration, "baseline")) {
-                logPreviewFeature("ExperimentalBaseline");
+                logPreviewFeature(NATIVE_CONNECTORS);
                 final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("baseline")).findFirst();
                 if (verb.isPresent()) {
+                    LOG.debug("Native Connectors for baseline is set and a verb is present");
                     return (BaselineResult) verb.get().executeVerb(configuration, flywayTelemetryManager);
                 } else {
-                    LOG.warn("Experimental mode for baseline is set but no verb is present");
+                    LOG.warn("Native Connectors for baseline is set but no verb is present");
                 }
             }
 
@@ -434,12 +440,13 @@ public class Flyway {
     public RepairResult repair() throws FlywayException {
         try (EventTelemetryModel telemetryModel = new EventTelemetryModel("repair", flywayTelemetryManager)) {
             if (canUseExperimentalMode(configuration, "repair")) {
-                logPreviewFeature("ExperimentalRepair");
+                logPreviewFeature(NATIVE_CONNECTORS);
                 final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("repair")).findFirst();
                 if (verb.isPresent()) {
+                    LOG.debug("Native Connectors for repair is set and a verb is present");
                     return (RepairResult) verb.get().executeVerb(configuration, flywayTelemetryManager);
                 } else {
-                    LOG.warn("Experimental mode for repair is set but no verb is present");
+                    LOG.warn("Native Connectors for repair is set but no verb is present");
                 }
             }
 
@@ -476,12 +483,13 @@ public class Flyway {
     public OperationResult undo() throws FlywayException {
         try (EventTelemetryModel telemetryModel = new EventTelemetryModel("undo", flywayTelemetryManager)) {
             if (canUseExperimentalMode(configuration, "undo")) {
-                logPreviewFeature("ExperimentalUndo");
+                logPreviewFeature(NATIVE_CONNECTORS);
                 final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("undo")).findFirst();
                 if (verb.isPresent()) {
+                    LOG.debug("Native Connectors for undo is set and a verb is present");
                     return (OperationResult) verb.get().executeVerb(configuration, flywayTelemetryManager);
                 } else {
-                    LOG.warn("Experimental mode for undo is set but no verb is present");
+                    LOG.warn("Native Connectors for undo is set but no verb is present");
                 }
             }
             try {

@@ -113,7 +113,7 @@ public class MigrateVerbExtension implements VerbExtension {
         final Collection<LoadableResourceMetadata> resources = VerbUtils.scanForResources(configuration,
             experimentalDatabase);
 
-        CallbackManager callbackManager = new CallbackManager(resources);
+        CallbackManager callbackManager = new CallbackManager(resources, configuration.isSkipDefaultCallbacks());
 
         final MigrationInfo[] migrations = VerbUtils.getMigrations(schemaHistoryModel,
             resources.toArray(LoadableResourceMetadata[]::new),
@@ -171,19 +171,30 @@ public class MigrateVerbExtension implements VerbExtension {
 
         callbackManager.handleEvent(Event.BEFORE_MIGRATE, experimentalDatabase, configuration, parsingContext);
 
-        int installedRank = experimentalDatabase.getSchemaHistoryModel(configuration.getTable()).calculateInstalledRank(CoreMigrationType.SQL);
-        for (final MigrationExecutionGroup executionGroup : executionGroups) {
-            installedRank = migrator.doExecutionGroup(configuration,
-                executionGroup,
-                experimentalDatabase,
-                migrateResult,
-                parsingContext,
-                installedRank);
+        try {
+            int installedRank = experimentalDatabase.getSchemaHistoryModel(configuration.getTable()).calculateInstalledRank(CoreMigrationType.SQL);
+            for (final MigrationExecutionGroup executionGroup : executionGroups) {
+                installedRank = migrator.doExecutionGroup(configuration,
+                    executionGroup,
+                    experimentalDatabase,
+                    migrateResult,
+                    parsingContext,
+                    installedRank, callbackManager);
+            }
+        } catch (FlywayException e) {
+            callbackManager.handleEvent(Event.AFTER_MIGRATE_ERROR, experimentalDatabase, configuration, parsingContext);
+            throw e;
         }
+
         logSummary(migrateResult.migrationsExecuted,
             migrateResult.getTotalMigrationTime(),
             migrateResult.targetSchemaVersion,
             experimentalDatabase);
+
+        if (migrateResult.migrationsExecuted > 0) {
+            callbackManager.handleEvent(Event.AFTER_MIGRATE_APPLIED, experimentalDatabase, configuration, parsingContext);
+        }
+        callbackManager.handleEvent(Event.AFTER_MIGRATE, experimentalDatabase, configuration, parsingContext);
 
         try {
             experimentalDatabase.close();

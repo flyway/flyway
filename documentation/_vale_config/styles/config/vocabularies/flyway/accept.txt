@@ -15,13 +15,14 @@ flyway_schema_history
 [Gg]radle
 (?i)HashiCorp
 (?i)HTML
+hotfix
 jarDirs
 (?i)JavaScript
-Javadoc
+Javadocs?
 (?i)JDBC
 jConnect
-JRE
-(?i)JSON
+JREs?
+JSON
 (?i)jTds
 Kerberos
 LF
@@ -29,6 +30,8 @@ LF
 [Mm]aven
 -maven
 maven-
+[Nn]amespaces?
+[Nn]amespacing
 nchar
 ntext
 nullability
@@ -46,7 +49,7 @@ repeatables
 (?i)TOML
 (?i)url
 Xerial
-[Nn]amespacing
+
 varchar
 varchars
 varray

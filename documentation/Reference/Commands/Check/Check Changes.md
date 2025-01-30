@@ -4,7 +4,7 @@ subtitle: Check Changes
 
 ## Description
 
-The `check -changes` command produces a report indicating differences between applied migration scripts on your target database and pending migrations scripts (ie. the set of instructions you want to use to change your target database).
+The `check -changes` command produces a report indicating differences between applied migration scripts on your target database and pending migrations scripts (i.e. the set of instructions you want to use to change your target database).
 
 The report is generated entirely using [snapshots](https://documentation.red-gate.com/display/FD/Snapshots) of the configured [build environment](https://documentation.red-gate.com/display/FD/Shadow+and+build+environments) which means that any drift to the production database will be ignored in this report.
 

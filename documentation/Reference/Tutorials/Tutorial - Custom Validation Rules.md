@@ -10,7 +10,7 @@ This brief tutorial will teach you **how to customize your validation rules**.
 
 ## Introduction
 
-Flyway validates your migrations according to its own conventions, however as the lifetime of a project increases there will inevitably be hotfixes, deleted migrations and other changes that break the conventions of Flyway's validation.
+Flyway validates your migrations according to its own conventions, however as the lifetime of a project increases there will inevitably be hot-fixes, deleted migrations and other changes that break the conventions of Flyway's validation.
 
 `ignoreMigrationPatterns` let's you add your own validation rules to tell Flyway which migrations are valid.
 
@@ -33,7 +33,7 @@ Let's assume our schema history table is as follows:
 ```
 
 We have a missing repeatable migration `repeatable` and a pending versioned migration `first`.
-Running `flyway validate` will fail for both of these migrations, erroring that there is a `Detected applied migration not resolved locally` and `Detected resolved migration not applied to database`.
+Running `flyway validate` will fail for both of these migrations, flagging an error that there is a `Detected applied migration not resolved locally` and `Detected resolved migration not applied to database`.
 
 While the default behavior of validate here causes an error, you may not want to error in this scenario.
 

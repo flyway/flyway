@@ -27,15 +27,17 @@ import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.sqlscript.SqlStatement;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.verb.executors.Executor;
 
 @CustomLog
 public class ErrorUtils {
 
-    public static String calculateErrorMessage(final Exception e,
+    public static <T> String calculateErrorMessage(final Exception e,
         final String title,
         final LoadableResource loadableResource,
         final String physicalLocation,
-        final SqlStatement sqlStatement,
+        final Executor<T> executor,
+        final T executionUnit,
         final String message) {
 
         final String underline = StringUtils.trimOrPad("", title.length(), '-');
@@ -56,13 +58,11 @@ public class ErrorUtils {
         } else {
             messageBuilder.append("Location   : ").append(physicalLocation);
         }
-
-        if (sqlStatement != null) {
-            messageBuilder.append("Line       : ").append(sqlStatement.getLineNumber()).append("\n");
-            messageBuilder.append("Statement  : ").append(LOG.isDebugEnabled()
-                ? sqlStatement.getSql()
-                : STATEMENT_MESSAGE).append("\n");
+        
+        if (executionUnit != null && executor != null) {
+            executor.appendErrorMessage(executionUnit, messageBuilder, LOG.isDebugEnabled());
         }
+        
         return messageBuilder.toString();
     }
 }

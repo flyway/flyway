@@ -13,14 +13,14 @@ subtitle: Google BigQuery
 
 ## Driver
 
-| Item                               | Details                                                                                                                                                                                               |
-|------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **URL format**                     | <code>jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;ProjectId=<i>project_id</i>;OAuthType=0;OAuthServiceAcctEmail=<i>service_account_name</i>;OAuthPvtKeyPath=<i>path_to_key</i>;</code> |
-| **SSL support**                    | No                                                                                                                                                                                                    |
-| **Ships with Flyway Command-line** | No                                                                                                                                                                                                    |
-| **Maven Central coordinates**      | None. The Simba driver is available for download [here](https://cloud.google.com/bigquery/docs/reference/odbc-jdbc-drivers)                                                                           |
-| **Supported versions**             | -                                                                                                                                                                                                     |
-| **Default Java class**             | `com.simba.googlebigquery.jdbc42.Driver`                                                                                                                                                              |
+| Item                               | Details                                                                                                                                                               |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **URL format**                     | `jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;ProjectId=project_id;OAuthType=0;OAuthServiceAcctEmail=service_account_name;OAuthPvtKeyPath=path_to_key;` |
+| **SSL support**                    | No                                                                                                                                                                    |
+| **Ships with Flyway Command-line** | No                                                                                                                                                                    |
+| **Maven Central coordinates**      | None. The Simba driver is available for download [here](https://cloud.google.com/bigquery/docs/reference/odbc-jdbc-drivers)                                           |
+| **Supported versions**             | -                                                                                                                                                                     |
+| **Default Java class**             | `com.simba.googlebigquery.jdbc42.Driver`                                                                                                                              |
 
 ### Performance
 

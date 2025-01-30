@@ -19,6 +19,7 @@
  */
 package org.flywaydb.core.internal.configuration.resolvers;
 
+import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.ProgressLogger;
 import org.flywaydb.core.api.CoreErrorCode;
 import org.flywaydb.core.api.FlywayException;
@@ -57,6 +58,11 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
     @Override
     public Configuration getConfiguration() {
         return configuration;
+    }
+
+    @Override
+    public FlywayTelemetryManager getTelemetryManager() {
+        return configuration.getPluginRegister().getPluginInstanceOf(FlywayTelemetryManager.class);
     }
 
     @Override

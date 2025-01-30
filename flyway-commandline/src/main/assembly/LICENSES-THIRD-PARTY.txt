@@ -398,9 +398,9 @@ making modifications to this package which may subsequently be redistributed
 and/or involve the use of third party software.
 
 
-Oracle OJDBC8 ${version.oracle} (drivers/ojdbc-${version.oracle}.jar)
+Oracle OJDBC11 ${version.oracle} (drivers/ojdbc-${version.oracle}.jar)
 ----------------------------------------------------------
-Source: https://repo1.maven.org/maven2/com/oracle/ojdbc/ojdbc8/${version.oracle}/ojdbc8-${version.oracle}.pom
+Source: https://repo1.maven.org/maven2/com/oracle/ojdbc/ojdbc11/${version.oracle}/ojdbc11-${version.oracle}.pom
 
 Oracle Free Use Terms and Conditions (FUTC)
 

@@ -8,7 +8,7 @@ subtitle: flyway.reportFilename
 Filename for the report file.
 The report is a HTML file containing the details of the migration including SQL script execution times and success/failure statuses as well as the results of
 `check`.
-This filename will also be used for a supplementary json file as well, excluding any `.html` or `.htm` extension.
+This filename will also be used for a supplementary JSON file as well, excluding any `.html` or `.htm` extension.
 If this is a relative path, it will be resolved relative to your [working directory](<Command-line Parameters/Working Directory Parameter>).
 
 ## Type

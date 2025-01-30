@@ -20,7 +20,7 @@ subtitle: Aurora MySQL
 | **Supported versions**             | `8.0.12` and later                                                                                                                                                                                                                                                                                                                                           |
 | **Default Java class**             | `com.mysql.jdbc.Driver`   <br> **aws-advanced-jdbc-wrapper:** <br> `software.amazon.jdbc.Driver`                                                                                                                                                                                                                                                             |
 
-_Note the additional parameters in the connection string, see [About Mariadb ConnectorJ](https://mariadb.com/kb/en/about-mariadb-connector-j/) for details on Aurora compatibility._
+_Note the additional parameters in the connection string, see [About MariaDB ConnectorJ](https://mariadb.com/kb/en/about-mariadb-connector-j/) for details on Aurora compatibility._
 _aws-advanced-wrapper support is a community addition and not maintained by Redgate_
 ## SQL Script Syntax
 

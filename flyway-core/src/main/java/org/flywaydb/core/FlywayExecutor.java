@@ -26,7 +26,6 @@ import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.extensibility.LicenseGuard;
-import org.flywaydb.core.extensibility.RootTelemetryModel;
 import org.flywaydb.core.extensibility.Tier;
 import org.flywaydb.core.internal.callback.*;
 
@@ -175,12 +174,10 @@ public class FlywayExecutor {
                 LOG.debug("Driver: " + jdbcConnectionFactory.getDriverInfo());
 
                 if (flywayTelemetryManager != null) {
-                    RootTelemetryModel rootTelemetryModel = flywayTelemetryManager.getRootTelemetryModel();
-                    if (rootTelemetryModel != null) {
-                        rootTelemetryModel.setDatabaseEngine(database.getDatabaseType().getName());
-                        rootTelemetryModel.setDatabaseVersion(database.getVersion().toString());
-                        rootTelemetryModel.setDatabaseHosting(database.getDatabaseHosting());
-                    }
+                    flywayTelemetryManager.notifyDatabaseChanged(
+                        database.getDatabaseType().getName(),
+                        database.getVersion().toString(),
+                        database.getDatabaseHosting());
                 }
             }
 

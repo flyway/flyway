@@ -4,7 +4,7 @@ subtitle: redgateCompare.oracle.data.options.comparison.ignoreControlCharacters
 
 ## Description
 
-Ignores control character differences in text data (eg clobs, varchars, nvarchars etc).
+Ignores control character differences in text data (for example: clobs, varchars, nvarchars etc).
 
 ## Type
 

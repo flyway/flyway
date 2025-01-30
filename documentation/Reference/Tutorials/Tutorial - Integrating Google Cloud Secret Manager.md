@@ -46,7 +46,7 @@ flyway.user=<database_user>
 flyway.password=<database_password>
 ```
 
-- Any necessary Google Cloud authentication - eg. a credentials file and environment variable pointing to it.
+- Any necessary Google Cloud authentication - for example: a credentials file and environment variable pointing to it.
 
 If we now execute the following Flyway command:
 

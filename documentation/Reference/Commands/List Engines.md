@@ -18,7 +18,7 @@ To list all databases supported by Flyway:
 ./flyway list-engines
 ```
 
-To list all databases supported by Flyway in a json format:
+To list all databases supported by Flyway in a JSON format:
 
 ```bash
 ./flyway list-engines -outputType=json

@@ -4,7 +4,7 @@ subtitle: flyway.generate.target
 
 ## Description
 
-The target to generate the script for, must be either `diff.source` or `diff.target` from `flyway diff`.
+Sets the direction of script generation by stating the target to use. This must match one of the targets provided to either `diff.source` or `diff.target` from `flyway diff` if specified. This may be useful in scenarios where some changes from a `diff` want to be captured in a migration, and others reverted without recomputing another `diff`.
 
 ## Type
 
@@ -12,7 +12,7 @@ String
 
 ## Default
 
-Uses initial target if unspecified.
+Uses the value of `diff.target` if it is specified, otherwise the target of `diff` that was used to generate the artifact.
 
 ## Usage
 

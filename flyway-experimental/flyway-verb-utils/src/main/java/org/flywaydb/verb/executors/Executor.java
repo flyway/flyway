@@ -1,6 +1,6 @@
 /*-
  * ========================LICENSE_START=================================
- * flyway-core
+ * flyway-verb-utils
  * ========================================================================
  * Copyright (C) 2010 - 2025 Red Gate Software Ltd
  * ========================================================================
@@ -17,9 +17,21 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.core.extensibility;
+package org.flywaydb.verb.executors;
 
-public interface TelemetryPlugin extends Plugin, AutoCloseable {
-    void logRootDetails(RootTelemetryModel rootTelemetryModel);
-    void logEventDetails(EventTelemetryModel eventModel);
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.experimental.ConnectionType;
+import org.flywaydb.core.experimental.ExperimentalDatabase;
+import org.flywaydb.core.extensibility.Plugin;
+
+public interface Executor<T> extends Plugin {
+    
+    void execute(ExperimentalDatabase experimentalDatabase, T executionUnit, Configuration configuration);
+
+    boolean canExecute(ConnectionType connectionType);
+    
+    void appendErrorMessage(T executionUnit, StringBuilder messageBuilder, boolean isDebugEnabled);
+
+    void finishExecution(ExperimentalDatabase experimentalDatabase, Configuration configuration);
 }
+

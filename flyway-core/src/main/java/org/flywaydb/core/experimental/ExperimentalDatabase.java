@@ -19,8 +19,6 @@
  */
 package org.flywaydb.core.experimental;
 
-import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.regex.Matcher;
@@ -152,6 +150,8 @@ public interface ExperimentalDatabase extends Plugin, AutoCloseable  {
      */
     void doExecuteBatch();
     
+    int getBatchSize();
+        
     String getCurrentUser();
 
     void startTransaction();
@@ -207,4 +207,7 @@ public interface ExperimentalDatabase extends Plugin, AutoCloseable  {
         return new Pattern[] {Pattern.compile("password=([^;&]*).*", Pattern.CASE_INSENSITIVE),
                               Pattern.compile("(?:jdbc:)?[^:]+://[^:]+:([^@]+)@.*", Pattern.CASE_INSENSITIVE)};
     }
+
+     
+
 }
