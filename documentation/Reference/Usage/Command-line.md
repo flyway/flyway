@@ -165,8 +165,9 @@ so it is assumed to be `flyway.init.databaseType=sqlserver
 
 #### Backwards Compatibility:
 
-Scoped namespacing is automatically disabled when ANY namespace is used. This is to maintain backwards compatibility with
-scripts written for older versions of Flyway. To clarify, the following two examples will work;
+Scoped namespacing is automatically disabled when ANY namespace is used, including parameters set under the environments 
+namespace. This is to maintain backwards compatibility with scripts written for older versions of Flyway. To clarify, 
+the following two examples will work;
 
 ```powershell
 flyway init -databaseType=sqlserver -projectName=myProject
