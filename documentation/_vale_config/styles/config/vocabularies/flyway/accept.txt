@@ -46,9 +46,11 @@ repeatables
 (?i)stdout
 (?i)SQL
 [Tt]ablespace
+[Tt]ruststore
 (?i)TOML
 (?i)url
 Xerial
+(?i)XML
 
 varchar
 varchars

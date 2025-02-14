@@ -194,19 +194,6 @@ See [Config Files](<Command-line Parameters/Config Files Parameter>)
 
 See [Configuration Precedence](<Configuration Precedence>) for details of the configuration mechanism priority.
 
-### Credentials
-
-If you do not supply a database `user` or `password` via any of the means above, you may be
-prompted to enter them (depending on the database):
-<pre class="console">Database user: myuser
-Database password:</pre>
-
-If you want Flyway to connect to your database without a user or password, you can suppress prompting by adding
-the `-n` flag.
-
-There are exceptions, where the credentials are passed in the JDBC URL or where a password-less method of
-authentication is being used.
-
 ### Java Arguments
 
 If you need to pass custom arguments to Flyway's JVM, you can do so by setting the `JAVA_ARGS` environment variable, either at runtime or persistently on the host system.

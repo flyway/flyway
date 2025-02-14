@@ -9,6 +9,46 @@
 <div class="col-md-9">
 
   <div class="release">
+        <h2 id="11.3.2">Flyway 11.3.2 (2025-02-14)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fixed an issue with the reports where previous reports before the current report displayed invalid results</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3771">Issue 3771</a>
+                Fixed an issue where the Flyway 'configuration' API returned Configuration objects with shared references instead of deep copies
+            </li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>The `deploy` command will now succeed with a warning if the deployment script does not exist, allowing for smoother chaining with the `prepare` command.</li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>CosmosDB added</li>
+            <li>AWS DocumentDB added</li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Native Connectors now supports transactions for MongoDB with `.json` migrations</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>Update Cassandra JDBC Wrapper to 4.13</li>
+            <li>Update AWS S3 SDK to 2.30.18</li>
+            <li>Update Netty Common and Netty Handler to 4.1.118.Final to fix CVE-2025-25193 and CVE-2025-24970</li>
+        </ul>
+
+        <p>
+            Thanks to KarolRoman for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
         <h2 id="11.3.1">Flyway 11.3.1 (2025-02-04)</h2>
 
         <h3>Java compatibility</h3>

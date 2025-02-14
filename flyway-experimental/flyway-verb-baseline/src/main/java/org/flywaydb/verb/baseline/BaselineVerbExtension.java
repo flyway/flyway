@@ -19,10 +19,7 @@
  */
 package org.flywaydb.verb.baseline;
 
-import static org.flywaydb.core.experimental.ExperimentalModeUtils.logExperimentalDataTelemetry;
-
 import lombok.CustomLog;
-import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.api.CoreMigrationType;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationVersion;
@@ -30,11 +27,10 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.BaselineResult;
 import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryItem;
-import org.flywaydb.core.experimental.schemahistory.SchemaHistoryModel;
 import org.flywaydb.core.extensibility.VerbExtension;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
-import org.flywaydb.verb.VerbUtils;
+import org.flywaydb.verb.preparation.PreparationContext;
 import org.flywaydb.verb.schemas.SchemasVerbExtension;
 
 @CustomLog
@@ -46,26 +42,20 @@ public class BaselineVerbExtension implements VerbExtension {
     }
 
     @Override
-    public Object executeVerb(final Configuration configuration, FlywayTelemetryManager flywayTelemetryManager) {
-        final ExperimentalDatabase experimentalDatabase;
-        try {
-            experimentalDatabase = VerbUtils.getExperimentalDatabase(configuration);
-        } catch (final Exception e) {
-            throw new FlywayException(e);
-        }
-
-        logExperimentalDataTelemetry(flywayTelemetryManager, experimentalDatabase.getDatabaseMetaData());
-
-        final BaselineResult baselineResult = new BaselineResult(VersionPrinter.getVersion(), experimentalDatabase.getDatabaseMetaData().databaseName());
+    public Object executeVerb(final Configuration configuration) {
+        final PreparationContext context = PreparationContext.get(configuration);
+        final ExperimentalDatabase database = context.getDatabase();
+      
+        final BaselineResult baselineResult = new BaselineResult(VersionPrinter.getVersion(), database.getDatabaseMetaData().databaseName());
         final MigrationVersion baselineVersion = configuration.getBaselineVersion();
 
         final String schemaHistoryName = configuration.getTable();
 
         if (configuration.isCreateSchemas()) {
-            final boolean schemaHistoryTablePreExisting = experimentalDatabase.schemaHistoryTableExists(schemaHistoryName);
-            new SchemasVerbExtension().executeVerb(configuration, flywayTelemetryManager);
+            final boolean schemaHistoryTablePreExisting = database.schemaHistoryTableExists(schemaHistoryName);
+            new SchemasVerbExtension().executeVerb(configuration);
             if (!schemaHistoryTablePreExisting) {
-                createBaselineMarker(configuration, experimentalDatabase, baselineResult);
+                createBaselineMarker(configuration, database, baselineResult);
                 return baselineResult;
             }
         } else {
@@ -76,25 +66,26 @@ public class BaselineVerbExtension implements VerbExtension {
                      See https://documentation.red-gate.com/fd/migrations-184127470.html""");
         }
 
-        final boolean schemaHistoryTableExists = experimentalDatabase.schemaHistoryTableExists(schemaHistoryName);
+        final boolean schemaHistoryTableExists = database.schemaHistoryTableExists(schemaHistoryName);
         try {
             if (!schemaHistoryTableExists) {
-                createBaselineMarker(configuration, experimentalDatabase, baselineResult);
+                createBaselineMarker(configuration, database, baselineResult);
                 return baselineResult;
             }
 
-            final SchemaHistoryModel schemaHistoryModel = experimentalDatabase.getSchemaHistoryModel(schemaHistoryName);
-            final String schemaHistoryText = experimentalDatabase.quote(experimentalDatabase.getCurrentSchema())
-                + "." + experimentalDatabase.quote(schemaHistoryName);
-            final boolean baselinePresent = schemaHistoryModel.getSchemaHistoryItems().stream()
+            
+            final String schemaHistoryText = database.quote(database.getCurrentSchema())
+                + "." + database.quote(schemaHistoryName);
+            final boolean baselinePresent = context.getSchemaHistoryModel().getSchemaHistoryItems().stream()
                 .anyMatch(x -> CoreMigrationType.BASELINE.name().equals(x.getType()));
 
-            final boolean onlySchemas = schemaHistoryModel.getSchemaHistoryItems().stream()
+            final boolean onlySchemas = context.getSchemaHistoryModel().getSchemaHistoryItems().stream()
                 .allMatch(x -> CoreMigrationType.SCHEMA.name().equals(x.getType()));
 
             if (baselinePresent) {
                 final String baselineDescription = configuration.getBaselineDescription();
-                final SchemaHistoryItem baselineMarker = schemaHistoryModel.getSchemaHistoryItems().stream()
+                final SchemaHistoryItem baselineMarker = context.getSchemaHistoryModel()
+                    .getSchemaHistoryItems().stream()
                     .filter(x -> CoreMigrationType.BASELINE.name().equals(x.getType())).findFirst().get();
 
                 if (baselineVersion.getVersion().equals(baselineMarker.getVersion())
@@ -111,25 +102,25 @@ public class BaselineVerbExtension implements VerbExtension {
                         "Need to reset your baseline? Learn more: " + FlywayDbWebsiteLinks.RESET_THE_BASELINE_MIGRATION);
                 }
             } else {
-                final boolean schemaPresent = schemaHistoryModel.getSchemaHistoryItems().stream()
+                final boolean schemaPresent = context.getSchemaHistoryModel().getSchemaHistoryItems().stream()
                     .anyMatch(x -> CoreMigrationType.SCHEMA.name().equals(x.getType()));
 
                 if (schemaPresent && baselineVersion.equals(MigrationVersion.fromVersion("0"))) {
                     throw new FlywayException("Unable to baseline schema history table " + schemaHistoryText + " with version 0 as this version was used for schema creation");
                 }
-                final boolean nonSyntheticMigrations = schemaHistoryModel.getSchemaHistoryItems().stream()
+                final boolean nonSyntheticMigrations = context.getSchemaHistoryModel().getSchemaHistoryItems().stream()
                     .anyMatch(x -> !CoreMigrationType.fromString(x.getType()).isSynthetic());
                 if (nonSyntheticMigrations) {
                     throw new FlywayException("Unable to baseline schema history table " + schemaHistoryText + " as it already contains migrations\n" +
                         "Need to reset your baseline? Learn more: " + FlywayDbWebsiteLinks.RESET_THE_BASELINE_MIGRATION);
                 }
-                if (schemaHistoryModel.getSchemaHistoryItems().isEmpty()) {
+                if (context.getSchemaHistoryModel().getSchemaHistoryItems().isEmpty()) {
                     throw new FlywayException("Unable to baseline schema history table " + schemaHistoryText + " as it already exists, and is empty.\n" +
                         "Delete the schema history table, and run baseline again.");
                 }
 
                 if (onlySchemas) {
-                    createBaselineMarker(configuration, experimentalDatabase, baselineResult);
+                    createBaselineMarker(configuration, database, baselineResult);
                 } else {
                     throw new FlywayException("Unable to baseline schema history table "
                         + schemaHistoryText
@@ -150,17 +141,17 @@ public class BaselineVerbExtension implements VerbExtension {
     }
 
     private static void createBaselineMarker(final Configuration configuration,
-        final ExperimentalDatabase experimentalDatabase, final BaselineResult baselineResult) {
+        final ExperimentalDatabase database, final BaselineResult baselineResult) {
 
-        experimentalDatabase.createSchemaHistoryTableIfNotExists(configuration.getTable());
+        database.createSchemaHistoryTableIfNotExists(configuration.getTable());
 
         final String baselineVersion = configuration.getBaselineVersion().getVersion();
-        experimentalDatabase.appendSchemaHistoryItem(SchemaHistoryItem.builder()
+        database.appendSchemaHistoryItem(SchemaHistoryItem.builder()
             .description(configuration.getBaselineDescription())
             .installedRank(1)
             .type("BASELINE")
             .script("<< Flyway Baseline >>")
-            .installedBy(experimentalDatabase.getInstalledBy(configuration))
+            .installedBy(database.getInstalledBy(configuration))
             .version(baselineVersion)
             .executionTime(0)
             .success(true)

@@ -23,7 +23,6 @@ import static org.flywaydb.core.experimental.ExperimentalModeUtils.canUseExperim
 import static org.flywaydb.core.internal.logging.PreviewFeatureWarning.NATIVE_CONNECTORS;
 import static org.flywaydb.core.internal.logging.PreviewFeatureWarning.logPreviewFeature;
 
-import java.lang.module.ModuleDescriptor.Version;
 import lombok.CustomLog;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -42,6 +41,7 @@ import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.extensibility.ConfigurationExtension;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.extensibility.LicenseGuard;
+import org.flywaydb.core.extensibility.Tier;
 import org.flywaydb.core.extensibility.VerbExtension;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.command.*;
@@ -51,13 +51,13 @@ import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.CommandExtensionUtils;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.flywaydb.core.internal.util.VersionUtils;
 
 
 
@@ -137,6 +137,12 @@ public class Flyway {
         this.flywayExecutor = new FlywayExecutor(this.configuration);
 
         LogFactory.setConfiguration(this.configuration);
+        
+        if (LicenseGuard.isLicensed(this.configuration, List.of(Tier.ENTERPRISE))) {
+            FlywayDbWebsiteLinks.FEEDBACK_SURVEY_LINK = FlywayDbWebsiteLinks.FEEDBACK_SURVEY_LINK_ENTERPRISE;
+        } else {
+            FlywayDbWebsiteLinks.FEEDBACK_SURVEY_LINK = FlywayDbWebsiteLinks.FEEDBACK_SURVEY_LINK_COMMUNITY;
+        }
     }
 
     /**
@@ -170,7 +176,7 @@ public class Flyway {
                 final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("migrate")).findFirst();
                 if (verb.isPresent()) {
                     LOG.debug("Native Connectors for migrate is set and a verb is present");
-                    return (MigrateResult) verb.get().executeVerb(configuration, flywayTelemetryManager);
+                    return (MigrateResult) verb.get().executeVerb(configuration);
                 } else {
                     LOG.warn("Native Connectors for migrate is set but no verb is present");
                 }
@@ -259,7 +265,7 @@ public class Flyway {
             final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("info")).findFirst();
             if (verb.isPresent()) {
                 LOG.debug("Native Connectors for info is set and a verb is present");
-                return (MigrationInfoService) verb.get().executeVerb(configuration, flywayTelemetryManager);
+                return (MigrationInfoService) verb.get().executeVerb(configuration);
             } else {
                 LOG.warn("Native Connectors for info is set but no verb is present");
             }
@@ -290,7 +296,7 @@ public class Flyway {
                 final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("clean")).findFirst();
                 if (verb.isPresent()) {
                     LOG.debug("Native Connectors for clean is set and a verb is present");
-                    return (CleanResult) verb.get().executeVerb(configuration, flywayTelemetryManager);
+                    return (CleanResult) verb.get().executeVerb(configuration);
                 } else {
                     LOG.warn("Native Connectors for clean is set but no verb is present");
                 }
@@ -359,7 +365,7 @@ public class Flyway {
             final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("validate")).findFirst();
             if (verb.isPresent()) {
                 LOG.debug("Native Connectors for validate is set and a verb is present");
-                return (ValidateResult) verb.get().executeVerb(configuration, flywayTelemetryManager);
+                return (ValidateResult) verb.get().executeVerb(configuration);
             } else {
                 LOG.warn("Native Connectors for validate is set but no verb is present");
             }
@@ -390,7 +396,7 @@ public class Flyway {
                 final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("baseline")).findFirst();
                 if (verb.isPresent()) {
                     LOG.debug("Native Connectors for baseline is set and a verb is present");
-                    return (BaselineResult) verb.get().executeVerb(configuration, flywayTelemetryManager);
+                    return (BaselineResult) verb.get().executeVerb(configuration);
                 } else {
                     LOG.warn("Native Connectors for baseline is set but no verb is present");
                 }
@@ -444,7 +450,7 @@ public class Flyway {
                 final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("repair")).findFirst();
                 if (verb.isPresent()) {
                     LOG.debug("Native Connectors for repair is set and a verb is present");
-                    return (RepairResult) verb.get().executeVerb(configuration, flywayTelemetryManager);
+                    return (RepairResult) verb.get().executeVerb(configuration);
                 } else {
                     LOG.warn("Native Connectors for repair is set but no verb is present");
                 }
@@ -487,7 +493,7 @@ public class Flyway {
                 final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("undo")).findFirst();
                 if (verb.isPresent()) {
                     LOG.debug("Native Connectors for undo is set and a verb is present");
-                    return (OperationResult) verb.get().executeVerb(configuration, flywayTelemetryManager);
+                    return (OperationResult) verb.get().executeVerb(configuration);
                 } else {
                     LOG.warn("Native Connectors for undo is set but no verb is present");
                 }

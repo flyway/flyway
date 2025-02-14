@@ -19,19 +19,13 @@
  */
 package org.flywaydb.verb.validate;
 
-import static org.flywaydb.core.experimental.ExperimentalModeUtils.logExperimentalDataTelemetry;
-
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import lombok.CustomLog;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.api.CoreErrorCode;
 import org.flywaydb.core.api.ErrorDetails;
-import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
@@ -39,18 +33,16 @@ import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.ValidateOutput;
 import org.flywaydb.core.api.output.ValidateResult;
-import org.flywaydb.core.api.resource.LoadableResourceMetadata;
 import org.flywaydb.core.experimental.ExperimentalDatabase;
-import org.flywaydb.core.experimental.schemahistory.SchemaHistoryModel;
 import org.flywaydb.core.extensibility.VerbExtension;
 import org.flywaydb.core.internal.license.VersionPrinter;
-import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.ValidatePatternUtils;
 import org.flywaydb.experimental.callbacks.CallbackManager;
 import org.flywaydb.verb.VerbUtils;
+import org.flywaydb.verb.preparation.PreparationContext;
 
 @CustomLog
 public class ValidateVerbExtension implements VerbExtension {
@@ -61,97 +53,83 @@ public class ValidateVerbExtension implements VerbExtension {
     }
 
     @Override
-    public Object executeVerb(final Configuration configuration, FlywayTelemetryManager flywayTelemetryManager) {
+    public Object executeVerb(final Configuration configuration) {
+        final StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
 
-        try {
-            StopWatch stopWatch = new StopWatch();
-            stopWatch.start();
+        final PreparationContext context = PreparationContext.get(configuration);
+        
+        final ExperimentalDatabase database = context.getDatabase();
 
-            final ExperimentalDatabase experimentalDatabase = VerbUtils.getExperimentalDatabase(configuration);
-            final SchemaHistoryModel schemaHistoryModel = VerbUtils.getSchemaHistoryModel(configuration, experimentalDatabase);
+        final CallbackManager callbackManager = new CallbackManager(context.getResources(), configuration.isSkipDefaultCallbacks());
 
-            logExperimentalDataTelemetry(flywayTelemetryManager, experimentalDatabase.getDatabaseMetaData());
+        callbackManager.handleEvent(Event.BEFORE_VALIDATE, database, configuration, context.getParsingContext());
 
-            final Collection<LoadableResourceMetadata> resources = VerbUtils.scanForResources(configuration,
-                experimentalDatabase);
+        final MigrationInfo[] migrations = context.getMigrations();
 
-            CallbackManager callbackManager = new CallbackManager(resources, configuration.isSkipDefaultCallbacks());
+        if (!database.schemaHistoryTableExists(configuration.getTable())) {
+            LOG.info("Schema history table " + database.quote(database.getCurrentSchema(),  configuration.getTable()) + " does not exist yet");
+        }
 
-            final ParsingContext parsingContext = new ParsingContext();
-            parsingContext.populate(experimentalDatabase, configuration);
-
-            callbackManager.handleEvent(Event.BEFORE_VALIDATE, experimentalDatabase, configuration, parsingContext);
-
-            final MigrationInfo[] migrations = VerbUtils.getMigrations(schemaHistoryModel,
-                resources.toArray(LoadableResourceMetadata[]::new),
-                configuration);
-
-            if (!experimentalDatabase.schemaHistoryTableExists(configuration.getTable())) {
-                LOG.info("Schema history table " + experimentalDatabase.quote(experimentalDatabase.getCurrentSchema(),  configuration.getTable()) + " does not exist yet");
+        if (!database.isSchemaExists(database.getCurrentSchema())) {
+            if (migrations.length != 0 && !ValidatePatternUtils.isPendingIgnored(configuration.getIgnoreMigrationPatterns())) {
+                final String validationErrorMessage = "Schema " + database.doQuote(database.getCurrentSchema())  + " doesn't exist yet";
+                final ErrorDetails validationError = new ErrorDetails(CoreErrorCode.SCHEMA_DOES_NOT_EXIST, validationErrorMessage);
+                return new ValidateResult(VersionPrinter.getVersion(),
+                    database.getDatabaseMetaData().databaseName(),
+                    validationError,
+                    false,
+                    0,
+                    new ArrayList<>(),
+                    new ArrayList<>());
             }
+        }
+        stopWatch.stop();
 
-            if (!experimentalDatabase.isSchemaExists(experimentalDatabase.getCurrentSchema())) {
-                if (migrations.length != 0 && !ValidatePatternUtils.isPendingIgnored(configuration.getIgnoreMigrationPatterns())) {
-                    String validationErrorMessage = "Schema " + experimentalDatabase.doQuote(experimentalDatabase.getCurrentSchema())  + " doesn't exist yet";
-                    ErrorDetails validationError = new ErrorDetails(CoreErrorCode.SCHEMA_DOES_NOT_EXIST, validationErrorMessage);
-                    return new ValidateResult(VersionPrinter.getVersion(),
-                        experimentalDatabase.getDatabaseMetaData().databaseName(),
-                        validationError,
-                        false,
-                        0,
-                        new ArrayList<>(),
-                        new ArrayList<>());
-                }
-            }
-            stopWatch.stop();
+        final List<MigrationInfo> notIgnoredMigrations = VerbUtils.removeIgnoredMigrations(configuration, migrations);
+        final List<ValidateOutput> invalidMigrations = getInvalidMigrations(notIgnoredMigrations, configuration);
+        if (invalidMigrations.isEmpty()) {
+            final int count = migrations.length;
+            LOG.info(String.format("Successfully validated %d migration%s (execution time %s)",
+                count,
+                count == 1 ? "" : "s",
+                TimeFormat.format(stopWatch.getTotalTimeMillis())));
 
-            final List<MigrationInfo> notIgnoredMigrations = VerbUtils.removeIgnoredMigrations(configuration, migrations);
-            final List<ValidateOutput> invalidMigrations = getInvalidMigrations(notIgnoredMigrations, configuration);
-            if (invalidMigrations.isEmpty()) {
-                final int count = migrations.length;
-                LOG.info(String.format("Successfully validated %d migration%s (execution time %s)",
-                    count,
-                    count == 1 ? "" : "s",
-                    TimeFormat.format(stopWatch.getTotalTimeMillis())));
+            callbackManager.handleEvent(Event.AFTER_VALIDATE, database, configuration, context.getParsingContext());
 
-                callbackManager.handleEvent(Event.AFTER_VALIDATE, experimentalDatabase, configuration, parsingContext);
-
-                if (migrations.length == 0) {
-                    final ArrayList<String> warnings = new ArrayList<>();
-                    final String noMigrationsWarning = "No migrations found. Are your locations set up correctly?";
-                    warnings.add(noMigrationsWarning);
-                    LOG.warn(noMigrationsWarning);
-
-                    return new ValidateResult(VersionPrinter.getVersion(),
-                        experimentalDatabase.getDatabaseMetaData().databaseName(),
-                        null,
-                        true,
-                        migrations.length,
-                        new ArrayList<>(),
-                        warnings);
-                }
+            if (migrations.length == 0) {
+                final ArrayList<String> warnings = new ArrayList<>();
+                final String noMigrationsWarning = "No migrations found. Are your locations set up correctly?";
+                warnings.add(noMigrationsWarning);
+                LOG.warn(noMigrationsWarning);
 
                 return new ValidateResult(VersionPrinter.getVersion(),
-                experimentalDatabase.getDatabaseMetaData().databaseName(),
-                null,
-                true,
-                migrations.length,
-                invalidMigrations,
-                new ArrayList<>());
+                    database.getDatabaseMetaData().databaseName(),
+                    null,
+                    true,
+                    migrations.length,
+                    new ArrayList<>(),
+                    warnings);
             }
 
-            callbackManager.handleEvent(Event.AFTER_VALIDATE_ERROR, experimentalDatabase, configuration, parsingContext);
-
             return new ValidateResult(VersionPrinter.getVersion(),
-                experimentalDatabase.getDatabaseMetaData().databaseName(),
-                new ErrorDetails(CoreErrorCode.VALIDATE_ERROR, "Migrations have failed validation"),
-                false,
-                0,
-                invalidMigrations,
-                new ArrayList<>());
-        } catch (SQLException e) {
-            throw new FlywayException(e);
+            database.getDatabaseMetaData().databaseName(),
+            null,
+            true,
+            migrations.length,
+            invalidMigrations,
+            new ArrayList<>());
         }
+
+        callbackManager.handleEvent(Event.AFTER_VALIDATE_ERROR, database, configuration, context.getParsingContext());
+
+        return new ValidateResult(VersionPrinter.getVersion(),
+            database.getDatabaseMetaData().databaseName(),
+            new ErrorDetails(CoreErrorCode.VALIDATE_ERROR, "Migrations have failed validation"),
+            false,
+            0,
+            invalidMigrations,
+            new ArrayList<>());
     }
 
     private List<ValidateOutput> getInvalidMigrations(List<MigrationInfo> migrations, Configuration configuration) {

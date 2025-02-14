@@ -75,4 +75,9 @@ public class FlywayDbWebsiteLinks {
     public static final String V10_BLOG = "https://rd.gt/4hA3C7Y";
     public static final String MONGOSH = "https://rd.gt/3VudXc6";
     public static final String OSS_DOCKER_REPOSITORY = "https://rd.gt/3OSaoZA";
+    
+    public static final String NATIVE_CONNECTORS_MONGODB = "https://rd.gt/3CVVLC1";
+    public static String FEEDBACK_SURVEY_LINK = "";
+    public static final String FEEDBACK_SURVEY_LINK_ENTERPRISE = "https://rd.gt/41g7TY9";
+    public static final String FEEDBACK_SURVEY_LINK_COMMUNITY = "https://rd.gt/4jVBMEa";
 }

@@ -22,6 +22,7 @@ package org.flywaydb.experimental.mongodb;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoCredential;
+import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
@@ -70,6 +71,8 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
     
     private String schemaHistoryTableName = null;
     private MongoshCredential mongoshCredential = null;
+    private ClientSession clientSession;
+    private Boolean doesSchemaHistoryTableExist;
 
     @Override
     public DatabaseSupport supportsUrl(final String url) {
@@ -81,8 +84,18 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
     }
 
     @Override
-    public boolean supportsDdlTransactions() {
-        return false;
+    public List<String> supportedVerbs() {
+        return List.of("info", "validate", "migrate", "clean", "undo", "baseline", "repair");
+    }
+
+    @Override
+    public boolean isOnByDefault() {
+        return true;
+    }
+
+    @Override
+    public boolean supportsTransactions() {
+        return !mongoClient.getClusterDescription().getServerDescriptions().get(0).isStandAlone();
     }
 
     @Override
@@ -125,6 +138,7 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
                 .build());
         }
         mongoDatabase = mongoClient.getDatabase(getDefaultSchema(configuration));
+        clientSession = mongoClient.startSession();
         schemaHistoryTableName = configuration.getTable();
         metaData = getDatabaseMetaData();
     }
@@ -134,7 +148,7 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
         switch (connectionType) {
             case API:
                 try {
-                    final Document result = mongoDatabase.runCommand(BsonDocument.parse(executionUnit));
+                    final Document result = mongoDatabase.runCommand(clientSession, BsonDocument.parse(executionUnit));
                     if (outputQueryResults) {
                         parseResults(result);
                     }
@@ -165,15 +179,21 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
     @Override
     public void createSchemaHistoryTable(final String tableName) {
         mongoDatabase.createCollection(tableName);
+        doesSchemaHistoryTableExist = true;
     }
 
     @Override
     public boolean schemaHistoryTableExists(final String tableName) {
+        if (doesSchemaHistoryTableExist != null) {
+            return doesSchemaHistoryTableExist;
+        }
         for (final Document document : mongoDatabase.listCollections()) {
             if (document.getString("name").equals(tableName)) {
+                doesSchemaHistoryTableExist = true;
                 return true;
             }
         }
+        doesSchemaHistoryTableExist = false;
         return false;
     }
 
@@ -219,7 +239,7 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
             .append("installed_by", item.getInstalledBy())
             .append("execution_time", item.getExecutionTime())
             .append("success", item.isSuccess());
-        mongoDatabase.getCollection(tableName).insertOne(document);
+        mongoDatabase.getCollection(tableName).insertOne(clientSession, document);
     }
 
     @Override
@@ -255,6 +275,11 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
     @Override
     public void close() throws Exception {
 
+    }
+
+    @Override
+    public boolean isClosed() {
+        return false;
     }
 
     @Override
@@ -308,18 +333,33 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
 
     @Override
     public void startTransaction() {
-        LOG.warn("Transactions are currently not supported for MongoDB in Flyway. Migrations will be executed outside of a transaction. "
-            + "Set `executeInTransaction` to false to remove this warning.");
+        if (connectionType == ConnectionType.EXECUTABLE) {
+            LOG.warn(
+                "Transactions are currently not supported for '.js' Migrations. Migrations will be executed outside of a transaction. "
+                    + "Set `executeInTransaction` to false to remove this warning.");
+            return;
+        }
+        if (supportsTransactions()) {
+            clientSession.startTransaction();
+        } else {
+            LOG.warn(
+                "Transactions are not supported on a standalone MongoDB database. Migrations will be executed outside of a transaction. "
+                    + "Set `executeInTransaction` to false to remove this warning.");
+        }
     }
 
     @Override
     public void commitTransaction() {
-
+        if (supportsTransactions()) {
+            clientSession.commitTransaction();
+        }
     }
 
     @Override
     public void rollbackTransaction() {
-
+        if (supportsTransactions()) {
+            clientSession.abortTransaction();
+        }
     }
 
     @Override
@@ -331,6 +371,12 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
                 schemaDatabase.getCollection(name).drop();
             }
         });
+    }
+
+    @Override
+    public void doDropSchema(final String schema) {
+        final MongoDatabase schemaDatabase = mongoClient.getDatabase(schema);
+        schemaDatabase.drop();
     }
 
     @Override

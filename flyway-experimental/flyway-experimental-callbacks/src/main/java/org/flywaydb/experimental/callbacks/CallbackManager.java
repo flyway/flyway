@@ -32,7 +32,9 @@ import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResourceMetadata;
 import org.flywaydb.core.experimental.ExperimentalDatabase;
+import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.internal.parser.ParsingContext;
+import org.flywaydb.verb.VerbUtils;
 import org.flywaydb.verb.executors.Executor;
 import org.flywaydb.verb.executors.ExecutorFactory;
 import org.flywaydb.verb.readers.Reader;
@@ -78,24 +80,26 @@ public class CallbackManager {
 
         LOG.info("Callback executed: " + callback.getEvent().name() + " from " +  callback.getPhysicalLocation());
 
-        executionUnits.forEach(executionUnit -> {
-            try {
-                executor.execute(database, executionUnit, configuration);
-            } catch (Exception e) {
-                final String title = "Error while executing " + callback.getEvent().getId()
-                    + " callback: Script " + callback.getFileName() + " failed";
-                final String errorMessage = calculateErrorMessage(e,
-                    title,
-                    callback.getLoadableResourceMetadata().loadableResource(),
-                    callback.getPhysicalLocation(),
-                    executor,
-                    executionUnit,
-                    "Message    : " + e.getMessage() + "\n");
+        try (final EventTelemetryModel telemetryModel = new EventTelemetryModel(callback.getEvent().getId(), VerbUtils.getFlywayTelemetryManager(configuration))) {
+            executionUnits.forEach(executionUnit -> {
+                try {
+                    executor.execute(database, executionUnit, configuration);
+                } catch (Exception e) {
+                    final String title = "Error while executing " + callback.getEvent().getId()
+                        + " callback: Script " + callback.getFileName() + " failed";
+                    final String errorMessage = calculateErrorMessage(e,
+                        title,
+                        callback.getLoadableResourceMetadata().loadableResource(),
+                        callback.getPhysicalLocation(),
+                        executor,
+                        executionUnit,
+                        "Message    : " + e.getMessage() + "\n");
 
-                throw new FlywayException(errorMessage);
-            }
-        });
-        executor.finishExecution(database, configuration);
+                    throw new FlywayException(errorMessage);
+                }
+            });
+            executor.finishExecution(database, configuration);
+        }
     }
 }
 

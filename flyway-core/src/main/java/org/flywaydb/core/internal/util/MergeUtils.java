@@ -53,7 +53,7 @@ public class MergeUtils {
                     V mergedValue = mergeFn.apply(primary.get(key), overrides.get(key));
                     result.replace(key, mergedValue);
                 } else {
-                    result.put(key, overrides.get(key));
+                    result.put(key, mergeFn.apply(overrides.get(key), overrides.get(key)));
                 }
             }
         }

@@ -1,7 +1,7 @@
 ---
 subtitle: Azure Synapse
 ---
-# Azure Synapse
+# Azure Synapse (Dedicated pools)
 - **Verified Versions:** Latest
 - **Maintainer:** {% include redgate-badge.html %}
 
@@ -89,4 +89,5 @@ See [SQL Server](<Supported Databases/SQL Server Database>)
 
 - See [SQL Server](<Supported Databases/SQL Server Database>)
 - The JTDS driver does not support Azure Synapse
-- Flyway only supports the use of dedicated pools, attempting to use serverless pools will return an 'Unknown SQL Server engine edition: 11' exception.
+- Flyway only supports the use of dedicated pools.
+- If you get this error: 'Unknown SQL Server engine edition: 11' then Synapse is reporting that it is a serverless pool.

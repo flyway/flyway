@@ -35,7 +35,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -86,6 +85,7 @@ import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
 import org.flywaydb.core.internal.plugin.PluginRegister;
+import org.flywaydb.core.internal.proprietaryInterfaces.CherryPickConfiguration;
 import org.flywaydb.core.internal.scanner.ClasspathClassScanner;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.ExceptionUtils;
@@ -1256,52 +1256,13 @@ public class ClassicConfiguration implements Configuration {
 
     @Override
     public MigrationPattern[] getCherryPick() {
-        MigrationPattern[] cherryPick = null;
-        ConfigurationExtension cherryPickConfig = pluginRegister.getPlugin("CherryPickConfigurationExtension");
-
-        if (cherryPickConfig == null) {
+        final var patternsStub = pluginRegister.getPluginInstanceOf(CherryPickConfiguration.class);
+        if (patternsStub == null) {
             LOG.debug("CherryPickConfigurationExtension not found");
             return null;
         }
-        List<String> cherryPickList = (List<String>) ClassUtils.getFieldValue(cherryPickConfig, "cherryPick");
 
-        if (cherryPickList != null) {
-            cherryPick = cherryPickList.stream().map(MigrationPattern::new).toArray(MigrationPattern[]::new);
-        }
-
-        cherryPick = (cherryPick != null && cherryPick.length == 0) ? null : cherryPick;
-
-        if (cherryPick == null) {
-            return null;
-        }
-
-
-        throw new FlywayEditionUpgradeRequiredException(Tier.TEAMS, (Tier) null, "Cherry pick");
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        return patternsStub.getMigrationPatterns();
     }
 
     @Override

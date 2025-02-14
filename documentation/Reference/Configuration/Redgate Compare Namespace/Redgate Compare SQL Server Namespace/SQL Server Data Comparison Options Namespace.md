@@ -2,6 +2,8 @@
 subtitle: redgateCompare.sqlserver.data.options.comparison
 ---
 
+{% include enterprise.html %}
+
 This namespace contains the configurations relating to SQL Server static data comparison.
 
 ## Settings

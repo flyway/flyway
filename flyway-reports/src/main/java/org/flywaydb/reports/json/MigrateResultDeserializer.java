@@ -26,4 +26,9 @@ public class MigrateResultDeserializer implements HtmlResultDeserializer<Migrate
     public Class<MigrateResult> getDeserializingClass() {
         return MigrateResult.class;
     }
+
+    @Override
+    public String operationKey() {
+        return "migrate";
+    }
 }

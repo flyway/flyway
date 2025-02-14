@@ -26,4 +26,5 @@ We have to map Flyway concepts and language rooted in the relational database wo
 
 ## Limitations
 
+Transactions using `.js` migrations will not work. A warning will be displayed if `executeInTransaction` is set
 See [this blog post](https://documentation.red-gate.com/display/FD/Flyway+Native+Connectors+-+MongoDB) for more details.

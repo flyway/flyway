@@ -63,20 +63,29 @@ public class ExperimentalSqlite implements ExperimentalDatabase {
     }
 
     @Override
+    public boolean canCreateJdbcDataSource() {
+        return true;
+    }
+
+    @Override
+    public List<String> supportedVerbs() {
+        return List.of("info", "validate", "migrate", "clean", "undo", "baseline", "repair");
+    }
+
+    @Override
     public String getDatabaseType() {
         return "SQLite";
     }
 
     @Override
-    public boolean supportsDdlTransactions() {
+    public boolean supportsTransactions() {
         return true;
     }
 
     @Override
     public void initialize(final ResolvedEnvironment environment, final Configuration configuration) {
-        final String url = environment.getUrl() + "?allowMultiQueries=true";
         final SQLiteDataSource dataSource = new SQLiteDataSource();
-        dataSource.setUrl(url);
+        dataSource.setUrl(environment.getUrl());
 
         final int connectRetries = environment.getConnectRetries() != null ? environment.getConnectRetries() : 0;
         final int connectRetriesInterval = environment.getConnectRetriesInterval() != null ? environment.getConnectRetriesInterval() : 0;
@@ -244,8 +253,17 @@ public class ExperimentalSqlite implements ExperimentalDatabase {
 
     @Override
     public void close() throws Exception {
-        if (connection != null && !connection.isClosed()) {
+        if (!isClosed()) {
             connection.close();
+        }
+    }
+
+    @Override
+    public boolean isClosed() {
+        try {
+            return connection != null && connection.isClosed();
+        } catch (SQLException e) {
+            throw new FlywayException(e);
         }
     }
 
@@ -366,6 +384,11 @@ public class ExperimentalSqlite implements ExperimentalDatabase {
         } catch (SQLException e) {
             throw new FlywayException(e);
         }
+    }
+
+    @Override
+    public void doDropSchema(final String schema) {
+
     }
 
     @Override

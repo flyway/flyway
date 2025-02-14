@@ -5,6 +5,7 @@ MariaDB
 Percona
 Sybase
 Testcontainers
+Timeplus
 
 # Cassandra
 keyspace
@@ -13,6 +14,9 @@ keyspace
 isql
 # MySQL
 mysqldump
+
+# MongoDB
+Mongosh
 
 # Oracle
 tablespaces?

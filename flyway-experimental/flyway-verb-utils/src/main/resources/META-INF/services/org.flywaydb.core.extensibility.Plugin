@@ -1,3 +1,4 @@
+org.flywaydb.verb.preparation.PreparationContext
 org.flywaydb.verb.info.VersionOrderMigrationComparator
 org.flywaydb.verb.info.filters.ShouldExecuteMigrationInfoFilter
 org.flywaydb.verb.executors.NonJdbcExecutor

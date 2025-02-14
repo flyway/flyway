@@ -62,25 +62,29 @@ public class JdbcMigrator extends Migrator {
 
     @Override
     public List<MigrationExecutionGroup> createGroups(final MigrationInfo[] allPendingMigrations,
-        final Configuration configuration, final ExperimentalDatabase experimentalDatabase, final MigrateResult migrateResult, final ParsingContext parsingContext) {
+        final Configuration configuration,
+        final ExperimentalDatabase experimentalDatabase,
+        final MigrateResult migrateResult,
+        final ParsingContext parsingContext) {
         if (experimentalDatabase.getDatabaseMetaData().connectionType() != ConnectionType.JDBC) {
             return List.of(new MigrationExecutionGroup(List.of(allPendingMigrations), true));
         }
         final List<MigrationInfo> currentGroup = Arrays.asList(allPendingMigrations);
-        final List<Pair<MigrationInfo, Boolean>> shouldExecuteMigrations = currentGroup.stream().map(x -> Pair.of(x, shouldExecuteInTransaction(x, configuration,
+        final List<Pair<MigrationInfo, Boolean>> migrationTransactionPairs = currentGroup.stream()
+            .map(x -> Pair.of(x, shouldExecuteInTransaction(x, configuration,
             experimentalDatabase,
             parsingContext))).toList();
         if (!configuration.isGroup()) {
-            return shouldExecuteMigrations.stream()
-                .map(x -> new MigrationExecutionGroup(List.of(x.getLeft()), x.getRight() )).toList();
+            return migrationTransactionPairs.stream()
+                .map(x -> new MigrationExecutionGroup(List.of(x.getLeft()), x.getRight())).toList();
         }
 
-        for (final Pair<MigrationInfo, Boolean> pair : shouldExecuteMigrations) {
+        for (final Pair<MigrationInfo, Boolean> pair : migrationTransactionPairs) {
             final MigrationInfo migrationInfo = pair.getLeft();
             final boolean shouldExecuteMigrationInTransaction = pair.getRight();
             if (configuration.isExecuteInTransaction() != shouldExecuteMigrationInTransaction) {
                 if (configuration.isMixed()) {
-                    return shouldExecuteMigrations.stream().map(x -> new MigrationExecutionGroup(List.of(x.getLeft()), x.getRight())).toList();
+                    return migrationTransactionPairs.stream().map(x -> new MigrationExecutionGroup(List.of(x.getLeft()), x.getRight())).toList();
                 } else {
                     throw new FlywayMigrateException(migrationInfo,
                         "Detected both transactional and non-transactional migrations within the same migration group"
@@ -310,7 +314,7 @@ public class JdbcMigrator extends Migrator {
         if (executeInTransaction) {
             experimentalDatabase.rollbackTransaction();
         }
-        if (experimentalDatabase.supportsDdlTransactions() && executeInTransaction) {
+        if (experimentalDatabase.supportsTransactions() && executeInTransaction) {
             LOG.error(failedMsg + " Changes successfully rolled back.");
         } else {
             LOG.error(failedMsg + " Please restore backups and roll back database and code!");

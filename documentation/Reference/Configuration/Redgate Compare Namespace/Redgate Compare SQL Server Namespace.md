@@ -12,13 +12,13 @@ This namespace contains the SQL-Server-specific configurations relating to datab
 
 ## Database-specific namespaces
 
-| Namespace                                                                                                                                                | Description                                                                                                   |
-|----------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
-| [`data.options.comparison`](<Configuration/Redgate Compare Namespace/Redgate Compare SQL Server Namespace/SQL Server Data Comparison Options Namespace>) | Configuration relating to SQL Server static data comparison.                                                  |
-| [`data.options.deployment`](<Configuration/Redgate Compare Namespace/Redgate Compare SQL Server Namespace/SQL Server Data Deployment Options Namespace>) | Configuration relating to SQL Server static data deployment.                                                  |
-| [`data.options.mapping`](<Configuration/Redgate Compare Namespace/Redgate Compare SQL Server Namespace/SQL Server Data Mapping Options Namespace>)       | Configuration relating to SQL Server static data mapping.                                                     |
-| [`options.behavior`](<Configuration/Redgate Compare Namespace/Redgate Compare SQL Server Namespace/SQL Server Behavior Options Namespace>)               | Configuration relating to SQL Server database comparison and script generation behavior.                      |
-| [`options.ignores`](<Configuration/Redgate Compare Namespace/Redgate Compare SQL Server Namespace/SQL Server Ignore Options Namespace>)                  | Configuration relating to the database features/syntax to track when running SQL Server database comparisons. |
+| Namespace                                                                                                                                                | Tier       | Description                                                                                                   |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------|------------|---------------------------------------------------------------------------------------------------------------|
+| [`data.options.comparison`](<Configuration/Redgate Compare Namespace/Redgate Compare SQL Server Namespace/SQL Server Data Comparison Options Namespace>) | Teams      | Configuration relating to SQL Server static data comparison.                                                  |
+| [`data.options.deployment`](<Configuration/Redgate Compare Namespace/Redgate Compare SQL Server Namespace/SQL Server Data Deployment Options Namespace>) | Teams      | Configuration relating to SQL Server static data deployment.                                                  |
+| [`data.options.mapping`](<Configuration/Redgate Compare Namespace/Redgate Compare SQL Server Namespace/SQL Server Data Mapping Options Namespace>)       | Teams      | Configuration relating to SQL Server static data mapping.                                                     | 
+| [`options.behavior`](<Configuration/Redgate Compare Namespace/Redgate Compare SQL Server Namespace/SQL Server Behavior Options Namespace>)               | Enterprise | Configuration relating to SQL Server database comparison and script generation behavior.                      | 
+| [`options.ignores`](<Configuration/Redgate Compare Namespace/Redgate Compare SQL Server Namespace/SQL Server Ignore Options Namespace>)                  | Enterprise | Configuration relating to the database features/syntax to track when running SQL Server database comparisons. | 
 
 ## Hard-coded options
 

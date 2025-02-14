@@ -2,6 +2,8 @@
 subtitle: redgateCompare.staticDataTables
 ---
 
+{% include teams.html %}
+
 ## Description
 
 Tables to track static data for. Note that these tables must have a primary key.
@@ -10,11 +12,11 @@ Tables to track static data for. Note that these tables must have a primary key.
 
 Object array with the following properties:
 
-| Property          | Required? | Type         | Description                                    |
-|-------------------|-----------|--------------|------------------------------------------------|
-| `table`           | Yes       | String       | The name of the table to track static data for |
-| `schema`          | No        | String       | The schema this table lives in                 |
-| `excludedColumns` | No        | String array | Columns to exclude tracking static data for    |
+| Property          | Tier       | Required? | Type         | Description                                    |
+|-------------------|------------|-----------|--------------|------------------------------------------------|
+| `table`           | Teams      | Yes       | String       | The name of the table to track static data for |
+| `schema`          | Teams      | No        | String       | The schema this table lives in                 |
+| `excludedColumns` | Enterprise | No        | String array | Columns to exclude tracking static data for    |
 
 ## Default
 
