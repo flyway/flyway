@@ -13,12 +13,12 @@ subtitle: PostgreSQL
 
 | Item                               | Details                                                                |
 |------------------------------------|------------------------------------------------------------------------|
-| **URL format**                     | <code>jdbc:postgresql://<i>host</i>:<i>port</i>/<i>database</i></code> |
+| **URL format**                     | <code>jdbc:postgresql://<i>host</i>:<i>port</i>/<i>database</i></code>  <br> **aws-advanced-jdbc-wrapper:** <br>  <code>jdbc:aws-wrapper:postgresql://<i>host</i>:<i>port</i>/<i>database</i></code> |
 | **SSL support**                    | Yes - add `?ssl=true`                                                  |
 | **Ships with Flyway Command-line** | Yes                                                                    |
 | **Maven Central coordinates**      | `org.postgresql:postgresql`                                            |
 | **Supported versions**             | `9.3-1104-jdbc4` and later                                             |
-| **Default Java class**             | `org.postgresql.Driver`                                                |
+| **Default Java class**             | `org.postgresql.Driver`   <br> **aws-advanced-jdbc-wrapper:** <br> `software.amazon.jdbc.Driver`                                                                                                                                                                                                                                                             |
 
 ## Related database-specific configuration
 
