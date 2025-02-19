@@ -53,6 +53,7 @@ import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.experimental.MetaData;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryItem;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryModel;
+import org.flywaydb.core.extensibility.TLSConnectionHelper;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
 import org.flywaydb.core.internal.parser.Parser;
@@ -122,6 +123,14 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
         }
 
         final ConnectionString connectionString = new ConnectionString(configuration.getUrl());
+
+        if (Boolean.TRUE.equals(connectionString.getSslEnabled())) {
+            TLSConnectionHelper.get(configuration)
+                .forEach(x -> x.prepareForTLSConnection(connectionString.getConnectionString(), connectionType, this, configuration));
+        } else {
+            LOG.debug("SSL is not enabled in the current connection configuration");
+        }
+
         if (connectionString.getCredential() != null) {
             mongoClient = MongoClients.create(MongoClientSettings.builder()
                 .applyConnectionString(connectionString)
@@ -173,7 +182,7 @@ public class ExperimentalMongoDB implements ExperimentalDatabase {
 
         final Document buildInfo = mongoDatabase.runCommand(new Document("buildInfo", 1));
         final String version = buildInfo.getString("version");
-        return new MetaData("Mongo DB", version, connectionType, getCurrentSchema());
+        return new MetaData("MongoDB", version, connectionType, getCurrentSchema());
     }
 
     @Override

@@ -12,7 +12,7 @@ Flyway has some default configuration to try and save you from accidents, but it
 
 ## Limitations
 
-- [SQL Server - no users will be dropped](<Supported Databases/SQL Server Database>)
+- [SQL Server - no users will be dropped](<Database Driver Reference/SQL Server Database>)
 
 ## Usage examples
 

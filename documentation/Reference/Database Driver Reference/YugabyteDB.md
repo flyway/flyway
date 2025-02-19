@@ -24,7 +24,7 @@ The preferred driver for this plugin is [YugabyteDB JDBC driver](https://github.
 
 
 ### PostgreSQL Driver
-Alternatively, one can also use the [PostgreSQL](Supported Databases/PostgreSQL Database) JDBC Driver with this plugin.
+Alternatively, one can also use the [PostgreSQL](<Database Driver Reference/PostgreSQL Database>) JDBC Driver with this plugin.
 
 | Item                               | Details                                                                |
 | ---------------------------------- | ---------------------------------------------------------------------- |
@@ -62,7 +62,7 @@ dependencies {
 ## Notes
 
 YugabyteDB is a variant of PostgreSQL and Flyway usage is the same for the two databases. For more details, 
-please refer to the [PostgreSQL](<Supported Databases/postgresql-database>) page.
+please refer to the [PostgreSQL](<Database Driver Reference/postgresql-database>) page.
 
 ## Limitations
 

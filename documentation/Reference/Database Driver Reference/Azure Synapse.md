@@ -60,11 +60,11 @@ dependencies {
 
 ## Azure Synapse Syntax
 
-- See [SQL Server](<Supported Databases/SQL Server Database>)
+- See [SQL Server](<Database Driver Reference/SQL Server Database>)
 
 ### Compatibility
 
-- See [SQL Server](<Supported Databases/SQL Server Database>)
+- See [SQL Server](<Database Driver Reference/SQL Server Database>)
 
 ### Example
 
@@ -83,11 +83,11 @@ INSERT INTO ${tableName} (name) VALUES ('Mr. T');
 
 ## Authentication
 
-See [SQL Server](<Supported Databases/SQL Server Database>)
+See [SQL Server](<Database Driver Reference/SQL Server Database>)
 
 ## Limitations
 
-- See [SQL Server](<Supported Databases/SQL Server Database>)
+- See [SQL Server](<Database Driver Reference/SQL Server Database>)
 - The JTDS driver does not support Azure Synapse
 - Flyway only supports the use of dedicated pools.
 - If you get this error: 'Unknown SQL Server engine edition: 11' then Synapse is reporting that it is a serverless pool.

@@ -49,4 +49,4 @@ Go to Docker Hub for [Flyway](https://hub.docker.com/r/flyway/flyway/) for detai
 - Older Docker images are available from [boxfuse/flyway](https://hub.docker.com/r/boxfuse/flyway/)
 
 # Contribute
-You can find information about how to contribute to the Flyway Open Source project in the [Contribute - Code](Contribute/Code) section.
+You can find information about how to contribute to the Flyway Open Source project in the [Open Source contribution documents](https://flyway.github.io/flyway/).

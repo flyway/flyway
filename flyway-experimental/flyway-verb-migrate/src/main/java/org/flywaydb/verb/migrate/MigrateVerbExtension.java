@@ -46,6 +46,7 @@ import org.flywaydb.core.internal.util.TimeFormat;
 import org.flywaydb.core.internal.util.ValidatePatternUtils;
 import org.flywaydb.experimental.callbacks.CallbackManager;
 import org.flywaydb.verb.VerbUtils;
+import org.flywaydb.verb.baseline.BaselineVerbExtension;
 import org.flywaydb.verb.info.ExperimentalMigrationInfoService;
 import org.flywaydb.verb.migrate.migrators.ApiMigrator;
 import org.flywaydb.verb.migrate.migrators.ExecutableMigrator;
@@ -89,7 +90,7 @@ public class MigrateVerbExtension implements VerbExtension {
                 .toList();
             if (!populatedSchemas.isEmpty() && !configuration.isSkipExecutingMigrations()) {
                 if (configuration.isBaselineOnMigrate()) {
-                    new Flyway(configuration).baseline();
+                    new BaselineVerbExtension().executeVerb(configuration);
                     context.refresh(configuration);
                 } else {
                     throw new FlywayException("Found non-empty schema(s) "

@@ -41,7 +41,8 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
     private final Configuration configuration;
 
     private static final CharsetEncoder ASCII_ENCODER = StandardCharsets.US_ASCII.newEncoder();
-    private static final Pattern RESOLVER_REGEX_PATTERN = Pattern.compile("\\${1,2}\\{[^.]+\\.[^.]+\\}");
+    private static final Pattern NESTED_RESOLVER_PATTERN = Pattern.compile("(^|[^$])\\$\\{(([^}]+|)\\$\\{.+?}).*?}");
+    private static final Pattern RESOLVER_REGEX_PATTERN = Pattern.compile("\\${1,2}\\{[^.]+\\.[^.]+?\\}");
     private static final Pattern VERBATIM_REGEX_PATTERN = Pattern.compile("\\!\\{.*\\}");
 
     public PropertyResolverContextImpl(String environmentName, Configuration configuration, Map<String, PropertyResolver> resolvers, Map<String, ConfigurationExtension> resolverConfigurations) {
@@ -87,6 +88,9 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
         }
         if (isVerbatim(value)) {
             return value.substring(2, value.length() - 1);
+        }
+        if (hasNestedResolvers(value)) {
+            throw new FlywayException("Resolvers cannot be nested: " + value, CoreErrorCode.CONFIGURATION);
         }
         return RESOLVER_REGEX_PATTERN.matcher(value.strip()).replaceAll(m -> getPropertyResolverReplacement(m, progress));
     }
@@ -164,5 +168,15 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
                 (filter.contains("A") && Character.isLetter(c)) ||
                 (filter.contains("a") && Character.isLetter(c) && ASCII_ENCODER.canEncode(c)) ||
                 (filter.contains("d") && Character.isDigit(c) && ASCII_ENCODER.canEncode(c));
+    }
+
+    private static boolean hasNestedResolvers(final String value) {
+        final var matcher = NESTED_RESOLVER_PATTERN.matcher(value);
+        while (matcher.find()) {
+            if (RESOLVER_REGEX_PATTERN.matcher(matcher.group(2)).find()) {
+                return true;
+            }
+        }
+        return false;
     }
 }

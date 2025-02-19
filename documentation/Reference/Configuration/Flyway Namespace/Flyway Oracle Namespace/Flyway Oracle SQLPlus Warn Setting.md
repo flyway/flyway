@@ -8,7 +8,7 @@ redirect_from: Configuration/oracleSqlPlusWarn/
 
 ## Description
 
-Whether Flyway should issue a warning instead of an error whenever it encounters an [Oracle SQL*Plus statement](Supported Databases/oracle database#sqlplus-commands) it doesn't yet support.
+Whether Flyway should issue a warning instead of an error whenever it encounters an [Oracle SQL*Plus statement](<Database Driver Reference/oracle database#sqlplus-commands>) it doesn't yet support.
 
 ## Type
 

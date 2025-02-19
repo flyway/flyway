@@ -109,7 +109,7 @@ See release notes here: https://rd.gt/416ObMi
 You are using a preview feature 'ExperimentalMigrate'.
 Please report any issues you encounter to DatabaseDevOps@red-gate.com
 -----------------------------------------------------------------------------
-Database: <<details removed>> (Mongo DB)
+Database: <<details removed>> (MongoDB)
 Schema history table "test"."flyway_schema_history" does not exist yet
 Successfully validated 1 migration (execution time 00:00.934s)
 Creating Schema History table "test"."flyway_schema_history" ...

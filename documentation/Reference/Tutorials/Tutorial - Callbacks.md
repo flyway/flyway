@@ -78,4 +78,6 @@ operation. Each time you invoke migrate again in the future, the callback will n
 
 In this brief tutorial we saw how to
 - create callbacks
-- triggers the execution of callbacks
+- trigger the execution of callbacks
+
+Learn more about all the possible [callback events](/callback-events) in Flyway.

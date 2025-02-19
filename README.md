@@ -21,18 +21,21 @@ Aurora MySQL, Aurora PostgreSQL, Azure Synapse, Clickhouse, CockroachDB, Databri
 SBT, Ant, Spring Boot, Grails, Play!, DropWizard, Grunt, Griffon, Ninja, ...
 
 ## Documentation
-You can find our getting started guides [here](https://documentation.red-gate.com/flyway/getting-started-with-flyway).
-Our reference documentation can be found [here](https://documentation.red-gate.com/flyway/reference).
+- [Getting started guides](https://documentation.red-gate.com/flyway/getting-started-with-flyway)
+- [Reference documentation](https://documentation.red-gate.com/flyway/reference)
+- [Contributing to the project](https://flyway.github.io/flyway/)
 
 ## Download
-You can download Flyway from [here](https://documentation.red-gate.com/fd/flyway-open-source-224002364.html)
+You can download Flyway from [here](https://documentation.red-gate.com/flyway/reference/usage/flyway-open-source)
 
 ## About
 Flyway is brought to you by [Redgate](https://www.red-gate.com/) with the help of many contributors.
 
-See our post [Flyway V10 has landed](https://documentation.red-gate.com/flyway/flyway-blog/flyway-v10-has-landed) for our current major changes and improvements for the community
+- [Posts on changes and updates to Flyway](https://documentation.red-gate.com/fd/flyway-blog-205226034.html)
+- [Release notes](https://documentation.red-gate.com/fd/release-notes-for-flyway-engine-179732572.html)
+
 ## How to contribute
-Please visit our [contribution page](https://documentation.red-gate.com/flyway/reference/contribute) to find out how you can contribute in various ways to the project.
+Please visit our [contribution page](https://flyway.github.io/flyway/) to find out how you can contribute in various ways to the project.
 
 ## License
 Copyright © [Red Gate Software Ltd](http://www.red-gate.com) 2010-2025

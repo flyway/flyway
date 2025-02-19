@@ -11,6 +11,15 @@ subtitle: CosmosDB - Native Connectors
 
 {% include database-boilerplate.html %}
 
+## Driver
+
+| Item                               | Details                                                                                                                                            |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **URL format**                     | `mongodb://ip address:port number/database_name`                                                                                                   |
+| **SSL support**                    | Yes                                                                                                                                                |
+| **Ships with Flyway Command-line** | JSON migrations: Yes. <br>Javascript migrations requires [Mongosh](https://www.mongodb.com/docs/mongodb-shell/install/) to be installed separately |
+| **Maven Central coordinates**      | n/a                                                                                                                                                |
+
 ## Using Flyway with MongoDB Native Connectors
 - Whilst this is in preview, you will need to set the environment variable `FLYWAY_NATIVE_CONNECTORS=true` on Redgate editions of Flyway.
 - If you are using javascript migrations then you'll need [`mongosh`](https://www.mongodb.com/docs/mongodb-shell/install/) to be installed.

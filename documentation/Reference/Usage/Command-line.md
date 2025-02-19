@@ -84,7 +84,7 @@ For a complete list of commands see [Commands](<Commands>).
 
 In order to connect with your database, Flyway needs the appropriate JDBC driver to be available in its `drivers` directory.
 
-To see if Flyway ships with the JDBC driver for your database, visit the *Driver* section of the documentation page for your database. For example, here is the [Oracle Drivers section](Supported Databases/oracle database#driver).
+To see if Flyway ships with the JDBC driver for your database, visit the *Driver* section of the documentation page for your database. For example, here is the [Oracle Drivers section](<Database Driver Reference/oracle database#driver>).
 
 If Flyway does not ship with the JDBC driver, you will need to download the driver and place it in the `drivers` directory yourself. Instructions on where to download drivers from are also in the *Driver* section of the documentation page for each database, under `Maven Central coordinates`.
 
@@ -278,4 +278,4 @@ Add `-outputFile=/my/output.txt` to the argument list to also write output to th
 
 ## Open Source Flyway
 
-This project is a core part of Flyway and you can find more information about it in [Flyway Open Source](Contribute/Flyway Open Source)
+This project is a core part of Flyway and you can find more information about it in [Flyway Open Source](<Usage/Flyway Open Source>)

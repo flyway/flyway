@@ -14,7 +14,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>11.3.2</version>
+    <version>11.3.3</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -56,6 +56,7 @@
         <module>flyway-database</module>
         <module>flyway-experimental</module>
         <module>flyway-reports</module>
+
 
 
 
@@ -144,6 +145,7 @@
         <version.aws-java-sdk>2.30.18</version.aws-java-sdk> <!-- TODO: revert back to range once nexus is better -->
         <version.aws-secretsmanager>2.0.2</version.aws-secretsmanager>
         <version.azure-identity>1.14.2</version.azure-identity>
+        <version.bcpkix-jdk18on>1.80</version.bcpkix-jdk18on>
         <version.byte-buddy-agent>1.11.18</version.byte-buddy-agent>
         <version.cassandra>4.13.0</version.cassandra>
         <version.commonslogging>1.2</version.commonslogging>
@@ -630,6 +632,11 @@
 
 
 
+
+
+
+
+
             <dependency>
                 <groupId>com.microsoft.sqlserver</groupId>
                 <artifactId>mssql-jdbc</artifactId>
@@ -742,6 +749,21 @@
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-server</artifactId>
                 <version>9.4.56.v20240826</version>
+            </dependency>
+            <dependency>
+                <groupId>com.oracle.database.security</groupId>
+                <artifactId>oraclepki</artifactId>
+                <version>${version.oracle}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.oracle.database.security</groupId>
+                <artifactId>osdt_cert</artifactId>
+                <version>${version.oracle}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.oracle.database.security</groupId>
+                <artifactId>osdt_core</artifactId>
+                <version>${version.oracle}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -25,6 +25,7 @@ JREs?
 JSON
 (?i)jTds
 Kerberos
+Keystore
 LF
 [Ll]inux
 [Mm]aven

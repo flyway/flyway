@@ -8,7 +8,7 @@ redirect_from: Configuration/oracleSqlPlus/
 
 ## Description
 
-Enable Flyway's support for [Oracle SQL*Plus commands](Supported Databases/oracle database#sqlplus-commands).
+Enable Flyway's support for [Oracle SQL*Plus commands](<Database Driver Reference/oracle database#sqlplus-commands>).
 
 ## Type
 
@@ -76,4 +76,4 @@ flyway {
 
 ### Configuring consistent sessions for your migrations
 
-See our list of [supported SQL\*Plus commands](Supported Databases/oracle database#sqlplus-commands) and how you can utilize them with [site and user profiles](Supported Databases/oracle database#site-profiles-gloginsql--user-profiles-loginsql) once SQL\*Plus is enable to achieved this.
+See our list of [supported SQL\*Plus commands](<Database Driver Reference/oracle database#sqlplus-commands>) and how you can utilize them with [site and user profiles](<Database Driver Reference/oracle database#site-profiles-gloginsql--user-profiles-loginsql>) once SQL\*Plus is enable to achieved this.

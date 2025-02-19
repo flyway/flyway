@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>11.3.2</version>
+    <version>11.3.3</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
 
@@ -34,6 +34,14 @@
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
     </dependency>
+
+
+
+
+
+
+
+
   </dependencies>
   <build>
     <resources>

@@ -20,7 +20,7 @@ subtitle: Percona XtraDB Cluster
 | **Default Java class**             | `com.mysql.jdbc.Driver`                                           |
 
 ## Java Usage
-See the [MySQL Database Documentation](Supported Databases/MySQL)
+See the [MySQL Database Documentation](<Database Driver Reference/MySQL>)
 ## SQL Script Syntax
 
 - Standard SQL syntax with statement delimiter **;**
