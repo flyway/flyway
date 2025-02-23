@@ -26,4 +26,9 @@ public class InfoResultDeserializer implements HtmlResultDeserializer<InfoResult
     public Class<InfoResult> getDeserializingClass() {
         return InfoResult.class;
     }
+
+    @Override
+    public String operationKey() {
+        return "info";
+    }
 }

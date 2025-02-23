@@ -1,3 +1,0 @@
----
-subtitle: placeholder page
----

@@ -2,6 +2,8 @@
 subtitle: redgateCompare.sqlserver.data.options.mapping
 ---
 
+{% include enterprise.html %}
+
 This namespace contains the configurations relating to SQL Server static data mapping.
 
 ## Settings

@@ -2,6 +2,8 @@
 subtitle: redgateCompare.oracle.data.options.comparison
 ---
 
+{% include enterprise.html %}
+
 This namespace contains the configurations relating to Oracle static data comparison.
 
 ## Settings

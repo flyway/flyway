@@ -19,15 +19,11 @@
  */
 package org.flywaydb.verb.migrate;
 
-import static org.flywaydb.core.experimental.ExperimentalModeUtils.logExperimentalDataTelemetry;
-
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import lombok.CustomLog;
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.api.CoreErrorCode;
 import org.flywaydb.core.api.CoreMigrationType;
 import org.flywaydb.core.api.FlywayException;
@@ -42,22 +38,21 @@ import org.flywaydb.core.api.exception.FlywayValidateException;
 import org.flywaydb.core.api.output.MigrateResult;
 import org.flywaydb.core.api.output.ValidateResult;
 import org.flywaydb.core.api.pattern.ValidatePattern;
-import org.flywaydb.core.api.resource.LoadableResourceMetadata;
 import org.flywaydb.core.experimental.ExperimentalDatabase;
-import org.flywaydb.core.experimental.schemahistory.SchemaHistoryModel;
 import org.flywaydb.core.extensibility.VerbExtension;
 import org.flywaydb.core.internal.license.VersionPrinter;
-import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.TimeFormat;
 import org.flywaydb.core.internal.util.ValidatePatternUtils;
 import org.flywaydb.experimental.callbacks.CallbackManager;
 import org.flywaydb.verb.VerbUtils;
+import org.flywaydb.verb.baseline.BaselineVerbExtension;
 import org.flywaydb.verb.info.ExperimentalMigrationInfoService;
 import org.flywaydb.verb.migrate.migrators.ApiMigrator;
 import org.flywaydb.verb.migrate.migrators.ExecutableMigrator;
 import org.flywaydb.verb.migrate.migrators.JdbcMigrator;
 import org.flywaydb.verb.migrate.migrators.Migrator;
+import org.flywaydb.verb.preparation.PreparationContext;
 import org.flywaydb.verb.schemas.SchemasVerbExtension;
 import org.flywaydb.verb.validate.ValidateVerbExtension;
 
@@ -70,35 +65,33 @@ public class MigrateVerbExtension implements VerbExtension {
     }
 
     @Override
-    public Object executeVerb(final Configuration configuration, FlywayTelemetryManager flywayTelemetryManager) {
+    public Object executeVerb(final Configuration configuration) {
+        
+        final PreparationContext context = PreparationContext.get(configuration);
+        
         if (configuration.isValidateOnMigrate()) {
-            validate(configuration, flywayTelemetryManager);
+            validate(configuration);
         }
-        final ExperimentalDatabase experimentalDatabase;
-        try {
-            experimentalDatabase = VerbUtils.getExperimentalDatabase(configuration);
-        } catch (final Exception e) {
-            throw new FlywayException(e);
-        }
-
-        logExperimentalDataTelemetry(flywayTelemetryManager, experimentalDatabase.getDatabaseMetaData());
-
+        
+        final ExperimentalDatabase database = context.getDatabase();
+        
         if (configuration.isCreateSchemas()) {
             try {
-                new SchemasVerbExtension().executeVerb(configuration, flywayTelemetryManager);
+                new SchemasVerbExtension().executeVerb(configuration);
             } catch (final NoClassDefFoundError e) {
                 throw new FlywayException("Schemas verb extension is required for creating schemas but is not present", e);
             }
         }
 
-        if (!experimentalDatabase.schemaHistoryTableExists(configuration.getTable())) {
+        if (!database.schemaHistoryTableExists(configuration.getTable())) {
             final List<String> populatedSchemas = Arrays.stream(VerbUtils.getAllSchemasFromConfiguration(configuration))
-                .filter(experimentalDatabase::isSchemaExists)
-                .filter(x -> !experimentalDatabase.isSchemaEmpty(x))
+                .filter(database::isSchemaExists)
+                .filter(x -> !database.isSchemaEmpty(x))
                 .toList();
             if (!populatedSchemas.isEmpty() && !configuration.isSkipExecutingMigrations()) {
                 if (configuration.isBaselineOnMigrate()) {
-                    new Flyway(configuration).baseline();
+                    new BaselineVerbExtension().executeVerb(configuration);
+                    context.refresh(configuration);
                 } else {
                     throw new FlywayException("Found non-empty schema(s) "
                         + StringUtils.collectionToCommaDelimitedString(populatedSchemas)
@@ -108,28 +101,21 @@ public class MigrateVerbExtension implements VerbExtension {
                 }
             }
         }
+        
+        final CallbackManager callbackManager = new CallbackManager(context.getResources(), configuration.isSkipDefaultCallbacks());
+        
 
-        final SchemaHistoryModel schemaHistoryModel = VerbUtils.getSchemaHistoryModel(configuration, experimentalDatabase);
-        final Collection<LoadableResourceMetadata> resources = VerbUtils.scanForResources(configuration,
-            experimentalDatabase);
-
-        CallbackManager callbackManager = new CallbackManager(resources);
-
-        final MigrationInfo[] migrations = VerbUtils.getMigrations(schemaHistoryModel,
-            resources.toArray(LoadableResourceMetadata[]::new),
-            configuration);
-
-        experimentalDatabase.createSchemaHistoryTableIfNotExists(configuration.getTable());
+        database.createSchemaHistoryTableIfNotExists(configuration.getTable());
 
         final MigrateResult migrateResult = new MigrateResult(VersionPrinter.getVersion(),
-            experimentalDatabase.getDatabaseMetaData().databaseName(),
+            database.getDatabaseMetaData().databaseName(),
             "",
-            experimentalDatabase.getDatabaseType());
+            database.getDatabaseType());
 
-        final MigrationInfoService migrationInfoService = new ExperimentalMigrationInfoService(migrations,
+        final MigrationInfoService migrationInfoService = new ExperimentalMigrationInfoService(context.getMigrations(),
             configuration,
-            experimentalDatabase.getName(),
-            experimentalDatabase.allSchemasEmpty(VerbUtils.getAllSchemasFromConfiguration(configuration)));
+            database.getName(),
+            database.allSchemasEmpty(VerbUtils.getAllSchemasFromConfiguration(configuration)));
 
         final MigrationInfo current = migrationInfoService.current();
         MigrationVersion initialSchemaVersion =  current != null && current.isVersioned()  ?
@@ -142,51 +128,59 @@ public class MigrateVerbExtension implements VerbExtension {
         }
 
         LOG.info("Current version of schema "
-            + experimentalDatabase.doQuote(experimentalDatabase.getCurrentSchema())
+            + database.doQuote(database.getCurrentSchema())
             + ": "
             + initialSchemaVersion);
 
         // To maintain consistency with legacy code, perform an additional round of validation regardless of whether validateOnMigrate is enabled
-        secondValidate(migrationInfoService, configuration, experimentalDatabase.doQuote(experimentalDatabase.getCurrentSchema()));
+        secondValidate(migrationInfoService, configuration, database.doQuote(database.getCurrentSchema()));
 
         if (configuration.isOutOfOrder()) {
-            final String outOfOrderWarning = "outOfOrder mode is active. Migration of schema " + experimentalDatabase.doQuote(
-                experimentalDatabase.getCurrentSchema()) + " may not be reproducible.";
+            final String outOfOrderWarning = "outOfOrder mode is active. Migration of schema " + database.doQuote(
+                database.getCurrentSchema()) + " may not be reproducible.";
             LOG.warn(outOfOrderWarning);
             migrateResult.addWarning(outOfOrderWarning);
         } else {
             allPendingMigrations = removeOutOfOrderPendingMigrations(allPendingMigrations);
         }
 
-        final ParsingContext parsingContext = new ParsingContext();
-        parsingContext.populate(experimentalDatabase, configuration);
-
-        final Migrator migrator = switch (experimentalDatabase.getDatabaseMetaData().connectionType()) {
+        final Migrator migrator = switch (database.getDatabaseMetaData().connectionType()) {
             case API -> new ApiMigrator();
             case JDBC -> new JdbcMigrator();
             case EXECUTABLE -> new ExecutableMigrator();
         };
 
-        final List<MigrationExecutionGroup> executionGroups = migrator.createGroups(allPendingMigrations, configuration, experimentalDatabase, migrateResult, parsingContext);
+        final List<MigrationExecutionGroup> executionGroups = migrator.createGroups(allPendingMigrations, configuration, database, migrateResult, context.getParsingContext());
 
-        callbackManager.handleEvent(Event.BEFORE_MIGRATE, experimentalDatabase, configuration, parsingContext);
-
-        int installedRank = experimentalDatabase.getSchemaHistoryModel(configuration.getTable()).calculateInstalledRank(CoreMigrationType.SQL);
-        for (final MigrationExecutionGroup executionGroup : executionGroups) {
-            installedRank = migrator.doExecutionGroup(configuration,
-                executionGroup,
-                experimentalDatabase,
-                migrateResult,
-                parsingContext,
-                installedRank);
+        callbackManager.handleEvent(Event.BEFORE_MIGRATE, database, configuration, context.getParsingContext());
+        
+        try {
+            int installedRank = context.getSchemaHistoryModel().calculateInstalledRank(CoreMigrationType.SQL);
+            for (final MigrationExecutionGroup executionGroup : executionGroups) {
+                installedRank = migrator.doExecutionGroup(configuration,
+                    executionGroup,
+                    database,
+                    migrateResult,
+                    context.getParsingContext(),
+                    installedRank, callbackManager);
+            }
+        } catch (FlywayException e) {
+            callbackManager.handleEvent(Event.AFTER_MIGRATE_ERROR, database, configuration, context.getParsingContext());
+            throw e;
         }
+
         logSummary(migrateResult.migrationsExecuted,
             migrateResult.getTotalMigrationTime(),
             migrateResult.targetSchemaVersion,
-            experimentalDatabase);
+            database);
+
+        if (migrateResult.migrationsExecuted > 0) {
+            callbackManager.handleEvent(Event.AFTER_MIGRATE_APPLIED, database, configuration, context.getParsingContext());
+        }
+        callbackManager.handleEvent(Event.AFTER_MIGRATE, database, configuration, context.getParsingContext());
 
         try {
-            experimentalDatabase.close();
+            database.close();
         } catch (Exception e) {
             throw new FlywayException(e);
         }
@@ -194,12 +188,12 @@ public class MigrateVerbExtension implements VerbExtension {
         return migrateResult;
     }
 
-    private static void validate(final Configuration configuration, FlywayTelemetryManager flywayTelemetryManager) {
+    private static void validate(final Configuration configuration) {
         final FluentConfiguration validateConfig = new FluentConfiguration().configuration(configuration);
         final List<ValidatePattern> ignorePatterns = new ArrayList<>(Arrays.asList(configuration.getIgnoreMigrationPatterns()));
         ignorePatterns.add(ValidatePattern.fromPattern("*:pending"));
         validateConfig.ignoreMigrationPatterns(ignorePatterns.toArray(ValidatePattern[]::new));
-        final ValidateResult validateResult = (ValidateResult) new ValidateVerbExtension().executeVerb(validateConfig, flywayTelemetryManager);
+        final ValidateResult validateResult = (ValidateResult) new ValidateVerbExtension().executeVerb(validateConfig);
         if (!validateResult.validationSuccessful) {
             throw new FlywayValidateException(validateResult.errorDetails, validateResult.getAllErrorMessages());
         }

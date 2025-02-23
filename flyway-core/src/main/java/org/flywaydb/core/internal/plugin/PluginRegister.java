@@ -82,6 +82,15 @@ public class PluginRegister {
             .orElse(null);
     }
 
+    public <T extends Plugin> T getPluginInstanceOf(final Class<T> clazz) {
+        return (T) getPlugins()
+            .stream()
+            .filter(clazz::isInstance)
+            .sorted()
+            .findFirst()
+            .orElse(null);
+    }
+
     private List<Plugin> getPlugins() {
         registerPlugins();
         return Collections.unmodifiableList(REGISTERED_PLUGINS);

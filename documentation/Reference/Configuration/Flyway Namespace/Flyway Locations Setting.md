@@ -13,7 +13,7 @@ This makes upgrading easier, as the whole installation folder can be deleted and
 
 ### Classpath
 
-Unprefixed locations or locations starting with <code>classpath:</code> point to a package on the classpath and may contain both SQL and Java-based migrations. You must ensure the package is available on the classpath (see [Adding to the classpath](<Usage/Adding to the classpath>)).
+Locations without a prefix or locations starting with <code>classpath:</code> point to a package on the classpath and may contain both SQL and Java-based migrations. You must ensure the package is available on the classpath (see [Adding to the classpath](<Usage/Adding to the classpath>)).
 
 ### Filesystem
 

@@ -19,18 +19,12 @@
  */
 package org.flywaydb.verb.info;
 
-import static org.flywaydb.core.experimental.ExperimentalModeUtils.logExperimentalDataTelemetry;
-
-import java.sql.SQLException;
-import java.util.Collection;
 import lombok.CustomLog;
-import org.flywaydb.core.FlywayTelemetryManager;
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.resource.LoadableResourceMetadata;
+import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.extensibility.VerbExtension;
 import org.flywaydb.verb.VerbUtils;
+import org.flywaydb.verb.preparation.PreparationContext;
 
 @CustomLog
 public class InfoVerbExtension implements VerbExtension {
@@ -40,29 +34,20 @@ public class InfoVerbExtension implements VerbExtension {
     }
 
     @Override
-    public Object executeVerb(final Configuration configuration, FlywayTelemetryManager flywayTelemetryManager) {
-        try {
-            final var experimentalDatabase = VerbUtils.getExperimentalDatabase(configuration);
-            final var schemaHistoryModel = VerbUtils.getSchemaHistoryModel(configuration, experimentalDatabase);
+    public Object executeVerb(final Configuration configuration) {
+        
+        final PreparationContext context = PreparationContext.get(configuration);
 
-            logExperimentalDataTelemetry(flywayTelemetryManager, experimentalDatabase.getDatabaseMetaData());
+        final ExperimentalDatabase database = context.getDatabase();
+        if (!database.schemaHistoryTableExists(configuration.getTable())) {
+            LOG.info("Schema history table "
+                + database.quote(database.getCurrentSchema(), configuration.getTable())
+                + " does not exist yet");
+        }
 
-            final Collection<LoadableResourceMetadata> resources = VerbUtils.scanForResources(configuration,
-                experimentalDatabase);
-            final MigrationInfo[] migrations = VerbUtils.getMigrations(schemaHistoryModel,
-                resources.toArray(LoadableResourceMetadata[]::new),
-                configuration);
-
-            if (!experimentalDatabase.schemaHistoryTableExists(configuration.getTable())) {
-                LOG.info("Schema history table " + experimentalDatabase.quote(experimentalDatabase.getCurrentSchema(),  configuration.getTable()) + " does not exist yet");
-            }
-
-            return new ExperimentalMigrationInfoService(migrations,
-                configuration,
-                experimentalDatabase.getName(),
-                experimentalDatabase.allSchemasEmpty(VerbUtils.getAllSchemasFromConfiguration(configuration)));
-        } catch (final SQLException e) {
-            throw new FlywayException(e);
-        }            
+        return new ExperimentalMigrationInfoService(context.getMigrations(),
+            configuration,
+            database.getName(),
+            database.allSchemasEmpty(VerbUtils.getAllSchemasFromConfiguration(configuration)));
     }
 }

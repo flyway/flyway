@@ -84,7 +84,7 @@ For a complete list of commands see [Commands](<Commands>).
 
 In order to connect with your database, Flyway needs the appropriate JDBC driver to be available in its `drivers` directory.
 
-To see if Flyway ships with the JDBC driver for your database, visit the *Driver* section of the documentation page for your database. For example, here is the [Oracle Drivers section](Supported Databases/oracle database#driver).
+To see if Flyway ships with the JDBC driver for your database, visit the *Driver* section of the documentation page for your database. For example, here is the [Oracle Drivers section](<Database Driver Reference/oracle database#driver>).
 
 If Flyway does not ship with the JDBC driver, you will need to download the driver and place it in the `drivers` directory yourself. Instructions on where to download drivers from are also in the *Driver* section of the documentation page for each database, under `Maven Central coordinates`.
 
@@ -111,7 +111,7 @@ Some command-line arguments will need care as specific characters may be interpr
 shell you are working in. The `url` parameter is particularly affected when it contains extra parameters with
 equals `=` and ampersands `&`. For example:
 
-**bash**, **macOS terminal** and **Windows cmd**: use double-quotes:
+**bash**, **macOS terminal** and **Windows command line**: use double-quotes:
 
 <pre class="console"><span>&gt;</span> flyway info -url="jdbc:snowflake://ab12345.snowflakecomputing.com/?db=demo_db&user=foo"</pre>
 
@@ -165,8 +165,9 @@ so it is assumed to be `flyway.init.databaseType=sqlserver
 
 #### Backwards Compatibility:
 
-Scoped namespacing is automatically disabled when ANY namespace is used. This is to maintain backwards compatibility with
-scripts written for older versions of Flyway. To clarify, the following two examples will work;
+Scoped namespacing is automatically disabled when ANY namespace is used, including parameters set under the environments 
+namespace. This is to maintain backwards compatibility with scripts written for older versions of Flyway. To clarify, 
+the following two examples will work;
 
 ```powershell
 flyway init -databaseType=sqlserver -projectName=myProject
@@ -182,7 +183,7 @@ but the following will not;
 flyway init -init.databaseType=sqlserver -projectName=myProject 
 ```
 
-because the `databaseType` parameter is namespaced, scoped namespacing is disabled and thus `projectName` is assumed to be 
+because the `databaseType` parameter is declared in a namespace, scoped namespacing is disabled and thus `projectName` is assumed to be 
 `flyway.projectName` and not `flyway.init.projectName`.
 
 ### Configuration from standard input
@@ -193,25 +194,12 @@ See [Config Files](<Command-line Parameters/Config Files Parameter>)
 
 See [Configuration Precedence](<Configuration Precedence>) for details of the configuration mechanism priority.
 
-### Credentials
-
-If you do not supply a database `user` or `password` via any of the means above, you may be
-prompted to enter them (depending on the database):
-<pre class="console">Database user: myuser
-Database password:</pre>
-
-If you want Flyway to connect to your database without a user or password, you can suppress prompting by adding
-the `-n` flag.
-
-There are exceptions, where the credentials are passed in the JDBC URL or where a password-less method of
-authentication is being used.
-
 ### Java Arguments
 
 If you need to pass custom arguments to Flyway's JVM, you can do so by setting the `JAVA_ARGS` environment variable, either at runtime or persistently on the host system.
 They will then automatically be taken into account when launching Flyway. This is particularly useful when needing to set JVM system properties.
 
-Runtime example (Windows cmd)
+Runtime example (Windows command line)
 <pre class="console"><span>&gt;</span> set JAVA_ARGS=-Xms308M -Xmx432M</pre>
 The corresponding system environment variable would be
 Name: JAVA_ARGS
@@ -280,7 +268,7 @@ with normal command-line tools, for example:
 
 <pre class="console"><span>&gt;</span> flyway migrate -X <strong>| sls -Pattern 'term-to-filter-out' -NoMatch</strong></pre>
 
-**Windows cmd**
+**Windows command line**
 
 <pre class="console"><span>&gt;</span> flyway migrate -X <strong>| findstr /v /c:"term-to-filter-out"</strong></pre>
 
@@ -290,4 +278,4 @@ Add `-outputFile=/my/output.txt` to the argument list to also write output to th
 
 ## Open Source Flyway
 
-This project is a core part of Flyway and you can find more information about it in [Flyway Open Source](Contribute/Flyway Open Source)
+This project is a core part of Flyway and you can find more information about it in [Flyway Open Source](<Usage/Flyway Open Source>)

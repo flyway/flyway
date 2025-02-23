@@ -39,6 +39,8 @@ public class FlywaySqlScriptException extends FlywaySqlException {
 
     private final SqlStatement statement;
 
+    private final String decoratedMessage;
+
     public static final String STATEMENT_MESSAGE = "Run Flyway with -X option to see the actual statement causing the problem";
 
     /**
@@ -48,10 +50,25 @@ public class FlywaySqlScriptException extends FlywaySqlException {
      * @param statement The failed SQL statement.
      * @param sqlException Cause of the problem.
      */
-    public FlywaySqlScriptException(Resource resource, SqlStatement statement, SQLException sqlException) {
+    public FlywaySqlScriptException(final Resource resource, final SqlStatement statement, final SQLException sqlException) {
         super(resource == null ? "Script failed" : "Script " + resource.getFilename() + " failed", sqlException);
         this.resource = resource;
         this.statement = statement;
+
+        final StringBuilder builder = new StringBuilder(super.getMessage());
+        if (resource != null) {
+            builder.append("Location   : ")
+                .append(resource.getAbsolutePath())
+                .append(" (")
+                .append(resource.getAbsolutePathOnDisk())
+                .append(")\n");
+        }
+        if (statement != null) {
+            builder.append("Line       : ").append(getLineNumber()).append("\n");
+            builder.append("Statement  : ").append(LOG.isDebugEnabled() ? getStatement() : STATEMENT_MESSAGE)
+                .append("\n");
+        }
+        this.decoratedMessage = builder.toString();
     }
 
     /**
@@ -74,14 +91,6 @@ public class FlywaySqlScriptException extends FlywaySqlException {
 
     @Override
     public String getMessage() {
-        String message = super.getMessage();
-        if (resource != null) {
-            message += "Location   : " + resource.getAbsolutePath() + " (" + resource.getAbsolutePathOnDisk() + ")\n";
-        }
-        if (statement != null) {
-            message += "Line       : " + getLineNumber() + "\n";
-            message += "Statement  : " + (LOG.isDebugEnabled() ? getStatement() : STATEMENT_MESSAGE) + "\n";
-        }
-        return message;
+        return decoratedMessage;
     }
 }

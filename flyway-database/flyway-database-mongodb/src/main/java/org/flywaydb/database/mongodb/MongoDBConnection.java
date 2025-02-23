@@ -24,13 +24,14 @@ import org.flywaydb.core.internal.database.base.Schema;
 
 import java.sql.SQLException;
 
+import static org.flywaydb.core.internal.logging.PreviewFeatureWarning.LEGACY_MONGODB;
 import static org.flywaydb.core.internal.logging.PreviewFeatureWarning.logPreviewFeature;
 
 public class MongoDBConnection extends Connection<MongoDBDatabase> {
     protected MongoDBConnection(MongoDBDatabase database, java.sql.Connection connection) {
         super(database, connection);
         this.jdbcTemplate = new MongoDBJdbcTemplate(connection, database.getDatabaseType());
-        logPreviewFeature("MongoDB support");
+        logPreviewFeature(LEGACY_MONGODB);
     }
 
     @Override

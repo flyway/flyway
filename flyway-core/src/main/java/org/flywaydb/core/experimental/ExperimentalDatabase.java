@@ -19,12 +19,11 @@
  */
 package org.flywaydb.core.experimental;
 
-import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.output.CleanResult;
@@ -51,7 +50,16 @@ public interface ExperimentalDatabase extends Plugin, AutoCloseable  {
      */
     DatabaseSupport supportsUrl(String url);
 
-    boolean supportsDdlTransactions();
+    default boolean canCreateJdbcDataSource() {
+        return false;
+    }
+    default boolean isOnByDefault() {
+        return false;
+    }
+
+    List<String> supportedVerbs();
+
+    boolean supportsTransactions();
 
     /**
      * To initialize the connection to the database. This function will vary between the connection types.
@@ -152,6 +160,8 @@ public interface ExperimentalDatabase extends Plugin, AutoCloseable  {
      */
     void doExecuteBatch();
     
+    int getBatchSize();
+        
     String getCurrentUser();
 
     void startTransaction();
@@ -160,18 +170,43 @@ public interface ExperimentalDatabase extends Plugin, AutoCloseable  {
 
     void rollbackTransaction();
 
-    default void doClean(final List<String> schemas, final CleanResult cleanResult) {
+    default void doClean(final List<String> schemas, final List<String> schemasToDrop, final CleanResult cleanResult) {
         final StopWatch watch = new StopWatch();
         for (final String schema : schemas) {
-            watch.start();
-            doCleanSchema(schema);
-            watch.stop();
-            LOG.info(String.format("Successfully cleaned schema %s (execution time %s)", quote(schema), TimeFormat.format(watch.getTotalTimeMillis())));
-            cleanResult.schemasCleaned.add(schema);
+            try {
+                watch.start();
+                doCleanSchema(schema);
+                watch.stop();
+                LOG.info(String.format("Successfully cleaned schema %s (execution time %s)",
+                    quote(schema),
+                    TimeFormat.format(watch.getTotalTimeMillis())));
+                if (!schemasToDrop.contains(schema)) {
+                    cleanResult.schemasCleaned.add(schema);
+                }
+            } catch (final Exception ignored) {
+
+            }
+        }
+        for (final String schema : schemasToDrop) {
+            try {
+                watch.start();
+                doDropSchema(schema);
+                watch.stop();
+                LOG.info(String.format("Successfully dropped schema %s (execution time %s)",
+                    quote(schema),
+                    TimeFormat.format(watch.getTotalTimeMillis())));
+                cleanResult.schemasDropped.add(schema);
+            } catch (final FlywayException e) {
+                LOG.debug(e.getMessage());
+                LOG.warn("Unable to drop schema " + schema + ". It was cleaned instead.");
+                cleanResult.schemasCleaned.add(schema);
+            }
         }
     }
 
     void doCleanSchema(String schema);
+
+    void doDropSchema(String schema);
 
     default String getInstalledBy(final Configuration configuration) {
         final String installedBy = configuration.getInstalledBy();
@@ -207,4 +242,6 @@ public interface ExperimentalDatabase extends Plugin, AutoCloseable  {
         return new Pattern[] {Pattern.compile("password=([^;&]*).*", Pattern.CASE_INSENSITIVE),
                               Pattern.compile("(?:jdbc:)?[^:]+://[^:]+:([^@]+)@.*", Pattern.CASE_INSENSITIVE)};
     }
+    
+    boolean isClosed();
 }

@@ -22,11 +22,13 @@ package org.flywaydb.verb.migrate.migrators;
 import static org.flywaydb.verb.VerbUtils.toMigrationText;
 
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import lombok.CustomLog;
 import org.flywaydb.core.api.LoadableMigrationInfo;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
+import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.CommandResultFactory;
 import org.flywaydb.core.api.output.MigrateResult;
@@ -34,11 +36,16 @@ import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.internal.exception.FlywayMigrateException;
 import org.flywaydb.core.internal.parser.ParsingContext;
+import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.experimental.callbacks.CallbackManager;
 import org.flywaydb.verb.ErrorUtils;
-import org.flywaydb.verb.FileReadingWithPlaceholderReplacement;
+import org.flywaydb.verb.executors.ExecutorFactory;
 import org.flywaydb.verb.migrate.MigrationExecutionGroup;
+import org.flywaydb.verb.executors.Executor;
+import org.flywaydb.verb.readers.Reader;
+import org.flywaydb.verb.readers.ReaderFactory;
 
 @CustomLog
 public class ApiMigrator extends Migrator{
@@ -46,7 +53,37 @@ public class ApiMigrator extends Migrator{
     @Override
     public List<MigrationExecutionGroup> createGroups(final MigrationInfo[] allPendingMigrations,
         final Configuration configuration, final ExperimentalDatabase experimentalDatabase, final MigrateResult migrateResult, final ParsingContext parsingContext) {
-        return List.of(new MigrationExecutionGroup(List.of(allPendingMigrations), true));        
+        final List<MigrationInfo> currentGroup = Arrays.asList(allPendingMigrations);
+        final List<Pair<MigrationInfo, Boolean>> migrationTransactionPairs = currentGroup.stream()
+            .map(x -> Pair.of(x, shouldExecuteInTransaction(x, configuration))).toList();
+        if (!configuration.isGroup()) {
+            return migrationTransactionPairs.stream()
+                .map(x -> new MigrationExecutionGroup(List.of(x.getLeft()), x.getRight() )).toList();
+        }
+
+        for (final Pair<MigrationInfo, Boolean> pair : migrationTransactionPairs) {
+            final MigrationInfo migrationInfo = pair.getLeft();
+            final boolean shouldExecuteMigrationInTransaction = pair.getRight();
+            if (configuration.isExecuteInTransaction() != shouldExecuteMigrationInTransaction) {
+                if (configuration.isMixed()) {
+                    return migrationTransactionPairs.stream().map(x -> new MigrationExecutionGroup(List.of(x.getLeft()), x.getRight())).toList();
+                } else {
+                    throw new FlywayMigrateException(migrationInfo,
+                        "Detected both transactional and non-transactional migrations within the same migration group"
+                            + " (even though mixed is false). First offending migration: "
+                            + experimentalDatabase.doQuote((migrationInfo.isVersioned() ? migrationInfo.getVersion()
+                            .getVersion() : "")
+                            + (StringUtils.hasLength(migrationInfo.getDescription()) ? " " + migrationInfo.getDescription() : ""))
+                            + (shouldExecuteMigrationInTransaction ? "" : " [non-transactional]"),
+                        shouldExecuteMigrationInTransaction,
+                        migrateResult);
+                }
+            }
+        }
+        if (!configuration.isExecuteInTransaction()) {
+            return Arrays.stream(allPendingMigrations).map(x -> new MigrationExecutionGroup(List.of(x), false)).toList();
+        }
+        return List.of(new MigrationExecutionGroup(currentGroup, true));
     }
 
     @Override
@@ -55,15 +92,15 @@ public class ApiMigrator extends Migrator{
         final ExperimentalDatabase experimentalDatabase,
         final MigrateResult migrateResult,
         final ParsingContext parsingContext,
-        final int installedRank) {
+        final int installedRank, final CallbackManager callbackManager) {
         int rank = installedRank;
-        final boolean executeInTransaction = configuration.isExecuteInTransaction()
-            && executionGroup.shouldExecuteInTransaction();
+        final boolean executeInTransaction = executionGroup.shouldExecuteInTransaction();
         if (executeInTransaction) {
             experimentalDatabase.startTransaction();
         }
         for (final MigrationInfo migrationInfo : executionGroup.migrations()) {
-            doIndividualMigration(migrationInfo, experimentalDatabase, configuration, migrateResult, rank, parsingContext);
+            doIndividualMigration(migrationInfo, experimentalDatabase,
+                configuration, migrateResult, rank, parsingContext, callbackManager, executeInTransaction);
             rank++;
         }
         if (executeInTransaction) {
@@ -72,13 +109,21 @@ public class ApiMigrator extends Migrator{
         return rank;
     }
 
-    private void doIndividualMigration(final MigrationInfo migrationInfo, final ExperimentalDatabase experimentalDatabase,
-        final Configuration configuration, final MigrateResult migrateResult, final int installedRank, final ParsingContext parsingContext) {
+    private void doIndividualMigration(final MigrationInfo migrationInfo,
+        final ExperimentalDatabase experimentalDatabase,
+        final Configuration configuration,
+        final MigrateResult migrateResult,
+        final int installedRank,
+        final ParsingContext parsingContext,
+        final CallbackManager callbackManager,
+        final boolean executeInTransaction) {
         final StopWatch watch = new StopWatch();
         watch.start();
 
         final boolean outOfOrder = migrationInfo.getState() == MigrationState.OUT_OF_ORDER && configuration.isOutOfOrder();
-        final String migrationText = toMigrationText(migrationInfo, false, experimentalDatabase, outOfOrder);
+        final String migrationText = toMigrationText(migrationInfo, executeInTransaction, experimentalDatabase, outOfOrder);
+        final Executor<String> executor = ExecutorFactory.getExecutor(experimentalDatabase, configuration);
+        final Reader<String> reader = ReaderFactory.getReader(experimentalDatabase, configuration);
 
         try {
             if (configuration.isSkipExecutingMigrations()) {
@@ -86,13 +131,24 @@ public class ApiMigrator extends Migrator{
             } else {
                 LOG.debug("Starting migration of " + migrationText + " ...");
                 if (!migrationInfo.getType().isUndo()) {
+                    callbackManager.handleEvent(Event.BEFORE_EACH_MIGRATE, experimentalDatabase, configuration, parsingContext);
+                }
+                if (!migrationInfo.getType().isUndo()) {
                     LOG.info("Migrating " + migrationText);
                 } else {
                     LOG.info("Undoing migration of " + migrationText);
                 }
 
-                final String executionUnit = FileReadingWithPlaceholderReplacement.readFile(configuration, parsingContext, migrationInfo.getPhysicalLocation());
-                experimentalDatabase.doExecute(executionUnit, configuration.isOutputQueryResults());
+                if (migrationInfo instanceof final LoadableMigrationInfo loadableMigrationInfo) {
+                    final String executionUnit = reader.read(configuration, experimentalDatabase, parsingContext,
+                        loadableMigrationInfo.getLoadableResource(), null).findFirst().get();
+                    executor.execute(experimentalDatabase, executionUnit, configuration);
+                    executor.finishExecution(experimentalDatabase, configuration);
+                }
+
+                if (!migrationInfo.getType().isUndo()) {
+                    callbackManager.handleEvent(Event.AFTER_EACH_MIGRATE, experimentalDatabase, configuration, parsingContext);
+                }
             }
         } catch (final Exception e) {
             watch.stop();
@@ -103,6 +159,7 @@ public class ApiMigrator extends Migrator{
                 configuration.isOutOfOrder(),
                 installedRank,
                 experimentalDatabase.getInstalledBy(configuration),
+                executeInTransaction,
                 totalTimeMillis);
         }
 
@@ -132,8 +189,9 @@ public class ApiMigrator extends Migrator{
         final boolean outOfOrder,
         final int installedRank,
         final String installedBy,
+        final boolean executeInTransaction,
         final int totalTimeMillis) {
-        final String migrationText = toMigrationText(migrationInfo, false, experimentalDatabase, outOfOrder);
+        final String migrationText = toMigrationText(migrationInfo, executeInTransaction, experimentalDatabase, outOfOrder);
         final String failedMsg;
         if (!migrationInfo.getType().isUndo()) {
             failedMsg = "Migration of " + migrationText + " failed!";
@@ -144,18 +202,23 @@ public class ApiMigrator extends Migrator{
         migrateResult.putFailedMigration(migrationInfo, totalTimeMillis);
         migrateResult.setSuccess(false);
 
-        LOG.error(failedMsg + " Please restore backups and roll back database and code!");
-        updateSchemaHistoryTable(schemaHistoryTableName,
-            migrationInfo,
-            totalTimeMillis,
-            installedRank,
-            experimentalDatabase,
-            installedBy,
-            false);
+        if (executeInTransaction) {
+            experimentalDatabase.rollbackTransaction();
+            LOG.error(failedMsg + " Changes successfully rolled back.");
+        } else {
+            LOG.error(failedMsg + " Please restore backups and roll back database and code!");
+            updateSchemaHistoryTable(schemaHistoryTableName,
+                migrationInfo,
+                totalTimeMillis,
+                installedRank,
+                experimentalDatabase,
+                installedBy,
+                false);
+        }
 
         throw new FlywayMigrateException(migrationInfo,
             calculateErrorMessage(e, migrationInfo),
-            true, migrateResult);
+            executeInTransaction, migrateResult);
     }
 
     private String calculateErrorMessage(final Exception e, final MigrationInfo migrationInfo) {
@@ -171,6 +234,18 @@ public class ApiMigrator extends Migrator{
             loadableResource,
             migrationInfo.getPhysicalLocation(),
             null,
+            null,
             "Message    : " + e.getMessage() + "\n");
+    }
+
+    private boolean shouldExecuteInTransaction(final MigrationInfo migrationInfo,
+        final Configuration configuration) {
+        if (migrationInfo instanceof final LoadableMigrationInfo loadableMigrationInfo) {
+            if (loadableMigrationInfo.getSqlScriptMetadata() != null
+                && loadableMigrationInfo.getSqlScriptMetadata().executeInTransaction() != null) {
+                return loadableMigrationInfo.getSqlScriptMetadata().executeInTransaction();
+            }
+        }
+        return configuration.isExecuteInTransaction();
     }
 }

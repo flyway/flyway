@@ -19,20 +19,16 @@
  */
 package org.flywaydb.verb.schemas;
 
-import static org.flywaydb.core.experimental.ExperimentalModeUtils.logExperimentalDataTelemetry;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import lombok.CustomLog;
-import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.api.CoreMigrationType;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryItem;
-import org.flywaydb.core.experimental.schemahistory.SchemaHistoryModel;
 import org.flywaydb.core.extensibility.VerbExtension;
-import org.flywaydb.verb.VerbUtils;
+import org.flywaydb.verb.preparation.PreparationContext;
 
 @CustomLog
 public class SchemasVerbExtension implements VerbExtension {
@@ -43,17 +39,11 @@ public class SchemasVerbExtension implements VerbExtension {
     }
 
     @Override
-    public Object executeVerb(final Configuration configuration, FlywayTelemetryManager flywayTelemetryManager) {
-        final ExperimentalDatabase experimentalDatabase;
-        try {
-            experimentalDatabase = VerbUtils.getExperimentalDatabase(configuration);
-        } catch (final Exception e) {
-            throw new FlywayException(e);
-        }
-
-        logExperimentalDataTelemetry(flywayTelemetryManager, experimentalDatabase.getDatabaseMetaData());
-
-        final Collection<String> missingSchemas = getMissingSchemas(configuration, experimentalDatabase);
+    public Object executeVerb(final Configuration configuration) {
+        final PreparationContext context = PreparationContext.get(configuration);
+        final ExperimentalDatabase database = context.getDatabase();
+       
+        final Collection<String> missingSchemas = getMissingSchemas(configuration, database);
 
         if (missingSchemas.contains(null)) {
             throw new FlywayException("Unable to determine schema for the schema history table." +
@@ -65,35 +55,32 @@ public class SchemasVerbExtension implements VerbExtension {
         }
 
         if (configuration.isCreateSchemas()) {
-            experimentalDatabase.createSchemas(missingSchemas.toArray(String[]::new));
+            database.createSchemas(missingSchemas.toArray(String[]::new));
         }
 
-        final SchemaHistoryModel schemaHistoryModel = VerbUtils.getSchemaHistoryModel(configuration,
-            experimentalDatabase);
-
-        experimentalDatabase.createSchemaHistoryTableIfNotExists(configuration.getTable());
+        database.createSchemaHistoryTableIfNotExists(configuration.getTable());
 
         if (!missingSchemas.isEmpty()) {
             // Update SHT with created Schemas
-            final int installedRank = schemaHistoryModel.calculateInstalledRank(CoreMigrationType.SCHEMA);
-            createSchemaMarker(experimentalDatabase, configuration, installedRank, missingSchemas);
-
+            final int installedRank = context.getSchemaHistoryModel().calculateInstalledRank(CoreMigrationType.SCHEMA);
+            createSchemaMarker(database, configuration, installedRank, missingSchemas);
+            context.refresh(configuration);
         }
         return null;
     }
 
     private Collection<String> getMissingSchemas(final Configuration configuration,
-        final ExperimentalDatabase experimentalDatabase) {
+        final ExperimentalDatabase database) {
         final Collection<String> missingSchemas = new ArrayList<>();
-        final String defaultSchema = experimentalDatabase.getDefaultSchema(configuration);
+        final String defaultSchema = database.getDefaultSchema(configuration);
         if (defaultSchema != null) {
-            if (!experimentalDatabase.isSchemaExists(defaultSchema)) {
+            if (!database.isSchemaExists(defaultSchema)) {
                 missingSchemas.add(defaultSchema);
             }
         }
 
         for (final String schema : configuration.getSchemas()) {
-            if (!experimentalDatabase.isSchemaExists(schema) && !missingSchemas.contains(schema)) {
+            if (!database.isSchemaExists(schema) && !missingSchemas.contains(schema)) {
                 missingSchemas.add(schema);
             }
         }

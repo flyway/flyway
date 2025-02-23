@@ -221,6 +221,7 @@
 
 
 
+
             </includes>
             <excludes>
                 <exclude>io.netty:netty-*</exclude>
@@ -323,6 +324,7 @@
 
 
 
+
                 <include>org.flywaydb:flyway-database-ignite</include>
                 <include>org.flywaydb:flyway-database-tidb</include>
                 <include>org.flywaydb:flyway-database-yugabytedb</include>
@@ -330,6 +332,8 @@
                 <include>org.flywaydb:flyway-database-oceanbase</include>
                 <include>org.flywaydb:flyway-database-databricks</include>
                 <include>org.flywaydb:flyway-database-db2zos</include>
+                <include>org.flywaydb:flyway-database-timeplus</include>
+                <include>org.flywaydb:flyway-database-duckdb</include>
                 <include>org.flywaydb:flyway-verb-utils</include>
                 <include>org.flywaydb:flyway-experimental-scanners</include>
                 <include>org.flywaydb:flyway-verb-info</include>
@@ -384,7 +388,7 @@
             <excludes>
                 <exclude>org.flywaydb:flyway-*</exclude>
                 <exclude>org.flywaydb.enterprise:flyway-*</exclude>
-                <exclude>com.redgate.flyway:flyway-*</exclude>
+                <exclude>org.flywaydb:flyway-*</exclude>
                 <exclude>org.fusesource.jansi:jansi</exclude>
                 <exclude>com.google.code.gson:gson</exclude>
                 <exclude>software.amazon.awssdk:s3</exclude>
@@ -400,6 +404,9 @@
                 <exclude>net.java.dev.jna</exclude>
                 <exclude>org.mongodb:mongodb-driver-sync</exclude>
                 <exclude>io.netty:netty-*</exclude>
+                <exclude>com.oracle.database.security:oraclepki</exclude>
+                <exclude>com.oracle.database.security:osdt_cert</exclude>
+                <exclude>com.oracle.database.security:osdt_core</exclude>
 
 
 

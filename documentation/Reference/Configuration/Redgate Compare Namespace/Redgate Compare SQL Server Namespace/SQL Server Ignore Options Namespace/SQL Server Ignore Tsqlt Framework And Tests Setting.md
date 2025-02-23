@@ -4,7 +4,7 @@ subtitle: redgateCompare.sqlserver.options.ignores.ignoreTsqltFrameworkAndTests
 
 ## Description
 
-Ignores the tSQLt schema and its contents, the tSQLtCLR assembly, the SQLCop schema and its contents, and any schemas and their contents with the tSQLt.TestClass extended property set.
+Ignores the tSQLt schema and its contents, the tSQLt CLR assembly, the SQLCop schema and its contents, and any schemas and their contents with the `tSQLt.TestClass` extended property set.
 
 ## Type
 

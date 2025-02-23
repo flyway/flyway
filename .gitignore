@@ -1,6 +1,7 @@
 bin
 build
 target
+__pycache__
 *.iml
 *.ipr
 *.iws

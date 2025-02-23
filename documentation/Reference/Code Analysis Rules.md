@@ -7,12 +7,12 @@ subtitle: check
 
 When using regular expression rules for static code analysis through [check -code](<Commands/Check/Check Code>), the format of the [TOML](https://toml.io/en/) rules files is as follows:
 
-| Field            | Purpose                                                  | Type               | Possible values                                                                           | Example                                               |
-|------------------|----------------------------------------------------------|--------------------|-------------------------------------------------------------------------------------------|-------------------------------------------------------|
-| dialects         | Which dialect of SQL does this rule apply to             | Array (of Strings) | TEXT, BIGQUERY, DBS, <BR>MYSQL, ORACLE, POSTGRES,<BR>REDSHIFT, SNOWFLAKE,<BR>SQLITE, TSQL | ["TEXT"]                                              |
-| rules            | The regex rule you want                                  | Array (of Strings) | [Regular Expressions](https://www.regular-expressions.info/)                              | ["your regex here"]                                   |
-| passOnRegexMatch | If the regex matches should the rule trigger a violation | String             | true, false                                                                               | "false"                                               |
-| description      | Allows a more in-depth description of the rule           | String             | Anything                                                                                  | "Descriptive comment that will appear in your report" |
+| Field            | Purpose                                                  | Type               | Possible values                                                                                               | Example                                               |
+| ---------------- | -------------------------------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| dialects         | Which dialect of SQL does this rule apply to             | Array (of Strings) | `TEXT`, `BIGQUERY`, `DBS`, <BR>`MYSQL`, `ORACLE`, `POSTGRES`,<BR>`REDSHIFT`, `SNOWFLAKE`,<BR>`SQLITE`, `TSQL` | ["TEXT"]                                              |
+| rules            | The regex rule you want                                  | Array (of Strings) | [Regular Expressions](https://www.regular-expressions.info/)                                                  | ["your regex here"]                                   |
+| passOnRegexMatch | If the regex matches should the rule trigger a violation | String             | true, false                                                                                                   | "false"                                               |
+| description      | Allows a more in-depth description of the rule           | String             | Anything                                                                                                      | "Descriptive comment that will appear in your report" |
 
 ### Dialects
 
@@ -32,7 +32,7 @@ Your regular expression will return one of two values:
 You can modify this to alter whether this flags a violation or not (inverting the logic of the regular expression)
 
 | Value | Purpose                                                                                                                                                 |
-|-------|---------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | false | There is something in my migration that the regex matches - I want this rule to flag a violation in this case                                           |
 | true  | I want a particular style or pattern in my code (for example, something standard in every migration script). If it is *not* there then flag a violation |
 
@@ -132,7 +132,7 @@ _CREATE TABLE statement without a PRIMARY KEY constraint_
 
 **Dialects:** All
 ## RX014
-_A table has been created but has no MS_Description property added_
+_A table has been created but has no `MS_Description` property added_
 
 **Dialects:** TSQL
 

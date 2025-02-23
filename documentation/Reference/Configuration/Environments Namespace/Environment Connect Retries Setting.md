@@ -7,7 +7,7 @@ redirect_from: Configuration/connectRetries/
 ## Description
 
 The maximum number of retries when attempting to connect to the database.
-After each failed attempt, Flyway will wait 1 second before attempting to connect again, up to the maximum number of times specified by connectRetries. The interval between retries doubles with each subsequent attempt.
+After each failed attempt, Flyway will wait 1 second before attempting to connect again, up to the maximum number of times specified by `connectRetries`. The interval between retries doubles with each subsequent attempt.
 
 ## Type
 

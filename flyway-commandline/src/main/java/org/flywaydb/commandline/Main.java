@@ -21,7 +21,6 @@ package org.flywaydb.commandline;
 
 import static org.flywaydb.commandline.logging.LoggingUtils.getLogCreator;
 import static org.flywaydb.commandline.logging.LoggingUtils.initLogging;
-import static org.flywaydb.commandline.utils.TelemetryUtils.populateRootTelemetry;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -35,7 +34,6 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import lombok.SneakyThrows;
 import org.flywaydb.commandline.configuration.CommandLineArguments;
 import org.flywaydb.commandline.configuration.ConfigurationManagerImpl;
@@ -61,7 +59,6 @@ import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.extensibility.InfoTelemetryModel;
 import org.flywaydb.core.extensibility.LicenseGuard;
-import org.flywaydb.core.extensibility.RootTelemetryModel;
 import org.flywaydb.core.internal.exception.FlywayMigrateException;
 import org.flywaydb.core.internal.info.MigrationFilterImpl;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
@@ -93,7 +90,10 @@ public class Main {
         int exitCode = 0;
         JavaVersionPrinter.printJavaVersion();
 
-        final FlywayTelemetryManager flywayTelemetryManager = getFlywayTelemetryManager();
+        final var telemetryStartSpan = new EventTelemetryModel("telemetry-startup", null);
+        final var flywayTelemetryManager = PLUGIN_REGISTER.getPluginInstanceOf(FlywayTelemetryManager.class);
+        final var flywayTelemetryHandle = flywayTelemetryManager.start();
+        flywayTelemetryManager.logEvent(telemetryStartSpan);
 
         try {
             final CommandLineArguments commandLineArguments = new CommandLineArguments(PLUGIN_REGISTER, args);
@@ -111,13 +111,10 @@ public class Main {
                     }
 
                     configuration = new ConfigurationManagerImpl().getConfiguration(commandLineArguments);
+                    flywayTelemetryManager.notifyPermitChanged(LicenseGuard.getPermit(configuration));
+                    flywayTelemetryManager.notifyRootConfigChanged(configuration);
                 }
 
-                if (flywayTelemetryManager != null) {
-                    flywayTelemetryManager.setRootTelemetryModel(CompletableFuture.supplyAsync(() -> populateRootTelemetry(flywayTelemetryManager.getRootTelemetryModel(),
-                        configuration,
-                        LicenseGuard.getPermit(configuration))));
-                }
 
                 if (!commandLineArguments.skipCheckForUpdate()) {
                     try (final var ignored = new EventTelemetryModel("check-for-update", flywayTelemetryManager)) {
@@ -157,29 +154,12 @@ public class Main {
                 flushLog(commandLineArguments);
             }
         } finally {
-            if (flywayTelemetryManager != null) {
-                flywayTelemetryManager.close();
-            }
+            flywayTelemetryHandle.close();
         }
 
         if (exitCode != 0) {
             System.exit(exitCode);
         }
-    }
-
-    private static FlywayTelemetryManager getFlywayTelemetryManager() {
-        if (StringUtils.hasText(System.getenv("REDGATE_DISABLE_TELEMETRY"))) {
-            return null;
-        }
-
-        final var telemetryStartSpan = new EventTelemetryModel("telemetry-startup", null);
-        final var flywayTelemetryManager = new FlywayTelemetryManager(PLUGIN_REGISTER);
-        flywayTelemetryManager.setRootTelemetryModel(CompletableFuture.supplyAsync(() -> populateRootTelemetry(
-            flywayTelemetryManager.getRootTelemetryModel(),
-            null,
-            null)));
-        flywayTelemetryManager.logEvent(telemetryStartSpan);
-        return flywayTelemetryManager;
     }
 
     private static void printLicenseInfo(final Configuration configuration, final String operation) {

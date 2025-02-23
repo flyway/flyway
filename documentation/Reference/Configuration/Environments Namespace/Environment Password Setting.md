@@ -8,7 +8,7 @@ redirect_from: Configuration/password/
 
 The password to use to connect to the database
 
-This can be omitted if the password is baked into the [url](<Configuration/Environments Namespace/Environment url Setting>) (See [SQL Server](<Supported Databases/SQL Server Database>) for an example), or if password is provided through another means (such as [aws secrets](https://documentation.red-gate.com/flyway/flyway-concepts/secrets-management)).
+This can be omitted if the password is baked into the [url](<Configuration/Environments Namespace/Environment url Setting>) (See [SQL Server](<Database Driver Reference/SQL Server Database>) for an example), or if password is provided through another means (such as [aws secrets](https://documentation.red-gate.com/flyway/flyway-concepts/secrets-management)).
 
 ## Type
 

@@ -1,10 +1,35 @@
 Clickhouse
 Databricks
-[Ii]nformix
-keyspace
-(?i)MariaDB
+Informix
+MariaDB
 Percona
-(?i)Postgres
 Sybase
 Testcontainers
+Timeplus
+
+# Cassandra
+keyspace
+
+# Firebird
+isql
+# MySQL
+mysqldump
+
+# MongoDB
+Mongosh
+
+# Oracle
+tablespaces?
+
+# Postgres
+pg_dump
+pgpass
+Postgres
+PSQL
+
+# SQL Server
+filegroups?
+tSQLt
+Sqlcmd
+SQLCop
 

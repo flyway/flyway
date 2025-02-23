@@ -3,8 +3,8 @@ import os
 import subprocess
 
 
-def build_non_multi_arch_standard_flyway_image(version):
-    build_command = f'docker build --target flyway --pull --build-arg FLYWAY_VERSION={version} -q -f ./dockerfiles/Dockerfile .'
+def build_non_multi_arch_standard_flyway_image(version,folder=""):
+    build_command = f'docker build --target flyway --pull --build-arg FLYWAY_VERSION={version} -q -f ./dockerfiles/{folder}/Dockerfile .'
     print(build_command)
     return subprocess.run(build_command, capture_output=True, encoding="UTF_8", check=True, shell=True).stdout.strip()
     
@@ -12,18 +12,25 @@ def build_non_multi_arch_standard_flyway_image(version):
 if __name__ == "__main__":
     edition = sys.argv[1]
     version = sys.argv[2]
-     
-    images = [f'{edition}/flyway:{version}', f'{edition}/flyway:{version}-alpine', f'{edition}/flyway:{version}-azure']
-    flyway_commands = ["info", "migrate", "clean -cleanDisabled=false"]
+    linux_only = sys.argv[3] == "True"
+    
+    images = [f'{edition}/flyway:{version}']
+    if not linux_only:
+        images.append(f'{edition}/flyway:{version}-azure')
+        images.append(f'{edition}/flyway:{version}-alpine')
     
     if edition == "flyway":
         images[0] = build_non_multi_arch_standard_flyway_image(version)
+        if not linux_only:
+            images[1] = build_non_multi_arch_standard_flyway_image(version, "alpine")
+    
+    flyway_commands = ["info", "migrate", "clean -cleanDisabled=false"]
     
     test_sql_path = os.getcwd() + "/test-sql"
 
     env_var_flag = ""
-    if len(sys.argv) > 3:
-        env_var_flag = f'-e {sys.argv[3]}={os.getenv(sys.argv[3])}'
+    if len(sys.argv) > 4:
+        env_var_flag = f'-e {sys.argv[4]}={os.getenv(sys.argv[4])}'
 
     flyway_cli_params = "-url=jdbc:sqlite:test "
     if edition == "redgate":

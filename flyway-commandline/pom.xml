@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>11.2.0</version>
+        <version>11.3.3</version>
     </parent>
     <artifactId>flyway-commandline</artifactId>
     <packaging>jar</packaging>
@@ -127,43 +127,55 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-ignite</artifactId>
-            <version>10.16.0</version>
+            <version>10.17.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-tidb</artifactId>
-            <version>10.16.0</version>
+            <version>10.17.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-yugabytedb</artifactId>
-            <version>10.16.0</version>
+            <version>10.17.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-clickhouse</artifactId>
-            <version>10.16.0</version>
+            <version>10.17.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-oceanbase</artifactId>
-            <version>10.16.0</version>
+            <version>10.17.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-databricks</artifactId>
-            <version>10.16.4</version>
+            <version>10.17.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-db2zos</artifactId>
-            <version>10.16.3</version>
+            <version>10.17.0</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-duckdb</artifactId>
+            <version>10.17.0</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-timeplus</artifactId>
+            <version>10.17.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -176,6 +188,26 @@
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -454,7 +486,7 @@
         </dependency>
         <dependency>
             <groupId>com.oracle.database.jdbc</groupId>
-            <artifactId>ojdbc8</artifactId>
+            <artifactId>ojdbc11</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -959,10 +991,6 @@
                     <type>zip</type>
                     <scope>system</scope>
                 </dependency>
-                <dependency>
-                    <groupId>com.oracle.database.jdbc</groupId>
-                    <artifactId>ojdbc8</artifactId>
-                </dependency>
             </dependencies>
             <build>
                 <plugins>
@@ -1055,10 +1083,6 @@
                     <type>tar.gz</type>
                     <scope>system</scope>
                 </dependency>
-                <dependency>
-                    <groupId>com.oracle.database.jdbc</groupId>
-                    <artifactId>ojdbc8</artifactId>
-                </dependency>
             </dependencies>
             <build>
                 <plugins>
@@ -1121,10 +1145,6 @@
                     <type>tar.gz</type>
                     <scope>system</scope>
                 </dependency>
-                <dependency>
-                    <groupId>com.oracle.database.jdbc</groupId>
-                    <artifactId>ojdbc8</artifactId>
-                </dependency>
             </dependencies>
             <build>
                 <plugins>
@@ -1186,10 +1206,6 @@
                     <classifier>macos-arm64</classifier>
                     <type>tar.gz</type>
                     <scope>system</scope>
-                </dependency>
-                <dependency>
-                    <groupId>com.oracle.database.jdbc</groupId>
-                    <artifactId>ojdbc8</artifactId>
                 </dependency>
             </dependencies>
             <build>
@@ -1269,12 +1285,6 @@
         </profile>
         <profile>
             <id>build-assemblies-no-jre</id>
-            <dependencies>
-                <dependency>
-                    <groupId>com.oracle.database.jdbc</groupId>
-                    <artifactId>ojdbc8</artifactId>
-                </dependency>
-            </dependencies>
             <build>
                 <plugins>
                     <plugin>

@@ -19,34 +19,21 @@
  */
 package org.flywaydb.core.experimental;
 
-import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import lombok.CustomLog;
 import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.LicenseGuard;
-import org.flywaydb.core.extensibility.RootTelemetryModel;
 import org.flywaydb.core.internal.configuration.ConfigurationValidator;
 
 @CustomLog
 public class ExperimentalModeUtils {
 
-    private static final Map<String, List<String>> EXPERIMENTAL_DATABASES = Map.of(
-
-
-
-
-        "SQLite",
-        List.of("info", "validate", "migrate", "clean", "undo", "baseline", "repair"));
-
-    private static final Map<String, List<String>> DEFAULT_DATABASES = Map.of("mongodb",
-        List.of("info", "validate", "migrate", "clean", "baseline", "repair", "undo"));
-
     private static boolean isExperimentalModeActivated(final Configuration configuration) {
         if ("OSS".equals(LicenseGuard.getTierAsString(configuration))) {
-            return System.getenv("FLYWAY_NATIVE_CONNECTORS") == null || System.getenv("FLYWAY_NATIVE_CONNECTORS").equalsIgnoreCase("true");
+            return isNativeConnectorsNotTurnedOff();
         }
-        return System.getenv("FLYWAY_NATIVE_CONNECTORS") != null && System.getenv("FLYWAY_NATIVE_CONNECTORS").equalsIgnoreCase("true");
+        return isNativeConnectorsTurnedOn();
     }
 
     public static boolean canUseExperimentalMode(final Configuration config,  final String verb) {
@@ -55,28 +42,21 @@ public class ExperimentalModeUtils {
         }
 
         if (useLegacyAsDryRunSet(config)) {
-            LOG.warn("Dry run is not supported in experimental databases, falling back to legacy databases");
+            LOG.warn("Dry run is not supported in Native Connectors mode, falling back to legacy databases");
+            return false;
+        }
+
+        if (config.getUrl() == null) {
             return false;
         }
 
         new ConfigurationValidator().validate(config);
 
-        String database = getCurrentDatabase(config);
+        Optional<ExperimentalDatabase> database = resolveExperimentalDatabasePlugin(config);
 
-        if (database == null) {
-            return false;
-        }
-
-        if (DEFAULT_DATABASES.containsKey(database)) {
-            return DEFAULT_DATABASES.get(database).contains(verb);
-        }
-
-        if (EXPERIMENTAL_DATABASES.containsKey(database)
-        && System.getenv("FLYWAY_NATIVE_CONNECTORS") != null) {
-            return EXPERIMENTAL_DATABASES.get(database).contains(verb);
-        }
-
-        return false;
+        return database.map(experimentalDatabase -> experimentalDatabase.supportedVerbs().contains(verb) &&
+                (experimentalDatabase.isOnByDefault() || isNativeConnectorsTurnedOn()))
+            .orElse(false);
     }
 
     public static boolean canCreateDataSource(final Configuration config) {
@@ -84,9 +64,15 @@ public class ExperimentalModeUtils {
             return true;
         }
 
-        final String database = getCurrentDatabase(config);
         if (isExperimentalModeActivated(config)) {
-            return !"mongodb".equals(database);
+            if (config.getUrl() == null) {
+                return true;
+            }
+
+            Optional<ExperimentalDatabase> database = resolveExperimentalDatabasePlugin(config);
+
+            return database.map(ExperimentalDatabase::canCreateJdbcDataSource)
+                .orElse(true);
         }
 
         return true;
@@ -94,13 +80,7 @@ public class ExperimentalModeUtils {
 
     public static void logExperimentalDataTelemetry(final FlywayTelemetryManager flywayTelemetryManager, final MetaData metaData) {
         if (flywayTelemetryManager != null) {
-            RootTelemetryModel rootTelemetryModel = flywayTelemetryManager.getRootTelemetryModel();
-            if (rootTelemetryModel != null) {
-                rootTelemetryModel.setDatabaseEngine(metaData.databaseProductName());
-                rootTelemetryModel.setDatabaseVersion(metaData.databaseProductVersion());
-                rootTelemetryModel.setConnectionType(metaData.connectionType().name());
-                rootTelemetryModel.setExperimentalMode(true);
-            }
+            flywayTelemetryManager.notifyExperimentalMetadataChanged(metaData);
         }
     }
 
@@ -108,25 +88,16 @@ public class ExperimentalModeUtils {
         return config.getDryRunOutput() != null;
     }
 
-    private static String getCurrentDatabase(final Configuration config) {
-        if (config.getUrl() == null) {
-            return null;
-        }
+    public static Optional<ExperimentalDatabase> resolveExperimentalDatabasePlugin(final Configuration configuration) {
+        return new ExperimentalDatabasePluginResolverImpl(configuration.getPluginRegister())
+            .resolve(configuration.getUrl());
+    }
 
-        if (config.getUrl().startsWith("mongodb") || config.getUrl().startsWith("jdbc:mongodb")) {
-            return "mongodb";
-        }
+    private static boolean isNativeConnectorsTurnedOn() {
+        return System.getenv("FLYWAY_NATIVE_CONNECTORS") != null && System.getenv("FLYWAY_NATIVE_CONNECTORS").equalsIgnoreCase("true");
+    }
 
-
-
-
-
-
-
-        if (config.getUrl().startsWith("jdbc:sqlite")) {
-            return "SQLite";
-        }
-
-        return null;
+    private static boolean isNativeConnectorsNotTurnedOff() {
+        return System.getenv("FLYWAY_NATIVE_CONNECTORS") == null || System.getenv("FLYWAY_NATIVE_CONNECTORS").equalsIgnoreCase("true");
     }
 }

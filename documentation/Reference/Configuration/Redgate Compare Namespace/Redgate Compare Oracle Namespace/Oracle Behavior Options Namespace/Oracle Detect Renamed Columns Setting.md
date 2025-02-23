@@ -9,7 +9,7 @@ Attempts to identify renamed columns by matching the strings, position in the ta
 A renamed column will be identified if any of the following apply (by order of priority):
 
 1. The names are the same (case-insensitive)
-2. The target column contains the whole of the source string (eg "Company" in "CompanyName")
+2. The target column contains the whole of the source string (for example, "Company" in "CompanyName")
 3. The columns are the same ordinal and the same type, and the names are similar
 4. The columns have the same type, and the names are similar
 

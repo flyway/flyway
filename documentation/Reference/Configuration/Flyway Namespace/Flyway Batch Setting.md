@@ -6,7 +6,7 @@ redirect_from: Configuration/batch/
 
 ## Description
 
-Whether to batch SQL statements when executing them. Batching can save up to 99 percent of network roundtrips by sending up to 100 statements at once over the network to the database, instead of sending each statement individually.
+Whether to batch SQL statements when executing them. Batching can save up to 99 percent of network round-trips by sending up to 100 statements at once over the network to the database, instead of sending each statement individually.
 
 This is particularly useful for very large SQL migrations composed of multiple MB or even GB of reference data, as this can dramatically reduce the network overhead.
 

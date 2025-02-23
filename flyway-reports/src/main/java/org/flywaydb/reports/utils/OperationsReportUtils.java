@@ -137,14 +137,9 @@ public class OperationsReportUtils {
         }
 
         final JsonMapper mapper = JsonUtils.getJsonMapper();
-        final SimpleModule module = new SimpleModule();
-        final List<HtmlResultDeserializer> deserializers = pluginRegister.getPlugins(HtmlResultDeserializer.class);
 
-        module.registerSubtypes(deserializers.stream()
-            .map(HtmlResultDeserializer::getDeserializingClass)
-            .toArray(Class[]::new));
-        deserializers.forEach(d -> module.addAbstractTypeMapping(OperationResult.class, d.getDeserializingClass()));
-        mapper.registerModule(module);
+        final ReportsDeserializer reportsDeserializer = new ReportsDeserializer(pluginRegister);
+        mapper.registerModule(new SimpleModule().addDeserializer(OperationResult.class, reportsDeserializer));
 
         try {
             final CompositeResult<T> existingObject = mapper.readValue(jsonText, new TypeReference<>() {});

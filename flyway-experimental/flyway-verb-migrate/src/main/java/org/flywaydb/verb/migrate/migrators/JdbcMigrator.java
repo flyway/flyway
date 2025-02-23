@@ -19,19 +19,20 @@
  */
 package org.flywaydb.verb.migrate.migrators;
 
-import static org.flywaydb.core.internal.sqlscript.FlywaySqlScriptException.STATEMENT_MESSAGE;
 import static org.flywaydb.verb.VerbUtils.toMigrationText;
 
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.LoadableMigrationInfo;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
+import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.CommandResultFactory;
 import org.flywaydb.core.api.output.MigrateResult;
@@ -48,33 +49,42 @@ import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.experimental.callbacks.CallbackManager;
 import org.flywaydb.verb.ErrorUtils;
+import org.flywaydb.verb.executors.Executor;
+import org.flywaydb.verb.executors.ExecutorFactory;
 import org.flywaydb.verb.migrate.MigrationExecutionGroup;
+import org.flywaydb.verb.readers.Reader;
+import org.flywaydb.verb.readers.ReaderFactory;
 
 @CustomLog
 public class JdbcMigrator extends Migrator {
 
     @Override
     public List<MigrationExecutionGroup> createGroups(final MigrationInfo[] allPendingMigrations,
-        final Configuration configuration, final ExperimentalDatabase experimentalDatabase, final MigrateResult migrateResult, final ParsingContext parsingContext) {
+        final Configuration configuration,
+        final ExperimentalDatabase experimentalDatabase,
+        final MigrateResult migrateResult,
+        final ParsingContext parsingContext) {
         if (experimentalDatabase.getDatabaseMetaData().connectionType() != ConnectionType.JDBC) {
             return List.of(new MigrationExecutionGroup(List.of(allPendingMigrations), true));
         }
         final List<MigrationInfo> currentGroup = Arrays.asList(allPendingMigrations);
-        final List<Pair<MigrationInfo, Boolean>> shouldExecuteMigrations = currentGroup.stream().map(x -> Pair.of(x, shouldExecuteInTransaction(x, configuration,
+        final List<Pair<MigrationInfo, Boolean>> migrationTransactionPairs = currentGroup.stream()
+            .map(x -> Pair.of(x, shouldExecuteInTransaction(x, configuration,
             experimentalDatabase,
             parsingContext))).toList();
         if (!configuration.isGroup()) {
-            return shouldExecuteMigrations.stream()
-                .map(x -> new MigrationExecutionGroup(List.of(x.getLeft()), x.getRight() )).toList();
+            return migrationTransactionPairs.stream()
+                .map(x -> new MigrationExecutionGroup(List.of(x.getLeft()), x.getRight())).toList();
         }
 
-        for (final Pair<MigrationInfo, Boolean> pair : shouldExecuteMigrations) {
+        for (final Pair<MigrationInfo, Boolean> pair : migrationTransactionPairs) {
             final MigrationInfo migrationInfo = pair.getLeft();
             final boolean shouldExecuteMigrationInTransaction = pair.getRight();
             if (configuration.isExecuteInTransaction() != shouldExecuteMigrationInTransaction) {
                 if (configuration.isMixed()) {
-                    return shouldExecuteMigrations.stream().map(x -> new MigrationExecutionGroup(List.of(x.getLeft()), x.getRight())).toList();
+                    return migrationTransactionPairs.stream().map(x -> new MigrationExecutionGroup(List.of(x.getLeft()), x.getRight())).toList();
                 } else {
                     throw new FlywayMigrateException(migrationInfo,
                         "Detected both transactional and non-transactional migrations within the same migration group"
@@ -125,7 +135,7 @@ public class JdbcMigrator extends Migrator {
         final ExperimentalDatabase experimentalDatabase,
         final MigrateResult migrateResult,
         final ParsingContext parsingContext,
-        final int installedRank) {
+        final int installedRank, final CallbackManager callbackManager) {
         int rank = installedRank;
         final boolean executeInTransaction = executionGroup.shouldExecuteInTransaction();
         if (executeInTransaction) {
@@ -139,9 +149,10 @@ public class JdbcMigrator extends Migrator {
                 experimentalDatabase,
                 configuration,
                 migrateResult,
-                parsingContext, rank,
+                parsingContext,
+                callbackManager,
+                rank,
                 executeInTransaction);
-            
             rank++;
         }
         if (executeInTransaction) {
@@ -155,20 +166,26 @@ public class JdbcMigrator extends Migrator {
         final Configuration configuration,
         final MigrateResult migrateResult,
         final ParsingContext parsingContext,
+        final CallbackManager callbackManager,
         final int installedRank,
         final boolean executeInTransaction) {
         final StopWatch watch = new StopWatch();
         watch.start();
 
-        SqlStatement sqlStatement = null;
+        final AtomicReference<SqlStatement> sqlStatement = new AtomicReference<>();
         final boolean outOfOrder = migrationInfo.getState() == MigrationState.OUT_OF_ORDER && configuration.isOutOfOrder();
         final String migrationText = toMigrationText(migrationInfo, executeInTransaction, experimentalDatabase, outOfOrder);
-
+        final Executor<SqlStatement> executor = ExecutorFactory.getExecutor(experimentalDatabase, configuration);
+        final Reader<SqlStatement> reader = ReaderFactory.getReader(experimentalDatabase, configuration);
+        
         try {
             if (configuration.isSkipExecutingMigrations()) {
                 LOG.debug("Skipping execution of migration of " + migrationText);
             } else {
                 LOG.debug("Starting migration of " + migrationText + " ...");
+                if (!migrationInfo.getType().isUndo()) {
+                    callbackManager.handleEvent(Event.BEFORE_EACH_MIGRATE, experimentalDatabase, configuration, parsingContext);
+                }
                 if (!migrationInfo.getType().isUndo()) {
                     LOG.info("Migrating " + migrationText);
                 } else {
@@ -176,27 +193,29 @@ public class JdbcMigrator extends Migrator {
                 }
 
                 if (migrationInfo instanceof final LoadableMigrationInfo loadableMigrationInfo) {
-                    try (final SqlStatementIterator sqlStatementIterator = getSqlStatementIterator(experimentalDatabase,
-                        configuration,
-                        loadableMigrationInfo,
-                        parsingContext)) {
-                        int batchNumber = 0;
-                        while (sqlStatementIterator.hasNext()) {
-                            sqlStatement = sqlStatementIterator.next();
-                            doIndividualStatement(experimentalDatabase,
-                                sqlStatement,
-                                configuration.isBatch(),
-                                configuration.isOutputQueryResults(),
-                                sqlStatementIterator.hasNext(),
-                                batchNumber++);
-                        }
-                    }
+                    final Stream<SqlStatement> executionUnits = reader.read(configuration,
+                        experimentalDatabase, parsingContext,
+                        loadableMigrationInfo.getLoadableResource(), loadableMigrationInfo.getSqlScriptMetadata());
+
+                    executionUnits.forEach(x -> {
+                        sqlStatement.set(x);
+                        executor.execute(experimentalDatabase, x, configuration);
+                    });
+                    executor.finishExecution(experimentalDatabase, configuration);
+                }
+
+                if (!migrationInfo.getType().isUndo()) {
+                    callbackManager.handleEvent(Event.AFTER_EACH_MIGRATE, experimentalDatabase, configuration, parsingContext);
                 }
             }
         } catch (final FlywayException e) {
             watch.stop();
             final int totalTimeMillis = (int) watch.getTotalTimeMillis();
-            handleMigrationError(e, experimentalDatabase, migrationInfo, sqlStatement,
+            handleMigrationError(e,
+                experimentalDatabase,
+                migrationInfo,
+                executor,
+                sqlStatement.get(),
                 migrateResult,
                 configuration.getTable(),
                 configuration.isOutOfOrder(),
@@ -259,27 +278,6 @@ public class JdbcMigrator extends Migrator {
         return configuration.isExecuteInTransaction() && !containsNonTransactionalStatements(configuration, experimentalDatabase, migrationInfo, parsingContext);
     }
 
-    private static void doIndividualStatement(final ExperimentalDatabase experimentalDatabase,
-        final SqlStatement sqlStatement,
-        final boolean isBatch,
-        final boolean outputQueryResults,
-        final boolean hasNextStatement,
-        final int batchNumber) {
-        if (isBatch) {
-            if (sqlStatement.isBatchable()) {
-                experimentalDatabase.addToBatch(sqlStatement.getSql());
-                if (batchNumber >= 100 || !hasNextStatement) {
-                    experimentalDatabase.doExecuteBatch();
-                }
-            } else {
-                experimentalDatabase.doExecuteBatch();
-                experimentalDatabase.doExecute(sqlStatement.getSql(), outputQueryResults);
-            }
-        } else {
-            experimentalDatabase.doExecute(sqlStatement.getSql(), outputQueryResults);
-        }
-    }
-
     private SqlStatementIterator getSqlStatementIterator(final ExperimentalDatabase experimentalDatabase,
         final Configuration configuration,
         final LoadableMigrationInfo loadableMigrationInfo,
@@ -293,6 +291,7 @@ public class JdbcMigrator extends Migrator {
     private void handleMigrationError(final FlywayException e,
         final ExperimentalDatabase experimentalDatabase,
         final MigrationInfo migrationInfo,
+        final Executor<SqlStatement> executor,
         final SqlStatement sqlStatement,
         final MigrateResult migrateResult,
         final String schemaHistoryTableName,
@@ -315,7 +314,7 @@ public class JdbcMigrator extends Migrator {
         if (executeInTransaction) {
             experimentalDatabase.rollbackTransaction();
         }
-        if (experimentalDatabase.supportsDdlTransactions() && executeInTransaction) {
+        if (experimentalDatabase.supportsTransactions() && executeInTransaction) {
             LOG.error(failedMsg + " Changes successfully rolled back.");
         } else {
             LOG.error(failedMsg + " Please restore backups and roll back database and code!");
@@ -332,7 +331,7 @@ public class JdbcMigrator extends Migrator {
                 e.getMessage(),
                 executeInTransaction, migrateResult);
         } else {
-            final String message = calculateErrorMessage(e, migrationInfo, sqlStatement);
+            final String message = calculateErrorMessage(e, migrationInfo, executor, sqlStatement);
             throw new FlywayMigrateException(migrationInfo,
                 outOfOrder,
                 message, e,
@@ -342,6 +341,7 @@ public class JdbcMigrator extends Migrator {
 
     private String calculateErrorMessage(final Exception e,
         final MigrationInfo migrationInfo,
+        final Executor<SqlStatement> executor,
         final SqlStatement sqlStatement) {
 
         final String title = "Script " + Paths.get(migrationInfo.getScript()).getFileName() + " failed";
@@ -360,6 +360,7 @@ public class JdbcMigrator extends Migrator {
             title,
             loadableResource,
             migrationInfo.getPhysicalLocation(),
+            executor,
             sqlStatement,
             message);
     }

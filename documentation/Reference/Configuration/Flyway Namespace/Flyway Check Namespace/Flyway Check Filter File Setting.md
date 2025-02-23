@@ -11,7 +11,7 @@ subtitle: flyway.check.filterFile
 
 A filter configuration can be passed through to the underlying comparison engine that will be used in change and drift reports.
 
-See [Filters & Ignore Rules](https://documentation.red-gate.com/flyway/database-development-using-flyway/database-development-using-flyway-desktop/configuring-comparisons-and-script-generations/filters-ignore-rules) for how to generate these in Flyway Desktop.
+See Filters & Ignore Rules for how to generate these in Flyway Desktop for [SQL Server](https://documentation.red-gate.com/flyway/database-development-using-flyway/updating-configurations/tutorial-update-sql-server-filter-configuration), [Oracle](https://documentation.red-gate.com/flyway/database-development-using-flyway/updating-configurations/tutorial-update-oracle-filters-ignore-rules), [Postgres or MySQL](https://documentation.red-gate.com/flyway/database-development-using-flyway/updating-configurations/postgresql-and-mysql-filtering).
 
 ## Type
 

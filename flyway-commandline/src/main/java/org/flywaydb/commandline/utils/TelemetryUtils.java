@@ -19,112 +19,19 @@
  */
 package org.flywaydb.commandline.utils;
 
-import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.experimental.ExtensionMethod;
-import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.api.output.InfoOutput;
-import org.flywaydb.core.extensibility.RootTelemetryModel;
 import org.flywaydb.core.extensibility.Tier;
-import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
-import org.flywaydb.core.internal.configuration.models.FlywayModel;
-import org.flywaydb.core.internal.license.EncryptionUtils;
-import org.flywaydb.core.internal.license.FlywayPermit;
-import org.flywaydb.core.internal.license.VersionPrinter;
-import org.flywaydb.core.internal.util.DockerUtils;
 import org.flywaydb.core.internal.util.StringUtils;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-
-
-
-
-
-
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @ExtensionMethod(Tier.class)
 public class TelemetryUtils {
-    public static RootTelemetryModel populateRootTelemetry(RootTelemetryModel rootTelemetryModel, Configuration configuration, FlywayPermit flywayPermit) {
-
-        rootTelemetryModel.setApplicationVersion(VersionPrinter.getVersion());
-
-        boolean isRGDomainSet = System.getenv("RGDOMAIN") != null;
-
-        if (flywayPermit != null) {
-            rootTelemetryModel.setRedgateEmployee(flywayPermit.isRedgateEmployee() || isRGDomainSet);
-            rootTelemetryModel.setApplicationEdition(flywayPermit.getTier().asString());
-            rootTelemetryModel.setTrial(flywayPermit.isTrial());
-            rootTelemetryModel.setSignedIn(flywayPermit.isFromAuth());
-        } else {
-            rootTelemetryModel.setRedgateEmployee(isRGDomainSet);
-        }
-
-        if (configuration != null) {
-            ConfigurationModel modernConfig = configuration.getModernConfig();
-            if (modernConfig != null) {
-                if (StringUtils.hasText(modernConfig.getId())) {
-                    rootTelemetryModel.setProjectId(EncryptionUtils.hashString(modernConfig.getId(), "fur"));
-                }
-            }
-
-            boolean resolversPresent = configuration.getResolvers().length != 0;
-            rootTelemetryModel.setCustomMigrationResolver(resolversPresent);
-
-            rootTelemetryModel.setSecretsManagementType(getSecretsManagementType(configuration));
-
-            final Map<String, Boolean> customParameters = new HashMap<>();
-            FlywayModel defaults = FlywayModel.defaults();
-            customParameters.put("validateOnMigrate", configuration.isValidateOnMigrate() != defaults.getValidateOnMigrate());
-            customParameters.put("validateMigrationNaming", configuration.isValidateMigrationNaming() != defaults.getValidateMigrationNaming());
-            customParameters.put("target", !Objects.equals(configuration.getTarget().getName(),
-                defaults.getTarget()));
-            customParameters.put("stream", configuration.isStream() != defaults.getStream());
-            customParameters.put("reportEnabled", configuration.isReportEnabled() != defaults.getReportEnabled());
-            customParameters.put("lockRetryCount", configuration.getLockRetryCount() != defaults.getLockRetryCount());
-            customParameters.put("failOnMissingLocations", configuration.isFailOnMissingLocations() != defaults.getFailOnMissingLocations());
-            customParameters.put("outputQueryResults", configuration.isOutputQueryResults() != defaults.getOutputQueryResults());
-            customParameters.put("batch", configuration.isBatch() != defaults.getBatch());
-            customParameters.put("createSchemas", configuration.isCreateSchemas() != defaults.getCreateSchemas());
-            customParameters.put("baselineOnMigrate", configuration.isBaselineOnMigrate() != defaults.getBaselineOnMigrate());
-            customParameters.put("group", configuration.isGroup() != defaults.getGroup());
-            customParameters.put("mixed", configuration.isMixed() != defaults.getMixed());
-            customParameters.put("outOfOrder", configuration.isOutOfOrder() != defaults.getOutOfOrder());
-            customParameters.put("communityDBSupportEnabled", configuration.isCommunityDBSupportEnabled() != defaults.getCommunityDBSupportEnabled());
-            customParameters.put("skipDefaultResolvers", configuration.isSkipDefaultResolvers() != defaults.getSkipDefaultResolvers());
-            customParameters.put("skipDefaultCallbacks", configuration.isSkipDefaultCallbacks() != defaults.getSkipDefaultCallbacks());
-            customParameters.put("skipExecutingMigrations", configuration.isSkipExecutingMigrations() != defaults.getSkipExecutingMigrations());
-            customParameters.put("executeInTransaction", configuration.isExecuteInTransaction() != defaults.getExecuteInTransaction());
-            customParameters.put("encoding", !Objects.equals(configuration.getEncoding().name(), defaults.getEncoding()));
-            customParameters.put("detectEncoding", configuration.isDetectEncoding() != defaults.getDetectEncoding());
-            customParameters.put("table", !Objects.equals(configuration.getTable(), defaults.getTable()));
-
-            List<String> parameterNames = new ArrayList<>();
-            customParameters.forEach((paramName, isSet) -> {
-                if (isSet) {
-                    parameterNames.add(paramName);
-                }
-            });
-            rootTelemetryModel.setCustomParameters(String.join(",", parameterNames));
-
-            // ModernConfigurationManager creates a ClassicConfiguration
-            // LegacyConfigurationManager creates a FluentConfiguration
-            rootTelemetryModel.setLegacyMode(configuration instanceof FluentConfiguration);
-
-        }
-        
-        rootTelemetryModel.setContainerType(DockerUtils.getContainerType(Paths::get));
-
-        return rootTelemetryModel;
-    }
-
     /**
      * @param infos a List of InfoOutput
      *
@@ -148,26 +55,5 @@ public class TelemetryUtils {
         } else {
             return "";
         }
-    }
-
-    private static String getSecretsManagementType(Configuration configuration) {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        return "None";
     }
 }

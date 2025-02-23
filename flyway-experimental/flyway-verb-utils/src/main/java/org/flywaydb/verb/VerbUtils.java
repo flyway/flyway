@@ -19,6 +19,8 @@
  */
 package org.flywaydb.verb;
 
+import static org.flywaydb.core.experimental.ExperimentalModeUtils.resolveExperimentalDatabasePlugin;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,6 +30,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.CustomLog;
+import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.api.CoreMigrationType;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
@@ -37,8 +40,6 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.api.resource.LoadableResourceMetadata;
 import org.flywaydb.core.experimental.ExperimentalDatabase;
-import org.flywaydb.core.experimental.ExperimentalDatabasePluginResolver;
-import org.flywaydb.core.experimental.ExperimentalDatabasePluginResolverImpl;
 import org.flywaydb.core.experimental.migration.CompositeMigrationTypeResolver;
 import org.flywaydb.core.experimental.migration.ExperimentalMigrationComparator;
 import org.flywaydb.core.experimental.migration.ExperimentalMigrationScannerManager;
@@ -75,12 +76,14 @@ public class VerbUtils {
     }
 
     public static ExperimentalDatabase getExperimentalDatabase(final Configuration configuration) throws SQLException {
-        final ExperimentalDatabasePluginResolver experimentalDatabasePluginResolver = new ExperimentalDatabasePluginResolverImpl(configuration.getPluginRegister());
-        final Optional<ExperimentalDatabase> resolvedExperimentalDatabase = experimentalDatabasePluginResolver.resolve(configuration.getUrl());
+        final Optional<ExperimentalDatabase> resolvedExperimentalDatabase = resolveExperimentalDatabasePlugin(configuration);
+
         if (resolvedExperimentalDatabase.isEmpty()) {
-            throw new FlywayException("No experimental database plugin found for URL: " + configuration.getUrl());
+            throw new FlywayException("No Native Connectors database plugin found for the designated database");
         }
+
         final ExperimentalDatabase experimentalDatabase = resolvedExperimentalDatabase.get();
+
         experimentalDatabase.initialize(getResolvedEnvironment(configuration), configuration);
         if (!databaseInfoPrinted) {
             LOG.info("Database: " + experimentalDatabase.redactUrl(configuration.getUrl()) + " (" + experimentalDatabase.getDatabaseMetaData()
@@ -161,6 +164,7 @@ public class VerbUtils {
     private static Optional<LoadableResourceMetadata> findOriginalMigration(final ResolvedSchemaHistoryItem undoneSchemaHistoryItem,
         final Collection<LoadableResourceMetadata> resolvedMigrations) {
         return resolvedMigrations.stream()
+            .filter(LoadableResourceMetadata::isVersioned)
             .filter(migration -> !migration.migrationType().isUndo())
             .filter(migration -> migration.version().equals(undoneSchemaHistoryItem.getVersion()))
             .findFirst();
@@ -168,6 +172,7 @@ public class VerbUtils {
 
     private static boolean shouldAddUndone(final ResolvedSchemaHistoryItem undoneSchemaHistoryItem, final Collection<ResolvedSchemaHistoryItem> resolvedSchemaHistoryItems) {
         return resolvedSchemaHistoryItems.stream()
+            .filter(ResolvedSchemaHistoryItem::isVersioned) 
             .filter(item -> item.getInstalledRank() > undoneSchemaHistoryItem.getInstalledRank())
             .noneMatch(item -> item.getVersion().equals(undoneSchemaHistoryItem.getVersion()) &&
                 !item.getType().isUndo() && item.isSuccess());
@@ -308,5 +313,9 @@ public class VerbUtils {
         final MigrationInfo[] migrations) {
         return Arrays.stream(migrations).filter(x -> Arrays.stream(configuration.getIgnoreMigrationPatterns())
             .noneMatch(pattern -> pattern.matchesMigration(x.isVersioned(), x.getState()))).toList();
+    }
+    
+    public static FlywayTelemetryManager getFlywayTelemetryManager(final Configuration configuration) {
+        return configuration.getPluginRegister().getPluginInstanceOf(FlywayTelemetryManager.class);
     }
 }
