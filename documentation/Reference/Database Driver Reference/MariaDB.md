@@ -1,7 +1,7 @@
 ---
 subtitle: MariaDB
 ---
-# MariaDB
+
 - **Verified Versions:** 5.1, 10.11
 - **Maintainer:** {% include redgate-badge.html %}
 

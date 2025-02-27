@@ -33,15 +33,17 @@ import org.flywaydb.core.api.output.InfoResult;
 import org.flywaydb.core.experimental.migration.ExperimentalMigrationInfoFilter;
 
 public class ExperimentalMigrationInfoService implements MigrationInfoService {
-    
+
     private final MigrationInfo[] allMigrations;
     private final Configuration configuration;
     private final MigrationInfo[] applicableMigrations;
     private final String databaseName;
     private final Boolean allSchemasEmpty;
 
-    public ExperimentalMigrationInfoService(final MigrationInfo[] migrations, final Configuration configuration,
-        final String databaseName, final Boolean allSchemasEmpty) {
+    public ExperimentalMigrationInfoService(final MigrationInfo[] migrations,
+        final Configuration configuration,
+        final String databaseName,
+        final Boolean allSchemasEmpty) {
         this.allMigrations = migrations;
         this.configuration = configuration;
         this.allSchemasEmpty = allSchemasEmpty;
@@ -49,11 +51,13 @@ public class ExperimentalMigrationInfoService implements MigrationInfoService {
         this.databaseName = databaseName;
     }
 
-    private MigrationInfo[] getApplicableMigrations(final MigrationInfo[] migrations, final Configuration configuration) {
+    private MigrationInfo[] getApplicableMigrations(final MigrationInfo[] migrations,
+        final Configuration configuration) {
         final MigrationInfo[] applicableMigrations;
-        final List<ExperimentalMigrationInfoFilter> filters = configuration.getPluginRegister().getLicensedPlugins(ExperimentalMigrationInfoFilter.class, configuration);
+        final List<ExperimentalMigrationInfoFilter> filters = configuration.getPluginRegister()
+            .getLicensedPlugins(ExperimentalMigrationInfoFilter.class, configuration);
         MigrationInfo[] tempMigrations = Arrays.copyOf(migrations, migrations.length);
-        for(final ExperimentalMigrationInfoFilter filter : filters) {
+        for (final ExperimentalMigrationInfoFilter filter : filters) {
             final Predicate<MigrationInfo> predicate = filter.getFilter(configuration);
             tempMigrations = Arrays.stream(tempMigrations).filter(predicate).toArray(MigrationInfo[]::new);
         }
@@ -96,8 +100,7 @@ public class ExperimentalMigrationInfoService implements MigrationInfoService {
                 && !MigrationState.DELETED.equals(migrationInfo.getState())
                 && !migrationInfo.getType().equals(CoreMigrationType.DELETE)
                 && !MigrationState.UNDONE.equals(migrationInfo.getState())
-                && migrationInfo.getVersion() == null
-            ) {
+                && migrationInfo.getVersion() == null) {
                 return migrationInfo;
             }
         }
@@ -114,9 +117,7 @@ public class ExperimentalMigrationInfoService implements MigrationInfoService {
 
     @Override
     public MigrationInfo[] applied() {
-        return Arrays.stream(applicableMigrations)
-            .filter(x -> x.getState().isApplied())
-            .toArray(MigrationInfo[]::new);
+        return Arrays.stream(applicableMigrations).filter(x -> x.getState().isApplied()).toArray(MigrationInfo[]::new);
     }
 
     @Override
@@ -128,7 +129,7 @@ public class ExperimentalMigrationInfoService implements MigrationInfoService {
     public InfoResult getInfoResult(final MigrationFilter filter) {
         return getInfoResult(all(filter));
     }
-    
+
     private InfoResult getInfoResult(MigrationInfo[] infos) {
         return CommandResultFactory.createInfoResult(configuration, databaseName, infos, current(), allSchemasEmpty);
     }

@@ -35,7 +35,7 @@ public class JdbcReader implements Reader<SqlStatement> {
     public Stream<SqlStatement> read(final Configuration configuration,
         final ExperimentalDatabase database,
         final ParsingContext parsingContext,
-        final LoadableResource loadableResource, 
+        final LoadableResource loadableResource,
         final SqlScriptMetadata metadata) {
         final Parser parser = database.getParser().apply(configuration, parsingContext);
         final Iterable<SqlStatement> iterable = () -> parser.parse(loadableResource, metadata);

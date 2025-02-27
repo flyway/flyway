@@ -1,7 +1,7 @@
 ---
 subtitle: DB2
 ---
-# DB2
+
 - **Verified Versions:** 9.7, 11.5
 - **Maintainer:** {% include redgate-badge.html %}
 ### Supported Variants

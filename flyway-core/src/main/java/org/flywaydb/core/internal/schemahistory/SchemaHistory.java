@@ -21,6 +21,7 @@ package org.flywaydb.core.internal.schemahistory;
 
 import lombok.experimental.ExtensionMethod;
 import org.flywaydb.core.api.CoreMigrationType;
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationPattern;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.output.RepairResult;
@@ -69,6 +70,13 @@ public abstract class SchemaHistory {
      * @param baseline Whether to include the creation of a baseline marker.
      */
     public abstract void create(boolean baseline);
+
+    /**
+     * Drops the schema history table
+     */
+    public void drop() {
+        throw new FlywayException("Dropping the schema history table is not supported for this SchemaHistory implementation");
+    }
 
     /**
      * Checks whether the schema history table contains at least one non-synthetic applied migration.

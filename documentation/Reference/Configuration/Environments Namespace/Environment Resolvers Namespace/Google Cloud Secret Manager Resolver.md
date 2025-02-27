@@ -2,8 +2,6 @@
 subtitle: environments.*.resolvers.gcsm
 ---
 
-# Google Cloud Secret Manager
-
 {% include enterprise.html %}
 
 Per-environment Google Cloud Secret Manager secret management configuration.

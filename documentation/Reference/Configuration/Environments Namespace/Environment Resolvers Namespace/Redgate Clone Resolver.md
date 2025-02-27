@@ -2,7 +2,7 @@
 subtitle: Redgate Clone Resolver
 ---
 
-# Redgate Clone Resolver - Preview
+- **Status:** Preview
 
 {% include enterprise.html %}
 

@@ -25,11 +25,11 @@ import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.extensibility.Plugin;
 
 public interface Executor<T> extends Plugin {
-    
+
     void execute(ExperimentalDatabase experimentalDatabase, T executionUnit, Configuration configuration);
 
     boolean canExecute(ConnectionType connectionType);
-    
+
     void appendErrorMessage(T executionUnit, StringBuilder messageBuilder, boolean isDebugEnabled);
 
     void finishExecution(ExperimentalDatabase experimentalDatabase, Configuration configuration);

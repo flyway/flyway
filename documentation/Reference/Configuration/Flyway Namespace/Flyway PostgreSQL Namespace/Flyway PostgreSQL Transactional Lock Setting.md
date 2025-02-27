@@ -3,8 +3,6 @@ pill: postgresqlTransactionalLock
 subtitle: flyway.postgresql.transactional.lock
 ---
 
-# PostgreSQL Transactional Lock
-
 ## Description
 
 Whether transactional advisory locks should be used with PostgreSQL.

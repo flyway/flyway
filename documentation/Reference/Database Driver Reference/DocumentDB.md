@@ -1,7 +1,7 @@
 ---
 subtitle: AWS DocumentDB - Native Connectors
 ---
-# AWS DocumentDB
+
 - **Status:** Preview
 - **Flyway configuration:** Native Connectors only
 - **Verified Versions:** `docdb 5.0.0`

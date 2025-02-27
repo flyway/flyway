@@ -1,7 +1,8 @@
 ---
 subtitle: Aurora MySQL
 ---
-# Aurora MySQL
+
+
 - **Verified Versions:** 5.5, 8.0
 - **Maintainer:** {% include redgate-badge.html %}
 

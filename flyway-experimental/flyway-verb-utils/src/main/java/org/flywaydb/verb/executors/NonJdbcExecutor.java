@@ -34,7 +34,7 @@ public class NonJdbcExecutor implements Executor<String> {
 
     @Override
     public void finishExecution(final ExperimentalDatabase experimentalDatabase, final Configuration configuration) {
-        
+
     }
 
     @Override
@@ -43,7 +43,9 @@ public class NonJdbcExecutor implements Executor<String> {
     }
 
     @Override
-    public void appendErrorMessage(final String executionUnit, final StringBuilder messageBuilder, final boolean isDebugEnabled) {
-        
+    public void appendErrorMessage(final String executionUnit,
+        final StringBuilder messageBuilder,
+        final boolean isDebugEnabled) {
+
     }
 }

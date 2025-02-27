@@ -1,7 +1,7 @@
 ---
 subtitle: SAP HANA
 ---
-# SAP HANA (Including SAP HANA Cloud)
+
 - **Verified Versions:** 
   - On-Premise: 1.0, 2.0
   - SAP HANA Cloud: 4.0

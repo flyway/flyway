@@ -72,14 +72,16 @@ public class CoreMigrationStateCalculator implements ExperimentalMigrationStateC
                 return MigrationState.AVAILABLE;
             }
 
-            if (migration.getRight().sqlScriptMetadata() != null && !migration.getRight().sqlScriptMetadata().shouldExecute()) {
+            if (migration.getRight().sqlScriptMetadata() != null && !migration.getRight()
+                .sqlScriptMetadata()
+                .shouldExecute()) {
                 return MigrationState.IGNORED;
             }
 
             if (migration.getRight().migrationType().isBaseline() && baselinedSchema) {
                 return MigrationState.IGNORED;
             }
-            
+
             if (!configuration.isOutOfOrder()) {
                 final MigrationVersion highestSHTVersion = highestSHTVersion(sortedMigrations);
                 if (migration.getRight().version().isNewerThan(highestSHTVersion)) {
@@ -90,12 +92,14 @@ public class CoreMigrationStateCalculator implements ExperimentalMigrationStateC
 
             return MigrationState.PENDING;
         } else if (migration.getRight().version().equals(baselineVersion.get())) {
-            return migration.getRight().migrationType().isBaseline() && !baselinedSchema ? MigrationState.PENDING : MigrationState.BASELINE_IGNORED;
+            return migration.getRight().migrationType().isBaseline() && !baselinedSchema
+                ? MigrationState.PENDING
+                : MigrationState.BASELINE_IGNORED;
         } else {
             return MigrationState.BELOW_BASELINE;
         }
     }
-    
+
     private static MigrationState calculateSHTStates(final Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata> migration,
         final Collection<? extends Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> sortedMigrations) {
         if (migration.getLeft().getType() == CoreMigrationType.SCHEMA) {
@@ -137,11 +141,13 @@ public class CoreMigrationStateCalculator implements ExperimentalMigrationStateC
             if (migration.getLeft().isRepeatable()) {
                 return MigrationState.MISSING_FAILED;
             }
-            return migration.getLeft().getVersion().isNewerThan(maxLocalVersion) ? MigrationState.FUTURE_FAILED : MigrationState.MISSING_FAILED;
+            return migration.getLeft().getVersion().isNewerThan(maxLocalVersion)
+                ? MigrationState.FUTURE_FAILED
+                : MigrationState.MISSING_FAILED;
         }
         return MigrationState.FAILED;
     }
-    
+
     private static MigrationVersion highestLocalVersion(final Collection<? extends Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> sortedMigrations) {
         return sortedMigrations.stream()
             .filter(x -> x.getRight() != null)
@@ -152,7 +158,7 @@ public class CoreMigrationStateCalculator implements ExperimentalMigrationStateC
             .max(Comparator.naturalOrder())
             .orElse(MigrationVersion.EMPTY);
     }
-    
+
     private static MigrationVersion highestSHTVersion(final Collection<? extends Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> sortedMigrations) {
         return sortedMigrations.stream()
             .filter(x -> x.getLeft() != null)
@@ -164,7 +170,6 @@ public class CoreMigrationStateCalculator implements ExperimentalMigrationStateC
             .max(Comparator.naturalOrder())
             .orElse(MigrationVersion.EMPTY);
     }
-    
 
     private static MigrationState calculateLookAheadStates(final Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata> migration,
         final Collection<? extends Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> sortedMigrations) {
@@ -177,7 +182,9 @@ public class CoreMigrationStateCalculator implements ExperimentalMigrationStateC
             .filter(x -> x.getLeft().getType() == CoreMigrationType.DELETE)
             .filter(x -> x.getLeft().isRepeatable() == migration.getLeft().isRepeatable())
             .anyMatch(x -> x.getLeft().isRepeatable()
-                ? x.getLeft().getDescription().equals(migration.getLeft().getDescription())
+                ? x.getLeft()
+                .getDescription()
+                .equals(migration.getLeft().getDescription())
                 : x.getLeft().getVersion().equals(migration.getLeft().getVersion()));
         if (futureDelete && migration.getLeft().getType() != CoreMigrationType.DELETE) {
             return MigrationState.DELETED;
@@ -212,7 +219,9 @@ public class CoreMigrationStateCalculator implements ExperimentalMigrationStateC
             .filter(x -> x.getRight() != null)
             .filter(x -> x.getRight().isVersioned())
             .map(x -> x.getRight().version())
-            .sorted().findFirst().orElse(MigrationVersion.EMPTY);
+            .sorted()
+            .findFirst()
+            .orElse(MigrationVersion.EMPTY);
 
         if (migration.getLeft().getVersion().isNewerThan(latestLocalVersion)) {
             return MigrationState.FUTURE_SUCCESS;
@@ -250,6 +259,4 @@ public class CoreMigrationStateCalculator implements ExperimentalMigrationStateC
         }
         return null;
     }
-
-    
 }

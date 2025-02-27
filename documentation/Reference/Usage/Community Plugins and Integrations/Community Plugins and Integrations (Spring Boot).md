@@ -2,7 +2,6 @@
 subtitle: 'Spring Boot'
 redirect_from: Usage/Community Plugins and Integrations/springboot/
 ---
-# Community Plugins and Integrations: Spring Boot
 
 <img src="assets/springboot.png" style="margin-bottom: 20px">
 

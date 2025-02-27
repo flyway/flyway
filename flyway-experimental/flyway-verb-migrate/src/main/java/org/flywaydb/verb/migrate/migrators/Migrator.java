@@ -21,6 +21,7 @@ package org.flywaydb.verb.migrate.migrators;
 
 import java.util.List;
 import lombok.CustomLog;
+import org.flywaydb.core.ProgressLogger;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.MigrateResult;
@@ -28,7 +29,7 @@ import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryItem;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryItem.SchemaHistoryItemBuilder;
 import org.flywaydb.core.internal.parser.ParsingContext;
-import org.flywaydb.experimental.callbacks.CallbackManager;
+import org.flywaydb.nc.callbacks.CallbackManager;
 import org.flywaydb.verb.migrate.MigrationExecutionGroup;
 
 @CustomLog
@@ -45,7 +46,9 @@ public abstract class Migrator {
         final ExperimentalDatabase experimentalDatabase,
         final MigrateResult migrateResult,
         final ParsingContext parsingContext,
-        final int installedRank, final CallbackManager callbackManager);
+        final int installedRank,
+        final CallbackManager callbackManager,
+        final ProgressLogger progress);
 
     static void updateSchemaHistoryTable(final String tableName,
         final MigrationInfo migrationInfo,

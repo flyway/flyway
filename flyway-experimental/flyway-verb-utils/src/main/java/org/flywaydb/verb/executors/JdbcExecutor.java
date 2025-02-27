@@ -29,10 +29,11 @@ import org.flywaydb.core.internal.sqlscript.SqlStatement;
 
 @CustomLog
 public class JdbcExecutor implements Executor<SqlStatement> {
-    
+
     @Override
-    public void execute(final ExperimentalDatabase experimentalDatabase, final SqlStatement executionUnit, final
-        Configuration configuration) {
+    public void execute(final ExperimentalDatabase experimentalDatabase,
+        final SqlStatement executionUnit,
+        final Configuration configuration) {
         if (configuration.isBatch()) {
             if (executionUnit.isBatchable()) {
                 experimentalDatabase.addToBatch(executionUnit.getSql());
@@ -45,7 +46,7 @@ public class JdbcExecutor implements Executor<SqlStatement> {
             }
         } else {
             experimentalDatabase.doExecute(executionUnit.getSql(), configuration.isOutputQueryResults());
-        }        
+        }
     }
 
     @Override
@@ -61,10 +62,12 @@ public class JdbcExecutor implements Executor<SqlStatement> {
     }
 
     @Override
-    public void appendErrorMessage(final SqlStatement executionUnit, final StringBuilder messageBuilder, final boolean isDebugEnabled) {
+    public void appendErrorMessage(final SqlStatement executionUnit,
+        final StringBuilder messageBuilder,
+        final boolean isDebugEnabled) {
         messageBuilder.append("Line       : ").append(executionUnit.getLineNumber()).append("\n");
-        messageBuilder.append("Statement  : ").append(isDebugEnabled
-            ? executionUnit.getSql()
-            : STATEMENT_MESSAGE).append("\n");
+        messageBuilder.append("Statement  : ")
+            .append(isDebugEnabled ? executionUnit.getSql() : STATEMENT_MESSAGE)
+            .append("\n");
     }
 }

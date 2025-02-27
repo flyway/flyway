@@ -1,7 +1,7 @@
 ---
 subtitle: Azure Synapse
 ---
-# Azure Synapse (Dedicated pools)
+- **Dedicated pools only**
 - **Verified Versions:** Latest
 - **Maintainer:** {% include redgate-badge.html %}
 

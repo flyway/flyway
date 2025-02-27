@@ -42,12 +42,12 @@ public class SchemasVerbExtension implements VerbExtension {
     public Object executeVerb(final Configuration configuration) {
         final PreparationContext context = PreparationContext.get(configuration);
         final ExperimentalDatabase database = context.getDatabase();
-       
+
         final Collection<String> missingSchemas = getMissingSchemas(configuration, database);
 
         if (missingSchemas.contains(null)) {
-            throw new FlywayException("Unable to determine schema for the schema history table." +
-                " Set a default schema for the connection or specify one using the defaultSchema property!");
+            throw new FlywayException("Unable to determine schema for the schema history table."
+                + " Set a default schema for the connection or specify one using the defaultSchema property!");
         }
 
         if (missingSchemas.isEmpty()) {
@@ -88,7 +88,8 @@ public class SchemasVerbExtension implements VerbExtension {
     }
 
     private void createSchemaMarker(final ExperimentalDatabase experimentalDatabase,
-        final Configuration configuration, final int installedRank,
+        final Configuration configuration,
+        final int installedRank,
         final Collection<String> missingSchemas) {
         experimentalDatabase.appendSchemaHistoryItem(SchemaHistoryItem.builder()
             .description("<< Flyway Schema Creation >>")

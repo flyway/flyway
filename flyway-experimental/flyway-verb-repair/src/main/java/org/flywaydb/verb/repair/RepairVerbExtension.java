@@ -47,35 +47,37 @@ public class RepairVerbExtension implements VerbExtension {
 
     @Override
     public Object executeVerb(final Configuration configuration) {
-        
+
         final PreparationContext context = PreparationContext.get(configuration);
-        
+
         final ExperimentalDatabase database = context.getDatabase();
 
-        final RepairResult repairResult = new RepairResult(VersionPrinter.getVersion(), database.getDatabaseMetaData().databaseName());
+        final RepairResult repairResult = new RepairResult(VersionPrinter.getVersion(),
+            database.getDatabaseMetaData().databaseName());
 
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
         removeFailedMigrations(configuration, repairResult, context);
-        
+
         markRemovedMigrationsAsDeleted(configuration, repairResult, context);
 
         alignAppliedMigrationsWithResolvedMigrations(configuration, repairResult, context);
 
         stopWatch.stop();
         if (repairResult.repairActions.isEmpty()) {
-            LOG.info("Repair of schema history table "
-                + database.quote(database.getCurrentSchema(), configuration.getTable())
-                + " not needed, no migrations need repairing.");
+            LOG.info("Repair of schema history table " + database.quote(database.getCurrentSchema(),
+                configuration.getTable()) + " not needed, no migrations need repairing.");
         } else {
             LOG.info("Successfully repaired schema history table "
-                + database.quote(database.getCurrentSchema(), configuration.getTable())
+                + database.quote(database.getCurrentSchema(),
+                configuration.getTable())
                 + " (execution time "
                 + TimeFormat.format(stopWatch.getTotalTimeMillis())
                 + ").");
             if (repairResult.repairActions.contains("Marked missing migrations as deleted")) {
-                LOG.info("Please ensure the previous contents of the deleted migrations are removed from the database, or moved into an existing migration.");
+                LOG.info(
+                    "Please ensure the previous contents of the deleted migrations are removed from the database, or moved into an existing migration.");
             }
         }
         return repairResult;
@@ -84,77 +86,88 @@ public class RepairVerbExtension implements VerbExtension {
     private void alignAppliedMigrationsWithResolvedMigrations(final Configuration configuration,
         final RepairResult repairResult,
         final PreparationContext context) {
-        
+
         if (!repairResult.migrationsDeleted.isEmpty()) {
             context.refresh(configuration);
         }
-        
-        final List<MigrationInfo> appliedVersionedInfos = Arrays.stream(context.getMigrations()).filter(x -> x.getVersion() != null)
+
+        final List<MigrationInfo> appliedVersionedInfos = Arrays.stream(context.getMigrations())
+            .filter(x -> x.getVersion() != null)
             .filter(x -> x.getState().isResolved())
             .filter(x -> x.getState().isApplied())
             .filter(x -> !x.getType().isSynthetic())
             .filter(x -> x.getState() != MigrationState.UNDONE)
-            .filter(this::updateNeeded).toList();
+            .filter(this::updateNeeded)
+            .toList();
         if (!appliedVersionedInfos.isEmpty()) {
-            repairResult.migrationsAligned = appliedVersionedInfos.stream().map(x -> new RepairOutput(x.isRepeatable()
-                ? ""
-                : x.getVersion().getVersion(), x.getDescription(), x.getPhysicalLocation())).toList();
+            repairResult.migrationsAligned = appliedVersionedInfos.stream()
+                .map(x -> new RepairOutput(x.isRepeatable() ? "" : x.getVersion().getVersion(),
+                    x.getDescription(),
+                    x.getPhysicalLocation()))
+                .toList();
             for (final MigrationInfo updatedEntry : appliedVersionedInfos) {
-                final SchemaHistoryItem item = context.getSchemaHistoryModel().getSchemaHistoryItem(updatedEntry.getInstalledRank())
+                final SchemaHistoryItem item = context.getSchemaHistoryModel()
+                    .getSchemaHistoryItem(updatedEntry.getInstalledRank())
                     .orElseThrow(() -> new FlywayException("Fatal error when repairing, please contact support!"));
-                LOG.info("Repairing Schema History table for version " + item.getVersion()
-                    + " (Description: " + updatedEntry.getResolvedDescription()
-                    + ", Type: " + updatedEntry.getResolvedType()
-                    + ", Checksum: " + updatedEntry.getResolvedChecksum() + ")  ...");
-                context.getDatabase().updateSchemaHistoryItem(item.toBuilder()
+                LOG.info("Repairing Schema History table for version "
+                    + item.getVersion()
+                    + " (Description: "
+                    + updatedEntry.getResolvedDescription()
+                    + ", Type: "
+                    + updatedEntry.getResolvedType()
+                    + ", Checksum: "
+                    + updatedEntry.getResolvedChecksum()
+                    + ")  ...");
+                context.getDatabase()
+                    .updateSchemaHistoryItem(item.toBuilder()
                         .type(updatedEntry.getResolvedType().name())
                         .checksum(updatedEntry.getResolvedChecksum())
                         .description(updatedEntry.getResolvedDescription())
-                        .build(),
-                    configuration.getTable());
-
+                        .build(), configuration.getTable());
             }
             repairResult.repairActions.add("Aligned applied migration checksums");
         } else {
-            LOG.info("No migrations to realign in Schema History table "
-                + context.getDatabase().quote(context.getDatabase().getCurrentSchema(), configuration.getTable()));
+            LOG.info("No migrations to realign in Schema History table " + context.getDatabase()
+                .quote(context.getDatabase().getCurrentSchema(), configuration.getTable()));
         }
     }
 
     private static void markRemovedMigrationsAsDeleted(final Configuration configuration,
         final RepairResult repairResult,
         final PreparationContext context) {
-        
+
         if (!repairResult.migrationsRemoved.isEmpty()) {
             context.refresh(configuration);
         }
-        
-        final List<MigrationInfo> migrationInfo = VerbUtils
-            .removeIgnoredMigrations(configuration, context.getMigrations())
-            .stream()
-            .filter(x -> !x.getState().isResolved())
-            .toList();
+
+        final List<MigrationInfo> migrationInfo = VerbUtils.removeIgnoredMigrations(configuration,
+            context.getMigrations()).stream().filter(x -> !x.getState().isResolved()).toList();
 
         repairResult.migrationsDeleted = migrationInfo.stream()
             .map(x -> new RepairOutput(x.isRepeatable() ? "" : x.getVersion().getVersion(), x.getDescription(), ""))
             .toList();
-        
+
         if (!repairResult.migrationsDeleted.isEmpty()) {
             int nextInstalledRank = context.getSchemaHistoryModel().calculateInstalledRank(CoreMigrationType.DELETE);
             final List<SchemaHistoryItem> schemaHistoryItems = migrationInfo.stream()
                 .map(x -> context.getSchemaHistoryModel().getSchemaHistoryItem(x.getInstalledRank()))
-                .map(x -> x.orElseThrow(() -> new FlywayException("Fatal error when repairing, please contact support!"))).toList();
+                .map(x -> x.orElseThrow(() -> new FlywayException("Fatal error when repairing, please contact support!")))
+                .toList();
             for (final SchemaHistoryItem schemaHistoryItem : schemaHistoryItems) {
                 if (schemaHistoryItem.getVersion() == null) {
-                    LOG.info("Repairing Schema History table for description \"" + schemaHistoryItem.getDescription() + "\" (Marking as DELETED)  ...");
+                    LOG.info("Repairing Schema History table for description \""
+                        + schemaHistoryItem.getDescription()
+                        + "\" (Marking as DELETED)  ...");
                 } else {
-                    LOG.info("Repairing Schema History table for version \"" + schemaHistoryItem.getVersion() + "\" (Marking as DELETED)  ...");
+                    LOG.info("Repairing Schema History table for version \""
+                        + schemaHistoryItem.getVersion()
+                        + "\" (Marking as DELETED)  ...");
                 }
-                context.getDatabase().appendSchemaHistoryItem(schemaHistoryItem.toBuilder()
-                    .type(CoreMigrationType.DELETE.name())
-                    .installedRank(nextInstalledRank++)
-                    .build(),
-                    configuration.getTable());
+                context.getDatabase()
+                    .appendSchemaHistoryItem(schemaHistoryItem.toBuilder()
+                        .type(CoreMigrationType.DELETE.name())
+                        .installedRank(nextInstalledRank++)
+                        .build(), configuration.getTable());
             }
             repairResult.repairActions.add("Marked missing migrations as deleted");
         } else {
@@ -166,18 +179,24 @@ public class RepairVerbExtension implements VerbExtension {
     private static void removeFailedMigrations(final Configuration configuration,
         final RepairResult repairResult,
         final PreparationContext context) {
-        repairResult.migrationsRemoved = context.getSchemaHistoryModel().getSchemaHistoryItems().stream()
+        repairResult.migrationsRemoved = context.getSchemaHistoryModel()
+            .getSchemaHistoryItems()
+            .stream()
             .filter(x -> !x.isSuccess())
-            .map(x -> new RepairOutput(x.getVersion() == null ? "" : x.getVersion(), x.getDescription(), "")).toList();
+            .map(x -> new RepairOutput(x.getVersion() == null ? "" : x.getVersion(), x.getDescription(), ""))
+            .toList();
         if (!repairResult.migrationsRemoved.isEmpty()) {
             context.getDatabase().removeFailedSchemaHistoryItems(configuration.getTable());
-            
+
             repairResult.repairActions.add("Removed failed migrations");
-            LOG.info("Removed " + repairResult.migrationsRemoved.size() + " failed migration from Schema History table "
+            LOG.info("Removed "
+                + repairResult.migrationsRemoved.size()
+                + " failed migration from Schema History table "
                 + context.getDatabase().quote(context.getDatabase().getCurrentSchema(), configuration.getTable()));
         } else {
             LOG.info("Repair of failed migration in Schema History table "
-                + context.getDatabase().quote(context.getDatabase().getCurrentSchema(), configuration.getTable())
+                + context.getDatabase()
+                .quote(context.getDatabase().getCurrentSchema(), configuration.getTable())
                 + " not necessary. No failed migration detected.");
         }
     }

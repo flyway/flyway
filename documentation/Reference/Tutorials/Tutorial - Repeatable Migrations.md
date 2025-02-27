@@ -5,7 +5,6 @@ redirect_from:
 - Getting Started/repeatable/
 - Tutorials/Tutorial Repeatable Migrations/
 ---
-# Tutorial: Repeatable Migrations
 
 This tutorial assumes you have successfully completed the **{% include quickstart-cli.html %}**
 tutorial. **If you have not done so, please do so first.** This tutorial picks up where that one left off.

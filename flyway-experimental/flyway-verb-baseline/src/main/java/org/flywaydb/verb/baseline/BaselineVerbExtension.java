@@ -45,8 +45,9 @@ public class BaselineVerbExtension implements VerbExtension {
     public Object executeVerb(final Configuration configuration) {
         final PreparationContext context = PreparationContext.get(configuration);
         final ExperimentalDatabase database = context.getDatabase();
-      
-        final BaselineResult baselineResult = new BaselineResult(VersionPrinter.getVersion(), database.getDatabaseMetaData().databaseName());
+
+        final BaselineResult baselineResult = new BaselineResult(VersionPrinter.getVersion(),
+            database.getDatabaseMetaData().databaseName());
         final MigrationVersion baselineVersion = configuration.getBaselineVersion();
 
         final String schemaHistoryName = configuration.getTable();
@@ -73,50 +74,80 @@ public class BaselineVerbExtension implements VerbExtension {
                 return baselineResult;
             }
 
-            
-            final String schemaHistoryText = database.quote(database.getCurrentSchema())
-                + "." + database.quote(schemaHistoryName);
-            final boolean baselinePresent = context.getSchemaHistoryModel().getSchemaHistoryItems().stream()
+            final String schemaHistoryText = database.quote(database.getCurrentSchema()) + "." + database.quote(
+                schemaHistoryName);
+            final boolean baselinePresent = context.getSchemaHistoryModel()
+                .getSchemaHistoryItems()
+                .stream()
                 .anyMatch(x -> CoreMigrationType.BASELINE.name().equals(x.getType()));
 
-            final boolean onlySchemas = context.getSchemaHistoryModel().getSchemaHistoryItems().stream()
+            final boolean onlySchemas = context.getSchemaHistoryModel()
+                .getSchemaHistoryItems()
+                .stream()
                 .allMatch(x -> CoreMigrationType.SCHEMA.name().equals(x.getType()));
 
             if (baselinePresent) {
                 final String baselineDescription = configuration.getBaselineDescription();
                 final SchemaHistoryItem baselineMarker = context.getSchemaHistoryModel()
-                    .getSchemaHistoryItems().stream()
-                    .filter(x -> CoreMigrationType.BASELINE.name().equals(x.getType())).findFirst().get();
+                    .getSchemaHistoryItems()
+                    .stream()
+                    .filter(x -> CoreMigrationType.BASELINE.name().equals(x.getType()))
+                    .findFirst()
+                    .get();
 
-                if (baselineVersion.getVersion().equals(baselineMarker.getVersion())
-                    && baselineDescription.equals(baselineMarker.getDescription())) {
-                    LOG.info("Schema history table " + schemaHistoryText + " already initialized with ("
-                        + baselineVersion + "," + baselineDescription + "). Skipping.");
+                if (baselineVersion.getVersion().equals(baselineMarker.getVersion()) && baselineDescription.equals(
+                    baselineMarker.getDescription())) {
+                    LOG.info("Schema history table "
+                        + schemaHistoryText
+                        + " already initialized with ("
+                        + baselineVersion
+                        + ","
+                        + baselineDescription
+                        + "). Skipping.");
                     baselineResult.successfullyBaselined = true;
                     baselineResult.baselineVersion = baselineVersion.toString();
                 } else {
-                    throw new FlywayException("Unable to baseline schema history table " + schemaHistoryText + " with ("
-                        + baselineVersion + "," + baselineDescription
+                    throw new FlywayException("Unable to baseline schema history table "
+                        + schemaHistoryText
+                        + " with ("
+                        + baselineVersion
+                        + ","
+                        + baselineDescription
                         + ") as it has already been baselined with ("
-                        + baselineMarker.getVersion() + "," + baselineMarker.getDescription() + ")\n" +
-                        "Need to reset your baseline? Learn more: " + FlywayDbWebsiteLinks.RESET_THE_BASELINE_MIGRATION);
+                        + baselineMarker.getVersion()
+                        + ","
+                        + baselineMarker.getDescription()
+                        + ")\n"
+                        + "Need to reset your baseline? Learn more: "
+                        + FlywayDbWebsiteLinks.RESET_THE_BASELINE_MIGRATION);
                 }
             } else {
-                final boolean schemaPresent = context.getSchemaHistoryModel().getSchemaHistoryItems().stream()
+                final boolean schemaPresent = context.getSchemaHistoryModel()
+                    .getSchemaHistoryItems()
+                    .stream()
                     .anyMatch(x -> CoreMigrationType.SCHEMA.name().equals(x.getType()));
 
                 if (schemaPresent && baselineVersion.equals(MigrationVersion.fromVersion("0"))) {
-                    throw new FlywayException("Unable to baseline schema history table " + schemaHistoryText + " with version 0 as this version was used for schema creation");
+                    throw new FlywayException("Unable to baseline schema history table "
+                        + schemaHistoryText
+                        + " with version 0 as this version was used for schema creation");
                 }
-                final boolean nonSyntheticMigrations = context.getSchemaHistoryModel().getSchemaHistoryItems().stream()
+                final boolean nonSyntheticMigrations = context.getSchemaHistoryModel()
+                    .getSchemaHistoryItems()
+                    .stream()
                     .anyMatch(x -> !CoreMigrationType.fromString(x.getType()).isSynthetic());
                 if (nonSyntheticMigrations) {
-                    throw new FlywayException("Unable to baseline schema history table " + schemaHistoryText + " as it already contains migrations\n" +
-                        "Need to reset your baseline? Learn more: " + FlywayDbWebsiteLinks.RESET_THE_BASELINE_MIGRATION);
+                    throw new FlywayException("Unable to baseline schema history table "
+                        + schemaHistoryText
+                        + " as it already contains migrations\n"
+                        + "Need to reset your baseline? Learn more: "
+                        + FlywayDbWebsiteLinks.RESET_THE_BASELINE_MIGRATION);
                 }
                 if (context.getSchemaHistoryModel().getSchemaHistoryItems().isEmpty()) {
-                    throw new FlywayException("Unable to baseline schema history table " + schemaHistoryText + " as it already exists, and is empty.\n" +
-                        "Delete the schema history table, and run baseline again.");
+                    throw new FlywayException("Unable to baseline schema history table "
+                        + schemaHistoryText
+                        + " as it already exists, and is empty.\n"
+                        + "Delete the schema history table, and run baseline again.");
                 }
 
                 if (onlySchemas) {
@@ -129,9 +160,7 @@ public class BaselineVerbExtension implements VerbExtension {
                         + "Need to reset your baseline? Learn more: "
                         + FlywayDbWebsiteLinks.RESET_THE_BASELINE_MIGRATION);
                 }
-
             }
-
         } catch (final FlywayException e) {
             baselineResult.successfullyBaselined = false;
             throw e;
@@ -141,7 +170,8 @@ public class BaselineVerbExtension implements VerbExtension {
     }
 
     private static void createBaselineMarker(final Configuration configuration,
-        final ExperimentalDatabase database, final BaselineResult baselineResult) {
+        final ExperimentalDatabase database,
+        final BaselineResult baselineResult) {
 
         database.createSchemaHistoryTableIfNotExists(configuration.getTable());
 

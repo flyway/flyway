@@ -4,8 +4,6 @@ subtitle: flyway.defaultSchema
 redirect_from: Configuration/defaultSchema/
 ---
 
-# Default Schema
-
 ## Description
 
 The default schema managed by Flyway. This schema will be the one containing the [schema history table](https://documentation.red-gate.com/flyway/flyway-concepts/migrations/flyway-schema-history-table).

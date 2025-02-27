@@ -1,7 +1,7 @@
 ---
 subtitle: Timeplus
 ---
-# Timeplus
+
 - **Verified Versions:** N/A
 - **Maintainer:** {% include community-db.html %}
 

@@ -42,8 +42,10 @@ public class ErrorUtils {
 
         final String underline = StringUtils.trimOrPad("", title.length(), '-');
 
-        final StringBuilder messageBuilder = new StringBuilder().append(title).append("\n").append(underline).append(
-            "\n");
+        final StringBuilder messageBuilder = new StringBuilder().append(title)
+            .append("\n")
+            .append(underline)
+            .append("\n");
 
         if (message != null) {
             messageBuilder.append(message);
@@ -58,11 +60,11 @@ public class ErrorUtils {
         } else {
             messageBuilder.append("Location   : ").append(physicalLocation);
         }
-        
+
         if (executionUnit != null && executor != null) {
             executor.appendErrorMessage(executionUnit, messageBuilder, LOG.isDebugEnabled());
         }
-        
+
         return messageBuilder.toString();
     }
 }

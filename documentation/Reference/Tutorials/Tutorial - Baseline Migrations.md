@@ -2,7 +2,6 @@
 subtitle: 'Tutorial: Baseline Migrations'
 redirect_from: Tutorials/stateScripts
 ---
-# Tutorial: Baseline Migrations
 
 This brief tutorial will teach you **how to use baseline migrations**.
 

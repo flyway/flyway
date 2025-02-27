@@ -4,8 +4,6 @@ subtitle: Command-line
 redirect_from: Commandsline/
 ---
 
-# Command-line
-
 The Flyway command-line tool is a standalone Flyway distribution. It runs on Windows, macOS and Linux and it is primarily meant for users who wish to migrate their database from the command-line without having to integrate Flyway into their applications nor having to install a build tool.
 
 ### Flyway Pipelines

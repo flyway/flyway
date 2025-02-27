@@ -143,6 +143,21 @@ class JdbcTableSchemaHistory extends SchemaHistory {
     }
 
     @Override
+    public void drop() {
+        if (!exists()) {
+            LOG.info("Dropping Schema History table " + table + " not necessary as table does not exist");
+            return;
+        }
+
+        LOG.info("Dropping Schema History table " + table);
+        connection.lock(table, () -> {
+            table.drop();
+            return null;
+        });
+        clearCache();
+    }
+
+    @Override
     public <T> T lock(Callable<T> callable) {
         connection.restoreOriginalState();
 

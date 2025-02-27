@@ -1,7 +1,6 @@
 ---
 subtitle: 'Tutorial: Auth'
 ---
-# Tutorial: Auth
 
 This brief tutorial will teach you how to authorize Flyway to use Teams or Enterprise Edition using the `auth` command.
 

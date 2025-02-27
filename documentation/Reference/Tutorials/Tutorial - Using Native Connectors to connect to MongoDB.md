@@ -1,7 +1,6 @@
 ---
 subtitle: 'Tutorial: Using Pingu to connect to MongoDB'
 ---
-# Tutorial: Using Native Connectors to connect to MongoDB
 
 This tutorial shows you how to connect to MongoDB using Flyway with Native Connectors enabled.
 Native Connectors is a new engine designed to handle migrations without relying on the JDBC framework.

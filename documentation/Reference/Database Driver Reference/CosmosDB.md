@@ -1,7 +1,8 @@
 ---
 subtitle: CosmosDB - Native Connectors
 ---
-# CosmosDB
+
+
 - **Status:** Preview
 - **Flyway configuration:** Native Connectors only
 - **Verified Versions:** 7.0

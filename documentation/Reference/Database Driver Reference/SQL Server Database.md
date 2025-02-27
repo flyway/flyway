@@ -2,8 +2,6 @@
 subtitle: SQL Server
 ---
 
-# SQL Server
-
 - **Verified Versions:** 2008, 2022
 - **Maintainer:** {% include redgate-badge.html %}
 

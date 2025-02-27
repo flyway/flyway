@@ -2,8 +2,6 @@
 subtitle: 'Tutorial: Personal Access Tokens (PATs)'
 ---
 
-# Tutorial: Personal Access Tokens (PATs)
-
 This brief tutorial will teach you how to authorize Flyway to use Teams or Enterprise Edition using personal access tokens a.k.a. PATs.
 
 ## Introduction

@@ -20,9 +20,10 @@
 package org.flywaydb.core.internal.proprietaryInterfaces;
 
 import org.flywaydb.core.api.MigrationPattern;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.Plugin;
 
 public interface CherryPickConfiguration extends Plugin {
 
-    MigrationPattern[] getMigrationPatterns();
+    MigrationPattern[] getMigrationPatterns(final Configuration config);
 }

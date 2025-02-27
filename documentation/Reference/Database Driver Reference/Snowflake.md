@@ -1,7 +1,7 @@
 ---
 subtitle: Snowflake
 ---
-# Snowflake
+
 - **Verified Versions:** 3.50, 8.3
 - **Maintainer:** {% include redgate-badge.html %}
 

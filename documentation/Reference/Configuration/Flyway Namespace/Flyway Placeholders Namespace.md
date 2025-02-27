@@ -4,8 +4,6 @@ subtitle: flyway.placeholders
 redirect_from: Configuration/Placeholderss/
 ---
 
-# Placeholders
-
 ## Description
 
 [Placeholders](https://documentation.red-gate.com/flyway/flyway-concepts/migrations/migration-placeholders) to replace in SQL migrations.

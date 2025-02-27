@@ -1,7 +1,6 @@
 ---
 subtitle: 'Tutorial: Using Check with SQL Server'
 ---
-# Tutorial: Using Flyway Check with SQL Server
 
 {% include enterprise.html %}
 

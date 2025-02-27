@@ -76,7 +76,8 @@ public class VerbUtils {
     }
 
     public static ExperimentalDatabase getExperimentalDatabase(final Configuration configuration) throws SQLException {
-        final Optional<ExperimentalDatabase> resolvedExperimentalDatabase = resolveExperimentalDatabasePlugin(configuration);
+        final Optional<ExperimentalDatabase> resolvedExperimentalDatabase = resolveExperimentalDatabasePlugin(
+            configuration);
 
         if (resolvedExperimentalDatabase.isEmpty()) {
             throw new FlywayException("No Native Connectors database plugin found for the designated database");
@@ -86,18 +87,24 @@ public class VerbUtils {
 
         experimentalDatabase.initialize(getResolvedEnvironment(configuration), configuration);
         if (!databaseInfoPrinted) {
-            LOG.info("Database: " + experimentalDatabase.redactUrl(configuration.getUrl()) + " (" + experimentalDatabase.getDatabaseMetaData()
-                .databaseProductName() + ")");
+            LOG.info("Database: "
+                + experimentalDatabase.redactUrl(configuration.getUrl())
+                + " ("
+                + experimentalDatabase.getDatabaseMetaData().databaseProductName()
+                + ")");
             databaseInfoPrinted = true;
         }
         return experimentalDatabase;
     }
 
-    public static MigrationInfo[] getMigrations(final SchemaHistoryModel schemaHistoryModel, final LoadableResourceMetadata[] sortedMigrations, final Configuration configuration) {
+    public static MigrationInfo[] getMigrations(final SchemaHistoryModel schemaHistoryModel,
+        final LoadableResourceMetadata[] sortedMigrations,
+        final Configuration configuration) {
         final List<Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> migrations = new ArrayList<>();
         final MigrationTypeResolver migrationTypeResolver = new CompositeMigrationTypeResolver();
 
-        final List<ResolvedSchemaHistoryItem> resolvedSchemaHistoryItems = getResolvedSchemaHistoryItems(schemaHistoryModel,
+        final List<ResolvedSchemaHistoryItem> resolvedSchemaHistoryItems = getResolvedSchemaHistoryItems(
+            schemaHistoryModel,
             configuration,
             migrationTypeResolver);
         final List<LoadableResourceMetadata> resolvedMigrations = getResolvedMigrations(sortedMigrations,
@@ -109,12 +116,10 @@ public class VerbUtils {
 
         final ExperimentalMigrationComparator comparator = getOrderComparator(configuration);
 
-        final List<ExperimentalMigrationStateCalculator> stateCalculators = getMigrationStateCalculators(
-            configuration);
+        final List<ExperimentalMigrationStateCalculator> stateCalculators = getMigrationStateCalculators(configuration);
 
         final List<Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> copy = migrations.stream().toList();
-        return migrations
-            .stream()
+        return migrations.stream()
             .map(x -> {
                 final MigrationState state = stateCalculators.stream()
                     .map(stateCalculator -> stateCalculator.calculateState(x, copy, configuration))
@@ -134,7 +139,9 @@ public class VerbUtils {
         return schemaHistoryModel.getSchemaHistoryItems()
             .stream()
             .map(schemaHistoryItem -> ResolvedSchemaHistoryItem.builder()
-                .version(schemaHistoryItem.getVersion() == null ? null : MigrationVersion.fromVersion(schemaHistoryItem.getVersion()))
+                .version(schemaHistoryItem.getVersion() == null
+                    ? null
+                    : MigrationVersion.fromVersion(schemaHistoryItem.getVersion()))
                 .description(schemaHistoryItem.getDescription())
                 .type(migrationTypeResolver.resolveMigrationTypeFromName(schemaHistoryItem.getType(), configuration))
                 .script(schemaHistoryItem.getScript())
@@ -170,12 +177,13 @@ public class VerbUtils {
             .findFirst();
     }
 
-    private static boolean shouldAddUndone(final ResolvedSchemaHistoryItem undoneSchemaHistoryItem, final Collection<ResolvedSchemaHistoryItem> resolvedSchemaHistoryItems) {
+    private static boolean shouldAddUndone(final ResolvedSchemaHistoryItem undoneSchemaHistoryItem,
+        final Collection<ResolvedSchemaHistoryItem> resolvedSchemaHistoryItems) {
         return resolvedSchemaHistoryItems.stream()
-            .filter(ResolvedSchemaHistoryItem::isVersioned) 
+            .filter(ResolvedSchemaHistoryItem::isVersioned)
             .filter(item -> item.getInstalledRank() > undoneSchemaHistoryItem.getInstalledRank())
-            .noneMatch(item -> item.getVersion().equals(undoneSchemaHistoryItem.getVersion()) &&
-                !item.getType().isUndo() && item.isSuccess());
+            .noneMatch(item -> item.getVersion().equals(undoneSchemaHistoryItem.getVersion()) && !item.getType()
+                .isUndo() && item.isSuccess());
     }
 
     private static LoadableResourceMetadata getTypedMigration(final Configuration configuration,
@@ -202,12 +210,15 @@ public class VerbUtils {
     }
 
     private static ResolvedEnvironment getResolvedEnvironment(final Configuration configuration) {
-        final String envName =  configuration.getCurrentEnvironmentName();
+        final String envName = configuration.getCurrentEnvironmentName();
         final String envProvisionMode = configuration.getModernConfig().getFlyway().getProvisionMode();
-        final ProvisionerMode provisionerMode = StringUtils.hasText(envProvisionMode) ? ProvisionerMode.fromString(envProvisionMode) : ProvisionerMode.Provision;
+        final ProvisionerMode provisionerMode = StringUtils.hasText(envProvisionMode) ? ProvisionerMode.fromString(
+            envProvisionMode) : ProvisionerMode.Provision;
         final ResolvedEnvironment resolved = configuration.getResolvedEnvironment(envName, provisionerMode, null);
         if (resolved == null) {
-            throw new FlywayException("Environment '" + envName + "' not found. Check that this environment exists in your configuration.");
+            throw new FlywayException("Environment '"
+                + envName
+                + "' not found. Check that this environment exists in your configuration.");
         }
         return resolved;
     }
@@ -220,16 +231,18 @@ public class VerbUtils {
     }
 
     private static ExperimentalMigrationComparator getOrderComparator(final Configuration configuration) {
-        return configuration.getPluginRegister().getPlugins(ExperimentalMigrationComparator.class).stream().filter(
-            comparatorPlugin -> comparatorPlugin.getName().equals("Info")).max(Comparator.comparingInt(
-            experimentalMigrationComparator -> experimentalMigrationComparator.getPriority(configuration))).orElseThrow(
-            () -> new FlywayException("No Info comparator found"));
+        return configuration.getPluginRegister()
+            .getPlugins(ExperimentalMigrationComparator.class)
+            .stream()
+            .filter(comparatorPlugin -> comparatorPlugin.getName().equals("Info"))
+            .max(Comparator.comparingInt(experimentalMigrationComparator -> experimentalMigrationComparator.getPriority(
+                configuration)))
+            .orElseThrow(() -> new FlywayException("No Info comparator found"));
     }
 
     private static List<LoadableResourceMetadata> getResolvedMigrations(final LoadableResourceMetadata[] sortedMigrations,
         final Configuration configuration) {
-        return Arrays
-            .stream(sortedMigrations)
+        return Arrays.stream(sortedMigrations)
             .map(sortedMigration -> getTypedMigration(configuration, sortedMigration))
             .filter(Objects::nonNull)
             .toList();
@@ -237,7 +250,7 @@ public class VerbUtils {
 
     private static void insertResolvedSchemaHistoryItems(final List<ResolvedSchemaHistoryItem> resolvedSchemaHistoryItems,
         final List<Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> migrations) {
-        for(final ResolvedSchemaHistoryItem schemaHistoryItem : resolvedSchemaHistoryItems) {
+        for (final ResolvedSchemaHistoryItem schemaHistoryItem : resolvedSchemaHistoryItems) {
             migrations.add(Pair.of(schemaHistoryItem, null));
         }
     }
@@ -245,10 +258,12 @@ public class VerbUtils {
     private static void insertResolvedMigrations(final Iterable<LoadableResourceMetadata> resolvedMigrations,
         final List<Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> migrations) {
         resolvedMigrations.forEach(resolvedMigration -> {
-            List<Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> matchedMigrations = findMigrationsByResourceMetadata(migrations, resolvedMigration);
+            List<Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> matchedMigrations = findMigrationsByResourceMetadata(
+                migrations,
+                resolvedMigration);
 
             if (!matchedMigrations.isEmpty()) {
-                for (Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata> migration: matchedMigrations) {
+                for (Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata> migration : matchedMigrations) {
                     migrations.add(Pair.of(migration.getLeft(), resolvedMigration));
                     migrations.remove(migration);
                 }
@@ -264,12 +279,13 @@ public class VerbUtils {
 
         final List<Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> result = new ArrayList<>();
 
-        for (final Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata> migration: migrations) {
+        for (final Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata> migration : migrations) {
             final ResolvedSchemaHistoryItem item = migration.getLeft();
             if (item != null) {
-                final boolean versionMatched = item.isRepeatable() ? item.getDescription().equals(resourceMetadata.description())
-                    && item.getChecksum().equals(resourceMetadata.checksum()) :
-                    item.getVersion().equals(resourceMetadata.version());
+                final boolean versionMatched = item.isRepeatable()
+                    ? item.getDescription()
+                    .equals(resourceMetadata.description()) && item.getChecksum().equals(resourceMetadata.checksum())
+                    : item.getVersion().equals(resourceMetadata.version());
                 if (versionMatched && typesCompatible(resourceMetadata, item)) {
                     result.add(migration);
                 }
@@ -290,20 +306,28 @@ public class VerbUtils {
         if (configuration.getSchemas().length > 0) {
             return configuration.getSchemas();
         } else {
-            return new String[]{configuration.getDefaultSchema()};
+            return new String[] { configuration.getDefaultSchema() };
         }
     }
 
-    public static String toMigrationText(final MigrationInfo migration, final boolean isExecuteInTransaction,
-        final ExperimentalDatabase database, final boolean outOfOrder) {
+    public static String toMigrationText(final MigrationInfo migration,
+        final boolean isExecuteInTransaction,
+        final ExperimentalDatabase database,
+        final boolean outOfOrder) {
         final String migrationText;
         if (migration.getVersion() != null) {
-            migrationText = "schema " + database.doQuote(database.getCurrentSchema()) + " to version " + database.doQuote(migration.getVersion()
-                + (StringUtils.hasLength(migration.getDescription()) ? " - " + migration.getDescription() : ""))
+            migrationText = "schema "
+                + database.doQuote(database.getCurrentSchema())
+                + " to version "
+                + database.doQuote(migration.getVersion() + (StringUtils.hasLength(migration.getDescription()) ? " - "
+                + migration.getDescription() : ""))
                 + (outOfOrder ? " [out of order]" : "")
                 + (isExecuteInTransaction ? "" : " [non-transactional]");
         } else {
-            migrationText = "schema " + database.doQuote(database.getCurrentSchema()) + " with repeatable migration " + database.doQuote(migration.getDescription())
+            migrationText = "schema "
+                + database.doQuote(database.getCurrentSchema())
+                + " with repeatable migration "
+                + database.doQuote(migration.getDescription())
                 + (isExecuteInTransaction ? "" : " [non-transactional]");
         }
         return migrationText;
@@ -311,10 +335,12 @@ public class VerbUtils {
 
     public static List<MigrationInfo> removeIgnoredMigrations(final Configuration configuration,
         final MigrationInfo[] migrations) {
-        return Arrays.stream(migrations).filter(x -> Arrays.stream(configuration.getIgnoreMigrationPatterns())
-            .noneMatch(pattern -> pattern.matchesMigration(x.isVersioned(), x.getState()))).toList();
+        return Arrays.stream(migrations)
+            .filter(x -> Arrays.stream(configuration.getIgnoreMigrationPatterns())
+                .noneMatch(pattern -> pattern.matchesMigration(x.isVersioned(), x.getState())))
+            .toList();
     }
-    
+
     public static FlywayTelemetryManager getFlywayTelemetryManager(final Configuration configuration) {
         return configuration.getPluginRegister().getPluginInstanceOf(FlywayTelemetryManager.class);
     }

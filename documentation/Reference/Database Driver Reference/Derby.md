@@ -2,8 +2,6 @@
 subtitle: Derby
 ---
 
-# Derby
-
 ## Supported Versions
 
 - **Verified Versions:** 10.11, 10.15 (Important: see 'Compatibility' section below)

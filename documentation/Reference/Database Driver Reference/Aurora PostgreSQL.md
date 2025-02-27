@@ -1,7 +1,8 @@
 ---
 subtitle: Aurora PostgreSQL
 ---
-# Aurora PostgreSQL
+
+
 - **Verified Versions:** 9.6, 14.x
 - **Maintainer:** {% include redgate-badge.html %}
 

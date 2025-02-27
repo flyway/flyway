@@ -4,8 +4,6 @@ subtitle: configuration
 redirect_from: Configuration/
 ---
 
-# Configuration
-
 Here is a complete list of Flyway configurations, organized according to their hierarchy in the TOML configuration file.
 
 Root level settings:

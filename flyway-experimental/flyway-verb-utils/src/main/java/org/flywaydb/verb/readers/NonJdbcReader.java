@@ -35,7 +35,8 @@ public class NonJdbcReader implements Reader<String> {
         final LoadableResource loadableResource,
         final SqlScriptMetadata metadata) {
         return Stream.of(FileReadingWithPlaceholderReplacement.readFile(configuration,
-            parsingContext, loadableResource.getAbsolutePath()));
+            parsingContext,
+            loadableResource.getAbsolutePath()));
     }
 
     @Override

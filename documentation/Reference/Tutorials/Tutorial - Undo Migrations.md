@@ -5,7 +5,7 @@ redirect_from:
 - Getting Started/undo/
 - Getting Started/advanced/undo/
 ---
-# Tutorial: Undo Migrations
+
 {% include teams.html %}
 
 This tutorial assumes you have successfully completed the {% include quickstart-cli.html %}

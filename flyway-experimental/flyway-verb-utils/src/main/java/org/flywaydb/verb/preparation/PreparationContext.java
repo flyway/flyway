@@ -40,33 +40,36 @@ import org.flywaydb.verb.VerbUtils;
 
 @Getter
 public final class PreparationContext implements Plugin {
-    
+
     private ExperimentalDatabase database;
-    
+
     private SchemaHistoryModel schemaHistoryModel;
-    
+
     private Collection<LoadableResourceMetadata> resources;
-    
+
     private MigrationInfo[] migrations;
-    
+
     private ParsingContext parsingContext;
-    
+
     private boolean isInitialized;
-    
+
     private String cacheString;
-    
+
     public void initialize(final Configuration configuration) {
         try {
             database = VerbUtils.getExperimentalDatabase(configuration);
-            
-            final CompletableFuture<SchemaHistoryModel> schemaHistoryModelFuture = CompletableFuture.supplyAsync(() -> VerbUtils.getSchemaHistoryModel(configuration, database));
-            CompletableFuture.runAsync(() -> logExperimentalDataTelemetry(VerbUtils.getFlywayTelemetryManager(configuration),
-                database.getDatabaseMetaData()));
-            final Future<Collection<LoadableResourceMetadata>> resourcesFuture = CompletableFuture.supplyAsync(
-                () -> VerbUtils.scanForResources(configuration, database));
-            
+
+            final CompletableFuture<SchemaHistoryModel> schemaHistoryModelFuture = CompletableFuture.supplyAsync(() -> VerbUtils.getSchemaHistoryModel(
+                configuration,
+                database));
+            CompletableFuture.runAsync(() -> logExperimentalDataTelemetry(VerbUtils.getFlywayTelemetryManager(
+                configuration), database.getDatabaseMetaData()));
+            final Future<Collection<LoadableResourceMetadata>> resourcesFuture = CompletableFuture.supplyAsync(() -> VerbUtils.scanForResources(
+                configuration,
+                database));
+
             cacheString = getCacheString(configuration);
-            
+
             try {
                 schemaHistoryModel = schemaHistoryModelFuture.get();
                 resources = resourcesFuture.get();
@@ -81,10 +84,10 @@ public final class PreparationContext implements Plugin {
             migrations = VerbUtils.getMigrations(schemaHistoryModel,
                 resources.toArray(LoadableResourceMetadata[]::new),
                 configuration);
-            
+
             parsingContext = new ParsingContext();
             parsingContext.populate(database, configuration);
-            
+
             isInitialized = true;
         } catch (final SQLException sqlException) {
             throw new FlywayException(sqlException);
@@ -93,8 +96,12 @@ public final class PreparationContext implements Plugin {
 
     private String getCacheString(final Configuration configuration) {
         return String.join(",",
-            Arrays.stream(configuration.getLocations()).map(Object::toString).toArray(String[]::new)) +
-            configuration.getPlaceholders().entrySet().stream().map(x -> "[" + x.getKey() + "=" + x.getValue() + "]").reduce("", String::concat);
+            Arrays.stream(configuration.getLocations()).map(Object::toString).toArray(String[]::new))
+            + configuration.getPlaceholders()
+            .entrySet()
+            .stream()
+            .map(x -> "[" + x.getKey() + "=" + x.getValue() + "]")
+            .reduce("", String::concat);
     }
 
     public void refresh(final Configuration configuration) {
@@ -105,15 +112,16 @@ public final class PreparationContext implements Plugin {
                 throw new FlywayException(sqlException);
             }
         }
-        
-        schemaHistoryModel = VerbUtils.getSchemaHistoryModel(configuration, database); 
+
+        schemaHistoryModel = VerbUtils.getSchemaHistoryModel(configuration, database);
         migrations = VerbUtils.getMigrations(schemaHistoryModel,
             resources.toArray(LoadableResourceMetadata[]::new),
             configuration);
     }
-    
+
     public static PreparationContext get(final Configuration configuration) {
-        final PreparationContext preparationContext = configuration.getPluginRegister().getPlugin(PreparationContext.class);
+        final PreparationContext preparationContext = configuration.getPluginRegister()
+            .getPlugin(PreparationContext.class);
 
         if (preparationContext.needsInitialization(configuration)) {
             preparationContext.initialize(configuration);
@@ -123,7 +131,7 @@ public final class PreparationContext implements Plugin {
 
         return preparationContext;
     }
-    
+
     private boolean needsInitialization(final Configuration configuration) {
         return !isInitialized || cacheString == null || !cacheString.equals(getCacheString(configuration));
     }

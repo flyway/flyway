@@ -1,7 +1,7 @@
 ---
 subtitle: Testcontainers
 ---
-# Testcontainers
+
 - **Verified Versions:** N/A
 - **Maintainer:** {% include redgate-badge.html %}
 

@@ -2,8 +2,7 @@
 subtitle: MongoDB
 ---
 
-# MongoDB - Preview
-
+- **Status:** Preview
 - **Verified Versions:** V7
 - **Maintainer:** {% include redgate-badge.html %}
 - **JDBC Driver:** JetBrains Datagrip MongoDB Driver.
@@ -18,7 +17,7 @@ subtitle: MongoDB
 
 If you are on the OSS edition, you will have Native Connectors on by default. Otherwise, you may have switched it on.
 
-If you have, you should consult the [MongoDB - Native Connectors](/supported-databases/mongodb/mongodb---native-connectors) documentation instead of this page.
+If you have, you should consult the [MongoDB - Native Connectors](<Database Driver Reference/MongoDB/MongoDB - Native Connectors>) documentation instead of this page.
 
 ## Driver
 

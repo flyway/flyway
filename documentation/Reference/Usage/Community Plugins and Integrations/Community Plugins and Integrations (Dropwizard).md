@@ -2,7 +2,6 @@
 subtitle: 'Dropwizard'
 redirect_from: Usage/Community Plugins and Integrations/dropwizard/
 ---
-# Community Plugins and Integrations: Dropwizard
 
 <img src="assets/dropwizard.png">
 

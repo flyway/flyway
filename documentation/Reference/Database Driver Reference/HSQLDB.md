@@ -1,7 +1,7 @@
 ---
 subtitle: HSQLDB
 ---
-# HSQLDB
+
 - **Verified Versions:** 2.7
 - **Maintainer:** {% include redgate-badge.html %}
 

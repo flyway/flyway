@@ -4,8 +4,6 @@ subtitle: flyway.errorOverrides
 redirect_from: Configuration/errorOverrides/
 ---
 
-# ErrorOverrides
-
 {% include teams.html %}
 
 ## Description

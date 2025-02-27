@@ -2,8 +2,6 @@
 subtitle: 'Tutorial: Migrating from flyway-dev to flyway CLI'
 ---
 
-# Tutorial: Migrating from flyway-dev to flyway CLI
-
 ## Introduction
 
 The V11 release of Flyway saw several new Flyway CLI verbs removed from preview and officially released. In this

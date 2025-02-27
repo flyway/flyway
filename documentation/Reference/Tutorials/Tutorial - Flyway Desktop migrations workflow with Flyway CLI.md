@@ -2,8 +2,6 @@
 subtitle: 'Tutorial: Flyway Desktop migrations workflow with Flyway CLI'
 ---
 
-# Tutorial: Flyway Desktop migrations workflow with Flyway CLI
-
 ## Introduction
 
 The V11 release of Flyway saw several new Flyway CLI verbs removed from preview and officially released. In this

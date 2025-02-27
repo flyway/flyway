@@ -1,7 +1,7 @@
 ---
 subtitle: Clickhouse
 ---
-# Clickhouse
+
 - **Verified Versions:** N/A
 - **Maintainer:** {% include community-db.html %}
 

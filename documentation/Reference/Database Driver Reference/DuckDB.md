@@ -1,7 +1,7 @@
 ---
 subtitle: DuckDB
 ---
-# DuckDB
+
 - **Verified Versions:** N/A
 - **Maintainer:** {% include community-db.html %}
 

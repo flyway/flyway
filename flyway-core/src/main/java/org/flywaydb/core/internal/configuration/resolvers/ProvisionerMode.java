@@ -35,7 +35,7 @@ public enum ProvisionerMode {
 
     public static ProvisionerMode fromString(String value) {
         return Arrays.stream(values())
-            .filter(color -> color.value.equalsIgnoreCase(value))
+            .filter(mode -> mode.value.equalsIgnoreCase(value))
             .findFirst()
             .orElseThrow(() -> new FlywayException("Unknown provisioner mode: " + value));
     }

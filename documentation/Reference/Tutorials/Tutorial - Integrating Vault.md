@@ -2,8 +2,6 @@
 subtitle: 'Tutorial: Integrating Vault'
 ---
 
-# Tutorial: Integrating Vault
-
 {% include enterprise.html %}
 
 This brief tutorial will teach you **how to integrate Vault into your Flyway process**.

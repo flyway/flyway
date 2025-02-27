@@ -3,8 +3,6 @@ menu: faq
 subtitle: FAQ
 ---
 
-# Frequently Asked Questions
-
 - [I found a defect. Where should I report it?](#defect)
 - [I have a feature request. Where should I submit it?](#feature-request)
 - [I have a question. Where can I ask it?](#question)

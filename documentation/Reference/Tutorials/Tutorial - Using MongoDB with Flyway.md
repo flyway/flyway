@@ -2,8 +2,6 @@
 subtitle: 'Tutorial: Using MongoDB with Flyway'
 ---
 
-# Tutorial: Using MongoDB with Flyway
-
 This tutorial assumes you have successfully completed the **{% include quickstart-cli.html %}**
 tutorial. **If you have not done so, please do so first.** This tutorial picks up where that one left off.
 

@@ -2,7 +2,6 @@
 subtitle: 'Grails'
 redirect_from: Usage/Community Plugins and Integrations/grails/
 ---
-# Community Plugins and Integrations: Grails
 
 <img src="assets/grails.png">
 

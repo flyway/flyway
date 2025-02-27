@@ -1,7 +1,7 @@
 ---
 subtitle: Databricks
 ---
-# Databricks
+
 - **Verified Versions:** N/A
 - **Maintainer:** {% include community-db.html %}
 

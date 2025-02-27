@@ -3,8 +3,6 @@ pill: addingtotheclasspath
 subtitle: Adding to the classpath
 ---
 
-# Adding to the classpath
-
 Flyway ships with support for a large number of databases and functionality, but due to limitations (such as licensing) it can't ship containing everything it supports. In these situations, Flyway will load the extra support/functionality if it is present on the classpath.
 
 ## How to add to the classpath

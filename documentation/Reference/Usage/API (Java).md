@@ -3,7 +3,6 @@ pill: overview
 subtitle: API
 redirect_from: /documentation/api/
 ---
-# API
 
 Flyway brings the largest benefits when **integrated within an application**. By integrating Flyway
 you can ensure that the application and its **database will always be compatible**, with no manual

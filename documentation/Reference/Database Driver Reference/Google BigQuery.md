@@ -2,8 +2,6 @@
 subtitle: Google BigQuery
 ---
 
-# Google BigQuery
-
 - **Verified Versions:** Latest
 - **Maintainer:** {% include redgate-badge.html %}
 

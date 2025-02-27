@@ -1,7 +1,7 @@
 ---
 subtitle: CockroachDB
 ---
-# CockroachDB
+
 - **Verified Versions:** v21.1, v24.2
 - **Maintainer:** {% include redgate-badge.html %}
 

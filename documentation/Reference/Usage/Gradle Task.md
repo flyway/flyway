@@ -3,7 +3,6 @@ pill: gradle_overview
 subtitle: Gradle Plugin
 redirect_from: /documentation/gradle/
 ---
-# Gradle Plugin
 
 The Flyway Gradle plugin supports **Gradle 7.6.x*** and **Gradle 8.x**
 running on **Java 17**.

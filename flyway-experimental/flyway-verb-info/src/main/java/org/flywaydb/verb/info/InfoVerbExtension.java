@@ -35,7 +35,7 @@ public class InfoVerbExtension implements VerbExtension {
 
     @Override
     public Object executeVerb(final Configuration configuration) {
-        
+
         final PreparationContext context = PreparationContext.get(configuration);
 
         final ExperimentalDatabase database = context.getDatabase();

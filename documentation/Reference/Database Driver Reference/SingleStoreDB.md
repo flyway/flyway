@@ -2,7 +2,6 @@
 subtitle: SingleStoreDB
 ---
 
-# SingleStoreDB
 - **Verified Versions:** 7.1, 7.8
 - **Maintainer:** {% include redgate-badge.html %}
 

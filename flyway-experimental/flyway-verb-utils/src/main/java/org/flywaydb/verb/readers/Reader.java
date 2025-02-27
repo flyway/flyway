@@ -34,6 +34,6 @@ public interface Reader<T> extends Plugin {
         final ParsingContext parsingContext,
         final LoadableResource loadableResource,
         final SqlScriptMetadata metadata);
-    
+
     boolean canRead(ConnectionType connectionType);
 }

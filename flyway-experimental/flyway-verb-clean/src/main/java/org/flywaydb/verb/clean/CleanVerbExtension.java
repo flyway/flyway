@@ -32,7 +32,7 @@ import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryItem;
 import org.flywaydb.core.extensibility.VerbExtension;
 import org.flywaydb.core.internal.license.VersionPrinter;
-import org.flywaydb.experimental.callbacks.CallbackManager;
+import org.flywaydb.nc.callbacks.CallbackManager;
 import org.flywaydb.verb.preparation.PreparationContext;
 
 public class CleanVerbExtension implements VerbExtension {
@@ -44,14 +44,16 @@ public class CleanVerbExtension implements VerbExtension {
     @Override
     public Object executeVerb(final Configuration configuration) {
         if (configuration.isCleanDisabled()) {
-            throw new FlywayException("Unable to execute clean as it has been disabled with the 'flyway.cleanDisabled' property.");
+            throw new FlywayException(
+                "Unable to execute clean as it has been disabled with the 'flyway.cleanDisabled' property.");
         }
-        
+
         final PreparationContext context = PreparationContext.get(configuration);
 
         final ExperimentalDatabase database = context.getDatabase();
 
-        final CallbackManager callbackManager = new CallbackManager(context.getResources(), configuration.isSkipDefaultCallbacks());
+        final CallbackManager callbackManager = new CallbackManager(context.getResources(),
+            configuration.isSkipDefaultCallbacks());
 
         callbackManager.handleEvent(Event.BEFORE_CLEAN, database, configuration, context.getParsingContext());
 
@@ -62,7 +64,8 @@ public class CleanVerbExtension implements VerbExtension {
         }
         final List<String> flywayCreatedSchemas = getFlywayCreatedSchemas(context, database, schemas);
 
-        final CleanResult cleanResult = new CleanResult(VersionPrinter.getVersion(), database.getDatabaseMetaData().databaseName());
+        final CleanResult cleanResult = new CleanResult(VersionPrinter.getVersion(),
+            database.getDatabaseMetaData().databaseName());
         cleanResult.operation = "clean";
 
         try {
@@ -83,8 +86,7 @@ public class CleanVerbExtension implements VerbExtension {
         return context.getSchemaHistoryModel()
             .getSchemaHistoryItems()
             .stream()
-            .filter(x -> Objects.equals(x.getType(),
-                CoreMigrationType.SCHEMA.name()))
+            .filter(x -> Objects.equals(x.getType(), CoreMigrationType.SCHEMA.name()))
             .map(SchemaHistoryItem::getScript)
             .flatMap(x -> Arrays.stream(x.split(",")))
             .map(x -> x.replaceAll(database.getOpenQuote(), ""))

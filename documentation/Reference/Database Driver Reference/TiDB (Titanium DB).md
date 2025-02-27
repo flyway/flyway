@@ -1,7 +1,7 @@
 ---
 subtitle: TiDB
 ---
-# TiDB (Titanium DB)
+
 - **Verified Versions:** 5.0
 - **Maintainer:** {% include community-db.html %}
 

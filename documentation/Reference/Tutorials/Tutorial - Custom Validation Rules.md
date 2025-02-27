@@ -2,8 +2,6 @@
 subtitle: 'Tutorial: Custom Validation Rules'
 ---
 
-# Tutorial: Custom Validation Rules
-
 {% include teams.html %}
 
 This brief tutorial will teach you **how to customize your validation rules**.

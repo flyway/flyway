@@ -2,7 +2,6 @@
 subtitle: Community Plugins and Integrations
 redirect_from: Usage/Community Plugins and Integrations/
 ---
-# Community Plugins and Integrations
 
 Flyway comes out of the box with integrations for [Maven](Usage/Maven Goal), [Gradle](usage/Gradle Task)
 and [Docker](Usage/Command Line).

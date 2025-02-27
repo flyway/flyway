@@ -1,7 +1,7 @@
 ---
 subtitle: SQLite
 ---
-# SQLite
+
 - **Verified Versions:** 3.0, 3.7
 - **Maintainer:** {% include redgate-badge.html %}
 

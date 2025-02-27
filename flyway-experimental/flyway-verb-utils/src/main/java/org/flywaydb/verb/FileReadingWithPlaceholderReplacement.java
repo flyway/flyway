@@ -30,7 +30,7 @@ import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.parser.PlaceholderReplacingReader;
 
 public class FileReadingWithPlaceholderReplacement {
-    public static String readFile(Configuration configuration, ParsingContext parsingContext, String physicalLocation){
+    public static String readFile(Configuration configuration, ParsingContext parsingContext, String physicalLocation) {
         try {
             final PlaceholderReplacingReader reader = PlaceholderReplacingReader.create(configuration,
                 parsingContext,
@@ -41,6 +41,5 @@ public class FileReadingWithPlaceholderReplacement {
         } catch (IOException e) {
             throw new FlywayException(e);
         }
-        
     }
 }

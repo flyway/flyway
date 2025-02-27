@@ -4,7 +4,6 @@ redirect_from:
 - Usage/Community Plugins and Integrations/ant/
 - /documentation/ant/
 ---
-# Community Plugins and Integrations: Ant
 
 <img src="/download/attachments/183306238/ant.svg" height="80">
 

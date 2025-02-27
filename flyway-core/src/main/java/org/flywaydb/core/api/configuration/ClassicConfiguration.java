@@ -1262,7 +1262,7 @@ public class ClassicConfiguration implements Configuration {
             return null;
         }
 
-        return patternsStub.getMigrationPatterns();
+        return patternsStub.getMigrationPatterns(this);
     }
 
     @Override
@@ -1430,7 +1430,7 @@ public class ClassicConfiguration implements Configuration {
     }
 
     public void setProvisionMode(ProvisionerMode provisionerMode) {
-        getModernFlyway().setProvisionMode(provisionerMode.toString());
+        getModernFlyway().setProvisionMode(provisionerMode.getValue());
     }
 
     // Backwards compatible alias for provisionMode

@@ -2,8 +2,6 @@
 subtitle: 'Tutorial: Integrating Google Cloud Secret Manager'
 ---
 
-# Tutorial: Integrating Google Cloud Secret Manager
-
 {% include enterprise.html %}
 
 This brief tutorial will teach you **how to integrate Google Cloud Secret Manager into your Flyway process**.

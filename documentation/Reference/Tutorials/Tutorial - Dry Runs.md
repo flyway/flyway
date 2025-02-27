@@ -4,7 +4,7 @@ redirect_from:
 - /getStarted/dryruns/
 - Tutorials/Tutorial Dry Runs/
 ---
-# Tutorial: Dry Runs
+
 {% include teams.html %}
 
 This tutorial assumes you have successfully completed the **{% include quickstart-cli.html %}**

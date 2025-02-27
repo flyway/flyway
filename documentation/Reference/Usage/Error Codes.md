@@ -2,8 +2,6 @@
 subtitle: Error Codes
 ---
 
-# Error Codes
-
 When Flyway commands fail, they throw an exception with a message to help you identify the problem. They also contain an error code which users of the API or those who have enabled machine readable output can inspect and handle accordingly. Below are details of each error code under the command that causes it along with a suggested solution.
 
 ## General Error Codes

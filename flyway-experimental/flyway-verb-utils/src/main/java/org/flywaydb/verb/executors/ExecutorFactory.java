@@ -25,11 +25,12 @@ import org.flywaydb.core.experimental.ConnectionType;
 import org.flywaydb.core.experimental.ExperimentalDatabase;
 
 public class ExecutorFactory {
-    public static <T> Executor<T> getExecutor (
-        final ExperimentalDatabase experimentalDatabase,
+    public static <T> Executor<T> getExecutor(final ExperimentalDatabase experimentalDatabase,
         final Configuration configuration) {
         final ConnectionType connectionType = experimentalDatabase.getDatabaseMetaData().connectionType();
-        return configuration.getPluginRegister().getLicensedPlugins(Executor.class, configuration).stream()
+        return configuration.getPluginRegister()
+            .getLicensedPlugins(Executor.class, configuration)
+            .stream()
             .filter(x -> x.canExecute(connectionType))
             .map(x -> (Executor<T>) x)
             .findFirst()

@@ -9,12 +9,28 @@
 <div class="col-md-9">
 
   <div class="release">
+        <h2 id="11.3.4">Flyway 11.3.4 (2025-02-27)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fixed an issue where Flyway incorrectly examined an unused permit on disk and gave a misleading warning message</li>
+            <li>fixed an issue where check filterFile was not being used for check actions</li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>shouldExecute expressions are validated before being evaluated</li>
+        </ul>
+
+    </div>
+
+<div class="release">
         <h2 id="11.3.3">Flyway 11.3.3 (2025-02-19)</h2>
 
         <h3>Bug fixes</h3>
         <ul>
             <li>Fixed missing Oracle Wallet dependencies after upgrading to ojdbc11</li>
-            <li>fixed an issue where clean, backup & snapshot provisioners would not use configured properties from the flyway namespace. This fixes an issue where script callbacks would not be called for the subset of flyway operations directly caused by these provisioners running.</li>
+            <li>fixed an issue where clean, backup and snapshot provisioners would not use configured properties from the flyway namespace. This fixes an issue where script callbacks would not be called for the subset of flyway operations directly caused by these provisioners running.</li>
             <li>Fixes issue where specifying an empty cherry pick list to the diff build database property would be treated as if cherry pick was not specified. This fixes an issue seen in the check reports when deploying to an empty target for the first time.</li>
         </ul>
 

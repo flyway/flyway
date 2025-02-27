@@ -25,11 +25,12 @@ import org.flywaydb.core.experimental.ConnectionType;
 import org.flywaydb.core.experimental.ExperimentalDatabase;
 
 public class ReaderFactory {
-    public static <T> Reader<T> getReader(
-        final ExperimentalDatabase experimentalDatabase,
+    public static <T> Reader<T> getReader(final ExperimentalDatabase experimentalDatabase,
         final Configuration configuration) {
         final ConnectionType connectionType = experimentalDatabase.getDatabaseMetaData().connectionType();
-        return configuration.getPluginRegister().getLicensedPlugins(Reader.class, configuration).stream()
+        return configuration.getPluginRegister()
+            .getLicensedPlugins(Reader.class, configuration)
+            .stream()
             .filter(x -> x.canRead(connectionType))
             .map(x -> (Reader<T>) x)
             .findFirst()

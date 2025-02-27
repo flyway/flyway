@@ -31,16 +31,17 @@ public class VersionOrderMigrationComparator implements ExperimentalMigrationCom
     public int getPriority(final Configuration configuration) {
         return 0;
     }
-    
+
     // States in order - highest number goes to the end of the list
-    private static final Map<MigrationState, Integer> STATE_ORDER = Map.of(
-        MigrationState.IGNORED, 3,
-        MigrationState.PENDING, 2,
-        MigrationState.AVAILABLE, 1);
-                                                                          
+    private static final Map<MigrationState, Integer> STATE_ORDER = Map.of(MigrationState.IGNORED,
+        3,
+        MigrationState.PENDING,
+        2,
+        MigrationState.AVAILABLE,
+        1);
 
     @Override
-    public Comparator<MigrationInfo> getComparator(final Configuration configuration) {        
+    public Comparator<MigrationInfo> getComparator(final Configuration configuration) {
         return (o1, o2) -> {
 
             final boolean o1BaselineOrdering = o1.getState() == MigrationState.BELOW_BASELINE
@@ -49,7 +50,7 @@ public class VersionOrderMigrationComparator implements ExperimentalMigrationCom
             final boolean o2BaselineOrdering = o2.getState() == MigrationState.BELOW_BASELINE
                 || o2.getState() == MigrationState.BASELINE_IGNORED
                 || o2.getState() == MigrationState.BASELINE;
-            if(o1BaselineOrdering && o2BaselineOrdering) {
+            if (o1BaselineOrdering && o2BaselineOrdering) {
                 if (o1.getState() == o2.getState()) {
                     return o1.getVersion().compareTo(o2.getVersion());
                 }
@@ -57,49 +58,47 @@ public class VersionOrderMigrationComparator implements ExperimentalMigrationCom
             }
 
             if (((o1.getState() == MigrationState.BELOW_BASELINE || o1.getState() == MigrationState.BASELINE_IGNORED)
-                    && o2.getState() == MigrationState.SUCCESS) ||
-                ((o2.getState() == MigrationState.BELOW_BASELINE || o2.getState() == MigrationState.BASELINE_IGNORED)
-                    && o1.getState() == MigrationState.SUCCESS)) {
+                && o2.getState() == MigrationState.SUCCESS) || ((o2.getState() == MigrationState.BELOW_BASELINE
+                || o2.getState() == MigrationState.BASELINE_IGNORED) && o1.getState() == MigrationState.SUCCESS)) {
                 return o1.getState().compareTo(o2.getState());
             }
 
-            if((o1.getState() == MigrationState.ABOVE_TARGET && o2.getState() == MigrationState.SUCCESS) ||
-                (o2.getState() == MigrationState.ABOVE_TARGET && o1.getState() == MigrationState.SUCCESS)) {
+            if ((o1.getState() == MigrationState.ABOVE_TARGET && o2.getState() == MigrationState.SUCCESS)
+                || (o2.getState() == MigrationState.ABOVE_TARGET && o1.getState() == MigrationState.SUCCESS)) {
                 return o2.getState().compareTo(o1.getState());
             }
 
             if (o1.isApplied() && o2.isApplied()) {
                 return Integer.compare(o1.getInstalledRank(), o2.getInstalledRank());
             }
-            
+
             if (STATE_ORDER.containsKey(o1.getState()) && STATE_ORDER.containsKey(o2.getState())) {
-                if(o1.getState() != o2.getState()) {
+                if (o1.getState() != o2.getState()) {
                     return STATE_ORDER.get(o1.getState()).compareTo(STATE_ORDER.get(o2.getState()));
                 }
                 if (o1.isVersioned() && o2.isVersioned()) {
                     return o1.getVersion().compareTo(o2.getVersion());
-                }else if (o1.isRepeatable() && o2.isRepeatable()) {
+                } else if (o1.isRepeatable() && o2.isRepeatable()) {
                     return o1.getDescription().compareTo(o2.getDescription());
                 } else {
                     return o1.getVersion() != null ? -1 : 1;
                 }
             }
-            
+
             if (STATE_ORDER.containsKey(o1.getState())) {
                 return 1;
             }
             if (STATE_ORDER.containsKey(o2.getState())) {
                 return -1;
-            }    
-//            return o1.getVersion().compareTo(o2.getVersion());
-            
+            }
+            //            return o1.getVersion().compareTo(o2.getVersion());
 
             if (o1.isRepeatable() && o2.isRepeatable()) {
                 return o1.getDescription().compareTo(o2.getDescription());
             }
 
             return o1.getVersion() != null ? -1 : 1;
-        };        
+        };
     }
 
     @Override

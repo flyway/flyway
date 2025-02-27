@@ -2,8 +2,6 @@
 subtitle: Oracle
 ---
 
-# Oracle
-
 - **Verified Versions:** 11.1, 21
 - **Maintainer:** {% include redgate-badge.html %}
 

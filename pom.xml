@@ -14,7 +14,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>11.3.3</version>
+    <version>11.3.4</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -56,6 +56,7 @@
         <module>flyway-database</module>
         <module>flyway-experimental</module>
         <module>flyway-reports</module>
+        <module>flyway-nc</module>
 
 
 
@@ -141,6 +142,7 @@
 
     <properties>
         <version.ant>1.10.13</version.ant>
+        <version.antlr>4.13.2</version.antlr>
         <version.appinsights>3.4.7</version.appinsights>
         <version.aws-java-sdk>2.30.18</version.aws-java-sdk> <!-- TODO: revert back to range once nexus is better -->
         <version.aws-secretsmanager>2.0.2</version.aws-secretsmanager>
@@ -510,6 +512,11 @@
                 <groupId>io.netty</groupId>
                 <artifactId>netty-common</artifactId>
                 <version>${version.netty}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-runtime</artifactId>
+                <version>${version.antlr}</version>
             </dependency>
 
 
@@ -978,6 +985,28 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-maven-plugin</artifactId>
+                <version>${version.antlr}</version>
+                <executions>
+                    <execution>
+                        <id>generate-antlr-sources</id>
+                        <!-- Generation of sources is triggered manually when required with the command:
+                             mvn -f flyway-core/pom.xml antlr4:antlr4@generate-antlr-sources -->
+                        <phase>none</phase>
+                        <goals>
+                            <goal>antlr4</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <visitor>true</visitor>
+                    <listener>false</listener>
+                    <sourceDirectory>${project.basedir}/src/main/antlr4</sourceDirectory>
+                    <outputDirectory>${project.basedir}/src/main/java</outputDirectory>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.projectlombok</groupId>

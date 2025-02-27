@@ -16,8 +16,8 @@ if __name__ == "__main__":
     
     images = [f'{edition}/flyway:{version}']
     if not linux_only:
-        images.append(f'{edition}/flyway:{version}-azure')
         images.append(f'{edition}/flyway:{version}-alpine')
+        images.append(f'{edition}/flyway:{version}-azure')
     
     if edition == "flyway":
         images[0] = build_non_multi_arch_standard_flyway_image(version)

@@ -2,8 +2,6 @@
 subtitle: Google Cloud Spanner
 ---
 
-# Google Cloud Spanner
-
 - **Verified Versions:** Latest
 - **Maintainer:** {% include redgate-badge.html %}
 

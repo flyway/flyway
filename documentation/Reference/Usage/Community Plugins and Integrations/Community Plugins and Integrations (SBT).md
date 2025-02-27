@@ -4,7 +4,6 @@ redirect_from:
 - Usage/Community Plugins and Integrations/sbt/
 - Getting Started/firststeps/sbt/
 ---
-# Community Plugins and Integrations: SBT
 
 <img src="/download/attachments/183306238/sbt.svg" height="80">
 

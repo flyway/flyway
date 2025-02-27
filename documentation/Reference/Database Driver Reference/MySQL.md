@@ -1,7 +1,6 @@
 ---
 subtitle: MySQL
 ---
-# MySQL
 
  - **Verified Versions:** 5.7, 8.0, 8.1
  - **Maintainer:** {% include redgate-badge.html %}

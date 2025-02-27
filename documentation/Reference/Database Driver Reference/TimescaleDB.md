@@ -1,7 +1,7 @@
 ---
 subtitle: TimescaleDB
 ---
-# TimescaleDB
+
 - **Verified Versions:** 11, 12
 - **Maintainer:** {% include community-db.html %}
 

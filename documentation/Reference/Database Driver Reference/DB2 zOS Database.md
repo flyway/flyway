@@ -1,7 +1,7 @@
 ---
 subtitle: DB2 z/OS
 ---
-# DB2 z/OS
+
 - **Verified Versions:** N/A
 - **Maintainer:** {% include community-db.html %}
 

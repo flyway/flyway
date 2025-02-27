@@ -2,7 +2,6 @@
 pill: hooks
 subtitle: API hooks
 ---
-# API: hooks
 
 There are three ways you can hook into the Flyway API.
 

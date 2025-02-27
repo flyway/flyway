@@ -37,14 +37,15 @@ public class ExperimentalMigrationInfoImpl implements LoadableMigrationInfo {
     private final Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata> migration;
     private final MigrationState migrationState;
 
-    public ExperimentalMigrationInfoImpl(final Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata> migration, MigrationState migrationState) {
+    public ExperimentalMigrationInfoImpl(final Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata> migration,
+        MigrationState migrationState) {
         this.migration = migration;
         this.migrationState = migrationState;
     }
 
     @Override
     public MigrationType getType() {
-        if(migration.getLeft() != null) {
+        if (migration.getLeft() != null) {
             return migration.getLeft().getType();
         }
         return migration.getRight().migrationType();
@@ -52,7 +53,7 @@ public class ExperimentalMigrationInfoImpl implements LoadableMigrationInfo {
 
     @Override
     public Integer getChecksum() {
-        if(migration.getLeft() != null) {
+        if (migration.getLeft() != null) {
             return migration.getLeft().getChecksum();
         }
         return migration.getRight().checksum();
@@ -60,7 +61,7 @@ public class ExperimentalMigrationInfoImpl implements LoadableMigrationInfo {
 
     @Override
     public MigrationVersion getVersion() {
-        if(migration.getLeft() != null) {
+        if (migration.getLeft() != null) {
             return migration.getLeft().getVersion();
         }
         return migration.getRight().version();
@@ -68,7 +69,7 @@ public class ExperimentalMigrationInfoImpl implements LoadableMigrationInfo {
 
     @Override
     public String getDescription() {
-        if(migration.getLeft() != null) {
+        if (migration.getLeft() != null) {
             return migration.getLeft().getDescription();
         }
         return migration.getRight().description();
@@ -76,7 +77,7 @@ public class ExperimentalMigrationInfoImpl implements LoadableMigrationInfo {
 
     @Override
     public String getScript() {
-        if(migration.getLeft() != null) {
+        if (migration.getLeft() != null) {
             return migration.getLeft().getScript();
         }
         return migration.getRight().loadableResource().getFilename();
@@ -89,8 +90,8 @@ public class ExperimentalMigrationInfoImpl implements LoadableMigrationInfo {
 
     @Override
     public Date getInstalledOn() {
-        if(migration.getLeft() != null) {
-            return  Date.from(migration.getLeft().getInstalledOn().atZone(ZoneId.systemDefault()).toInstant());
+        if (migration.getLeft() != null) {
+            return Date.from(migration.getLeft().getInstalledOn().atZone(ZoneId.systemDefault()).toInstant());
         }
         return null;
     }
@@ -139,7 +140,7 @@ public class ExperimentalMigrationInfoImpl implements LoadableMigrationInfo {
 
     @Override
     public boolean isShouldExecute() {
-        if(migration.getRight() != null && migration.getRight().sqlScriptMetadata() != null){
+        if (migration.getRight() != null && migration.getRight().sqlScriptMetadata() != null) {
             return migration.getRight().sqlScriptMetadata().shouldExecute();
         }
         return true;
@@ -147,7 +148,7 @@ public class ExperimentalMigrationInfoImpl implements LoadableMigrationInfo {
 
     @Override
     public Boolean isPlaceholderReplacement() {
-        if(migration.getRight() != null && migration.getRight().sqlScriptMetadata() != null){
+        if (migration.getRight() != null && migration.getRight().sqlScriptMetadata() != null) {
             return migration.getRight().sqlScriptMetadata().placeholderReplacement();
         }
         return null;
@@ -193,7 +194,7 @@ public class ExperimentalMigrationInfoImpl implements LoadableMigrationInfo {
 
     @Override
     public SqlScriptMetadata getSqlScriptMetadata() {
-        if(migration.getRight() != null) {
+        if (migration.getRight() != null) {
             return migration.getRight().sqlScriptMetadata();
         }
         return null;

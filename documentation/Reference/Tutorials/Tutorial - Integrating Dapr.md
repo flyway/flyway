@@ -2,8 +2,6 @@
 subtitle: 'Tutorial: Integrating Dapr'
 ---
 
-# Tutorial: Integrating Dapr
-
 {% include enterprise.html %}
 
 This brief tutorial will teach you **how to integrate Dapr into your Flyway process**.

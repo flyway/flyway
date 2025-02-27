@@ -1,7 +1,7 @@
 ---
 subtitle: Informix
 ---
-# Informix
+
 - **Verified Versions:** 12.10
 - **Maintainer:** {% include redgate-badge.html %}
 

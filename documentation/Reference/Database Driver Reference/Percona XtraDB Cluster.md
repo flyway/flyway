@@ -1,7 +1,7 @@
 ---
 subtitle: Percona XtraDB Cluster
 ---
-# Percona XtraDB Cluster
+
 - **Verified Versions:** 5.7, 8.0
 - **Maintainer:** {% include redgate-badge.html %}
 

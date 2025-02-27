@@ -1,7 +1,7 @@
 ---
 subtitle: Firebird
 ---
-# Firebird
+
 - **Verified Versions:** 3.0, 4.0
 - **Maintainer:** {% include redgate-badge.html %}
 

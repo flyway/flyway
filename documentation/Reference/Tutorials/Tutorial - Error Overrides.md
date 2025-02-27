@@ -5,7 +5,7 @@ redirect_from:
 - Getting Started/errorhandlers/
 - Tutorials/Tutorial Error Overrides/
 ---
-# Tutorial: Error Overrides
+
 {% include teams.html %}
 
 This tutorial assumes you have successfully completed the **{% include quickstart-maven.html %}**

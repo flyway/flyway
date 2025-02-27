@@ -2,8 +2,6 @@
 subtitle: 'Tutorial: Injecting Environments'
 ---
 
-# Tutorial: Injecting Environments
-
 {% include teams.html %}
 
 This brief tutorial will teach you **how to inject environments for your migrations to execute against**.

@@ -1,7 +1,7 @@
 ---
 subtitle: YugabyteDB
 ---
-# YugabyteDB
+
 - **Verified Versions:** 2.20, 2024.1, 2.21
 - **Maintainer:** {% include community-db.html %}
 

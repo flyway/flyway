@@ -2,7 +2,6 @@
 subtitle: 'Play'
 redirect_from: Usage/Community Plugins and Integrations/play/
 ---
-# Community Plugins and Integrations: Play
 
 <img src="assets/play.png" style="margin-bottom: 20px">
 

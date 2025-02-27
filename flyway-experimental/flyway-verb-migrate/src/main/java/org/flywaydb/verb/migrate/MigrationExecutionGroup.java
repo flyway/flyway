@@ -22,4 +22,4 @@ package org.flywaydb.verb.migrate;
 import java.util.List;
 import org.flywaydb.core.api.MigrationInfo;
 
-public record MigrationExecutionGroup(List<MigrationInfo> migrations, boolean shouldExecuteInTransaction){}
+public record MigrationExecutionGroup(List<MigrationInfo> migrations, boolean shouldExecuteInTransaction) {}

@@ -1,7 +1,7 @@
 ---
 subtitle: Sybase ASE
 ---
-# Sybase ASE
+
 - **Verified Versions:** 15.7, 16.3
 - **Maintainer:** {% include redgate-badge.html %}
 
