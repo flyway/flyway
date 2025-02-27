@@ -64,25 +64,22 @@ public class PostgreSQLDatabaseType extends BaseDatabaseType {
     public boolean handlesJDBCUrl(String url) {
         if (url.startsWith("jdbc-secretsmanager:postgresql:")) {
 
-
-
-
             throw new FlywayEditionUpgradeRequiredException(Tier.ENTERPRISE, (Tier) null, "jdbc-secretsmanager");
 
         }
-        return url.startsWith("jdbc:postgresql:") || url.startsWith("jdbc:p6spy:postgresql:");
+        return url.startsWith("jdbc:postgresql:") || url.startsWith("jdbc:p6spy:postgresql:") ||
+            url.startsWith("jdbc:aws-wrapper:postgresql");
     }
 
     @Override
     public String getDriverClass(String url, ClassLoader classLoader) {
 
-
-
-
-
         if (url.startsWith("jdbc:p6spy:postgresql:")) {
             return "com.p6spy.engine.spy.P6SpyDriver";
         }
+        if (url.startsWith("jdbc:aws-wrapper:postgresql")) {
+            return "software.amazon.jdbc.Driver";
+        } 
         return "org.postgresql.Driver";
     }
 
