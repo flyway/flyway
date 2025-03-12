@@ -39,7 +39,7 @@ import org.flywaydb.core.internal.util.TimeFormat;
 /**
  * Interface to define new experimental database plugins.
  */
-public interface ExperimentalDatabase extends Plugin, AutoCloseable  {
+public sealed interface ExperimentalDatabase extends Plugin, AutoCloseable permits AbstractExperimentalDatabase {
     Log LOG = org.flywaydb.core.api.logging.LogFactory.getLog(ExperimentalDatabase.class);
     String APPLICATION_NAME = "Flyway by Redgate";
 
@@ -141,7 +141,14 @@ public interface ExperimentalDatabase extends Plugin, AutoCloseable  {
      * Checks if all schemas are empty.
      * @return True if all schemas are empty, false otherwise.
      */
-    Boolean allSchemasEmpty(String[] schemas);
+    default Boolean allSchemasEmpty(String[] schemas) {
+        for (String schema: schemas) {
+            if (!isSchemaEmpty(schema)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     boolean isSchemaEmpty(String schema);
 

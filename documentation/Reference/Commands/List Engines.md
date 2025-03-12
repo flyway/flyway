@@ -23,3 +23,9 @@ To list all databases supported by Flyway in a JSON format:
 ```bash
 ./flyway list-engines -outputType=json
 ```
+
+
+## Error codes
+
+This command can produce the following error codes:
+- [Generic error codes](<Exit codes and error codes/General error codes>)

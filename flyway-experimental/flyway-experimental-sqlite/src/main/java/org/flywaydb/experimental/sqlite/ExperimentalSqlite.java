@@ -79,47 +79,13 @@ public class ExperimentalSqlite extends ExperimentalJdbc {
             ? environment.getConnectRetriesInterval()
             : 0;
         connection = JdbcUtils.openConnection(dataSource, connectRetries, connectRetriesInterval);
+        currentSchema = getDefaultSchema(configuration);
         metaData = getDatabaseMetaData();
     }
 
     @Override
     public BiFunction<Configuration, ParsingContext, Parser> getParser() {
         return SQLiteParser::new;
-    }
-
-    @Override
-    public MetaData getDatabaseMetaData() {
-        if (this.metaData != null) {
-            return metaData;
-        }
-
-        final DatabaseMetaData databaseMetaData = JdbcUtils.getDatabaseMetaData(connection);
-        final String databaseProductName = JdbcUtils.getDatabaseProductName(databaseMetaData);
-        final String databaseProductVersion = JdbcUtils.getDatabaseProductVersion(databaseMetaData);
-        return new MetaData(databaseProductName, databaseProductVersion, ConnectionType.JDBC, null);
-    }
-
-    @Override
-    public void createSchemaHistoryTable(final String tableName) {
-        try (final Statement statement = connection.createStatement()) {
-            final String createSql = "CREATE TABLE \""
-                + tableName
-                + "\" (\n"
-                + "    \"installed_rank\" INT NOT NULL PRIMARY KEY,\n"
-                + "    \"version\" VARCHAR(50),\n"
-                + "    \"description\" VARCHAR(200) NOT NULL,\n"
-                + "    \"type\" VARCHAR(20) NOT NULL,\n"
-                + "    \"script\" VARCHAR(1000) NOT NULL,\n"
-                + "    \"checksum\" INT,\n"
-                + "    \"installed_by\" VARCHAR(100) NOT NULL,\n"
-                + "    \"installed_on\" TEXT NOT NULL DEFAULT (strftime('%Y-%m-%d %H:%M:%f','now')),\n"
-                + "    \"execution_time\" INT NOT NULL,\n"
-                + "    \"success\" BOOLEAN NOT NULL\n"
-                + ");\n";
-            statement.executeUpdate(createSql);
-        } catch (SQLException e) {
-            throw new FlywayException(e);
-        }
     }
 
     @Override
@@ -131,90 +97,6 @@ public class ExperimentalSqlite extends ExperimentalJdbc {
         } catch (final SQLException e) {
             throw new FlywayException(e);
         }
-    }
-
-    @Override
-    public SchemaHistoryModel getSchemaHistoryModel(final String tableName) {
-        try (final Statement statement = connection.createStatement()) {
-            final String querySql = "SELECT installed_rank"
-                + ", version"
-                + ", description"
-                + ", type"
-                + ", script"
-                + ", checksum"
-                + ", installed_on"
-                + ", installed_by"
-                + ", execution_time"
-                + ", success"
-                + " FROM \""
-                + tableName
-                + "\""
-                + " WHERE installed_rank > 0"
-                + " ORDER BY installed_rank";
-            final ResultSet resultSet = statement.executeQuery(querySql);
-            final ArrayList<SchemaHistoryItem> items = new ArrayList<>();
-            while (resultSet.next()) {
-                items.add(SchemaHistoryItem.builder()
-                    .installedRank(resultSet.getInt("installed_rank"))
-                    .version(resultSet.getString("version"))
-                    .description(resultSet.getString("description"))
-                    .type(resultSet.getString("type"))
-                    .script(resultSet.getString("script"))
-                    .checksum(resultSet.getInt("checksum"))
-                    .installedOn(resultSet.getTimestamp("installed_on").toLocalDateTime())
-                    .installedBy(resultSet.getString("installed_by"))
-                    .executionTime(resultSet.getInt("execution_time"))
-                    .success(resultSet.getBoolean("success"))
-                    .build());
-            }
-            return new SchemaHistoryModel(items);
-        } catch (final SQLException e) {
-            return new SchemaHistoryModel();
-        }
-    }
-
-    @Override
-    public void appendSchemaHistoryItem(final SchemaHistoryItem item, final String tableName) {
-        try (final Statement statement = connection.createStatement()) {
-            final StringBuilder insertSql = new StringBuilder().append("INSERT INTO \"")
-                .append(tableName)
-                .append("\" (installed_rank, ")
-                .append(item.getVersion() == null ? "" : "version,")
-                .append(" description, type, script, checksum, installed_by, execution_time, success) VALUES (")
-                .append(item.getInstalledRank())
-                .append(", ");
-            if (item.getVersion() != null) {
-                insertSql.append("'").append(item.getVersion()).append("', ");
-            }
-            insertSql.append("'")
-                .append(item.getDescription())
-                .append("', ")
-                .append("'")
-                .append(item.getType())
-                .append("', ")
-                .append("'")
-                .append(item.getScript())
-                .append("', ")
-                .append(item.getChecksum())
-                .append(", ")
-                .append("'")
-                .append(item.getInstalledBy() == null ? "" : item.getInstalledBy())
-                .append("', ")
-                .append(item.getExecutionTime())
-                .append(", ")
-                .append(item.isSuccess())
-                .append(")");
-            statement.execute(insertSql.toString());
-        } catch (SQLException e) {
-            throw new FlywayException(e);
-        }
-    }
-
-
-
-    @Override
-    public String getCurrentSchema() {
-        return "main";
     }
 
     @Override
@@ -325,44 +207,5 @@ public class ExperimentalSqlite extends ExperimentalJdbc {
     @Override
     public void doDropSchema(final String schema) {
 
-    }
-
-    @Override
-    public void removeFailedSchemaHistoryItems(final String tableName) {
-        try {
-            try (final Statement statement = connection.createStatement()) {
-                statement.execute("DELETE FROM " + quote(tableName) + " WHERE " + quote("success") + " = 0");
-            }
-        } catch (SQLException e) {
-            throw new FlywayException(e);
-        }
-    }
-
-    @Override
-    public void updateSchemaHistoryItem(final SchemaHistoryItem item, final String tableName) {
-        try {
-            final String sql = new StringBuilder().append("UPDATE ")
-                .append(quote(tableName))
-                .append(" SET ")
-                .append(quote("description"))
-                .append("=? , ")
-                .append(quote("type"))
-                .append("=? , ")
-                .append(quote("checksum"))
-                .append("=?")
-                .append(" WHERE ")
-                .append(quote("installed_rank"))
-                .append("=?")
-                .toString();
-            try (final PreparedStatement statement = connection.prepareStatement(sql)) {
-                statement.setString(1, item.getDescription());
-                statement.setString(2, item.getType());
-                statement.setInt(3, item.getChecksum());
-                statement.setInt(4, item.getInstalledRank());
-                statement.execute();
-            }
-        } catch (SQLException e) {
-            throw new FlywayException(e);
-        }
     }
 }

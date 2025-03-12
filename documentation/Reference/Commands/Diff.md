@@ -198,3 +198,9 @@ When the source or target is `migrations` is used, settings from the following s
   }
 }
 ```
+
+## Error codes
+
+This command can produce the following error codes:
+- [Generic error codes](<Exit codes and error codes/General error codes>)
+- [Comparison error codes](<Exit codes and error codes/Comparison error codes>)

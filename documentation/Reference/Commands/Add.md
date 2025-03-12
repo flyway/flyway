@@ -100,3 +100,8 @@ For example, the following command would open the next migration script in the `
 | [`timestamp`](<Configuration/Flyway Namespace/Flyway Add Namespace/Flyway Add Timestamp Setting>)     | add       | Add a timestamp to the calculated version if one is not already present.       |
 
 Universal commandline parameters are listed [here](<Command-line Parameters>).
+
+## Error codes
+
+This command can produce the following error codes:
+- [Generic error codes](<Exit codes and error codes/General error codes>)

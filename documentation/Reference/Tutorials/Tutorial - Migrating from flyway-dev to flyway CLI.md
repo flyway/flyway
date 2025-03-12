@@ -80,7 +80,7 @@ will display the differences from the specified artifact file:
 flyway-dev show -p=C:\Users\redgate\Documents\TestFdCmdLine -a=C:\Users\redgate\Documents\TestFdCmdLine\Temp\artifact1 --i-agree-to-the-eula
 ```
 
-Flyway CLI has a [diffText](<Commands/DiffText>) command which performs the same action, and
+Flyway CLI has a [diffText](<Commands/Diff Text>) command which performs the same action, and
 is invoked in a similar way:
 
 ```

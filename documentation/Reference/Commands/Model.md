@@ -39,3 +39,10 @@ Universal commandline parameters are listed [here](<Command-line Parameters>).
   "filesChanged" : [ "C:\\Users\\Project\\schema-model\\MySchema\\Tables\\country.rgm" ]
 }
 ```
+
+
+## Error codes
+
+This command can produce the following error codes:
+- [Generic error codes](<Exit codes and error codes/General error codes>)
+- [Comparison error codes](<Exit codes and error codes/Comparison error codes>)

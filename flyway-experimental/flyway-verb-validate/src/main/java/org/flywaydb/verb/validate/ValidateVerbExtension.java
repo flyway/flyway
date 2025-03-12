@@ -41,8 +41,8 @@ import org.flywaydb.core.internal.util.TimeFormat;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.ValidatePatternUtils;
 import org.flywaydb.nc.callbacks.CallbackManager;
-import org.flywaydb.verb.VerbUtils;
-import org.flywaydb.verb.preparation.PreparationContext;
+import org.flywaydb.nc.VerbUtils;
+import org.flywaydb.nc.preparation.PreparationContext;
 
 @CustomLog
 public class ValidateVerbExtension implements VerbExtension {
@@ -61,8 +61,7 @@ public class ValidateVerbExtension implements VerbExtension {
 
         final ExperimentalDatabase database = context.getDatabase();
 
-        final CallbackManager callbackManager = new CallbackManager(context.getResources(),
-            configuration.isSkipDefaultCallbacks());
+        final CallbackManager callbackManager = new CallbackManager(configuration, context.getResources());
 
         callbackManager.handleEvent(Event.BEFORE_VALIDATE, database, configuration, context.getParsingContext());
 

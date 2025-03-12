@@ -55,3 +55,8 @@ All parameters are optional, although a target environment must be configured or
   "operation": "baseline"
 }
 ```
+
+## Error codes
+
+This command can produce the following error codes:
+- [Generic error codes](<Exit codes and error codes/General error codes>)

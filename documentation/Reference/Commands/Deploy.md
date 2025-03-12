@@ -52,3 +52,8 @@ Universal commandline parameters are listed [here](<Command-line Parameters>).
   "database": "production"
 }
 ```
+
+## Error codes
+
+This command can produce the following error codes:
+- [Generic error codes](<Exit codes and error codes/General error codes>)

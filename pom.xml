@@ -14,7 +14,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>11.3.4</version>
+    <version>11.4.0</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -1044,6 +1044,7 @@
                     <passphraseServerId>flyway-gpg</passphraseServerId>
                 </configuration>
             </plugin>
+
 
 
 

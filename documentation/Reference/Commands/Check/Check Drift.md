@@ -120,3 +120,9 @@ When a build environment is used, settings from the following sections of the [F
   ]
  }
 ```
+
+## Error codes
+
+This command can produce the following error codes:
+- [Generic error codes](<Exit codes and error codes/General error codes>)
+- [Check error codes](<Exit codes and error codes/Check error codes>)

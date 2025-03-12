@@ -6,6 +6,6 @@ This namespace contains the configurations relating to PostgreSQL database compa
 
 ## Settings
 
-| Setting                                                                                                                                                                                                  | Type   | Description                                    |
-|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------|------------------------------------------------|
-| [`detectTableAndColumnRenames`](<Configuration/Redgate Compare Namespace/Redgate Compare PostgreSQL Namespace/PostgreSQL Behavior Options Namespace/PostgreSQL Detect Table And Column Renames Setting>) | String | Automatically detect table and column renames. |
+| Setting                                                                                                                                                                   | Type   | Description                           |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------------------------------------- |
+| [`detectRenames`](<Configuration/Redgate Compare Namespace/Redgate Compare PostgreSQL Namespace/PostgreSQL Behavior Options Namespace/PostgreSQL Detect Renames Setting>) | String | Automatically detect renamed objects. |

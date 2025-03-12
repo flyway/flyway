@@ -19,7 +19,7 @@
  */
 package org.flywaydb.verb.migrate.migrators;
 
-import static org.flywaydb.verb.VerbUtils.toMigrationText;
+import static org.flywaydb.nc.VerbUtils.toMigrationText;
 
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -39,12 +39,12 @@ import org.flywaydb.core.internal.exception.FlywayMigrateException;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.nc.callbacks.CallbackManager;
-import org.flywaydb.verb.ErrorUtils;
-import org.flywaydb.verb.executors.ExecutorFactory;
+import org.flywaydb.nc.ErrorUtils;
+import org.flywaydb.nc.executors.ExecutorFactory;
 import org.flywaydb.verb.migrate.MigrationExecutionGroup;
-import org.flywaydb.verb.executors.Executor;
-import org.flywaydb.verb.readers.Reader;
-import org.flywaydb.verb.readers.ReaderFactory;
+import org.flywaydb.nc.executors.Executor;
+import org.flywaydb.nc.readers.Reader;
+import org.flywaydb.nc.readers.ReaderFactory;
 
 @CustomLog
 public class ExecutableMigrator extends Migrator {

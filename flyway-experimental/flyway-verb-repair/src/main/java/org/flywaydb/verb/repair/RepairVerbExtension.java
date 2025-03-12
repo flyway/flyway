@@ -35,8 +35,8 @@ import org.flywaydb.core.extensibility.VerbExtension;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
-import org.flywaydb.verb.VerbUtils;
-import org.flywaydb.verb.preparation.PreparationContext;
+import org.flywaydb.nc.VerbUtils;
+import org.flywaydb.nc.preparation.PreparationContext;
 
 @CustomLog
 public class RepairVerbExtension implements VerbExtension {

@@ -86,3 +86,9 @@ When the source is `migrations`, settings from the following sections of the [Fl
   "filename": "C:\snapshot.json"
 }
 ```
+
+## Error codes
+
+This command can produce the following error codes:
+- [Generic error codes](<Exit codes and error codes/General error codes>)
+- [Comparison error codes](<Exit codes and error codes/Comparison error codes>)

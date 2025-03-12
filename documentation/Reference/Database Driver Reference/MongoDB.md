@@ -109,7 +109,7 @@ sqlMigrationSuffixes = [".js"]
 
 ### Limitations
 
-- You can't currently do a [Dry-run](https://documentation.red-gate.com/flyway/flyway-concepts/migrations/migration-comand-dry-runs) operation with MongoDB.
+- You can't currently do a [Dry-run](<https://documentation.red-gate.com/fd/migration-command-dry-runs-275218517.html>) operation with MongoDB.
 
 ### Known issues
 
@@ -118,4 +118,13 @@ sqlMigrationSuffixes = [".js"]
 
 ### MongoDB preview feedback
 
-Thank you for testing this preview feature. If you come across any issues or want to contribute other feedback, please either raise an issue on our [github issue tracker](https://github.com/flyway/flyway/issues) or drop us an email at [DatabaseDevOps@red-gate.com](mailto:DatabaseDevOps@red-gate.com)
+Thank you for testing this preview feature. We have a few ways you can get in touch with us to provide feedback:
+#### If you're using the Teams/Enterprise edition
+- [Complete a quick survey](https://redgate.research.net/r/flyway-nc-enterprise)
+- Get in touch with Redgate Support
+
+#### If you're using the OSS/Community edition
+- [Complete a quick survey](https://redgate.research.net/r/flyway-nc-community)
+- Raise an issue on our [github issue tracker](https://github.com/flyway/flyway/issues)
+- Post on [our forum](https://productsupport.red-gate.com/hc/en-us/community/topics/24972415719965-Flyway-General-Discussion) 
+

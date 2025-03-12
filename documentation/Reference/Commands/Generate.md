@@ -173,3 +173,9 @@ Universal commandline parameters are listed [here](<Command-line Parameters>).
   ],
 }
 ```
+
+## Error codes
+
+This command can produce the following error codes:
+- [Generic error codes](<Exit codes and error codes/General error codes>)
+- [Comparison error codes](<Exit codes and error codes/Comparison error codes>)

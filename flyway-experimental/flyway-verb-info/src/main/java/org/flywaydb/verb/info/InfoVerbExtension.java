@@ -23,8 +23,9 @@ import lombok.CustomLog;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.extensibility.VerbExtension;
-import org.flywaydb.verb.VerbUtils;
-import org.flywaydb.verb.preparation.PreparationContext;
+import org.flywaydb.nc.VerbUtils;
+import org.flywaydb.nc.info.ExperimentalMigrationInfoService;
+import org.flywaydb.nc.preparation.PreparationContext;
 
 @CustomLog
 public class InfoVerbExtension implements VerbExtension {

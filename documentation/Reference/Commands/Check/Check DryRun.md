@@ -55,3 +55,8 @@ Other relevant configuration settings are listed [here](<Configuration/Flyway Na
   ]
  }
 ```
+
+## Error codes
+
+This command can produce the following error codes:
+- [Generic error codes](<Exit codes and error codes/General error codes>)

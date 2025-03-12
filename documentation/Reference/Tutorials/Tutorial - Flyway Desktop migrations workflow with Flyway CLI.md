@@ -357,7 +357,7 @@ Generated: C:\Users\Flyway\FlywayProjects\SqlServerProject\migrations\V003_20241
 Generated: C:\Users\Flyway\FlywayProjects\SqlServerProject\migrations\U003_20241210113916__TestTable1.sql
 ```
 
-The diff for each change ID can be viewed using the [diffText](<Usage/Command-line/Command-line - diffText>) command.
+The diff for each change ID can be viewed using the [diffText](<Commands/Diff Text>) command.
 For example, to view the diff for `TestTable3` we can run the following command, which uses the change ID for
 `TestTable3`:
 

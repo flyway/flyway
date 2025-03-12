@@ -1,7 +1,0 @@
-org.flywaydb.verb.preparation.PreparationContext
-org.flywaydb.verb.info.VersionOrderMigrationComparator
-org.flywaydb.verb.info.filters.ShouldExecuteMigrationInfoFilter
-org.flywaydb.verb.executors.NonJdbcExecutor
-org.flywaydb.verb.executors.JdbcExecutor
-org.flywaydb.verb.readers.NonJdbcReader
-org.flywaydb.verb.readers.JdbcReader

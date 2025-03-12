@@ -25,10 +25,10 @@ flyway diff -source=dev -target=schemaModel diffText
 
 ### Optional
 
-| Parameter                                                                                                                   | Namespace | Description                           |
-|-----------------------------------------------------------------------------------------------------------------------------|-----------|---------------------------------------|
-| [`artifactFilename`](<Configuration/Flyway Namespace/Flyway DiffText Namespace/Flyway Diff Text Artifact Filename Setting>) | diffText  | The path to the diff artifact.        |
-| [`changes`](<Configuration/Flyway Namespace/Flyway DiffText Namespace/Flyway Diff Text Changes Setting>)                    | diffText  | A comma separated list of change ids. |
+| Parameter                                                                                                                  | Namespace | Description                           |
+| -------------------------------------------------------------------------------------------------------------------------- | --------- | ------------------------------------- |
+| [`artifactFilename`](<Configuration/Flyway Namespace/Flyway DiffText Namespace/Flyway DiffText Artifact Filename Setting>) | diffText  | The path to the diff artifact.        |
+| [`changes`](<Configuration/Flyway Namespace/Flyway DiffText Namespace/Flyway DiffText Changes Setting>)                    | diffText  | A comma separated list of change ids. |
 
 Universal commandline parameters are listed [here](<Command-line Parameters>).
 
@@ -69,3 +69,9 @@ Universal commandline parameters are listed [here](<Command-line Parameters>).
   } ]
 }
 ```
+
+## Error codes
+
+This command can produce the following error codes:
+- [Generic error codes](<Exit codes and error codes/General error codes>)
+- [Comparison error codes](<Exit codes and error codes/Comparison error codes>)

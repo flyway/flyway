@@ -201,7 +201,7 @@ Statements which contain a `&VAR`-style expression which is not intended to be s
 literal string, will either require `SET DEFINE OFF` beforehand, or some alternative construct to avoid use of
 the ampersand.
 
-For more information, see the [SQL\*Plus documentation](https://blogs.oracle.com/opal/sqlplus-101-substitution-variables#2).
+For more information, see the [SQL\*Plus documentation](https://blogs.oracle.com/opal/post/sql*plus-substitution-variables-define-variables-and-parameters-in-sql-queries#2).
 
 ## Authentication
 

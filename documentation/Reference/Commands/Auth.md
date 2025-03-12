@@ -45,5 +45,7 @@ honor these as authorizations and logout will not remove them.
 | `-startTeamsTrial`      | Community | Starts a Teams trial                                                                              |
 | `-startEnterpriseTrial` | Community | Starts an Enterprise trial                                                                        |
 
+## Error codes
 
-
+This command can produce the following error codes:
+- [Generic error codes](<Exit codes and error codes/General error codes>)

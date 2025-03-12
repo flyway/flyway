@@ -33,7 +33,7 @@ import org.flywaydb.core.experimental.schemahistory.SchemaHistoryItem;
 import org.flywaydb.core.extensibility.VerbExtension;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.nc.callbacks.CallbackManager;
-import org.flywaydb.verb.preparation.PreparationContext;
+import org.flywaydb.nc.preparation.PreparationContext;
 
 public class CleanVerbExtension implements VerbExtension {
     @Override
@@ -52,8 +52,7 @@ public class CleanVerbExtension implements VerbExtension {
 
         final ExperimentalDatabase database = context.getDatabase();
 
-        final CallbackManager callbackManager = new CallbackManager(context.getResources(),
-            configuration.isSkipDefaultCallbacks());
+        final CallbackManager callbackManager = new CallbackManager(configuration, context.getResources());
 
         callbackManager.handleEvent(Event.BEFORE_CLEAN, database, configuration, context.getParsingContext());
 

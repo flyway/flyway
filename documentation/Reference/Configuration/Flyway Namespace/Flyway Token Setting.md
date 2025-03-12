@@ -46,6 +46,17 @@ FLYWAY_EMAIL=foo.bar@red-gate.com
 FLYWAY_TOKEN=1234ABCD
 ```
 
+### Maven
+
+```xml
+<configuration>
+  <pluginConfiguration>
+    <email>foo.bar@red-gate.com</email>
+    <token>1234ABCD</token>
+  </pluginConfiguration>
+</configuration>
+```
+
 ### API
 
 ```java

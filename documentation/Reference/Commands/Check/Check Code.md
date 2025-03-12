@@ -31,6 +31,9 @@ flyway check -code
 
 Universal commandline parameters are listed [here](<Command-line Parameters>).
 
+_Note_:
+- _Static code analysis will not interrupt the execution of subsequent Flyway verb operations if they are chained. This means that even if a `majorTolerance` or `minorTolerance` error occurs, Flyway will continue processing the remaining verb operations._
+
 ## JSON output format
 
 ```json
@@ -61,3 +64,8 @@ Universal commandline parameters are listed [here](<Command-line Parameters>).
   ]
  }
 ```
+
+## Error codes
+
+This command can produce the following error codes:
+- [Generic error codes](<Exit codes and error codes/General error codes>)

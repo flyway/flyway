@@ -334,7 +334,7 @@
                 <include>org.flywaydb:flyway-database-db2zos</include>
                 <include>org.flywaydb:flyway-database-timeplus</include>
                 <include>org.flywaydb:flyway-database-duckdb</include>
-                <include>org.flywaydb:flyway-verb-utils</include>
+                <include>org.flywaydb:flyway-nc-utils</include>
                 <include>org.flywaydb:flyway-nc-scanners</include>
                 <include>org.flywaydb:flyway-verb-info</include>
                 <include>org.flywaydb:flyway-verb-validate</include>
@@ -345,6 +345,7 @@
                 <include>org.flywaydb:flyway-verb-repair</include>
                 <include>org.flywaydb:flyway-experimental-sqlite</include>
                 <include>org.flywaydb:flyway-nc-callbacks</include>
+                <include>org.flywaydb:flyway-experimental-oracle</include>
             </includes>
         </dependencySet>
         <dependencySet>
@@ -356,7 +357,9 @@
             </includes>
             <excludes>
                 <exclude>commons-logging:commons-logging</exclude>
-                <exclude>io.opentelemetry:opentelemetry-*</exclude>
+
+
+
             </excludes>
         </dependencySet>
         <dependencySet>

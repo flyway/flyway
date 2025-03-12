@@ -222,27 +222,29 @@ public class OracleParser extends Parser {
 
 
 
-    public OracleParser(Configuration configuration
-
-
-
-
-
-
-            , ParsingContext parsingContext
-                       ) {
+    public OracleParser(Configuration configuration, ParsingContext parsingContext) {
         super(configuration, parsingContext, 3);
-
-
-
-
-
-
-
-
-
-
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

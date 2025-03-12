@@ -20,6 +20,8 @@
 package org.flywaydb.core.experimental;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -27,23 +29,20 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.experimental.schemahistory.SchemaHistoryItem;
+import org.flywaydb.core.experimental.schemahistory.SchemaHistoryModel;
+import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.jdbc.Result;
 import org.flywaydb.core.internal.util.AsciiTable;
 
-public abstract class ExperimentalJdbc implements ExperimentalDatabase{
+public abstract class ExperimentalJdbc extends AbstractExperimentalDatabase {
     protected Connection connection;
-    protected final ArrayList<String> batch = new ArrayList<>();
-    protected MetaData metaData;
 
     @Override
     public boolean canCreateJdbcDataSource() {
         return true;
-    }
-
-    @Override
-    public void addToBatch(final String executionUnit) {
-        batch.add(executionUnit);
     }
 
     @Override
@@ -73,17 +72,24 @@ public abstract class ExperimentalJdbc implements ExperimentalDatabase{
     }
 
     @Override
-    public int getBatchSize() {
-        return batch.size();
-    }
-
-    @Override
     public String getCurrentUser() {
         try {
             return JdbcUtils.getDatabaseMetaData(connection).getUserName();
         } catch (final SQLException e) {
             throw new FlywayException(e);
         }
+    }
+
+    @Override
+    public MetaData getDatabaseMetaData() {
+        if (this.metaData != null) {
+            return metaData;
+        }
+
+        final DatabaseMetaData databaseMetaData = JdbcUtils.getDatabaseMetaData(connection);
+        final String databaseProductName = JdbcUtils.getDatabaseProductName(databaseMetaData);
+        final String databaseProductVersion = JdbcUtils.getDatabaseProductVersion(databaseMetaData);
+        return new MetaData(databaseProductName, databaseProductVersion, ConnectionType.JDBC, null);
     }
 
     @Override
@@ -166,5 +172,174 @@ public abstract class ExperimentalJdbc implements ExperimentalDatabase{
             LOG.info(new AsciiTable(result.columns(), result.data(),
                 true, "", "No rows returned").render());
         }
+    }
+
+    @Override
+    public SchemaHistoryModel getSchemaHistoryModel(final String table) {
+        try (final Statement statement = connection.createStatement()) {
+            final String querySql = "SELECT " + doQuote("installed_rank")
+                + ", " + doQuote("version")
+                + ", " + doQuote("description")
+                + ", " + doQuote("type")
+                + ", " + doQuote("script")
+                + ", " + doQuote("checksum")
+                + ", " + doQuote("installed_on")
+                + ", " + doQuote("installed_by")
+                + ", " + doQuote("execution_time")
+                + ", " + doQuote("success")
+                + " FROM "
+                + getTableNameWithSchema(table)
+                + " WHERE "+ doQuote("installed_rank") + " >= 0"
+                + " ORDER BY " + doQuote("installed_rank");
+            final ResultSet resultSet = statement.executeQuery(querySql);
+            final ArrayList<SchemaHistoryItem> items = new ArrayList<>();
+            while (resultSet.next()) {
+                items.add(SchemaHistoryItem.builder()
+                    .installedRank(resultSet.getInt("installed_rank"))
+                    .version(resultSet.getString("version"))
+                    .description(resultSet.getString("description"))
+                    .type(resultSet.getString("type"))
+                    .script(resultSet.getString("script"))
+                    .checksum(resultSet.getInt("checksum"))
+                    .installedOn(resultSet.getTimestamp("installed_on").toLocalDateTime())
+                    .installedBy(resultSet.getString("installed_by"))
+                    .executionTime(resultSet.getInt("execution_time"))
+                    .success(resultSet.getBoolean("success"))
+                    .build());
+            }
+            return new SchemaHistoryModel(items);
+        } catch (final SQLException e) {
+            return new SchemaHistoryModel();
+        }
+    }
+
+    @Override
+    public void createSchemaHistoryTable(final String tableName) {
+        try (final Statement statement = connection.createStatement()) {
+            final String createSql = "CREATE TABLE "
+                + getTableNameWithSchema(tableName)
+                + " (\n"
+                + doQuote("installed_rank") + " INT NOT NULL PRIMARY KEY,\n"
+                + doQuote("version") + " VARCHAR(50),\n"
+                + doQuote("description") + " VARCHAR(200) NOT NULL,\n"
+                + doQuote("type") + " VARCHAR(20) NOT NULL,\n"
+                + doQuote("script") + " VARCHAR(1000) NOT NULL,\n"
+                + doQuote("checksum") + " INT,\n"
+                + doQuote("installed_by") + " VARCHAR(100) NOT NULL,\n"
+                + doQuote("installed_on") + " TEXT NOT NULL DEFAULT (strftime('%Y-%m-%d %H:%M:%f','now')),\n"
+                + doQuote("execution_time") + " INT NOT NULL,\n"
+                + doQuote("success") + " BOOLEAN NOT NULL\n"
+                + " );\n";
+            statement.executeUpdate(createSql);
+        } catch (SQLException e) {
+            throw new FlywayException(e);
+        }
+    }
+
+    @Override
+    public void appendSchemaHistoryItem(final SchemaHistoryItem item, final String tableName) {
+        try (final Statement statement = connection.createStatement()) {
+            final StringBuilder insertSql = new StringBuilder().append("INSERT INTO ")
+                .append(getTableNameWithSchema(tableName))
+                .append(" (")
+                .append(doQuote("installed_rank")  + ", ")
+                .append(item.getVersion() == null ? "" : doQuote("version") + ", ")
+                .append(doQuote("description")  + ", ")
+                .append(doQuote("type")  + ", ")
+                .append(doQuote("script")  + ", ")
+                .append(doQuote("checksum")  + ", ")
+                .append(doQuote("installed_by")  + ", ")
+                .append(doQuote("execution_time")  + ", ")
+                .append(doQuote("success"))
+                .append(")");
+
+            insertSql.append(" VALUES (")
+                .append(item.getInstalledRank())
+                .append(", ");
+            if (item.getVersion() != null) {
+                insertSql.append("'").append(item.getVersion()).append("', ");
+            }
+            insertSql.append("'")
+                .append(item.getDescription())
+                .append("', ")
+                .append("'")
+                .append(item.getType())
+                .append("', ")
+                .append("'")
+                .append(item.getScript())
+                .append("', ")
+                .append(item.getChecksum())
+                .append(", ")
+                .append("'")
+                .append(item.getInstalledBy() == null ? "" : item.getInstalledBy())
+                .append("', ")
+                .append(item.getExecutionTime())
+                .append(", ")
+                .append(supportsBoolean() ? item.isSuccess() : item.isSuccess() ? "1" : "0")
+                .append(")");
+            statement.execute(insertSql.toString());
+        } catch (SQLException e) {
+            throw new FlywayException(e);
+        }
+    }
+
+    @Override
+    public void removeFailedSchemaHistoryItems(final String tableName) {
+        try {
+            try (final Statement statement = connection.createStatement()) {
+                statement.execute("DELETE FROM " + getTableNameWithSchema(tableName) + " WHERE " + doQuote("success") + " = 0");
+            }
+        } catch (SQLException e) {
+            throw new FlywayException(e);
+        }
+    }
+
+    @Override
+    public void updateSchemaHistoryItem(final SchemaHistoryItem item, final String tableName) {
+        try {
+            final String sql = new StringBuilder().append("UPDATE ")
+                .append(getTableNameWithSchema(tableName))
+                .append(" SET ")
+                .append(doQuote("description"))
+                .append("=? , ")
+                .append(doQuote("type"))
+                .append("=? , ")
+                .append(doQuote("checksum"))
+                .append("=?")
+                .append(" WHERE ")
+                .append(doQuote("installed_rank"))
+                .append("=?")
+                .toString();
+            try (final PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setString(1, item.getDescription());
+                statement.setString(2, item.getType());
+                statement.setInt(3, item.getChecksum());
+                statement.setInt(4, item.getInstalledRank());
+                statement.execute();
+            }
+        } catch (SQLException e) {
+            throw new FlywayException(e);
+        }
+    }
+
+    @Override
+    public String getDefaultSchema(final Configuration configuration) {
+        final String schema = ConfigUtils.getCalculatedDefaultSchema(configuration);
+        if (schema == null) {
+            try {
+                return connection.getSchema();
+            } catch (SQLException e) {
+                throw new FlywayException(e);
+            }
+        }
+        return schema;
+    }
+
+    public String getTableNameWithSchema(final String table) {
+        return quote(getCurrentSchema(), table);
+    }
+
+    protected boolean supportsBoolean() {
+        return true;
     }
 }

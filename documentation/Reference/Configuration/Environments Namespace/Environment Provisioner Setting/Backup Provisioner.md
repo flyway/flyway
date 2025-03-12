@@ -8,25 +8,49 @@ subtitle: Backup Provisioner
 
 This [provisioner](https://documentation.red-gate.com/flyway/flyway-concepts/environments/provisioning) allows for the provisioning and re-provisioning of databases using a database backup file.
 
-**Note: Currently only SQL Server `.bak` files are supported.**
-
 Benefits of using the backup provisioner:
 * The database backup can contain static data and a `flyway_schema_history` table, allowing an environment to be provisioned with data to a desired version.
 * Restoring a database backup is not impacted by references to invalid objects. This makes the backup provisioner a good alternative to a baseline script.
 * Speeding up shadow provisioning - restoring a backup file that represents version 1000 is considerably quicker than running 1000 migrations scripts.
 
+## Supported backup file formats
+
+The following database engines and backup file formats are supported:
+
+* SQL Server backup files (`.bak`).
+* Oracle dump files (`.dmp`) generated using the Data Pump Export tool `expdp`.
+
 ## Prerequisites
-* A database backup `.bak` file, which could be a backup of production database for example. This backup file needs to be in a location accessible to the database server that will be provisioned i.e. on the database server itself or on a network share.
-* The environment [URL](<Configuration/Environments Namespace/Environment URL Setting>) must have the `databaseName` parameter set to the name of the database that the backup will be restored to. If this database doesn't yet exist on the target server then it will be created by the backup provisioner.
+
+* A database backup file, which could be a backup of production database for example. This backup file needs to be in a
+  location accessible to the database server that will be provisioned i.e. on the database server itself or on a network
+  share.
+
+**For SQL Server**:
+
+* The environment [URL](<Configuration/Environments Namespace/Environment URL Setting>) must have the `databaseName`
+  parameter set to the name of the database that the backup will be restored to. If this database doesn't yet exist on
+  the target server then it will be created by the backup provisioner.
+
+**For Oracle**:
+
+* The schemas that will be restored from the dump file must already exist on the target database.
+* The Oracle Data Pump Import tool `impdp` must be installed and available on the `PATH` of the machine running Flyway.
+* The user specified for the environment must have the `IMP_FULL_DATABASE` privilege, and a `READ` privilege on the
+  directory where the dump file is located.
 
 ## To configure this provisioner:
 1. Set the value of the [provisioner parameter](<Configuration/Environments Namespace/Environment Provisioner Setting>) to `backup`.
 2. Populate the following resolver properties in the TOML configuration or as command line arguments:
     - `backupFilePath` - (Required) The file path of the backup file. Note: this needs to be accessible/relative to the database server that is being provisioned.
     - `backupVersion` - (Optional) The migration version the backup file represents. This property is required when the backup file doesn't contain a `flyway_schema_history` table. In this scenario a `flyway_schema_history` table will be created once the backup has been restored and a baseline entry with version `backupVersion` will be inserted into the `flyway_schema_history` table. If the backup file does contain a `flyway_schema_history` table then this property is optional. If left unset then the `flyway_schema_history` table from the backup will be restored unaltered, otherwise the `flyway_schema_history` will be updated to baseline version `backupVersion`.
-  
-## Example
-The backup provisioner can be used in the TOML configuration as follows:
+
+Below we consider configuration and examples for each supported database engine.
+
+# SQL Server
+
+## Example Configuration
+The backup provisioner can be configured in the TOML file as follows:
 ```toml
 [environments.shadow]
 url = "jdbc:sqlserver://localhost:1433;databaseName=MyDatabase;trustServerCertificate=true"
@@ -95,3 +119,63 @@ Where:
 
 **Note**: When file paths are provided as above, then the `generateWithMove` parameter is ignored.
 i.e. User defined file paths take precedence over auto-generated file paths.
+
+# Oracle
+
+## Additional parameters
+
+The backup provisioner supports the following additional parameters for Oracle databases:
+
+* `connectionIdentifier` (Required) - The connect identifier used to connect to the target database i.e. An Oracle*Net
+  connect descriptor or a net service name (usually defined in the `tnsnames.ora` file). The `connectionIdentifier` must
+  contain or map to all data required to log in to the database without any user interaction. That is, using the
+  `connectionIdentifier` should not require a username or password to be entered.
+* `importContent` (Optional) - The content to restore to the target schema. Valid values are:
+    * `METADATA_ONLY` (Default) - Loads only database object definitions i.e. no data.
+    * `ALL` - Loads database object definitions and data.
+* `schemaMapping` (Optional) - A map specifying the new schema names for the schemas in the dump file. The key is the
+  schema name in the dump file and the value is the new schema name that it should be mapped to. This is useful when we
+  wish to restore a schema from the dump file to a different schema name on the target database.
+
+## Example Configuration
+
+The backup provisioner can be configured in the TOML configuration as follows:
+
+```toml
+[environments.shadow]
+url = "jdbc:oracle:thin:@//localhost:1521/XE"
+user = "DEV"
+password = "${localSecret.MyPasswordKey}"
+schemas = ["SHADOW"]
+provisioner = "backup"
+
+[environments.shadow.resolvers.backup]
+backupFilePath = "DATA_PUMP_DIR:dev.dmp"
+backupVersion = "995"
+oracle.connectionIdentifier = "/@MYALIAS"
+oracle.importContent = "METADATA_ONLY"
+
+[environments.shadow.resolvers.backup.oracle.schemaMapping]
+"DEV" = "SHADOW"
+```
+
+This example will restore the backup file located at `DATA_PUMP_DIR:dev.dmp` to the `SHADOW` schema in the shadow
+environment. The `SHADOW` schema will be at version 995.
+
+Some additional points to note are:
+
+* A backup of the `DEV` schema has been taken and exists at the location `DATA_PUMP_DIR:dev.dmp`. The dump file location
+  is given in the format `DIRECTORY:filename` where `DATA_PUMP_DIR` is a default Data Pump directory available to use,
+  and `dev.dmp` is the dump file name.
+* The `DEV` schema in the dump file will be restored to the `SHADOW` schema in the target shadow environment.
+* `MYALIAS` is a `tnsnames.ora` connection alias has been defined in the `tnsnames.ora` and an Oracle wallet with a
+  password for `MYALIAS` has been created and configured in the `sqlnet.ora`.
+
+If you do not wish to set up a `tnsnames.ora` connection alias or Oracle wallet, then a connection string of the form
+`username/password@[//]host[:port][/service_name]` can be used instead for the `connectionIdentifier`. For example, a
+`DEV` user with the password `DEV_PASSWORD` connecting to a database on `localhost` with the service name `XE` on port
+`1521` could have the `connectionIdentifier` specified as follows:
+
+```toml
+oracle.connectionIdentifier = "DEV/DEV_PASSWORD@localhost:1521/XE"
+```

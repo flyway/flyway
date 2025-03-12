@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>11.3.4</version>
+    <version>11.4.0</version>
   </parent>
 
   <artifactId>flyway-nc</artifactId>
@@ -17,6 +17,7 @@
   <modules>
     <module>flyway-nc-callbacks</module>
     <module>flyway-nc-scanners</module>
+    <module>flyway-nc-utils</module>
 
 
 

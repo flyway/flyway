@@ -52,30 +52,30 @@ available, or want to review the exact script to be run before execution, but it
 * This approach does not handle Java migrations or other non-SQL migrations
 * Callbacks are not supported
 
-This is currently functionally equivalent to running a [dry run](https://documentation.red-gate.com/flyway/flyway-concepts/migrations/dry-runs) on `migrate`.
+This is currently functionally equivalent to running a [dry run](<https://documentation.red-gate.com/fd/migration-command-dry-runs-275218517.html>) on `migrate`.
 
 ## Complete list of parameters for deploying from schema model or source database
 
 ### Required
 
 | Parameter                                                                                           | Namespace | Description                                                                   |
-|-----------------------------------------------------------------------------------------------------|-----------|-------------------------------------------------------------------------------|
+| --------------------------------------------------------------------------------------------------- | --------- | ----------------------------------------------------------------------------- |
 | [`source`](<Configuration/Flyway Namespace/Flyway Prepare Namespace/Flyway Prepare Source Setting>) | prepare   | Either `schemaModel` or a source database (e.g. `env:dev`) for this workflow. |
 | [`target`](<Configuration/Flyway Namespace/Flyway Prepare Namespace/Flyway Prepare Target Setting>) | prepare   | The target environment to deploy to.                                          |
 
 ### Optional
 
 | Parameter                                                                                                                              | Namespace | Description                                                                                                                 |
-|----------------------------------------------------------------------------------------------------------------------------------------|-----------|-----------------------------------------------------------------------------------------------------------------------------|
+| -------------------------------------------------------------------------------------------------------------------------------------- | --------- | --------------------------------------------------------------------------------------------------------------------------- |
 | [`scriptFilename`](<Configuration/Flyway Namespace/Flyway Prepare Namespace/Flyway Prepare Script Filename Setting>)                   | prepare   | The path to the deployment script that will be generated.                                                                   |
 | [`abortOnWarningSeverity`](<Configuration/Flyway Namespace/Flyway Prepare Namespace/Flyway Prepare Abort On Warning Severity Setting>) | prepare   | Will cause an error to be returned if any warnings of configured severity are raised when generating the deployment script. |
 | [`force`](<Configuration/Flyway Namespace/Flyway Prepare Namespace/Flyway Prepare Force Setting>)                                      | prepare   | If the deployment script already exists, overwrite it.                                                                      |
-| [`configFiles`](<Command-line Parameters/Config Files Parameter>)                                                                       | (root)    | The location of the flyway configuration files.                                                                             |
+| [`configFiles`](<Command-line Parameters/Config Files Parameter>)                                                                      | (root)    | The location of the flyway configuration files.                                                                             |
 | [`encoding`](<Configuration/Flyway Namespace/Flyway Encoding Setting>)                                                                 | (root)    | The encoding to use for the generated script.                                                                               |
 | [{environment parameters}](<Configuration/Environments Namespace>)                                                                     | (root)    | Environment configuration for the source and/or target environments.                                                        |
 | [`schemaModelLocation`](<Configuration/Flyway Namespace/Flyway Schema Model Location Setting>)                                         | (root)    | The path to the schema model.                                                                                               |
 | [`schemaModelSchemas`](<Configuration/Flyway Namespace/Flyway Schema Model Schemas Setting>)                                           | (root)    | The schemas in the schema model.                                                                                            |
-| [`workingDirectory`](<Command-line Parameters/Working Directory Parameter>)                                                             | (root)    | The directory to consider the current working directory. All relative paths will be considered relative to this.            |
+| [`workingDirectory`](<Command-line Parameters/Working Directory Parameter>)                                                            | (root)    | The directory to consider the current working directory. All relative paths will be considered relative to this.            |
 
 Universal commandline parameters are listed [here](<Command-line Parameters>).
 
@@ -87,13 +87,13 @@ specified within the TOML config file, and can't yet be overridden on the comman
 ### Optional
 
 | Parameter                                                                                                                | Namespace | Description                                                                                                      |
-|--------------------------------------------------------------------------------------------------------------------------|-----------|------------------------------------------------------------------------------------------------------------------|
+| ------------------------------------------------------------------------------------------------------------------------ | --------- | ---------------------------------------------------------------------------------------------------------------- |
 | [`artifactFilename`](<Configuration/Flyway Namespace/Flyway Prepare Namespace/Flyway Prepare Artifact Filename Setting>) | prepare   | The path to the diff artifact.                                                                                   |
 | [`changes`](<Configuration/Flyway Namespace/Flyway Prepare Namespace/Flyway Prepare Changes Setting>)                    | prepare   | A comma separated list of change ids.                                                                            |
 | [`scriptFilename`](<Configuration/Flyway Namespace/Flyway Prepare Namespace/Flyway Prepare Script Filename Setting>)     | prepare   | The path to the deployment script that will be generated.                                                        |
-| [`configFiles`](<Command-line Parameters/Config Files Parameter>)                                                         | (root)    | The location of the flyway configuration files.                                                                  |
+| [`configFiles`](<Command-line Parameters/Config Files Parameter>)                                                        | (root)    | The location of the flyway configuration files.                                                                  |
 | [`encoding`](<Configuration/Flyway Namespace/Flyway Encoding Setting>)                                                   | (root)    | The encoding to use for the generated script.                                                                    |
-| [`workingDirectory`](<Command-line Parameters/Working Directory Parameter>)                                               | (root)    | The directory to consider the current working directory. All relative paths will be considered relative to this. |
+| [`workingDirectory`](<Command-line Parameters/Working Directory Parameter>)                                              | (root)    | The directory to consider the current working directory. All relative paths will be considered relative to this. |
 
 Universal commandline parameters are listed [here](<Command-line Parameters>).
 
@@ -105,19 +105,19 @@ specified within the TOML config file, and can't yet be overridden on the comman
 ### Required
 
 | Parameter                                                                                           | Namespace | Description                                    |
-|-----------------------------------------------------------------------------------------------------|-----------|------------------------------------------------|
+| --------------------------------------------------------------------------------------------------- | --------- | ---------------------------------------------- |
 | [`source`](<Configuration/Flyway Namespace/Flyway Prepare Namespace/Flyway Prepare Source Setting>) | prepare   | Must be set to `migrations` for this workflow. |
 | [`target`](<Configuration/Flyway Namespace/Flyway Prepare Namespace/Flyway Prepare Target Setting>) | prepare   | The target environment to deploy to.           |
 
 ### Optional
 
 | Parameter                                                                                                            | Namespace | Description                                                                                                                          |
-|----------------------------------------------------------------------------------------------------------------------|-----------|--------------------------------------------------------------------------------------------------------------------------------------|
+| -------------------------------------------------------------------------------------------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | [`scriptFilename`](<Configuration/Flyway Namespace/Flyway Prepare Namespace/Flyway Prepare Script Filename Setting>) | prepare   | The path to the deployment script that will be generated.                                                                            |
 | [`baselineOnMigrate`](<Configuration/Flyway Namespace/Flyway Baseline On Migrate Setting>)                           | (root)    | Whether to generate schema history table as part of the deployment script (required if does not exist in target database).           |
 | [`baselineVersion`](<Configuration/Flyway Namespace/Flyway Baseline Version Setting>)                                | (root)    | If `baselineOnMigrate` is set, specifies the baseline version (only subsequent versioned migrations will be included in deployment). |
 | [`cherryPick`](<Configuration/Flyway Namespace/Flyway Cherry Pick Setting>)                                          | (root)    | A custom selection of migrations to use for generating the deployment script.                                                        |
-| [`configFiles`](<Configuration/Flyway Namespace/Flyway Config Files Setting>)                                        | (root)    | The location of the flyway configuration files.                                                                                      |
+| [`configFiles`](<Command-line Parameters/Config Files Parameter>)                                                    | (root)    | The location of the flyway configuration files.                                                                                      |
 | [`defaultSchema`](<Configuration/Flyway Namespace/Flyway Default Schema Setting>)                                    | (root)    | The location of the flyway schema history table.                                                                                     |
 | [`encoding`](<Configuration/Flyway Namespace/Flyway Encoding Setting>)                                               | (root)    | The encoding to use for the generated script.                                                                                        |
 | [{environment parameters}](<Configuration/Environments Namespace>)                                                   | (root)    | Environment configuration for the source and/or target environments.                                                                 |
@@ -128,7 +128,7 @@ specified within the TOML config file, and can't yet be overridden on the comman
 | [`placeholderReplacement`](<Configuration/Flyway Namespace/Flyway Placeholder Replacement Setting>)                  | (root)    | Whether or not to replace placeholders.                                                                                              |
 | [`placeholderSeparator`](<Configuration/Flyway Namespace/Flyway Placeholder Separator Setting>)                      | (root)    | Placeholder separator characters.                                                                                                    |
 | [`placeholderSuffix`](<Configuration/Flyway Namespace/Flyway Placeholder Suffix Setting>)                            | (root)    | Placeholder suffix characters.                                                                                                       |
-| [`workingDirectory`](<Command-line Parameters/Working Directory Parameter>)                                           | (root)    | The directory to consider the current working directory. All relative paths will be considered relative to this.                     |
+| [`workingDirectory`](<Command-line Parameters/Working Directory Parameter>)                                          | (root)    | The directory to consider the current working directory. All relative paths will be considered relative to this.                     |
 
 Universal commandline parameters are listed [here](<Command-line Parameters>).
 
@@ -149,3 +149,10 @@ Universal commandline parameters are listed [here](<Command-line Parameters>).
   ]
 }
 ```
+
+
+## Error codes
+
+This command can produce the following error codes:
+- [Generic error codes](<Exit codes and error codes/General error codes>)
+- [Prepare error codes](<Exit codes and error codes/Prepare error codes>)

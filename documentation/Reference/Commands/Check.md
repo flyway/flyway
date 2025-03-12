@@ -13,7 +13,7 @@ The `check` command encapsulates the following operations:
 | [`check -dryrun`](<Commands/Check/Check DryRun>)   | Teams & Enterprise | Perform a dry run, generating a deployment script representing what will be run when deployment is executed. |
 | [`check -code`](<Commands/Check/Check Code>)       | All                | Run code analysis on your migrations.                                                                        |
 
-`check` produces a [report file](<Configuration\Flyway Namespace\Flyway Report Filename Setting>) that contains the results of the operation.
+`check` produces a [report file](<Configuration/Flyway Namespace/Flyway Report Filename Setting>) that contains the results of the operation.
 
  You might want this to:
  * Have a record of what the check results were for audit or reporting purposes

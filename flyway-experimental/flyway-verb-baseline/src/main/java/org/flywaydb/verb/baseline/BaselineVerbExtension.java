@@ -30,7 +30,7 @@ import org.flywaydb.core.experimental.schemahistory.SchemaHistoryItem;
 import org.flywaydb.core.extensibility.VerbExtension;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
-import org.flywaydb.verb.preparation.PreparationContext;
+import org.flywaydb.nc.preparation.PreparationContext;
 import org.flywaydb.verb.schemas.SchemasVerbExtension;
 
 @CustomLog
