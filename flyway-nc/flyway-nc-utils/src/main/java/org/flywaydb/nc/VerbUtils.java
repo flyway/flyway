@@ -302,12 +302,10 @@ public class VerbUtils {
             && item.getType().isUndo() == resourceMetadata.migrationType().isUndo();
     }
 
-    public static String[] getAllSchemasFromConfiguration(Configuration configuration) {
-        if (configuration.getSchemas().length > 0) {
-            return configuration.getSchemas();
-        } else {
-            return new String[] { configuration.getDefaultSchema() };
-        }
+    public static String[] getAllSchemas(final String[] schemas, final String defaultSchema) {
+        final Collection<String> schemaList = new ArrayList<>(List.of(schemas));
+        schemaList.add(defaultSchema);
+        return schemaList.toArray(new String[0]);
     }
 
     public static String toMigrationText(final MigrationInfo migration,

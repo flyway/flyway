@@ -130,10 +130,11 @@ public class TomlUtils {
 
     static ConfigurationModel loadConfigurationFile(final File configFile) {
         try {
+            final String configText = FileUtils.readFileAsString(configFile);
             final ConfigurationModel tomlConfig = ObjectMapperFactory.getObjectMapper(configFile.toString())
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .readerFor(ConfigurationModel.class)
-                .readValue(configFile);
+                .readValue(configText);
             ConfigUtils.dumpConfigurationModel(tomlConfig, "Loading config file: " + configFile.getAbsolutePath());
             return tomlConfig;
         } catch (final TomlStreamReadException tomlread) {

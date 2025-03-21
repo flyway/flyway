@@ -62,8 +62,9 @@ import org.flywaydb.core.internal.util.AsciiTable;
 import org.flywaydb.core.internal.util.DockerUtils;
 import org.flywaydb.core.internal.util.FileUtils;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
+import org.flywaydb.nc.executors.NonJdbcExecutorExecutionUnit;
 
-public class MongoDBDatabase extends AbstractExperimentalDatabase {
+public class MongoDBDatabase extends AbstractExperimentalDatabase <NonJdbcExecutorExecutionUnit> {
     private MongoClient mongoClient;
     private MongoDatabase mongoDatabase;
     private String schemaHistoryTableName = null;
@@ -158,11 +159,11 @@ public class MongoDBDatabase extends AbstractExperimentalDatabase {
     }
 
     @Override
-    public void doExecute(final String executionUnit, final boolean outputQueryResults) {
+    public void doExecute(final NonJdbcExecutorExecutionUnit executionUnit, final boolean outputQueryResults) {
         switch (connectionType) {
             case API:
                 try {
-                    final Document result = mongoDatabase.runCommand(clientSession, BsonDocument.parse(executionUnit));
+                    final Document result = mongoDatabase.runCommand(clientSession, BsonDocument.parse(executionUnit.getScript()));
                     if (outputQueryResults) {
                         parseResults(result);
                     }
@@ -171,7 +172,7 @@ public class MongoDBDatabase extends AbstractExperimentalDatabase {
                 }
                 return;
             case EXECUTABLE:
-                doExecuteWithMongosh(executionUnit, outputQueryResults);
+                doExecuteWithMongosh(executionUnit.getScript(), outputQueryResults);
                 return;
             default:
                 throw new FlywayException("No support for this connection type");

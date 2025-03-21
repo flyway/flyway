@@ -59,7 +59,9 @@ public class CoreMigrationStateCalculator implements ExperimentalMigrationStateC
                 .max(MigrationVersion::compareTo);
         }
 
-        if (baselineVersion.isEmpty() || migration.getRight().version().isNewerThan(baselineVersion.get())) {
+        if (baselineVersion.isEmpty()
+            || migration.getRight().isRepeatable()
+            || migration.getRight().version().isNewerThan(baselineVersion.get())) {
             final MigrationVersion target = configuration.getTarget();
             if (migration.getRight().isRepeatable()) {
                 return MigrationState.PENDING;

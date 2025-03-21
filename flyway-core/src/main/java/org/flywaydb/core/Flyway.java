@@ -217,6 +217,11 @@ public class Flyway {
                             }
                         }
 
+                        if (nonEmptySchemas.isEmpty() && configuration.isBaselineOnMigrate()) {
+                            LOG.info("All configured schemas are empty; baseline operation skipped. "
+                                + "A baseline or migration script with a lower version than the baseline version may execute if available. Check the Schemas parameter if this is not intended.");
+                        }
+
                         if (!nonEmptySchemas.isEmpty() && !configuration.isSkipExecutingMigrations()) {
                             if (configuration.isBaselineOnMigrate()) {
                                 doBaseline(schemaHistory, callbackExecutor, database);

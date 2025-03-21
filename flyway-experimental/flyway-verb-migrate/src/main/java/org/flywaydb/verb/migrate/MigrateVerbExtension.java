@@ -85,10 +85,16 @@ public class MigrateVerbExtension implements VerbExtension {
         }
 
         if (!database.schemaHistoryTableExists(configuration.getTable())) {
-            final List<String> populatedSchemas = Arrays.stream(VerbUtils.getAllSchemasFromConfiguration(configuration))
+            final List<String> populatedSchemas = Arrays.stream(VerbUtils.getAllSchemas(configuration.getSchemas(), database.getDefaultSchema(configuration)))
                 .filter(database::isSchemaExists)
                 .filter(x -> !database.isSchemaEmpty(x))
                 .toList();
+
+            if (populatedSchemas.isEmpty() && configuration.isBaselineOnMigrate()) {
+                LOG.info("All configured schemas are empty; baseline operation skipped. "
+                    + "A baseline or migration script with a lower version than the baseline version may execute if available. Check the Schemas parameter if this is not intended.");
+            }
+
             if (!populatedSchemas.isEmpty() && !configuration.isSkipExecutingMigrations()) {
                 if (configuration.isBaselineOnMigrate()) {
                     new BaselineVerbExtension().executeVerb(configuration);
@@ -115,7 +121,7 @@ public class MigrateVerbExtension implements VerbExtension {
         final MigrationInfoService migrationInfoService = new ExperimentalMigrationInfoService(context.getMigrations(),
             configuration,
             database.getName(),
-            database.allSchemasEmpty(VerbUtils.getAllSchemasFromConfiguration(configuration)));
+            database.allSchemasEmpty(VerbUtils.getAllSchemas(configuration.getSchemas(), database.getDefaultSchema(configuration))));
 
         final MigrationInfo current = migrationInfoService.current();
         MigrationVersion initialSchemaVersion = current != null && current.isVersioned()

@@ -19,22 +19,43 @@
  */
 package org.flywaydb.experimental.oracle;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.experimental.ConnectionType;
 import org.flywaydb.core.experimental.DatabaseSupport;
 import org.flywaydb.core.experimental.ExperimentalJdbc;
 import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
-import org.flywaydb.core.internal.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
+import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.database.oracle.OracleConfigurationExtension;
 import org.flywaydb.database.oracle.OracleParser;
+import org.flywaydb.nc.executors.NonJdbcExecutorExecutionUnit;
 
-public class ExperimentalOracle extends ExperimentalJdbc {
+public class ExperimentalOracle <T> extends ExperimentalJdbc <T> {
+
+    private static final String ORACLE_NET_TNS_ADMIN = "oracle.net.tns_admin";
+
+
+
+
+
 
     @Override
     public DatabaseSupport supportsUrl(final String url) {
@@ -56,13 +77,15 @@ public class ExperimentalOracle extends ExperimentalJdbc {
 
     @Override
     public void initialize(final ResolvedEnvironment environment, final Configuration configuration) {
-        final int connectRetries = environment.getConnectRetries() != null ? environment.getConnectRetries() : 0;
-        final int connectRetriesInterval = environment.getConnectRetriesInterval() != null
-            ? environment.getConnectRetriesInterval()
-            : 0;
-        connection = JdbcUtils.openConnection(configuration.getDataSource(), connectRetries, connectRetriesInterval);
-        metaData = getDatabaseMetaData();
-        currentSchema = getDefaultSchema(configuration);
+        super.initialize(environment, configuration);
+
+        try {
+            connection.setSchema(doQuote(currentSchema));
+        } catch (Exception e) {
+            LOG.info(currentSchema + " schema does not exist yet.");
+        }
+
+        enableTnsnamesOraSupport();
     }
 
     @Override
@@ -185,7 +208,153 @@ public class ExperimentalOracle extends ExperimentalJdbc {
     }
 
     @Override
+    public void doExecute(T executionUnit, final boolean outputQueryResults) {
+        switch (connectionType) {
+            case JDBC:
+                super.doExecute(executionUnit, outputQueryResults);
+                return;
+
+
+
+
+
+            default:
+                throw new FlywayException("No support for this connection type");
+        }
+    }
+
+    @Override
     protected boolean supportsBoolean() {
         return false;
     }
+
+    @Override
+    protected boolean supportsCatalog() {
+        return false;
+    }
+
+    @Override
+    protected void initializeConnectionType(final ResolvedEnvironment environment, final Configuration configuration) {
+        super.initializeConnectionType(environment, configuration);
+
+
+
+    }
+
+    @Override
+    public Pattern[] getUrlRedactionPatterns() {
+        Pattern[] defaultPattern = super.getUrlRedactionPatterns();
+        Pattern[] newPatterns = Arrays.copyOf(defaultPattern, defaultPattern.length + 1);
+        newPatterns[defaultPattern.length] = Pattern.compile("^jdbc:oracle:thin:[a-zA-Z0-9#_$]+/([a-zA-Z0-9#_$]+)@.*");
+        return newPatterns;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    private void enableTnsnamesOraSupport() {
+        String tnsAdminEnvVar = System.getenv("TNS_ADMIN");
+        String tnsAdminSysProp = System.getProperty(ORACLE_NET_TNS_ADMIN);
+        if (StringUtils.hasLength(tnsAdminEnvVar) && tnsAdminSysProp == null) {
+            System.setProperty(ORACLE_NET_TNS_ADMIN, tnsAdminEnvVar);
+        }
+    }
 }
+
+
+
+
+
+
+
+
+
+

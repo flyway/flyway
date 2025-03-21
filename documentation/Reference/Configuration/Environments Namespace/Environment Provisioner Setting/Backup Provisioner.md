@@ -133,9 +133,20 @@ The backup provisioner supports the following additional parameters for Oracle d
 * `importContent` (Optional) - The content to restore to the target schema. Valid values are:
     * `METADATA_ONLY` (Default) - Loads only database object definitions i.e. no data.
     * `ALL` - Loads database object definitions and data.
+* `parFilePath` (Optional) - The file path to a Data Pump Import parameter file. This option can be used to customize
+  the parameters that Flyway passes into `impdp`, and provide additional parameters. For example, the `PARALLEL`
+  parameter can specified to speed up the import time by increasing the number of active execution processes operating
+  on behalf of the import job.
+  Note, that the following parameters cannot be set in the parameter file: `CONTENT`, `DUMPFILE`, `SCHEMAS`,
+  `REMAP_SCHEMA`, as they're already set by Flyway. More information on the Data Pump Import utility and the parameters
+  it supports can be
+  found [here](https://docs.oracle.com/en/database/oracle/oracle-database/19/sutil/datapump-import-utility.html#).
 * `schemaMapping` (Optional) - A map specifying the new schema names for the schemas in the dump file. The key is the
   schema name in the dump file and the value is the new schema name that it should be mapped to. This is useful when we
   wish to restore a schema from the dump file to a different schema name on the target database.
+
+**Note**, the parameters above should be prefixed with `oracle.` in the TOML configuration. Please see the example
+configuration below.
 
 ## Example Configuration
 
@@ -178,4 +189,13 @@ If you do not wish to set up a `tnsnames.ora` connection alias or Oracle wallet,
 
 ```toml
 oracle.connectionIdentifier = "DEV/DEV_PASSWORD@localhost:1521/XE"
+```
+
+The `connectionIdentifier` parameter also supports property resolution, so the connection string can instead be
+specified using a property resolver, to avoid hard coding details like the password in the TOML file. The example below
+uses the [Local Secret](<Configuration/Environments Namespace/Environment Resolvers Namespace/Local DB Resolver>)
+resolver to encode the `connectionIdentifier`:
+
+```toml
+oracle.connectionIdentifier = "${localSecret.DevConnectIdentifier}"
 ```

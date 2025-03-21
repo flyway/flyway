@@ -19,8 +19,6 @@
  */
 package org.flywaydb.experimental.sqlite;
 
-import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -30,21 +28,14 @@ import java.util.function.BiFunction;
 import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.experimental.ConnectionType;
 import org.flywaydb.core.experimental.DatabaseSupport;
 import org.flywaydb.core.experimental.ExperimentalJdbc;
-import org.flywaydb.core.experimental.MetaData;
-import org.flywaydb.core.experimental.schemahistory.SchemaHistoryItem;
-import org.flywaydb.core.experimental.schemahistory.SchemaHistoryModel;
-import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
 import org.flywaydb.core.internal.database.sqlite.SQLiteParser;
-import org.flywaydb.core.internal.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
-import org.sqlite.SQLiteDataSource;
 
 @CustomLog
-public class ExperimentalSqlite extends ExperimentalJdbc {
+public class ExperimentalSqlite extends ExperimentalJdbc <String>  {
 
     @Override
     public DatabaseSupport supportsUrl(final String url) {
@@ -70,20 +61,6 @@ public class ExperimentalSqlite extends ExperimentalJdbc {
     }
 
     @Override
-    public void initialize(final ResolvedEnvironment environment, final Configuration configuration) {
-        final SQLiteDataSource dataSource = new SQLiteDataSource();
-        dataSource.setUrl(environment.getUrl());
-
-        final int connectRetries = environment.getConnectRetries() != null ? environment.getConnectRetries() : 0;
-        final int connectRetriesInterval = environment.getConnectRetriesInterval() != null
-            ? environment.getConnectRetriesInterval()
-            : 0;
-        connection = JdbcUtils.openConnection(dataSource, connectRetries, connectRetriesInterval);
-        currentSchema = getDefaultSchema(configuration);
-        metaData = getDatabaseMetaData();
-    }
-
-    @Override
     public BiFunction<Configuration, ParsingContext, Parser> getParser() {
         return SQLiteParser::new;
     }
@@ -100,7 +77,12 @@ public class ExperimentalSqlite extends ExperimentalJdbc {
     }
 
     @Override
-    public String getDefaultSchema(Configuration configuration) {
+    protected boolean supportsSchema() {
+        return false;
+    }
+
+    @Override
+    public String getSchemaPlaceHolder() {
         return "main";
     }
 
@@ -207,5 +189,10 @@ public class ExperimentalSqlite extends ExperimentalJdbc {
     @Override
     public void doDropSchema(final String schema) {
 
+    }
+
+    @Override
+    protected boolean supportsCatalog() {
+        return false;
     }
 }

@@ -33,12 +33,25 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryItem;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryModel;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
+import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.jdbc.Result;
 import org.flywaydb.core.internal.util.AsciiTable;
 
-public abstract class ExperimentalJdbc extends AbstractExperimentalDatabase {
+public abstract class ExperimentalJdbc <T> extends AbstractExperimentalDatabase <T> {
     protected Connection connection;
+
+    @Override
+    public void initialize(final ResolvedEnvironment environment, final Configuration configuration) {
+        final int connectRetries = environment.getConnectRetries() != null ? environment.getConnectRetries() : 0;
+        final int connectRetriesInterval = environment.getConnectRetriesInterval() != null
+            ? environment.getConnectRetriesInterval()
+            : 0;
+        connection = JdbcUtils.openConnection(configuration.getDataSource(), connectRetries, connectRetriesInterval);
+        initializeConnectionType(environment, configuration);
+        currentSchema = getDefaultSchema(configuration);
+        metaData = getDatabaseMetaData();
+    }
 
     @Override
     public boolean canCreateJdbcDataSource() {
@@ -46,9 +59,9 @@ public abstract class ExperimentalJdbc extends AbstractExperimentalDatabase {
     }
 
     @Override
-    public void doExecute(final String executionUnit, final boolean outputQueryResults) {
+    public void doExecute(final T executionUnit, final boolean outputQueryResults) {
         try (final Statement statement = connection.createStatement()) {
-            final boolean hasResult = statement.execute(executionUnit);
+            final boolean hasResult = statement.execute((String) executionUnit);
             parseResults(hasResult, statement, outputQueryResults);
         } catch (SQLException e) {
             throw new FlywayException(e);
@@ -81,7 +94,7 @@ public abstract class ExperimentalJdbc extends AbstractExperimentalDatabase {
     }
 
     @Override
-    public MetaData getDatabaseMetaData() {
+    public final MetaData getDatabaseMetaData() {
         if (this.metaData != null) {
             return metaData;
         }
@@ -89,7 +102,15 @@ public abstract class ExperimentalJdbc extends AbstractExperimentalDatabase {
         final DatabaseMetaData databaseMetaData = JdbcUtils.getDatabaseMetaData(connection);
         final String databaseProductName = JdbcUtils.getDatabaseProductName(databaseMetaData);
         final String databaseProductVersion = JdbcUtils.getDatabaseProductVersion(databaseMetaData);
-        return new MetaData(databaseProductName, databaseProductVersion, ConnectionType.JDBC, null);
+
+        String databaseName = null;
+        try {
+            databaseName = supportsCatalog() ? connection.getCatalog() :
+            supportsSchema() ? getCurrentSchema() : null;
+        } catch (SQLException ignored) {
+        }
+
+        return new MetaData(databaseProductName, databaseProductVersion, getConnectionType(), databaseName);
     }
 
     @Override
@@ -323,7 +344,11 @@ public abstract class ExperimentalJdbc extends AbstractExperimentalDatabase {
     }
 
     @Override
-    public String getDefaultSchema(final Configuration configuration) {
+    public final String getDefaultSchema(final Configuration configuration) {
+        if (!supportsSchema()) {
+            return getSchemaPlaceHolder();
+        }
+
         final String schema = ConfigUtils.getCalculatedDefaultSchema(configuration);
         if (schema == null) {
             try {
@@ -335,11 +360,27 @@ public abstract class ExperimentalJdbc extends AbstractExperimentalDatabase {
         return schema;
     }
 
-    public String getTableNameWithSchema(final String table) {
+    protected String getTableNameWithSchema(final String table) {
         return quote(getCurrentSchema(), table);
+    }
+
+    protected boolean supportsSchema() {
+        return true;
+    }
+
+    protected String getSchemaPlaceHolder() {
+        return null;
     }
 
     protected boolean supportsBoolean() {
         return true;
+    }
+
+    protected boolean supportsCatalog() {
+        return true;
+    }
+
+    protected void initializeConnectionType(final ResolvedEnvironment environment, final Configuration configuration) {
+        connectionType = ConnectionType.JDBC;
     }
 }

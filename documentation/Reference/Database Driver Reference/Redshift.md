@@ -2,7 +2,8 @@
 subtitle: Redshift
 ---
 
-- **Verified Versions:** N/A
+- **Verified DB Versions:** N/A
+- **Verified Client Version:** Flyway v11.3.4 & driver v2.1.0.32
 - **Maintainer:** {% include redgate-badge.html %}
 
 ## Supported Versions and Support Levels
@@ -11,14 +12,15 @@ subtitle: Redshift
 
 ## Driver
 
-| Item                               | Details                                                                                                                                               |
-|------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **URL format**                     | <code>jdbc:redshift://<i>host</i>:<i>port</i>/<i>database</i></code>                                                                                  |
-| **Ships with Flyway Command-line** | No                                                                                                                                                    |
-| **Download**                       | Follow the instructions at [docs.aws.amazon.com](http://docs.aws.amazon.com/redshift/latest/mgmt/configure-jdbc-connection.html#download-jdbc-driver) |
-| **Supported versions**             | `1.2.10.1009` and later.<br>`2.0.0.5` and later are **partially** supported (see below)                                                               |
-| **Default Java class**             | `com.amazon.redshift.jdbc42.Driver`                                                                                                                   |
+| Item                               | Details                                                                                                                                                   |
+|------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **URL format**                     | <code>jdbc:redshift://<i>host</i>:<i>port</i>/<i>database</i></code>                                                                                      |
+| **Ships with Flyway Command-line** | No                                                                                                                                                        |
+| **Download**                       | [Download the Amazon Redshift JDBC driver, version 2.1](https://docs.aws.amazon.com/redshift/latest/mgmt/jdbc20-download-driver.html) |
+| **Supported versions**             | `2.1.0.32` and later                                                                                                                                      |
+| **Default Java class**             | `com.amazon.redshift.jdbc42.Driver`                                                                                                                       |
 
+See [Adding to the classpath](<Usage/Adding to the classpath>) for details on how to add the driver to Flyway
 
 ## Java Usage
 Redshift support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
@@ -99,5 +101,5 @@ Due to Redshift limitations `ALTER TABLE` and `DROP TABLE` for **external tables
 autodetect this. You can work around this limitation and successfully execute such a statement by including a `VACUUM`
 statement in the same SQL file as this will force Flyway to run the entire migration without a transaction.
 
-The v2 driver is only supported from v2.0.0.5, and only then by Flyway setting the connection property `enableFetchRingBuffer=false`. 
-We recommend using the latest v1 driver for the time being. See [here](https://github.com/aws/amazon-redshift-jdbc-driver/issues/4) for more details.
+## Useful information
+- [Apply CI/CD DevOps principles to Amazon Redshift development](https://aws.amazon.com/blogs/big-data/apply-ci-cd-devops-principles-to-amazon-redshift-development/)

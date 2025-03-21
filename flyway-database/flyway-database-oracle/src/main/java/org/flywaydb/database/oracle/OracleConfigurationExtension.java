@@ -27,6 +27,7 @@ public class OracleConfigurationExtension implements ConfigurationExtension {
 
     private static final String ORACLE_SQLPLUS = "flyway.oracle.sqlplus";
     private static final String ORACLE_SQLPLUS_WARN = "flyway.oracle.sqlplusWarn";
+    private static final String ORACLE_SQLPLUS_CONNECTION_IDENTIFIER = "flyway.oracle.sqlplusConnectionIdentifier";
     private static final String ORACLE_KERBEROS_CACHE_FILE = "flyway.oracle.kerberosCacheFile";
     private static final String ORACLE_WALLET_LOCATION = "flyway.oracle.walletLocation";
 
@@ -34,6 +35,7 @@ public class OracleConfigurationExtension implements ConfigurationExtension {
     private Boolean sqlplusWarn = false;
     private String kerberosCacheFile;
     private String walletLocation;
+    private String sqlplusConnectionIdentifier;
 
 
     @Override
@@ -52,6 +54,8 @@ public class OracleConfigurationExtension implements ConfigurationExtension {
                 return ORACLE_SQLPLUS_WARN;
             case "FLYWAY_ORACLE_WALLET_LOCATION":
                 return ORACLE_WALLET_LOCATION;
+            case "FLYWAY_ORACLE_SQLPLUS_CONNECTION_IDENTIFIER":
+                return ORACLE_SQLPLUS_CONNECTION_IDENTIFIER;
             default:
                 return null;
         }

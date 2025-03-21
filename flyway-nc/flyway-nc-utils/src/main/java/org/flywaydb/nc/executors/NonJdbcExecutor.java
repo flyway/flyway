@@ -23,11 +23,11 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.experimental.ConnectionType;
 import org.flywaydb.core.experimental.ExperimentalDatabase;
 
-public class NonJdbcExecutor implements Executor<String> {
+public class NonJdbcExecutor implements Executor<NonJdbcExecutorExecutionUnit> {
 
     @Override
     public void execute(final ExperimentalDatabase experimentalDatabase,
-        final String executionUnit,
+        final NonJdbcExecutorExecutionUnit executionUnit,
         final Configuration configuration) {
         experimentalDatabase.doExecute(executionUnit, configuration.isOutputQueryResults());
     }
@@ -43,7 +43,7 @@ public class NonJdbcExecutor implements Executor<String> {
     }
 
     @Override
-    public void appendErrorMessage(final String executionUnit,
+    public void appendErrorMessage(final NonJdbcExecutorExecutionUnit executionUnit,
         final StringBuilder messageBuilder,
         final boolean isDebugEnabled) {
 

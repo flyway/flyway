@@ -301,4 +301,13 @@ public class FileUtils {
         }
         throw new FlywayException("Unable to read line " + lineNumber + " from " + file.getAbsolutePath());
     }
+
+    public static String getParentDir(String file) {
+        return new File(file).getParent();
+    }
+
+    public static String readFileAsString(final File file) throws IOException {
+        final InputStreamReader isr = new InputStreamReader(new FileInputStream(file));
+        return copyToString(isr);
+    }
 }

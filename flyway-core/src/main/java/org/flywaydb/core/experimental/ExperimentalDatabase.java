@@ -39,7 +39,7 @@ import org.flywaydb.core.internal.util.TimeFormat;
 /**
  * Interface to define new experimental database plugins.
  */
-public sealed interface ExperimentalDatabase extends Plugin, AutoCloseable permits AbstractExperimentalDatabase {
+public sealed interface ExperimentalDatabase <T> extends Plugin, AutoCloseable permits AbstractExperimentalDatabase {
     Log LOG = org.flywaydb.core.api.logging.LogFactory.getLog(ExperimentalDatabase.class);
     String APPLICATION_NAME = "Flyway by Redgate";
 
@@ -69,7 +69,7 @@ public sealed interface ExperimentalDatabase extends Plugin, AutoCloseable permi
      */
     void initialize(ResolvedEnvironment environment, Configuration configuration);
 
-    void doExecute(String executionUnit, final boolean outputQueryResults);
+    void doExecute(T executionUnit, final boolean outputQueryResults);
 
     /**
      * Gets connection important metadata from the database.

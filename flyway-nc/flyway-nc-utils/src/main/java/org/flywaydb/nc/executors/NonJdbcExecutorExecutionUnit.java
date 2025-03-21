@@ -1,6 +1,6 @@
 /*-
  * ========================LICENSE_START=================================
- * flyway-core
+ * flyway-nc-utils
  * ========================================================================
  * Copyright (C) 2010 - 2025 Red Gate Software Ltd
  * ========================================================================
@@ -17,33 +17,14 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.core.experimental;
+package org.flywaydb.nc.executors;
 
-import java.util.ArrayList;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-public abstract non-sealed class AbstractExperimentalDatabase <T> implements ExperimentalDatabase <T>{
-    protected final ArrayList<String> batch = new ArrayList<>();
-    protected MetaData metaData;
-
-    @Getter
-    protected ConnectionType connectionType;
-
-    // This is the schema that contains the Schema History Table; it is not the schema of the current connection
-    protected String currentSchema;
-
-    @Override
-    public void addToBatch(final String executionUnit) {
-        batch.add(executionUnit);
-    }
-
-    @Override
-    public int getBatchSize() {
-        return batch.size();
-    }
-
-    @Override
-    public final String getCurrentSchema() {
-        return currentSchema;
-    }
+@AllArgsConstructor
+@Getter
+public class NonJdbcExecutorExecutionUnit {
+    private String script;
+    private String contextPath;
 }

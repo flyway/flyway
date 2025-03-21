@@ -315,7 +315,7 @@ public class JdbcMigrator extends Migrator {
         final Configuration configuration,
         final LoadableMigrationInfo loadableMigrationInfo,
         final ParsingContext parsingContext) {
-        final Parser parser = experimentalDatabase.getParser().apply(configuration, parsingContext);
+        final Parser parser = (Parser) experimentalDatabase.getParser().apply(configuration, parsingContext);
         final SqlScriptMetadata metadata = loadableMigrationInfo.getSqlScriptMetadata();
         return parser.parse(loadableMigrationInfo.getLoadableResource(), metadata);
     }

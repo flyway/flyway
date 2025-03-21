@@ -4,7 +4,7 @@ subtitle: Check Changes
 
 ## Description
 
-The `check -changes` command produces a report indicating differences between applied migration scripts on your target database and pending migrations scripts (i.e. the set of instructions you want to use to change your target database).
+The `check -changes` command produces a report indicating differences between what is applied on your target database and pending changes (i.e. the set of instructions you want to use to change your target database).
 
 The report is generated entirely using [snapshots](https://documentation.red-gate.com/display/FD/Snapshots) of the configured [build environment](https://documentation.red-gate.com/display/FD/Shadow+and+build+environments) which means that any drift to the production database will be ignored in this report.
 
@@ -44,6 +44,22 @@ flyway check -changes -deployedSnapshot="C:\snapshot1.json" -nextSnapshot="C:\sn
 
 The comparison which underlies the report is generated from the specified snapshots.
 
+### Generating report from a Schema model based upon environment
+
+```bash
+flyway check -changes -check.changesSource="schemaModel" -environment="production"
+```
+
+The comparison which underlies the report is generated from the specified Schema model and environment.
+
+### Generating report from a Schema model based upon deployed snapshot
+
+```bash
+flyway check -changes -check.changesSource="schemaModel" -deployedSnapshot="C:\snapshot.json"
+```
+
+The comparison which underlies the report is generated from the specified Schema model and deployed snapshot.
+
 ## Parameters
 
 ### Conditionally required
@@ -67,6 +83,12 @@ The comparison which underlies the report is generated from the specified snapsh
 | [`deployedSnapshot`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Deployed Snapshot Setting>) | check     | A snapshot containing all applied migrations and thus matching what should be in the target. |
 | [`nextSnapshot`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Next Snapshot Setting>)         | check     | A snapshot containing all migrations including those that are pending.                       |
 
+#### When generating report from a Schema model
+
+| Parameter                                                                                      | Namespace | Description                              |
+|------------------------------------------------------------------------------------------------|-----------|------------------------------------------|
+| [`schemaModelLocation`](<Configuration/Flyway Namespace/Flyway Schema Model Location Setting>) | (root)    | The location of the schema model folder. |
+
 ### Optional
 
 | Parameter                                                                                                              | Namespace | Description                                                                                                      |
@@ -75,6 +97,7 @@ The comparison which underlies the report is generated from the specified snapsh
 | [`buildUser`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Build User Setting>)                 | check     | Username for the build database.                                                                                 |
 | [`buildPassword`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Build Password Setting>)         | check     | Password for the build database.                                                                                 |
 | [`filterFile`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Filter File Setting>)               | check     | The path to a filter file, containing custom filtering rules for excluding objects from the comparisons.         |
+| [`changesSource`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Changes Source Setting>)         | check     | The deployment source to generate a change report from.                                                          |
 | [`environment`](<Configuration/Flyway Namespace/Flyway Environment Setting>)                                           | (root)    | The target environment id.                                                                                       |
 | [`reportFilename`](<Configuration/Flyway Namespace/Flyway Report Filename Setting>)                                    | (root)    | The output path of the generated report.                                                                         |
 | [`workingDirectory`](<Command-line Parameters/Working Directory Parameter>)                                             | (root)    | The directory to consider the current working directory. All relative paths will be considered relative to this. |
@@ -93,6 +116,9 @@ When a build environment is used, settings from the following sections of the [F
 * Migration execution settings
 * Flyway schema history settings
 * Placeholders
+
+When a Schema model is used, settings from the following sections of the [Flyway namespace](<Configuration/Flyway Namespace>) can also be set:
+* Schema model settings
 
 ## JSON output format
 

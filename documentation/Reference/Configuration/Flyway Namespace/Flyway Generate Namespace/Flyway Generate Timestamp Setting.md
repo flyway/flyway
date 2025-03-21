@@ -6,6 +6,8 @@ subtitle: flyway.generate.timestamp
 
 Generate a timestamp to the calculated version if one is not already present.
 
+See [generating migrations](https://documentation.red-gate.com/flyway/database-development-using-flyway/generating-migrations) for more details.
+
 ## Type
 
 String

@@ -19,6 +19,7 @@
  */
 package org.flywaydb.nc.callbacks;
 
+import static org.flywaydb.core.internal.util.FileUtils.getParentDir;
 import static org.flywaydb.nc.ErrorUtils.calculateErrorMessage;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,8 +36,10 @@ import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.nc.VerbUtils;
+import org.flywaydb.nc.executors.NonJdbcExecutorExecutionUnit;
 import org.flywaydb.nc.executors.Executor;
 import org.flywaydb.nc.executors.ExecutorFactory;
+import org.flywaydb.nc.executors.JdbcExecutor;
 import org.flywaydb.nc.readers.Reader;
 import org.flywaydb.nc.readers.ReaderFactory;
 
@@ -65,15 +68,24 @@ public class NativeConnectorsCallbackHandler implements CallbackHandler {
             callback.getLoadableResourceMetadata().loadableResource(),
             callback.getLoadableResourceMetadata().sqlScriptMetadata());
 
-        final Executor<Object> executor = ExecutorFactory.getExecutor(database, configuration);
+        final Executor executor = ExecutorFactory.getExecutor(database, configuration);
 
         LOG.info("Callback executed: " + callback.getEvent().name() + " from " + callback.getPhysicalLocation());
 
         try (final EventTelemetryModel telemetryModel = new EventTelemetryModel(callback.getEvent().getId(),
             VerbUtils.getFlywayTelemetryManager(configuration))) {
             executionUnits.forEach(executionUnit -> {
+
+                Object executionUnitObj;
+                if (executor instanceof JdbcExecutor) {
+                    executionUnitObj = executionUnit;
+                } else {
+                    final String parentDir = getParentDir(callback.getLoadableResourceMetadata().loadableResource().getAbsolutePath());
+                    executionUnitObj = new NonJdbcExecutorExecutionUnit((String) executionUnit, parentDir);
+                }
+
                 try {
-                    executor.execute(database, executionUnit, configuration);
+                    executor.execute(database, executionUnitObj, configuration);
                 } catch (Exception e) {
                     final String title = "Error while executing "
                         + callback.getEvent().getId()
@@ -85,7 +97,7 @@ public class NativeConnectorsCallbackHandler implements CallbackHandler {
                         callback.getLoadableResourceMetadata().loadableResource(),
                         callback.getPhysicalLocation(),
                         executor,
-                        executionUnit,
+                        executionUnitObj,
                         "Message    : " + e.getMessage() + "\n");
 
                     throw new FlywayException(errorMessage);
