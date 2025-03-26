@@ -58,7 +58,7 @@ public class SchemasVerbExtension implements VerbExtension {
             database.createSchemas(missingSchemas.toArray(String[]::new));
         }
 
-        database.createSchemaHistoryTableIfNotExists(configuration.getTable());
+        database.createSchemaHistoryTableIfNotExists(configuration);
 
         if (!missingSchemas.isEmpty()) {
             // Update SHT with created Schemas

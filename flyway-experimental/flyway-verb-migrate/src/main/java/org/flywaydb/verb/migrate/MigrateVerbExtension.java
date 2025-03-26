@@ -41,6 +41,7 @@ import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.extensibility.VerbExtension;
 import org.flywaydb.core.internal.license.VersionPrinter;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.TimeFormat;
 import org.flywaydb.core.internal.util.ValidatePatternUtils;
@@ -82,6 +83,12 @@ public class MigrateVerbExtension implements VerbExtension {
                 throw new FlywayException("Schemas verb extension is required for creating schemas but is not present",
                     e);
             }
+        } else if (!database.isSchemaExists(database.getCurrentSchema())) {
+            LOG.warn("""
+                     The configuration option 'createSchemas' is false.
+                     Even though Flyway is configured not to create any schemas, the schema history table still needs a schema to reside in.
+                     You must manually create a schema for the schema history table to reside in.
+                     See\s""" + FlywayDbWebsiteLinks.MIGRATIONS);
         }
 
         if (!database.schemaHistoryTableExists(configuration.getTable())) {
@@ -111,7 +118,7 @@ public class MigrateVerbExtension implements VerbExtension {
 
         final CallbackManager callbackManager = new CallbackManager(configuration, context.getResources());
 
-        database.createSchemaHistoryTableIfNotExists(configuration.getTable());
+        database.createSchemaHistoryTableIfNotExists(configuration);
 
         final MigrateResult migrateResult = new MigrateResult(VersionPrinter.getVersion(),
             database.getDatabaseMetaData().databaseName(),

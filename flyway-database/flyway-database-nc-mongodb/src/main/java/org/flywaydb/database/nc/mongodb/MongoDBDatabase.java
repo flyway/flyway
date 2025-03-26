@@ -53,6 +53,7 @@ import org.flywaydb.core.experimental.DatabaseSupport;
 import org.flywaydb.core.experimental.MetaData;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryItem;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryModel;
+import org.flywaydb.core.extensibility.LicenseGuard;
 import org.flywaydb.core.extensibility.TLSConnectionHelper;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
@@ -89,8 +90,9 @@ public class MongoDBDatabase extends AbstractExperimentalDatabase <NonJdbcExecut
     }
 
     @Override
-    public boolean isOnByDefault() {
-        return true;
+    public boolean isOnByDefault(final Configuration configuration) {
+        boolean isOSS = "OSS".equals(LicenseGuard.getTierAsString(configuration));
+        return isOSS || checkMongoshInstalled(true);
     }
 
     @Override
@@ -118,7 +120,7 @@ public class MongoDBDatabase extends AbstractExperimentalDatabase <NonJdbcExecut
         }
 
         if (connectionType == ConnectionType.EXECUTABLE) {
-            checkMongoshInstalled();
+            checkMongoshInstalled(false);
             mongoshCredential = new MongoshCredential(environment.getUrl(),
                 environment.getUser(),
                 environment.getPassword());
@@ -191,8 +193,8 @@ public class MongoDBDatabase extends AbstractExperimentalDatabase <NonJdbcExecut
     }
 
     @Override
-    public void createSchemaHistoryTable(final String tableName) {
-        mongoDatabase.createCollection(tableName);
+    public void createSchemaHistoryTable(Configuration configuration) {
+        mongoDatabase.createCollection(configuration.getTable());
         doesSchemaHistoryTableExist = true;
     }
 
@@ -440,7 +442,7 @@ public class MongoDBDatabase extends AbstractExperimentalDatabase <NonJdbcExecut
         }
     }
 
-    private void checkMongoshInstalled() {
+    private boolean checkMongoshInstalled(final boolean silent) {
         List<String> commands = Arrays.asList("mongosh", "--version");
         LOG.debug("Executing " + String.join(" ", commands));
         final ProcessBuilder processBuilder = new ProcessBuilder(commands);
@@ -449,13 +451,21 @@ public class MongoDBDatabase extends AbstractExperimentalDatabase <NonJdbcExecut
             processBuilder.start();
         } catch (final Exception e) {
             if (DockerUtils.isContainer()) {
+                if (silent) {
+                    return false;
+                }
                 throw new FlywayException(
                     "Mongosh is not installed on this docker image. Please use the Mongo docker image on our repository: "
                         + FlywayDbWebsiteLinks.OSS_DOCKER_REPOSITORY);
+            }
+            if (silent) {
+                return false;
             }
             throw new FlywayException(
                 "Mongosh is required for .js migrations and is not currently installed. Information on how to install Mongosh can be found here: "
                     + FlywayDbWebsiteLinks.MONGOSH);
         }
+
+        return true;
     }
 }

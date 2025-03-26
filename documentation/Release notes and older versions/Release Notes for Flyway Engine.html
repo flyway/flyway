@@ -7,6 +7,32 @@
 
 </div>
 <div class="col-md-9">
+  <div class="release">
+        <h2 id="11.4.1">Flyway 11.4.1 (2025-03-21)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Rule and configuration TOML files now support a BOM character at the start of the file</li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Added support for change reports to projects deploying from a Schema model. This can be enabled by setting '-check.changesSource=schemaModel' when running 'check -changes'</li>
+            <li>(preview) add support for migration tags. Tags can be used to cherry pick groups of migrations.</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>Update Snowflake to 3.23.1 to fix CVE-2025-27496</li>
+        </ul>
+
+        <h3>Library upgrades</h3>
+        <ul>
+            <li>Upgraded RgCompare.Cli from 1.29.0.25860 to 1.30.0.25967</li>
+        </ul>
+
+  </div>
+
 
   <div class="release">
         <h2 id="11.4.0">Flyway 11.4.0 (2025-03-12)</h2>

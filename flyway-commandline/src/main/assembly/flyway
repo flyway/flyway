@@ -23,11 +23,8 @@ else
  if [ -z "$JAVA_HOME" ]; then JAVA_CMD=java; else JAVA_CMD=$JAVA_HOME/bin/java; fi
 fi
 
-if [ -n "$FLYWAY_NATIVE_CONNECTORS" ] && [ "$FLYWAY_NATIVE_CONNECTORS" == "false" ]; then
-  CP="$CLASSPATH:$INSTALLDIR/lib/*:$INSTALLDIR/lib/aad/*:$INSTALLDIR/lib/plugins/*:$INSTALLDIR/lib/oracle_wallet/*:$INSTALLDIR/lib/flyway/*:$INSTALLDIR/lib/netty/*:$INSTALLDIR/lib/opentelemetry/*:$INSTALLDIR/drivers/*:$INSTALLDIR/drivers/gcp/*:$INSTALLDIR/drivers/cassandra/*"
-else
-  CP="$CLASSPATH:$INSTALLDIR/lib/*:$INSTALLDIR/lib/aad/*:$INSTALLDIR/lib/plugins/*:$INSTALLDIR/lib/oracle_wallet/*:$INSTALLDIR/lib/flyway/*:$INSTALLDIR/lib/netty/*:$INSTALLDIR/lib/opentelemetry/*:$INSTALLDIR/drivers/*:$INSTALLDIR/drivers/gcp/*:$INSTALLDIR/drivers/cassandra/*:$INSTALLDIR/drivers/mongo/*"
-fi
+
+CP="$CLASSPATH:$INSTALLDIR/lib/*:$INSTALLDIR/lib/aad/*:$INSTALLDIR/lib/plugins/*:$INSTALLDIR/lib/oracle_wallet/*:$INSTALLDIR/lib/flyway/*:$INSTALLDIR/lib/netty/*:$INSTALLDIR/lib/opentelemetry/*:$INSTALLDIR/drivers/*:$INSTALLDIR/drivers/gcp/*:$INSTALLDIR/drivers/cassandra/*:$INSTALLDIR/drivers/mongo/*"
 
 
 EXTRA_ARGS=

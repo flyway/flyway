@@ -206,7 +206,7 @@ public class Flyway {
                         LOG.warn("The configuration option 'createSchemas' is false.\n" +
                                          "However, the schema history table still needs a schema to reside in.\n" +
                                          "You must manually create a schema for the schema history table to reside in.\n" +
-                                         "See https://documentation.red-gate.com/fd/migrations-184127470.html");
+                                         "See " + FlywayDbWebsiteLinks.MIGRATIONS);
                     }
 
                     if (!schemaHistory.exists()) {
@@ -415,7 +415,7 @@ public class Flyway {
                         LOG.warn("The configuration option 'createSchemas' is false.\n" +
                                          "Even though Flyway is configured not to create any schemas, the schema history table still needs a schema to reside in.\n" +
                                          "You must manually create a schema for the schema history table to reside in.\n" +
-                                         "See https://documentation.red-gate.com/fd/migrations-184127470.html");
+                                         "See " + FlywayDbWebsiteLinks.MIGRATIONS);
                     }
 
                     BaselineResult baselineResult = doBaseline(schemaHistory, callbackExecutor, database);

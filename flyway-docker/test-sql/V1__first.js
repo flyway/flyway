@@ -1,0 +1,1 @@
+const result = db.runCommand({ ping: 1 });

@@ -53,7 +53,8 @@ public sealed interface ExperimentalDatabase <T> extends Plugin, AutoCloseable p
     default boolean canCreateJdbcDataSource() {
         return false;
     }
-    default boolean isOnByDefault() {
+
+    default boolean isOnByDefault(final Configuration configuration) {
         return false;
     }
 
@@ -84,7 +85,7 @@ public sealed interface ExperimentalDatabase <T> extends Plugin, AutoCloseable p
      * The implementation details will be determined per database but will adhere to a Flyway standard.
      * @param tableName The name of the schema history table to create.
      */
-    void createSchemaHistoryTable(String tableName);
+    void createSchemaHistoryTable(Configuration configuration);
 
     boolean schemaHistoryTableExists(String tableName);
 
@@ -220,12 +221,12 @@ public sealed interface ExperimentalDatabase <T> extends Plugin, AutoCloseable p
         return installedBy == null ? getCurrentUser() : installedBy;
     }
 
-    default void createSchemaHistoryTableIfNotExists(final String tableName) {
-        if (!schemaHistoryTableExists(tableName)) {
+    default void createSchemaHistoryTableIfNotExists(final Configuration configuration) {
+        if (!schemaHistoryTableExists(configuration.getTable())) {
             LOG.info("Creating Schema History table "
-                + quote(getCurrentSchema(), tableName)
+                + quote(getCurrentSchema(), configuration.getTable())
                 + " ...");
-            createSchemaHistoryTable(tableName);
+            createSchemaHistoryTable(configuration);
         }
     }
 

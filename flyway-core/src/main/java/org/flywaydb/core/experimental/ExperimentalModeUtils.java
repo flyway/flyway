@@ -23,21 +23,13 @@ import java.util.Optional;
 import lombok.CustomLog;
 import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.extensibility.LicenseGuard;
 import org.flywaydb.core.internal.configuration.ConfigurationValidator;
 
 @CustomLog
 public class ExperimentalModeUtils {
 
-    private static boolean isExperimentalModeActivated(final Configuration configuration) {
-        if ("OSS".equals(LicenseGuard.getTierAsString(configuration))) {
-            return isNativeConnectorsNotTurnedOff();
-        }
-        return isNativeConnectorsTurnedOn();
-    }
-
     public static boolean canUseExperimentalMode(final Configuration config,  final String verb) {
-        if (!isExperimentalModeActivated(config)) {
+        if (isNativeConnectorsTurnedOff()) {
             return false;
         }
 
@@ -55,7 +47,7 @@ public class ExperimentalModeUtils {
         Optional<ExperimentalDatabase> database = resolveExperimentalDatabasePlugin(config);
 
         return database.map(experimentalDatabase -> experimentalDatabase.supportedVerbs().contains(verb) &&
-                (experimentalDatabase.isOnByDefault() || isNativeConnectorsTurnedOn()))
+                (experimentalDatabase.isOnByDefault(config) || isNativeConnectorsTurnedOn()))
             .orElse(false);
     }
 
@@ -64,14 +56,15 @@ public class ExperimentalModeUtils {
             return true;
         }
 
-        if (isExperimentalModeActivated(config)) {
+        if (!isNativeConnectorsTurnedOff()) {
             if (config.getUrl() == null) {
                 return true;
             }
 
             Optional<ExperimentalDatabase> database = resolveExperimentalDatabasePlugin(config);
 
-            return database.map(ExperimentalDatabase::canCreateJdbcDataSource)
+            return database.map(experimentalDatabase -> experimentalDatabase.canCreateJdbcDataSource()
+                               || !experimentalDatabase.isOnByDefault(config))
                 .orElse(true);
         }
 
@@ -97,7 +90,7 @@ public class ExperimentalModeUtils {
         return System.getenv("FLYWAY_NATIVE_CONNECTORS") != null && System.getenv("FLYWAY_NATIVE_CONNECTORS").equalsIgnoreCase("true");
     }
 
-    private static boolean isNativeConnectorsNotTurnedOff() {
-        return System.getenv("FLYWAY_NATIVE_CONNECTORS") == null || System.getenv("FLYWAY_NATIVE_CONNECTORS").equalsIgnoreCase("true");
+    private static boolean isNativeConnectorsTurnedOff() {
+        return System.getenv("FLYWAY_NATIVE_CONNECTORS") != null && System.getenv("FLYWAY_NATIVE_CONNECTORS").equalsIgnoreCase("false");
     }
 }

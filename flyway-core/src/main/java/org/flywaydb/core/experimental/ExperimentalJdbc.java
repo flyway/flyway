@@ -235,10 +235,10 @@ public abstract class ExperimentalJdbc <T> extends AbstractExperimentalDatabase 
     }
 
     @Override
-    public void createSchemaHistoryTable(final String tableName) {
+    public void createSchemaHistoryTable(final Configuration configuration) {
         try (final Statement statement = connection.createStatement()) {
             final String createSql = "CREATE TABLE "
-                + getTableNameWithSchema(tableName)
+                + getTableNameWithSchema(configuration.getTable())
                 + " (\n"
                 + doQuote("installed_rank") + " INT NOT NULL PRIMARY KEY,\n"
                 + doQuote("version") + " VARCHAR(50),\n"

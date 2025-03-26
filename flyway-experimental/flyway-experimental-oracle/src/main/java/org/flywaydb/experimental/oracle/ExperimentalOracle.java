@@ -40,6 +40,7 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.experimental.ConnectionType;
 import org.flywaydb.core.experimental.DatabaseSupport;
 import org.flywaydb.core.experimental.ExperimentalJdbc;
+import org.flywaydb.core.experimental.schemahistory.SchemaHistoryItem;
 import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
@@ -51,6 +52,7 @@ import org.flywaydb.nc.executors.NonJdbcExecutorExecutionUnit;
 public class ExperimentalOracle <T> extends ExperimentalJdbc <T> {
 
     private static final String ORACLE_NET_TNS_ADMIN = "oracle.net.tns_admin";
+    private static final String DESCRIPTION_MARKER = "<< no description >>";
 
 
 
@@ -148,6 +150,15 @@ public class ExperimentalOracle <T> extends ExperimentalJdbc <T> {
     }
 
     @Override
+    public void appendSchemaHistoryItem(final SchemaHistoryItem item, final String tableName) {
+        if (item.getDescription().isEmpty()) {
+            super.appendSchemaHistoryItem(item.toBuilder().description(DESCRIPTION_MARKER).build(), tableName);
+        } else {
+            super.appendSchemaHistoryItem(item, tableName);
+        }
+    }
+
+    @Override
     public String getDatabaseType() {
         return "Oracle";
     }
@@ -183,10 +194,14 @@ public class ExperimentalOracle <T> extends ExperimentalJdbc <T> {
     }
 
     @Override
-    public void createSchemaHistoryTable(final String tableName) {
+    public void createSchemaHistoryTable(final Configuration configuration) {
         try (final Statement statement = connection.createStatement()) {
+            final String tablespace = configuration.getTablespace() == null
+                ? ""
+                : " TABLESPACE \"" + configuration.getTablespace() + "\"";
+
             final String createSql = "CREATE TABLE "
-                + getTableNameWithSchema(tableName)
+                + getTableNameWithSchema(configuration.getTable())
                 + " (\n"
                 + doQuote("installed_rank") + " INT NOT NULL,\n     "
                 + doQuote("version") + " VARCHAR2(50),\n     "
@@ -199,8 +214,8 @@ public class ExperimentalOracle <T> extends ExperimentalJdbc <T> {
                 + doQuote("execution_time") + " INT NOT NULL,\n     "
                 + doQuote("success") + " NUMBER(1) NOT NULL,\n     "
                 + "CONSTRAINT "
-                + doQuote(tableName + "_pk") + " PRIMARY KEY (" + doQuote("installed_rank") + ")\n"
-                + " )\n";
+                + doQuote(configuration.getTable() + "_pk") + " PRIMARY KEY (" + doQuote("installed_rank") + ")\n"
+                + " ) " + tablespace + "\n";
             statement.executeUpdate(createSql);
         } catch (SQLException e) {
             throw new FlywayException(e);
@@ -248,6 +263,26 @@ public class ExperimentalOracle <T> extends ExperimentalJdbc <T> {
         newPatterns[defaultPattern.length] = Pattern.compile("^jdbc:oracle:thin:[a-zA-Z0-9#_$]+/([a-zA-Z0-9#_$]+)@.*");
         return newPatterns;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

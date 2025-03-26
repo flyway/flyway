@@ -1,4 +1,4 @@
-flywayVersion: 11.4.1
+flywayVersion: 11.5.0
 enterpriseUrl: https://download.red-gate.com/maven/release/com/redgate/flyway
 kramdown:
   smart_quotes: ["apos", "apos", "quot", "quot"]

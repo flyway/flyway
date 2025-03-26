@@ -64,7 +64,7 @@ public class BaselineVerbExtension implements VerbExtension {
                      The configuration option 'createSchemas' is false.
                      Even though Flyway is configured not to create any schemas, the schema history table still needs a schema to reside in.
                      You must manually create a schema for the schema history table to reside in.
-                     See https://documentation.red-gate.com/fd/migrations-184127470.html""");
+                     See\s""" + FlywayDbWebsiteLinks.MIGRATIONS);
         }
 
         final boolean schemaHistoryTableExists = database.schemaHistoryTableExists(schemaHistoryName);
@@ -173,7 +173,7 @@ public class BaselineVerbExtension implements VerbExtension {
         final ExperimentalDatabase database,
         final BaselineResult baselineResult) {
 
-        database.createSchemaHistoryTableIfNotExists(configuration.getTable());
+        database.createSchemaHistoryTableIfNotExists(configuration);
 
         final String baselineVersion = configuration.getBaselineVersion().getVersion();
         database.appendSchemaHistoryItem(SchemaHistoryItem.builder()
