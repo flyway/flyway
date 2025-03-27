@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <!--
-    Detailed information how to contribute: https://documentation.red-gate.com/fd/code-184127557.html
+    Detailed information how to contribute: https://flyway.github.io/flyway/
 
     To build the OS-specific flyway-commandline assemblies you can run the build with one of the following commands:
     mvn clean install -Pbuild-assemblies-windows
