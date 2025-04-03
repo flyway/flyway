@@ -68,7 +68,7 @@ public class MigrateVerbExtension implements VerbExtension {
     @Override
     public Object executeVerb(final Configuration configuration) {
 
-        final PreparationContext context = PreparationContext.get(configuration);
+        final PreparationContext context = PreparationContext.get(configuration, false);
 
         if (configuration.isValidateOnMigrate()) {
             validate(configuration);
@@ -78,7 +78,9 @@ public class MigrateVerbExtension implements VerbExtension {
 
         if (configuration.isCreateSchemas()) {
             try {
-                new SchemasVerbExtension().executeVerb(configuration);
+                final SchemasVerbExtension schemasVerbExtension = new SchemasVerbExtension();
+                schemasVerbExtension.useCaching();
+                schemasVerbExtension.executeVerb(configuration);
             } catch (final NoClassDefFoundError e) {
                 throw new FlywayException("Schemas verb extension is required for creating schemas but is not present",
                     e);
@@ -104,7 +106,9 @@ public class MigrateVerbExtension implements VerbExtension {
 
             if (!populatedSchemas.isEmpty() && !configuration.isSkipExecutingMigrations()) {
                 if (configuration.isBaselineOnMigrate()) {
-                    new BaselineVerbExtension().executeVerb(configuration);
+                    final BaselineVerbExtension baselineVerbExtension = new BaselineVerbExtension();
+                    baselineVerbExtension.useCaching();
+                    baselineVerbExtension.executeVerb(configuration);
                     context.refresh(configuration);
                 } else {
                     throw new FlywayException("Found non-empty schema(s) "
@@ -221,7 +225,9 @@ public class MigrateVerbExtension implements VerbExtension {
         final List<ValidatePattern> ignorePatterns = new ArrayList<>(Arrays.asList(configuration.getIgnoreMigrationPatterns()));
         ignorePatterns.add(ValidatePattern.fromPattern("*:pending"));
         validateConfig.ignoreMigrationPatterns(ignorePatterns.toArray(ValidatePattern[]::new));
-        final ValidateResult validateResult = (ValidateResult) new ValidateVerbExtension().executeVerb(validateConfig);
+        final ValidateVerbExtension validateVerbExtension = new ValidateVerbExtension();
+        validateVerbExtension.useCaching();
+        final ValidateResult validateResult = (ValidateResult) validateVerbExtension.executeVerb(validateConfig);
         if (!validateResult.validationSuccessful) {
             throw new FlywayValidateException(validateResult.errorDetails, validateResult.getAllErrorMessages());
         }

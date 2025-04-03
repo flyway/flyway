@@ -68,7 +68,10 @@ public class ParsingContext {
             placeholders.put(generateName(DEFAULT_SCHEMA_PLACEHOLDER,configuration), defaultSchemaName);
         }
 
-        // placeholders.put(generateName(DATABASE_PLACEHOLDER,configuration), null); // TODO Need to do this when we support a database engine that has Databases and Schemas
+        if (database.getDatabaseMetaData().databaseName() != null) {
+            placeholders.put(generateName(DATABASE_PLACEHOLDER,configuration), database.getDatabaseMetaData().databaseName());
+        }
+
         placeholders.put(generateName(USER_PLACEHOLDER,configuration), database.getCurrentUser());
         placeholders.put(generateName(TIMESTAMP_PLACEHOLDER,configuration), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         placeholders.put(generateName(WORKING_DIRECTORY_PLACEHOLDER,configuration), System.getProperty("user.dir"));

@@ -27,14 +27,14 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.BaselineResult;
 import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryItem;
-import org.flywaydb.core.extensibility.VerbExtension;
+import org.flywaydb.core.extensibility.CachingVerbExtension;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.nc.preparation.PreparationContext;
 import org.flywaydb.verb.schemas.SchemasVerbExtension;
 
 @CustomLog
-public class BaselineVerbExtension implements VerbExtension {
+public class BaselineVerbExtension extends CachingVerbExtension {
 
     @Override
     public boolean handlesVerb(final String verb) {
@@ -43,7 +43,7 @@ public class BaselineVerbExtension implements VerbExtension {
 
     @Override
     public Object executeVerb(final Configuration configuration) {
-        final PreparationContext context = PreparationContext.get(configuration);
+        final PreparationContext context = PreparationContext.get(configuration, cached);
         final ExperimentalDatabase database = context.getDatabase();
 
         final BaselineResult baselineResult = new BaselineResult(VersionPrinter.getVersion(),
@@ -51,14 +51,12 @@ public class BaselineVerbExtension implements VerbExtension {
         final MigrationVersion baselineVersion = configuration.getBaselineVersion();
 
         final String schemaHistoryName = configuration.getTable();
+        final boolean schemaHistoryTableExists = database.schemaHistoryTableExists(schemaHistoryName);
 
         if (configuration.isCreateSchemas()) {
-            final boolean schemaHistoryTablePreExisting = database.schemaHistoryTableExists(schemaHistoryName);
-            new SchemasVerbExtension().executeVerb(configuration);
-            if (!schemaHistoryTablePreExisting) {
-                createBaselineMarker(configuration, database, baselineResult);
-                return baselineResult;
-            }
+            final SchemasVerbExtension schemasVerbExtension = new SchemasVerbExtension();
+            schemasVerbExtension.useCaching();
+            schemasVerbExtension.executeVerb(configuration);
         } else {
             LOG.warn("""
                      The configuration option 'createSchemas' is false.
@@ -67,7 +65,6 @@ public class BaselineVerbExtension implements VerbExtension {
                      See\s""" + FlywayDbWebsiteLinks.MIGRATIONS);
         }
 
-        final boolean schemaHistoryTableExists = database.schemaHistoryTableExists(schemaHistoryName);
         try {
             if (!schemaHistoryTableExists) {
                 createBaselineMarker(configuration, database, baselineResult);

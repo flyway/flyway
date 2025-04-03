@@ -27,11 +27,11 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryItem;
-import org.flywaydb.core.extensibility.VerbExtension;
+import org.flywaydb.core.extensibility.CachingVerbExtension;
 import org.flywaydb.nc.preparation.PreparationContext;
 
 @CustomLog
-public class SchemasVerbExtension implements VerbExtension {
+public class SchemasVerbExtension extends CachingVerbExtension {
 
     @Override
     public boolean handlesVerb(final String verb) {
@@ -40,7 +40,7 @@ public class SchemasVerbExtension implements VerbExtension {
 
     @Override
     public Object executeVerb(final Configuration configuration) {
-        final PreparationContext context = PreparationContext.get(configuration);
+        final PreparationContext context = PreparationContext.get(configuration, cached);
         final ExperimentalDatabase database = context.getDatabase();
 
         final Collection<String> missingSchemas = getMissingSchemas(configuration, database);

@@ -19,6 +19,8 @@
  */
 package org.flywaydb.database.postgresql;
 
+import static org.flywaydb.core.internal.util.UrlUtils.isSecretManagerUrl;
+
 import java.util.List;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -62,15 +64,7 @@ public class PostgreSQLDatabaseType extends BaseDatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
-        if (url.startsWith("jdbc-secretsmanager:postgresql:")) {
-
-
-
-
-            throw new FlywayEditionUpgradeRequiredException(Tier.ENTERPRISE, (Tier) null, "jdbc-secretsmanager");
-
-        }
-        return url.startsWith("jdbc:postgresql:") || url.startsWith("jdbc:p6spy:postgresql:");
+        return isSecretManagerUrl(url, "postgresql") || url.startsWith("jdbc:postgresql:") || url.startsWith("jdbc:p6spy:postgresql:");
     }
 
     @Override

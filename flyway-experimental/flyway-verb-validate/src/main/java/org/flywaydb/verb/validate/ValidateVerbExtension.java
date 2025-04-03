@@ -34,7 +34,7 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.ValidateOutput;
 import org.flywaydb.core.api.output.ValidateResult;
 import org.flywaydb.core.experimental.ExperimentalDatabase;
-import org.flywaydb.core.extensibility.VerbExtension;
+import org.flywaydb.core.extensibility.CachingVerbExtension;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
@@ -45,7 +45,7 @@ import org.flywaydb.nc.VerbUtils;
 import org.flywaydb.nc.preparation.PreparationContext;
 
 @CustomLog
-public class ValidateVerbExtension implements VerbExtension {
+public class ValidateVerbExtension extends CachingVerbExtension {
 
     @Override
     public boolean handlesVerb(final String verb) {
@@ -57,7 +57,7 @@ public class ValidateVerbExtension implements VerbExtension {
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        final PreparationContext context = PreparationContext.get(configuration);
+        final PreparationContext context = PreparationContext.get(configuration, cached);
 
         final ExperimentalDatabase database = context.getDatabase();
 

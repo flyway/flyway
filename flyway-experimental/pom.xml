@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>11.5.0</version>
+    <version>11.6.0</version>
   </parent>
 
   <packaging>pom</packaging>
@@ -20,10 +20,10 @@
     <module>flyway-verb-migrate</module>
     <module>flyway-verb-baseline</module>
     <module>flyway-experimental-sqlite</module>
-    <module>flyway-experimental-oracle</module>
     <module>flyway-verb-clean</module>
     <module>flyway-verb-schemas</module>
     <module>flyway-verb-repair</module>
+
 
 
 

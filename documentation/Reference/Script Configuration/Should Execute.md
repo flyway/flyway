@@ -13,6 +13,8 @@ This consists of an expression which evaluates to a Boolean value. Flyway will c
 - If it evaluates to false, this migration is ignored
 - If it fails to evaluate, an error will be returned
 
+This evaluation will be reflected in the migration state for all flyway commands, such as the [info command](<Commands/Info>).
+
 Unlike [skipExecutingMigrations](<Configuration/Flyway Namespace/Flyway Skip Executing Migrations Setting>), this will _not_ update the schema history table when a script is not executed.
 
 ## Valid values

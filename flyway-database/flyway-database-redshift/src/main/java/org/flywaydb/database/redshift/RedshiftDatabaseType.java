@@ -19,6 +19,8 @@
  */
 package org.flywaydb.database.redshift;
 
+import static org.flywaydb.core.internal.util.UrlUtils.isSecretManagerUrl;
+
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.Tier;
@@ -57,15 +59,7 @@ public class RedshiftDatabaseType extends BaseDatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
-        if (url.startsWith("jdbc-secretsmanager:redshift:")) {
-
-
-
-
-            throw new FlywayEditionUpgradeRequiredException(Tier.ENTERPRISE, (Tier) null, "jdbc-secretsmanager");
-
-        }
-        return url.startsWith("jdbc:redshift:") || url.startsWith("jdbc:p6spy:redshift:");
+        return isSecretManagerUrl(url, "redshift") || url.startsWith("jdbc:redshift:") || url.startsWith("jdbc:p6spy:redshift:");
     }
 
     @Override

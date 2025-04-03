@@ -19,6 +19,8 @@
  */
 package org.flywaydb.database.mysql.mariadb;
 
+import static org.flywaydb.core.internal.util.UrlUtils.isSecretManagerUrl;
+
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.Tier;
@@ -54,15 +56,7 @@ public class MariaDBDatabaseType extends BaseDatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
-        if (url.startsWith("jdbc-secretsmanager:mariadb:")) {
-
-
-
-
-            throw new FlywayEditionUpgradeRequiredException(Tier.ENTERPRISE, (Tier) null, "jdbc-secretsmanager");
-
-        }
-        return url.startsWith("jdbc:mariadb:") || url.startsWith("jdbc:p6spy:mariadb:");
+        return isSecretManagerUrl(url, "mariadb") || url.startsWith("jdbc:mariadb:") || url.startsWith("jdbc:p6spy:mariadb:");
     }
 
     @Override

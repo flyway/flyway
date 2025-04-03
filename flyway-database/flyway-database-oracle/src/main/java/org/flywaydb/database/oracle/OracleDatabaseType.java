@@ -19,6 +19,8 @@
  */
 package org.flywaydb.database.oracle;
 
+import static org.flywaydb.core.internal.util.UrlUtils.isSecretManagerUrl;
+
 import lombok.CustomLog;
 import oracle.jdbc.OracleConnection;
 import org.flywaydb.core.api.FlywayException;
@@ -71,15 +73,7 @@ public class OracleDatabaseType extends BaseDatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
-        if (url.startsWith("jdbc-secretsmanager:oracle:")) {
-
-
-
-
-            throw new FlywayEditionUpgradeRequiredException(Tier.ENTERPRISE, (Tier) null, "jdbc-secretsmanager");
-
-        }
-        return url.startsWith("jdbc:oracle") || url.startsWith("jdbc:p6spy:oracle");
+        return isSecretManagerUrl(url, "oracle") || url.startsWith("jdbc:oracle") || url.startsWith("jdbc:p6spy:oracle");
     }
 
     @Override

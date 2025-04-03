@@ -26,6 +26,8 @@ import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
+import org.flywaydb.core.extensibility.Tier;
+import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
 
 /**
  * Collection of utility methods for working with URLs.
@@ -64,5 +66,17 @@ public class UrlUtils {
 
     public static String decodeURLSafe(String url) {
        return decodeURL(url.replace("+", "%2b"));
+    }
+
+    public static boolean isSecretManagerUrl(final String url, final String databaseType) {
+        if (url.startsWith("jdbc-secretsmanager:" + databaseType + ":")) {
+
+
+
+
+            throw new FlywayEditionUpgradeRequiredException(Tier.ENTERPRISE, (Tier) null, "jdbc-secretsmanager");
+
+        }
+        return false;
     }
 }

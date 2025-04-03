@@ -119,20 +119,16 @@ public final class PreparationContext implements Plugin {
             configuration);
     }
 
-    public static PreparationContext get(final Configuration configuration) {
+    public static PreparationContext get(final Configuration configuration, final boolean cached) {
         final PreparationContext preparationContext = configuration.getPluginRegister()
             .getPlugin(PreparationContext.class);
 
-        if (preparationContext.needsInitialization(configuration)) {
-            preparationContext.initialize(configuration);
-        } else {
+        if (cached) {
             preparationContext.refresh(configuration);
+        } else {
+            preparationContext.initialize(configuration);
         }
 
         return preparationContext;
-    }
-
-    private boolean needsInitialization(final Configuration configuration) {
-        return true;
     }
 }

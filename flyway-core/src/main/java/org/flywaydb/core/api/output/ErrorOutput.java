@@ -19,24 +19,25 @@
  */
 package org.flywaydb.core.api.output;
 
-import java.util.Optional;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import org.flywaydb.core.api.ErrorCode;
-import org.flywaydb.core.api.CoreErrorCode;
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.exception.FlywayMigrateException;
-import org.flywaydb.core.internal.sqlscript.FlywaySqlScriptException;
-
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import org.flywaydb.core.api.CoreErrorCode;
+import org.flywaydb.core.api.ErrorCode;
+import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.exception.FlywayMigrateException;
+import org.flywaydb.core.internal.exception.FlywaySqlException;
 
 public class ErrorOutput implements OperationResult {
 
     @AllArgsConstructor(access = AccessLevel.PACKAGE)
     public static class ErrorOutputItem {
         public ErrorCode errorCode;
+        public String sqlState;
+        public Integer sqlErrorCode;
         public String message;
         public String stackTrace;
         public Integer lineNumber;
@@ -44,24 +45,46 @@ public class ErrorOutput implements OperationResult {
         public ErrorCause cause;
     }
 
-    public record ErrorCause(String message, String stackTrace, ErrorCause cause) {
-    }
+    public record ErrorCause(String message, String stackTrace, ErrorCause cause) {}
 
     public ErrorOutputItem error;
 
-    public ErrorOutput(final ErrorCode errorCode, final String message, final String stackTrace,
-        final Integer lineNumber, final String path, final ErrorCause cause) {
-        this.error = new ErrorOutputItem(errorCode, message, stackTrace, lineNumber, path, cause);
+    public ErrorOutput(final ErrorCode errorCode,
+        final String message,
+        final String stackTrace,
+        final Integer lineNumber,
+        final String path,
+        final ErrorCause cause) {
+        this.error = new ErrorOutputItem(errorCode, null, null, message, stackTrace, lineNumber, path, cause);
+    }
+
+    public ErrorOutput(final ErrorCode errorCode,
+        final String sqlState,
+        final Integer sqlErrorCode,
+        final String message,
+        final String stackTrace,
+        final Integer lineNumber,
+        final String path,
+        final ErrorCause cause) {
+        this.error = new ErrorOutputItem(errorCode,
+            sqlState,
+            sqlErrorCode,
+            message,
+            stackTrace,
+            lineNumber,
+            path,
+            cause);
     }
 
     public static ErrorOutput fromException(final Exception exception) {
         final String message = exception.getMessage();
 
-        if (exception instanceof final FlywayMigrateException flywayMigrateException &&
-            flywayMigrateException.getAbsolutePathOnDisk() != null) {
+        if (exception instanceof final FlywayMigrateException flywayMigrateException
+            && flywayMigrateException.getAbsolutePathOnDisk() != null) {
 
-            return new ErrorOutput(
-                flywayMigrateException.getMigrationErrorCode(),
+            return new ErrorOutput(flywayMigrateException.getMigrationErrorCode(),
+                null,
+                null,
                 message == null ? "Error occurred" : message,
                 null,
                 flywayMigrateException.getLineNumber(),
@@ -69,10 +92,10 @@ public class ErrorOutput implements OperationResult {
                 getCause(exception).orElse(null));
         }
 
-        if (exception instanceof final FlywayException flywayException) {
-
-            return new ErrorOutput(
-                flywayException.getErrorCode(),
+        if (exception instanceof final FlywaySqlException flywaySqlException) {
+            return new ErrorOutput(flywaySqlException.getErrorCode(),
+                flywaySqlException.getSqlState(),
+                flywaySqlException.getSqlErrorCode(),
                 message == null ? "Error occurred" : message,
                 null,
                 null,
@@ -80,8 +103,20 @@ public class ErrorOutput implements OperationResult {
                 getCause(exception).orElse(null));
         }
 
-        return new ErrorOutput(
-            CoreErrorCode.FAULT,
+        if (exception instanceof final FlywayException flywayException) {
+            return new ErrorOutput(flywayException.getErrorCode(),
+                null,
+                null,
+                message == null ? "Error occurred" : message,
+                null,
+                null,
+                null,
+                getCause(exception).orElse(null));
+        }
+
+        return new ErrorOutput(CoreErrorCode.FAULT,
+            null,
+            null,
             message == null ? "Fault occurred" : message,
             getStackTrace(exception),
             null,

@@ -19,6 +19,8 @@
  */
 package org.flywaydb.database.db2;
 
+import static org.flywaydb.core.internal.util.UrlUtils.isSecretManagerUrl;
+
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.Tier;
@@ -47,15 +49,7 @@ public class DB2DatabaseType extends BaseDatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
-        if (url.startsWith("jdbc-secretsmanager:db2:")) {
-
-
-
-
-            throw new FlywayEditionUpgradeRequiredException(Tier.ENTERPRISE, (Tier) null, "jdbc-secretsmanager");
-
-        }
-        return url.startsWith("jdbc:db2:") || url.startsWith("jdbc:p6spy:db2:");
+        return isSecretManagerUrl(url, "db2") || url.startsWith("jdbc:db2:") || url.startsWith("jdbc:p6spy:db2:");
     }
 
     @Override

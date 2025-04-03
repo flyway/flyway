@@ -40,6 +40,7 @@ public class ResolvedEnvironment {
     private String initSql;
     private Map<String, String> jdbcProperties;
     private ProvisionerMode provisionerMode;
+    private String nativeUrl; //TODO - not implemented, placeholder only.
 
     public EnvironmentModel toEnvironmentModel() {
         EnvironmentModel result = new EnvironmentModel();

@@ -86,11 +86,11 @@ public class ExperimentalModeUtils {
             .resolve(configuration.getUrl());
     }
 
-    private static boolean isNativeConnectorsTurnedOn() {
+    public static boolean isNativeConnectorsTurnedOn() {
         return System.getenv("FLYWAY_NATIVE_CONNECTORS") != null && System.getenv("FLYWAY_NATIVE_CONNECTORS").equalsIgnoreCase("true");
     }
 
-    private static boolean isNativeConnectorsTurnedOff() {
+    public static boolean isNativeConnectorsTurnedOff() {
         return System.getenv("FLYWAY_NATIVE_CONNECTORS") != null && System.getenv("FLYWAY_NATIVE_CONNECTORS").equalsIgnoreCase("false");
     }
 }

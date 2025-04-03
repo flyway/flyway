@@ -103,12 +103,9 @@ public abstract class ExperimentalJdbc <T> extends AbstractExperimentalDatabase 
         final String databaseProductName = JdbcUtils.getDatabaseProductName(databaseMetaData);
         final String databaseProductVersion = JdbcUtils.getDatabaseProductVersion(databaseMetaData);
 
-        String databaseName = null;
-        try {
-            databaseName = supportsCatalog() ? connection.getCatalog() :
-            supportsSchema() ? getCurrentSchema() : null;
-        } catch (SQLException ignored) {
-        }
+        final String databaseName = supportsCatalog() ? getCatalog()
+            : supportsSchema() ? getCurrentSchema() : null;
+
 
         return new MetaData(databaseProductName, databaseProductVersion, getConnectionType(), databaseName);
     }
@@ -382,5 +379,13 @@ public abstract class ExperimentalJdbc <T> extends AbstractExperimentalDatabase 
 
     protected void initializeConnectionType(final ResolvedEnvironment environment, final Configuration configuration) {
         connectionType = ConnectionType.JDBC;
+    }
+
+    protected String getCatalog() {
+        try {
+            return connection.getCatalog();
+        } catch (final SQLException e) {
+            throw new FlywayException(e);
+        }
     }
 }

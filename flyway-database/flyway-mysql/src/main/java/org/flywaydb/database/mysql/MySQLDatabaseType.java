@@ -19,6 +19,8 @@
  */
 package org.flywaydb.database.mysql;
 
+import static org.flywaydb.core.internal.util.UrlUtils.isSecretManagerUrl;
+
 import java.util.List;
 import lombok.CustomLog;
 import org.flywaydb.core.api.ResourceProvider;
@@ -68,17 +70,10 @@ public class MySQLDatabaseType extends BaseDatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
-        if (url.startsWith("jdbc-secretsmanager:mysql:")) {
-
-
-
-
-             throw new FlywayEditionUpgradeRequiredException(Tier.ENTERPRISE, (Tier) null, "jdbc-secretsmanager");
-
-        }
-        return url.startsWith("jdbc:mysql:") || url.startsWith("jdbc:google:") ||
-                url.startsWith("jdbc:p6spy:mysql:") || url.startsWith("jdbc:p6spy:google:") || 
-            url.startsWith("jdbc:aws-wrapper:mysql");
+        return isSecretManagerUrl(url, "mysql")
+            || url.startsWith("jdbc:mysql:") || url.startsWith("jdbc:google:")
+            || url.startsWith("jdbc:p6spy:mysql:") || url.startsWith("jdbc:p6spy:google:")
+            || url.startsWith("jdbc:aws-wrapper:mysql");
     }
 
     @Override

@@ -325,6 +325,8 @@
 
 
 
+
+
                 <include>org.flywaydb:flyway-database-ignite</include>
                 <include>org.flywaydb:flyway-database-tidb</include>
                 <include>org.flywaydb:flyway-database-yugabytedb</include>
@@ -345,7 +347,6 @@
                 <include>org.flywaydb:flyway-verb-repair</include>
                 <include>org.flywaydb:flyway-experimental-sqlite</include>
                 <include>org.flywaydb:flyway-nc-callbacks</include>
-                <include>org.flywaydb:flyway-experimental-oracle</include>
             </includes>
         </dependencySet>
         <dependencySet>

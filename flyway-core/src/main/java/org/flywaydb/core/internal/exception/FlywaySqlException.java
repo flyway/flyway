@@ -19,26 +19,31 @@
  */
 package org.flywaydb.core.internal.exception;
 
+import java.sql.SQLException;
+import lombok.Getter;
 import org.flywaydb.core.api.CoreErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
-import java.sql.SQLException;
-
 /**
- * The specific exception thrown when Flyway encounters a problem in SQL statement.
+ * The specific exception thrown when Flyway encounters a problem in SQL.
  */
+@Getter
 public class FlywaySqlException extends FlywayException {
+    private final String sqlState;
+    private final int sqlErrorCode;
 
-    public FlywaySqlException(String message, SQLException sqlException) {
+    public FlywaySqlException(final String message, final SQLException sqlException) {
         super(message, sqlException, CoreErrorCode.DB_CONNECTION);
+        sqlState = sqlException.getSQLState();
+        sqlErrorCode = sqlException.getErrorCode();
     }
 
     @Override
     public String getMessage() {
-        String title = super.getMessage();
-        String underline = StringUtils.trimOrPad("", title.length(), '-');
+        final String title = super.getMessage();
+        final String underline = StringUtils.trimOrPad("", title.length(), '-');
 
         return title + "\n" + underline + "\n" + ExceptionUtils.toMessage((SQLException) getCause());
     }

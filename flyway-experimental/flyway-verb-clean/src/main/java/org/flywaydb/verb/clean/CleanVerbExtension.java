@@ -48,7 +48,7 @@ public class CleanVerbExtension implements VerbExtension {
                 "Unable to execute clean as it has been disabled with the 'flyway.cleanDisabled' property.");
         }
 
-        final PreparationContext context = PreparationContext.get(configuration);
+        final PreparationContext context = PreparationContext.get(configuration, false);
 
         final ExperimentalDatabase database = context.getDatabase();
 
