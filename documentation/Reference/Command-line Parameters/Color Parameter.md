@@ -1,5 +1,4 @@
 ---
-pill: cliColor
 subtitle: color
 redirect_from: Configuration/cliColor/
 ---

@@ -1,5 +1,4 @@
 ---
-pill: placeholderSuffix
 subtitle: flyway.placeholderSuffix
 redirect_from: Configuration/PlaceholdersSuffix/
 ---

@@ -1,5 +1,4 @@
 ---
-pill: placeholderSeparator
 subtitle: flyway.placeholderSeparator
 redirect_from: Configuration/PlaceholdersSeparator/
 ---

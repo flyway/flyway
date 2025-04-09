@@ -1,5 +1,4 @@
 ---
-pill: gradle_overview
 subtitle: Gradle Plugin
 redirect_from: /documentation/gradle/
 ---
@@ -210,7 +209,7 @@ buildscript {
 }
 ```
 
-Without this you may see an error like the following: `No database found to handle jdbc:...`
+Without this you may see an error like the following: `No Flyway database plugin found to handle jdbc:...`
 
 ### Working directory
 

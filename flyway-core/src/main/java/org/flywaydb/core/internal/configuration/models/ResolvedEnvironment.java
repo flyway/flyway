@@ -33,12 +33,12 @@ public class ResolvedEnvironment {
     private String user;
     private String password;
     private String driver;
-    private List<String> schemas;
+    private List<String> schemas = List.of();
     private String token;
     private Integer connectRetries;
     private Integer connectRetriesInterval;
     private String initSql;
-    private Map<String, String> jdbcProperties;
+    private Map<String, String> jdbcProperties = Map.of();
     private ProvisionerMode provisionerMode;
     private String nativeUrl; //TODO - not implemented, placeholder only.
 

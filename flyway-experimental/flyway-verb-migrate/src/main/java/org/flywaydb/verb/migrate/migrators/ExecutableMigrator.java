@@ -205,10 +205,11 @@ public class ExecutableMigrator extends Migrator {
             installedBy,
             false);
 
-        throw new FlywayMigrateException(migrationInfo, calculateErrorMessage(e, migrationInfo), true, migrateResult);
+        final String message = experimentalDatabase.redactUrl(e.getMessage());
+        throw new FlywayMigrateException(migrationInfo, calculateErrorMessage(message, migrationInfo), true, migrateResult);
     }
 
-    private String calculateErrorMessage(final Exception e, final MigrationInfo migrationInfo) {
+    private String calculateErrorMessage(final String message, final MigrationInfo migrationInfo) {
 
         final String title = "Script " + Paths.get(migrationInfo.getScript()).getFileName() + " failed";
 
@@ -217,12 +218,11 @@ public class ExecutableMigrator extends Migrator {
             loadableResource = loadableMigrationInfo.getLoadableResource();
         }
 
-        return ErrorUtils.calculateErrorMessage(e,
-            title,
+        return ErrorUtils.calculateErrorMessage(title,
             loadableResource,
             migrationInfo.getPhysicalLocation(),
             null,
             null,
-            "Message    : " + e.getMessage() + "\n");
+            "Message    : " + message + "\n");
     }
 }

@@ -19,6 +19,8 @@
  */
 package org.flywaydb.database.nc.mongodb;
 
+import static org.flywaydb.core.internal.util.UrlUtils.extractQueryParams;
+
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoCredential;
@@ -144,8 +146,10 @@ public class MongoDBDatabase extends AbstractExperimentalDatabase <NonJdbcExecut
                 .applicationName(APPLICATION_NAME)
                 .build());
         } else {
+            String authSource = extractQueryParams(connectionString.getConnectionString()).get("authSource");
+
             final MongoCredential credential = MongoCredential.createCredential(configuration.getUser(),
-                "admin",
+                authSource != null ? authSource : "admin",
                 configuration.getPassword().toCharArray());
             mongoClient = MongoClients.create(MongoClientSettings.builder()
                 .applyConnectionString(connectionString)

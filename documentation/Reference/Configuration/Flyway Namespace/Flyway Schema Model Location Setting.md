@@ -1,5 +1,4 @@
 ---
-pill: schemaModelLocation
 subtitle: flyway.schemaModelLocation
 redirect_from: Configuration/schemaModelLocation/
 ---

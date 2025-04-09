@@ -1,5 +1,4 @@
 ---
-pill: clean.mode
 subtitle: flyway.sqlserver.clean.mode
 ---
 

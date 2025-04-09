@@ -1,5 +1,4 @@
 ---
-pill: tablespace
 subtitle: flyway.tablespace
 redirect_from: Configuration/tablespace/
 ---

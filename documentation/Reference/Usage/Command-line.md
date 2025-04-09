@@ -1,5 +1,4 @@
 ---
-pill: cli_overview
 subtitle: Command-line
 redirect_from: Commandsline/
 ---

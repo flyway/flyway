@@ -1,5 +1,4 @@
 ---
-pill: failOnDrift
 subtitle: flyway.check.failOnDrift
 ---
 

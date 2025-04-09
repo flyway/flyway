@@ -1,5 +1,4 @@
 ---
-pill: db2zDatabaseName
 subtitle: flyway.db2z.databaseName
 ---
 

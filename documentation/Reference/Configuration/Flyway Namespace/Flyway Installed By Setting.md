@@ -1,5 +1,4 @@
 ---
-pill: installedBy
 subtitle: flyway.installedBy
 redirect_from: Configuration/installedBy/
 ---

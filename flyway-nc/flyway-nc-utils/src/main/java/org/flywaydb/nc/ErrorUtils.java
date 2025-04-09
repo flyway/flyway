@@ -27,8 +27,7 @@ import org.flywaydb.nc.executors.Executor;
 @CustomLog
 public class ErrorUtils {
 
-    public static <T> String calculateErrorMessage(final Exception e,
-        final String title,
+    public static <T> String calculateErrorMessage(final String title,
         final LoadableResource loadableResource,
         final String physicalLocation,
         final Executor<T> executor,

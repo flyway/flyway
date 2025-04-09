@@ -1,5 +1,4 @@
 ---
-pill: baselineOnMigrate
 subtitle: flyway.baselineOnMigrate
 redirect_from: Configuration/baselineOnMigrate/
 ---

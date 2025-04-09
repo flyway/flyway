@@ -1,5 +1,4 @@
 ---
-pill: sqlServerKerberosLoginFile
 subtitle: flyway.sqlServer.kerberosLoginFile
 ---
 

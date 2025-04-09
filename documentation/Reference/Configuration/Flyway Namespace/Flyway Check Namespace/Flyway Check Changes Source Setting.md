@@ -1,5 +1,4 @@
 ---
-pill: check.changesSource
 subtitle: flyway.check.changesSource
 ---
 

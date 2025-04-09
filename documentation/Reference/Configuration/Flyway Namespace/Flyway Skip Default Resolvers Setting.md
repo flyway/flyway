@@ -1,5 +1,4 @@
 ---
-pill: skipDefaultResolvers
 subtitle: flyway.skipDefaultResolvers
 redirect_from: Configuration/skipDefaultResolvers/
 ---

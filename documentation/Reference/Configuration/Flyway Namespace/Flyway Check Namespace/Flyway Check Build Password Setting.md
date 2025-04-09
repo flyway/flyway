@@ -1,5 +1,4 @@
 ---
-pill: check.buildPassword
 subtitle: flyway.check.buildPassword
 ---
 

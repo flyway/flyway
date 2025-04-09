@@ -1,5 +1,4 @@
 ---
-pill: user
 subtitle: flyway.user
 redirect_from: Configuration/user/
 ---

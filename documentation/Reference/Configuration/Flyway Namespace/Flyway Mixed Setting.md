@@ -1,5 +1,4 @@
 ---
-pill: mixed
 subtitle: flyway.mixed
 redirect_from: Configuration/mixed/
 ---

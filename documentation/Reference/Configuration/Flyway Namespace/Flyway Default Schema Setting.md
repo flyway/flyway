@@ -1,5 +1,4 @@
 ---
-pill: defaultSchema
 subtitle: flyway.defaultSchema
 redirect_from: Configuration/defaultSchema/
 ---

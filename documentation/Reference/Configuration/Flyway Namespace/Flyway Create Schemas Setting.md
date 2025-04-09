@@ -1,5 +1,4 @@
 ---
-pill: createSchemas
 subtitle: flyway.createSchemas
 redirect_from: Configuration/createSchemas/
 ---

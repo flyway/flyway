@@ -1,5 +1,4 @@
 ---
-pill: placeholderPrefix
 subtitle: flyway.placeholderPrefix
 redirect_from: Configuration/PlaceholdersPrefix/
 ---

@@ -1,5 +1,4 @@
 ---
-pill: driver
 subtitle: flyway.environments.*.driver
 redirect_from: Configuration/driver/
 ---

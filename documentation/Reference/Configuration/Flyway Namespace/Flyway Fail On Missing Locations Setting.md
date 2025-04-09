@@ -1,5 +1,4 @@
 ---
-pill: failOnMissingLocations
 subtitle: flyway.failOnMissingLocations
 ---
 

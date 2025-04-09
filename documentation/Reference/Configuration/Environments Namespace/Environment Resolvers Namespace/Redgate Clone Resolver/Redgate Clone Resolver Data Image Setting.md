@@ -1,5 +1,4 @@
 ---
-pill: gcsmProject
 subtitle: environments.*.resolvers.gcsm.project
 ---
 

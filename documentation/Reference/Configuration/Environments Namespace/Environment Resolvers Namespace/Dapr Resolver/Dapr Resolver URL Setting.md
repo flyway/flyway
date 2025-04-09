@@ -1,5 +1,4 @@
 ---
-pill: daprUrl
 subtitle: flyway.daprUrl
 ---
 

@@ -1,5 +1,4 @@
 ---
-pill: check.buildUrl
 subtitle: flyway.check.buildUrl
 ---
 

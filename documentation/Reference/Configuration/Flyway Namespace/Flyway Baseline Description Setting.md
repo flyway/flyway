@@ -1,5 +1,4 @@
 ---
-pill: baselineDescription
 subtitle: flyway.baselineDescription
 redirect_from: Configuration/baselineDescription/
 ---

@@ -392,8 +392,7 @@ public class JdbcMigrator extends Migrator {
             loadableResource = loadableMigrationInfo.getLoadableResource();
         }
 
-        return ErrorUtils.calculateErrorMessage(e,
-            title,
+        return ErrorUtils.calculateErrorMessage(title,
             loadableResource,
             migrationInfo.getPhysicalLocation(),
             executor,

@@ -1,5 +1,4 @@
 ---
-pill: check.majorRules
 subtitle: flyway.check.majorRules
 ---
 

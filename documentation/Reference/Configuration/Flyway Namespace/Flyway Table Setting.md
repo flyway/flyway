@@ -1,5 +1,4 @@
 ---
-pill: table
 subtitle: flyway.table
 redirect_from: Configuration/table/
 ---

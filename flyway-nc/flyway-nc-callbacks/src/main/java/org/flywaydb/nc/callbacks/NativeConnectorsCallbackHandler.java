@@ -92,8 +92,7 @@ public class NativeConnectorsCallbackHandler implements CallbackHandler {
                         + " callback: Script "
                         + callback.getFileName()
                         + " failed";
-                    final String errorMessage = calculateErrorMessage(e,
-                        title,
+                    final String errorMessage = calculateErrorMessage(title,
                         callback.getLoadableResourceMetadata().loadableResource(),
                         callback.getPhysicalLocation(),
                         executor,

@@ -1,5 +1,4 @@
 ---
-pill: loggers
 subtitle: flyway.loggers
 ---
 

@@ -1,5 +1,4 @@
 ---
-pill: outputType
 subtitle: output formatting
 ---
 

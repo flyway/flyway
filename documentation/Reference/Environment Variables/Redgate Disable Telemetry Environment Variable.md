@@ -1,5 +1,4 @@
 ---
-pill: redgateDisableTelemetry
 subtitle: flyway.redgate.disable.telemetry
 ---
 

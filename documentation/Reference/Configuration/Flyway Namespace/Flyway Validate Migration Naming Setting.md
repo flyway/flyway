@@ -1,5 +1,4 @@
 ---
-pill: validateMigrationNaming
 subtitle: flyway.validateMigrationNaming
 redirect_from: Configuration/validateMigrationNaming/
 ---

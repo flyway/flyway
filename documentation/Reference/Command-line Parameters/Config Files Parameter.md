@@ -1,5 +1,4 @@
 ---
-pill: configFiles
 subtitle: flyway.configFiles
 redirect_from: Configuration/Configuration Filess/
 ---

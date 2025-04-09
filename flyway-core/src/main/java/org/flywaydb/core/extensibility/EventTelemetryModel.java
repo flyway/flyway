@@ -35,7 +35,7 @@ public class EventTelemetryModel implements AutoCloseable {
     private final FlywayTelemetryManager flywayTelemetryManager;
     private Instant startTime;
 
-    public EventTelemetryModel(String name, FlywayTelemetryManager flywayTelemetryManager) {
+    public EventTelemetryModel(final String name, final FlywayTelemetryManager flywayTelemetryManager) {
         startTime = Instant.now();
         this.flywayTelemetryManager = flywayTelemetryManager;
         this.name = name;

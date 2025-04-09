@@ -1,5 +1,4 @@
 ---
-pill: publish_result
 subtitle: flyway.publish_result
 redirect_from: Configuration/publish_result/
 ---

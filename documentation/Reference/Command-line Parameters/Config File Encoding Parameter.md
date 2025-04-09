@@ -1,5 +1,4 @@
 ---
-pill: configFileEncoding
 subtitle: flyway.configFileEncoding
 redirect_from: Configuration/Configuration FilesEncoding/
 ---

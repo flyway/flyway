@@ -1,5 +1,4 @@
 ---
-pill: addingtotheclasspath
 subtitle: Adding to the classpath
 ---
 

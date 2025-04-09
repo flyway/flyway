@@ -1,5 +1,5 @@
 ---
-subtitle: databaseType
+subtitle: Database Type
 ---
 
 ## Description

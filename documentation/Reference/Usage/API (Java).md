@@ -1,5 +1,4 @@
 ---
-pill: overview
 subtitle: API
 redirect_from: /documentation/api/
 ---

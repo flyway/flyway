@@ -1,5 +1,4 @@
 ---
-pill: scriptPlaceholderSuffix
 subtitle: flyway.scriptPlaceholderSuffix
 ---
 

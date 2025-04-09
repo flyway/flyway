@@ -1,5 +1,4 @@
 ---
-pill: Environment
 subtitle: flyway.environment
 ---
 

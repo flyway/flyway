@@ -1,5 +1,4 @@
 ---
-pill: errorOverrides
 subtitle: flyway.errorOverrides
 redirect_from: Configuration/errorOverrides/
 ---

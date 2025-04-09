@@ -1,5 +1,4 @@
 ---
-pill: dryRunOutput
 subtitle: flyway.dryRunOutput
 redirect_from: Configuration/dryRunOutput/
 ---

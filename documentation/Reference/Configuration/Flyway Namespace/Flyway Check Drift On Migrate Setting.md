@@ -1,5 +1,4 @@
 ---
-pill: checkDriftOnMigrate
 subtitle: flyway.checkDriftOnMigrate
 redirect_from: Configuration/checkDriftOnMigrate/
 ---

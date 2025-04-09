@@ -1,5 +1,5 @@
 ---
-subtitle: redgateCompare
+subtitle: Redgate Compare
 ---
 
 This namespace contains the configurations relating to database comparisons and deployment script generation.

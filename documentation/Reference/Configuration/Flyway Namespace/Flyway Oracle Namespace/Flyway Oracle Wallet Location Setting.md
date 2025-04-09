@@ -1,5 +1,4 @@
 ---
-pill: oracleWalletLocation
 subtitle: flyway.oracleWalletLocation
 ---
 

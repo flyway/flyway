@@ -1,5 +1,4 @@
 ---
-pill: Flyway Open Source
 subtitle: Open source
 ---
 Flyway remains at it's heart an open source project that is available [on Github](https://github.com/flyway/flyway).

@@ -1,5 +1,4 @@
 ---
-pill: schemaModelSchemas
 subtitle: flyway.schemaModelSchemas
 redirect_from: Configuration/schemaModelSchemas/
 ---

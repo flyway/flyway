@@ -1,5 +1,4 @@
 ---
-pill: pipeline_id
 subtitle: flyway.pipeline_id
 redirect_from: Configuration/pipeline_id/
 ---

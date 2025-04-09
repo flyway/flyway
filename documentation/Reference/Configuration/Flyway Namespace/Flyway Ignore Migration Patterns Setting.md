@@ -1,5 +1,4 @@
 ---
-pill: ignoreMigrationPatterns
 subtitle: flyway.ignoreMigrationPatterns
 ---
 

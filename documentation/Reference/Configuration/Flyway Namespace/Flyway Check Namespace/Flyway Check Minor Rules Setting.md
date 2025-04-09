@@ -1,5 +1,4 @@
 ---
-pill: check.minorRules
 subtitle: flyway.check.minorRules
 ---
 

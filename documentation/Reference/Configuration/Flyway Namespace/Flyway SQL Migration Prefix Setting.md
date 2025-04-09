@@ -1,5 +1,4 @@
 ---
-pill: sqlMigrationPrefix
 subtitle: flyway.sqlMigrationPrefix
 redirect_from: Configuration/sqlMigrationPrefix/
 ---

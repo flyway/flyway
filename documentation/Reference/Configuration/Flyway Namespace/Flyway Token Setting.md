@@ -1,5 +1,4 @@
 ---
-pill: token
 subtitle: flyway.token
 redirect_from: Configuration/token/
 ---

@@ -1,5 +1,4 @@
 ---
-pill: baselineVersion
 subtitle: flyway.baselineVersion
 redirect_from: Configuration/baselineVersion/
 ---

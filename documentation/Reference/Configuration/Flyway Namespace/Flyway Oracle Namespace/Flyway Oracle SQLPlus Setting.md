@@ -1,5 +1,4 @@
 ---
-pill: oracleSqlPlus
 subtitle: flyway.oracleSqlPlus
 redirect_from: Configuration/oracleSqlPlus/
 ---

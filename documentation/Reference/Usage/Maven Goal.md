@@ -1,5 +1,4 @@
 ---
-pill: mvn_overview
 subtitle: Maven Plugin
 redirect_from: /documentation/maven/
 ---

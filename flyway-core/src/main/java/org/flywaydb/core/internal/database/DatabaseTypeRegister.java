@@ -50,7 +50,7 @@ public class DatabaseTypeRegister {
         final List<DatabaseType> typesAcceptingUrl = getDatabaseTypesForUrl(url, configuration);
 
         if (typesAcceptingUrl.isEmpty()) {
-            throw new FlywayException("No database found to handle " + redactJdbcUrl(url, typesAcceptingUrl));
+            throw new FlywayException("No Flyway database plugin found to handle " + redactJdbcUrl(url, typesAcceptingUrl) + ". See <link> for troubleshooting");
         } else {
             return typesAcceptingUrl.get(0);
         }
@@ -80,7 +80,7 @@ public class DatabaseTypeRegister {
             || !(type instanceof CommunityDatabaseType)).filter(type -> type.getSupportedEngines()
             .stream()
             .anyMatch(engineName::equalsIgnoreCase)).findFirst().orElseThrow(() -> new FlywayException(
-            "No database found to handle " + engineName + " engine"));
+            "No Flyway database plugin found to handle " + engineName + " engine" + ". See <link> for troubleshooting"));
     }
 
     public static String redactJdbcUrl(final String url) {

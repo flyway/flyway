@@ -19,6 +19,12 @@
  */
 package org.flywaydb.core.internal.util;
 
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -78,5 +84,38 @@ public class UrlUtils {
 
         }
         return false;
+    }
+
+    public static Map<String, String> extractQueryParams(String uri) {
+        uri = uri.replace('\\', '/');
+        try {
+            int queryIndex = uri.indexOf("?");
+
+            // No query parameters detected in the connection string
+            if (queryIndex == -1) {
+                return Collections.emptyMap();
+            }
+
+            String baseUri = uri.substring(0, queryIndex);
+            String queryPart = uri.substring(queryIndex + 1);
+
+            String encodedQuery = URLEncoder.encode(queryPart, StandardCharsets.UTF_8);
+            URI parsedUri = new URI(baseUri + "?" + encodedQuery);
+            String query = parsedUri.getQuery();
+            Map<String, String> queryParams = new HashMap<>();
+
+            if (query != null) {
+                String[] pairs = query.split("&");
+                for (String pair : pairs) {
+                    String[] keyValue = pair.split("=", 2);
+                    if (keyValue.length == 2) {
+                        queryParams.put(keyValue[0], keyValue[1]);
+                    }
+                }
+            }
+            return queryParams;
+        } catch (Exception e) {
+            return Collections.emptyMap();
+        }
     }
 }

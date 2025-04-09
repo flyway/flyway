@@ -1,5 +1,4 @@
 ---
-pill: jarDirs
 subtitle: flyway.jarDirs
 redirect_from: Configuration/jarDirs/
 ---

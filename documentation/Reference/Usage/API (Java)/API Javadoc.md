@@ -1,5 +1,4 @@
 ---
-pill: javadoc
 subtitle: "API: Javadoc"
 ---
 <div id="apiJavadoc">

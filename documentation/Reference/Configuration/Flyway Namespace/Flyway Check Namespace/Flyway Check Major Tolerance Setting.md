@@ -1,5 +1,4 @@
 ---
-pill: check.majorTolerance
 subtitle: flyway.check.majorTolerance
 ---
 

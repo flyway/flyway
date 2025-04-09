@@ -1,5 +1,4 @@
 ---
-pill: communityDBSupportEnabled
 subtitle: flyway.communityDBSupportEnabled
 redirect_from: Configuration/communityDBSupportEnabled/
 ---

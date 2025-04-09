@@ -1,5 +1,4 @@
 ---
-pill: validateOnMigrate
 subtitle: flyway.validateOnMigrate
 redirect_from: Configuration/validateOnMigrate/
 ---

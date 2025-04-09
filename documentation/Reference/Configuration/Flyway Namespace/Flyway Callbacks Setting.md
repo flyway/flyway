@@ -1,5 +1,4 @@
 ---
-pill: callbacks
 subtitle: flyway.callbacks
 redirect_from: Configuration/callbacks/
 ---

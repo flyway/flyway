@@ -34,7 +34,11 @@ public class ExperimentalModeUtils {
         }
 
         if (useLegacyAsDryRunSet(config)) {
-            LOG.warn("Dry run is not supported in Native Connectors mode, falling back to legacy databases");
+
+            if (isNativeConnectorsTurnedOn()) {
+                LOG.warn("Dry run is not supported in Native Connectors mode, falling back to legacy databases");
+            }
+
             return false;
         }
 

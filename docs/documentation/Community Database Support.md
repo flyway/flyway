@@ -119,7 +119,7 @@ You can now set up a run configuration in your IDE that will compile Flyway and 
 
 Flyway itself should start. Since Flyway doesn't yet support your database you should see a message like:
 
-`org.flywaydb.core.api.FlywayException: ERROR: No database found to handle jdbc:FooDb://<host>:<port>/<databasename>`
+`org.flywaydb.core.api.FlywayException: ERROR: No Flyway database plugin found to handle jdbc:FooDb://<host>:<port>/<databasename>`
 
 You're now ready to start adding that database support. We're going to assume your database platform is called **FooDb**. 
 Change the obvious naming conventions to suit your database.

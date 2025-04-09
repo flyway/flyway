@@ -1,5 +1,4 @@
 ---
-pill: connectRetriesInterval
 subtitle: flyway.environments.*.connectRetriesInterval
 ---
 

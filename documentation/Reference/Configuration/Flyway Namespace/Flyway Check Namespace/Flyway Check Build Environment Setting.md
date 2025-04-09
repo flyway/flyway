@@ -1,5 +1,4 @@
 ---
-pill: check.buildUser
 subtitle: flyway.check.buildUser
 ---
 

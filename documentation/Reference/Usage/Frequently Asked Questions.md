@@ -1,5 +1,5 @@
 ---
-menu: faq
+menu: FAQ
 subtitle: FAQ
 ---
 

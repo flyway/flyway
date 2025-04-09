@@ -1,5 +1,4 @@
 ---
-pill: initSql
 subtitle: flyway.environments.*.initSql
 redirect_from: Configuration/initSql/
 ---

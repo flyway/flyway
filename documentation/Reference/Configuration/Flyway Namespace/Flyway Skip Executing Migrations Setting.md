@@ -1,5 +1,4 @@
 ---
-pill: skipExecutingMigrations
 subtitle: flyway.skipExecutingMigrations
 redirect_from: Configuration/skipExecutingMigrations/
 ---

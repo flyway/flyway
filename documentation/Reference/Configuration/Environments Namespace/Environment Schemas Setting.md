@@ -1,5 +1,4 @@
 ---
-pill: schemas
 subtitle: flyway.schemas
 redirect_from: Configuration/schemas/
 ---

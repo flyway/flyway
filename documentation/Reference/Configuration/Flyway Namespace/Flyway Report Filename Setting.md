@@ -1,5 +1,4 @@
 ---
-pill: reportFilename
 subtitle: flyway.reportFilename
 ---
 

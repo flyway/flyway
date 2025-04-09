@@ -1,5 +1,4 @@
 ---
-pill: db2zSQLID
 subtitle: flyway.db2z.sqlId
 ---
 

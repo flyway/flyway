@@ -1,6 +1,5 @@
 ---
-pill: vaultToken
-subtitle: flyway.vaultToken
+subtitle: Flyway Vault Token
 ---
 
 {% include enterprise.html %}

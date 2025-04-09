@@ -1,5 +1,4 @@
 ---
-pill: snapshot.filename
 subtitle: flyway.snapshot.filename
 ---
 

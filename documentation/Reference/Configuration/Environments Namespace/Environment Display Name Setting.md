@@ -1,5 +1,4 @@
 ---
-pill: displayName
 subtitle: flyway.environments.*.displayName
 ---
 

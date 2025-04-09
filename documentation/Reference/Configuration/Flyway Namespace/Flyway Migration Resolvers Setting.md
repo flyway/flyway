@@ -1,5 +1,4 @@
 ---
-pill: resolvers
 subtitle: flyway.resolvers
 redirect_from: Configuration/resolvers/
 ---

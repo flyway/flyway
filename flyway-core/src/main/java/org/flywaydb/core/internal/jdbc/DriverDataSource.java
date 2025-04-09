@@ -115,6 +115,10 @@ public class DriverDataSource implements DataSource {
 
         List<DatabaseType> typesAcceptingUrl = DatabaseTypeRegister.getDatabaseTypesForUrl(url, configuration);
 
+        if (typesAcceptingUrl.isEmpty()) {
+            throw new FlywayException("No Flyway database plugin found to handle " + DatabaseTypeRegister.redactJdbcUrl(url) + ". See <link> for troubleshooting");
+        }
+
         for (DatabaseType type: typesAcceptingUrl) {
             String mainDriverClass = StringUtils.hasLength(driverClass) ? driverClass : type.getDriverClass(url, classLoader);
 
@@ -155,7 +159,7 @@ public class DriverDataSource implements DataSource {
         }
 
         if (this.type == null) {
-            throw new FlywayException("No database found to handle " + DatabaseTypeRegister.redactJdbcUrl(url));
+            throw new FlywayException("No JDBC driver found to handle " + DatabaseTypeRegister.redactJdbcUrl(url) + ". See <link> for troubleshooting");
         }
 
         if (additionalProperties != null) {

@@ -1,5 +1,4 @@
 ---
-pill: scriptPlaceholderPrefix
 subtitle: flyway.scriptPlaceholderPrefix
 ---
 

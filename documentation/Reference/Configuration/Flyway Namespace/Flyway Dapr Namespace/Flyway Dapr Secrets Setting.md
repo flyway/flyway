@@ -1,5 +1,4 @@
 ---
-pill: daprSecrets
 subtitle: flyway.daprSecrets
 ---
 

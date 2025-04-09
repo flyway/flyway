@@ -1,5 +1,4 @@
 ---
-pill: workingDirectory
 subtitle: flyway.workingDirectory
 redirect_from: Configuration/workingDirectory/
 ---

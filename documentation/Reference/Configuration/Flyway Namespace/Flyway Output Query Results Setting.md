@@ -1,5 +1,4 @@
 ---
-pill: outputQueryResults
 subtitle: flyway.outputQueryResults
 redirect_from: Configuration/outputQueryResults/
 ---

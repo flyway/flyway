@@ -1,5 +1,5 @@
 ---
-subtitle: Comaparison error codes
+subtitle: Comparison error codes
 ---
 
 These error codes may be returned when running commands which use [Redgate comparison technology](https://documentation.red-gate.com/flyway/flyway-concepts/database-comparisons).

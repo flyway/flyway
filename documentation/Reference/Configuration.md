@@ -1,5 +1,4 @@
 ---
-pill: configuration
 subtitle: configuration
 redirect_from: Configuration/
 ---

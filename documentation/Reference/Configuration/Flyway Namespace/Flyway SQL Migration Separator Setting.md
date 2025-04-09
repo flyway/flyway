@@ -1,5 +1,4 @@
 ---
-pill: sqlMigrationSeparator
 subtitle: flyway.sqlMigrationSeparator
 redirect_from: Configuration/sqlMigrationSeparator/
 ---

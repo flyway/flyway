@@ -1,5 +1,4 @@
 ---
-pill: target
 subtitle: flyway.target
 redirect_from: Configuration/target/
 ---

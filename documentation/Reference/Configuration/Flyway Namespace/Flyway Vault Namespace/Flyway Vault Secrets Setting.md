@@ -1,6 +1,5 @@
 ---
-pill: vaultSecrets
-subtitle: flyway.vaultSecrets
+subtitle: Flyway Vault Secrets
 ---
 
 {% include enterprise.html %}

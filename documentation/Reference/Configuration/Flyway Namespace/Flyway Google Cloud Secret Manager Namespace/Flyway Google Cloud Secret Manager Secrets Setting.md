@@ -1,5 +1,4 @@
 ---
-pill: gcsmSecrets
 subtitle: flyway.gcsm.secrets
 ---
 

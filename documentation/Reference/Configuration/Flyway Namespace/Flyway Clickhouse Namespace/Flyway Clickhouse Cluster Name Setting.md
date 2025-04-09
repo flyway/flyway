@@ -1,6 +1,5 @@
 ---
-pill: clickhouseClusterName
-subtitle: flyway.clickhouse.clusterName
+subtitle: Flyway Clickhouse ClusterName
 ---
 
 ## Description

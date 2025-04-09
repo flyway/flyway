@@ -1,5 +1,4 @@
 ---
-pill: check.appliedMigrations
 subtitle: flyway.check.appliedMigrations
 ---
 

@@ -1,5 +1,4 @@
 ---
-pill: check.filterFile
 subtitle: flyway.check.filterFile
 ---
 

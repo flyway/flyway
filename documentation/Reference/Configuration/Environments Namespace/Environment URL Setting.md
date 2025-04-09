@@ -1,5 +1,4 @@
 ---
-pill: url
 subtitle: flyway.url
 redirect_from: Configuration/url/
 ---

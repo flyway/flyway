@@ -1,5 +1,4 @@
 ---
-pill: skipDefaultCallbacks
 subtitle: flyway.skipDefaultCallbacks
 redirect_from: Configuration/skipDefaultCallbacks/
 ---

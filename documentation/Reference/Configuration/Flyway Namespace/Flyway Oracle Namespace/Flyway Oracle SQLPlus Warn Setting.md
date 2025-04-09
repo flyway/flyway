@@ -1,5 +1,4 @@
 ---
-pill: oracleSqlPlusWarn
 subtitle: flyway.oracleSqlPlusWarn
 redirect_from: Configuration/oracleSqlPlusWarn/
 ---

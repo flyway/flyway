@@ -1,5 +1,5 @@
 ---
-subtitle: flyway.clickhouse
+subtitle: Flyway Clickhouse
 ---
 
 This namespace contains the configurations specific to Clickhouse DB.

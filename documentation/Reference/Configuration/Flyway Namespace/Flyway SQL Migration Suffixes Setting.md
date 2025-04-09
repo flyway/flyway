@@ -1,5 +1,4 @@
 ---
-pill: sqlMigrationSuffixes
 subtitle: flyway.sqlMigrationSuffixes
 redirect_from: Configuration/sqlMigrationSuffixes/
 ---

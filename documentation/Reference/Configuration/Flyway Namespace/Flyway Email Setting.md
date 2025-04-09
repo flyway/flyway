@@ -1,5 +1,4 @@
 ---
-pill: email
 subtitle: flyway.email
 redirect_from: Configuration/email/
 ---

@@ -262,12 +262,12 @@ public class ApiMigrator extends Migrator {
         }
 
         throw new FlywayMigrateException(migrationInfo,
-            calculateErrorMessage(e, migrationInfo),
+            calculateErrorMessage(e.getMessage(), migrationInfo),
             executeInTransaction,
             migrateResult);
     }
 
-    private String calculateErrorMessage(final Exception e, final MigrationInfo migrationInfo) {
+    private String calculateErrorMessage(final String message, final MigrationInfo migrationInfo) {
 
         final String title = "Script " + Paths.get(migrationInfo.getScript()).getFileName() + " failed";
 
@@ -276,13 +276,12 @@ public class ApiMigrator extends Migrator {
             loadableResource = loadableMigrationInfo.getLoadableResource();
         }
 
-        return ErrorUtils.calculateErrorMessage(e,
-            title,
+        return ErrorUtils.calculateErrorMessage(title,
             loadableResource,
             migrationInfo.getPhysicalLocation(),
             null,
             null,
-            "Message    : " + e.getMessage() + "\n");
+            "Message    : " + message + "\n");
     }
 
     private boolean shouldExecuteInTransaction(final MigrationInfo migrationInfo, final Configuration configuration) {

@@ -1,5 +1,5 @@
 ---
-subtitle: 'Tutorial: Using Pingu to connect to MongoDB'
+subtitle: 'Tutorial: Using Native Connectors to connect to MongoDB'
 ---
 
 This tutorial shows you how to connect to MongoDB using Flyway with Native Connectors enabled.

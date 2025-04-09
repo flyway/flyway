@@ -1,5 +1,4 @@
 ---
-pill: repeatableSqlMigrationPrefix
 subtitle: flyway.repeatableSqlMigrationPrefix
 redirect_from: Configuration/repeatableSqlMigrationPrefix/
 ---

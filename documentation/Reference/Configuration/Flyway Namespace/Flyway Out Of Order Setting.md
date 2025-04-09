@@ -1,5 +1,4 @@
 ---
-pill: outOfOrder
 subtitle: flyway.outOfOrder
 redirect_from: Configuration/outOfOrder/
 ---

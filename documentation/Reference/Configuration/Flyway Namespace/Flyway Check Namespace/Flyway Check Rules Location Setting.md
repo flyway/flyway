@@ -1,5 +1,4 @@
 ---
-pill: check.rulesLocation
 subtitle: flyway.check.rulesLocation
 ---
 

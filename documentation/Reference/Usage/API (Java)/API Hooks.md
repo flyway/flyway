@@ -1,5 +1,4 @@
 ---
-pill: hooks
 subtitle: API hooks
 ---
 

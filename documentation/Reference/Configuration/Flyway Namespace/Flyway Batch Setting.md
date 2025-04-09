@@ -1,5 +1,4 @@
 ---
-pill: batch
 subtitle: flyway.batch
 redirect_from: Configuration/batch/
 ---

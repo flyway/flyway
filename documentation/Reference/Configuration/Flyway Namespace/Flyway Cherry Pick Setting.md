@@ -1,5 +1,4 @@
 ---
-pill: cherryPick
 subtitle: flyway.cherryPick
 redirect_from: Configuration/cherryPick/
 ---

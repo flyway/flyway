@@ -1,5 +1,4 @@
 ---
-pill: executeInTransaction
 subtitle: flyway.executeInTransaction
 ---
 

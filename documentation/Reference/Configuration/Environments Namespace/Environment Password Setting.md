@@ -1,5 +1,4 @@
 ---
-pill: password
 subtitle: flyway.password
 redirect_from: Configuration/password/
 ---

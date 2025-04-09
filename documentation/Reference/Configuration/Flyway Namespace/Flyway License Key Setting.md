@@ -1,5 +1,4 @@
 ---
-pill: licenseKey
 subtitle: flyway.licenseKey
 redirect_from: Configuration/licenseKey/
 ---

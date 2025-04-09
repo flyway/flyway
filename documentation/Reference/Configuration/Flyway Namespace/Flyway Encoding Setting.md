@@ -1,5 +1,4 @@
 ---
-pill: encoding
 subtitle: flyway.encoding
 redirect_from: Configuration/encoding/
 ---

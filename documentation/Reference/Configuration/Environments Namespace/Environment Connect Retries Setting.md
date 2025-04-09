@@ -1,5 +1,4 @@
 ---
-pill: connectRetries
 subtitle: flyway.environments.*.connectRetries
 redirect_from: Configuration/connectRetries/
 ---

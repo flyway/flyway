@@ -1,5 +1,4 @@
 ---
-pill: postgresqlTransactionalLock
 subtitle: flyway.postgresql.transactional.lock
 ---
 

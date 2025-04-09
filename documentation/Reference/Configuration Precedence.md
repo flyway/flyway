@@ -1,5 +1,4 @@
 ---
-pill: Configuration Precedence
 subtitle: overriding order
 ---
 

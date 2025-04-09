@@ -1,5 +1,4 @@
 ---
-pill: reportEnabled
 subtitle: flyway.reportEnabled
 ---
 

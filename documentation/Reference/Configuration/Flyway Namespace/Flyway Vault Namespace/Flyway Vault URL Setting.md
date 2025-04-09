@@ -1,6 +1,5 @@
 ---
-pill: vaultUrl
-subtitle: flyway.vaultUrl
+subtitle: Flyway Vault URL
 ---
 
 {% include enterprise.html %}

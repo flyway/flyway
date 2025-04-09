@@ -1,5 +1,4 @@
 ---
-pill: locations
 subtitle: flyway.locations
 redirect_from: Configuration/locations/
 ---

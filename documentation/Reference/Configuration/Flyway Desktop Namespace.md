@@ -1,5 +1,5 @@
 ---
-subtitle: flywayDesktop
+subtitle: Flyway Desktop
 ---
 
 This namespace contains the configurations specific to Flyway Desktop.

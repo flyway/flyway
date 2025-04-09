@@ -1,5 +1,4 @@
 ---
-pill: gcsmProject
 subtitle: flyway.gcsm.project
 ---
 

@@ -1,5 +1,4 @@
 ---
-pill: stream
 subtitle: flyway.stream
 redirect_from: Configuration/stream/
 ---

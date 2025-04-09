@@ -1,5 +1,4 @@
 ---
-pill: lockRetryCount
 subtitle: flyway.lockRetryCount
 redirect_from: Configuration/lockRetryCount
 ---

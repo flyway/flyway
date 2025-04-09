@@ -1,5 +1,4 @@
 ---
-pill: baselineMigrationPrefix
 subtitle: flyway.baselineMigrationPrefix
 ---
 

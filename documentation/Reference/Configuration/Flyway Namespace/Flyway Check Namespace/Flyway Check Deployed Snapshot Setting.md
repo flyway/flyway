@@ -1,5 +1,4 @@
 ---
-pill: check.deployedSnapshot
 subtitle: flyway.check.deployedSnapshot
 ---
 

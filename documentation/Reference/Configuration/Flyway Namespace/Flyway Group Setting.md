@@ -1,5 +1,4 @@
 ---
-pill: group
 subtitle: flyway.group
 redirect_from: Configuration/group/
 ---

@@ -137,7 +137,7 @@ public class Flyway {
         this.flywayExecutor = new FlywayExecutor(this.configuration);
 
         LogFactory.setConfiguration(this.configuration);
-        
+
         if (LicenseGuard.isLicensed(this.configuration, List.of(Tier.ENTERPRISE))) {
             FlywayDbWebsiteLinks.FEEDBACK_SURVEY_LINK = FlywayDbWebsiteLinks.FEEDBACK_SURVEY_LINK_ENTERPRISE;
         } else {
@@ -170,13 +170,15 @@ public class Flyway {
      */
     @SneakyThrows
     public MigrateResult migrate() throws FlywayException {
-        try (EventTelemetryModel telemetryModel = new EventTelemetryModel("migrate", flywayTelemetryManager)) {
+        try (MigrateTelemetryModel telemetryModel = new MigrateTelemetryModel(flywayTelemetryManager)) {
             if (canUseExperimentalMode(configuration, "migrate")) {
                 logPreviewFeature(NATIVE_CONNECTORS);
                 final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("migrate")).findFirst();
                 if (verb.isPresent()) {
                     LOG.debug("Native Connectors for migrate is set and a verb is present");
-                    return (MigrateResult) verb.get().executeVerb(configuration);
+                    final var result = (MigrateResult) verb.get().executeVerb(configuration);
+                    telemetryModel.setFromMigrateResult(result);
+                    return result;
                 } else {
                     LOG.warn("Native Connectors for migrate is set but no verb is present");
                 }
@@ -243,7 +245,7 @@ public class Flyway {
                     }
 
                     MigrateResult result = new DbMigrate(database, schemaHistory, defaultSchema, migrationResolver, configuration, callbackExecutor).migrate();
-
+                    telemetryModel.setFromMigrateResult(result);
                     callbackExecutor.onOperationFinishEvent(Event.AFTER_MIGRATE_OPERATION_FINISH, result);
 
                     return result;

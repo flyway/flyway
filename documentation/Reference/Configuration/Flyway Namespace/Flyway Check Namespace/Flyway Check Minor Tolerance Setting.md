@@ -1,5 +1,4 @@
 ---
-pill: check.minorTolerance
 subtitle: flyway.check.minorTolerance
 ---
 

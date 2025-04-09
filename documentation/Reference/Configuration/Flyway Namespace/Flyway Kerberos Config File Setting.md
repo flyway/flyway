@@ -1,5 +1,4 @@
 ---
-pill: kerberosConfigFile
 subtitle: flyway.kerberosConfigFile
 ---
 

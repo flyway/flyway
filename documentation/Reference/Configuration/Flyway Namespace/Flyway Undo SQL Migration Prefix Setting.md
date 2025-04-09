@@ -1,5 +1,4 @@
 ---
-pill: undoSqlMigrationPrefix
 subtitle: flyway.undoSqlMigrationPrefix
 redirect_from: Configuration/undoSqlMigrationPrefix/
 ---

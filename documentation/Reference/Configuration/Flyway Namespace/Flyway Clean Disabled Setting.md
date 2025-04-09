@@ -1,5 +1,4 @@
 ---
-pill: cleanDisabled
 subtitle: flyway.cleanDisabled
 redirect_from: Configuration/cleanDisabled/
 ---

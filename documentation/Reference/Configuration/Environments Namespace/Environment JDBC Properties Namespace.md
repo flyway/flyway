@@ -1,5 +1,4 @@
 ---
-pill: jdbcProperties
 subtitle: flyway.jdbcProperties
 redirect_from: Configuration/jdbcProperties/
 ---

@@ -1,5 +1,4 @@
 ---
-pill: code analysis rules
 subtitle: check
 ---
 

@@ -1,5 +1,4 @@
 ---
-pill: check.nextSnapshot
 subtitle: flyway.check.nextSnapshot
 ---
 

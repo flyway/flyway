@@ -1,5 +1,4 @@
 ---
-pill: oracleKerberosCacheFile
 subtitle: flyway.oracle.kerberosCacheFile
 redirect_from: Configuration/oracleKerberosCacheFile/
 ---

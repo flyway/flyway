@@ -1,5 +1,4 @@
 ---
-pill: detectEncoding
 subtitle: flyway.detectEncoding
 ---
 

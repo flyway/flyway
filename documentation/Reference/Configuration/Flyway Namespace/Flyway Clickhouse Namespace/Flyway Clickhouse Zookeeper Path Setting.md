@@ -1,6 +1,5 @@
 ---
-pill: clickhouseZookeeperPath
-subtitle: flyway.clickhouse.zookeeperPath
+subtitle: Flyway Clickhouse Zookeeper Path
 ---
 
 ## Description
