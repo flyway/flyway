@@ -20,6 +20,13 @@ subtitle: Google BigQuery
 | **Supported versions**             | -                                                                                                                                                                     |
 | **Default Java class**             | `com.simba.googlebigquery.jdbc42.Driver`                                                                                                                              |
 
+## Terminology
+We have to map Flyway concepts to Google Big Query - this is how Flyway sees the mapping:
+
+| Big Query Concept | Flyway Concept |
+|-------------------|----------------|
+| dataset           | schema         |
+
 ### Performance
 
 Executing multiple schema changes against GCP BigQuery is comparatively slow as it is optimized for data. You can read more about

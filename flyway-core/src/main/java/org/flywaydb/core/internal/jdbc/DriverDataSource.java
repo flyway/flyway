@@ -30,6 +30,7 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.util.ClassUtils;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import javax.sql.DataSource;
@@ -116,11 +117,13 @@ public class DriverDataSource implements DataSource {
         List<DatabaseType> typesAcceptingUrl = DatabaseTypeRegister.getDatabaseTypesForUrl(url, configuration);
 
         if (typesAcceptingUrl.isEmpty()) {
-            throw new FlywayException("No Flyway database plugin found to handle " + DatabaseTypeRegister.redactJdbcUrl(url) + ". See <link> for troubleshooting");
+            throw new FlywayException("No Flyway database plugin found to handle " + DatabaseTypeRegister.redactJdbcUrl(url)
+                + ". See " + FlywayDbWebsiteLinks.DATABASE_TROUBLESHOOTING + " for troubleshooting");
         }
 
         for (DatabaseType type: typesAcceptingUrl) {
             String mainDriverClass = StringUtils.hasLength(driverClass) ? driverClass : type.getDriverClass(url, classLoader);
+            type.setEarlyConnectionProps();
 
             try {
                 this.driver = ClassUtils.instantiate(mainDriverClass, classLoader);
@@ -159,7 +162,8 @@ public class DriverDataSource implements DataSource {
         }
 
         if (this.type == null) {
-            throw new FlywayException("No JDBC driver found to handle " + DatabaseTypeRegister.redactJdbcUrl(url) + ". See <link> for troubleshooting");
+            throw new FlywayException("No JDBC driver found to handle " + DatabaseTypeRegister.redactJdbcUrl(url)
+                + ". See " + FlywayDbWebsiteLinks.DATABASE_TROUBLESHOOTING + " for troubleshooting");
         }
 
         if (additionalProperties != null) {

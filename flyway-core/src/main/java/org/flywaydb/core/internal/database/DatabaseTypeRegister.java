@@ -33,6 +33,7 @@ import org.flywaydb.core.internal.database.base.BaseDatabaseType;
 import org.flywaydb.core.internal.database.base.CommunityDatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.plugin.PluginRegister;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
 @CustomLog
 public class DatabaseTypeRegister {
@@ -50,7 +51,8 @@ public class DatabaseTypeRegister {
         final List<DatabaseType> typesAcceptingUrl = getDatabaseTypesForUrl(url, configuration);
 
         if (typesAcceptingUrl.isEmpty()) {
-            throw new FlywayException("No Flyway database plugin found to handle " + redactJdbcUrl(url, typesAcceptingUrl) + ". See <link> for troubleshooting");
+            throw new FlywayException("No Flyway database plugin found to handle " + redactJdbcUrl(url, typesAcceptingUrl)
+                + ". See " + FlywayDbWebsiteLinks.DATABASE_TROUBLESHOOTING + " for troubleshooting");
         } else {
             return typesAcceptingUrl.get(0);
         }
@@ -80,7 +82,8 @@ public class DatabaseTypeRegister {
             || !(type instanceof CommunityDatabaseType)).filter(type -> type.getSupportedEngines()
             .stream()
             .anyMatch(engineName::equalsIgnoreCase)).findFirst().orElseThrow(() -> new FlywayException(
-            "No Flyway database plugin found to handle " + engineName + " engine" + ". See <link> for troubleshooting"));
+            "No Flyway database plugin found to handle " + engineName + " engine"
+                + ". See " + FlywayDbWebsiteLinks.DATABASE_TROUBLESHOOTING + " for troubleshooting"));
     }
 
     public static String redactJdbcUrl(final String url) {

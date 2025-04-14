@@ -51,6 +51,11 @@ public class JdbcTemplate {
         this.nullType = databaseType.getNullType();
     }
 
+    public JdbcTemplate(Connection connection, int nullType) {
+        this.connection = connection;
+        this.nullType = nullType;
+    }
+
     public Connection getConnection() {
         return connection;
     }

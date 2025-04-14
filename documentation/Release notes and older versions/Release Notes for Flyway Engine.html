@@ -8,6 +8,28 @@
 </div>
 <div class="col-md-9">
   <div class="release">
+    <h2 id="11.7.0">Flyway 11.7.0 (2025-04-09)</h2>
+
+    <h3>New features</h3>
+    <ul>
+      <li>Flyway now supports Native Connectors mode for Oracle Database</li>
+    </ul>
+
+    <h3>Bug fixes</h3>
+    <ul>
+      <li>Fixed an issue where diff comparisons of empty schema models to empty would use the SqlServer comparison engine</li>
+      <li>Fixed an issue where the MongoDB connection string's 'authSource' parameter was not being correctly applied</li>
+      <li>Fixed an issue where performing a dry run on non-Native Connectors databases triggered a misleading Native Connector warning message</li>
+    </ul>
+
+    <h3>Library upgrades</h3>
+    <ul>
+      <li>Upgraded RgCompare.Cli from 1.30.2.26104 to 1.30.2.26158</li>
+    </ul>
+
+  </div>
+
+  <div class="release">
     <h2 id="11.6.0">Flyway 11.6.0 (2025-04-03)</h2>
 
     <h3>Changes</h3>

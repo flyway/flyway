@@ -205,6 +205,13 @@ public interface DatabaseType extends Plugin {
     void setOverridingConnectionProps(Map<String, String> props);
 
     /**
+     * Sets connection properties that must be applied before the JDBC driver is initialized.
+     * These properties typically control driver-level behavior, such as debugging or tracing,
+     * and need to be set early to take effect.
+     */
+    default void setEarlyConnectionProps() {}
+
+    /**
      * Shutdown the database that was opened (only applicable to embedded databases that require this).
      *
      * @param url The JDBC url used to create the database.

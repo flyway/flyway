@@ -21,6 +21,9 @@ package org.flywaydb.database.oracle;
 
 import static org.flywaydb.core.internal.util.UrlUtils.isSecretManagerUrl;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.nio.file.Paths;
 import lombok.CustomLog;
 import oracle.jdbc.OracleConnection;
 import org.flywaydb.core.api.FlywayException;
@@ -34,6 +37,7 @@ import org.flywaydb.core.internal.database.base.BaseDatabaseType;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
 import org.flywaydb.core.internal.plugin.PluginRegister;
+import org.flywaydb.core.internal.util.StringUtils;
 
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
@@ -43,6 +47,7 @@ import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutor;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
 import org.flywaydb.core.internal.util.ClassUtils;
+import java.util.logging.LogManager;
 
 import java.sql.Connection;
 import java.sql.Driver;
@@ -60,6 +65,8 @@ public class OracleDatabaseType extends BaseDatabaseType {
     // Oracle usernames/passwords can be 1-30 chars, can only contain alphanumerics and # _ $
     // The first (and only) capture group represents the password
     private static final Pattern usernamePasswordPattern = Pattern.compile("^jdbc:oracle:thin:[a-zA-Z0-9#_$]+/([a-zA-Z0-9#_$]+)@.*");
+    private static final String TNS_ADMIN = "TNS_ADMIN";
+    private static final String ORACLE_HOME = "ORACLE_HOME";
 
     @Override
     public String getName() {
@@ -102,8 +109,6 @@ public class OracleDatabaseType extends BaseDatabaseType {
 
     @Override
     public Database createDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
-        OracleDatabase.enableTnsnamesOraSupport();
-
         return new OracleDatabase(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
@@ -270,6 +275,31 @@ public class OracleDatabaseType extends BaseDatabaseType {
             DriverManager.registerDriver(driver.getDeclaredConstructor().newInstance());
         } catch (Exception e) {
             throw new FlywayException("Unable to register Oracle driver. AWS Secrets Manager may not work", e);
+        }
+    }
+
+    @Override
+    public void setEarlyConnectionProps() {
+        // Ideally, checking LOG.isDebugEnabled() would be preferred, but here it has no effect as it always returns true
+        // The underlying reason involves Flyway’s complicated LOG initialization process.
+        System.setProperty("oracle.jdbc.Trace", "true");
+
+        
+        // Using System.setProperty("java.util.logging.config.file", {filePath}) here has no effect.
+        // Because the JVM initializes the logging configuration early during startup.
+        String loggingPropertiesFile = Paths.get(ClassUtils.getInstallDir(this.getClass()), "assets/logging.properties").toString();
+        if (new File(loggingPropertiesFile).exists()) {
+            try (FileInputStream fis = new FileInputStream(loggingPropertiesFile)) {
+                LOG.debug("Initializing Java logging with custom properties file");
+                LogManager.getLogManager().readConfiguration(fis);
+            } catch (Exception ignored) {
+            }
+        }
+
+        String oracleHome = System.getenv(ORACLE_HOME);
+
+        if (StringUtils.hasLength(oracleHome) && System.getenv(TNS_ADMIN) == null) {
+            System.setProperty(TNS_ADMIN, oracleHome + "/network/admin");
         }
     }
 

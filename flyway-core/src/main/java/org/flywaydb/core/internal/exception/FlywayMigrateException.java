@@ -42,6 +42,9 @@ public class FlywayMigrateException extends FlywayException {
 
     public ErrorCode getMigrationErrorCode() {
         if (migration.getVersion() != null) {
+            if (migration.getType().isBaseline()) {
+                return CoreErrorCode.FAILED_BASELINE_MIGRATION;
+            }
             return CoreErrorCode.FAILED_VERSIONED_MIGRATION;
         } else {
             return CoreErrorCode.FAILED_REPEATABLE_MIGRATION;

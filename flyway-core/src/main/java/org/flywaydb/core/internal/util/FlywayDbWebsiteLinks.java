@@ -64,6 +64,7 @@ public class FlywayDbWebsiteLinks {
     public static final String EULA_LINK = "https://www.red-gate.com/eula";
     public static final String COMMUNITY_SUPPORT = "https://rd.gt/468B6ni";
     public static final String MIGRATIONS = "https://rd.gt/4iUkpm1";
+    public static final String DATABASE_TROUBLESHOOTING = "https://rd.gt/423f9a6";
 
     public static final String ENTERPRISE_INFO = "https://www.red-gate.com/products/flyway/enterprise/";
     public static final String RELEASE_NOTES = "https://rd.gt/416ObMi";
