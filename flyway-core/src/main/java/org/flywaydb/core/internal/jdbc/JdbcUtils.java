@@ -181,4 +181,12 @@ public class JdbcUtils {
             throw new FlywaySqlException("Error while determining database product version", e);
         }
     }
+
+    public static String getDatabaseVersion(DatabaseMetaData databaseMetaData) {
+        try {
+            return databaseMetaData.getDatabaseMajorVersion() + "." + databaseMetaData.getDatabaseMinorVersion();
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Error while determining database version", e);
+        }
+    }
 }

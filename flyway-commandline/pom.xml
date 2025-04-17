@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>11.7.1</version>
+        <version>11.7.2</version>
     </parent>
     <artifactId>flyway-commandline</artifactId>
     <packaging>jar</packaging>
@@ -127,55 +127,55 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-ignite</artifactId>
-            <version>10.17.0</version>
+            <version>10.18.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-tidb</artifactId>
-            <version>10.17.0</version>
+            <version>10.18.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-yugabytedb</artifactId>
-            <version>10.17.0</version>
+            <version>10.18.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-clickhouse</artifactId>
-            <version>10.17.0</version>
+            <version>10.18.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-oceanbase</artifactId>
-            <version>10.17.0</version>
+            <version>10.18.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-databricks</artifactId>
-            <version>10.17.0</version>
+            <version>10.18.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-db2zos</artifactId>
-            <version>10.17.0</version>
+            <version>10.18.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-duckdb</artifactId>
-            <version>10.17.0</version>
+            <version>10.18.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-timeplus</artifactId>
-            <version>10.17.0</version>
+            <version>10.18.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -188,6 +188,11 @@
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
+
+
+
+
+
 
 
 
@@ -461,7 +466,7 @@
         <dependency>
             <groupId>com.databricks</groupId>
             <artifactId>databricks-jdbc</artifactId>
-            <version>2.6.40</version>
+            <version>2.7.1</version>
             <scope>runtime</scope>
         </dependency>
         <!-- #2136: JNA is required for MariaDB with unix sockets -->

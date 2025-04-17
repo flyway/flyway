@@ -49,6 +49,6 @@ public class InfoVerbExtension implements VerbExtension {
         return new ExperimentalMigrationInfoService(context.getMigrations(),
             configuration,
             database.getName(),
-            database.allSchemasEmpty(VerbUtils.getAllSchemas(configuration.getSchemas(), database.getDefaultSchema(configuration))));
+            database.allSchemasEmpty(VerbUtils.getAllSchemas(configuration.getSchemas(), database.getCurrentSchema())));
     }
 }

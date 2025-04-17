@@ -100,14 +100,21 @@ public abstract class ExperimentalJdbc <T> extends AbstractExperimentalDatabase 
         }
 
         final DatabaseMetaData databaseMetaData = JdbcUtils.getDatabaseMetaData(connection);
-        final String databaseProductName = JdbcUtils.getDatabaseProductName(databaseMetaData);
-        final String databaseProductVersion = JdbcUtils.getDatabaseProductVersion(databaseMetaData);
+        final String productName = JdbcUtils.getDatabaseProductName(databaseMetaData);
+        final String productVersion = JdbcUtils.getDatabaseProductVersion(databaseMetaData);
+        final DatabaseVersion version = new DatabaseVersionImpl(JdbcUtils.getDatabaseVersion(databaseMetaData));
+        final String databaseType = getDatabaseType();
 
         final String databaseName = supportsCatalog() ? getCatalog()
             : supportsSchema() ? getCurrentSchema() : null;
 
 
-        return new MetaData(databaseProductName, databaseProductVersion, getConnectionType(), databaseName);
+        return new MetaData(databaseType,
+            productName,
+            version,
+            productVersion,
+            databaseName,
+            getConnectionType());
     }
 
     @Override

@@ -19,16 +19,7 @@
  */
 package org.flywaydb.core.experimental;
 
-/**
- * This contains connection relevant metadata gathered from the database.
- *
- * @param productName    The database type name given by the database. For example, MySQL.
- * @param productVersion The database type version given by the database. This may include variation information. For
- *                       example, MariaDB 10.11.
- */
-public record MetaData(String databaseType,
-                       String productName,
-                       DatabaseVersion version,
-                       String productVersion,
-                       String databaseName,
-                       ConnectionType connectionType) {}
+public interface DatabaseVersion {
+    boolean isAtLeast(final String expected);
+
+}

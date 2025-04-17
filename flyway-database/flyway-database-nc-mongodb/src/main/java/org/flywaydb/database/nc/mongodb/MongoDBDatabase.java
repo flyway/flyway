@@ -52,6 +52,7 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.experimental.AbstractExperimentalDatabase;
 import org.flywaydb.core.experimental.ConnectionType;
 import org.flywaydb.core.experimental.DatabaseSupport;
+import org.flywaydb.core.experimental.DatabaseVersionImpl;
 import org.flywaydb.core.experimental.MetaData;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryItem;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryModel;
@@ -65,6 +66,7 @@ import org.flywaydb.core.internal.util.AsciiTable;
 import org.flywaydb.core.internal.util.DockerUtils;
 import org.flywaydb.core.internal.util.FileUtils;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
+import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.nc.executors.NonJdbcExecutorExecutionUnit;
 
 public class MongoDBDatabase extends AbstractExperimentalDatabase <NonJdbcExecutorExecutionUnit> {
@@ -74,6 +76,7 @@ public class MongoDBDatabase extends AbstractExperimentalDatabase <NonJdbcExecut
     private MongoshCredential mongoshCredential = null;
     private ClientSession clientSession;
     private Boolean doesSchemaHistoryTableExist;
+    private ConnectionString connectionString;
 
     @Override
     public DatabaseSupport supportsUrl(final String url) {
@@ -93,8 +96,9 @@ public class MongoDBDatabase extends AbstractExperimentalDatabase <NonJdbcExecut
 
     @Override
     public boolean isOnByDefault(final Configuration configuration) {
-        boolean isOSS = "OSS".equals(LicenseGuard.getTierAsString(configuration));
-        return isOSS || checkMongoshInstalled(true);
+        final boolean isOSS = "OSS".equals(LicenseGuard.getTierAsString(configuration));
+        final boolean isJSON = ".json".equals(configuration.getSqlMigrationSuffixes()[0]);
+        return isOSS || isJSON || checkMongoshInstalled(true);
     }
 
     @Override
@@ -128,7 +132,7 @@ public class MongoDBDatabase extends AbstractExperimentalDatabase <NonJdbcExecut
                 environment.getPassword());
         }
 
-        final ConnectionString connectionString = new ConnectionString(configuration.getUrl());
+        connectionString = new ConnectionString(configuration.getUrl());
 
         if (Boolean.TRUE.equals(connectionString.getSslEnabled())) {
             TLSConnectionHelper.get(configuration)
@@ -157,7 +161,9 @@ public class MongoDBDatabase extends AbstractExperimentalDatabase <NonJdbcExecut
                 .credential(credential)
                 .build());
         }
-        mongoDatabase = mongoClient.getDatabase(getDefaultSchema(configuration));
+        final String databaseName = getDefaultSchema(configuration);
+
+        mongoDatabase = mongoClient.getDatabase(databaseName);
         currentSchema = mongoDatabase.getName();
         clientSession = mongoClient.startSession();
         schemaHistoryTableName = configuration.getTable();
@@ -193,7 +199,7 @@ public class MongoDBDatabase extends AbstractExperimentalDatabase <NonJdbcExecut
 
         final Document buildInfo = mongoDatabase.runCommand(new Document("buildInfo", 1));
         final String version = buildInfo.getString("version");
-        return new MetaData("MongoDB", version, connectionType, getCurrentSchema());
+        return new MetaData(getDatabaseType(), "MongoDB", new DatabaseVersionImpl(version), version, getCurrentSchema(), connectionType);
     }
 
     @Override
@@ -309,7 +315,8 @@ public class MongoDBDatabase extends AbstractExperimentalDatabase <NonJdbcExecut
     @Override
     public String getDefaultSchema(final Configuration configuration) {
         final String defaultSchema = ConfigUtils.getCalculatedDefaultSchema(configuration);
-        return defaultSchema == null ? "test" : defaultSchema;
+        return defaultSchema != null ? defaultSchema :
+            StringUtils.hasLength(connectionString.getDatabase()) ? connectionString.getDatabase() : "test";
     }
 
     @Override

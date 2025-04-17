@@ -204,7 +204,7 @@ public sealed interface ExperimentalDatabase <T> extends Plugin, AutoCloseable p
                     quote(schema),
                     TimeFormat.format(watch.getTotalTimeMillis())));
                 cleanResult.schemasDropped.add(schema);
-            } catch (final FlywayException e) {
+            } catch (final Exception e) {
                 LOG.debug(e.getMessage());
                 LOG.warn("Unable to drop schema " + schema + ". It was cleaned instead.");
                 cleanResult.schemasCleaned.add(schema);

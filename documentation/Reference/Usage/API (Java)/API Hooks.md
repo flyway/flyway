@@ -15,6 +15,8 @@ In order to be picked up by Flyway, Java-based Migrations must implement the
 however should inherit from the convenience class [`BaseJavaMigration`](https://javadoc.io/doc/org.flywaydb/flyway-core/latest/org/flywaydb/core/api/migration/BaseJavaMigration.html)
 instead as it encourages Flyway's default naming convention, enabling Flyway to automatically extract the version and
 the description from the class name.
+If you are creating a baseline or undo migration, you can instead inherit from the [`BaselineJavaMigration`](https://javadoc.io/doc/org.flywaydb/flyway-core/latest/org/flywaydb/core/api/migration/baseline/BaselineJavaMigration.html) class
+or the `UndoJavaMigration` class respectively
 
 ### Java-based migrations as Spring Beans
 

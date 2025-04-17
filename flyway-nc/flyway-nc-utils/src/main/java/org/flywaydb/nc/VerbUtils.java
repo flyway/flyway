@@ -90,7 +90,7 @@ public class VerbUtils {
             LOG.info("Database: "
                 + experimentalDatabase.redactUrl(configuration.getUrl())
                 + " ("
-                + experimentalDatabase.getDatabaseMetaData().databaseProductName()
+                + experimentalDatabase.getDatabaseMetaData().productName()
                 + ")");
             databaseInfoPrinted = true;
         }

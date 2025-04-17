@@ -86,6 +86,10 @@ public class UrlUtils {
         return false;
     }
 
+    public static boolean isAwsWrapperUrl(final String url, final String databaseType) {
+        return url.startsWith("jdbc:aws-wrapper:" + databaseType + ":");
+    }
+
     public static Map<String, String> extractQueryParams(String uri) {
         uri = uri.replace('\\', '/');
         try {

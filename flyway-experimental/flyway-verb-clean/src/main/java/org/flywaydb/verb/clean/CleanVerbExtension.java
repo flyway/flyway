@@ -57,7 +57,7 @@ public class CleanVerbExtension implements VerbExtension {
         callbackManager.handleEvent(Event.BEFORE_CLEAN, database, configuration, context.getParsingContext());
 
         final List<String> schemas = new LinkedList<>(Arrays.asList(configuration.getSchemas()));
-        final String defaultSchema = database.getDefaultSchema(configuration);
+        final String defaultSchema = database.getCurrentSchema();
         if (!schemas.contains(defaultSchema)) {
             schemas.add(0, defaultSchema);
         }

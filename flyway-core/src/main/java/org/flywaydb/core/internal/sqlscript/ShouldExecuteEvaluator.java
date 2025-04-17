@@ -17,18 +17,20 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.core.experimental;
+package org.flywaydb.core.internal.sqlscript;
 
-/**
- * This contains connection relevant metadata gathered from the database.
- *
- * @param productName    The database type name given by the database. For example, MySQL.
- * @param productVersion The database type version given by the database. This may include variation information. For
- *                       example, MariaDB 10.11.
- */
-public record MetaData(String databaseType,
-                       String productName,
-                       DatabaseVersion version,
-                       String productVersion,
-                       String databaseName,
-                       ConnectionType connectionType) {}
+import org.flywaydb.core.extensibility.Plugin;
+
+public interface ShouldExecuteEvaluator extends Plugin  {
+
+    /**
+     * Evaluates a boolean expression.
+     * <p>
+     * Currently only supports expressions that are 'true', 'false', 'A==B', 'A!=B' and combinations of those using ( )
+     * (precedence), && (AND), || (OR)
+     *
+     * @param expression The string containing the boolean expression.
+     * @return The boolean value the expression evaluates to.
+     */
+    boolean evaluateExpression(final String expression);
+}

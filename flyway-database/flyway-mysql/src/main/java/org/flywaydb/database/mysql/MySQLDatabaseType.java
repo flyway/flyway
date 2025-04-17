@@ -19,6 +19,7 @@
  */
 package org.flywaydb.database.mysql;
 
+import static org.flywaydb.core.internal.util.UrlUtils.isAwsWrapperUrl;
 import static org.flywaydb.core.internal.util.UrlUtils.isSecretManagerUrl;
 
 import java.util.List;
@@ -73,7 +74,7 @@ public class MySQLDatabaseType extends BaseDatabaseType {
         return isSecretManagerUrl(url, "mysql")
             || url.startsWith("jdbc:mysql:") || url.startsWith("jdbc:google:")
             || url.startsWith("jdbc:p6spy:mysql:") || url.startsWith("jdbc:p6spy:google:")
-            || url.startsWith("jdbc:aws-wrapper:mysql");
+            || isAwsWrapperUrl(url, "mysql");
     }
 
     @Override
@@ -89,7 +90,7 @@ public class MySQLDatabaseType extends BaseDatabaseType {
         if (url.startsWith("jdbc:mysql:")) {
             return "com.mysql.cj.jdbc.Driver";
         }
-        if (url.startsWith("jdbc:aws-wrapper:mysql")) {
+        if (isAwsWrapperUrl(url, "mysql")) {
             return "software.amazon.jdbc.Driver";
         } else {
             return "com.mysql.jdbc.GoogleDriver";

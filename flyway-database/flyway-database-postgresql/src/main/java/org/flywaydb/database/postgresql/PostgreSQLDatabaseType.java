@@ -19,6 +19,7 @@
  */
 package org.flywaydb.database.postgresql;
 
+import static org.flywaydb.core.internal.util.UrlUtils.isAwsWrapperUrl;
 import static org.flywaydb.core.internal.util.UrlUtils.isSecretManagerUrl;
 
 import java.util.List;
@@ -64,7 +65,10 @@ public class PostgreSQLDatabaseType extends BaseDatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
-        return isSecretManagerUrl(url, "postgresql") || url.startsWith("jdbc:postgresql:") || url.startsWith("jdbc:p6spy:postgresql:");
+        return isSecretManagerUrl(url, "postgresql")
+            || url.startsWith("jdbc:postgresql:")
+            || url.startsWith("jdbc:p6spy:postgresql:")
+            || isAwsWrapperUrl(url, "postgresql");
     }
 
     @Override
@@ -76,6 +80,9 @@ public class PostgreSQLDatabaseType extends BaseDatabaseType {
 
         if (url.startsWith("jdbc:p6spy:postgresql:")) {
             return "com.p6spy.engine.spy.P6SpyDriver";
+        }
+        if (isAwsWrapperUrl(url, "postgresql")) {
+            return "software.amazon.jdbc.Driver";
         }
         return "org.postgresql.Driver";
     }

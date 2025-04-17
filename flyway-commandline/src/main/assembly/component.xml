@@ -222,6 +222,7 @@
 
 
 
+
             </includes>
             <excludes>
                 <exclude>io.netty:netty-*</exclude>
@@ -411,6 +412,7 @@
                 <exclude>com.oracle.database.security:oraclepki</exclude>
                 <exclude>com.oracle.database.security:osdt_cert</exclude>
                 <exclude>com.oracle.database.security:osdt_core</exclude>
+
 
 
 

@@ -8,6 +8,50 @@
 </div>
 <div class="col-md-9">
   <div class="release">
+        <h2 id="11.7.2">Flyway 11.7.2 (2025-04-17)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>MongoDB Native Connectors can now use the database from the url instead of the default `test` database</li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <a href="https://github.com/flyway/flyway/issues/4033">Issue 4033</a>
+            <li>Add support for the AWS Wrapper with PostgreSQL</li>
+        </ul>
+
+        <h3>Library upgrades</h3>
+        <ul>
+            <li>Upgraded RgCompare.Cli from 1.30.2.26299 to 1.30.2.26351</li>
+            <li>Update databricks-jdbc to 2.7.1</li>
+            <li>Update jetty-server to 9.4.57.v20241219 to fix CVE-2024-6763</li>
+        </ul>
+
+        <p>
+            Thanks to heikkis for reporting these issues.
+        </p>
+  </div>
+
+  <div class="release">
+    <h2 id="11.7.1">Flyway 11.7.1 (2025-04-14)</h2>
+
+    <h3>Changes</h3>
+    <ul>
+      <li>Native Connectors for Oracle now supports clean</li>
+      <li>Added new error code `FAILED_BASELINE_MIGRATION` to convey failure when migration a baseline</li>
+    </ul>
+
+    <h3>Library upgrades</h3>
+    <ul>
+      <li>Upgraded RgCompare.Cli from 1.30.2.26158 to 1.30.2.26299</li>
+      <li>Upgraded azure-identity 1.14.2 -> 1.15.4</li>
+      <li>Upgraded msal4j 1.15.1 -> 1.20.0</li>
+    </ul>
+
+  </div>
+
+  <div class="release">
     <h2 id="11.7.0">Flyway 11.7.0 (2025-04-09)</h2>
 
     <h3>New features</h3>

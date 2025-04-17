@@ -19,14 +19,8 @@
  */
 package org.flywaydb.core.internal.util;
 
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.util.booleanexpression.ASTBuilderVisitor;
-import org.flywaydb.core.internal.util.booleanexpression.ASTEvaluator;
-import org.flywaydb.core.internal.util.booleanexpression.ErrorListener;
-import org.flywaydb.core.internal.util.booleanexpression.generated.BooleanExpressionLexer;
-import org.flywaydb.core.internal.util.booleanexpression.generated.BooleanExpressionParser;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.sqlscript.ShouldExecuteEvaluator;
 
 public class BooleanEvaluator {
     /**
@@ -38,22 +32,9 @@ public class BooleanEvaluator {
      * @param expression The string containing the boolean expression.
      * @return The boolean value the expression evaluates to.
      */
-    public static boolean evaluateExpression(final String expression) {
-        final var lexer = new BooleanExpressionLexer(CharStreams.fromString(expression));
-        final var parser = new BooleanExpressionParser(new CommonTokenStream(lexer));
-        lexer.removeErrorListeners();
-        parser.removeErrorListeners();
-
-        final var errorListener = new ErrorListener(expression);
-        lexer.addErrorListener(errorListener);
-        parser.addErrorListener(errorListener);
-
-        final var program = parser.program();
-        if (errorListener.hasErrors()) {
-            throw new FlywayException("Error parsing boolean expression: " + errorListener.getErrorMessage());
-        }
-
-        final var ast = new ASTBuilderVisitor().visitProgram(program);
-        return ASTEvaluator.evaluate(ast);
+    public static boolean evaluateExpression(final String expression, final Configuration configuration) {
+        final ShouldExecuteEvaluator plugin = configuration.getPluginRegister()
+            .getLicensedPlugin(ShouldExecuteEvaluator.class, configuration);
+        return plugin == null || plugin.evaluateExpression(expression);
     }
 }

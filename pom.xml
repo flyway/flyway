@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <!--
-    Detailed information how to contribute: https://documentation.red-gate.com/fd/code-184127557.html
+    Detailed information how to contribute: https://flyway.github.io/flyway/
 
     To build the OS-specific flyway-commandline assemblies you can run the build with one of the following commands:
     mvn clean install -Pbuild-assemblies-windows
@@ -14,7 +14,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>11.7.1</version>
+    <version>11.7.2</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -513,11 +513,11 @@
                 <artifactId>netty-common</artifactId>
                 <version>${version.netty}</version>
             </dependency>
-            <dependency>
-                <groupId>org.antlr</groupId>
-                <artifactId>antlr4-runtime</artifactId>
-                <version>${version.antlr}</version>
-            </dependency>
+
+
+
+
+
 
 
 
@@ -755,7 +755,7 @@
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-server</artifactId>
-                <version>9.4.56.v20240826</version>
+                <version>9.4.57.v20241219</version>
             </dependency>
             <dependency>
                 <groupId>com.oracle.database.security</groupId>
@@ -985,28 +985,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.antlr</groupId>
-                <artifactId>antlr4-maven-plugin</artifactId>
-                <version>${version.antlr}</version>
-                <executions>
-                    <execution>
-                        <id>generate-antlr-sources</id>
-                        <!-- Generation of sources is triggered manually when required with the command:
-                             mvn -f flyway-core/pom.xml antlr4:antlr4@generate-antlr-sources -->
-                        <phase>none</phase>
-                        <goals>
-                            <goal>antlr4</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <visitor>true</visitor>
-                    <listener>false</listener>
-                    <sourceDirectory>${project.basedir}/src/main/antlr4</sourceDirectory>
-                    <outputDirectory>${project.basedir}/src/main/java</outputDirectory>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.projectlombok</groupId>

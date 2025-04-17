@@ -72,7 +72,7 @@ public class SchemasVerbExtension extends CachingVerbExtension {
     private Collection<String> getMissingSchemas(final Configuration configuration,
         final ExperimentalDatabase database) {
         final Collection<String> missingSchemas = new ArrayList<>();
-        final String defaultSchema = database.getDefaultSchema(configuration);
+        final String defaultSchema = database.getCurrentSchema();
         if (defaultSchema != null) {
             if (!database.isSchemaExists(defaultSchema)) {
                 missingSchemas.add(defaultSchema);

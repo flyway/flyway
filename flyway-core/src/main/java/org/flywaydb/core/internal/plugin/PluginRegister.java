@@ -63,6 +63,10 @@ public class PluginRegister {
                 .collect(Collectors.toList());
     }
 
+    public <T extends Plugin> T getLicensedPlugin(final Class<T> clazz, final Configuration configuration) {
+        return getLicensedPlugins(clazz, configuration).stream().findFirst().orElse(null);
+    }
+
     public <T extends Plugin> T getLicensedPlugin(final String className, final Configuration configuration) {
         return (T) getPlugins()
                 .stream()

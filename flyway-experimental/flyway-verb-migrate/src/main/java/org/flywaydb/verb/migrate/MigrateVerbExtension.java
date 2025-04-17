@@ -94,7 +94,7 @@ public class MigrateVerbExtension implements VerbExtension {
         }
 
         if (!database.schemaHistoryTableExists(configuration.getTable())) {
-            final List<String> populatedSchemas = Arrays.stream(VerbUtils.getAllSchemas(configuration.getSchemas(), database.getDefaultSchema(configuration)))
+            final List<String> populatedSchemas = Arrays.stream(VerbUtils.getAllSchemas(configuration.getSchemas(), database.getCurrentSchema()))
                 .filter(database::isSchemaExists)
                 .filter(x -> !database.isSchemaEmpty(x))
                 .toList();
@@ -132,7 +132,7 @@ public class MigrateVerbExtension implements VerbExtension {
         final MigrationInfoService migrationInfoService = new ExperimentalMigrationInfoService(context.getMigrations(),
             configuration,
             database.getName(),
-            database.allSchemasEmpty(VerbUtils.getAllSchemas(configuration.getSchemas(), database.getDefaultSchema(configuration))));
+            database.allSchemasEmpty(VerbUtils.getAllSchemas(configuration.getSchemas(), database.getCurrentSchema())));
 
         final MigrationInfo current = migrationInfoService.current();
         MigrationVersion initialSchemaVersion = current != null && current.isVersioned()
