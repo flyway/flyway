@@ -132,26 +132,16 @@ public class MySQLDatabaseType extends BaseDatabaseType {
         props.put("connectionAttributes", "program_name:" + APPLICATION_NAME);
     }
 
-    @Override
-    public boolean detectPasswordRequiredByUrl(String url) {
 
 
 
 
 
 
-        return super.detectPasswordRequiredByUrl(url);
-    }
-
-    @Override
-    public boolean externalAuthPropertiesRequired(String url, String username, String password) {
-
-        return super.externalAuthPropertiesRequired(url, username, password);
 
 
 
 
-    }
 
     @Override
     public Properties getExternalAuthProperties(String url, String username) {

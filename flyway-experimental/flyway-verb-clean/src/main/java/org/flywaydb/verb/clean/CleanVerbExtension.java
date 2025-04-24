@@ -32,7 +32,7 @@ import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryItem;
 import org.flywaydb.core.extensibility.VerbExtension;
 import org.flywaydb.core.internal.license.VersionPrinter;
-import org.flywaydb.nc.callbacks.CallbackManager;
+import org.flywaydb.nc.CallbackManager;
 import org.flywaydb.nc.preparation.PreparationContext;
 
 public class CleanVerbExtension implements VerbExtension {

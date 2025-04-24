@@ -87,3 +87,18 @@ This page lists the callback events that are compatible with Native Connectors.
     </tbody>
 </table>
 
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th><strong>Name</strong></th>
+        <th><strong>Execution</strong></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr id="afterConnect">
+        <td>afterConnect</td>
+        <td>Immediately after Flyway connects to the database</td>
+    </tr>
+    </tbody>
+</table>
+

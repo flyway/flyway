@@ -238,7 +238,8 @@ public enum Event {
      * Fired before a connection is created. These must be arbitrary scripts only (e.g. ps1, cmd, sh etc.)
      * <p><i>Flyway Teams Edition only</i></p>
      */
-    BEFORE_CONNECT("beforeConnect");
+    BEFORE_CONNECT("beforeConnect"),
+    AFTER_CONNECT("afterConnect");
 
     /**
      * @return The id of an event. Examples: {@code beforeClean}, {@code afterEachMigrate}, ...

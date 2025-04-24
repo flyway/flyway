@@ -30,8 +30,10 @@ import java.util.concurrent.Future;
 import lombok.Getter;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
+import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResourceMetadata;
+import org.flywaydb.nc.CallbackManager;
 import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryModel;
 import org.flywaydb.core.extensibility.Plugin;
@@ -59,34 +61,35 @@ public final class PreparationContext implements Plugin {
         try {
             database = VerbUtils.getExperimentalDatabase(configuration);
 
+            parsingContext = new ParsingContext();
+            parsingContext.populate(database, configuration);
+
+            final Future<Collection<LoadableResourceMetadata>> resourcesFuture = CompletableFuture.supplyAsync(() -> VerbUtils.scanForResources(
+                configuration,
+                parsingContext));
+
+            resources = (Collection<LoadableResourceMetadata>) getFromFuture(resourcesFuture);
+
+            if (configuration.getInitSql() != null) {
+                throw new FlywayException("InitSql is not supported in Native Connectors. Please use the afterConnect callback instead");
+            }
+            final CallbackManager callbackManager = new CallbackManager(configuration, resources);
+            callbackManager.handleEvent(Event.AFTER_CONNECT, database, configuration, parsingContext);
+
             final CompletableFuture<SchemaHistoryModel> schemaHistoryModelFuture = CompletableFuture.supplyAsync(() -> VerbUtils.getSchemaHistoryModel(
                 configuration,
                 database));
+
+            schemaHistoryModel = (SchemaHistoryModel) getFromFuture(schemaHistoryModelFuture);
+
             CompletableFuture.runAsync(() -> logExperimentalDataTelemetry(VerbUtils.getFlywayTelemetryManager(
                 configuration), database.getDatabaseMetaData()));
-            final Future<Collection<LoadableResourceMetadata>> resourcesFuture = CompletableFuture.supplyAsync(() -> VerbUtils.scanForResources(
-                configuration,
-                database));
 
             cacheString = getCacheString(configuration);
-
-            try {
-                schemaHistoryModel = schemaHistoryModelFuture.get();
-                resources = resourcesFuture.get();
-            } catch (final ExecutionException | InterruptedException e) {
-                if (e.getCause() != null) {
-                    throw new FlywayException(e.getCause());
-                } else {
-                    throw new FlywayException(e);
-                }
-            }
 
             migrations = VerbUtils.getMigrations(schemaHistoryModel,
                 resources.toArray(LoadableResourceMetadata[]::new),
                 configuration);
-
-            parsingContext = new ParsingContext();
-            parsingContext.populate(database, configuration);
 
             isInitialized = true;
         } catch (final SQLException sqlException) {
@@ -130,5 +133,17 @@ public final class PreparationContext implements Plugin {
         }
 
         return preparationContext;
+    }
+
+    private Object getFromFuture(final Future<?> future) {
+        try {
+            return future.get();
+        } catch (final ExecutionException | InterruptedException e) {
+            if (e.getCause() != null) {
+                throw new FlywayException(e.getCause());
+            } else {
+                throw new FlywayException(e);
+            }
+        }
     }
 }

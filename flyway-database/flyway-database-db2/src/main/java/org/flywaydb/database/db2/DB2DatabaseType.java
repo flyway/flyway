@@ -85,15 +85,4 @@ public class DB2DatabaseType extends BaseDatabaseType {
         props.put("clientProgramName", BaseDatabaseType.APPLICATION_NAME);
         props.put("retrieveMessagesFromServerOnGetMessage", "true");
     }
-
-    @Override
-    public boolean detectPasswordRequiredByUrl(String url) {
-
-
-
-
-
-
-        return super.detectPasswordRequiredByUrl(url);
-    }
 }

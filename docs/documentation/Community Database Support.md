@@ -35,8 +35,6 @@ You should be able to open the project and see a number of modules.
     *   `createTransactionalExecutionTemplate` - To use a custom ExecutionTemplate
     *   `setDefaultConnectionProps` - To set custom default connection properties
     *   `shutdownDatabase` - To run any necessary code to cleanup the database on shutdown
-    *   `detectUserRequiredByUrl` - To skip prompting for user if the URL contains user information (e.g. user property, login file)
-    *   `detectPasswordRequiredByUrl` - To skip prompting for password if the URL contains password information (e.g. key file, or password property)
 
 1.  Create class `FooConnection` subclassed from `Connection<FooDatabase>`This represents a JDBC connection to your database. You probably won't use it in isolation but it is an important component of a `JdbcTemplate`, which provides numerous convenience methods for running queries on your database.  
     In the constructor of `FooConnection`, you can use the `jdbcTemplate` field of `Connection` to query for any database properties that you need to acquire immediately and maintain as part of the state of the connection. You will need to override the following methods as a minimum:

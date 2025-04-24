@@ -58,16 +58,6 @@ public class TestContainersDatabaseType extends BaseDatabaseType {
     }
 
     @Override
-    public boolean detectUserRequiredByUrl(String url) {
-        return !url.contains("user=");
-    }
-
-    @Override
-    public boolean detectPasswordRequiredByUrl(String url) {
-        return !url.contains("password=");
-    }
-
-    @Override
     public boolean handlesDatabaseProductNameAndVersion(String databaseProductName, String databaseProductVersion, Connection connection) {
         return false;
     }

@@ -226,6 +226,7 @@ public interface DatabaseType extends Plugin {
      * @param url The url to check
      * @return true if a username needs to be provided
      */
+    @Deprecated
     boolean detectUserRequiredByUrl(String url);
 
     /**
@@ -235,6 +236,7 @@ public interface DatabaseType extends Plugin {
      * @param url The url to check
      * @return true if a password needs to be provided
      */
+    @Deprecated
     boolean detectPasswordRequiredByUrl(String url);
 
     /**

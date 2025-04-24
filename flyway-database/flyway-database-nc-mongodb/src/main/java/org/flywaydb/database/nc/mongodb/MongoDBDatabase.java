@@ -97,8 +97,9 @@ public class MongoDBDatabase extends AbstractExperimentalDatabase <NonJdbcExecut
     @Override
     public boolean isOnByDefault(final Configuration configuration) {
         final boolean isOSS = "OSS".equals(LicenseGuard.getTierAsString(configuration));
-        final boolean isJSON = ".json".equals(configuration.getSqlMigrationSuffixes()[0]);
-        return isOSS || isJSON || checkMongoshInstalled(true);
+        initializeConnectionType(configuration, true);
+
+        return isOSS || (connectionType == ConnectionType.API) || checkMongoshInstalled(true);
     }
 
     @Override
@@ -108,17 +109,7 @@ public class MongoDBDatabase extends AbstractExperimentalDatabase <NonJdbcExecut
 
     @Override
     public void initialize(final ResolvedEnvironment environment, final Configuration configuration) {
-        if (configuration.getSqlMigrationSuffixes().length > 1) {
-            throw new FlywayException("Multiple `sqlMigrationSuffixes` currently not supported for MongoDB: "
-                + Arrays.toString(configuration.getSqlMigrationSuffixes()));
-        }
-        final String migrationSuffix = configuration.getSqlMigrationSuffixes()[0];
-        if (!".js".equals(migrationSuffix) && !".json".equals(migrationSuffix)) {
-            throw new FlywayException(
-                "`sqlMigrationSuffixes` is not configured with an accepted MongoDB suffix ('.js' or '.json'): "
-                    + migrationSuffix);
-        }
-        connectionType = ".json".equals(migrationSuffix) ? ConnectionType.API : ConnectionType.EXECUTABLE;
+        initializeConnectionType(configuration, false);
 
         if (environment.getUrl().startsWith("jdbc:")) {
             LOG.info("JDBC prefix stripped from url: " + redactUrl(environment.getUrl()));
@@ -313,7 +304,7 @@ public class MongoDBDatabase extends AbstractExperimentalDatabase <NonJdbcExecut
     }
 
     @Override
-    public String getDefaultSchema(final Configuration configuration) {
+    protected String getDefaultSchema(final Configuration configuration) {
         final String defaultSchema = ConfigUtils.getCalculatedDefaultSchema(configuration);
         return defaultSchema != null ? defaultSchema :
             StringUtils.hasLength(connectionString.getDatabase()) ? connectionString.getDatabase() : "test";
@@ -478,5 +469,31 @@ public class MongoDBDatabase extends AbstractExperimentalDatabase <NonJdbcExecut
         }
 
         return true;
+    }
+
+    private void initializeConnectionType(final Configuration configuration, final boolean silent) {
+        if (connectionType != null) {
+            return;
+        }
+
+        if (configuration.getSqlMigrationSuffixes().length > 1) {
+            if (silent) {
+                return;
+            }
+            throw new FlywayException("Multiple `sqlMigrationSuffixes` currently not supported for MongoDB: "
+                + Arrays.toString(configuration.getSqlMigrationSuffixes()));
+        }
+
+        final String migrationSuffix = configuration.getSqlMigrationSuffixes()[0];
+        if (!".js".equals(migrationSuffix) && !".json".equals(migrationSuffix)) {
+            if (silent) {
+                return;
+            }
+            throw new FlywayException(
+                "`sqlMigrationSuffixes` is not configured with an accepted MongoDB suffix ('.js' or '.json'): "
+                    + migrationSuffix);
+        }
+
+        connectionType = ".json".equals(migrationSuffix) ? ConnectionType.API : ConnectionType.EXECUTABLE;
     }
 }

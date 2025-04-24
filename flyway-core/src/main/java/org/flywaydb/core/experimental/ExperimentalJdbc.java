@@ -348,7 +348,7 @@ public abstract class ExperimentalJdbc <T> extends AbstractExperimentalDatabase 
     }
 
     @Override
-    public final String getDefaultSchema(final Configuration configuration) {
+    protected final String getDefaultSchema(final Configuration configuration) {
         if (!supportsSchema()) {
             return getSchemaPlaceHolder();
         }

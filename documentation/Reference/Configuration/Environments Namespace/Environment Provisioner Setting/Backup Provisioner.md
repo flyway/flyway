@@ -141,6 +141,12 @@ The backup provisioner supports the following additional parameters for Oracle d
   `REMAP_SCHEMA`, as they're already set by Flyway. More information on the Data Pump Import utility and the parameters
   it supports can be
   found [here](https://docs.oracle.com/en/database/oracle/oracle-database/19/sutil/datapump-import-utility.html#).
+* `ignoreErrors` (Optional) - A boolean parameter which dictates whether flyway will error if `impdp` exits with a
+  non-zero code. Valid values are:
+    * `false` (Default) - Flyway errors and exits early if the `impdp` command exits with a non-zero error code.
+    * `true` - Flyway ignores the exit code of `impdp`. This option can be useful when non-critical objects fail to
+      import and can safely be ignored. However, it should ideally only be used when necessary, due to the database
+      being left in a partially restored state.
 * `schemaMapping` (Optional) - A map specifying the new schema names for the schemas in the dump file. The key is the
   schema name in the dump file and the value is the new schema name that it should be mapped to. This is useful when we
   wish to restore a schema from the dump file to a different schema name on the target database.
@@ -165,6 +171,7 @@ backupFilePath = "DATA_PUMP_DIR:dev.dmp"
 backupVersion = "995"
 oracle.connectionIdentifier = "/@MYALIAS"
 oracle.importContent = "METADATA_ONLY"
+oracle.ignoreErrors = false
 
 [environments.shadow.resolvers.backup.oracle.schemaMapping]
 "DEV" = "SHADOW"
@@ -181,6 +188,7 @@ Some additional points to note are:
 * The `DEV` schema in the dump file will be restored to the `SHADOW` schema in the target shadow environment.
 * `MYALIAS` is a `tnsnames.ora` connection alias has been defined in the `tnsnames.ora` and an Oracle wallet with a
   password for `MYALIAS` has been created and configured in the `sqlnet.ora`.
+* Flyway can be run in debug mode, using the `-X` parameter, to see the output of the `impdp` command.
 
 If you do not wish to set up a `tnsnames.ora` connection alias or Oracle wallet, then a connection string of the form
 `username/password@[//]host[:port][/service_name]` can be used instead for the `connectionIdentifier`. For example, a

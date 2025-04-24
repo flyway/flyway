@@ -95,15 +95,4 @@ public class MariaDBDatabaseType extends BaseDatabaseType {
     public void setDefaultConnectionProps(String url, Properties props, ClassLoader classLoader) {
         props.put("connectionAttributes", "program_name:" + APPLICATION_NAME);
     }
-
-    @Override
-    public boolean detectPasswordRequiredByUrl(String url) {
-
-
-
-
-
-
-        return super.detectPasswordRequiredByUrl(url);
-    }
 }

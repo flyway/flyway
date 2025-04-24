@@ -41,7 +41,7 @@ import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.nc.callbacks.CallbackManager;
+import org.flywaydb.nc.CallbackManager;
 import org.flywaydb.nc.ErrorUtils;
 import org.flywaydb.nc.executors.NonJdbcExecutorExecutionUnit;
 import org.flywaydb.nc.executors.ExecutorFactory;

@@ -215,22 +215,6 @@ public class OracleDatabaseType extends BaseDatabaseType {
 
 
     @Override
-    public boolean detectUserRequiredByUrl(String url) {
-        return !usernamePasswordPattern.matcher(url).matches();
-    }
-
-    @Override
-    public boolean detectPasswordRequiredByUrl(String url) {
-
-
-
-
-
-
-        return !usernamePasswordPattern.matcher(url).matches();
-    }
-
-    @Override
     public Connection alterConnectionAsNeeded(Connection connection, Configuration configuration) {
         Map<String, String> jdbcProperties = configuration.getJdbcProperties();
 

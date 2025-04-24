@@ -229,6 +229,7 @@ public abstract class BaseDatabaseType implements DatabaseType {
      * Detects whether a user is required from configuration. This may not be the case if the driver supports
      * other authentication mechanisms, or supports the user being encoded in the URL.
      */
+    @Deprecated
     public boolean detectUserRequiredByUrl(String url) {
         return true;
     }
@@ -237,9 +238,11 @@ public abstract class BaseDatabaseType implements DatabaseType {
      * Detects whether a password is required from configuration. This may not be the case if the driver supports
      * other authentication mechanisms, or supports the password being encoded in the URL.
      */
+    @Deprecated
     public boolean detectPasswordRequiredByUrl(String url) {
         return true;
     }
+
 
     public boolean externalAuthPropertiesRequired(String url, String username, String password) {
         return false;

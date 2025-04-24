@@ -8,6 +8,45 @@
 </div>
 <div class="col-md-9">
   <div class="release">
+        <h2 id="11.8.0">Flyway 11.8.0 (2025-04-24)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fixed an issue where the TLS auto-configuration failed to recognize a supported object type in the client PEM file</li>
+            <li>flyway will raise an error if a provisioner is requested to be used when dry run is set</li>
+            <li>The PostgreSQL parser now supports CASE statements within a BEGIN ATOMIC statement</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Deprecate detectUserByUrl and detectPasswordByUrl methods from the DatabaseType API</li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/4055">Issue 4055</a>
+                Add support for `STREAMLIT` objects to Snowflake parser
+            </li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Native Connectors now supports the afterConnect callback. This will function similarly to initSql which this will be replacing</li>
+        </ul>
+
+        <h3>Library upgrades</h3>
+        <ul>
+            <li>Upgraded RgCompare.Cli from 1.30.2.26351 to 1.30.2.26414</li>
+            <li>Upgraded sqlfluff from 3.3.1 to 3.4.0</li>
+        </ul>
+
+        <p>
+            Thanks to andreir229 for reporting these issues.
+        </p>
+  </div>
+
+  <div class="release">
         <h2 id="11.7.2">Flyway 11.7.2 (2025-04-17)</h2>
 
         <h3>Bug fixes</h3>
@@ -17,8 +56,7 @@
 
         <h3>New features</h3>
         <ul>
-            <a href="https://github.com/flyway/flyway/issues/4033">Issue 4033</a>
-            <li>Add support for the AWS Wrapper with PostgreSQL</li>
+          <li><a href="https://github.com/flyway/flyway/issues/4033">Issue 4033:</a> Add support for the AWS Wrapper with PostgreSQL</li>
         </ul>
 
         <h3>Library upgrades</h3>
@@ -29,7 +67,7 @@
         </ul>
 
         <p>
-            Thanks to heikkis for reporting these issues.
+            Thanks to heikkis, swarna7602, lambdaupb, and oimo23 for reporting these issues.
         </p>
   </div>
 

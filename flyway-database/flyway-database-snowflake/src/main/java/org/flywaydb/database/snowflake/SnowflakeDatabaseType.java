@@ -74,16 +74,4 @@ public class SnowflakeDatabaseType extends BaseDatabaseType {
     public Parser createParser(Configuration configuration, ResourceProvider resourceProvider, ParsingContext parsingContext) {
         return new SnowflakeParser(configuration, parsingContext);
     }
-
-    @Override
-    public boolean detectUserRequiredByUrl(String url) {
-        // Using Snowflake private-key auth instead of password allows user to be passed on URL
-        return !(url.contains("user=") || url.contains("authenticator=externalbrowser"));
-    }
-
-    @Override
-    public boolean detectPasswordRequiredByUrl(String url) {
-        // Using Snowflake private-key auth instead of password
-        return !(url.contains("private_key_file=") || url.contains("authenticator=externalbrowser"));
-    }
 }

@@ -39,7 +39,7 @@ import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.internal.exception.FlywayMigrateException;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.util.StopWatch;
-import org.flywaydb.nc.callbacks.CallbackManager;
+import org.flywaydb.nc.CallbackManager;
 import org.flywaydb.nc.ErrorUtils;
 import org.flywaydb.nc.executors.NonJdbcExecutorExecutionUnit;
 import org.flywaydb.nc.executors.ExecutorFactory;

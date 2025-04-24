@@ -114,15 +114,4 @@ public class RedshiftDatabaseType extends BaseDatabaseType {
     public Parser createParser(Configuration configuration, ResourceProvider resourceProvider, ParsingContext parsingContext) {
         return new RedshiftParser(configuration, parsingContext);
     }
-
-    @Override
-    public boolean detectPasswordRequiredByUrl(String url) {
-
-
-
-
-
-
-        return super.detectPasswordRequiredByUrl(url);
-    }
 }

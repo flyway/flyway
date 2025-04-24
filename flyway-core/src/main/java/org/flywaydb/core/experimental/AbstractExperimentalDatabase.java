@@ -21,6 +21,7 @@ package org.flywaydb.core.experimental;
 
 import java.util.ArrayList;
 import lombok.Getter;
+import org.flywaydb.core.api.configuration.Configuration;
 
 public abstract non-sealed class AbstractExperimentalDatabase <T> implements ExperimentalDatabase <T>{
     protected final ArrayList<String> batch = new ArrayList<>();
@@ -46,4 +47,6 @@ public abstract non-sealed class AbstractExperimentalDatabase <T> implements Exp
     public final String getCurrentSchema() {
         return currentSchema;
     }
+
+    protected abstract String getDefaultSchema(Configuration configuration);
 }

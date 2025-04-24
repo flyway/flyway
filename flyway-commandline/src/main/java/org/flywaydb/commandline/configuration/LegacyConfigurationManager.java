@@ -24,14 +24,9 @@ import org.flywaydb.commandline.Main;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
-import org.flywaydb.core.internal.database.DatabaseType;
-import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.extensibility.LicenseGuard;
-import org.flywaydb.core.extensibility.Tier;
 
-import java.io.Console;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -129,49 +124,6 @@ public class LegacyConfigurationManager implements ConfigurationManager {
         combinedConfiguration.putAll(newConfiguration);
 
         return combinedConfiguration;
-    }
-
-    /**
-     * Detect whether the JDBC URL specifies a known authentication mechanism that does not need a username.
-     */
-    boolean needsUser(String url, String password, Configuration configuration) {
-        DatabaseType databaseType = DatabaseTypeRegister.getDatabaseTypeForUrl(url, configuration);
-        if (databaseType.detectUserRequiredByUrl(url)) {
-
-
-
-
-
-
-
-
-
-            return true;
-
-        }
-
-        return false;
-    }
-
-    /**
-     * Detect whether the JDBC URL specifies a known authentication mechanism that does not need a password.
-     */
-    boolean needsPassword(String url, String username, Configuration configuration) {
-        DatabaseType databaseType = DatabaseTypeRegister.getDatabaseTypeForUrl(url, configuration);
-        if (databaseType.detectPasswordRequiredByUrl(url)) {
-
-
-
-
-
-
-
-
-
-            return true;
-        }
-
-        return false;
     }
 
     /**

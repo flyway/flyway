@@ -136,8 +136,6 @@ public sealed interface ExperimentalDatabase <T> extends Plugin, AutoCloseable p
     
     String getCurrentSchema();
 
-    String getDefaultSchema(Configuration configuration);
-
     /**
      * Checks if all schemas are empty.
      * @return True if all schemas are empty, false otherwise.

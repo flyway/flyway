@@ -94,14 +94,4 @@ public class SpannerDatabaseType extends BaseDatabaseType {
     public Parser createParser(Configuration configuration, ResourceProvider resourceProvider, ParsingContext parsingContext) {
         return new SpannerParser(configuration, parsingContext);
     }
-
-    @Override
-    public boolean detectUserRequiredByUrl(String url) {
-        return !url.contains("credentials=");
-    }
-
-    @Override
-    public boolean detectPasswordRequiredByUrl(String url) {
-        return !url.contains("credentials=");
-    }
 }

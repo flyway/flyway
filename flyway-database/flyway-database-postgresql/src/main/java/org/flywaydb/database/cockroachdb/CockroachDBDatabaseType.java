@@ -118,26 +118,22 @@ public class CockroachDBDatabaseType extends BaseDatabaseType {
         props.put("applicationName", BaseDatabaseType.APPLICATION_NAME);
     }
 
-    @Override
-    public boolean detectUserRequiredByUrl(String url) {
-        return !url.contains("user=");
-    }
-
-    @Override
-    public boolean detectPasswordRequiredByUrl(String url) {
-        // Postgres supports password in URL
-        return !url.contains("password=");
-    }
-
-    @Override
-    public boolean externalAuthPropertiesRequired(String url, String username, String password) {
-
-        return super.externalAuthPropertiesRequired(url, username, password);
 
 
 
 
-    }
+
+
+
+
+
+
+
+
+
+
+
+
 
     @Override
     public Properties getExternalAuthProperties(String url, String username) {

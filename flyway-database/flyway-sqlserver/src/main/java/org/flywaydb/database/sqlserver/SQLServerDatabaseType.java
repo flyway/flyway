@@ -129,24 +129,4 @@ public class SQLServerDatabaseType extends BaseDatabaseType {
 
         }
     }
-
-    @Override
-    public boolean detectUserRequiredByUrl(String url) {
-        return !(url.contains("integratedSecurity=")
-                || url.contains("authentication=ActiveDirectoryIntegrated")
-                || url.contains("authentication=ActiveDirectoryMSI"));
-    }
-
-    @Override
-    public boolean detectPasswordRequiredByUrl(String url) {
-
-
-
-
-
-
-        return !(url.contains("integratedSecurity=")
-                || url.contains("authentication=ActiveDirectoryIntegrated")
-                || url.contains("authentication=ActiveDirectoryMSI"));
-    }
 }

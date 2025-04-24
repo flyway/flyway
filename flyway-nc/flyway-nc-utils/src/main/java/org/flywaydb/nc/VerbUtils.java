@@ -61,10 +61,7 @@ public class VerbUtils {
     private static boolean databaseInfoPrinted;
 
     public static Collection<LoadableResourceMetadata> scanForResources(final Configuration configuration,
-        final ExperimentalDatabase experimentalDatabase) {
-        final ParsingContext parsingContext = new ParsingContext();
-        parsingContext.populate(experimentalDatabase, configuration);
-
+        final ParsingContext parsingContext) {
         final ExperimentalMigrationScannerManager scannerManager = new ExperimentalMigrationScannerManager(configuration);
         final Collection<LoadableResourceMetadata> resources = scannerManager.scan(configuration, parsingContext);
         return resources;
