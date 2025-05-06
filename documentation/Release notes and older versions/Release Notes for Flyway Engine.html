@@ -8,6 +8,37 @@
 </div>
 <div class="col-md-9">
   <div class="release">
+        <h2 id="11.8.1">Flyway 11.8.1 (2025-05-06)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/4068">Issue 4068</a>
+                Snowflake will not set a role after a migration if the current role is the same as the original role before a migration
+            </li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/4046">Issue 4046</a>
+                Make jackson libraries optional on flyway-core. JSON and TOML features will require these libraries
+            </li>
+            <li>added Oracle debug information to documentation</li>
+            <li>Flyway now throws error if PAT is set in OSS edition</li>
+        </ul>
+
+        <h3>Library upgrades</h3>
+        <ul>
+            <li>Upgraded RgCompare.Cli from 1.30.2.26414 to 1.30.3.102</li>
+        </ul>
+
+        <p>
+            Thanks to trainman and axelfontaine for reporting these issues.
+        </p>
+  </div>
+
+  <div class="release">
         <h2 id="11.8.0">Flyway 11.8.0 (2025-04-24)</h2>
 
         <h3>Bug fixes</h3>

@@ -46,4 +46,6 @@ public interface PropertyResolverContext {
     List<String> resolveValuesOrThrow(List<String> input, ProgressLogger progress, String propertyName);
 
     ConfigurationExtension getResolverConfiguration(String resolverName);
+
+    ConfigurationExtension getResolverConfigurationOrThrow(String resolverName);
 }

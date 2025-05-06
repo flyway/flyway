@@ -29,7 +29,7 @@ import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.experimental.DatabaseSupport;
-import org.flywaydb.core.experimental.ExperimentalJdbc;
+import org.flywaydb.nc.ExperimentalJdbc;
 import org.flywaydb.core.internal.database.sqlite.SQLiteParser;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;

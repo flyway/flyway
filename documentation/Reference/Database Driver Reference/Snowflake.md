@@ -2,7 +2,7 @@
 subtitle: Snowflake
 ---
 
-- **Verified Versions:** 3.50, 8.3
+- **Verified Versions:** 3.50, 9.10
 - **Maintainer:** {% include redgate-badge.html %}
 
 ## Supported Versions and Support Levels

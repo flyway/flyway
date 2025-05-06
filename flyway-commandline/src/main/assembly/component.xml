@@ -337,7 +337,7 @@
                 <include>org.flywaydb:flyway-database-db2zos</include>
                 <include>org.flywaydb:flyway-database-timeplus</include>
                 <include>org.flywaydb:flyway-database-duckdb</include>
-                <include>org.flywaydb:flyway-nc-utils</include>
+                <include>org.flywaydb:flyway-nc-core</include>
                 <include>org.flywaydb:flyway-nc-scanners</include>
                 <include>org.flywaydb:flyway-verb-info</include>
                 <include>org.flywaydb:flyway-verb-validate</include>
@@ -373,6 +373,7 @@
             <excludes>
                 <exclude>org.reactivestreams</exclude>
                 <exclude>io.netty:netty-*</exclude>
+                <exclude>com.fasterxml.jackson.core:jackson-core</exclude>
             </excludes>
         </dependencySet>
         <dependencySet>
@@ -400,6 +401,7 @@
                 <exclude>org.slf4j:slf4j-nop</exclude>
                 <exclude>org.apache.commons:commons-text</exclude>
                 <exclude>com.fasterxml.jackson.dataformat:jackson-dataformat-xml</exclude>
+                <exclude>com.fasterxml.jackson.dataformat:jackson-dataformat-toml</exclude>
                 <exclude>com.fasterxml.jackson.datatype:jackson-datatype-jsr310</exclude>
                 <exclude>com.fasterxml.jackson.core:jackson-databind</exclude>
                 <exclude>com.microsoft.azure:msal4j</exclude>

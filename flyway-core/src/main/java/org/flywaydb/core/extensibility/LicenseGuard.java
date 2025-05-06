@@ -58,6 +58,13 @@ public class LicenseGuard {
 
 
 
+
+
+
+
+
+
+
      private static final FlywayPermit OSS_PERMIT = new FlywayPermit("Anonymous", null, null, false, false, false);
 
 

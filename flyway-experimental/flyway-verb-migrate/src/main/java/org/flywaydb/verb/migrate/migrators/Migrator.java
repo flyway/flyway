@@ -29,7 +29,7 @@ import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryItem;
 import org.flywaydb.core.experimental.schemahistory.SchemaHistoryItem.SchemaHistoryItemBuilder;
 import org.flywaydb.core.internal.parser.ParsingContext;
-import org.flywaydb.nc.CallbackManager;
+import org.flywaydb.nc.callbacks.CallbackManager;
 import org.flywaydb.verb.migrate.MigrationExecutionGroup;
 
 @CustomLog

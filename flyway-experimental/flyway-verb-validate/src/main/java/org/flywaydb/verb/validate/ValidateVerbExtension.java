@@ -40,8 +40,8 @@ import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.ValidatePatternUtils;
-import org.flywaydb.nc.CallbackManager;
-import org.flywaydb.nc.VerbUtils;
+import org.flywaydb.nc.callbacks.CallbackManager;
+import org.flywaydb.nc.utils.VerbUtils;
 import org.flywaydb.nc.preparation.PreparationContext;
 
 @CustomLog

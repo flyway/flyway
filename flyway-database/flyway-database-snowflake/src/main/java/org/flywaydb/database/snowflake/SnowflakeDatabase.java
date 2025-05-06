@@ -38,6 +38,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
 @CustomLog
 public class SnowflakeDatabase extends Database<SnowflakeConnection> {
@@ -79,7 +80,7 @@ public class SnowflakeDatabase extends Database<SnowflakeConnection> {
 
         ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("3", Tier.PREMIUM, configuration);
 
-        recommendFlywayUpgradeIfNecessaryForMajorVersion("9.6");
+        checkDatabaseVersionUntested("9.10");
     }
 
     @Override
@@ -170,5 +171,18 @@ public class SnowflakeDatabase extends Database<SnowflakeConnection> {
         } else {
             return DATABASE_HOSTING_AWS_SNOWFLAKE;
         }
+    }
+
+    private void checkDatabaseVersionUntested(String newestSupportedVersion) {
+        if (getVersion().isNewerThan(newestSupportedVersion)) {
+            informVersionUntested(newestSupportedVersion);
+        }
+    }
+
+    private void informVersionUntested(final String newestSupportedVersion) {
+        final String message = databaseType + " " + computeVersionDisplayName(getVersion())
+            + " is newer than the latest version tested with this version of Flyway: " + newestSupportedVersion + "."
+            + "\nCheck here: " + FlywayDbWebsiteLinks.SNOWFLAKE + " to see if your version is supported in the latest Flyway release";
+        LOG.info(message);
     }
 }

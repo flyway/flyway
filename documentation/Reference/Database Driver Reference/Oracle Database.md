@@ -280,3 +280,50 @@ Flyway alters the current schema to the specified [default schema](<Configuratio
 
 - Create the remote link via dynamic SQL in a stored procedure that resides in the correct schema. Stored procedures execute as the schema owner, so the remote link is created in the correct schema
 - Use [beforeEachMigrate](<Callback Events>) and [afterEachMigrate](<Callback Events>) callbacks to alter the current schema as needed
+
+### Debugging Oracle 
+It is possible to enable debugging for the Oracle JDBC driver which may be of help if you want to get detailed information about what the driver is doing and even the individual SQL statements it is dealing with.
+
+The process is covered in Oracle's [Diagnosability in JDBC](https://docs.oracle.com/en/database/oracle/oracle-database/21/jjdbc/JDBC-diagnosability.html) and we've done as much of the work as possible without impacting core Flyway usage.
+
+The steps are:
+1. Exchange the JDBC driver Flyway ships with for the equivalent debug version.
+1. Provide an `assets/logging.properties` file to configure the detail in the logs you want.
+1. Put things back after debugging.
+
+Some things to bear in mind are:
+- This could include all of your SQL statements in the output.
+- It will work more slowly than using the driver Flyway ships with.
+- You can potentially end up with a very lengthy log output (depends on the level you specify).
+- We recommend logging to a file, if you log to the console and use Flyway Desktop on the same machine then the integration may break.  
+
+We suggest that you only use this temporarily to debug a problem and you don't persist the generated logs.
+
+#### Exchanging the JDBC driver
+- Look in the `/drivers` folder of your Flyway engine installation and note the name of the file starting ojdbc11 (so something like `ojdbc11-21.1.0.0.jar`).
+- Rename the extension from `.jar` to something else (like `.old`) so Java doesn't pick it up anymore but it will make it easier for you to put things back later.
+- Download the equivalent debug jar file version, it will have the same name but include an `_g` in the filename (so something like `ojdbc11_g-21.1.0.0.jar`). It will go into the `/drivers` folder.
+
+You can get this from either of these locations:
+   - [Download from Maven Central.](https://central.sonatype.com/artifact/com.oracle.database.jdbc.debug/ojdbc11_g)
+   - [Download from Oracle.](https://www.oracle.com/database/technologies/appdev/jdbc-drivers-archive.html) - you will need to extract the debug .jar file from the Zipped diagnosability Jars for ojdbc11 - `ojdbc11-diag.tar.gz`
+
+#### Configuring logging
+You will need to create a text file called `logging.properties` in the flyway `assets/` folder.
+You can find details on how to configure the file in Oracle's [Diagnosability in JDBC.](https://docs.oracle.com/en/database/oracle/oracle-database/21/jjdbc/JDBC-diagnosability.html) 
+
+An example `logging.properties` you can use to get started is as follows:
+```ini
+.level=SEVERE
+oracle.jdbc.level=FINE
+oracle.jdbc.handlers=java.util.logging.FileHandler
+java.util.logging.FileHandler.level=FINE
+java.util.logging.FileHandler.pattern=%t/jdbc.log
+java.util.logging.FileHandler.formatter=java.util.logging.SimpleFormatter
+```
+This will put your logs in a file (pattern) called `jdbc.log` in your system temporary folder (`/tmp`, `/var/tmp` or  `C:\TEMP\` typically).
+
+#### Put things back together
+You can rename the original and debug Oracle JDBC driver files in the `drivers\` folder:
+1. `ojdbc11_g-21.1.0.0.jar` -> `ojdbc11_g-21.1.0.0.old` (now Flyway won't find the debug driver anymore)
+1. `ojdbc11-21.1.0.0.old` -> `ojdbc11-21.1.0.0.jar` (now Flyway will find the production driver again)

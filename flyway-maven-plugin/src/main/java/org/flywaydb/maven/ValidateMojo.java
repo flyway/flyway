@@ -34,7 +34,7 @@ import org.flywaydb.core.Flyway;
  *     <li>versions have been resolved that haven't been applied yet</li>
  * </ul>
  *
- * <img src="https://flywaydb.org/assets/balsamiq/command-validate.png" alt="validate">
+ * <img src="https://flyway.github.io/flyway/assets/command-validate.png" alt="validate">
  */
 @SuppressWarnings({"UnusedDeclaration", "JavaDoc"})
 @Mojo(name = "validate",

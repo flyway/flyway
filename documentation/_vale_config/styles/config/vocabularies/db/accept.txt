@@ -20,6 +20,7 @@ Mongosh
 
 # Oracle
 tablespaces?
+[Dd]iagnosability
 
 # Postgres
 pg_dump

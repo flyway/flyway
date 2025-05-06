@@ -19,6 +19,7 @@
  */
 package org.flywaydb.core.internal.configuration.resolvers;
 
+import java.util.Optional;
 import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.ProgressLogger;
 import org.flywaydb.core.api.CoreErrorCode;
@@ -49,11 +50,21 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
         this.environmentName = environmentName;
         this.configuration = configuration;
         this.resolvers = resolvers;
-        this.resolverConfigurations = resolverConfigurations;
+        this.resolverConfigurations = Optional.ofNullable(resolverConfigurations).orElseGet(Map::of);
     }
 
-    public ConfigurationExtension getResolverConfiguration(String resolverName) {
+    @Override
+    public ConfigurationExtension getResolverConfiguration(final String resolverName) {
         return resolverConfigurations.get(resolverName);
+    }
+
+    @Override
+    public ConfigurationExtension getResolverConfigurationOrThrow(final String resolverName) {
+        return Optional.ofNullable(getResolverConfiguration(resolverName))
+            .orElseThrow(() -> new FlywayException("Required configuration not defined for resolver/provisioner \""
+                + resolverName
+                + "\" for environment "
+                + environmentName, CoreErrorCode.CONFIGURATION));
     }
 
     @Override

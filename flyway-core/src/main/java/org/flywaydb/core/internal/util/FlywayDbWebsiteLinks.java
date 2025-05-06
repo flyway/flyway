@@ -65,6 +65,7 @@ public class FlywayDbWebsiteLinks {
     public static final String COMMUNITY_SUPPORT = "https://rd.gt/468B6ni";
     public static final String MIGRATIONS = "https://rd.gt/4iUkpm1";
     public static final String DATABASE_TROUBLESHOOTING = "https://rd.gt/423f9a6";
+    public static final String SNOWFLAKE = "https://rd.gt/4ixiG5r";
 
     public static final String ENTERPRISE_INFO = "https://www.red-gate.com/products/flyway/enterprise/";
     public static final String RELEASE_NOTES = "https://rd.gt/416ObMi";
@@ -73,6 +74,7 @@ public class FlywayDbWebsiteLinks {
 
     public static final String ORACLE_DATABASE = "https://rd.gt/3SISqKJ";
     public static final String SQL_PLUS = "https://rd.gt/42ljPXB";
+    public static final String ORACLE_BLOG = "https://rd.gt/3EuAlwU";
 
     public static final String OFFLINE_LICENSE_PERMITS = "https://rd.gt/3UHAJwO";
     public static final String V10_BLOG = "https://rd.gt/4hA3C7Y";

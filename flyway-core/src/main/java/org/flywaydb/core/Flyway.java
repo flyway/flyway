@@ -162,7 +162,7 @@ public class Flyway {
     /**
      * Starts the database migration. All pending migrations will be applied in order.
      * Calling migrate on an up-to-date database has no effect.
-     * <img src="https://flywaydb.org/assets/balsamiq/command-migrate.png" alt="migrate">
+     * <img src="https://flyway.github.io/flyway/assets/command-migrate.png" alt="migrate">
      *
      * @return An object summarising the successfully applied migrations.
      *
@@ -260,7 +260,7 @@ public class Flyway {
     /**
      * Retrieves the complete information about all the migrations including applied, pending and current migrations with
      * details and status.
-     * <img src="https://flywaydb.org/assets/balsamiq/command-info.png" alt="info">
+     * <img src="https://flyway.github.io/flyway/assets/command-info.png" alt="info">
      *
      * @return All migrations sorted by version, oldest first.
      *
@@ -289,7 +289,7 @@ public class Flyway {
     /**
      * Drops all objects (tables, views, procedures, triggers, ...) in the configured schemas.
      * The schemas are cleaned in the order specified by the {@code schemas} property.
-     * <img src="https://flywaydb.org/assets/balsamiq/command-clean.png" alt="clean">
+     * <img src="https://flyway.github.io/flyway/assets/command-clean.png" alt="clean">
      *
      * @return An object summarising the actions taken
      *
@@ -338,7 +338,7 @@ public class Flyway {
      * <li>versions have been resolved that haven't been applied yet</li>
      * </ul>
      *
-     * <img src="https://flywaydb.org/assets/balsamiq/command-validate.png" alt="validate">
+     * <img src="https://flyway.github.io/flyway/assets/command-validate.png" alt="validate">
      *
      * @throws FlywayException when something went wrong during validation.
      * @throws FlywayValidateException when the validation failed.
@@ -360,7 +360,7 @@ public class Flyway {
      * <li>versions have been resolved that haven't been applied yet</li>
      * </ul>
      *
-     * <img src="https://flywaydb.org/assets/balsamiq/command-validate.png" alt="validate">
+     * <img src="https://flyway.github.io/flyway/assets/command-validate.png" alt="validate">
      *
      * @return An object summarising the validation results
      *
@@ -389,7 +389,7 @@ public class Flyway {
     /**
      * Baselines an existing database, excluding all migrations up to and including baselineVersion.
      *
-     * <img src="https://flywaydb.org/assets/balsamiq/command-baseline.png" alt="baseline">
+     * <img src="https://flyway.github.io/flyway/assets/command-baseline.png" alt="baseline">
      *
      * @return An object summarising the actions taken
      *
@@ -443,7 +443,7 @@ public class Flyway {
      * <li>Remove any failed migrations on databases without DDL transactions (User objects left behind must still be cleaned up manually)</li>
      * <li>Realign the checksums, descriptions and types of the applied migrations with the ones of the available migrations</li>
      * </ul>
-     * <img src="https://flywaydb.org/assets/balsamiq/command-repair.png" alt="repair">
+     * <img src="https://flyway.github.io/flyway/assets/command-repair.png" alt="repair">
      *
      * @return An object summarising the actions taken
      *
@@ -487,7 +487,7 @@ public class Flyway {
      * versioned migrations in the order they were applied until it hits one with a version below the target. If there
      * is no versioned migration to undo, calling undo has no effect.
      * <i>Flyway Teams only</i>
-     * <img src="https://flywaydb.org/assets/balsamiq/command-undo.png" alt="undo">
+     * <img src="https://flyway.github.io/flyway/assets/command-undo.png" alt="undo">
      *
      * @return An object summarising the successfully undone migrations.
      *

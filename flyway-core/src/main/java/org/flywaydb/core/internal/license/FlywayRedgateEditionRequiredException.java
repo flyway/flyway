@@ -22,8 +22,8 @@ package org.flywaydb.core.internal.license;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
 /**
- * Thrown when an attempt was made to use a Flyway Teams Edition feature not supported by
- * Flyway Community Edition.
+ * Thrown when an attempt was made to use a Flyway Redgate Edition feature not supported by
+ * Flyway OSS Edition.
  */
 public class FlywayRedgateEditionRequiredException extends FlywayLicensingException {
     public FlywayRedgateEditionRequiredException(String feature) {

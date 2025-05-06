@@ -23,7 +23,7 @@ import lombok.CustomLog;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.extensibility.VerbExtension;
-import org.flywaydb.nc.VerbUtils;
+import org.flywaydb.nc.utils.VerbUtils;
 import org.flywaydb.nc.info.ExperimentalMigrationInfoService;
 import org.flywaydb.nc.preparation.PreparationContext;
 

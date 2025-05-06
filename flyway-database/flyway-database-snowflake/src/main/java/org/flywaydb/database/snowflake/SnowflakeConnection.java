@@ -46,8 +46,12 @@ public class SnowflakeConnection extends Connection<SnowflakeDatabase> {
 
     @Override
     protected void doRestoreOriginalState() throws SQLException {
-        // Reset the role to its original value in case a migration or callback changed it
-        jdbcTemplate.execute("USE ROLE " + database.doQuote(originalRole));
+        // Snowflake Native Apps can't change roles, so check the role before attempting to change it.
+        String currentRole = jdbcTemplate.queryForString("SELECT CURRENT_ROLE()");
+        if (!originalRole.equals(currentRole)) {
+            // Reset the role to its original value in case a migration or callback changed it
+            jdbcTemplate.execute("USE ROLE " + database.doQuote(originalRole));
+        }
     }
 
     @Override

@@ -36,6 +36,7 @@ import org.flywaydb.core.internal.configuration.TomlUtils;
 import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
 import org.flywaydb.core.internal.configuration.models.EnvironmentModel;
 import org.flywaydb.core.internal.configuration.models.FlywayEnvironmentModel;
+import org.flywaydb.core.internal.license.FlywayRedgateEditionRequiredException;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.core.internal.util.Locations;
@@ -62,6 +63,7 @@ import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeL
 import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeLocationsInEnvironmentsBasedOnWorkingDirectory;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.warnForUnknownEnvParameters;
 import static org.flywaydb.core.internal.util.ExceptionUtils.getFlywayExceptionMessage;
+import static org.flywaydb.core.internal.util.ExceptionUtils.getRootCause;
 
 @CustomLog
 public class ModernConfigurationManager implements ConfigurationManager {
@@ -372,6 +374,10 @@ public class ModernConfigurationManager implements ConfigurationManager {
                 }                
                
             } catch (final IllegalArgumentException e) {
+                if (getRootCause(e) instanceof FlywayRedgateEditionRequiredException cause) {
+                    throw cause;
+                }
+
                 final var fullFieldName = getFullFieldNameFromException(namespace, e);
                 var message = String.format(UNABLE_TO_PARSE_FIELD, fullFieldName);
                 message += getFlywayExceptionMessage(e).map(text -> " " + text).orElse("");

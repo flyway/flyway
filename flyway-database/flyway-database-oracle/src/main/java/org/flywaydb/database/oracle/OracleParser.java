@@ -25,10 +25,8 @@ import lombok.Getter;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.Resource;
-
-
-
-
+import org.flywaydb.core.extensibility.LicenseGuard;
+import org.flywaydb.core.extensibility.Tier;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParserContext;
 import org.flywaydb.core.internal.parser.ParsingContext;
@@ -38,6 +36,7 @@ import org.flywaydb.core.internal.parser.Recorder;
 import org.flywaydb.core.internal.parser.StatementType;
 import org.flywaydb.core.internal.parser.Token;
 import org.flywaydb.core.internal.parser.TokenType;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
 
 import org.flywaydb.core.internal.sqlscript.Delimiter;
@@ -700,6 +699,11 @@ public class OracleParser extends Parser {
 
     @Override
     protected String getAdditionalParsingErrorInfo() {
-        return "For Oracle-specific information about syntax and limitations, see " + ORACLE_DATABASE + ". ";
+        String parsingError = "For Oracle-specific information about syntax and limitations, see " + ORACLE_DATABASE + ".";
+        if (LicenseGuard.isLicensed(configuration, Tier.PREMIUM)) {
+            parsingError += "\nFlyway Native Connectors may be able to help with parsing Oracle. "
+                + "Set FLYWAY_NATIVE_CONNECTORS=true to enable, and see this blog post " + FlywayDbWebsiteLinks.ORACLE_BLOG + ". ";
+        }
+        return parsingError;
     }
 }

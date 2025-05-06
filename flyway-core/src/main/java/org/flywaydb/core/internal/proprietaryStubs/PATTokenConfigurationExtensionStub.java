@@ -19,11 +19,10 @@
  */
 package org.flywaydb.core.internal.proprietaryStubs;
 
-import static org.flywaydb.core.internal.util.FlywayDbWebsiteLinks.REDGATE_EDITION_DOWNLOAD;
-
 import lombok.CustomLog;
 import org.flywaydb.core.extensibility.ConfigurationExtension;
 import org.flywaydb.core.extensibility.Plugin;
+import org.flywaydb.core.internal.license.FlywayRedgateEditionRequiredException;
 
 @CustomLog
 public class PATTokenConfigurationExtensionStub implements ConfigurationExtension {
@@ -50,11 +49,11 @@ public class PATTokenConfigurationExtensionStub implements ConfigurationExtensio
     }
 
     public void setEmail(String email) {
-        LOG.warn("Attempting to set a PAT Token in Flyway open-source. Redgate features will not be available. Download Redgate Flyway at " + REDGATE_EDITION_DOWNLOAD);
+        throw new FlywayRedgateEditionRequiredException("PAT Token");
     }
 
     public void setToken(String token) {
-        LOG.warn("Attempting to set a PAT Token in Flyway open-source. Redgate features will not be available. Download Redgate Flyway at " + REDGATE_EDITION_DOWNLOAD);
+        throw new FlywayRedgateEditionRequiredException("PAT Token");
     }
 
     public String getEmail() {
