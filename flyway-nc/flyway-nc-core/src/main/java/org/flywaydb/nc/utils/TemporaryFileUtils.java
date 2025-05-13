@@ -1,6 +1,6 @@
 /*-
  * ========================LICENSE_START=================================
- * flyway-reports
+ * flyway-nc-core
  * ========================================================================
  * Copyright (C) 2010 - 2025 Red Gate Software Ltd
  * ========================================================================
@@ -17,18 +17,31 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.reports.api.extensibility;
+package org.flywaydb.nc.utils;
 
-import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.output.HtmlResult;
-import java.util.List;
-import org.flywaydb.core.extensibility.Plugin;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import org.flywaydb.core.api.FlywayException;
 
-public interface HtmlRenderer<T extends HtmlResult> extends Plugin {
-    String render(T result, Configuration config);
-    String tabTitle(T result, Configuration config);
-    Class<T> getType();
-    default List<HtmlReportSummary> getHtmlSummary(T result, final Configuration config) {
-        return null;
+public class TemporaryFileUtils {
+
+    public static String createTempFile(final String sqlContent) {
+        return createTempFile(sqlContent, ".sql");
+    }
+    
+    public static String createTempFile(final String sqlContent, final String suffix) {
+        try {
+            final File tempFile = File.createTempFile("temp_sql_", suffix);
+            tempFile.deleteOnExit();
+
+            try (final BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
+                writer.write(sqlContent);
+            }
+
+            return tempFile.getAbsolutePath();
+        } catch (final Exception e) {
+            throw new FlywayException("Failed to write SQL file due to: " + e.getMessage(), e);
+        }
     }
 }

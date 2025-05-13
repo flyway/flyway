@@ -80,7 +80,7 @@ public class MigrateHtmlRenderer implements HtmlRenderer<MigrateResult> {
     }
 
     @Override
-    public List<HtmlReportSummary> getHtmlSummary(MigrateResult result) {
+    public List<HtmlReportSummary> getHtmlSummary(MigrateResult result, final Configuration config) {
         List<HtmlReportSummary> htmlResult = new ArrayList<>();
         int migratedCount = result.migrationsExecuted;
         String databaseVersion = result.targetSchemaVersion == null
@@ -93,7 +93,11 @@ public class MigrateHtmlRenderer implements HtmlRenderer<MigrateResult> {
             htmlResult.add(new HtmlReportSummary("scNote", "database", "Database Schema: " + result.schemaName));
         }
         htmlResult.add(new HtmlReportSummary("scNote", "clockOutlined", "Execution Time: " + format(result.migrations.stream().mapToInt(i -> i.executionTime).sum())));
-
+        if (!"default".equals(config.getCurrentEnvironmentName())) {
+            htmlResult.add(new HtmlReportSummary("summaryNote",
+                "infoOutlined",
+                "Environment: " + config.getCurrentEnvironmentName()));
+        }
         return htmlResult;
     }
 }

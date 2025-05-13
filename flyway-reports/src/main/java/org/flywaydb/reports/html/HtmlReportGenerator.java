@@ -226,7 +226,7 @@ public class HtmlReportGenerator {
 
     public static String renderTabSummary(HtmlResult result, Configuration config) {
         HtmlRenderer renderer = getRenderer(result, config);
-        List<HtmlReportSummary> summaries = renderer.getHtmlSummary(result);
+        List<HtmlReportSummary> summaries = renderer.getHtmlSummary(result, config);
         if (summaries == null) {
             return "";
         }
@@ -234,15 +234,6 @@ public class HtmlReportGenerator {
 
         for (HtmlReportSummary s : summaries) {
             html += "<div class='summaryDiv " + s.getCssClass() + "'><div class='summaryDivContent'><span class='summaryIcon'><svg fill=\"none\"><use href=\"#" + s.getIcon() + "\"/></svg></span><span class='summaryText'>" + s.getSummaryText() + "</span></div></div>";
-        }
-
-        try {
-            String informationalText = FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/infoBlobs/" + result.getOperation() + ".html");
-
-            if (StringUtils.hasText(informationalText)) {
-                html += "<div class='summaryDiv summaryNote'><div class='summaryDivContent'><span class='summaryIcon'><svg fill=\"none\"><use href=\"#infoOutlined\"/></svg></span><span class='summaryText'>" + informationalText + "</span></div></div>";
-            }
-        } catch (Exception ignore) {
         }
         html += "</div>";
 

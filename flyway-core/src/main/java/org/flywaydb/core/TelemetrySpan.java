@@ -1,6 +1,6 @@
 /*-
  * ========================LICENSE_START=================================
- * flyway-reports
+ * flyway-core
  * ========================================================================
  * Copyright (C) 2010 - 2025 Red Gate Software Ltd
  * ========================================================================
@@ -17,18 +17,28 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.reports.api.extensibility;
+package org.flywaydb.core;
 
-import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.output.HtmlResult;
-import java.util.List;
-import org.flywaydb.core.extensibility.Plugin;
+import java.util.function.Function;
+import javax.annotation.Nullable;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import org.flywaydb.core.extensibility.EventTelemetryModel;
 
-public interface HtmlRenderer<T extends HtmlResult> extends Plugin {
-    String render(T result, Configuration config);
-    String tabTitle(T result, Configuration config);
-    Class<T> getType();
-    default List<HtmlReportSummary> getHtmlSummary(T result, final Configuration config) {
-        return null;
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class TelemetrySpan {
+    public static <T, U extends EventTelemetryModel> T trackSpan(@Nullable final U telemetryModel,
+        final Function<U, T> codeToTrack) {
+        if (telemetryModel != null) {
+            try (telemetryModel) {
+                return codeToTrack.apply(telemetryModel);
+            } catch (final Exception e) {
+                telemetryModel.setException(e);
+                //noinspection ProhibitedExceptionThrown
+                throw e;
+            }
+        } else {
+            return codeToTrack.apply(null);
+        }
     }
 }

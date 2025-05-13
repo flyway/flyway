@@ -39,11 +39,13 @@ public class DashboardRenderer implements HtmlRenderer<DashboardResult> {
             if (!(htmlResult instanceof DashboardResult)) {
 
                 HtmlRenderer resultRenderer = HtmlReportGenerator.getRenderer(htmlResult, config);
-                List<HtmlReportSummary> summaries = resultRenderer.getHtmlSummary(htmlResult);
+                List<HtmlReportSummary> summaries = resultRenderer.getHtmlSummary(htmlResult, config);
                 if (summaries != null) {
+                    final List<HtmlReportSummary> filteredSummaries = summaries.stream()
+                        .filter(x -> !x.getCssClass().contains("summaryNote")).toList();
                     html += "<div class='dashboardSummaryGroup'>";
                     html += "<h5>" + resultRenderer.tabTitle(htmlResult, config) + "</h5>";
-                    for (HtmlReportSummary s : summaries) {
+                    for (HtmlReportSummary s : filteredSummaries) {
                         html += "<div class='summaryDiv " + s.getCssClass() + "'><div class='summaryDivContent'><span class='summaryIcon'><svg fill=\"none\"><use href=\"#" + s.getIcon() + "\"/></svg></span><span class='summaryText'>" + s.getSummaryText() + "</span></div></div>";
                     }
                     String id2 = htmlResult.getOperation() + "-" + tabCount + "_" + getFormattedTimestamp(htmlResult);

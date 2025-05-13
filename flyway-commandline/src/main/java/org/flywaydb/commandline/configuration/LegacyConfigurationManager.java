@@ -75,11 +75,7 @@ public class LegacyConfigurationManager implements ConfigurationManager {
         ConfigUtils.dumpConfigurationMap(config, "Using configuration:");
         filterProperties(config);
 
-        final FluentConfiguration configuration = new FluentConfiguration(classLoader).configuration(config).workingDirectory(workingDirectory);
-
-        commandLineArguments.warnIfSuppressPromptSet();
-
-        return configuration;
+        return new FluentConfiguration(classLoader).configuration(config).workingDirectory(workingDirectory);
     }
 
     protected void loadConfigurationFromConfigFiles(Map<String, String> config, CommandLineArguments commandLineArguments, Map<String, String> envVars) {

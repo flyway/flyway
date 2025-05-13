@@ -60,7 +60,7 @@ public class InfoHtmlRenderer implements HtmlRenderer<InfoResult> {
     }
 
     @Override
-    public List<HtmlReportSummary> getHtmlSummary(InfoResult result) {
+    public List<HtmlReportSummary> getHtmlSummary(InfoResult result, final Configuration config) {
         List<HtmlReportSummary> htmlResult = new ArrayList<>();
 
         int pending = (int) result.migrations.stream().filter(f -> "Pending".equals(f.state)).count();
@@ -80,6 +80,12 @@ public class InfoHtmlRenderer implements HtmlRenderer<InfoResult> {
         deployedSummary.setCssClass(deployed > 0 ? "scGood" : "scAmbivalent");
 
         htmlResult.add(deployedSummary);
+
+        if (!"default".equals(config.getCurrentEnvironmentName())) {
+            htmlResult.add(new HtmlReportSummary("summaryNote",
+                "infoOutlined",
+                "Environment: " + config.getCurrentEnvironmentName()));
+        }
 
 
         return htmlResult;

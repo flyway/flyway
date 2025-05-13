@@ -8,6 +8,40 @@
 </div>
 <div class="col-md-9">
   <div class="release">
+        <h2 id="11.8.2">Flyway 11.8.2 (2025-05-13)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Jackson-databind is now a dependency of flyway-core</li>
+            <li>Fixed a bug where SQLFluff code analysis reported files with violations even when the violation count was zero</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/4074">Issue 4074</a>
+                MongoDB Native Connectors now throws when there is a writeError
+            </li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>NC Mongo now uses temporary files to remove issues with `"` characters in migrations</li>
+            <li>Support Create table inside IF THEN block for BigQuery</li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Reports will now display the environments used by Flyway</li>
+        </ul>
+
+        <h3>Library upgrades</h3>
+        <ul>
+            <li>Upgraded RgCompare.Cli from 1.30.3.102 to 1.32.0.254</li>
+        </ul>
+
+        <p>
+            Thanks to marcust for reporting these issues.
+        </p>
+  </div>
+
+  <div class="release">
         <h2 id="11.8.1">Flyway 11.8.1 (2025-05-06)</h2>
 
         <h3>Bug fixes</h3>

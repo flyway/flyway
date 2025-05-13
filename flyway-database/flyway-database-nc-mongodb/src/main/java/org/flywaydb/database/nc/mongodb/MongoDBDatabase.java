@@ -68,6 +68,7 @@ import org.flywaydb.core.internal.util.FileUtils;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.nc.executors.NonJdbcExecutorExecutionUnit;
+import org.flywaydb.nc.utils.TemporaryFileUtils;
 
 public class MongoDBDatabase extends AbstractExperimentalDatabase <NonJdbcExecutorExecutionUnit> {
     private MongoClient mongoClient;
@@ -167,6 +168,9 @@ public class MongoDBDatabase extends AbstractExperimentalDatabase <NonJdbcExecut
             case API:
                 try {
                     final Document result = mongoDatabase.runCommand(clientSession, BsonDocument.parse(executionUnit.getScript()));
+                    if (result.containsKey("writeErrors")) {
+                        handleWriteErrors(result);
+                    }
                     if (outputQueryResults) {
                         parseResults(result);
                     }
@@ -416,7 +420,7 @@ public class MongoDBDatabase extends AbstractExperimentalDatabase <NonJdbcExecut
         if (mongoshCredential.password() != null) {
             commands.addAll(List.of("--password", mongoshCredential.password()));
         }
-        commands.addAll(List.of("--eval", executionUnit));
+        commands.addAll(List.of("--file", TemporaryFileUtils.createTempFile(executionUnit, ".js")));
 
         final var processBuilder = new ProcessBuilder(commands);
         /* Required to stop system-stubs throwing Exception */
@@ -495,5 +499,11 @@ public class MongoDBDatabase extends AbstractExperimentalDatabase <NonJdbcExecut
         }
 
         connectionType = ".json".equals(migrationSuffix) ? ConnectionType.API : ConnectionType.EXECUTABLE;
+    }
+
+    private void handleWriteErrors(Document result) {
+        final List<Document> writeErrors = result.getList("writeErrors", Document.class);
+        final String errMsg = writeErrors.get(0).getString("errmsg");
+        throw new FlywayException(errMsg);
     }
 }

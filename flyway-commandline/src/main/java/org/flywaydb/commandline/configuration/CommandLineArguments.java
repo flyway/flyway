@@ -49,7 +49,6 @@ public class CommandLineArguments {
     private static final String COMMUNITY_FALLBACK_FLAG = "-communityFallback";
     private static final String DEBUG_FLAG = "-X";
     private static final String QUIET_FLAG = "-q";
-    private static final String SUPPRESS_PROMPT_FLAG = "-n";
     private static final List<String> PRINT_VERSION_AND_EXIT_FLAGS = Arrays.asList("-v", "--version");
     private static final List<String> PRINT_USAGE_FLAGS = Arrays.asList("-?", "-h", "--help");
     private static final String SKIP_CHECK_FOR_UPDATE_FLAG = "-skipCheckForUpdate";
@@ -103,7 +102,6 @@ public class CommandLineArguments {
         List<String> operationsAndFlags = new ArrayList<>(Arrays.asList(DEBUG_FLAG,
             QUIET_FLAG,
             COMMUNITY_FALLBACK_FLAG,
-            SUPPRESS_PROMPT_FLAG,
             SKIP_CHECK_FOR_UPDATE_FLAG,
             MIGRATIONS_IDS_FLAG,
             "help",
@@ -265,7 +263,13 @@ public class CommandLineArguments {
                         + args[i]
                         + ". Please check you have not included any spaces in your configuration argument.");
                 } else {
-                    throw new FlywayException("Invalid flag: " + args[i]);
+                    String hint = "";
+                    if (args.length > i+1) {
+                        if (args[i+1] != null && args[i+1].startsWith(".")) {
+                            hint = "Shell may cause input parameters containing periods (.) to be misinterpreted - do you need to wrap your parameter in double quotes?";
+                        }
+                    }
+                    throw new FlywayException("Invalid flag: " + args[i] + "\n" + hint);
                 }
             });
 
@@ -293,12 +297,6 @@ public class CommandLineArguments {
             }
         }
         return false;
-    }
-
-    public void warnIfSuppressPromptSet() {
-        if (isFlagSet(args, SUPPRESS_PROMPT_FLAG)) {
-            LOG.info("Interactive username/password has been removed. You can safely remove the '-n' flag from your configuration");
-        }
     }
 
     public boolean shouldOutputJson() {
