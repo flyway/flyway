@@ -458,6 +458,14 @@ public class MigrationInfoImpl implements MigrationInfo {
         return result;
     }
 
+    /**
+     * Overriden to handle repeatable script checksum mismatch on migrate - https://github.com/flyway/flyway/issues/4063
+     */
+    @Override
+    public boolean isChecksumMatching() {
+        return this.resolvedMigration.checksumMatches(this.appliedMigration.getChecksum());
+    }
+
     @Override
     public Integer getResolvedChecksum() {
         return resolvedMigration == null ? null : resolvedMigration.getChecksum();
