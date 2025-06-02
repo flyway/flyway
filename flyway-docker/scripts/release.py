@@ -24,8 +24,11 @@ if __name__ == "__main__":
         tags.extend(utils.generate_tags(version, "-azure-mongo"))
     else:
         tags.extend(utils.generate_tags(version, ""))
+        tags.extend(utils.generate_tags(version, "-mongo"))
         tags.extend(utils.generate_tags(version, "-alpine"))
+        tags.extend(utils.generate_tags(version, "-alpine-mongo"))
         tags.extend(utils.generate_tags(version, "-azure"))
+        tags.extend(utils.generate_tags(version, "-azure-mongo"))
 
     release_commands.extend([get_push_command(edition, tag) for tag in tags])
 

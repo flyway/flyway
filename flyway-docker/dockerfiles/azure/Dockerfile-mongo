@@ -34,5 +34,5 @@ COPY --from=untar /flyway /flyway
 RUN ln -s /flyway/flyway /usr/local/bin/flyway
 
 FROM flyway as mongo
-
-RUN npm install -g mongosh
+RUN npm update
+RUN npm install -g mongosh@2.5.0

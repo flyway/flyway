@@ -6,6 +6,7 @@ Percona
 Sybase
 Testcontainers
 Timeplus
+Cubrid
 
 # Cassandra
 keyspace

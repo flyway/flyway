@@ -22,6 +22,7 @@ package org.flywaydb.core.internal.proprietaryStubs;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import org.flywaydb.core.FlywayTelemetryManager;
+import org.flywaydb.core.TelemetrySpan;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.OperationResult;
@@ -50,11 +51,9 @@ public class CommandExtensionStub implements CommandExtension {
     @SneakyThrows
     @Override
     public OperationResult handle(String command, Configuration config, List<String> flags, FlywayTelemetryManager flywayTelemetryManager) throws FlywayException {
-        try (EventTelemetryModel telemetryModel = new EventTelemetryModel(command, flywayTelemetryManager)) {
-            FlywayRedgateEditionRequiredException flywayRedgateEditionRequiredException = new FlywayRedgateEditionRequiredException(command);
-            telemetryModel.setException(flywayRedgateEditionRequiredException);
-            throw flywayRedgateEditionRequiredException;
-        }
+        return TelemetrySpan.trackSpan(new EventTelemetryModel(command, flywayTelemetryManager), (telemetryModel) -> {
+            throw new FlywayRedgateEditionRequiredException(command);
+        });
     }
 
     @Override

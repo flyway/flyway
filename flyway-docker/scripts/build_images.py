@@ -58,14 +58,16 @@ if __name__ == "__main__":
             commands.append(get_buildx_command(edition, version, "", "."))
             commands.append(get_buildx_command(edition, version, "", ".", True))
             commands.append(get_buildx_command(edition, version, "-alpine", "alpine"))
-            commands.append(get_build_command(edition, version, "-azure", "azure"))
             commands.append(get_buildx_command(edition, version, "-alpine", "alpine", True))
-            commands.append(get_build_command(edition, version, "-azure", "azure", True))
         else:
             commands.append(get_build_command(edition, version, "", "."))
+            commands.append(get_build_command(edition, version, "", ".", True))
             commands.append(get_build_command(edition, version, "-alpine", "alpine"))
-            commands.append(get_build_command(edition, version, "-azure", "azure"))
-    
+            commands.append(get_build_command(edition, version, "-alpine", "alpine", True))
+
+        commands.append(get_build_command(edition, version, "-azure", "azure"))
+        commands.append(get_build_command(edition, version, "-azure", "azure", True))
+
     for command in commands:
         print(f'Running docker build command: {command}')
         subprocess.run(command, check=True, shell=True)

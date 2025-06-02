@@ -40,6 +40,7 @@ public class FlywayModel extends FlywayEnvironmentModel {
     private String outputType;
     private Boolean outputProgress;
     private String provisionMode;
+    private String color;
 
     public static FlywayModel defaults(){
         FlywayModel model = new FlywayModel();
@@ -92,6 +93,7 @@ public class FlywayModel extends FlywayEnvironmentModel {
         model.setPlaceholders(new HashMap<>());
         model.setProvisionMode("provision");
         model.setReportEnabled(false);
+        model.setColor("auto");
         return model;
     }
 
@@ -106,6 +108,7 @@ public class FlywayModel extends FlywayEnvironmentModel {
         result.outputProgress = outputProgress.merge(otherPojo.outputProgress);
         result.outputType = outputType.merge(otherPojo.outputType);
         result.provisionMode = provisionMode.merge(otherPojo.provisionMode);
+        result.color = color.merge(otherPojo.color);
         result.setReportFilename(getReportFilename().merge(otherPojo.getReportFilename()));
         result.setEncoding(getEncoding().merge(otherPojo.getEncoding()));
         result.setDetectEncoding(getDetectEncoding().merge(otherPojo.getDetectEncoding()));

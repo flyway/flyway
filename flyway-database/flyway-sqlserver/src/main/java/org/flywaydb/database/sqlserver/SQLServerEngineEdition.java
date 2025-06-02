@@ -21,6 +21,7 @@ package org.flywaydb.database.sqlserver;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.flywaydb.core.api.FlywayException;
 
 /*
  * SQL Server engine editions. Some restrict the functionality available. See
@@ -37,7 +38,8 @@ public enum SQLServerEngineEdition {
     SQL_DATABASE(5),
     SQL_DATA_WAREHOUSE(6),
     MANAGED_INSTANCE(8),
-    AZURE_SQL_EDGE(9);
+    AZURE_SQL_EDGE(9),
+    FABRIC(12);
 
     @Getter
     private final int code;
@@ -45,6 +47,9 @@ public enum SQLServerEngineEdition {
     public static SQLServerEngineEdition fromCode(int code) {
         for (SQLServerEngineEdition edition : values()) {
             if (edition.code == code) {
+                if (edition == FABRIC) {
+                    throw new FlywayException("Fabric is not currently supported in Flyway");
+                }
                 return edition;
             }
         }

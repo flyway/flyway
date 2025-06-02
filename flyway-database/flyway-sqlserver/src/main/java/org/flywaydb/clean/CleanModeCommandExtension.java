@@ -22,19 +22,24 @@ package org.flywaydb.clean;
 import lombok.experimental.ExtensionMethod;
 import org.flywaydb.core.FlywayExecutor;
 import org.flywaydb.core.FlywayTelemetryManager;
+import org.flywaydb.core.TelemetrySpan;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.CleanResult;
 import org.flywaydb.core.api.output.CommandResultFactory;
 import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.extensibility.CommandExtension;
+import org.flywaydb.core.extensibility.EventTelemetryModel;
+import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.command.clean.CleanModel;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
+import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 
 import static org.flywaydb.core.internal.command.clean.CleanModeConfigurationExtension.Mode.ALL;
 import static org.flywaydb.core.internal.command.clean.CleanModeConfigurationExtension.Mode.SCHEMA;
@@ -56,32 +61,57 @@ public class CleanModeCommandExtension implements CommandExtension {
     }
 
     @Override
-    public OperationResult handle(String command, Configuration config, List<String> flags, FlywayTelemetryManager flywayTelemetryManager) throws FlywayException {
-        return new FlywayExecutor(config).execute((migrationResolver, schemaHistory, database, defaultSchema, schemas, callbackExecutor, statementInterceptor) -> {
-            if (!database.supportsCleanMode()) {
-                throw new FlywayException("Clean modes other than default are not supported for " + database.getDatabaseType().getName());
+    public OperationResult handle(String command,
+        Configuration config,
+        List<String> flags,
+        FlywayTelemetryManager flywayTelemetryManager) throws FlywayException {
+        return TelemetrySpan.trackSpan(new EventTelemetryModel("cleanmode", flywayTelemetryManager),
+            (telemetryModel) -> new FlywayExecutor(config).execute((migrationResolver, schemaHistory, database, defaultSchema, schemas, callbackExecutor, statementInterceptor) -> cleanMode(
+                config,
+                schemaHistory,
+                database,
+                defaultSchema,
+                callbackExecutor), false, flywayTelemetryManager));
+    }
+
+    private static CleanResult cleanMode(final Configuration config,
+        final SchemaHistory schemaHistory,
+        final Database database,
+        final Schema defaultSchema,
+        final CallbackExecutor callbackExecutor) {
+        if (!database.supportsCleanMode()) {
+            throw new FlywayException("Clean modes other than default are not supported for "
+                + database.getDatabaseType().getName());
+        }
+        if (config.getSchemas().length > 0) {
+            throw new FlywayException("'flyway.schemas' must be empty when using clean modes other than default");
+        }
+
+        CleanResult cleanResult = CommandResultFactory.createCleanResult(database.getCatalog());
+        CleanModel clean = ConfigUtils.getCleanModel(config);
+        CleanModeCleanExecutor cleanExecutor = new CleanModeCleanExecutor(database.getMainConnection(),
+            database,
+            schemaHistory,
+            callbackExecutor,
+            clean.getMode());
+
+        Schema[] allSchemas = Arrays.stream(database.getAllSchemas())
+            .filter(s -> clean == null || clean.getSchemas() == null || !clean.getSchemas()
+                .getExclude()
+                .contains(s.getName()))
+            .toArray(Schema[]::new);
+
+        if (clean != null) {
+            if (SCHEMA.name().equalsIgnoreCase(clean.getMode())) {
+                cleanExecutor.clean(defaultSchema, allSchemas, cleanResult);
+            } else if (ALL.name().equalsIgnoreCase(clean.getMode())) {
+                cleanExecutor.clean(defaultSchema,
+                    allSchemas,
+                    cleanResult,
+                    allSchemas.stream().map(Schema::getName).collect(Collectors.toList()));
             }
-            if (config.getSchemas().length > 0) {
-                throw new FlywayException("'flyway.schemas' must be empty when using clean modes other than default");
-            }
+        }
 
-            CleanResult cleanResult = CommandResultFactory.createCleanResult(database.getCatalog());
-            CleanModel clean = ConfigUtils.getCleanModel(config);
-            CleanModeCleanExecutor cleanExecutor = new CleanModeCleanExecutor(database.getMainConnection(), database, schemaHistory, callbackExecutor, clean.getMode());
-
-            Schema[] allSchemas = Arrays.stream(database.getAllSchemas())
-                                        .filter(s -> clean == null || clean.getSchemas() == null || !clean.getSchemas().getExclude().contains(s.getName()))
-                                        .toArray(Schema[]::new);
-
-            if (clean != null) {
-                if (SCHEMA.name().equalsIgnoreCase(clean.getMode())) {
-                    cleanExecutor.clean(defaultSchema, allSchemas, cleanResult);
-                } else if (ALL.name().equalsIgnoreCase(clean.getMode())) {
-                    cleanExecutor.clean(defaultSchema, allSchemas, cleanResult, allSchemas.stream().map(Schema::getName).collect(Collectors.toList()));
-                }
-            }
-
-            return cleanResult;
-        }, false, flywayTelemetryManager);
+        return cleanResult;
     }
 }

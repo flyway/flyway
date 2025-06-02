@@ -67,7 +67,6 @@ public class CommandLineArguments {
     private static final String INFO_UNTIL_VERSION = "infoUntilVersion";
     private static final String INFO_OF_STATE = "infoOfState";
     private static final Set<String> COMMAND_LINE_ONLY_OPTIONS = new HashSet<>(Arrays.asList(OUTPUT_FILE,
-        COLOR,
         WORKING_DIRECTORY,
         INFO_SINCE_DATE,
         INFO_UNTIL_DATE,
@@ -272,6 +271,18 @@ public class CommandLineArguments {
                     throw new FlywayException("Invalid flag: " + args[i] + "\n" + hint);
                 }
             });
+
+        final Optional<String> environmentArgument = Arrays.stream(args)
+            .filter(x -> x.startsWith("-environments"))
+            .filter(x -> x.contains("="))
+            .map(x -> x.substring(0, x.indexOf("=")))
+            .filter(x -> x.split("\\.").length == 2)
+            .findFirst();
+        if (environmentArgument.isPresent()) {
+            throw new FlywayException("Invalid configuration argument: "
+                + environmentArgument.get()
+                + ". Both the environment name and configuration option are required.");
+        }
 
         String outputTypeValue = getArgumentValue(OUTPUT_TYPE, args).toLowerCase();
 

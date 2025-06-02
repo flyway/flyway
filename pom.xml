@@ -14,7 +14,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>11.8.2</version>
+    <version>11.9.0</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -100,20 +100,8 @@
 
 
 
-    </modules>
 
-    <distributionManagement>
-        <snapshotRepository>
-            <id>${snapshotRepository.id}</id>
-            <name>${snapshotRepository.name}</name>
-            <url>${snapshotRepository.url}</url>
-        </snapshotRepository>
-        <repository>
-            <id>${releaseRepository.id}</id>
-            <name>${releaseRepository.name}</name>
-            <url>${releaseRepository.url}</url>
-        </repository>
-    </distributionManagement>
+    </modules>
 
     <repositories>
         <repository>
@@ -887,9 +875,8 @@
                 <executions>
                     <execution>
                         <id>attach-sources</id>
-                        <phase>verify</phase>
                         <goals>
-                            <goal>jar</goal>
+                            <goal>jar-no-fork</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -969,6 +956,15 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.7.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>central</publishingServerId>
+                </configuration>
+            </plugin>
+            <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
                     <detectJavaApiLink>false</detectJavaApiLink>
@@ -978,8 +974,7 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>attach-sources</id>
-                        <phase>verify</phase>
+                        <id>attach-javadocs</id>
                         <goals>
                             <goal>jar</goal>
                         </goals>
@@ -1136,6 +1131,33 @@
         </plugins>
     </reporting>
 
+    <profiles>
+        <profile>
+            <id>sign-artifacts</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <gpgArguments>
+                                <arg>--pinentry-mode=loopback</arg>
+                            </gpgArguments>
+                            <passphraseServerId>flyway-gpg</passphraseServerId>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
 
 
 
@@ -1167,6 +1189,5 @@
 
 
 
-
-
+    </profiles>
 </project>

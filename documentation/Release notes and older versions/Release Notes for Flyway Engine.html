@@ -8,6 +8,53 @@
 </div>
 <div class="col-md-9">
   <div class="release">
+        <h2 id="11.9.0">Flyway 11.9.0 (2025-06-02)</h2>
+
+        <h3>Breaking changes</h3>
+        <ul>
+            <li>OSS command-line artifacts will now be downloaded from the release tag on GitHub instead of Maven</li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Flyway now allows enabling or disabling Code Analysis Rules Engines via configuration</li>
+            <li>diffText console output will use the unified diff format when -color=never is set or color support has not been detected.</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>difference IDs are now included in diffText console output.</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fixed an issue where the MongoDB connection string's 'defaultauthdb' configuration was not being correctly applied</li>
+        </ul>
+
+        <h3>Library upgrades</h3>
+        <ul>
+            <li>Upgraded RgCompare.Cli from 1.33.3.433 to 1.33.6.573</li>
+            <li>Databricks JDBC driver 2.7.1 -> 2.7.3</li>
+        </ul>
+
+  </div>
+
+  <div class="release">
+        <h2 id="11.8.3">Flyway 11.8.3 (2025-05-20)</h2>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>Add cubrid community database</li>
+        </ul>
+
+        <h3>Library upgrades</h3>
+        <ul>
+            <li>Upgraded RgCompare.Cli from 1.32.0.269 to 1.33.3.408</li>
+        </ul>
+
+  </div>
+
+  <div class="release">
         <h2 id="11.8.2">Flyway 11.8.2 (2025-05-13)</h2>
 
         <h3>Bug fixes</h3>

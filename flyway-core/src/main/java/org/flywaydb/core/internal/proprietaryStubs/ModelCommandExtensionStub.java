@@ -21,10 +21,12 @@ package org.flywaydb.core.internal.proprietaryStubs;
 
 import java.util.List;
 import org.flywaydb.core.FlywayTelemetryManager;
+import org.flywaydb.core.TelemetrySpan;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.extensibility.CommandExtension;
+import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.internal.license.FlywayRedgateEditionRequiredException;
 
 public class ModelCommandExtensionStub implements CommandExtension {
@@ -47,7 +49,9 @@ public class ModelCommandExtensionStub implements CommandExtension {
         final Configuration config,
         final List<String> flags,
         final FlywayTelemetryManager flywayTelemetryManager) throws FlywayException {
-        throw new FlywayRedgateEditionRequiredException(FEATURE_NAME);
+        return TelemetrySpan.trackSpan(new EventTelemetryModel(command, flywayTelemetryManager), (telemetryModel) -> {
+            throw new FlywayRedgateEditionRequiredException(FEATURE_NAME);
+        });
     }
 
     @Override

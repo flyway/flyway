@@ -32,5 +32,5 @@ CMD ["-?"]
 FROM flyway as mongo
 
 RUN apk --no-cache add --update npm
-
-RUN npm install -g mongosh
+RUN npm update
+RUN npm install -g mongosh@2.5.0

@@ -143,9 +143,10 @@ public class MongoDBDatabase extends AbstractExperimentalDatabase <NonJdbcExecut
                 .build());
         } else {
             String authSource = extractQueryParams(connectionString.getConnectionString()).get("authSource");
+            String defaultAuthDB = connectionString.getDatabase();
 
             final MongoCredential credential = MongoCredential.createCredential(configuration.getUser(),
-                authSource != null ? authSource : "admin",
+                authSource != null ? authSource : defaultAuthDB != null ? defaultAuthDB : "admin",
                 configuration.getPassword().toCharArray());
             mongoClient = MongoClients.create(MongoClientSettings.builder()
                 .applyConnectionString(connectionString)

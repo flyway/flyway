@@ -242,7 +242,7 @@ flyway.oracle.kerberosCacheFile=/tmp/krb5cc_123
 
 Flyway allows you to proxy through other users during migrations. You can read about how to enable proxy authentication for users [here](https://docs.oracle.com/cd/E11882_01/java.112/e16548/proxya.htm#JJDBC28352).
 
-To configure Flyway to use a proxy connection, you need to add to [`jdbcProperties`](<Configuration/Environments Namespace/Environment JDBC Properties Namespace>) a key `PROXY_USER_NAME` whose value is the name of the user you are trying to proxy as. For example, if you connect as user `A` to Flyway (i.e. `flyway.user=A`) and you want to proxy as user `B` for migrations, you need to add `flyway.jdbcproperties.PROXY_USER_NAME=B`.
+To configure Flyway to use a proxy connection, you need to add to [`jdbcProperties`](<Configuration/Environments Namespace/Environment JDBC Properties Namespace>) a key `PROXY_USER_NAME` whose value is the name of the user you are trying to proxy as. For example, if you connect as user `A` to Flyway (i.e. `flyway.user=A`) and you want to proxy as user `B` for migrations, you need to add `flyway.jdbcProperties.PROXY_USER_NAME=B`.
 
 ## Limitations
 

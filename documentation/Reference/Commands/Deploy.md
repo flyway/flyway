@@ -20,6 +20,16 @@ flyway prepare -source=schemaModel -target=production -scriptFilename=D__deploym
 flyway deploy -scriptFilename="D__deployment.sql" -environment=production
 ```
 
+### Deploying to an environment not contained in the TOML configuration
+
+```
+flyway deploy \
+    -environment=production \
+    -environments.production.url="<url>" \
+    -environments.production.user="<user>" \
+    -environments.production.password="<password>"
+```
+
 Note that it is also possible to chain these commands:
 
 ```

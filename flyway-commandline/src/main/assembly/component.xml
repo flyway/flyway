@@ -337,6 +337,7 @@
                 <include>org.flywaydb:flyway-database-db2zos</include>
                 <include>org.flywaydb:flyway-database-timeplus</include>
                 <include>org.flywaydb:flyway-database-duckdb</include>
+                <include>org.flywaydb:flyway-database-cubrid</include>
                 <include>org.flywaydb:flyway-nc-core</include>
                 <include>org.flywaydb:flyway-nc-scanners</include>
                 <include>org.flywaydb:flyway-verb-info</include>

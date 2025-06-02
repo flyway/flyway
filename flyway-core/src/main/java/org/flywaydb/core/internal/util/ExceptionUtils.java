@@ -19,11 +19,10 @@
  */
 package org.flywaydb.core.internal.util;
 
+import java.sql.SQLException;
 import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-
-import java.sql.SQLException;
 import org.flywaydb.core.api.FlywayException;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -88,5 +87,16 @@ public class ExceptionUtils {
             exception = exception.getCause();
         }
         return Optional.empty();
+    }
+
+    public static boolean exceptionHasCauseOf(final Throwable exception, final Class<?> cause) {
+        Throwable throwable = exception;
+        while (throwable != null) {
+            if (cause.isInstance(throwable)) {
+                return true;
+            }
+            throwable = throwable.getCause();
+        }
+        return false;
     }
 }

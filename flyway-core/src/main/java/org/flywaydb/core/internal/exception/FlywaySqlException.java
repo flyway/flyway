@@ -20,9 +20,17 @@
 package org.flywaydb.core.internal.exception;
 
 import java.sql.SQLException;
+import java.util.List;
+import javax.sql.DataSource;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import org.flywaydb.core.api.CoreErrorCode;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.database.DatabaseTypeRegister;
+import org.flywaydb.core.internal.exception.sqlExceptions.FlywaySqlNoDriversForInteractiveAuthException;
+import org.flywaydb.core.internal.exception.sqlExceptions.FlywaySqlNoIntegratedAuthException;
+import org.flywaydb.core.internal.exception.sqlExceptions.FlywaySqlServerUntrustedCertificateSqlException;
+import org.flywaydb.core.internal.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -33,6 +41,13 @@ import org.flywaydb.core.internal.util.StringUtils;
 public class FlywaySqlException extends FlywayException {
     private final String sqlState;
     private final int sqlErrorCode;
+
+    @SuppressWarnings("ClassReferencesSubclass")
+    private static List<Class<? extends FlywaySqlException>> getSpecificFlywaySqlExceptionClasses() {
+        return List.of(FlywaySqlServerUntrustedCertificateSqlException.class,
+            FlywaySqlNoIntegratedAuthException.class,
+            FlywaySqlNoDriversForInteractiveAuthException.class);
+    }
 
     public FlywaySqlException(final String message, final SQLException sqlException) {
         super(message, sqlException, CoreErrorCode.DB_CONNECTION);
@@ -46,5 +61,28 @@ public class FlywaySqlException extends FlywayException {
         final String underline = StringUtils.trimOrPad("", title.length(), '-');
 
         return title + "\n" + underline + "\n" + ExceptionUtils.toMessage((SQLException) getCause());
+    }
+
+    @SneakyThrows
+    public static void throwFlywayExceptionIfPossible(final SQLException sqlException, final DataSource dataSource) {
+        for (final Class<? extends FlywaySqlException> x : getSpecificFlywaySqlExceptionClasses()) {
+
+            if ((boolean) x.getMethod("isFlywaySpecificVersionOf", SQLException.class).invoke(null, sqlException)) {
+                throw x.getDeclaredConstructor(SQLException.class, DataSource.class)
+                    .newInstance(sqlException, dataSource);
+            }
+        }
+    }
+
+    protected static String getDataSourceInfo(final DataSource dataSource, final boolean suppressNullUserMessage) {
+        if (!(dataSource instanceof final DriverDataSource driverDataSource)) {
+            return "";
+        }
+        final String user = driverDataSource.getUser();
+        String info = " (" + DatabaseTypeRegister.redactJdbcUrl(driverDataSource.getUrl()) + ")";
+        if (user != null || !suppressNullUserMessage) {
+            info += " for user '" + user + "'";
+        }
+        return info;
     }
 }
