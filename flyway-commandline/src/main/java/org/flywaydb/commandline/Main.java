@@ -514,7 +514,6 @@ public class Main {
             LOG.info(indent + "createSchemas                  Whether Flyway should attempt to create the schemas specified in the schemas property");
             LOG.info(indent + "dryRunOutput                   [" + "teams] File where to output the SQL statements of a migration dry run");
             LOG.info(indent + "errorOverrides                 [" + "teams] Rules to override specific SQL states and errors codes");
-            LOG.info(indent + "licenseKey                     [" + "teams] Your Flyway license key");
             LOG.info(indent + "color                          Whether to colorize output. Values: always, never, or auto (default)");
             LOG.info(indent + "outputFile                     Send output to the specified file alongside the console");
             LOG.info(indent + "outputType                     Serialise the output in the given format, Values: json");
@@ -533,7 +532,6 @@ public class Main {
         LOG.info(indent + "flyway help check");
         LOG.info("");
         LOG.info("More info at " + FlywayDbWebsiteLinks.USAGE_COMMANDLINE);
-        LOG.info("Learn more about Flyway Teams edition at " + FlywayDbWebsiteLinks.TRY_TEAMS_EDITION);
     }
 
     private static boolean printHelp(final CommandLineArguments commandLineArguments) {

@@ -723,7 +723,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setErrorOverrides(String... errorOverrides) {
 
-        throw new org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(this), "errorOverrides");
+        throw new org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException(LicenseGuard.getTier(this), "errorOverrides");
 
 
 
@@ -769,7 +769,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setDryRunOutput(OutputStream dryRunOutput) {
 
-        throw new org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(this), "dryRunOutput");
+        throw new org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException(LicenseGuard.getTier(this), "dryRunOutput");
 
 
 
@@ -831,7 +831,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setKerberosConfigFile(String kerberosConfigFile) {
 
-        throw new org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(this), "kerberosConfigFile");
+        throw new org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException(LicenseGuard.getTier(this), "kerberosConfigFile");
 
 
 
@@ -1297,7 +1297,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setDryRunOutputAsFile(File dryRunOutput) {
 
-        throw new org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(this), "dryRunOutput");
+        throw new org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException(LicenseGuard.getTier(this), "dryRunOutput");
 
 
 
@@ -1344,7 +1344,7 @@ public class ClassicConfiguration implements Configuration {
 
     private OutputStream getDryRunOutputAsFile(File dryRunOutput) {
 
-        throw new org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(this), "dryRunOutput");
+        throw new org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException(LicenseGuard.getTier(this), "dryRunOutput");
 
 
 
@@ -1402,7 +1402,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setDryRunOutputAsFileName(String dryRunOutputFileName) {
 
-        throw new org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(this), "dryRunOutput");
+        throw new org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException(LicenseGuard.getTier(this), "dryRunOutput");
 
 
 
@@ -2077,7 +2077,6 @@ public class ClassicConfiguration implements Configuration {
         if (!url.toLowerCase().startsWith("jdbc-secretsmanager:")) {
             return;
         }
-
 
 
 

@@ -1,3 +1,5 @@
+ARG EDITION=flyway
+
 FROM bash:5 AS untar
 
 WORKDIR /flyway
@@ -41,3 +43,8 @@ ARG SQLFLUFF_VERSION=3.0.7
 RUN apk add --no-cache icu-libs krb5-libs libgcc libintl libssl3 libstdc++ zlib icu \
   && apk --no-cache add --update g++ python3 python3-dev py3-pip \
   && pip3 install --break-system-packages sqlfluff==${SQLFLUFF_VERSION}
+
+FROM $EDITION as mongo
+
+RUN npm update
+RUN npm install -g mongosh@2.5.0

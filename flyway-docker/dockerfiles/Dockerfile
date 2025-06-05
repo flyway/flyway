@@ -1,3 +1,5 @@
+ARG EDITION=flyway
+
 FROM bash:5 AS untar
 
 WORKDIR /flyway
@@ -35,4 +37,10 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends python3-pip \
     && apt-get install -y --no-install-recommends libc6 libgcc1 libgcc-s1 libgssapi-krb5-2 libicu70 liblttng-ust1 libssl3 libstdc++6 libunwind8 zlib1g \
     && pip3 install sqlfluff==${SQLFLUFF_VERSION}
-    
+
+FROM $EDITION as mongo
+
+RUN wget -qO- https://www.mongodb.org/static/pgp/server-8.0.asc | tee /etc/apt/trusted.gpg.d/server-8.0.asc
+RUN echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/8.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-8.0.list
+RUN apt-get update
+RUN apt-get install -y mongodb-mongosh=2.5.0

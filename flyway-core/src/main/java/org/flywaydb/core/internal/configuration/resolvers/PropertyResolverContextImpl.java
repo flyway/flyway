@@ -19,6 +19,8 @@
  */
 package org.flywaydb.core.internal.configuration.resolvers;
 
+import static org.flywaydb.core.internal.configuration.resolvers.ProvisionerConfiguration.createConfigurationWithEnvironment;
+
 import java.util.Optional;
 import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.ProgressLogger;
@@ -33,6 +35,7 @@ import java.util.Map;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 import org.flywaydb.core.extensibility.ConfigurationExtension;
+import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
 
 public class PropertyResolverContextImpl implements PropertyResolverContext {
 
@@ -48,7 +51,7 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
 
     public PropertyResolverContextImpl(String environmentName, Configuration configuration, Map<String, PropertyResolver> resolvers, Map<String, ConfigurationExtension> resolverConfigurations) {
         this.environmentName = environmentName;
-        this.configuration = configuration;
+        this.configuration = createConfigurationCopy(configuration, environmentName);
         this.resolvers = resolvers;
         this.resolverConfigurations = Optional.ofNullable(resolverConfigurations).orElseGet(Map::of);
     }
@@ -189,5 +192,18 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
             }
         }
         return false;
+    }
+
+    private static Configuration createConfigurationCopy(final Configuration configuration,
+        final String environmentName) {
+        final var environmentModel = Optional.ofNullable(configuration)
+            .map(Configuration::getModernConfig)
+            .map(ConfigurationModel::getEnvironments)
+            .map(envs -> envs.get(environmentName))
+            .orElseThrow(() -> new FlywayException("Unable to provision environment "
+                + environmentName
+                + " as required configuration is not defined", CoreErrorCode.CONFIGURATION));
+
+        return createConfigurationWithEnvironment(configuration, environmentName, environmentModel);
     }
 }

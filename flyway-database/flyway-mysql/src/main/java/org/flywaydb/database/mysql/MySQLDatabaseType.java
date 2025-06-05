@@ -149,7 +149,7 @@ public class MySQLDatabaseType extends BaseDatabaseType {
 
         mySQLOptionFileReader.populateOptionFiles();
         if (!mySQLOptionFileReader.optionFiles.isEmpty()) {
-            LOG.info(org.flywaydb.core.internal.license.FlywayTeamsUpgradeMessage.generate("a MySQL option file", "use this for database authentication"));
+            LOG.info(org.flywaydb.core.internal.license.FlywayUpgradeMessage.generate("a MySQL option file", "use this for database authentication"));
         }
         return super.getExternalAuthProperties(url, username);
 

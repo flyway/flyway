@@ -85,7 +85,7 @@ public class LicenseGuard {
             }
         }
 
-        throw new FlywayEditionUpgradeRequiredException(editions.get(0), flywayPermit.getTier(), featureName);
+        throw new FlywayEditionUpgradeRequiredException(flywayPermit.getTier(), featureName);
     }
 
     public static boolean isLicensed(Configuration configuration, List<Tier> editions) {

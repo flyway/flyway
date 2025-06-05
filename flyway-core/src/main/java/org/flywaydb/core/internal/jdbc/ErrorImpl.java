@@ -40,7 +40,7 @@ public class ErrorImpl implements Error {
     @Override
     public void setHandled(boolean handled, Configuration configuration) {
         if (!LicenseGuard.isLicensed(configuration, Tier.PREMIUM)) {
-            throw new FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(configuration), "Error handling");
+            throw new FlywayEditionUpgradeRequiredException(LicenseGuard.getTier(configuration), "Error handling");
         }
 
         this.handled = handled;

@@ -85,7 +85,7 @@ You should be able to open the project and see a number of modules.
 ### How to test your plugin
 #### Testing with a prebuilt Flyway CLI package
 This is a quick and easy way to verify that things are working as you expect
-1. Download and install the latest [Flyway CLI](https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/) package
+1. Download and install the latest [Flyway CLI](https://github.com/flyway/flyway/releases/latest) package
 1. Put your freshly built `flyway-database-foo.jar` and JDBC driver in the `/jars` folder of your Flyway install directory.
 1. Configure Flyway to talk to your database
 1. Run your tests

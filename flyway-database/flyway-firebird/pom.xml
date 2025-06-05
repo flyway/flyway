@@ -5,7 +5,7 @@
     <parent>
         <artifactId>flyway-parent</artifactId>
         <groupId>org.flywaydb</groupId>
-        <version>11.9.0</version>
+        <version>11.9.1</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -13,7 +13,6 @@
     <artifactId>flyway-firebird</artifactId>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
-    <version>${project.parent.version}</version>
 
     <dependencies>
         <dependency>
@@ -56,16 +55,6 @@
                             </resources>
                             <outputDirectory>${project.build.outputDirectory}/META-INF</outputDirectory>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
                     </execution>
                 </executions>
             </plugin>

@@ -39,7 +39,7 @@ public class WarningImpl implements Warning {
     @Override
     public void setHandled(boolean handled, Configuration configuration) {
         if (!LicenseGuard.isLicensed(configuration, Tier.PREMIUM)) {
-            throw new FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(configuration), "Warning handling");
+            throw new FlywayEditionUpgradeRequiredException(LicenseGuard.getTier(configuration), "Warning handling");
         }
 
         this.handled = handled;

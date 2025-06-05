@@ -182,10 +182,10 @@ public class OracleDatabaseType extends BaseDatabaseType {
 
 
             if (configurationExtension.getWalletLocation() != null) {
-                throw new FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(config), "oracle.net.wallet_location");
+                throw new FlywayEditionUpgradeRequiredException(LicenseGuard.getTier(config), "oracle.net.wallet_location");
             }
             if (!config.getKerberosConfigFile().isEmpty()) {
-                throw new FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(config), "oracle.kerberos.config.file");
+                throw new FlywayEditionUpgradeRequiredException(LicenseGuard.getTier(config), "oracle.kerberos.config.file");
             }
 
         }

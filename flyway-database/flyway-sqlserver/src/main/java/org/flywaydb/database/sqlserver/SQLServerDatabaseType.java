@@ -121,10 +121,10 @@ public class SQLServerDatabaseType extends BaseDatabaseType {
 
 
             if (StringUtils.hasText(configurationExtension.getKerberos().getLogin().getFile())) {
-                throw new FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(config), "sqlserver.kerberos.login.file");
+                throw new FlywayEditionUpgradeRequiredException(LicenseGuard.getTier(config), "sqlserver.kerberos.login.file");
             }
             if (StringUtils.hasText(config.getKerberosConfigFile())) {
-                throw new FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(config), "sqlserver.kerberos.config.file");
+                throw new FlywayEditionUpgradeRequiredException(LicenseGuard.getTier(config), "sqlserver.kerberos.config.file");
             }
 
         }

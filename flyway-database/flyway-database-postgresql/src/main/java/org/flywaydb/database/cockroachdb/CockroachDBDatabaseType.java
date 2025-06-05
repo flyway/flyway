@@ -140,7 +140,7 @@ public class CockroachDBDatabaseType extends BaseDatabaseType {
         PgpassFileReader pgpassFileReader = new PgpassFileReader();
 
         if (pgpassFileReader.getPgpassFilePath() != null) {
-            LOG.info(org.flywaydb.core.internal.license.FlywayTeamsUpgradeMessage.generate(
+            LOG.info(org.flywaydb.core.internal.license.FlywayUpgradeMessage.generate(
                     "pgpass file '" + pgpassFileReader.getPgpassFilePath() + "'",
                     "use this for database authentication"));
         }

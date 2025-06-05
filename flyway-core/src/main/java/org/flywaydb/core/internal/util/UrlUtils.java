@@ -80,7 +80,7 @@ public class UrlUtils {
 
 
 
-            throw new FlywayEditionUpgradeRequiredException(Tier.ENTERPRISE, (Tier) null, "jdbc-secretsmanager");
+            throw new FlywayEditionUpgradeRequiredException((Tier) null, "jdbc-secretsmanager");
 
         }
         return false;

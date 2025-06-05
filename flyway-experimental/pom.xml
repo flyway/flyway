@@ -6,12 +6,11 @@
   <parent>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>11.9.0</version>
+    <version>11.9.1</version>
   </parent>
 
   <packaging>pom</packaging>
   <name>${project.artifactId}</name>
-  <version>${project.parent.version}</version>
   <artifactId>flyway-experimental</artifactId>
 
   <modules>

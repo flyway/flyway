@@ -59,7 +59,7 @@ public class SpannerDatabase extends Database<SpannerConnection> {
         if (!LicenseGuard.isLicensed(configuration, Tier.PREMIUM)) {
             long databaseSize = getDatabaseSize();
             if (databaseSize > TEN_GB_DATABASE_SIZE_LIMIT) {
-                throw new FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(configuration),
+                throw new FlywayEditionUpgradeRequiredException(LicenseGuard.getTier(configuration),
                     "A GCP Spanner database that exceeds the 10 GB database size limit " +
                         "(Calculated size: " + GIGABYTE.toHumanReadableString(databaseSize) + ")");
             }

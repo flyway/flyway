@@ -6,13 +6,12 @@
     <parent>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>11.9.0</version>
+        <version>11.9.1</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <artifactId>flyway-database-saphana</artifactId>
     <name>${project.artifactId}</name>
-    <version>${project.parent.version}</version>
 
     <dependencies>
         <dependency>
@@ -55,16 +54,6 @@
                             </resources>
                             <outputDirectory>${project.build.outputDirectory}/META-INF</outputDirectory>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
                     </execution>
                 </executions>
             </plugin>

@@ -20,6 +20,7 @@
 package org.flywaydb.core.internal;
 
 import org.flywaydb.core.FlywayTelemetryManager;
+import org.flywaydb.core.FlywayTelemetryProperties;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.experimental.MetaData;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
@@ -61,5 +62,10 @@ public class NullFlywayTelemetryManager implements FlywayTelemetryManager {
     @Override
     public void notifyExperimentalMetadataChanged(final MetaData metadata) {
 
+    }
+
+    @Override
+    public FlywayTelemetryProperties getProperties() {
+        return new FlywayTelemetryProperties(null, null, null);
     }
 }

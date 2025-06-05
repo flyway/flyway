@@ -19,26 +19,18 @@ def get_buildx_command(edition, version, tag_suffix, folder, mongo=False, push=F
     if push:
         pull_or_push = "push"
     platforms = "linux/arm64/v8,linux/amd64"
-    dockerfile = "Dockerfile"
-    target = f"--target {edition}"
-    if mongo:
-        dockerfile = "Dockerfile-mongo"
-        target = ""
-    command = f'docker buildx build {target} --platform {platforms} --{pull_or_push} --build-arg FLYWAY_VERSION={version} '
+    target = edition if not mongo else "mongo"
+    command = f'docker buildx build --target {target} --platform {platforms} --{pull_or_push} --build-arg FLYWAY_VERSION={version} --build-arg EDITION={edition} '
     command += get_tag_flags(version, edition, tag_suffix, mongo)
-    file_flag = f'-f ./dockerfiles/{folder}/{dockerfile} '
+    file_flag = f'-f ./dockerfiles/{folder}/Dockerfile '
     return command + file_flag + "."
     
     
 def get_build_command(edition, version, tag_suffix, folder, mongo=False):
-    dockerfile = "Dockerfile"
-    target = f"--target {edition}"
-    if mongo:
-        dockerfile = "Dockerfile-mongo"
-        target = ""
-    command = f'docker build {target} --pull --build-arg FLYWAY_VERSION={version} '
+    target = edition if not mongo else "mongo"
+    command = f'docker build --target {target} --pull --build-arg FLYWAY_VERSION={version} --build-arg EDITION={edition} '
     command += get_tag_flags(version, edition, tag_suffix, mongo)
-    file_flag = f'-f ./dockerfiles/{folder}/{dockerfile} '
+    file_flag = f'-f ./dockerfiles/{folder}/Dockerfile '
     return command + file_flag + "."
     
 

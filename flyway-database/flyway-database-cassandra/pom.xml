@@ -6,13 +6,12 @@
     <parent>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>11.9.0</version>
+        <version>11.9.1</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <artifactId>flyway-database-cassandra</artifactId>
     <name>${project.artifactId}</name>
-    <version>${project.parent.version}</version>
 
     <dependencies>
         <dependency>

@@ -6,7 +6,7 @@ import time
 
 def get_repo_url(edition, version, artifact_suffix):
     if edition == "flyway":
-        return f'https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/{version}/flyway-commandline-{version}{artifact_suffix}.tar.gz'
+        return f'https://github.com/flyway/flyway/releases/download/flyway-{version}/flyway-commandline-{version}{artifact_suffix}.tar.gz'
     if edition == "redgate":
         return f'https://download.red-gate.com/maven/release/com/redgate/flyway/flyway-commandline/{version}/flyway-commandline-{version}{artifact_suffix}.tar.gz'
     print("Edition should be 'flyway' or 'redgate'")

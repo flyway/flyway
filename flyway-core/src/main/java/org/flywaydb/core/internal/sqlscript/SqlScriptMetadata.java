@@ -71,7 +71,7 @@ public class SqlScriptMetadata {
 
         {
             if (metadata.containsKey(SHOULD_EXECUTE)) {
-                throw new FlywayEditionUpgradeRequiredException(Tier.TEAMS, LicenseGuard.getTier(config), "shouldExecute");
+                throw new FlywayEditionUpgradeRequiredException(LicenseGuard.getTier(config), "shouldExecute");
             }
         }
         ConfigUtils.checkConfigurationForUnrecognisedProperties(metadata, null);

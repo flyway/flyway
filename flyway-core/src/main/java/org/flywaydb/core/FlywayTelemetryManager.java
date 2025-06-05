@@ -38,4 +38,6 @@ public interface FlywayTelemetryManager extends Plugin {
     void notifyDatabaseChanged(final String engine, final String version, final String hosting);
 
     void notifyExperimentalMetadataChanged(final MetaData metadata);
+
+    FlywayTelemetryProperties getProperties();
 }
