@@ -22,7 +22,7 @@
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
-            <url>https://flywaydb.org/licenses/flyway-oss</url>
+            <url>https://github.com/flyway/flyway/blob/main/README.txt</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
