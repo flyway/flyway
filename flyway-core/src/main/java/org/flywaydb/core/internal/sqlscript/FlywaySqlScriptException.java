@@ -19,12 +19,11 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
+import java.sql.SQLException;
 import lombok.CustomLog;
 import lombok.Getter;
 import org.flywaydb.core.api.resource.Resource;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
-
-import java.sql.SQLException;
 
 /**
  * This specific exception thrown when Flyway encounters a problem in SQL script
@@ -32,7 +31,7 @@ import java.sql.SQLException;
 @CustomLog
 public class FlywaySqlScriptException extends FlywaySqlException {
     /**
-     * @return The resource containing the failed statement.
+     * The resource containing the failed statement.
      */
     @Getter
     private final Resource resource;
@@ -46,12 +45,15 @@ public class FlywaySqlScriptException extends FlywaySqlException {
     /**
      * Creates new instance of FlywaySqlScriptException.
      *
-     * @param resource The resource containing the failed statement.
-     * @param statement The failed SQL statement.
+     * @param resource     The resource containing the failed statement.
+     * @param statement    The failed SQL statement.
      * @param sqlException Cause of the problem.
      */
-    public FlywaySqlScriptException(final Resource resource, final SqlStatement statement, final SQLException sqlException) {
-        super(resource == null ? "Script failed" : "Script " + resource.getFilename() + " failed", sqlException);
+    public FlywaySqlScriptException(final Resource resource,
+        final SqlStatement statement,
+        final SQLException sqlException,
+        final String environment) {
+        super(generateMessage(resource, environment), sqlException);
         this.resource = resource;
         this.statement = statement;
 
@@ -65,7 +67,8 @@ public class FlywaySqlScriptException extends FlywaySqlException {
         }
         if (statement != null) {
             builder.append("Line       : ").append(getLineNumber()).append("\n");
-            builder.append("Statement  : ").append(LOG.isDebugEnabled() ? getStatement() : STATEMENT_MESSAGE)
+            builder.append("Statement  : ")
+                .append(LOG.isDebugEnabled() ? getStatement() : STATEMENT_MESSAGE)
                 .append("\n");
         }
         this.decoratedMessage = builder.toString();
@@ -92,5 +95,19 @@ public class FlywaySqlScriptException extends FlywaySqlException {
     @Override
     public String getMessage() {
         return decoratedMessage;
+    }
+
+    private static String generateMessage(final Resource resource, final String environment) {
+        final StringBuilder messageBuilder = new StringBuilder("Failed to execute script");
+
+        if (resource != null) {
+            messageBuilder.append(" ").append(resource.getFilename());
+        }
+
+        if (!"default".equalsIgnoreCase(environment)) {
+            messageBuilder.append(" against ").append(environment).append(" environment");
+        }
+
+        return messageBuilder.toString();
     }
 }

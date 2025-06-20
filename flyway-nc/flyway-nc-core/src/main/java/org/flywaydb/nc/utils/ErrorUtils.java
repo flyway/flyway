@@ -19,6 +19,7 @@
  */
 package org.flywaydb.nc.utils;
 
+import java.nio.file.Path;
 import lombok.CustomLog;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -26,7 +27,6 @@ import org.flywaydb.nc.executors.Executor;
 
 @CustomLog
 public class ErrorUtils {
-
     public static <T> String calculateErrorMessage(final String title,
         final LoadableResource loadableResource,
         final String physicalLocation,
@@ -57,6 +57,16 @@ public class ErrorUtils {
 
         if (executionUnit != null && executor != null) {
             executor.appendErrorMessage(executionUnit, messageBuilder, LOG.isDebugEnabled());
+        }
+
+        return messageBuilder.toString();
+    }
+
+    public static String getScriptExecutionErrorMessageTitle(final Path scriptName, final String environment) {
+        final StringBuilder messageBuilder = new StringBuilder("Failed to execute script ").append(scriptName);
+
+        if (!"default".equalsIgnoreCase(environment)) {
+            messageBuilder.append(" against ").append(environment).append(" environment");
         }
 
         return messageBuilder.toString();

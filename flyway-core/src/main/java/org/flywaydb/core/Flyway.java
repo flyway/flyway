@@ -494,25 +494,25 @@ public class Flyway {
      * @throws FlywayException when undo failed.
      */
     public OperationResult undo() throws FlywayException {
-        try (EventTelemetryModel telemetryModel = new EventTelemetryModel("undo", flywayTelemetryManager)) {
-            if (canUseExperimentalMode(configuration, "undo")) {
-                logPreviewFeature(NATIVE_CONNECTORS);
-                final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("undo")).findFirst();
-                if (verb.isPresent()) {
+        if (canUseExperimentalMode(configuration, "undo")) {
+            logPreviewFeature(NATIVE_CONNECTORS);
+            final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("undo")).findFirst();
+            if (verb.isPresent()) {
+                try (EventTelemetryModel telemetryModel = new EventTelemetryModel("undo", flywayTelemetryManager)) {
                     LOG.debug("Native Connectors for undo is set and a verb is present");
                     return (OperationResult) verb.get().executeVerb(configuration);
-                } else {
-                    LOG.warn("Native Connectors for undo is set but no verb is present");
                 }
+            } else {
+                LOG.warn("Native Connectors for undo is set but no verb is present");
             }
-            try {
-                return runCommand("undo", Collections.emptyList());
-            } catch (FlywayException e) {
-                if (e.getMessage().startsWith("No command extension found")) {
-                    throw new FlywayException("The command 'undo' was not recognized. Make sure you have added 'flyway-proprietary' as a dependency.", e);
-                }
-                throw e;
+        }
+        try {
+            return runCommand("undo", Collections.emptyList());
+        } catch (FlywayException e) {
+            if (e.getMessage().startsWith("No command extension found")) {
+                throw new FlywayException("The command 'undo' was not recognized. Make sure you have added 'flyway-proprietary' as a dependency.", e);
             }
+            throw e;
         }
     }
 

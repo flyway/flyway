@@ -47,6 +47,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.Callable;
 import org.flywaydb.core.internal.util.Pair;
+import org.flywaydb.core.internal.util.StringUtils;
 
 /**
  * Supports reading and writing to the schema history table.
@@ -243,7 +244,14 @@ class JdbcTableSchemaHistory extends SchemaHistory {
                 boolean success = rs.getBoolean(columnOrdinalMap.get("success"));
                 Timestamp installedOn = rs.getTimestamp(columnOrdinalMap.get("installed_on"));
                 if (installedOn == null) {
-                    installedOn = Timestamp.valueOf(rs.getString(columnOrdinalMap.get("installed_on")));
+                    String installedOnStr = rs.getString(columnOrdinalMap.get("installed_on"));
+                    if (StringUtils.hasText(installedOnStr)) {
+                        try {
+                            installedOn = Timestamp.valueOf(installedOnStr);
+                        } catch (IllegalArgumentException e) {
+                            // do nothing
+                        }
+                    }
                 }
 
                 return configuration.getPluginRegister().getPlugins(AppliedMigration.class).stream()

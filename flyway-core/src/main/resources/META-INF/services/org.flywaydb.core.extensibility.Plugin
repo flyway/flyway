@@ -9,7 +9,8 @@ org.flywaydb.core.internal.configuration.extensions.PrepareScriptFilenameConfigu
 org.flywaydb.core.internal.configuration.resolvers.EnvironmentVariableResolver
 org.flywaydb.core.internal.configuration.resolvers.EnvironmentProvisionerNone
 org.flywaydb.core.internal.configuration.resolvers.PlaceholderPropertyResolver
-org.flywaydb.core.internal.proprietaryStubs.CommandExtensionStub
+org.flywaydb.core.internal.proprietaryStubs.CheckCommandExtensionStub
+org.flywaydb.core.internal.proprietaryStubs.UndoCommandExtensionStub
 org.flywaydb.core.api.migration.baseline.BaselineAppliedMigration
 org.flywaydb.core.api.migration.baseline.BaselineMigrationConfigurationExtension
 org.flywaydb.core.api.migration.baseline.BaselineMigrationResolver

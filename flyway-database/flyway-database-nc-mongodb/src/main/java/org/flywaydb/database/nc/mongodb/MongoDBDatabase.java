@@ -434,8 +434,13 @@ public class MongoDBDatabase extends AbstractExperimentalDatabase <NonJdbcExecut
             if (!exited) {
                 throw new FlywayException("Mongosh execution timeout. Consider using smaller migrations");
             }
-            final int exitCode = process.exitValue();
+            if (outputQueryResults) {
+                final String stdOut = FileUtils.copyToString(new InputStreamReader(process.getInputStream(),
+                    StandardCharsets.UTF_8)).strip();
+                LOG.info(stdOut);
+            }
 
+            final int exitCode = process.exitValue();
             if (exitCode != 0) {
                 final String stdErr = FileUtils.copyToString(new InputStreamReader(process.getErrorStream(),
                     StandardCharsets.UTF_8)).strip();

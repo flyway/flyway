@@ -1,8 +1,8 @@
 ---
-subtitle: Azure Synapse
+subtitle: Fabric Database (Azure SQL Database)
 ---
-- **Dedicated pools only**
-- **Verified Versions:** Latest
+
+- **Verified Versions:** 12.0.2000.8
 - **Maintainer:** {% include redgate-badge.html %}
 
 ## Supported Versions and Support Levels
@@ -14,7 +14,7 @@ subtitle: Azure Synapse
 | Item                               | Details                                                                                                                              |
 |------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|
 | **URL format**                     | <code>jdbc:sqlserver://<i>host</i>:<i>port</i>;databaseName=<i>database</i></code>                                                   |
-| **SSL support**                    | [Yes](https://docs.microsoft.com/en-us/sql/connect/jdbc/connecting-with-ssl-encryption?view=sql-server-ver15) \- add `;encrypt=true` |
+| **SSL support**                    | [Yes](https://docs.microsoft.com/en-us/sql/connect/jdbc/connecting-with-ssl-encryption?view=fabric) \- add `;encrypt=true` |
 | **Ships with Flyway Command-line** | Yes                                                                                                                                  |
 | **Maven Central coordinates**      | `com.microsoft.sqlserver:mssql-jdbc`                                                                                                 |
 | **Supported versions**             | `12.0` and later                                                                                                                      |
@@ -22,7 +22,10 @@ subtitle: Azure Synapse
 
 Connectivity is through Flyway's existing SQL Server component so you can refer the [SQL Server page](<Database Driver Reference/SQL Server Database>) for further details on how to connect and communicate with the database.
 
-## Azure Synapse Specific issues
-- The JTDS driver does not support Azure Synapse
-- Flyway only supports the use of dedicated pools.
-  - If you get this error: `Unknown SQL Server engine edition: 11` then Synapse is reporting that it is a serverless pool.
+## Fabric-Specific issues
+### Foundational capabilities only
+Only foundation-level capabilities (migrations) are supported. Advanced capabilities like generation of SQL, state-based workflows or drift detection will not currently work
+### Fabric Data Warehouse
+It should be noted that this is **only** compatibility to Fabric Database instances. If you attempt to connect to Fabric Data Warehouse it will fail.
+
+

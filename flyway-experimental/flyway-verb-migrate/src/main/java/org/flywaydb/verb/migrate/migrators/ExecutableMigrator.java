@@ -102,7 +102,8 @@ public class ExecutableMigrator extends Migrator {
         final boolean outOfOrder = migrationInfo.getState() == MigrationState.OUT_OF_ORDER
             && configuration.isOutOfOrder();
         final String migrationText = toMigrationText(migrationInfo, false, experimentalDatabase, outOfOrder);
-        final Executor<NonJdbcExecutorExecutionUnit> executor = ExecutorFactory.getExecutor(experimentalDatabase, configuration);
+        final Executor<NonJdbcExecutorExecutionUnit> executor = ExecutorFactory.getExecutor(experimentalDatabase,
+            configuration);
         final Reader<String> reader = ReaderFactory.getReader(experimentalDatabase, configuration);
 
         try {
@@ -126,11 +127,12 @@ public class ExecutableMigrator extends Migrator {
                 }
 
                 if (migrationInfo instanceof final LoadableMigrationInfo loadableMigrationInfo) {
-                    final NonJdbcExecutorExecutionUnit nonJdbcExecutorExecutionUnit = new NonJdbcExecutorExecutionUnit(reader.read(configuration,
-                        experimentalDatabase,
-                        parsingContext,
-                        loadableMigrationInfo.getLoadableResource(),
-                        null).findFirst().get(),
+                    final NonJdbcExecutorExecutionUnit nonJdbcExecutorExecutionUnit = new NonJdbcExecutorExecutionUnit(
+                        reader.read(configuration,
+                            experimentalDatabase,
+                            parsingContext,
+                            loadableMigrationInfo.getLoadableResource(),
+                            null).findFirst().get(),
                         getParentDir(loadableMigrationInfo.getLoadableResource().getAbsolutePath()));
                     executor.execute(experimentalDatabase, nonJdbcExecutorExecutionUnit, configuration);
                     executor.finishExecution(experimentalDatabase, configuration);
@@ -154,7 +156,8 @@ public class ExecutableMigrator extends Migrator {
                 configuration.isOutOfOrder(),
                 installedRank,
                 experimentalDatabase.getInstalledBy(configuration),
-                totalTimeMillis);
+                totalTimeMillis,
+                configuration.getCurrentEnvironmentName());
         }
 
         watch.stop();
@@ -184,7 +187,8 @@ public class ExecutableMigrator extends Migrator {
         final boolean outOfOrder,
         final int installedRank,
         final String installedBy,
-        final int totalTimeMillis) {
+        final int totalTimeMillis,
+        final String environment) {
         final String migrationText = toMigrationText(migrationInfo, false, experimentalDatabase, outOfOrder);
         final String failedMsg;
         if (!migrationInfo.getType().isUndo()) {
@@ -206,12 +210,18 @@ public class ExecutableMigrator extends Migrator {
             false);
 
         final String message = experimentalDatabase.redactUrl(e.getMessage());
-        throw new FlywayMigrateException(migrationInfo, calculateErrorMessage(message, migrationInfo), true, migrateResult);
+        throw new FlywayMigrateException(migrationInfo,
+            calculateErrorMessage(message, migrationInfo, environment),
+            true,
+            migrateResult);
     }
 
-    private String calculateErrorMessage(final String message, final MigrationInfo migrationInfo) {
+    private String calculateErrorMessage(final String message,
+        final MigrationInfo migrationInfo,
+        final String environment) {
 
-        final String title = "Script " + Paths.get(migrationInfo.getScript()).getFileName() + " failed";
+        final String title = ErrorUtils.getScriptExecutionErrorMessageTitle(Paths.get(migrationInfo.getScript())
+            .getFileName(), environment);
 
         LoadableResource loadableResource = null;
         if (migrationInfo instanceof final LoadableMigrationInfo loadableMigrationInfo) {

@@ -21,6 +21,8 @@ package org.flywaydb.nc.callbacks;
 
 import static org.flywaydb.core.internal.util.FileUtils.getParentDir;
 import static org.flywaydb.nc.utils.ErrorUtils.calculateErrorMessage;
+
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
@@ -34,6 +36,7 @@ import org.flywaydb.core.api.resource.LoadableResourceMetadata;
 import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.internal.parser.ParsingContext;
+import org.flywaydb.nc.utils.ErrorUtils;
 import org.flywaydb.nc.utils.VerbUtils;
 import org.flywaydb.nc.executors.NonJdbcExecutorExecutionUnit;
 import org.flywaydb.nc.executors.Executor;
@@ -79,7 +82,9 @@ public class NativeConnectorsCallbackHandler implements CallbackHandler {
                 if (executor instanceof JdbcExecutor) {
                     executionUnitObj = executionUnit;
                 } else {
-                    final String parentDir = getParentDir(callback.getLoadableResourceMetadata().loadableResource().getAbsolutePath());
+                    final String parentDir = getParentDir(callback.getLoadableResourceMetadata()
+                        .loadableResource()
+                        .getAbsolutePath());
                     executionUnitObj = new NonJdbcExecutorExecutionUnit((String) executionUnit, parentDir);
                 }
 
@@ -88,9 +93,9 @@ public class NativeConnectorsCallbackHandler implements CallbackHandler {
                 } catch (Exception e) {
                     final String title = "Error while executing "
                         + callback.getEvent().getId()
-                        + " callback: Script "
-                        + callback.getFileName()
-                        + " failed";
+                        + " callback: "
+                        + ErrorUtils.getScriptExecutionErrorMessageTitle(Paths.get(callback.getFileName())
+                        .getFileName(), configuration.getCurrentEnvironmentName());
                     final String errorMessage = calculateErrorMessage(title,
                         callback.getLoadableResourceMetadata().loadableResource(),
                         callback.getPhysicalLocation(),

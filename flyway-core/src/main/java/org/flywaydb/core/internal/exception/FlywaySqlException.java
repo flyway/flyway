@@ -41,6 +41,7 @@ import org.flywaydb.core.internal.util.StringUtils;
 public class FlywaySqlException extends FlywayException {
     private final String sqlState;
     private final int sqlErrorCode;
+    private final Throwable innerCause;
 
     @SuppressWarnings("ClassReferencesSubclass")
     private static List<Class<? extends FlywaySqlException>> getSpecificFlywaySqlExceptionClasses() {
@@ -53,6 +54,7 @@ public class FlywaySqlException extends FlywayException {
         super(message, sqlException, CoreErrorCode.DB_CONNECTION);
         sqlState = sqlException.getSQLState();
         sqlErrorCode = sqlException.getErrorCode();
+        innerCause = sqlException.getCause();
     }
 
     @Override

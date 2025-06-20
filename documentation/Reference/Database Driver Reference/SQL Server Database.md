@@ -17,7 +17,7 @@ subtitle: SQL Server
 | **SSL support**                    | [Yes](https://docs.microsoft.com/en-us/sql/connect/jdbc/connecting-with-ssl-encryption?view=sql-server-ver15) \- add `;encrypt=true` |
 | **Ships with Flyway Command-line** | Yes                                                                                                                                  |
 | **Maven Central coordinates**      | `com.microsoft.sqlserver:mssql-jdbc`                                                                                                 |
-| **Supported versions**             | `4.0` and later                                                                                                                      |
+| **Supported versions**             | `10.0` and later                                                                                                                      |
 | **Default Java class**             | `com.microsoft.sqlserver.jdbc.SQLServerDriver`                                                                                       |
 
 ## Configuration
@@ -211,10 +211,11 @@ To use the various authentication types, amend your JDBC URL to set the `authent
 Another way to authenticate using Azure Active Directory is through access tokens. As of the time of writing, the access token property on Microsoft's JDBC driver can't be
 supplied through the URL. Therefore you should use Flyway's `jdbcProperties` configuration property.
 
-E.g, in a `flyway.conf` file:
+E.g, in a `flyway.toml` file:
 
 ```
-flyway.jdbcProperties.accessToken=my-access-token
+[environments.default]
+jdbcProperties.accessToken="my-access-token"
 ```
 
 This is equivalent to

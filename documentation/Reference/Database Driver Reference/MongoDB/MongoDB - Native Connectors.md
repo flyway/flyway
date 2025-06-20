@@ -25,6 +25,7 @@ We have to map Flyway concepts and language rooted in the relational database wo
 - If you are using javascript migrations then you'll need [`mongosh`](https://www.mongodb.com/docs/mongodb-shell/install/) to be installed. If you are not using the default database, you will need to include the database name and auth source in your url.
 - Any configuration you require needs to go into the connection string (Flyway's URL parameter) - see [Mongo Connection String Options](https://www.mongodb.com/docs/manual/reference/connection-string-options/). This is to enable the same configuration to be applied whether Flyway is talking to the database through the API or via Mongosh.
 - There is a [tutorial available here](/tutorials/tutorial---using-native-connectors-to-connect-to-mongodb).
+- To use Native Connectors with our official Docker image, you will need to use either the `redgate/flyway:{{site.flywayVersion}}-mongo`, `-alpine-mongo` or `-azure-mongo` images.
 
 ## Limitations
 

@@ -19,19 +19,28 @@
  */
 package org.flywaydb.database.mongodb;
 
+import lombok.CustomLog;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
 
 import java.sql.SQLException;
 
-import static org.flywaydb.core.internal.logging.PreviewFeatureWarning.LEGACY_MONGODB;
-import static org.flywaydb.core.internal.logging.PreviewFeatureWarning.logPreviewFeature;
+import static org.flywaydb.core.internal.util.FlywayDbWebsiteLinks.NATIVE_CONNECTORS_MONGODB;
 
+@CustomLog
 public class MongoDBConnection extends Connection<MongoDBDatabase> {
+    private static boolean logged = false;
+
     protected MongoDBConnection(MongoDBDatabase database, java.sql.Connection connection) {
         super(database, connection);
         this.jdbcTemplate = new MongoDBJdbcTemplate(connection, database.getDatabaseType());
-        logPreviewFeature(LEGACY_MONGODB);
+        if (!logged) {
+            LOG.warn("Legacy MongoDB database compatibility is now deprecated. "
+                + "To continue using MongoDB, please use Native Connectors for MongoDB instead: "
+                + NATIVE_CONNECTORS_MONGODB
+                + ". Native Connectors uses Mongosh for better performance and support");
+            logged = true;
+        }
     }
 
     @Override

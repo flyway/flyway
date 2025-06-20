@@ -148,7 +148,8 @@ public class ApiMigrator extends Migrator {
             executeInTransaction,
             experimentalDatabase,
             outOfOrder);
-        final Executor<NonJdbcExecutorExecutionUnit> executor = ExecutorFactory.getExecutor(experimentalDatabase, configuration);
+        final Executor<NonJdbcExecutorExecutionUnit> executor = ExecutorFactory.getExecutor(experimentalDatabase,
+            configuration);
         final Reader<String> reader = ReaderFactory.getReader(experimentalDatabase, configuration);
 
         try {
@@ -172,11 +173,12 @@ public class ApiMigrator extends Migrator {
                 }
 
                 if (migrationInfo instanceof final LoadableMigrationInfo loadableMigrationInfo) {
-                    final NonJdbcExecutorExecutionUnit nonJdbcExecutorExecutionUnit = new NonJdbcExecutorExecutionUnit(reader.read(configuration,
-                        experimentalDatabase,
-                        parsingContext,
-                        loadableMigrationInfo.getLoadableResource(),
-                        null).findFirst().get(),
+                    final NonJdbcExecutorExecutionUnit nonJdbcExecutorExecutionUnit = new NonJdbcExecutorExecutionUnit(
+                        reader.read(configuration,
+                            experimentalDatabase,
+                            parsingContext,
+                            loadableMigrationInfo.getLoadableResource(),
+                            null).findFirst().get(),
                         getParentDir(loadableMigrationInfo.getLoadableResource().getAbsolutePath()));
                     executor.execute(experimentalDatabase, nonJdbcExecutorExecutionUnit, configuration);
                     executor.finishExecution(experimentalDatabase, configuration);
@@ -201,7 +203,8 @@ public class ApiMigrator extends Migrator {
                 installedRank,
                 experimentalDatabase.getInstalledBy(configuration),
                 executeInTransaction,
-                totalTimeMillis);
+                totalTimeMillis,
+                configuration.getCurrentEnvironmentName());
         }
 
         watch.stop();
@@ -232,7 +235,8 @@ public class ApiMigrator extends Migrator {
         final int installedRank,
         final String installedBy,
         final boolean executeInTransaction,
-        final int totalTimeMillis) {
+        final int totalTimeMillis,
+        final String environment) {
         final String migrationText = toMigrationText(migrationInfo,
             executeInTransaction,
             experimentalDatabase,
@@ -262,14 +266,17 @@ public class ApiMigrator extends Migrator {
         }
 
         throw new FlywayMigrateException(migrationInfo,
-            calculateErrorMessage(e.getMessage(), migrationInfo),
+            calculateErrorMessage(e.getMessage(), migrationInfo, environment),
             executeInTransaction,
             migrateResult);
     }
 
-    private String calculateErrorMessage(final String message, final MigrationInfo migrationInfo) {
+    private String calculateErrorMessage(final String message,
+        final MigrationInfo migrationInfo,
+        final String environment) {
 
-        final String title = "Script " + Paths.get(migrationInfo.getScript()).getFileName() + " failed";
+        final String title = ErrorUtils.getScriptExecutionErrorMessageTitle(Paths.get(migrationInfo.getScript())
+            .getFileName(), environment);
 
         LoadableResource loadableResource = null;
         if (migrationInfo instanceof final LoadableMigrationInfo loadableMigrationInfo) {

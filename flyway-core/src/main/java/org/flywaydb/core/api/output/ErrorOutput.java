@@ -83,8 +83,8 @@ public class ErrorOutput implements OperationResult {
             && flywayMigrateException.getAbsolutePathOnDisk() != null) {
 
             return new ErrorOutput(flywayMigrateException.getMigrationErrorCode(),
-                null,
-                null,
+                flywayMigrateException.getSqlState(),
+                flywayMigrateException.getSqlErrorCode(),
                 message == null ? "Error occurred" : message,
                 null,
                 flywayMigrateException.getLineNumber(),

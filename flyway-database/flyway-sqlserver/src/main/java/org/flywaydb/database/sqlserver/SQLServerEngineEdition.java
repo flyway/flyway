@@ -39,6 +39,7 @@ public enum SQLServerEngineEdition {
     SQL_DATA_WAREHOUSE(6),
     MANAGED_INSTANCE(8),
     AZURE_SQL_EDGE(9),
+    SYNAPSE_SERVERLESS_POOLS(11),
     FABRIC(12);
 
     @Getter
@@ -47,8 +48,8 @@ public enum SQLServerEngineEdition {
     public static SQLServerEngineEdition fromCode(int code) {
         for (SQLServerEngineEdition edition : values()) {
             if (edition.code == code) {
-                if (edition == FABRIC) {
-                    throw new FlywayException("Fabric is not currently supported in Flyway");
+                if (edition == SYNAPSE_SERVERLESS_POOLS) {
+                    throw new FlywayException("Synapse serverless SQL pool is not currently supported in Flyway");
                 }
                 return edition;
             }

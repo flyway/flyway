@@ -19,7 +19,7 @@
  */
 package org.flywaydb.core.internal.proprietaryStubs;
 
-import lombok.CustomLog;
+import java.util.List;
 import lombok.SneakyThrows;
 import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.TelemetrySpan;
@@ -29,36 +29,26 @@ import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.internal.license.FlywayRedgateEditionRequiredException;
-import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
-import java.util.Arrays;
-import java.util.List;
-
-@CustomLog
-public class CommandExtensionStub implements CommandExtension {
-    public static final List<String> COMMANDS = Arrays.asList("check", "undo");
+public class UndoCommandExtensionStub implements CommandExtension {
+    public static final String COMMAND = "undo";
 
     @Override
-    public boolean handlesCommand(String command) {
-        return COMMANDS.contains(command);
+    public boolean handlesCommand(final String command) {
+        return COMMAND.equals(command);
     }
 
     @Override
-    public boolean handlesParameter(String parameter) {
+    public boolean handlesParameter(final String parameter) {
         return false;
     }
 
     @SneakyThrows
     @Override
-    public OperationResult handle(String command, Configuration config, List<String> flags, FlywayTelemetryManager flywayTelemetryManager) throws FlywayException {
-        return TelemetrySpan.trackSpan(new EventTelemetryModel(command, flywayTelemetryManager), (telemetryModel) -> {
-            throw new FlywayRedgateEditionRequiredException(command);
+    public OperationResult handle(final String command, final Configuration config, final List<String> flags, final FlywayTelemetryManager flywayTelemetryManager) throws FlywayException {
+        return TelemetrySpan.trackSpan(new EventTelemetryModel(COMMAND, flywayTelemetryManager), (telemetryModel) -> {
+            throw new FlywayRedgateEditionRequiredException(COMMAND);
         });
-    }
-
-    @Override
-    public String getDescription() {
-        return "Produces reports to increase confidence in your migrations";
     }
 
     @Override

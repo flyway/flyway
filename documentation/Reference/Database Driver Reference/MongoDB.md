@@ -15,9 +15,9 @@ subtitle: MongoDB
 
 ## Native Connectors
 
-If you are on the OSS edition, you will have Native Connectors on by default. Otherwise, you may have switched it on.
-
-If you have, you should consult the [MongoDB - Native Connectors](<Database Driver Reference/MongoDB/MongoDB - Native Connectors>) documentation instead of this page.
+MongoDB using JDBC is now deprecated and will be removed in a future release. 
+Please use [MongoDB - Native Connectors](<Database Driver Reference/MongoDB/MongoDB - Native Connectors>) instead. 
+Native Connectors uses `Mongosh` for better performance.
 
 ## Driver
 
