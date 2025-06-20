@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>11.9.1</version>
+    <version>11.9.2</version>
   </parent>
 
   <artifactId>flyway-nc</artifactId>

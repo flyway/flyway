@@ -43,7 +43,7 @@ This can be configured using one of the following parameters:
 
 ## Limitations
 
-- You can't currently do a [Dry-run](https://documentation.red-gate.com/flyway/flyway-concepts/migrations/migration-comand-dry-runs) on operations with Cassandra.
+- You can't currently do a [Dry-run](https://documentation.red-gate.com/flyway/flyway-concepts/migrations/migration-command-dry-runs) on operations with Cassandra.
 
 ### Additional information
 

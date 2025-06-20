@@ -253,7 +253,8 @@ public class JdbcMigrator extends Migrator {
                 installedRank,
                 experimentalDatabase.getInstalledBy(configuration),
                 executeInTransaction,
-                totalTimeMillis);
+                totalTimeMillis,
+                configuration.getCurrentEnvironmentName());
         }
 
         watch.stop();
@@ -331,7 +332,8 @@ public class JdbcMigrator extends Migrator {
         final int installedRank,
         final String installedBy,
         final boolean executeInTransaction,
-        final int totalTimeMillis) {
+        final int totalTimeMillis,
+        final String environment) {
 
         final String migrationText = toMigrationText(migrationInfo,
             executeInTransaction,
@@ -364,7 +366,7 @@ public class JdbcMigrator extends Migrator {
         if (sqlStatement == null) {
             throw new FlywayMigrateException(migrationInfo, e.getMessage(), executeInTransaction, migrateResult);
         } else {
-            final String message = calculateErrorMessage(e, migrationInfo, executor, sqlStatement);
+            final String message = calculateErrorMessage(e, migrationInfo, executor, sqlStatement, environment);
             throw new FlywayMigrateException(migrationInfo,
                 outOfOrder,
                 message,
@@ -378,9 +380,10 @@ public class JdbcMigrator extends Migrator {
     private String calculateErrorMessage(final Exception e,
         final MigrationInfo migrationInfo,
         final Executor<SqlStatement> executor,
-        final SqlStatement sqlStatement) {
+        final SqlStatement sqlStatement,
+        final String environment) {
 
-        final String title = "Script " + Paths.get(migrationInfo.getScript()).getFileName() + " failed";
+        final String title = ErrorUtils.getScriptExecutionErrorMessageTitle(Paths.get(migrationInfo.getScript()).getFileName(), environment);
 
         String message = null;
         if (e.getCause() instanceof final SQLException sqlException) {

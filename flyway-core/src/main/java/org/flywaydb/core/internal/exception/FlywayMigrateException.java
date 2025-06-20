@@ -37,8 +37,10 @@ public class FlywayMigrateException extends FlywayException {
     private final boolean executableInTransaction;
     private final boolean outOfOrder;
     private final MigrateErrorResult errorResult;
-    private int lineNumber;
-    private String absolutePathOnDisk;
+    private final int lineNumber;
+    private final String absolutePathOnDisk;
+    private final String sqlState;
+    private final int sqlErrorCode;
 
     public ErrorCode getMigrationErrorCode() {
         if (migration.getVersion() != null) {
@@ -62,7 +64,9 @@ public class FlywayMigrateException extends FlywayException {
         this.executableInTransaction = canExecuteInTransaction;
         this.errorResult = new MigrateErrorResult(partialResult, this);
         this.lineNumber = -1;
-        this.absolutePathOnDisk = null;
+        this.absolutePathOnDisk = migration.getScript();
+        this.sqlState = e.getSQLState();
+        this.sqlErrorCode = e.getErrorCode();
     }
 
     public FlywayMigrateException(final MigrationInfo migration,
@@ -75,7 +79,9 @@ public class FlywayMigrateException extends FlywayException {
         this.executableInTransaction = canExecuteInTransaction;
         this.errorResult = new MigrateErrorResult(partialResult, this);
         this.lineNumber = -1;
-        this.absolutePathOnDisk = null;
+        this.absolutePathOnDisk = migration.getScript();
+        this.sqlState = null;
+        this.sqlErrorCode = 0;
     }
 
     public FlywayMigrateException(final MigrationInfo migration,
@@ -84,7 +90,17 @@ public class FlywayMigrateException extends FlywayException {
         final boolean canExecuteInTransaction,
         final MigrateResult partialResult) {
         super(e.getMessage(), e);
-        setSqlDetails(e);
+        if (e instanceof final FlywaySqlScriptException flywaySqlScriptException) {
+            this.lineNumber = flywaySqlScriptException.getLineNumber();
+            this.absolutePathOnDisk = flywaySqlScriptException.getResource().getAbsolutePathOnDisk();
+            this.sqlState = flywaySqlScriptException.getSqlState();
+            this.sqlErrorCode = flywaySqlScriptException.getSqlErrorCode();
+        } else {
+            this.lineNumber = -1;
+            this.absolutePathOnDisk = migration.getScript();
+            this.sqlState = null;
+            this.sqlErrorCode = 0;
+        }
         this.migration = migration;
         this.outOfOrder = outOfOrder;
         this.executableInTransaction = canExecuteInTransaction;
@@ -99,25 +115,19 @@ public class FlywayMigrateException extends FlywayException {
         final MigrateResult partialResult,
         final SqlStatement sqlStatement) {
         super(message, e.getCause());
-        setSqlDetails(migration, sqlStatement);
+        this.lineNumber = sqlStatement.getLineNumber();
+        this.absolutePathOnDisk = migration.getScript();
         this.migration = migration;
         this.outOfOrder = outOfOrder;
         this.executableInTransaction = canExecuteInTransaction;
         this.errorResult = new MigrateErrorResult(partialResult, this);
-    }
 
-    private void setSqlDetails(final MigrationInfo migration, final SqlStatement sqlStatement) {
-        this.lineNumber = sqlStatement.getLineNumber();
-        this.absolutePathOnDisk = migration.getScript();
-    }
-
-    private void setSqlDetails(final FlywayException e) {
         if (e instanceof final FlywaySqlScriptException flywaySqlScriptException) {
-            this.lineNumber = flywaySqlScriptException.getLineNumber();
-            this.absolutePathOnDisk = flywaySqlScriptException.getResource().getAbsolutePathOnDisk();
+            this.sqlState = flywaySqlScriptException.getSqlState();
+            this.sqlErrorCode = flywaySqlScriptException.getSqlErrorCode();
         } else {
-            this.lineNumber = -1;
-            this.absolutePathOnDisk = null;
+            this.sqlState = null;
+            this.sqlErrorCode = 0;
         }
     }
 }

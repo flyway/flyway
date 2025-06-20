@@ -13,13 +13,13 @@ All editions are supported, including XE.
 
 ## Driver
 
-| Item                               | Details                                                                    |
-| ---------------------------------- | -------------------------------------------------------------------------- |
-| **URL format**                     | `jdbc:oracle:thin:@//host:port/service` <br> `jdbc:oracle:thin:@tns_entry` |
-| **Ships with Flyway Command-line** | Yes                                                                        |
-| **Maven Central coordinates**      | `com.oracle.database.jdbc:ojdbc11`                                         |
-| **Supported versions**             | `21.1.0.0` and later                                                       |
-| **Default Java class**             | `oracle.jdbc.OracleDriver`                                                 |
+| Item                               | Details                                                                      |
+| ---------------------------------- | ---------------------------------------------------------------------------- |
+| **URL format**                     | `jdbc:oracle:thin:@//host:port/service` <br> `jdbc:oracle:thin:@tns_entry` * |
+| **Ships with Flyway Command-line** | Yes                                                                          |
+| **Maven Central coordinates**      | `com.oracle.database.jdbc:ojdbc11`                                           |
+| **Supported versions**             | Oracle Database versions - 21c, 19c, 18c, and 12.2                           |
+| **Default Java class**             | `oracle.jdbc.OracleDriver`                                                   |
 
 \* `TNS_ADMIN` environment variable must point to the directory of where `tnsnames.ora` resides
 
@@ -201,7 +201,7 @@ Statements which contain a `&VAR`-style expression which is not intended to be s
 literal string, will either require `SET DEFINE OFF` beforehand, or some alternative construct to avoid use of
 the ampersand.
 
-For more information, see the [SQL\*Plus documentation](https://blogs.oracle.com/opal/post/sql*plus-substitution-variables-define-variables-and-parameters-in-sql-queries#2).
+For more information, see the [SQL\*Plus documentation](https://docs.oracle.com/en/database/oracle/oracle-database/21/sqpug/using-substitution-variables-sqlplus.html).
 
 ## Authentication
 

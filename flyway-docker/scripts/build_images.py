@@ -42,6 +42,7 @@ if __name__ == "__main__":
 
     if linux_only:
         commands.append(get_build_command(edition, version, "", "."))
+        commands.append(get_build_command(edition, version, "", ".", True))
     else:
         if edition == "flyway":  # We only do multi-arch builds for OSS due to compatibility issues with Redgate Compare
             subprocess.run("docker buildx rm multi_arch_builder", shell=True)

@@ -253,7 +253,7 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
 
-                throw new FlywaySqlScriptException(sqlScript.getResource(), sqlStatement, results.getException());
+                throw new FlywaySqlScriptException(sqlScript.getResource(), sqlStatement, results.getException(), config.getCurrentEnvironmentName());
 
 
 

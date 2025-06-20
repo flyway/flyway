@@ -20,9 +20,7 @@
 package org.flywaydb.core.internal.logging;
 
 import static org.flywaydb.core.internal.util.FlywayDbWebsiteLinks.FEEDBACK_SURVEY_LINK;
-import static org.flywaydb.core.internal.util.FlywayDbWebsiteLinks.NATIVE_CONNECTORS_MONGODB;
 
-import java.util.Objects;
 import lombok.CustomLog;
 
 import java.util.ArrayList;
@@ -33,7 +31,6 @@ public class PreviewFeatureWarning {
     private static final List<String> LOGGED_FEATURES = new ArrayList<>();
     
     public static final String NATIVE_CONNECTORS = "Native Connectors";
-    public static final String LEGACY_MONGODB = "MongoDB support";
     public static boolean isPreviewFeatureEnabled(String featureName, String environmentVariable, boolean showHowToEnable) {
         if (System.getenv(environmentVariable) != null) {
             logPreviewFeature(featureName);
@@ -50,19 +47,11 @@ public class PreviewFeatureWarning {
         if (LOGGED_FEATURES.contains(featureName)) {
             return;
         }
+        String link = featureName.equals(NATIVE_CONNECTORS) ? FEEDBACK_SURVEY_LINK : "DatabaseDevOps@red-gate.com";
         
         LOG.info("-----------------------------------------------------------------------------");
         LOG.info("You are using a preview feature '" + featureName + "'.");
-        
-        if (Objects.equals(featureName, LEGACY_MONGODB)) {
-            LOG.info("You are not using Native Connectors - the future of MongoDB support in Flyway.");
-            LOG.info("You can enable this with the environment variable FLYWAY_NATIVE_CONNECTORS=true");
-            LOG.info("Find out more here " + NATIVE_CONNECTORS_MONGODB);
-            LOG.info("Please report any issues you encounter to " + FEEDBACK_SURVEY_LINK);
-        } else {
-            LOG.info("Please report any issues you encounter to DatabaseDevOps@red-gate.com");
-        }
-        
+        LOG.info("Please report any issues you encounter to " + link);
         LOG.info("-----------------------------------------------------------------------------");
 
         LOGGED_FEATURES.add(featureName);
