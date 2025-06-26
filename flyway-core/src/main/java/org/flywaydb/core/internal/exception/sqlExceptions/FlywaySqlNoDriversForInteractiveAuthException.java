@@ -28,11 +28,13 @@ import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 public class FlywaySqlNoDriversForInteractiveAuthException extends FlywaySqlException {
     public FlywaySqlNoDriversForInteractiveAuthException(final SQLException sqlException, final DataSource dataSource) {
         super("Unable to obtain connection from database: "
-            + getDataSourceInfo(dataSource, false)
-            + sqlException.getMessage()
-            + "\nYou need to install some extra drivers in order for interactive authentication to work."
-            + "\nFor instructions, see "
-            + FlywayDbWebsiteLinks.AZURE_ACTIVE_DIRECTORY, sqlException);
+                + getDataSourceInfo(dataSource, false)
+                + sqlException.getMessage()
+                + "\nYou need to install some extra drivers in order for interactive authentication to work."
+                + "\nFor instructions, see "
+                + FlywayDbWebsiteLinks.AZURE_ACTIVE_DIRECTORY,
+            sqlException,
+            FlywaySqlServerErrorCode.INTERACTIVE_AUTH_DRIVERS_MISSING);
     }
 
     @SuppressWarnings("unused")

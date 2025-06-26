@@ -17,18 +17,21 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.core.internal.exception.sqlExceptions;
+package org.flywaydb.core.experimental;
 
-import java.sql.SQLException;
-import javax.sql.DataSource;
-import org.flywaydb.core.internal.exception.FlywaySqlException;
+import java.util.stream.Stream;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.resource.LoadableResource;
+import org.flywaydb.core.extensibility.Plugin;
+import org.flywaydb.core.internal.parser.ParsingContext;
+import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
 
-@SuppressWarnings("ClassTooDeepInInheritanceTree")
-public class FlywaySqlUnableToConnectToDbException extends FlywaySqlException {
-    public FlywaySqlUnableToConnectToDbException(final SQLException sqlException, final DataSource dataSource) {
-        super("Unable to obtain connection from database"
-            + getDataSourceInfo(dataSource, false)
-            + ": "
-            + sqlException.getMessage(), sqlException, FlywaySqlServerErrorCode.CONNECTION_FAILURE);
-    }
+public interface Reader<T> extends Plugin {
+    Stream<T> read(final Configuration configuration,
+        final ExperimentalDatabase database,
+        final ParsingContext parsingContext,
+        final LoadableResource loadableResource,
+        final SqlScriptMetadata metadata);
+
+    boolean canRead(ConnectionType connectionType);
 }

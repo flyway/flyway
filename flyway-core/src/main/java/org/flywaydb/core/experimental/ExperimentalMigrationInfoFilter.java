@@ -1,6 +1,6 @@
 /*-
  * ========================LICENSE_START=================================
- * flyway-nc-core
+ * flyway-core
  * ========================================================================
  * Copyright (C) 2010 - 2025 Red Gate Software Ltd
  * ========================================================================
@@ -17,19 +17,13 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.nc.migration;
+package org.flywaydb.core.experimental;
 
-import java.util.Collection;
-import org.flywaydb.core.api.MigrationState;
+import java.util.function.Predicate;
+import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.resource.LoadableResourceMetadata;
-import org.flywaydb.core.experimental.schemahistory.ResolvedSchemaHistoryItem;
 import org.flywaydb.core.extensibility.Plugin;
-import org.flywaydb.core.internal.util.Pair;
 
-public interface ExperimentalMigrationStateCalculator extends Plugin  {
-    MigrationState calculateState(
-        final Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata> migration,
-        final Collection<? extends Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> allMigrations,
-        final Configuration configuration);    
+public interface ExperimentalMigrationInfoFilter extends Plugin {
+    Predicate<MigrationInfo> getFilter(Configuration configuration);
 }

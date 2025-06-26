@@ -21,6 +21,7 @@ package org.flywaydb.nc.executors;
 
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.experimental.ConnectionType;
+import org.flywaydb.core.experimental.Executor;
 import org.flywaydb.core.experimental.ExperimentalDatabase;
 
 public class NonJdbcExecutor implements Executor<NonJdbcExecutorExecutionUnit> {

@@ -32,7 +32,7 @@ public class FlywaySqlServerUntrustedCertificateSqlException extends FlywaySqlEx
         super("Unable to obtain connection from database: "
             + getDataSourceInfo(dataSource, true)
             + "\nThe server certificate is not trusted. You can proceed to connect to this database by setting the \"trustServerCertificate\" flag to true, but this may be dangerous. This is not recommended as it may expose your data to security risks, including potential interception by malicious entities. Make sure you understand the risk.\n"
-            + sqlException.getMessage(), sqlException);
+            + sqlException.getMessage(), sqlException, FlywaySqlServerErrorCode.UNTRUSTED_CERTIFICATE);
     }
 
     @SuppressWarnings("unused")

@@ -1,6 +1,6 @@
 /*-
  * ========================LICENSE_START=================================
- * flyway-nc-core
+ * flyway-core
  * ========================================================================
  * Copyright (C) 2010 - 2025 Red Gate Software Ltd
  * ========================================================================
@@ -17,21 +17,11 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.nc.executors;
+package org.flywaydb.core.internal.exception.sqlExceptions;
 
-import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.experimental.ConnectionType;
-import org.flywaydb.core.experimental.ExperimentalDatabase;
-import org.flywaydb.core.extensibility.Plugin;
-
-public interface Executor<T> extends Plugin {
-
-    void execute(ExperimentalDatabase experimentalDatabase, T executionUnit, Configuration configuration);
-
-    boolean canExecute(ConnectionType connectionType);
-
-    void appendErrorMessage(T executionUnit, StringBuilder messageBuilder, boolean isDebugEnabled);
-
-    void finishExecution(ExperimentalDatabase experimentalDatabase, Configuration configuration);
+public enum FlywaySqlServerErrorCode implements FlywaySqlErrorCode {
+    CONNECTION_FAILURE,
+    INTEGRATED_AUTH_NOT_SUPPORTED,
+    INTERACTIVE_AUTH_DRIVERS_MISSING,
+    UNTRUSTED_CERTIFICATE
 }
-

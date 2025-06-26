@@ -8,6 +8,80 @@
 </div>
 <div class="col-md-9">
   <div class="release">
+        <h2 id="11.10.0">Flyway 11.10.0 (2025-06-26)</h2>
+
+        <h3>Breaking changes</h3>
+        <ul>
+            <li>error output is now a record and supports custom payloads for different exception types</li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Backup provisioner will no longer attempt to create users that already exist</li>
+            <li>It is now possible to set `generate.autoInsertPlaceholders=true` to allow the `generate` verb to place placeholders into generated files</li>
+            <li>Flyway now supports specifying the code analysis scope for migrations</li>
+            <li>Flyway now supports configuring the SQL dialect for code analysis via a dedicated configuration parameter</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Native Connectors is now available via the API</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/4092">Issue 4092</a>
+                Gradle tasks now use lazy instantiation
+            </li>
+            <li>flyway prepare target parameter will now default to the value of the environment parameter if the source is schema model or migrations. This makes it more straightforward if the connection details are provided as parameters rather than as a toml environment, and makes the command neater if prepare and deploy are chained together.</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Deleted migrations and baseline markers are now ignored when running check -drift and check -changes</li>
+        </ul>
+
+        <h3>Library upgrades</h3>
+        <ul>
+            <li>Upgraded OJDBC 11 from 21.1.0.0 to 21.18.0.0</li>
+        </ul>
+
+        <p>
+            Thanks to mokamoto12 for reporting these issues.
+        </p>
+  </div>
+
+  <div class="release">
+        <h2 id="11.9.2">Flyway 11.9.2 (2025-06-19)</h2>
+
+        <h3>New features</h3>
+        <ul>
+            <li>The snapshot command now creates any missing parent directories for the provided snapshot file path</li>
+            <li>MongoDB Native Connectors now supports outputQueryResults for Javascript migrations</li>
+            <li>Flyway code analysis now reports analyzed files more accurately</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Deprecated MongoDB using legacy JDBC driver. Please make sure Mongosh is installed to use Native Connectors</li>
+            <li>improved error message information for script migration errors</li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>Fabric SQL Database support added for foundational capabilities</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fixed an issue where Flyway would throw an error during code analysis if no specific connection URL was provided</li>
+        </ul>
+
+        <h3>Library upgrades</h3>
+        <ul>
+            <li>Upgraded RgCompare.Cli from 1.33.6.583 to 1.34.8.647</li>
+        </ul>
+
+  </div>
+
+  <div class="release">
         <h2 id="11.9.1">Flyway 11.9.1 (2025-06-05)</h2>
 
         <h3>Bug fixes</h3>

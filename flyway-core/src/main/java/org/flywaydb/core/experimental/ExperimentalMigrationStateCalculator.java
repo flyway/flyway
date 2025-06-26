@@ -17,18 +17,19 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.core.internal.exception.sqlExceptions;
+package org.flywaydb.core.experimental;
 
-import java.sql.SQLException;
-import javax.sql.DataSource;
-import org.flywaydb.core.internal.exception.FlywaySqlException;
+import java.util.Collection;
+import org.flywaydb.core.api.MigrationState;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.resource.LoadableResourceMetadata;
+import org.flywaydb.core.experimental.schemahistory.ResolvedSchemaHistoryItem;
+import org.flywaydb.core.extensibility.Plugin;
+import org.flywaydb.core.internal.util.Pair;
 
-@SuppressWarnings("ClassTooDeepInInheritanceTree")
-public class FlywaySqlUnableToConnectToDbException extends FlywaySqlException {
-    public FlywaySqlUnableToConnectToDbException(final SQLException sqlException, final DataSource dataSource) {
-        super("Unable to obtain connection from database"
-            + getDataSourceInfo(dataSource, false)
-            + ": "
-            + sqlException.getMessage(), sqlException, FlywaySqlServerErrorCode.CONNECTION_FAILURE);
-    }
+public interface ExperimentalMigrationStateCalculator extends Plugin  {
+    MigrationState calculateState(
+        final Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata> migration,
+        final Collection<? extends Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> allMigrations,
+        final Configuration configuration);    
 }

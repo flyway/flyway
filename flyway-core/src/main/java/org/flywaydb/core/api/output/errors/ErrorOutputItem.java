@@ -1,6 +1,6 @@
 /*-
  * ========================LICENSE_START=================================
- * flyway-nc-core
+ * flyway-core
  * ========================================================================
  * Copyright (C) 2010 - 2025 Red Gate Software Ltd
  * ========================================================================
@@ -17,22 +17,14 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.nc.callbacks;
+package org.flywaydb.core.api.output.errors;
 
-import java.util.Collection;
-import org.flywaydb.core.api.callback.Event;
-import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.resource.LoadableResourceMetadata;
-import org.flywaydb.core.experimental.ExperimentalDatabase;
-import org.flywaydb.core.extensibility.Plugin;
-import org.flywaydb.core.internal.parser.ParsingContext;
+import org.flywaydb.core.api.ErrorCode;
 
-public interface CallbackHandler extends Plugin {
+public interface ErrorOutputItem {
+    ErrorCode errorCode();
 
-    void registerCallbacks(final Collection<LoadableResourceMetadata> resources);
+    String message();
 
-    void handleEvent(final Event event,
-        final ExperimentalDatabase database,
-        final Configuration configuration,
-        final ParsingContext parsingContext);
+    ErrorCause cause();
 }

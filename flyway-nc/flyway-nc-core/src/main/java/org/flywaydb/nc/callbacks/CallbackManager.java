@@ -25,6 +25,7 @@ import lombok.CustomLog;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResourceMetadata;
+import org.flywaydb.core.experimental.CallbackHandler;
 import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.internal.parser.ParsingContext;
 

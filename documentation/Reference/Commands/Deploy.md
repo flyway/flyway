@@ -33,7 +33,7 @@ flyway deploy \
 Note that it is also possible to chain these commands:
 
 ```
-flyway prepare deploy -source=schemaModel -target=production -environment=production
+flyway prepare -source=schemaModel deploy -environment=production
 ```
 
 ## Parameters
@@ -44,12 +44,12 @@ flyway prepare deploy -source=schemaModel -target=production -environment=produc
 |--------------------------------------------------------------------------------------------------------------------|-----------|------------------------------------------------------------------------------------------------------------------|
 | [`scriptFilename`](<Configuration/Flyway Namespace/Flyway Deploy Namespace/Flyway Deploy Script Filename Setting>) | deploy    | The path to the script that will be deployed.                                                                    |
 | [`batch`](<Configuration/Flyway Namespace/Flyway Batch Setting>)                                                   | (root)    | Whether to batch SQL statements when executing them.                                                             |
-| [`configFiles`](<Command-line Parameters/Config Files Parameter>)                                                   | (root)    | The location of the flyway configuration files.                                                                  |
+| [`configFiles`](<Command-line Parameters/Config Files Parameter>)                                                  | (root)    | The location of the flyway configuration files.                                                                  |
 | [`encoding`](<Configuration/Flyway Namespace/Flyway Encoding Setting>)                                             | (root)    | The encoding of the script to be deployed.                                                                       |
 | [`environment`](<Configuration/Flyway Namespace/Flyway Environment Setting>)                                       | (root)    | The name of the environment to deploy to.                                                                        |
 | [{environment parameters}](<Configuration/Environments Namespace>)                                                 | (root)    | Environment configuration for the target environment.                                                            |
 | [`executeInTransaction`](<Configuration/Flyway Namespace/Flyway Execute In Transaction Setting>)                   | (root)    | Whether to run the script within a transaction.                                                                  |
-| [`workingDirectory`](<Command-line Parameters/Working Directory Parameter>)                                         | (root)    | The directory to consider the current working directory. All relative paths will be considered relative to this. |
+| [`workingDirectory`](<Command-line Parameters/Working Directory Parameter>)                                        | (root)    | The directory to consider the current working directory. All relative paths will be considered relative to this. |
 
 Universal commandline parameters are listed [here](<Command-line Parameters>).
 

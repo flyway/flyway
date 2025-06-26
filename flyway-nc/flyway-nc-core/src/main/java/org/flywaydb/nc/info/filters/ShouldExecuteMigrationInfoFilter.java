@@ -22,7 +22,7 @@ package org.flywaydb.nc.info.filters;
 import java.util.function.Predicate;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.nc.migration.ExperimentalMigrationInfoFilter;
+import org.flywaydb.core.experimental.ExperimentalMigrationInfoFilter;
 
 public class ShouldExecuteMigrationInfoFilter implements ExperimentalMigrationInfoFilter {
 

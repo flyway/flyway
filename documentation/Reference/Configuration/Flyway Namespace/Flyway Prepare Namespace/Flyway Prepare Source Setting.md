@@ -13,8 +13,8 @@ String
 ### Valid values
 
 - `"<<env>>"` - uses the environment named \<\<env>>
-- `"schemaModel"` - the schema model folder referenced by [
-  `schemaModelLocation`](<Configuration/Flyway Namespace/Flyway Schema Model Location Setting>)
+- `"schemaModel"` - the schema model folder referenced by [`schemaModelLocation`](<Configuration/Flyway Namespace/Flyway Schema Model Location Setting>)
+- `migrations` - the migrations in [`locations`](<Configuration/Flyway Namespace/Flyway Locations Setting>)
 
 In the case where an environment shares a name with one of the other values, it can be prefixed with `env:`
 

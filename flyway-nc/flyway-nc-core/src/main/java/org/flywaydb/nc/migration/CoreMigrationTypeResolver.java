@@ -22,6 +22,7 @@ package org.flywaydb.nc.migration;
 import java.util.Arrays;
 import org.flywaydb.core.api.CoreMigrationType;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.experimental.MigrationTypeResolver;
 import org.flywaydb.core.extensibility.MigrationType;
 
 public class CoreMigrationTypeResolver implements MigrationTypeResolver {

@@ -1,6 +1,6 @@
 /*-
  * ========================LICENSE_START=================================
- * flyway-nc-core
+ * flyway-core
  * ========================================================================
  * Copyright (C) 2010 - 2025 Red Gate Software Ltd
  * ========================================================================
@@ -17,23 +17,21 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.nc.readers;
+package org.flywaydb.core.experimental;
 
-import java.util.stream.Stream;
+import java.util.Collection;
+import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.resource.LoadableResource;
-import org.flywaydb.core.experimental.ConnectionType;
-import org.flywaydb.core.experimental.ExperimentalDatabase;
+import org.flywaydb.core.api.resource.LoadableResourceMetadata;
 import org.flywaydb.core.extensibility.Plugin;
 import org.flywaydb.core.internal.parser.ParsingContext;
-import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
 
-public interface Reader<T> extends Plugin {
-    Stream<T> read(final Configuration configuration,
+public interface CallbackHandler extends Plugin {
+
+    void registerCallbacks(final Collection<LoadableResourceMetadata> resources);
+
+    void handleEvent(final Event event,
         final ExperimentalDatabase database,
-        final ParsingContext parsingContext,
-        final LoadableResource loadableResource,
-        final SqlScriptMetadata metadata);
-
-    boolean canRead(ConnectionType connectionType);
+        final Configuration configuration,
+        final ParsingContext parsingContext);
 }

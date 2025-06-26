@@ -19,16 +19,4 @@
  */
 package org.flywaydb.core.internal.exception.sqlExceptions;
 
-import java.sql.SQLException;
-import javax.sql.DataSource;
-import org.flywaydb.core.internal.exception.FlywaySqlException;
-
-@SuppressWarnings("ClassTooDeepInInheritanceTree")
-public class FlywaySqlUnableToConnectToDbException extends FlywaySqlException {
-    public FlywaySqlUnableToConnectToDbException(final SQLException sqlException, final DataSource dataSource) {
-        super("Unable to obtain connection from database"
-            + getDataSourceInfo(dataSource, false)
-            + ": "
-            + sqlException.getMessage(), sqlException, FlywaySqlServerErrorCode.CONNECTION_FAILURE);
-    }
-}
+public interface FlywaySqlErrorCode {}

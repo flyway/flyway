@@ -34,6 +34,7 @@ import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.api.resource.LoadableResourceMetadata;
+import org.flywaydb.core.experimental.ExperimentalMigrationScanner;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.resolver.ChecksumCalculator;
 import org.flywaydb.core.internal.resource.ResourceName;

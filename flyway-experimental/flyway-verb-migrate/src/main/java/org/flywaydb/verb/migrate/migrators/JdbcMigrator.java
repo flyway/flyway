@@ -52,10 +52,10 @@ import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.nc.callbacks.CallbackManager;
 import org.flywaydb.nc.utils.ErrorUtils;
-import org.flywaydb.nc.executors.Executor;
+import org.flywaydb.core.experimental.Executor;
 import org.flywaydb.nc.executors.ExecutorFactory;
 import org.flywaydb.verb.migrate.MigrationExecutionGroup;
-import org.flywaydb.nc.readers.Reader;
+import org.flywaydb.core.experimental.Reader;
 import org.flywaydb.nc.readers.ReaderFactory;
 
 @CustomLog

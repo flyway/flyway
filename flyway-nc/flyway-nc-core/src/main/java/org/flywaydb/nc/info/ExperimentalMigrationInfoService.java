@@ -30,7 +30,7 @@ import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.CommandResultFactory;
 import org.flywaydb.core.api.output.InfoResult;
-import org.flywaydb.nc.migration.ExperimentalMigrationInfoFilter;
+import org.flywaydb.core.experimental.ExperimentalMigrationInfoFilter;
 
 public class ExperimentalMigrationInfoService implements MigrationInfoService {
 

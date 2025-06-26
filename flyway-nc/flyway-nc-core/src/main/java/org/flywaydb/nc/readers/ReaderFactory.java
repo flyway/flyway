@@ -23,6 +23,7 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.experimental.ConnectionType;
 import org.flywaydb.core.experimental.ExperimentalDatabase;
+import org.flywaydb.core.experimental.Reader;
 
 public class ReaderFactory {
     public static <T> Reader<T> getReader(final ExperimentalDatabase experimentalDatabase,

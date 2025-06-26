@@ -13,8 +13,8 @@ String
 
 ## Default
 
-<i>none - if `prepare.source` or `prepare.target` are not set the
-`prepare` command will run against a [diff artifact](<Configuration/Flyway Namespace/Flyway Prepare Namespace/Flyway Prepare Artifact Filename Setting>)</i>
+- If [`prepare.source`](<Configuration/Flyway Namespace/Flyway Prepare Namespace/Flyway Prepare Source Setting>) is set to `schemaModel` or `migrations`, this defaults to the value of the [`environment`](<Configuration/Flyway Namespace/Flyway Environment Setting>) parameter.
+- Otherwise, there is no default value. It must be set when preparing from a source database, and should not be set if preparing from an artifact.
 
 ## Usage
 

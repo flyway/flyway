@@ -23,7 +23,7 @@ import java.nio.file.Path;
 import lombok.CustomLog;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.nc.executors.Executor;
+import org.flywaydb.core.experimental.Executor;
 
 @CustomLog
 public class ErrorUtils {

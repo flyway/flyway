@@ -11,7 +11,7 @@ Our reference documentation can be found at https://documentation.red-gate.com/f
 
 Contributing
 ------------
-Here is the info on how you can contribute in various ways to the project: https://flywaydb.org/documentation/contribute/
+Here is the info on how you can contribute in various ways to the project: https://flyway.github.io/flyway/
 
 
 License

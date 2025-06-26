@@ -300,9 +300,9 @@ Some things to bear in mind are:
 We suggest that you only use this temporarily to debug a problem and you don't persist the generated logs.
 
 #### Exchanging the JDBC driver
-- Look in the `/drivers` folder of your Flyway engine installation and note the name of the file starting ojdbc11 (so something like `ojdbc11-21.1.0.0.jar`).
+- Look in the `/drivers` folder of your Flyway engine installation and note the name of the file starting ojdbc11 (so something like `ojdbc11-21.18.0.0.jar`).
 - Rename the extension from `.jar` to something else (like `.old`) so Java doesn't pick it up anymore but it will make it easier for you to put things back later.
-- Download the equivalent debug jar file version, it will have the same name but include an `_g` in the filename (so something like `ojdbc11_g-21.1.0.0.jar`). It will go into the `/drivers` folder.
+- Download the equivalent debug jar file version, it will have the same name but include an `_g` in the filename (so something like `ojdbc11_g-21.18.0.0.jar`). It will go into the `/drivers` folder.
 
 You can get this from either of these locations:
    - [Download from Maven Central.](https://central.sonatype.com/artifact/com.oracle.database.jdbc.debug/ojdbc11_g)
@@ -325,5 +325,5 @@ This will put your logs in a file (pattern) called `jdbc.log` in your system tem
 
 #### Put things back together
 You can rename the original and debug Oracle JDBC driver files in the `drivers\` folder:
-1. `ojdbc11_g-21.1.0.0.jar` -> `ojdbc11_g-21.1.0.0.old` (now Flyway won't find the debug driver anymore)
-1. `ojdbc11-21.1.0.0.old` -> `ojdbc11-21.1.0.0.jar` (now Flyway will find the production driver again)
+1. `ojdbc11_g-21.18.0.0.jar` -> `ojdbc11_g-21.18.0.0.old` (now Flyway won't find the debug driver anymore)
+1. `ojdbc11-21.18.0.0.old` -> `ojdbc11-21.18.0.0.jar` (now Flyway will find the production driver again)

@@ -25,6 +25,7 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.experimental.ConnectionType;
 import org.flywaydb.core.experimental.ExperimentalDatabase;
+import org.flywaydb.core.experimental.Reader;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;

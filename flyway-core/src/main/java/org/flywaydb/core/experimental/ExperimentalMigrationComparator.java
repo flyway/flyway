@@ -17,18 +17,16 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.core.internal.exception.sqlExceptions;
+package org.flywaydb.core.experimental;
 
-import java.sql.SQLException;
-import javax.sql.DataSource;
-import org.flywaydb.core.internal.exception.FlywaySqlException;
+import java.util.Comparator;
+import org.flywaydb.core.api.MigrationInfo;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.extensibility.Plugin;
 
-@SuppressWarnings("ClassTooDeepInInheritanceTree")
-public class FlywaySqlUnableToConnectToDbException extends FlywaySqlException {
-    public FlywaySqlUnableToConnectToDbException(final SQLException sqlException, final DataSource dataSource) {
-        super("Unable to obtain connection from database"
-            + getDataSourceInfo(dataSource, false)
-            + ": "
-            + sqlException.getMessage(), sqlException, FlywaySqlServerErrorCode.CONNECTION_FAILURE);
-    }
+public interface ExperimentalMigrationComparator extends Plugin  {
+    
+    int getPriority(Configuration configuration);
+    
+    Comparator<MigrationInfo> getComparator(Configuration configuration);
 }

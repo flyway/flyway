@@ -27,6 +27,7 @@ import lombok.SneakyThrows;
 import org.flywaydb.core.api.CoreErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
+import org.flywaydb.core.internal.exception.sqlExceptions.FlywaySqlErrorCode;
 import org.flywaydb.core.internal.exception.sqlExceptions.FlywaySqlNoDriversForInteractiveAuthException;
 import org.flywaydb.core.internal.exception.sqlExceptions.FlywaySqlNoIntegratedAuthException;
 import org.flywaydb.core.internal.exception.sqlExceptions.FlywaySqlServerUntrustedCertificateSqlException;
@@ -39,6 +40,7 @@ import org.flywaydb.core.internal.util.StringUtils;
  */
 @Getter
 public class FlywaySqlException extends FlywayException {
+    private final FlywaySqlErrorCode subErrorCode;
     private final String sqlState;
     private final int sqlErrorCode;
     private final Throwable innerCause;
@@ -51,7 +53,14 @@ public class FlywaySqlException extends FlywayException {
     }
 
     public FlywaySqlException(final String message, final SQLException sqlException) {
+        this(message, sqlException, null);
+    }
+
+    public FlywaySqlException(final String message,
+        final SQLException sqlException,
+        final FlywaySqlErrorCode subErrorCode) {
         super(message, sqlException, CoreErrorCode.DB_CONNECTION);
+        this.subErrorCode = subErrorCode;
         sqlState = sqlException.getSQLState();
         sqlErrorCode = sqlException.getErrorCode();
         innerCause = sqlException.getCause();

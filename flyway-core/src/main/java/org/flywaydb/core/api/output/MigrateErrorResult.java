@@ -19,12 +19,14 @@
  */
 package org.flywaydb.core.api.output;
 
-public class MigrateErrorResult extends MigrateResult {
-    public ErrorOutput.ErrorOutputItem error;
+import org.flywaydb.core.api.output.errors.ErrorOutputItem;
 
-    public MigrateErrorResult(MigrateResult migrateResult, Exception e) {
+public class MigrateErrorResult extends MigrateResult {
+    public ErrorOutputItem error;
+
+    public MigrateErrorResult(final MigrateResult migrateResult, final Exception e) {
         super(migrateResult);
         this.success = false;
-        this.error = ErrorOutput.fromException(e).error;
+        this.error = ErrorOutput.fromException(e).error();
     }
 }

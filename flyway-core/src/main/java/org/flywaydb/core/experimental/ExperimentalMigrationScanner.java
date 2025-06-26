@@ -1,6 +1,6 @@
 /*-
  * ========================LICENSE_START=================================
- * flyway-nc-core
+ * flyway-core
  * ========================================================================
  * Copyright (C) 2010 - 2025 Red Gate Software Ltd
  * ========================================================================
@@ -17,19 +17,17 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.nc.migration;
+package org.flywaydb.core.experimental;
 
-import java.util.Comparator;
-import org.flywaydb.core.api.MigrationInfo;
+import java.util.Collection;
+import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.resource.LoadableResourceMetadata;
-import org.flywaydb.core.experimental.schemahistory.ResolvedSchemaHistoryItem;
+import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.extensibility.Plugin;
+import org.flywaydb.core.internal.parser.ParsingContext;
+import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
 import org.flywaydb.core.internal.util.Pair;
 
-public interface ExperimentalMigrationComparator extends Plugin  {
-    
-    int getPriority(Configuration configuration);
-    
-    Comparator<MigrationInfo> getComparator(Configuration configuration);
+public interface ExperimentalMigrationScanner extends Plugin  {
+    Collection<Pair<LoadableResource, SqlScriptMetadata>> scan(Location location, Configuration configuration, ParsingContext parsingContext);
 }

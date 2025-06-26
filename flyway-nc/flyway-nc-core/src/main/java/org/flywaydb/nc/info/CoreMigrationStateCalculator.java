@@ -27,7 +27,7 @@ import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResourceMetadata;
-import org.flywaydb.nc.migration.ExperimentalMigrationStateCalculator;
+import org.flywaydb.core.experimental.ExperimentalMigrationStateCalculator;
 import org.flywaydb.core.experimental.schemahistory.ResolvedSchemaHistoryItem;
 import org.flywaydb.core.internal.util.Pair;
 

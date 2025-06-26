@@ -1,6 +1,6 @@
 /*-
  * ========================LICENSE_START=================================
- * flyway-nc-core
+ * flyway-core
  * ========================================================================
  * Copyright (C) 2010 - 2025 Red Gate Software Ltd
  * ========================================================================
@@ -17,13 +17,6 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.nc.migration;
+package org.flywaydb.core.api.output.errors;
 
-import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.extensibility.MigrationType;
-import org.flywaydb.core.extensibility.Plugin;
-
-public interface MigrationTypeResolver extends Plugin  {
-    MigrationType resolveMigrationType(String filename, Configuration configuration);
-    MigrationType resolveMigrationTypeFromName(String name, Configuration configuration);
-}
+public record ErrorCause(String message, String stackTrace, ErrorCause cause) {}

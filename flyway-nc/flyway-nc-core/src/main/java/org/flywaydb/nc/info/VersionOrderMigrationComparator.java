@@ -24,7 +24,7 @@ import java.util.Map;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.nc.migration.ExperimentalMigrationComparator;
+import org.flywaydb.core.experimental.ExperimentalMigrationComparator;
 
 public class VersionOrderMigrationComparator implements ExperimentalMigrationComparator {
     @Override

@@ -24,6 +24,7 @@ import static org.flywaydb.core.internal.sqlscript.FlywaySqlScriptException.STAT
 import lombok.CustomLog;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.experimental.ConnectionType;
+import org.flywaydb.core.experimental.Executor;
 import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.internal.sqlscript.SqlStatement;
 

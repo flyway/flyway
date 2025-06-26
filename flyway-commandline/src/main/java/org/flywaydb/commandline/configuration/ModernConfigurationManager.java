@@ -20,7 +20,9 @@
 package org.flywaydb.commandline.configuration;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -337,16 +339,15 @@ public class ModernConfigurationManager implements ConfigurationManager {
                         }
                     });
 
-                ObjectMapper mapper = new ObjectMapper();
-                if (suppressError) {
-                    mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-                }
+                ObjectMapper mapper = getObjectMapper(suppressError);
 
                 ConfigurationExtension newConfigurationExtension = mapper.convertValue(finalValues,
                     configurationExtension.getClass());
+
+                // Redo the entire mapping without suppressError only to print out the warning message.
                 if (suppressError) {
                     try {
-                        ConfigurationExtension dummyConfigurationExtension = (new ObjectMapper()).convertValue(
+                        ConfigurationExtension dummyConfigurationExtension = getObjectMapper(false).convertValue(
                             finalValues, configurationExtension.getClass());
                     } catch (final IllegalArgumentException e) {
                         final var fullFieldName = getFullFieldNameFromException(namespace, e);
@@ -379,7 +380,7 @@ public class ModernConfigurationManager implements ConfigurationManager {
                 }
 
                 final var fullFieldName = getFullFieldNameFromException(namespace, e);
-                var message = String.format(UNABLE_TO_PARSE_FIELD, fullFieldName);
+                var message = String.format(UNABLE_TO_PARSE_FIELD, fullFieldName) + "\n" + e.getMessage();
                 message += getFlywayExceptionMessage(e).map(text -> " " + text).orElse("");
 
                 if (suppressError) {
@@ -506,5 +507,17 @@ public class ModernConfigurationManager implements ConfigurationManager {
         final FlywayException flywayException= new FlywayException(exceptionMessage.toString());
         configurationExceptions.forEach(flywayException::addSuppressed);
         throw flywayException;
+    }
+
+    private ObjectMapper getObjectMapper(final boolean suppressError) {
+        final ObjectMapper mapper = JsonMapper.builder()
+            .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+            .build();
+
+        if (suppressError) {
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        }
+
+        return mapper;
     }
 }

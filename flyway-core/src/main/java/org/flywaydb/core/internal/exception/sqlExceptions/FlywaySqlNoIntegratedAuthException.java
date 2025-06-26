@@ -31,7 +31,7 @@ public class FlywaySqlNoIntegratedAuthException extends FlywaySqlException {
             + getDataSourceInfo(dataSource, true)
             + sqlException.getMessage()
             + "\nTo setup integrated authentication see "
-            + FlywayDbWebsiteLinks.WINDOWS_AUTH, sqlException);
+            + FlywayDbWebsiteLinks.WINDOWS_AUTH, sqlException, FlywaySqlServerErrorCode.INTEGRATED_AUTH_NOT_SUPPORTED);
     }
 
     @SuppressWarnings("unused")

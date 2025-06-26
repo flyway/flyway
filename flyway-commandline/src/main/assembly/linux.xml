@@ -57,7 +57,7 @@
             <includes>
                 <include>run_sqlfluff</include>
             </includes>
-            <fileMode>644</fileMode>
+            <fileMode>755</fileMode>
         </fileSet>
         <!-- [/redgate] -->
     </fileSets>

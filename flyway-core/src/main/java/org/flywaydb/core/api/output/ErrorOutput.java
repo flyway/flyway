@@ -19,109 +19,29 @@
  */
 package org.flywaydb.core.api.output;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Optional;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import org.flywaydb.core.api.CoreErrorCode;
-import org.flywaydb.core.api.ErrorCode;
-import org.flywaydb.core.api.FlywayException;
+import java.util.Collection;
+import java.util.List;
+import org.flywaydb.core.api.output.errors.ErrorOutputItem;
+import org.flywaydb.core.api.output.errors.ExceptionToErrorObjectConverter;
+import org.flywaydb.core.api.output.errors.FaultToErrorObjectConverter;
+import org.flywaydb.core.api.output.errors.FlywayExceptionToErrorObjectConverter;
+import org.flywaydb.core.api.output.errors.FlywayMigrateExceptionToErrorObjectConverter;
+import org.flywaydb.core.api.output.errors.FlywaySqlExceptionToErrorObjectConverter;
 import org.flywaydb.core.internal.exception.FlywayMigrateException;
-import org.flywaydb.core.internal.exception.FlywaySqlException;
 
-public class ErrorOutput implements OperationResult {
-
-    @AllArgsConstructor(access = AccessLevel.PACKAGE)
-    public static class ErrorOutputItem {
-        public ErrorCode errorCode;
-        public String sqlState;
-        public Integer sqlErrorCode;
-        public String message;
-        public String stackTrace;
-        public Integer lineNumber;
-        public String path;
-        public ErrorCause cause;
-    }
-
-    public record ErrorCause(String message, String stackTrace, ErrorCause cause) {}
-
-    public ErrorOutputItem error;
-
-    public ErrorOutput(final ErrorCode errorCode,
-        final String message,
-        final String stackTrace,
-        final Integer lineNumber,
-        final String path,
-        final ErrorCause cause) {
-        this.error = new ErrorOutputItem(errorCode, null, null, message, stackTrace, lineNumber, path, cause);
-    }
-
-    public ErrorOutput(final ErrorCode errorCode,
-        final String sqlState,
-        final Integer sqlErrorCode,
-        final String message,
-        final String stackTrace,
-        final Integer lineNumber,
-        final String path,
-        final ErrorCause cause) {
-        this.error = new ErrorOutputItem(errorCode,
-            sqlState,
-            sqlErrorCode,
-            message,
-            stackTrace,
-            lineNumber,
-            path,
-            cause);
-    }
+public record ErrorOutput(ErrorOutputItem error) implements OperationResult {
+    private static final Collection<ExceptionToErrorObjectConverter<? extends Exception, ? extends ErrorOutputItem>> ERROR_OBJECT_CONVERTERS = List.of(
+        new FlywayMigrateExceptionToErrorObjectConverter(),
+        new FlywaySqlExceptionToErrorObjectConverter(),
+        new FlywayExceptionToErrorObjectConverter());
 
     public static ErrorOutput fromException(final Exception exception) {
-        final String message = exception.getMessage();
+        final ExceptionToErrorObjectConverter<? extends Exception, ? extends ErrorOutputItem> converter = ERROR_OBJECT_CONVERTERS.stream()
+            .filter(x -> x.getSupportedExceptionType().isInstance(exception))
+            .findFirst()
+            .orElse(new FaultToErrorObjectConverter());
 
-        if (exception instanceof final FlywayMigrateException flywayMigrateException
-            && flywayMigrateException.getAbsolutePathOnDisk() != null) {
-
-            return new ErrorOutput(flywayMigrateException.getMigrationErrorCode(),
-                flywayMigrateException.getSqlState(),
-                flywayMigrateException.getSqlErrorCode(),
-                message == null ? "Error occurred" : message,
-                null,
-                flywayMigrateException.getLineNumber(),
-                flywayMigrateException.getAbsolutePathOnDisk(),
-                getCause(exception).orElse(null));
-        }
-
-        if (exception instanceof final FlywaySqlException flywaySqlException) {
-            return new ErrorOutput(flywaySqlException.getErrorCode(),
-                flywaySqlException.getSqlState(),
-                flywaySqlException.getSqlErrorCode(),
-                message == null ? "Error occurred" : message,
-                null,
-                null,
-                null,
-                getCause(exception).orElse(null));
-        }
-
-        if (exception instanceof final FlywayException flywayException) {
-            return new ErrorOutput(flywayException.getErrorCode(),
-                null,
-                null,
-                message == null ? "Error occurred" : message,
-                null,
-                null,
-                null,
-                getCause(exception).orElse(null));
-        }
-
-        return new ErrorOutput(CoreErrorCode.FAULT,
-            null,
-            null,
-            message == null ? "Fault occurred" : message,
-            getStackTrace(exception),
-            null,
-            null,
-            getCause(exception).orElse(null));
+        return new ErrorOutput(convertException(converter, exception));
     }
 
     public static MigrateErrorResult fromMigrateException(final FlywayMigrateException exception) {
@@ -136,19 +56,8 @@ public class ErrorOutput implements OperationResult {
         }
     }
 
-    private static String getStackTrace(final Throwable exception) {
-        final ByteArrayOutputStream output = new ByteArrayOutputStream();
-        final PrintStream printStream;
-
-        printStream = new PrintStream(output, true, StandardCharsets.UTF_8);
-
-        exception.printStackTrace(printStream);
-
-        return output.toString(StandardCharsets.UTF_8);
-    }
-
-    private static Optional<ErrorCause> getCause(final Throwable e) {
-        return Optional.ofNullable(e.getCause())
-            .map(cause -> new ErrorCause(cause.getMessage(), getStackTrace(cause), getCause(cause).orElse(null)));
+    private static <E extends Exception, T extends ErrorOutputItem> T convertException(final ExceptionToErrorObjectConverter<E, T> converter,
+        final Exception exception) {
+        return converter.convert(converter.getSupportedExceptionType().cast(exception));
     }
 }

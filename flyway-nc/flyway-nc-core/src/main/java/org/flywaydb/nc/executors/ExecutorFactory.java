@@ -22,6 +22,7 @@ package org.flywaydb.nc.executors;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.experimental.ConnectionType;
+import org.flywaydb.core.experimental.Executor;
 import org.flywaydb.core.experimental.ExperimentalDatabase;
 
 public class ExecutorFactory {

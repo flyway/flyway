@@ -46,8 +46,8 @@ import org.flywaydb.nc.utils.ErrorUtils;
 import org.flywaydb.nc.executors.NonJdbcExecutorExecutionUnit;
 import org.flywaydb.nc.executors.ExecutorFactory;
 import org.flywaydb.verb.migrate.MigrationExecutionGroup;
-import org.flywaydb.nc.executors.Executor;
-import org.flywaydb.nc.readers.Reader;
+import org.flywaydb.core.experimental.Executor;
+import org.flywaydb.core.experimental.Reader;
 import org.flywaydb.nc.readers.ReaderFactory;
 
 @CustomLog
