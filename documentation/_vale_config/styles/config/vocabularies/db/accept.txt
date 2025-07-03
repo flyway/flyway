@@ -30,6 +30,7 @@ Postgres
 PSQL
 
 # SQL Server
+Entra
 filegroups?
 tSQLt
 Sqlcmd

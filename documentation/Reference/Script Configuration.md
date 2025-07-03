@@ -11,6 +11,8 @@ Script configuration files do **not** need to be explicitly listed in the main c
 
 For example, a migration file `V2__my_script.sql` would have a script configuration file `V2__my_script.sql.conf`.
 
+Script configuration files also apply to Callbacks. For example, the `afterMigrate.sql` callback can have an associated configuration file named `afterMigrate.sql.conf`.
+
 Script Configuration files have a subset of the options from the other ways of configuring Flyway.
 These parameters are effective at the level of a specific migration rather than globally.
 

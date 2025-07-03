@@ -17,24 +17,12 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.core.extensibility;
+package org.flywaydb.core.experimental;
 
-import java.util.Collections;
-import java.util.List;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.extensibility.Plugin;
 
-@Getter
-@RequiredArgsConstructor
-public class ConfigurationParameter {
-    public final String name;
-    public final String description;
-    public final boolean required;
-
-    // Certain configuration parameters apply only to specific sub-commands of a command operation
-    public final List<String> parentSubCommands;
-
-    public ConfigurationParameter(String name, String description, boolean required) {
-        this(name, description, required, Collections.emptyList());
-    }
+public interface ExperimentalSupport extends Plugin {
+    boolean canUseNativeConnectors(Configuration configuration, String verb);
+    boolean canCreateDataSource(Configuration configuration);
 }

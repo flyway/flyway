@@ -19,7 +19,7 @@
  */
 package org.flywaydb.nc.utils;
 
-import static org.flywaydb.core.experimental.ExperimentalModeUtils.resolveExperimentalDatabasePlugin;
+import static org.flywaydb.nc.utils.NativeConnectorsUtils.resolveExperimentalDatabasePlugin;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.CustomLog;
-import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.api.CoreMigrationType;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
@@ -334,9 +333,5 @@ public class VerbUtils {
             .filter(x -> Arrays.stream(configuration.getIgnoreMigrationPatterns())
                 .noneMatch(pattern -> pattern.matchesMigration(x.isVersioned(), x.getState())))
             .toList();
-    }
-
-    public static FlywayTelemetryManager getFlywayTelemetryManager(final Configuration configuration) {
-        return configuration.getPluginRegister().getPluginInstanceOf(FlywayTelemetryManager.class);
     }
 }

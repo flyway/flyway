@@ -143,7 +143,7 @@ SQL Server supports several methods of authentication. These include:
 
 - SQL Server Authentication
 - Windows Authentication
-- Azure Active Directory
+- Microsoft Entra
 - Kerberos {% include teams.html %}
 
 SQL Server Authentication works 'out-of-the-box' with Flyway, whereas the others require extra manual setup.
@@ -168,39 +168,39 @@ Syntax:<br/> `jdbc:sqlserver://<host>:<port>;databaseName=<dbname>;integratedSec
 
 Example:<br/> `jdbc:sqlserver://server01:1234;databaseName=AdventureWorks;integratedSecurity=true`.
 
-### Azure Active Directory
+### Microsoft Entra
 
 #### Installing Dependencies
 
 You must add Microsoft's [MSAL4J library](https://mvnrepository.com/artifact/com.microsoft.azure/msal4j) to your classpath. For instance, as a Maven or Gradle dependency.
-For Azure Active Directory MSI, Azure Identity is also required to be added to your classpath.
+For Microsoft Entra MSI, Azure Identity is also required to be added to your classpath.
 
 For command-line users, MSAL4J and Azure Identity are already included, so no extra installation is required.
 
 #### Connecting
 
-There are several types of Azure Active Directory authentication:
+There are several types of Microsoft Entra authentication:
 
-- Azure Active Directory with MFA
-- Azure Active Directory Integrated
-- Azure Active Directory MSI
-- Azure Active Directory with Password
-- Azure Active Directory Service Principal
+- Microsoft Entra with MFA
+- Microsoft Entra Integrated
+- Microsoft Entra MSI
+- Microsoft Entra with Password
+- Microsoft Entra Service Principal
 - Access Tokens
 
 To use the various authentication types, amend your JDBC URL to set the `authentication` parameter:
 
-- For Active Directory Integrated set `authentication=ActiveDirectoryIntegrated`
+- For Microsoft Entra Integrated set `authentication=ActiveDirectoryIntegrated`
     - e.g: <code>jdbc:sqlserver://<i>host</i>:<i>port</i>;databaseName=<i>database</i>;authentication=ActiveDirectoryIntegrated</code>
-- For Active Directory MSI set `authentication=ActiveDirectoryMSI`
+- For Microsoft Entra MSI set `authentication=ActiveDirectoryMSI`
     - e.g: <code>jdbc:sqlserver://<i>host</i>:<i>port</i>;databaseName=<i>database</i>;authentication=ActiveDirectoryMSI</code>
-- For Active Directory With Password set `authentication=ActiveDirectoryPassword`
+- For Microsoft Entra With Password set `authentication=ActiveDirectoryPassword`
     - e.g: <code>jdbc:sqlserver://<i>host</i>:<i>port</i>;databaseName=<i>database</i>;authentication=ActiveDirectoryPassword</code>
     - You must also supply a username and password with Flyway's `user` and `password` configuration options
-- For Active Directory Interactive set `authentication=ActiveDirectoryInteractive`
+- For Microsoft Entra Interactive set `authentication=ActiveDirectoryInteractive`
     - e.g: <code>jdbc:sqlserver://<i>host</i>:<i>port</i>;databaseName=<i>database</i>;authentication=ActiveDirectoryInteractive</code>
     - This will begin an interactive process which expects user input (e.g. a dialogue box), so it's not recommended in automated environments
-- For Active Directory Service Principal set `authentication=ActiveDirectoryServicePrincipal `
+- For Microsoft Entra Service Principal set `authentication=ActiveDirectoryServicePrincipal `
     - e.g: <code>jdbc:sqlserver://<i>host</i>:<i>port</i>;databaseName=<i>database</i>;authentication=ActiveDirectoryServicePrincipal</code>
 
 [The Microsoft documentation has more details about how these work with JDBC URLs](https://docs.microsoft.com/en-us/sql/connect/jdbc/connecting-using-azure-active-directory-authentication?view=sql-server-ver15)
@@ -208,8 +208,8 @@ To use the various authentication types, amend your JDBC URL to set the `authent
 
 #### Azure access tokens
 
-Another way to authenticate using Azure Active Directory is through access tokens. As of the time of writing, the access token property on Microsoft's JDBC driver can't be
-supplied through the URL. Therefore you should use Flyway's `jdbcProperties` configuration property.
+Another way to authenticate using Microsoft Entra is through access tokens. As of the time of writing, the access token property on Microsoft's JDBC driver can't be
+supplied through the URL. You should use Flyway's `jdbcProperties` configuration property instead.
 
 E.g, in a `flyway.toml` file:
 

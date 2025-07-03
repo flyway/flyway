@@ -19,6 +19,7 @@
  */
 package org.flywaydb.core.internal.configuration;
 
+import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -767,13 +768,14 @@ public class ConfigUtils {
         return new ClassicConfiguration().getPluginRegister()
             .getPlugins(ConfigurationExtension.class)
             .stream()
-            .filter(p -> ClassUtils.getGettableFieldValues(p, "").containsKey(unknownConfig))
+            .filter(p -> Arrays.stream(p.getClass().getDeclaredFields()).map(Field::getName).toList().contains(unknownConfig))
             .map(ConfigurationExtension::getNamespace)
             .collect(Collectors.toList());
     }
 
     public static List<String> getPossibleFlywayConfigurations(final String unknownConfig,
-        FlywayEnvironmentModel model) {
+        FlywayEnvironmentModel model,
+        String prefix) {
         final var namespaces = findPossibleNamespaces(unknownConfig);
 
         if (!namespaces.isEmpty()) {
@@ -799,7 +801,7 @@ public class ConfigUtils {
             return List.of();
         }
 
-        return possibleConfigurations.getValue();
+        return possibleConfigurations.getValue().stream().map(x -> prefix + x).toList();
     }
 
     /**

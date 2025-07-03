@@ -6,7 +6,7 @@ subtitle: environments.*.resolvers.gcsm.project
 
 ## Description
 
-The Azure Active Directory client id.
+The Microsoft Entra client id.
 
 ## Type
 

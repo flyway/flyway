@@ -8,6 +8,27 @@
 </div>
 <div class="col-md-9">
   <div class="release">
+        <h2 id="11.10.1">Flyway 11.10.1 (2025-07-03)</h2>
+
+        <h3>New features</h3>
+        <ul>
+            <li>The 'help' command now provides targeted help for individual 'check' sub-commands</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Update terminology in docs from AAD to Microsoft Entra</li>
+            <li>New SQL Server projects will now surface 'PRINT' statements as info logs instead of warnings with a default error override in the project settings</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fixed an issue where the 'shouldExecute' configuration was ignored by Flyway during Callbacks execution in Native Connectors mode</li>
+        </ul>
+
+  </div>
+
+  <div class="release">
         <h2 id="11.10.0">Flyway 11.10.0 (2025-06-26)</h2>
 
         <h3>Breaking changes</h3>
@@ -18,7 +39,7 @@
         <h3>New features</h3>
         <ul>
             <li>Backup provisioner will no longer attempt to create users that already exist</li>
-            <li>It is now possible to set `generate.autoInsertPlaceholders=true` to allow the `generate` verb to place placeholders into generated files</li>
+            <li>It is now possible to set `generate.usePlaceholders=true` to allow the `generate` verb to place placeholders into generated files</li>
             <li>Flyway now supports specifying the code analysis scope for migrations</li>
             <li>Flyway now supports configuring the SQL dialect for code analysis via a dedicated configuration parameter</li>
         </ul>

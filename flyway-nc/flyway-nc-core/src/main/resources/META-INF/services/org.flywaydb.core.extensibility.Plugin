@@ -7,3 +7,4 @@ org.flywaydb.nc.readers.NonJdbcReader
 org.flywaydb.nc.readers.JdbcReader
 org.flywaydb.nc.migration.BaselineMigrationTypeResolver
 org.flywaydb.nc.migration.CoreMigrationTypeResolver
+org.flywaydb.nc.ExperimentalSupportImpl

@@ -194,7 +194,6 @@
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
                 <include>org.fusesource.jansi:jansi</include>
-                <include>com.google.code.gson:gson</include>
             </includes>
             <excludes>
                 <exclude>org.reactivestreams:reactive-streams</exclude>
@@ -397,7 +396,6 @@
                 <exclude>org.flywaydb.enterprise:flyway-*</exclude>
                 <exclude>org.flywaydb:flyway-*</exclude>
                 <exclude>org.fusesource.jansi:jansi</exclude>
-                <exclude>com.google.code.gson:gson</exclude>
                 <exclude>software.amazon.awssdk:s3</exclude>
                 <exclude>org.slf4j:slf4j-nop</exclude>
                 <exclude>org.apache.commons:commons-text</exclude>

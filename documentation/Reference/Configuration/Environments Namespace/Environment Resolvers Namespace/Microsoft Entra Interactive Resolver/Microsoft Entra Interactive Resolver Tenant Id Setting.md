@@ -6,7 +6,7 @@ subtitle: environments.*.resolvers.gcsm.project
 
 ## Description
 
-The Azure Active Directory tenant id.
+The Microsoft Entra tenant id.
 
 ## Type
 

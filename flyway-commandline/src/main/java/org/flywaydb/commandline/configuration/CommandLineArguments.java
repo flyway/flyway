@@ -338,9 +338,8 @@ public class CommandLineArguments {
             String helpTextForOperation = pluginRegister.getPlugins(CommandExtension.class)
                 .stream()
                 .filter(e -> e.handlesCommand(operation))
-                .map(CommandExtension::getHelpText)
+                .map(e -> e.getHelpText(getFlags()))
                 .collect(Collectors.joining("\n\n"));
-
             if (StringUtils.hasText(helpTextForOperation)) {
                 helpText.append(helpTextForOperation).append("\n\n");
             }

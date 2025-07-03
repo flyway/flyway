@@ -38,7 +38,7 @@ import org.flywaydb.core.experimental.ExperimentalDatabase;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.nc.utils.ErrorUtils;
-import org.flywaydb.nc.utils.VerbUtils;
+import org.flywaydb.nc.utils.NativeConnectorsUtils;
 import org.flywaydb.nc.executors.NonJdbcExecutorExecutionUnit;
 import org.flywaydb.core.experimental.Executor;
 import org.flywaydb.nc.executors.ExecutorFactory;
@@ -76,7 +76,7 @@ public class NativeConnectorsCallbackHandler implements CallbackHandler {
         LOG.info("Callback executed: " + callback.getEvent().name() + " from " + callback.getPhysicalLocation());
 
         try (final EventTelemetryModel telemetryModel = new EventTelemetryModel(callback.getEvent().getId(),
-            VerbUtils.getFlywayTelemetryManager(configuration))) {
+            NativeConnectorsUtils.getFlywayTelemetryManager(configuration))) {
             executionUnits.forEach(executionUnit -> {
 
                 Object executionUnitObj;
@@ -117,6 +117,11 @@ public class NativeConnectorsCallbackHandler implements CallbackHandler {
         resources.stream().map(resource -> {
             Event event = Event.fromId(resource.prefix());
             if (event != null) {
+                if (resource.sqlScriptMetadata() != null && !resource.sqlScriptMetadata().shouldExecute()) {
+                    LOG.debug("Callback " + event.name() + " registration skipped as shouldExecute is false");
+                    return null;
+                }
+
                 LOG.debug("Callback registered: " + event.name() + " from " + resource.loadableResource()
                     .getAbsolutePath());
                 return new Callback(resource, event);

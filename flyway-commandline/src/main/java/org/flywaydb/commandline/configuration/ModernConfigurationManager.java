@@ -458,14 +458,14 @@ public class ModernConfigurationManager implements ConfigurationManager {
     private static void throwMissingParameters(final FlywayEnvironmentModel model,
         final Map<String, ? extends List<String>> missingParams,
         boolean rootConfigurationsIsEmpty,
-        final String prefix ) {
+        final String prefix) {
 
         if (rootConfigurationsIsEmpty) {
 
         final StringBuilder exceptionMessage = new StringBuilder();
-        if(missingParams.containsKey(FLYWAY_NAMESPACE)) {
+        if (missingParams.containsKey(FLYWAY_NAMESPACE)) {
             final Map<String, List<String>> possibleConfiguration = missingParams.get(FLYWAY_NAMESPACE).stream()
-                .collect(Collectors.toMap(p -> p, p -> ConfigUtils.getPossibleFlywayConfigurations(p, model)));
+                .collect(Collectors.toMap(p -> p, p -> ConfigUtils.getPossibleFlywayConfigurations(p, model, prefix)));
             for (final Map.Entry<String, List<String>> entry : possibleConfiguration.entrySet()) {
                 exceptionMessage.append("\t")
                     .append("Parameter: ")
@@ -474,7 +474,7 @@ public class ModernConfigurationManager implements ConfigurationManager {
                     .append("\n");
                 if (!entry.getValue().isEmpty()) {
                     exceptionMessage.append("\t\t").append("Possible values:").append("\n");
-                    entry.getValue().forEach(v -> exceptionMessage.append("\t\t").append("- ").append(prefix).append(v).append("\n"));
+                    entry.getValue().forEach(v -> exceptionMessage.append("\t\t").append("- ").append(v).append("\n"));
                 }
             }
         }

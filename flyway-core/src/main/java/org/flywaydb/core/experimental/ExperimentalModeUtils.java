@@ -19,75 +19,26 @@
  */
 package org.flywaydb.core.experimental;
 
-import java.util.Optional;
 import lombok.CustomLog;
-import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.configuration.ConfigurationValidator;
 
 @CustomLog
 public class ExperimentalModeUtils {
 
     public static boolean canUseExperimentalMode(final Configuration config,  final String verb) {
-        if (isNativeConnectorsTurnedOff()) {
+        final ExperimentalSupport supportChecker = config.getPluginRegister().getPluginInstanceOf(ExperimentalSupport.class);
+        if (supportChecker == null) {
             return false;
         }
-
-        if (useLegacyAsDryRunSet(config)) {
-
-            if (isNativeConnectorsTurnedOn()) {
-                LOG.warn("Dry run is not supported in Native Connectors mode, falling back to legacy databases");
-            }
-
-            return false;
-        }
-
-        if (config.getUrl() == null) {
-            return false;
-        }
-
-        new ConfigurationValidator().validate(config);
-
-        Optional<ExperimentalDatabase> database = resolveExperimentalDatabasePlugin(config);
-
-        return database.map(experimentalDatabase -> experimentalDatabase.supportedVerbs().contains(verb) &&
-                (experimentalDatabase.isOnByDefault(config) || isNativeConnectorsTurnedOn()))
-            .orElse(false);
+        return supportChecker.canUseNativeConnectors(config, verb);
     }
 
     public static boolean canCreateDataSource(final Configuration config) {
-        if (useLegacyAsDryRunSet(config)) {
+        final ExperimentalSupport supportChecker = config.getPluginRegister().getPluginInstanceOf(ExperimentalSupport.class);
+        if (supportChecker == null) {
             return true;
         }
-
-        if (!isNativeConnectorsTurnedOff()) {
-            if (config.getUrl() == null) {
-                return true;
-            }
-
-            Optional<ExperimentalDatabase> database = resolveExperimentalDatabasePlugin(config);
-
-            return database.map(experimentalDatabase -> experimentalDatabase.canCreateJdbcDataSource()
-                               || !experimentalDatabase.isOnByDefault(config))
-                .orElse(true);
-        }
-
-        return true;
-    }
-
-    public static void logExperimentalDataTelemetry(final FlywayTelemetryManager flywayTelemetryManager, final MetaData metaData) {
-        if (flywayTelemetryManager != null) {
-            flywayTelemetryManager.notifyExperimentalMetadataChanged(metaData);
-        }
-    }
-
-    private static boolean useLegacyAsDryRunSet(final Configuration config) {
-        return config.getDryRunOutput() != null;
-    }
-
-    public static Optional<ExperimentalDatabase> resolveExperimentalDatabasePlugin(final Configuration configuration) {
-        return new ExperimentalDatabasePluginResolverImpl(configuration.getPluginRegister())
-            .resolve(configuration.getUrl());
+        return supportChecker.canCreateDataSource(config);
     }
 
     public static boolean isNativeConnectorsTurnedOn() {

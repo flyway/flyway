@@ -87,8 +87,8 @@ flyway {
 
 ### Passing access tokens
 
-Some database JDBC drivers support authentication with access tokens, but this token may not be supported in the URL (see [SQL Server Azure Active Directory](<Database Driver Reference/SQL Server Database>)). 
+Some database JDBC drivers support authentication with access tokens, but this token may not be supported in the URL (see [SQL Server - Microsoft Entra](<Database Driver Reference/SQL Server Database>)). 
 
 You may also not want to leak information such as tokens in the URL. In these cases, an additional properties object can be passed to the JDBC driver which can be configured with `jdbcProperties`.
 
-Note that `jdbcProperties.accessToken` will be set as part of the [Azure Active Directory Interactive resolver](<Configuration/Environments Namespace/Environment Resolvers Namespace/Azure Active Directory Interactive Resolver>).
+Note that `jdbcProperties.accessToken` will be set as part of the [Microsoft Entra Interactive resolver](<Configuration/Environments Namespace/Environment Resolvers Namespace/Microsoft Entra Interactive Resolver>).

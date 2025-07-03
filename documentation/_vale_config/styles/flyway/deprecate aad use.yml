@@ -1,0 +1,8 @@
+extends: existence
+message: "Use Microsoft Entra instead of '%s'"
+link: https://learn.microsoft.com/en-us/entra/fundamentals/how-to-rename-azure-ad
+level: error
+ignorecase: true
+tokens:
+  - Azure Active Directory
+  - AAD
