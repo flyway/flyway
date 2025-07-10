@@ -34,6 +34,10 @@
             <outputDirectory>jre</outputDirectory>
             <fileMode>644</fileMode>
         </fileSet>
+        <fileSet>
+            <directory>target/dependency/mssql</directory>
+            <outputDirectory>native</outputDirectory>
+        </fileSet>
         <!-- [redgate] -->
         <fileSet>
             <directory>../flyway-rgcompare/src/main/resources/rgcompare/windows-x64</directory>
@@ -61,16 +65,4 @@
         </fileSet>
         <!-- [/redgate] -->
     </fileSets>
-    <files>
-        <file>
-            <source>src/main/assembly/sqljdbc_auth.dll</source>
-            <outputDirectory>native</outputDirectory>
-            <destName>mssql-jdbc_auth-${version.mssql}.x86.dll</destName>
-        </file>
-        <file>
-            <source>src/main/assembly/sqljdbc_auth.dll</source>
-            <outputDirectory>native</outputDirectory>
-            <destName>mssql-jdbc_auth-${version.mssql}.x64.dll</destName>
-        </file>
-    </files>
 </assembly>

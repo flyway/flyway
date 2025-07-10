@@ -34,8 +34,8 @@ import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResourceMetadata;
 import org.flywaydb.nc.callbacks.CallbackManager;
-import org.flywaydb.core.experimental.ExperimentalDatabase;
-import org.flywaydb.core.experimental.schemahistory.SchemaHistoryModel;
+import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
+import org.flywaydb.core.internal.nc.schemahistory.SchemaHistoryModel;
 import org.flywaydb.core.extensibility.Plugin;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.nc.utils.NativeConnectorsUtils;
@@ -44,7 +44,7 @@ import org.flywaydb.nc.utils.VerbUtils;
 @Getter
 public final class PreparationContext implements Plugin {
 
-    private ExperimentalDatabase database;
+    private NativeConnectorsDatabase database;
 
     private SchemaHistoryModel schemaHistoryModel;
 

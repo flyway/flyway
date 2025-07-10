@@ -21,8 +21,8 @@ package org.flywaydb.core.extensibility;
 
 import java.util.List;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.experimental.ConnectionType;
-import org.flywaydb.core.experimental.ExperimentalDatabase;
+import org.flywaydb.core.internal.nc.ConnectionType;
+import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
 
 public interface TLSConnectionHelper extends Plugin{
     String SSL_AUTOCONFIGURATION_ENV = "FLYWAY_SSL_AUTOCONFIGURATION";
@@ -33,6 +33,6 @@ public interface TLSConnectionHelper extends Plugin{
             .stream().toList();
     }
 
-    void prepareForTLSConnection(String connectionString, ConnectionType connectionType, ExperimentalDatabase database, Configuration configuration);
+    void prepareForTLSConnection(String connectionString, ConnectionType connectionType, NativeConnectorsDatabase database, Configuration configuration);
 
 }

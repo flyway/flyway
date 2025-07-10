@@ -74,6 +74,15 @@
 
 
 
+
+
+
+
+
+
+
+
+
         <fileSet>
             <directory>src/main/assembly</directory>
             <outputDirectory>drivers</outputDirectory>

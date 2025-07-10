@@ -25,8 +25,8 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.BaselineResult;
-import org.flywaydb.core.experimental.ExperimentalDatabase;
-import org.flywaydb.core.experimental.schemahistory.SchemaHistoryItem;
+import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
+import org.flywaydb.core.internal.nc.schemahistory.SchemaHistoryItem;
 import org.flywaydb.core.extensibility.CachingVerbExtension;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
@@ -44,7 +44,7 @@ public class BaselineVerbExtension extends CachingVerbExtension {
     @Override
     public Object executeVerb(final Configuration configuration) {
         final PreparationContext context = PreparationContext.get(configuration, cached);
-        final ExperimentalDatabase database = context.getDatabase();
+        final NativeConnectorsDatabase database = context.getDatabase();
 
         final BaselineResult baselineResult = new BaselineResult(VersionPrinter.getVersion(),
             database.getDatabaseMetaData().databaseName());
@@ -167,7 +167,7 @@ public class BaselineVerbExtension extends CachingVerbExtension {
     }
 
     private static void createBaselineMarker(final Configuration configuration,
-        final ExperimentalDatabase database,
+        final NativeConnectorsDatabase database,
         final BaselineResult baselineResult) {
 
         database.createSchemaHistoryTableIfNotExists(configuration);

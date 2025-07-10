@@ -38,8 +38,8 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.CommandResultFactory;
 import org.flywaydb.core.api.output.MigrateResult;
 import org.flywaydb.core.api.resource.LoadableResource;
-import org.flywaydb.core.experimental.ConnectionType;
-import org.flywaydb.core.experimental.ExperimentalDatabase;
+import org.flywaydb.core.internal.nc.ConnectionType;
+import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
 import org.flywaydb.core.internal.exception.FlywayMigrateException;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
@@ -52,10 +52,10 @@ import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.nc.callbacks.CallbackManager;
 import org.flywaydb.nc.utils.ErrorUtils;
-import org.flywaydb.core.experimental.Executor;
+import org.flywaydb.core.internal.nc.Executor;
 import org.flywaydb.nc.executors.ExecutorFactory;
 import org.flywaydb.verb.migrate.MigrationExecutionGroup;
-import org.flywaydb.core.experimental.Reader;
+import org.flywaydb.core.internal.nc.Reader;
 import org.flywaydb.nc.readers.ReaderFactory;
 
 @CustomLog
@@ -64,7 +64,7 @@ public class JdbcMigrator extends Migrator {
     @Override
     public List<MigrationExecutionGroup> createGroups(final MigrationInfo[] allPendingMigrations,
         final Configuration configuration,
-        final ExperimentalDatabase experimentalDatabase,
+        final NativeConnectorsDatabase experimentalDatabase,
         final MigrateResult migrateResult,
         final ParsingContext parsingContext) {
         if (experimentalDatabase.getDatabaseMetaData().connectionType() != ConnectionType.JDBC) {
@@ -143,7 +143,7 @@ public class JdbcMigrator extends Migrator {
     @Override
     public int doExecutionGroup(final Configuration configuration,
         final MigrationExecutionGroup executionGroup,
-        final ExperimentalDatabase experimentalDatabase,
+        final NativeConnectorsDatabase experimentalDatabase,
         final MigrateResult migrateResult,
         final ParsingContext parsingContext,
         final int installedRank,
@@ -177,7 +177,7 @@ public class JdbcMigrator extends Migrator {
     }
 
     private void doIndividualMigration(final MigrationInfo migrationInfo,
-        final ExperimentalDatabase experimentalDatabase,
+        final NativeConnectorsDatabase experimentalDatabase,
         final Configuration configuration,
         final MigrateResult migrateResult,
         final ParsingContext parsingContext,
@@ -277,7 +277,7 @@ public class JdbcMigrator extends Migrator {
     }
 
     private boolean containsNonTransactionalStatements(final Configuration configuration,
-        final ExperimentalDatabase experimentalDatabase,
+        final NativeConnectorsDatabase experimentalDatabase,
         final MigrationInfo migrationInfo,
         final ParsingContext parsingContext) {
         if (migrationInfo instanceof final LoadableMigrationInfo loadableMigrationInfo) {
@@ -298,7 +298,7 @@ public class JdbcMigrator extends Migrator {
 
     private boolean shouldExecuteInTransaction(final MigrationInfo migrationInfo,
         final Configuration configuration,
-        final ExperimentalDatabase experimentalDatabase,
+        final NativeConnectorsDatabase experimentalDatabase,
         final ParsingContext parsingContext) {
         if (migrationInfo instanceof final LoadableMigrationInfo loadableMigrationInfo) {
             if (loadableMigrationInfo.getSqlScriptMetadata() != null
@@ -312,7 +312,7 @@ public class JdbcMigrator extends Migrator {
             parsingContext);
     }
 
-    private SqlStatementIterator getSqlStatementIterator(final ExperimentalDatabase experimentalDatabase,
+    private SqlStatementIterator getSqlStatementIterator(final NativeConnectorsDatabase experimentalDatabase,
         final Configuration configuration,
         final LoadableMigrationInfo loadableMigrationInfo,
         final ParsingContext parsingContext) {
@@ -322,7 +322,7 @@ public class JdbcMigrator extends Migrator {
     }
 
     private void handleMigrationError(final FlywayException e,
-        final ExperimentalDatabase experimentalDatabase,
+        final NativeConnectorsDatabase experimentalDatabase,
         final MigrationInfo migrationInfo,
         final Executor<SqlStatement> executor,
         final SqlStatement sqlStatement,
@@ -404,7 +404,7 @@ public class JdbcMigrator extends Migrator {
     }
 
     private void validateMixedStatements(final Configuration configuration,
-        final ExperimentalDatabase experimentalDatabase,
+        final NativeConnectorsDatabase experimentalDatabase,
         final MigrationInfo migrationInfo,
         final ParsingContext parsingContext) {
         if (migrationInfo instanceof final LoadableMigrationInfo loadableMigrationInfo) {

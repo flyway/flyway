@@ -552,6 +552,16 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
+     * Sets the PowerShell executable used for running PowerShell scripts.
+     *
+     * @param powershellExecutable The PowerShell executable (default: "powershell" on Windows, "pwsh" on other platforms)
+     */
+    public FluentConfiguration powershellExecutable(String powershellExecutable) {
+        config.setPowershellExecutable(powershellExecutable);
+        return this;
+    }
+
+    /**
      * Sets the file name prefix for sql migrations.
      * SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
      * which using the defaults translates to V1_1__My_description.sql

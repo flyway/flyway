@@ -24,7 +24,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.experimental.ExperimentalDatabase;
+import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.resource.ResourceName;
@@ -55,13 +55,13 @@ public class ParsingContext {
         return "flyway" + configuration.getPlaceholderSeparator() + name;
     }
     
-    public void populate(final ExperimentalDatabase database, final Configuration configuration) {
+    public void populate(final NativeConnectorsDatabase database, final Configuration configuration) {
         String defaultSchemaName = configuration.getDefaultSchema();
         final String[] schemaNames = configuration.getSchemas();
         if (defaultSchemaName == null) {
             if (schemaNames.length > 0) {
                 defaultSchemaName = schemaNames[0];
-            } 
+            }
         }
 
         if (defaultSchemaName != null) {

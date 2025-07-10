@@ -20,7 +20,7 @@
 package org.flywaydb.core;
 
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.experimental.MetaData;
+import org.flywaydb.core.internal.nc.MetaData;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.extensibility.Plugin;
 import org.flywaydb.core.internal.license.FlywayPermit;

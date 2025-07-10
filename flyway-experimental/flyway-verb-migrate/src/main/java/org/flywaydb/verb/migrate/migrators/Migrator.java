@@ -25,9 +25,9 @@ import org.flywaydb.core.ProgressLogger;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.MigrateResult;
-import org.flywaydb.core.experimental.ExperimentalDatabase;
-import org.flywaydb.core.experimental.schemahistory.SchemaHistoryItem;
-import org.flywaydb.core.experimental.schemahistory.SchemaHistoryItem.SchemaHistoryItemBuilder;
+import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
+import org.flywaydb.core.internal.nc.schemahistory.SchemaHistoryItem;
+import org.flywaydb.core.internal.nc.schemahistory.SchemaHistoryItem.SchemaHistoryItemBuilder;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.nc.callbacks.CallbackManager;
 import org.flywaydb.verb.migrate.MigrationExecutionGroup;
@@ -37,13 +37,13 @@ public abstract class Migrator {
 
     public abstract List<MigrationExecutionGroup> createGroups(final MigrationInfo[] allPendingMigrations,
         final Configuration configuration,
-        final ExperimentalDatabase experimentalDatabase,
+        final NativeConnectorsDatabase experimentalDatabase,
         final MigrateResult migrateResult,
         final ParsingContext parsingContext);
 
     public abstract int doExecutionGroup(final Configuration configuration,
         final MigrationExecutionGroup executionGroup,
-        final ExperimentalDatabase experimentalDatabase,
+        final NativeConnectorsDatabase experimentalDatabase,
         final MigrateResult migrateResult,
         final ParsingContext parsingContext,
         final int installedRank,
@@ -54,7 +54,7 @@ public abstract class Migrator {
         final MigrationInfo migrationInfo,
         final int totalTimeMillis,
         final int installedRank,
-        final ExperimentalDatabase experimentalDatabase,
+        final NativeConnectorsDatabase experimentalDatabase,
         final String installedBy,
         final boolean success) {
         final SchemaHistoryItemBuilder schemaHistoryItem = SchemaHistoryItem.builder()

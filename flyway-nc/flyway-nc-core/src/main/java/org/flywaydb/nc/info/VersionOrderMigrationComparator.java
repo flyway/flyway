@@ -24,9 +24,9 @@ import java.util.Map;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.experimental.ExperimentalMigrationComparator;
+import org.flywaydb.core.internal.nc.NativeConnectorsMigrationComparator;
 
-public class VersionOrderMigrationComparator implements ExperimentalMigrationComparator {
+public class VersionOrderMigrationComparator implements NativeConnectorsMigrationComparator {
     @Override
     public int getPriority(final Configuration configuration) {
         return 0;

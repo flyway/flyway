@@ -24,5 +24,3 @@ Connectivity is through Flyway's existing SQL Server component so you can refer 
 
 ## Azure Synapse Specific issues
 - The JTDS driver does not support Azure Synapse
-- Flyway only supports the use of dedicated pools.
-  - If you get this error: `Unknown SQL Server engine edition: 11` then Synapse is reporting that it is a serverless pool.

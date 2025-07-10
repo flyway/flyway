@@ -27,11 +27,11 @@ import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResourceMetadata;
-import org.flywaydb.core.experimental.ExperimentalMigrationStateCalculator;
-import org.flywaydb.core.experimental.schemahistory.ResolvedSchemaHistoryItem;
+import org.flywaydb.core.internal.nc.NativeConnectorsStateCalculator;
+import org.flywaydb.core.internal.nc.schemahistory.ResolvedSchemaHistoryItem;
 import org.flywaydb.core.internal.util.Pair;
 
-public class CoreMigrationStateCalculator implements ExperimentalMigrationStateCalculator {
+public class CoreMigrationStateCalculator implements NativeConnectorsStateCalculator {
     public MigrationState calculateState(final Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata> migration,
         final Collection<? extends Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> sortedMigrations,
         final Configuration configuration) {

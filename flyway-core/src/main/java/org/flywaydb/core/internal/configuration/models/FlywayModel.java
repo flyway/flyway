@@ -117,6 +117,7 @@ public class FlywayModel extends FlywayEnvironmentModel {
         result.setPlaceholderSeparator(getPlaceholderSeparator().merge(otherPojo.getPlaceholderSeparator()));
         result.setScriptPlaceholderPrefix(getScriptPlaceholderPrefix().merge(otherPojo.getScriptPlaceholderPrefix()));
         result.setScriptPlaceholderSuffix(getScriptPlaceholderSuffix().merge(otherPojo.getScriptPlaceholderSuffix()));
+        result.setPowershellExecutable(getPowershellExecutable().merge(otherPojo.getPowershellExecutable()));
         result.setSqlMigrationPrefix(getSqlMigrationPrefix().merge(otherPojo.getSqlMigrationPrefix()));
         result.setExecuteInTransaction(getExecuteInTransaction().merge(otherPojo.getExecuteInTransaction()));
         result.setRepeatableSqlMigrationPrefix(getRepeatableSqlMigrationPrefix().merge(otherPojo.getRepeatableSqlMigrationPrefix()));

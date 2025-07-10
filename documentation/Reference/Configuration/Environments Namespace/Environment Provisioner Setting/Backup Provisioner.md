@@ -81,27 +81,28 @@ restored to. This can be required in a couple of scenarios:
 The backup provisioner provides two methods for adjusting the data and log files paths when restoring a database.
 
 ## Auto-generate data and log file paths
-
-The backup provisioner exposes a `generateWithMove` boolean parameter, which defaults to false. When set to true, the
+The backup provisioner exposes a `generateWithMove` boolean parameter, which defaults to true. When set to true, the
 backup provisioner will auto-generate file paths for any data and log files contained within the backup file, and
-restore the backup using these generated file paths. The example TOML below shows how this can be enabled:
+restore the backup using these generated file paths.
+The example TOML below instructs Flyway to generate the data and log file paths automatically:
 
 ```toml
 [environments.shadow.resolvers.backup]
 backupFilePath = '/tmp/backup/backup.bak'
 backupVersion = "995"
-sqlserver.generateWithMove = true
 ```
 
 ## Specify data and log file paths
 
 An alternative to the `generateWithMove` parameter above is to specify the exact file path that data and log files
-should be restored to. The example TOML below shows how this can be done:
+should be restored to.
+The example TOML below shows how this can be done:
 
 ```toml
 [environments.shadow.resolvers.backup]
 backupFilePath = '/tmp/backup/backup.bak'
 backupVersion = "995"
+sqlserver.generateWithMove = false
 
 [[environments.shadow.resolvers.backup.sqlserver.files]]
 logicalName = "NewWorldDB"

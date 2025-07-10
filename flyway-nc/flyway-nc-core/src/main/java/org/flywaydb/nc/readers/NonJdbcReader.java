@@ -22,16 +22,16 @@ package org.flywaydb.nc.readers;
 import java.util.stream.Stream;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResource;
-import org.flywaydb.core.experimental.ConnectionType;
-import org.flywaydb.core.experimental.ExperimentalDatabase;
-import org.flywaydb.core.experimental.Reader;
+import org.flywaydb.core.internal.nc.ConnectionType;
+import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
+import org.flywaydb.core.internal.nc.Reader;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
 import org.flywaydb.nc.FileReadingWithPlaceholderReplacement;
 
 public class NonJdbcReader implements Reader<String> {
     public Stream<String> read(final Configuration configuration,
-        final ExperimentalDatabase database,
+        final NativeConnectorsDatabase database,
         final ParsingContext parsingContext,
         final LoadableResource loadableResource,
         final SqlScriptMetadata metadata) {

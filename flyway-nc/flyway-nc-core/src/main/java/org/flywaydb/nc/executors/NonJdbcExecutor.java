@@ -20,21 +20,21 @@
 package org.flywaydb.nc.executors;
 
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.experimental.ConnectionType;
-import org.flywaydb.core.experimental.Executor;
-import org.flywaydb.core.experimental.ExperimentalDatabase;
+import org.flywaydb.core.internal.nc.ConnectionType;
+import org.flywaydb.core.internal.nc.Executor;
+import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
 
 public class NonJdbcExecutor implements Executor<NonJdbcExecutorExecutionUnit> {
 
     @Override
-    public void execute(final ExperimentalDatabase experimentalDatabase,
+    public void execute(final NativeConnectorsDatabase experimentalDatabase,
         final NonJdbcExecutorExecutionUnit executionUnit,
         final Configuration configuration) {
         experimentalDatabase.doExecute(executionUnit, configuration.isOutputQueryResults());
     }
 
     @Override
-    public void finishExecution(final ExperimentalDatabase experimentalDatabase, final Configuration configuration) {
+    public void finishExecution(final NativeConnectorsDatabase experimentalDatabase, final Configuration configuration) {
 
     }
 

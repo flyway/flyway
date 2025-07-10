@@ -22,9 +22,9 @@ package org.flywaydb.nc.utils;
 import java.util.Optional;
 import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.experimental.ExperimentalDatabase;
-import org.flywaydb.nc.ExperimentalDatabasePluginResolverImpl;
-import org.flywaydb.core.experimental.MetaData;
+import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
+import org.flywaydb.nc.NativeConnectorsDatabasePluginResolverImpl;
+import org.flywaydb.core.internal.nc.MetaData;
 
 public class NativeConnectorsUtils {
     public static void logExperimentalDataTelemetry(final FlywayTelemetryManager flywayTelemetryManager, final MetaData metaData) {
@@ -33,9 +33,9 @@ public class NativeConnectorsUtils {
         }
     }
 
-    public static Optional<ExperimentalDatabase> resolveExperimentalDatabasePlugin(final Configuration configuration) {
-        return new ExperimentalDatabasePluginResolverImpl(configuration.getPluginRegister())
-            .resolve(configuration.getUrl());
+    public static Optional<NativeConnectorsDatabase> resolveExperimentalDatabasePlugin(final Configuration configuration) {
+        return new NativeConnectorsDatabasePluginResolverImpl(configuration.getPluginRegister())
+            .resolve(configuration);
     }
 
     public static FlywayTelemetryManager getFlywayTelemetryManager(final Configuration configuration) {

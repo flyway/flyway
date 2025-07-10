@@ -26,6 +26,6 @@ Connectivity is through Flyway's existing SQL Server component so you can refer 
 ### Foundational capabilities only
 Only foundation-level capabilities (migrations) are supported. Advanced capabilities like generation of SQL, state-based workflows or drift detection will not currently work
 ### Fabric Data Warehouse
-It should be noted that this is **only** compatibility to Fabric Database instances. If you attempt to connect to Fabric Data Warehouse it will fail.
+For Fabric Data Warehouse support, please refer to the dedicated [Fabric Data Warehouse](<Database Driver Reference/Fabric Data Warehouse>) page.
 
 

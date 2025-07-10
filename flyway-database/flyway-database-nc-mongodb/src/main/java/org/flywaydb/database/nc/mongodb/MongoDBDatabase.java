@@ -49,13 +49,13 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.experimental.AbstractExperimentalDatabase;
-import org.flywaydb.core.experimental.ConnectionType;
-import org.flywaydb.core.experimental.DatabaseSupport;
-import org.flywaydb.core.experimental.DatabaseVersionImpl;
-import org.flywaydb.core.experimental.MetaData;
-import org.flywaydb.core.experimental.schemahistory.SchemaHistoryItem;
-import org.flywaydb.core.experimental.schemahistory.SchemaHistoryModel;
+import org.flywaydb.core.internal.nc.AbstractNativeConnectorsDatabase;
+import org.flywaydb.core.internal.nc.ConnectionType;
+import org.flywaydb.core.internal.nc.DatabaseSupport;
+import org.flywaydb.core.internal.nc.DatabaseVersionImpl;
+import org.flywaydb.core.internal.nc.MetaData;
+import org.flywaydb.core.internal.nc.schemahistory.SchemaHistoryItem;
+import org.flywaydb.core.internal.nc.schemahistory.SchemaHistoryModel;
 import org.flywaydb.core.extensibility.LicenseGuard;
 import org.flywaydb.core.extensibility.TLSConnectionHelper;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
@@ -70,7 +70,7 @@ import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.nc.executors.NonJdbcExecutorExecutionUnit;
 import org.flywaydb.nc.utils.TemporaryFileUtils;
 
-public class MongoDBDatabase extends AbstractExperimentalDatabase <NonJdbcExecutorExecutionUnit> {
+public class MongoDBDatabase extends AbstractNativeConnectorsDatabase<NonJdbcExecutorExecutionUnit> {
     private MongoClient mongoClient;
     private MongoDatabase mongoDatabase;
     private String schemaHistoryTableName = null;

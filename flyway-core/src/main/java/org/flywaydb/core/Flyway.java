@@ -19,7 +19,7 @@
  */
 package org.flywaydb.core;
 
-import static org.flywaydb.core.experimental.ExperimentalModeUtils.canUseExperimentalMode;
+import static org.flywaydb.core.internal.nc.NativeConnectorsModeUtils.canUseNativeConnectors;
 import static org.flywaydb.core.internal.logging.PreviewFeatureWarning.NATIVE_CONNECTORS;
 import static org.flywaydb.core.internal.logging.PreviewFeatureWarning.logPreviewFeature;
 
@@ -171,7 +171,7 @@ public class Flyway {
     @SneakyThrows
     public MigrateResult migrate() throws FlywayException {
         try (MigrateTelemetryModel telemetryModel = new MigrateTelemetryModel(flywayTelemetryManager)) {
-            if (canUseExperimentalMode(configuration, "migrate")) {
+            if (canUseNativeConnectors(configuration, "migrate")) {
                 logPreviewFeature(NATIVE_CONNECTORS);
                 final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("migrate")).findFirst();
                 if (verb.isPresent()) {
@@ -267,7 +267,7 @@ public class Flyway {
      * @throws FlywayException when the info retrieval failed.
      */
     public MigrationInfoService info() {
-        if (canUseExperimentalMode(configuration, "info")) {
+        if (canUseNativeConnectors(configuration, "info")) {
             logPreviewFeature(NATIVE_CONNECTORS);
             final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("info")).findFirst();
             if (verb.isPresent()) {
@@ -298,7 +298,7 @@ public class Flyway {
     @SneakyThrows
     public CleanResult clean() {
         try (EventTelemetryModel telemetryModel = new EventTelemetryModel("clean", flywayTelemetryManager)) {
-            if (canUseExperimentalMode(configuration, "clean")) {
+            if (canUseNativeConnectors(configuration, "clean")) {
                 logPreviewFeature(NATIVE_CONNECTORS);
                 final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("clean")).findFirst();
                 if (verb.isPresent()) {
@@ -367,7 +367,7 @@ public class Flyway {
      * @throws FlywayException when something went wrong during validation.
      */
     public ValidateResult validateWithResult() throws FlywayException {
-        if (canUseExperimentalMode(configuration, "validate")) {
+        if (canUseNativeConnectors(configuration, "validate")) {
             logPreviewFeature(NATIVE_CONNECTORS);
             final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("validate")).findFirst();
             if (verb.isPresent()) {
@@ -398,7 +398,7 @@ public class Flyway {
     @SneakyThrows
     public BaselineResult baseline() throws FlywayException {
         try (EventTelemetryModel telemetryModel = new EventTelemetryModel("baseline", flywayTelemetryManager)) {
-            if (canUseExperimentalMode(configuration, "baseline")) {
+            if (canUseNativeConnectors(configuration, "baseline")) {
                 logPreviewFeature(NATIVE_CONNECTORS);
                 final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("baseline")).findFirst();
                 if (verb.isPresent()) {
@@ -452,7 +452,7 @@ public class Flyway {
     @SneakyThrows
     public RepairResult repair() throws FlywayException {
         try (EventTelemetryModel telemetryModel = new EventTelemetryModel("repair", flywayTelemetryManager)) {
-            if (canUseExperimentalMode(configuration, "repair")) {
+            if (canUseNativeConnectors(configuration, "repair")) {
                 logPreviewFeature(NATIVE_CONNECTORS);
                 final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("repair")).findFirst();
                 if (verb.isPresent()) {
@@ -494,7 +494,7 @@ public class Flyway {
      * @throws FlywayException when undo failed.
      */
     public OperationResult undo() throws FlywayException {
-        if (canUseExperimentalMode(configuration, "undo")) {
+        if (canUseNativeConnectors(configuration, "undo")) {
             logPreviewFeature(NATIVE_CONNECTORS);
             final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("undo")).findFirst();
             if (verb.isPresent()) {

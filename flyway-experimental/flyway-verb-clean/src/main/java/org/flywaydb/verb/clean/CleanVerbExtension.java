@@ -28,8 +28,8 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.CleanResult;
-import org.flywaydb.core.experimental.ExperimentalDatabase;
-import org.flywaydb.core.experimental.schemahistory.SchemaHistoryItem;
+import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
+import org.flywaydb.core.internal.nc.schemahistory.SchemaHistoryItem;
 import org.flywaydb.core.extensibility.VerbExtension;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.nc.callbacks.CallbackManager;
@@ -50,7 +50,7 @@ public class CleanVerbExtension implements VerbExtension {
 
         final PreparationContext context = PreparationContext.get(configuration, false);
 
-        final ExperimentalDatabase database = context.getDatabase();
+        final NativeConnectorsDatabase database = context.getDatabase();
 
         final CallbackManager callbackManager = new CallbackManager(configuration, context.getResources());
 
@@ -80,7 +80,7 @@ public class CleanVerbExtension implements VerbExtension {
     }
 
     private static List<String> getFlywayCreatedSchemas(final PreparationContext context,
-        final ExperimentalDatabase database,
+        final NativeConnectorsDatabase database,
         final List<String> schemas) {
         return context.getSchemaHistoryModel()
             .getSchemaHistoryItems()

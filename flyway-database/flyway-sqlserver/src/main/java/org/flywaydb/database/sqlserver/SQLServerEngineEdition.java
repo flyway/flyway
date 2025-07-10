@@ -48,9 +48,6 @@ public enum SQLServerEngineEdition {
     public static SQLServerEngineEdition fromCode(int code) {
         for (SQLServerEngineEdition edition : values()) {
             if (edition.code == code) {
-                if (edition == SYNAPSE_SERVERLESS_POOLS) {
-                    throw new FlywayException("Synapse serverless SQL pool is not currently supported in Flyway");
-                }
                 return edition;
             }
         }

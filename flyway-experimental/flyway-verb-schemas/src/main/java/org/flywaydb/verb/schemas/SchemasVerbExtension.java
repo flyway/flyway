@@ -25,8 +25,8 @@ import lombok.CustomLog;
 import org.flywaydb.core.api.CoreMigrationType;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.experimental.ExperimentalDatabase;
-import org.flywaydb.core.experimental.schemahistory.SchemaHistoryItem;
+import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
+import org.flywaydb.core.internal.nc.schemahistory.SchemaHistoryItem;
 import org.flywaydb.core.extensibility.CachingVerbExtension;
 import org.flywaydb.nc.preparation.PreparationContext;
 
@@ -41,7 +41,7 @@ public class SchemasVerbExtension extends CachingVerbExtension {
     @Override
     public Object executeVerb(final Configuration configuration) {
         final PreparationContext context = PreparationContext.get(configuration, cached);
-        final ExperimentalDatabase database = context.getDatabase();
+        final NativeConnectorsDatabase database = context.getDatabase();
 
         final Collection<String> missingSchemas = getMissingSchemas(configuration, database);
 
@@ -70,7 +70,7 @@ public class SchemasVerbExtension extends CachingVerbExtension {
     }
 
     private Collection<String> getMissingSchemas(final Configuration configuration,
-        final ExperimentalDatabase database) {
+        final NativeConnectorsDatabase database) {
         final Collection<String> missingSchemas = new ArrayList<>();
         final String defaultSchema = database.getCurrentSchema();
         if (defaultSchema != null) {
@@ -87,7 +87,7 @@ public class SchemasVerbExtension extends CachingVerbExtension {
         return missingSchemas;
     }
 
-    private void createSchemaMarker(final ExperimentalDatabase experimentalDatabase,
+    private void createSchemaMarker(final NativeConnectorsDatabase experimentalDatabase,
         final Configuration configuration,
         final int installedRank,
         final Collection<String> missingSchemas) {

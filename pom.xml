@@ -14,7 +14,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>11.10.1</version>
+    <version>11.10.2</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -57,9 +57,6 @@
         <module>flyway-experimental</module>
         <module>flyway-reports</module>
         <module>flyway-nc</module>
-
-
-
 
 
 
@@ -175,8 +172,10 @@
         <version.maven>3.9.6</version.maven>
         <version.mockito>5.10.0</version.mockito>
         <version.msal4j>1.20.0</version.msal4j>
-        <version.mssql>12.6.3</version.mssql>
+        <version.mssql>12.10.1</version.mssql>
         <version.mssql-jdbc>${version.mssql}.jre11</version.mssql-jdbc>
+        <version.mssql-jdbc_auth.x86>${version.mssql}.x86</version.mssql-jdbc_auth.x86>
+        <version.mssql-jdbc_auth.x64>${version.mssql}.x64</version.mssql-jdbc_auth.x64>
         <version.mysql>8.0.24</version.mysql>
         <version.netty>4.1.118.Final</version.netty>
         <version.oracle>21.18.0.0</version.oracle>
@@ -785,8 +784,16 @@
                     <version>3.2.0</version>
                 </plugin>
                 <plugin>
+                    <artifactId>maven-clean-plugin</artifactId>
+                    <version>3.5.0</version>
+                </plugin>
+                <plugin>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.8.1</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>3.3.1</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-install-plugin</artifactId>
@@ -862,7 +869,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>3.0.0</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
                     <nonFilteredFileExtensions>
@@ -891,65 +897,6 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>license-maven-plugin</artifactId>
-                <version>2.4.0</version>
-                <executions>
-                    <execution>
-                        <phase>process-sources</phase>
-                        <goals>
-                            <goal>update-file-header</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <inceptionYear>2010</inceptionYear>
-                    <organizationName>Red Gate Software Ltd</organizationName>
-
-                    <licenseName>apache_v2</licenseName>
-
-
-
-
-                    <extraFiles>
-                        <DockerFile>properties</DockerFile>
-                    </extraFiles>
-                    <addJavaLicenseAfterPackage>false</addJavaLicenseAfterPackage>
-                    <processStartTag>========================LICENSE_START=================================</processStartTag>
-                    <processEndTag>=========================LICENSE_END==================================</processEndTag>
-                    <sectionDelimiter>========================================================================</sectionDelimiter>
-                    <excludes>
-                        <exclude>LICENSE</exclude>
-                        <exclude>**/build/**</exclude>
-                        <exclude>**/src/test/**</exclude>
-                        <exclude>.idea/**</exclude>
-                        <exclude>**/*.sh</exclude>
-                        <exclude>**/*.txt</exclude>
-                        <exclude>**/*.cnf</exclude>
-                        <exclude>**/*.conf</exclude>
-                        <exclude>**/*.releaseBackup</exclude>
-                        <exclude>**/*.nofilter</exclude>
-                        <exclude>**/*.ini</exclude>
-                        <exclude>**/*.md</exclude>
-                        <exclude>**/*.ids</exclude>
-                        <exclude>**/*.ipr</exclude>
-                        <exclude>**/*.iws</exclude>
-                        <exclude>**/*.bin</exclude>
-                        <exclude>**/*.lock</exclude>
-                        <exclude>**/*.gradle</exclude>
-                        <exclude>**/*.sbt</exclude>
-                        <exclude>**/gradlew</exclude>
-                        <exclude>.gitignore</exclude>
-                        <exclude>.gitattributes</exclude>
-                        <exclude>.travis.yml</exclude>
-                        <exclude>**/flyway</exclude>
-                        <exclude>**/*_BOM.sql</exclude>
-                        <exclude>**/assets/report/**</exclude>
-                        <exclude>**/afterMigrate__fix_invalid_objects.sql</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
-            <plugin>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <configuration>
                     <deployAtEnd>true</deployAtEnd>
@@ -972,6 +919,7 @@
                     <encoding>UTF-8</encoding>
                     <doclint>none</doclint>
                     <sourcepath>${project.basedir}/target/generated-sources/delombok</sourcepath>
+                    <quiet>true</quiet>
                 </configuration>
                 <executions>
                     <execution>
@@ -1153,6 +1101,77 @@
                                 <arg>--pinentry-mode=loopback</arg>
                             </gpgArguments>
                             <passphraseServerId>flyway-gpg</passphraseServerId>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>update-file-headers</id>
+
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>license-maven-plugin</artifactId>
+                        <version>2.4.0</version>
+                        <executions>
+                            <execution>
+                                <phase>process-sources</phase>
+                                <goals>
+                                    <goal>update-file-header</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <inceptionYear>2010</inceptionYear>
+                            <organizationName>Red Gate Software Ltd</organizationName>
+
+                            <licenseName>apache_v2</licenseName>
+
+
+
+
+                            <extraFiles>
+                                <DockerFile>properties</DockerFile>
+                            </extraFiles>
+                            <addJavaLicenseAfterPackage>false</addJavaLicenseAfterPackage>
+                            <processStartTag>========================LICENSE_START=================================</processStartTag>
+                            <processEndTag>=========================LICENSE_END==================================</processEndTag>
+                            <sectionDelimiter>========================================================================</sectionDelimiter>
+                            <excludes>
+                                <exclude>LICENSE</exclude>
+                                <exclude>**/build/**</exclude>
+                                <exclude>**/src/test/**</exclude>
+                                <exclude>.idea/**</exclude>
+                                <exclude>**/*.sh</exclude>
+                                <exclude>**/*.txt</exclude>
+                                <exclude>**/*.cnf</exclude>
+                                <exclude>**/*.conf</exclude>
+                                <exclude>**/*.releaseBackup</exclude>
+                                <exclude>**/*.nofilter</exclude>
+                                <exclude>**/*.ini</exclude>
+                                <exclude>**/*.md</exclude>
+                                <exclude>**/*.ids</exclude>
+                                <exclude>**/*.ipr</exclude>
+                                <exclude>**/*.iws</exclude>
+                                <exclude>**/*.bin</exclude>
+                                <exclude>**/*.lock</exclude>
+                                <exclude>**/*.gradle</exclude>
+                                <exclude>**/*.sbt</exclude>
+                                <exclude>**/gradlew</exclude>
+                                <exclude>.gitignore</exclude>
+                                <exclude>.gitattributes</exclude>
+                                <exclude>.travis.yml</exclude>
+                                <exclude>**/flyway</exclude>
+                                <exclude>**/*_BOM.sql</exclude>
+                                <exclude>**/assets/report/**</exclude>
+                                <exclude>**/afterMigrate__fix_invalid_objects.sql</exclude>
+                            </excludes>
                         </configuration>
                     </plugin>
                 </plugins>

@@ -21,12 +21,12 @@ package org.flywaydb.nc.executors;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.experimental.ConnectionType;
-import org.flywaydb.core.experimental.Executor;
-import org.flywaydb.core.experimental.ExperimentalDatabase;
+import org.flywaydb.core.internal.nc.ConnectionType;
+import org.flywaydb.core.internal.nc.Executor;
+import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
 
 public class ExecutorFactory {
-    public static <T> Executor<T> getExecutor(final ExperimentalDatabase experimentalDatabase,
+    public static <T> Executor<T> getExecutor(final NativeConnectorsDatabase experimentalDatabase,
         final Configuration configuration) {
         final ConnectionType connectionType = experimentalDatabase.getDatabaseMetaData().connectionType();
         return configuration.getPluginRegister()

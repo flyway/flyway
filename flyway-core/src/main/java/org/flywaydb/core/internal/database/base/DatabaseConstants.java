@@ -31,6 +31,8 @@ public class DatabaseConstants {
 
     public static final String DATABASE_HOSTING_AZURE_SQL_DATABASE = "azure-sql-database";
     public static final String DATABASE_HOSTING_AZURE_SQL_MANAGED_INSTANCE = "azure-sql-managed-instance";
+    public static final String DATABASE_HOSTING_FABRIC = "microsoft-fabric-database";
+    public static final String DATABASE_HOSTING_FABRIC_DATA_WAREHOUSE = "microsoft-fabric-data-warehouse";
     public static final String DATABASE_HOSTING_AWS_RDS = "aws-rds";
     public static final String DATABASE_HOSTING_AZURE_VM = "azure-vm";
     public static final String DATABASE_HOSTING_AWS_VM = "aws-vm";

@@ -29,8 +29,8 @@ import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.RepairOutput;
 import org.flywaydb.core.api.output.RepairResult;
-import org.flywaydb.core.experimental.ExperimentalDatabase;
-import org.flywaydb.core.experimental.schemahistory.SchemaHistoryItem;
+import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
+import org.flywaydb.core.internal.nc.schemahistory.SchemaHistoryItem;
 import org.flywaydb.core.extensibility.VerbExtension;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.util.StopWatch;
@@ -50,7 +50,7 @@ public class RepairVerbExtension implements VerbExtension {
 
         final PreparationContext context = PreparationContext.get(configuration, false);
 
-        final ExperimentalDatabase database = context.getDatabase();
+        final NativeConnectorsDatabase database = context.getDatabase();
 
         final RepairResult repairResult = new RepairResult(VersionPrinter.getVersion(),
             database.getDatabaseMetaData().databaseName());

@@ -23,7 +23,7 @@ import java.util.Arrays;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.migration.baseline.BaselineMigrationConfigurationExtension;
 import org.flywaydb.core.api.migration.baseline.BaselineMigrationType;
-import org.flywaydb.core.experimental.MigrationTypeResolver;
+import org.flywaydb.core.internal.nc.MigrationTypeResolver;
 import org.flywaydb.core.extensibility.MigrationType;
 
 public class BaselineMigrationTypeResolver implements MigrationTypeResolver {

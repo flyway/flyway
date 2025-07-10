@@ -262,6 +262,13 @@ public interface Configuration {
     String getScriptPlaceholderPrefix();
 
     /**
+     * Retrieves the PowerShell executable used for running PowerShell scripts.
+     *
+     * @return The PowerShell executable (default: "powershell" on Windows, "pwsh" on other platforms)
+     */
+    String getPowershellExecutable();
+
+    /**
      * Retrieves the map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
      *
      * @return The map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.

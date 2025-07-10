@@ -19,8 +19,7 @@
  */
 package org.flywaydb.nc.utils;
 
-import static org.flywaydb.nc.utils.NativeConnectorsUtils.resolveExperimentalDatabasePlugin;
-
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,14 +37,17 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.api.resource.LoadableResourceMetadata;
-import org.flywaydb.core.experimental.ExperimentalDatabase;
+import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
+import org.flywaydb.nc.NativeConnectorsDatabasePluginResolverImpl;
+import org.flywaydb.core.internal.jdbc.JdbcUtils;
+import org.flywaydb.nc.NativeConnectorsJdbc;
 import org.flywaydb.nc.migration.CompositeMigrationTypeResolver;
-import org.flywaydb.core.experimental.ExperimentalMigrationComparator;
-import org.flywaydb.nc.migration.ExperimentalMigrationScannerManager;
-import org.flywaydb.core.experimental.ExperimentalMigrationStateCalculator;
-import org.flywaydb.core.experimental.MigrationTypeResolver;
-import org.flywaydb.core.experimental.schemahistory.ResolvedSchemaHistoryItem;
-import org.flywaydb.core.experimental.schemahistory.SchemaHistoryModel;
+import org.flywaydb.core.internal.nc.NativeConnectorsMigrationComparator;
+import org.flywaydb.nc.migration.MigrationScannerManager;
+import org.flywaydb.core.internal.nc.NativeConnectorsStateCalculator;
+import org.flywaydb.core.internal.nc.MigrationTypeResolver;
+import org.flywaydb.core.internal.nc.schemahistory.ResolvedSchemaHistoryItem;
+import org.flywaydb.core.internal.nc.schemahistory.SchemaHistoryModel;
 import org.flywaydb.core.extensibility.MigrationType;
 import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
 import org.flywaydb.core.internal.configuration.resolvers.ProvisionerMode;
@@ -53,7 +55,7 @@ import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.nc.info.CoreMigrationStateCalculator;
-import org.flywaydb.nc.info.ExperimentalMigrationInfoImpl;
+import org.flywaydb.nc.info.NativeConnectorsMigrationInfoImpl;
 
 @CustomLog
 public class VerbUtils {
@@ -61,25 +63,20 @@ public class VerbUtils {
 
     public static Collection<LoadableResourceMetadata> scanForResources(final Configuration configuration,
         final ParsingContext parsingContext) {
-        final ExperimentalMigrationScannerManager scannerManager = new ExperimentalMigrationScannerManager(configuration);
+        final MigrationScannerManager scannerManager = new MigrationScannerManager(configuration);
         final Collection<LoadableResourceMetadata> resources = scannerManager.scan(configuration, parsingContext);
         return resources;
     }
 
     public static SchemaHistoryModel getSchemaHistoryModel(final Configuration configuration,
-        final ExperimentalDatabase experimentalDatabase) {
+        final NativeConnectorsDatabase experimentalDatabase) {
         return experimentalDatabase.getSchemaHistoryModel(configuration.getTable());
     }
 
-    public static ExperimentalDatabase getExperimentalDatabase(final Configuration configuration) throws SQLException {
-        final Optional<ExperimentalDatabase> resolvedExperimentalDatabase = resolveExperimentalDatabasePlugin(
-            configuration);
-
-        if (resolvedExperimentalDatabase.isEmpty()) {
-            throw new FlywayException("No Native Connectors database plugin found for the designated database");
-        }
-
-        final ExperimentalDatabase experimentalDatabase = resolvedExperimentalDatabase.get();
+    public static NativeConnectorsDatabase getExperimentalDatabase(final Configuration configuration) throws SQLException {
+        final NativeConnectorsDatabase experimentalDatabase = resolveExperimentalDatabasePlugin(
+            configuration).orElseThrow(
+            () -> new FlywayException("No Native Connectors database plugin found for the designated database"));
 
         experimentalDatabase.initialize(getResolvedEnvironment(configuration), configuration);
         if (!databaseInfoPrinted) {
@@ -110,9 +107,9 @@ public class VerbUtils {
         insertResolvedMigrations(resolvedMigrations, migrations);
         insertUndoneMigrations(resolvedSchemaHistoryItems, resolvedMigrations, migrations);
 
-        final ExperimentalMigrationComparator comparator = getOrderComparator(configuration);
+        final NativeConnectorsMigrationComparator comparator = getOrderComparator(configuration);
 
-        final List<ExperimentalMigrationStateCalculator> stateCalculators = getMigrationStateCalculators(configuration);
+        final List<NativeConnectorsStateCalculator> stateCalculators = getMigrationStateCalculators(configuration);
 
         final List<Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> copy = migrations.stream().toList();
         return migrations.stream()
@@ -122,7 +119,7 @@ public class VerbUtils {
                     .filter(Objects::nonNull)
                     .findFirst()
                     .orElseThrow(() -> new FlywayException("No state calculator found"));
-                return new ExperimentalMigrationInfoImpl(x, state);
+                return new NativeConnectorsMigrationInfoImpl(x, state);
             })
             .filter(x -> x.getType() != CoreMigrationType.DELETE)
             .sorted(comparator.getComparator(configuration))
@@ -219,16 +216,16 @@ public class VerbUtils {
         return resolved;
     }
 
-    private static List<ExperimentalMigrationStateCalculator> getMigrationStateCalculators(final Configuration configuration) {
-        final List<ExperimentalMigrationStateCalculator> stateCalculators = configuration.getPluginRegister()
-            .getLicensedPlugins(ExperimentalMigrationStateCalculator.class, configuration);
+    private static List<NativeConnectorsStateCalculator> getMigrationStateCalculators(final Configuration configuration) {
+        final List<NativeConnectorsStateCalculator> stateCalculators = configuration.getPluginRegister()
+            .getLicensedPlugins(NativeConnectorsStateCalculator.class, configuration);
         stateCalculators.add(new CoreMigrationStateCalculator());
         return stateCalculators;
     }
 
-    private static ExperimentalMigrationComparator getOrderComparator(final Configuration configuration) {
+    private static NativeConnectorsMigrationComparator getOrderComparator(final Configuration configuration) {
         return configuration.getPluginRegister()
-            .getPlugins(ExperimentalMigrationComparator.class)
+            .getPlugins(NativeConnectorsMigrationComparator.class)
             .stream()
             .filter(comparatorPlugin -> comparatorPlugin.getName().equals("Info"))
             .max(Comparator.comparingInt(experimentalMigrationComparator -> experimentalMigrationComparator.getPriority(
@@ -306,7 +303,7 @@ public class VerbUtils {
 
     public static String toMigrationText(final MigrationInfo migration,
         final boolean isExecuteInTransaction,
-        final ExperimentalDatabase database,
+        final NativeConnectorsDatabase database,
         final boolean outOfOrder) {
         final String migrationText;
         if (migration.getVersion() != null) {
@@ -333,5 +330,69 @@ public class VerbUtils {
             .filter(x -> Arrays.stream(configuration.getIgnoreMigrationPatterns())
                 .noneMatch(pattern -> pattern.matchesMigration(x.isVersioned(), x.getState())))
             .toList();
+    }
+
+    private static Optional<NativeConnectorsDatabase> resolveExperimentalDatabasePlugin(final Configuration configuration) {
+        final List<NativeConnectorsDatabase> databases = new NativeConnectorsDatabasePluginResolverImpl(configuration.getPluginRegister()).resolve(configuration.getUrl());
+
+        if (databases.isEmpty()) {
+            return Optional.empty();
+        }
+
+        final Lazy<Connection> connection = new Lazy<>(() -> JdbcUtils.openConnection(configuration.getDataSource(),
+            configuration.getConnectRetries(),
+            configuration.getConnectRetriesInterval()));
+        final Optional<NativeConnectorsDatabase> result = databases.stream()
+            .filter((database) -> handlesConnection(database, connection))
+            .findFirst();
+
+        if (connection.isInitialized()) {
+            JdbcUtils.closeConnection(connection.get());
+        }
+
+        return result;
+    }
+
+    private static boolean handlesConnection(final NativeConnectorsDatabase database,
+        final Lazy<? extends Connection> connection) {
+        if (!(database instanceof final NativeConnectorsJdbc<?> jdbcDatabase)) {
+            // Assume that a non JDBC database is valid for the url
+            return true;
+        }
+
+        try {
+            final String databaseProductName = connection.get().getMetaData().getDatabaseProductName();
+            if (jdbcDatabase.handlesProductName(connection.get(), databaseProductName)) {
+                return true;
+            }
+        } catch (final SQLException e) {
+            throw new FlywayException(e);
+        }
+
+        return false;
+    }
+}
+
+class Lazy<T> {
+    private T value;
+    private final java.util.function.Supplier<? extends T> supplier;
+
+    Lazy(final java.util.function.Supplier<? extends T> supplier) {
+        this.supplier = supplier;
+    }
+
+    public T get() {
+        if (!isInitialized()) {
+            try {
+                value = supplier.get();
+            } catch (final Exception e) {
+                throw new FlywayException("Failed to initialize lazy value", e);
+            }
+        }
+        return value;
+    }
+
+    boolean isInitialized() {
+        return value != null;
     }
 }

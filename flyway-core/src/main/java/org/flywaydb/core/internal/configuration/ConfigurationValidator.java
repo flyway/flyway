@@ -25,7 +25,7 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 
 import java.util.Locale;
-import org.flywaydb.core.experimental.ExperimentalModeUtils;
+import org.flywaydb.core.internal.nc.NativeConnectorsModeUtils;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -38,14 +38,14 @@ public class ConfigurationValidator {
                                       CoreErrorCode.CONFIGURATION);
         }
 
-        if (!ExperimentalModeUtils.canCreateDataSource(configuration)
+        if (!NativeConnectorsModeUtils.canCreateDataSource(configuration)
           && !StringUtils.hasText(configuration.getUrl())) {
             String errorMessage = "Unable to connect to the database. A URL must be configured to use Experimental Mode!";
             throw new FlywayException(errorMessage, CoreErrorCode.CONFIGURATION);
         }
 
         if (configuration.getDataSource() == null
-            && ExperimentalModeUtils.canCreateDataSource(configuration)) {
+            && NativeConnectorsModeUtils.canCreateDataSource(configuration)) {
             String errorMessage = "Unable to connect to the database. Configure the url, user and password!";
             if (new File(ClassUtils.getInstallDir(ConfigurationValidator.class) + "/conf/flyway.toml.example").exists()) {
                 errorMessage += " Refer to the flyway.toml.example file in the /conf folder in the installation directory.";

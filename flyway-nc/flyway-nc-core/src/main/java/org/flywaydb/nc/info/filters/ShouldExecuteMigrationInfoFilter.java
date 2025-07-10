@@ -22,9 +22,9 @@ package org.flywaydb.nc.info.filters;
 import java.util.function.Predicate;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.experimental.ExperimentalMigrationInfoFilter;
+import org.flywaydb.core.internal.nc.NativeConnectorsMigrationInfoFilter;
 
-public class ShouldExecuteMigrationInfoFilter implements ExperimentalMigrationInfoFilter {
+public class ShouldExecuteMigrationInfoFilter implements NativeConnectorsMigrationInfoFilter {
 
     @Override
     public Predicate<MigrationInfo> getFilter(final Configuration configuration) {

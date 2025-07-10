@@ -21,10 +21,10 @@ package org.flywaydb.verb.info;
 
 import lombok.CustomLog;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.experimental.ExperimentalDatabase;
+import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
 import org.flywaydb.core.extensibility.VerbExtension;
 import org.flywaydb.nc.utils.VerbUtils;
-import org.flywaydb.nc.info.ExperimentalMigrationInfoService;
+import org.flywaydb.nc.info.NativeConnectorsMigrationInfoService;
 import org.flywaydb.nc.preparation.PreparationContext;
 
 @CustomLog
@@ -39,14 +39,14 @@ public class InfoVerbExtension implements VerbExtension {
 
         final PreparationContext context = PreparationContext.get(configuration, false);
 
-        final ExperimentalDatabase database = context.getDatabase();
+        final NativeConnectorsDatabase database = context.getDatabase();
         if (!database.schemaHistoryTableExists(configuration.getTable())) {
             LOG.info("Schema history table "
                 + database.quote(database.getCurrentSchema(), configuration.getTable())
                 + " does not exist yet");
         }
 
-        return new ExperimentalMigrationInfoService(context.getMigrations(),
+        return new NativeConnectorsMigrationInfoService(context.getMigrations(),
             configuration,
             database.getName(),
             database.allSchemasEmpty(VerbUtils.getAllSchemas(configuration.getSchemas(), database.getCurrentSchema())));

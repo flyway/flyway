@@ -34,7 +34,7 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResource;
-import org.flywaydb.core.experimental.ExperimentalMigrationScanner;
+import org.flywaydb.core.internal.nc.NativeConnectorsMigrationScanner;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.resource.ResourceName;
@@ -45,7 +45,7 @@ import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
 import org.flywaydb.core.internal.util.Pair;
 
 @CustomLog
-public abstract class BaseSqlMigrationScanner implements ExperimentalMigrationScanner {
+public abstract class BaseSqlMigrationScanner implements NativeConnectorsMigrationScanner {
 
     protected Collection<Pair<LoadableResource, SqlScriptMetadata>> scanFromFileSystem(final File dir,
         final Location location,

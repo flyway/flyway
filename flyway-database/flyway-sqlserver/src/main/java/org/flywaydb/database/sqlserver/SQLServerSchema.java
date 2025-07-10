@@ -305,18 +305,7 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
      * @throws SQLException when the retrieval failed.
      */
     private List<DBObject> queryDBObjectsWithParent(DBObject parent, ObjectType... types) throws SQLException {
-        StringBuilder query = new StringBuilder("SELECT obj.object_id, obj.name FROM sys.objects AS obj WITH (NOLOCK)" +
-                                                        "LEFT JOIN sys.extended_properties AS eps WITH (NOLOCK)" +
-                                                        "ON obj.object_id = eps.major_id " +
-                                                        "AND eps.class = 1 " +    // Class 1 = objects and columns (we are only interested in objects).
-                                                        "AND eps.minor_id = 0 " + // Minor ID, always 0 for objects.
-                                                        "AND eps.name='microsoft_database_tools_support' " + // Select all objects generated from MS database tools.
-                                                        "WHERE SCHEMA_NAME(obj.schema_id) = '" + name + "' " +
-                                                        "AND eps.major_id IS NULL " + // Left Excluding JOIN (we are only interested in user defined entries).
-                                                        "AND obj.is_ms_shipped = 0 " + // Make sure we do not return anything MS shipped.
-                                                        "AND obj.type IN (" // Select the object types.
-        );
-
+        StringBuilder query = getObjectWithParentQuery();
         // Build the types IN clause.
         boolean first = true;
         for (ObjectType type : types) {
@@ -336,6 +325,20 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
         query.append(" order by create_date desc, object_id desc");
 
         return jdbcTemplate.query(query.toString(), rs -> new DBObject(rs.getLong("object_id"), rs.getString("name")));
+    }
+
+    protected StringBuilder getObjectWithParentQuery() {
+        return new StringBuilder("SELECT obj.object_id, obj.name FROM sys.objects AS obj WITH (NOLOCK)" +
+            "LEFT JOIN sys.extended_properties AS eps WITH (NOLOCK)" +
+            "ON obj.object_id = eps.major_id " +
+            "AND eps.class = 1 " +    // Class 1 = objects and columns (we are only interested in objects).
+            "AND eps.minor_id = 0 " + // Minor ID, always 0 for objects.
+            "AND eps.name='microsoft_database_tools_support' " + // Select all objects generated from MS database tools.
+            "WHERE SCHEMA_NAME(obj.schema_id) = '" + name + "' " +
+            "AND eps.major_id IS NULL " + // Left Excluding JOIN (we are only interested in user defined entries).
+            "AND obj.is_ms_shipped = 0 " + // Make sure we do not return anything MS shipped.
+            "AND obj.type IN (" // Select the object types.
+        );
     }
 
     private List<String> cleanPrimaryKeys(List<DBObject> tables) throws SQLException {

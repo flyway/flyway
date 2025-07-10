@@ -49,6 +49,7 @@ public class FlywayEnvironmentModel {
     private String placeholderSeparator;
     private String scriptPlaceholderPrefix;
     private String scriptPlaceholderSuffix;
+    private String powershellExecutable;
     private String sqlMigrationPrefix;
     private Boolean executeInTransaction;
     private String repeatableSqlMigrationPrefix;
@@ -108,6 +109,7 @@ public class FlywayEnvironmentModel {
         result.placeholderSeparator = placeholderSeparator.merge(otherPojo.placeholderSeparator);
         result.scriptPlaceholderPrefix = scriptPlaceholderPrefix.merge(otherPojo.scriptPlaceholderPrefix);
         result.scriptPlaceholderSuffix = scriptPlaceholderSuffix.merge(otherPojo.scriptPlaceholderSuffix);
+        result.powershellExecutable = powershellExecutable.merge(otherPojo.powershellExecutable);
         result.sqlMigrationPrefix = sqlMigrationPrefix.merge(otherPojo.sqlMigrationPrefix);
         result.executeInTransaction = executeInTransaction.merge(otherPojo.executeInTransaction);
         result.repeatableSqlMigrationPrefix = repeatableSqlMigrationPrefix.merge(otherPojo.repeatableSqlMigrationPrefix);

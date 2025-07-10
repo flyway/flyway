@@ -35,7 +35,7 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.CommandResultFactory;
 import org.flywaydb.core.api.output.MigrateResult;
 import org.flywaydb.core.api.resource.LoadableResource;
-import org.flywaydb.core.experimental.ExperimentalDatabase;
+import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
 import org.flywaydb.core.internal.exception.FlywayMigrateException;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.util.Pair;
@@ -46,8 +46,8 @@ import org.flywaydb.nc.utils.ErrorUtils;
 import org.flywaydb.nc.executors.NonJdbcExecutorExecutionUnit;
 import org.flywaydb.nc.executors.ExecutorFactory;
 import org.flywaydb.verb.migrate.MigrationExecutionGroup;
-import org.flywaydb.core.experimental.Executor;
-import org.flywaydb.core.experimental.Reader;
+import org.flywaydb.core.internal.nc.Executor;
+import org.flywaydb.core.internal.nc.Reader;
 import org.flywaydb.nc.readers.ReaderFactory;
 
 @CustomLog
@@ -56,7 +56,7 @@ public class ApiMigrator extends Migrator {
     @Override
     public List<MigrationExecutionGroup> createGroups(final MigrationInfo[] allPendingMigrations,
         final Configuration configuration,
-        final ExperimentalDatabase experimentalDatabase,
+        final NativeConnectorsDatabase experimentalDatabase,
         final MigrateResult migrateResult,
         final ParsingContext parsingContext) {
         final List<MigrationInfo> currentGroup = Arrays.asList(allPendingMigrations);
@@ -101,7 +101,7 @@ public class ApiMigrator extends Migrator {
     @Override
     public int doExecutionGroup(final Configuration configuration,
         final MigrationExecutionGroup executionGroup,
-        final ExperimentalDatabase experimentalDatabase,
+        final NativeConnectorsDatabase experimentalDatabase,
         final MigrateResult migrateResult,
         final ParsingContext parsingContext,
         final int installedRank,
@@ -131,7 +131,7 @@ public class ApiMigrator extends Migrator {
     }
 
     private void doIndividualMigration(final MigrationInfo migrationInfo,
-        final ExperimentalDatabase experimentalDatabase,
+        final NativeConnectorsDatabase experimentalDatabase,
         final Configuration configuration,
         final MigrateResult migrateResult,
         final int installedRank,
@@ -227,7 +227,7 @@ public class ApiMigrator extends Migrator {
     }
 
     private void handleMigrationError(final Exception e,
-        final ExperimentalDatabase experimentalDatabase,
+        final NativeConnectorsDatabase experimentalDatabase,
         final MigrationInfo migrationInfo,
         final MigrateResult migrateResult,
         final String schemaHistoryTableName,

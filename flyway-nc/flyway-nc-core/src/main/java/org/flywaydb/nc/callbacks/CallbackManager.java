@@ -25,8 +25,8 @@ import lombok.CustomLog;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResourceMetadata;
-import org.flywaydb.core.experimental.CallbackHandler;
-import org.flywaydb.core.experimental.ExperimentalDatabase;
+import org.flywaydb.core.internal.nc.CallbackHandler;
+import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
 import org.flywaydb.core.internal.parser.ParsingContext;
 
 @CustomLog
@@ -47,7 +47,7 @@ public class CallbackManager {
     }
 
     public void handleEvent(final Event event,
-        final ExperimentalDatabase database,
+        final NativeConnectorsDatabase database,
         final Configuration configuration,
         final ParsingContext parsingContext) {
         callbackHandlers.forEach(x -> x.handleEvent(event, database, configuration, parsingContext));

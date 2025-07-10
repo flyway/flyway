@@ -33,7 +33,7 @@ import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.ValidateOutput;
 import org.flywaydb.core.api.output.ValidateResult;
-import org.flywaydb.core.experimental.ExperimentalDatabase;
+import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
 import org.flywaydb.core.extensibility.CachingVerbExtension;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.util.StopWatch;
@@ -59,7 +59,7 @@ public class ValidateVerbExtension extends CachingVerbExtension {
 
         final PreparationContext context = PreparationContext.get(configuration, cached);
 
-        final ExperimentalDatabase database = context.getDatabase();
+        final NativeConnectorsDatabase database = context.getDatabase();
 
         final CallbackManager callbackManager = new CallbackManager(configuration, context.getResources());
 

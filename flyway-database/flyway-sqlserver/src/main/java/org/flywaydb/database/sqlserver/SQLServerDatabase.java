@@ -384,6 +384,8 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
                 return DATABASE_HOSTING_AZURE_SQL_DATABASE;
             } else if (code == 8) {
                 return DATABASE_HOSTING_AZURE_SQL_MANAGED_INSTANCE;
+            } else if (code == 12) {
+                return DATABASE_HOSTING_FABRIC;
             }
         } else if (getMainConnection().isAwsRds() || DATABASE_HOSTING_RDS_URL_IDENTIFIER.matcher(configuration.getUrl()).find()) {
             return DATABASE_HOSTING_AWS_RDS;

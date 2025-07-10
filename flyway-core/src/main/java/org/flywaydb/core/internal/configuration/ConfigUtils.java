@@ -111,6 +111,7 @@ public class ConfigUtils {
     public static final String PLACEHOLDER_SEPARATOR = "flyway.placeholderSeparator";
     public static final String SCRIPT_PLACEHOLDER_PREFIX = "flyway.scriptPlaceholderPrefix";
     public static final String SCRIPT_PLACEHOLDER_SUFFIX = "flyway.scriptPlaceholderSuffix";
+    public static final String POWERSHELL_EXECUTABLE = "flyway.powershellExecutable";
     public static final String PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders.";
     public static final String LOCK_RETRY_COUNT = "flyway.lockRetryCount";
     public static final String JDBC_PROPERTIES_PREFIX = "flyway.jdbcProperties.";
@@ -288,6 +289,9 @@ public class ConfigUtils {
         }
         if ("FLYWAY_SCRIPT_PLACEHOLDER_SUFFIX".equals(key)) {
             return SCRIPT_PLACEHOLDER_SUFFIX;
+        }
+        if ("FLYWAY_POWERSHELL_EXECUTABLE".equals(key)) {
+            return POWERSHELL_EXECUTABLE;
         }
         if (key.matches("FLYWAY_PLACEHOLDERS_.+")) {
             return PLACEHOLDERS_PROPERTY_PREFIX + key.substring("FLYWAY_PLACEHOLDERS_".length())

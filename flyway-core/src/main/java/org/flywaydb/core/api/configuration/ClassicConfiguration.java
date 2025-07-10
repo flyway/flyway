@@ -64,7 +64,7 @@ import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.experimental.ExperimentalModeUtils;
+import org.flywaydb.core.internal.nc.NativeConnectorsModeUtils;
 import org.flywaydb.core.extensibility.ConfigurationExtension;
 import org.flywaydb.core.extensibility.ConfigurationProvider;
 import org.flywaydb.core.extensibility.LicenseGuard;
@@ -240,7 +240,7 @@ public class ClassicConfiguration implements Configuration {
             return model.getDataSource();
         }
 
-        if (StringUtils.hasText(getUrl()) && ExperimentalModeUtils.canCreateDataSource(this)) {
+        if (StringUtils.hasText(getUrl()) && NativeConnectorsModeUtils.canCreateDataSource(this)) {
             DataSource dataSource = new DriverDataSource(classLoader,
                 getDriver(),
                 getUrl(),
@@ -1215,6 +1215,22 @@ public class ClassicConfiguration implements Configuration {
     }
 
     @Override
+    public String getPowershellExecutable() {
+        return getEnvironmentOverrides().getPowershellExecutable() != null
+            ? getEnvironmentOverrides().getPowershellExecutable()
+            : getModernFlyway().getPowershellExecutable();
+    }
+
+    /**
+     * Sets the PowerShell executable used for running PowerShell scripts.
+     *
+     * @param powershellExecutable The PowerShell executable (default: "powershell" on Windows, "pwsh" on other platforms)
+     */
+    public void setPowershellExecutable(String powershellExecutable) {
+        getModernFlyway().setPowershellExecutable(powershellExecutable);
+    }
+
+    @Override
     public Map<String, String> getPlaceholders() {
         return getEnvironmentOverrides().getPlaceholders() != null
             ? getEnvironmentOverrides().getPlaceholders()
@@ -1500,7 +1516,7 @@ public class ClassicConfiguration implements Configuration {
         getCurrentUnresolvedEnvironment().setPassword(password);
 
         requestResolvedEnvironmentRefresh(getCurrentEnvironmentName());
-        if (ExperimentalModeUtils.canCreateDataSource(this)) {
+        if (NativeConnectorsModeUtils.canCreateDataSource(this)) {
             dataSources.put(getCurrentEnvironmentName(),
                 new DataSourceModel(new DriverDataSource(classLoader,
                     null,
@@ -1833,6 +1849,10 @@ public class ClassicConfiguration implements Configuration {
         if (scriptPlaceholderSuffixProp != null) {
             setScriptPlaceholderSuffix(scriptPlaceholderSuffixProp);
         }
+        String powershellExecutableProp = props.remove(ConfigUtils.POWERSHELL_EXECUTABLE);
+        if (powershellExecutableProp != null) {
+            setPowershellExecutable(powershellExecutableProp);
+        }
         String sqlMigrationPrefixProp = props.remove(ConfigUtils.SQL_MIGRATION_PREFIX);
         if (sqlMigrationPrefixProp != null) {
             setSqlMigrationPrefix(sqlMigrationPrefixProp);
@@ -2016,7 +2036,7 @@ public class ClassicConfiguration implements Configuration {
             if (Stream.of(urlProp, driverProp, userProp, passwordProp).anyMatch(StringUtils::hasText)) {
                 DriverDataSource driverDataSource = null;
                 boolean isGenerated = false;
-                if (StringUtils.hasText(urlProp) && ExperimentalModeUtils.canCreateDataSource(this)) {
+                if (StringUtils.hasText(urlProp) && NativeConnectorsModeUtils.canCreateDataSource(this)) {
                     driverDataSource = new DriverDataSource(classLoader,
                         getDriver(),
                         getUrl(),

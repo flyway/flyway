@@ -135,4 +135,4 @@ _A table has been created but has no `MS_Description` property added_
 
 **Dialects:** TSQL
 
-This operation is likely to result in a loss of data so should be investigated before continuing
+It is a good practice to include a description in the `MS_Description` extended property to document the purpose of a table.

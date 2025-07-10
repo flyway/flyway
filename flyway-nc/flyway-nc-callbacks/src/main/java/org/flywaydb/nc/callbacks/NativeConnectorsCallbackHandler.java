@@ -33,17 +33,17 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResourceMetadata;
-import org.flywaydb.core.experimental.CallbackHandler;
-import org.flywaydb.core.experimental.ExperimentalDatabase;
+import org.flywaydb.core.internal.nc.CallbackHandler;
+import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.nc.utils.ErrorUtils;
 import org.flywaydb.nc.utils.NativeConnectorsUtils;
 import org.flywaydb.nc.executors.NonJdbcExecutorExecutionUnit;
-import org.flywaydb.core.experimental.Executor;
+import org.flywaydb.core.internal.nc.Executor;
 import org.flywaydb.nc.executors.ExecutorFactory;
 import org.flywaydb.nc.executors.JdbcExecutor;
-import org.flywaydb.core.experimental.Reader;
+import org.flywaydb.core.internal.nc.Reader;
 import org.flywaydb.nc.readers.ReaderFactory;
 
 @CustomLog
@@ -52,7 +52,7 @@ public class NativeConnectorsCallbackHandler implements CallbackHandler {
 
     @Override
     public void handleEvent(final Event event,
-        final ExperimentalDatabase database,
+        final NativeConnectorsDatabase database,
         final Configuration configuration,
         final ParsingContext parsingContext) {
         callbacks.stream()
@@ -61,7 +61,7 @@ public class NativeConnectorsCallbackHandler implements CallbackHandler {
     }
 
     private void handleEvent(final Callback callback,
-        final ExperimentalDatabase database,
+        final NativeConnectorsDatabase database,
         final Configuration configuration,
         final ParsingContext parsingContext) {
         final Reader<Object> reader = ReaderFactory.getReader(database, configuration);

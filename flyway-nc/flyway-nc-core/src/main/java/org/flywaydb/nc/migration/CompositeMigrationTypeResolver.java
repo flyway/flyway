@@ -22,7 +22,7 @@ package org.flywaydb.nc.migration;
 import java.util.List;
 import java.util.Objects;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.experimental.MigrationTypeResolver;
+import org.flywaydb.core.internal.nc.MigrationTypeResolver;
 import org.flywaydb.core.extensibility.MigrationType;
 
 public class CompositeMigrationTypeResolver implements MigrationTypeResolver {

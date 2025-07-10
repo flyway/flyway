@@ -38,7 +38,7 @@ import org.flywaydb.core.api.exception.FlywayValidateException;
 import org.flywaydb.core.api.output.MigrateResult;
 import org.flywaydb.core.api.output.ValidateResult;
 import org.flywaydb.core.api.pattern.ValidatePattern;
-import org.flywaydb.core.experimental.ExperimentalDatabase;
+import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
 import org.flywaydb.core.extensibility.VerbExtension;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
@@ -48,7 +48,7 @@ import org.flywaydb.core.internal.util.ValidatePatternUtils;
 import org.flywaydb.nc.callbacks.CallbackManager;
 import org.flywaydb.nc.utils.VerbUtils;
 import org.flywaydb.verb.baseline.BaselineVerbExtension;
-import org.flywaydb.nc.info.ExperimentalMigrationInfoService;
+import org.flywaydb.nc.info.NativeConnectorsMigrationInfoService;
 import org.flywaydb.verb.migrate.migrators.ApiMigrator;
 import org.flywaydb.verb.migrate.migrators.ExecutableMigrator;
 import org.flywaydb.verb.migrate.migrators.JdbcMigrator;
@@ -74,7 +74,7 @@ public class MigrateVerbExtension implements VerbExtension {
             validate(configuration);
         }
 
-        final ExperimentalDatabase database = context.getDatabase();
+        final NativeConnectorsDatabase database = context.getDatabase();
 
         if (configuration.isCreateSchemas()) {
             try {
@@ -129,7 +129,7 @@ public class MigrateVerbExtension implements VerbExtension {
             "",
             database.getDatabaseType());
 
-        final MigrationInfoService migrationInfoService = new ExperimentalMigrationInfoService(context.getMigrations(),
+        final MigrationInfoService migrationInfoService = new NativeConnectorsMigrationInfoService(context.getMigrations(),
             configuration,
             database.getName(),
             database.allSchemasEmpty(VerbUtils.getAllSchemas(configuration.getSchemas(), database.getCurrentSchema())));
@@ -288,7 +288,7 @@ public class MigrateVerbExtension implements VerbExtension {
     private void logSummary(final int migrationSuccessCount,
         final long executionTime,
         final String targetVersion,
-        final ExperimentalDatabase experimentalDatabase) {
+        final NativeConnectorsDatabase experimentalDatabase) {
         final String schemaName = experimentalDatabase.doQuote(experimentalDatabase.getCurrentSchema());
         if (migrationSuccessCount == 0) {
             LOG.info("Schema " + schemaName + " is up to date. No migration necessary.");

@@ -94,7 +94,7 @@ public class ScriptMigrationExecutor implements MigrationExecutor {
         return output.toString();
     }
 
-    List<String> getProcessArgs() {
+    List<String> getProcessArgs(Context context) {
         String resourcePath = resource.getAbsolutePathOnDisk();
         String resourceExt = StringUtils.getFileNameAndExtension(resourcePath).getRight();
 
@@ -105,7 +105,14 @@ public class ScriptMigrationExecutor implements MigrationExecutor {
             args.add("/c");
             args.add(resourcePath);
         } else if ("ps1".equalsIgnoreCase(resourceExt)) {
-            args.add(OsUtils.isWindows() ? "powershell" : "pwsh");
+            String powershellExecutable = context.getConfiguration().getPowershellExecutable();
+            if (StringUtils.hasText(powershellExecutable)) {
+                validatePowershellExecutable(powershellExecutable);
+                args.add(powershellExecutable);
+            } else {
+                // Default behavior: use "powershell" on Windows and "pwsh" on other platforms
+                args.add(OsUtils.isWindows() ? "powershell" : "pwsh");
+            }
             args.add("-File");
             args.add(resourcePath);
         } else if ("py".equalsIgnoreCase(resourceExt)) {
@@ -136,7 +143,7 @@ public class ScriptMigrationExecutor implements MigrationExecutor {
     }
 
     private void runScript(final Context context) throws Exception {
-        List<String> args = getProcessArgs();
+        List<String> args = getProcessArgs(context);
         LOG.info("Executing " + join(" ", args));
 
         String url = context.getConfiguration().getUrl();
@@ -195,5 +202,14 @@ public class ScriptMigrationExecutor implements MigrationExecutor {
     @Override
     public boolean shouldExecute() {
         return true;
+    }
+    
+    private void validatePowershellExecutable(String powershellExecutable) {
+        // Check if it's a legitimate PowerShell executable name
+        String executableName = powershellExecutable.toLowerCase();
+        if (!executableName.equals("powershell") && !executableName.equals("pwsh")) {
+            throw new FlywayException("Invalid PowerShell executable: " + powershellExecutable + 
+                ". Only 'powershell' or 'pwsh' are allowed.");
+        }
     }
 }

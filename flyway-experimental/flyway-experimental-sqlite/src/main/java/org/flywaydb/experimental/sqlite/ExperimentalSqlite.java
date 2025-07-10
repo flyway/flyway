@@ -19,6 +19,7 @@
  */
 package org.flywaydb.experimental.sqlite;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -28,14 +29,14 @@ import java.util.function.BiFunction;
 import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.experimental.DatabaseSupport;
-import org.flywaydb.nc.ExperimentalJdbc;
+import org.flywaydb.core.internal.nc.DatabaseSupport;
+import org.flywaydb.nc.NativeConnectorsJdbc;
 import org.flywaydb.core.internal.database.sqlite.SQLiteParser;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
 
 @CustomLog
-public class ExperimentalSqlite extends ExperimentalJdbc <String>  {
+public class ExperimentalSqlite extends NativeConnectorsJdbc<String> {
 
     @Override
     public DatabaseSupport supportsUrl(final String url) {
@@ -194,5 +195,10 @@ public class ExperimentalSqlite extends ExperimentalJdbc <String>  {
     @Override
     protected boolean supportsCatalog() {
         return false;
+    }
+
+    @Override
+    public boolean handlesProductName(final Connection connection, final String databaseProductName) {
+        return databaseProductName.startsWith("SQLite");
     }
 }
