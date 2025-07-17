@@ -12,7 +12,7 @@ If this is a relative path, it will be resolved relative to your [working direct
 
 Omit to use the default mode of executing the SQL statements directly against the database.
 
-See [dry runs](https://documentation.red-gate.com/flyway/flyway-concepts/migrations/dry-runs) for more details.
+See [dry runs](https://documentation.red-gate.com/flyway/flyway-concepts/migrations/migration-command-dry-runs) for more details.
 
 ### Amazon S3
 

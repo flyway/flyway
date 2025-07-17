@@ -47,8 +47,8 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.artifacts.ResolvedArtifact;
 import org.gradle.api.artifacts.ResolvedConfiguration;
 import org.gradle.api.file.FileCollection;
-import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.SourceSetOutput;
 import org.gradle.api.tasks.TaskAction;
 
@@ -616,9 +616,9 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     }
 
     private void addClassesAndResourcesDirs(Set<URL> extraURLs) throws MalformedURLException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        JavaPluginConvention plugin = getProject().getConvention().getPlugin(JavaPluginConvention.class);
+        final SourceSetContainer sourceSets = getProject().getExtensions().getByType(SourceSetContainer.class);
 
-        for (SourceSet sourceSet : plugin.getSourceSets()) {
+        for (final SourceSet sourceSet : sourceSets) {
             try {
                 FileCollection classesDirs = sourceSet.getOutput().getClassesDirs();
                 for (File directory : classesDirs.getFiles()) {

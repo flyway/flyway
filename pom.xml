@@ -14,7 +14,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>11.10.2</version>
+    <version>11.10.3</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -50,20 +50,12 @@
 
     <modules>
         <module>flyway-core</module>
-        <module>flyway-gradle-plugin</module>
-        <module>flyway-maven-plugin</module>
+        <module>flyway-plugins</module>
         <module>flyway-commandline</module>
         <module>flyway-database</module>
         <module>flyway-experimental</module>
         <module>flyway-reports</module>
         <module>flyway-nc</module>
-
-
-
-
-
-
-
 
 
 
@@ -138,6 +130,7 @@
         <version.cassandra>4.13.0</version.cassandra>
         <version.commonslogging>1.2</version.commonslogging>
         <version.commonstext>1.10.0</version.commonstext>
+        <version.commonslang3>3.18.0</version.commonslang3>
         <version.db2>11.5.0.0</version.db2>
         <version.derby>10.16.1.1</version.derby>
         <version.equinox>3.15.200</version.equinox>
@@ -152,7 +145,7 @@
         <version.ignite>2.13.0</version.ignite>
         <version.informix>4.50.3</version.informix>
         <version.jansi>1.18</version.jansi>
-        <version.jackson>2.15.2</version.jackson>
+        <version.jackson>2.19.1</version.jackson>
         <version.jaxb>2.3.1</version.jaxb>
         <version.jaybird>3.0.10</version.jaybird>
         <version.jboss>3.2.15.Final</version.jboss>
@@ -205,6 +198,12 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-text</artifactId>
                 <version>${version.commonstext}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${version.commonslang3}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
@@ -733,7 +732,7 @@
             <dependency>
                 <groupId>com.nimbusds</groupId>
                 <artifactId>nimbus-jose-jwt</artifactId>
-                <version>9.37.2</version>
+                <version>10.0.2</version>
             </dependency>
             <dependency>
                 <groupId>com.nimbusds</groupId>

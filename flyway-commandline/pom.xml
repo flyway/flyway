@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>11.10.2</version>
+        <version>11.10.3</version>
     </parent>
     <artifactId>flyway-commandline</artifactId>
     <packaging>jar</packaging>
@@ -664,55 +664,6 @@
             <scope>runtime</scope>
         </dependency>
     </dependencies>
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>net.adoptium</groupId>
-                <artifactId>jre</artifactId>
-                <classifier>windows-x64</classifier>
-                <version>${jre.version}</version>
-                <type>zip</type>
-                <scope>system</scope>
-                <systemPath>${basedir}/src/main/assembly/OpenJDK21U-jre_x64_windows_hotspot_${jre.version}_11.zip</systemPath>
-            </dependency>
-            <dependency>
-                <groupId>net.adoptium</groupId>
-                <artifactId>jre</artifactId>
-                <classifier>linux-x64</classifier>
-                <version>${jre.version}</version>
-                <type>tar.gz</type>
-                <scope>system</scope>
-                <systemPath>${basedir}/src/main/assembly/OpenJDK21U-jre_x64_linux_hotspot_${jre.version}_11.tar.gz</systemPath>
-            </dependency>
-            <dependency>
-                <groupId>net.adoptium</groupId>
-                <artifactId>jre</artifactId>
-                <classifier>linux-alpine-x64</classifier>
-                <version>${jre.version}</version>
-                <type>tar.gz</type>
-                <scope>system</scope>
-                <systemPath>${basedir}/src/main/assembly/OpenJDK21U-jre_x64_alpine-linux_hotspot_${jre.version}_11.tar.gz</systemPath>
-            </dependency>
-            <dependency>
-                <groupId>net.adoptium</groupId>
-                <artifactId>jre</artifactId>
-                <classifier>macos-x64</classifier>
-                <version>${jre.version}</version>
-                <type>tar.gz</type>
-                <scope>system</scope>
-                <systemPath>${basedir}/src/main/assembly/OpenJDK21U-jre_x64_mac_hotspot_${jre.version}_11.tar.gz</systemPath>
-            </dependency>
-            <dependency>
-                <groupId>net.adoptium</groupId>
-                <artifactId>jre</artifactId>
-                <classifier>macos-arm64</classifier>
-                <version>${jre.version}</version>
-                <type>tar.gz</type>
-                <scope>system</scope>
-                <systemPath>${basedir}/src/main/assembly/OpenJDK21U-jre_aarch64_mac_hotspot_${jre.version}_11.tar.gz</systemPath>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
     <build>
         <plugins>
             <plugin>
@@ -783,43 +734,6 @@
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>net.adoptium</groupId>
-                    <artifactId>jre</artifactId>
-                    <classifier>windows-x64</classifier>
-                    <type>zip</type>
-                    <scope>system</scope>
-                </dependency>
-                <dependency>
-                    <groupId>net.adoptium</groupId>
-                    <artifactId>jre</artifactId>
-                    <classifier>linux-x64</classifier>
-                    <type>tar.gz</type>
-                    <scope>system</scope>
-                </dependency>
-                <dependency>
-                    <groupId>net.adoptium</groupId>
-                    <artifactId>jre</artifactId>
-                    <classifier>linux-alpine-x64</classifier>
-                    <type>tar.gz</type>
-                    <scope>system</scope>
-                </dependency>
-                <dependency>
-                    <groupId>net.adoptium</groupId>
-                    <artifactId>jre</artifactId>
-                    <classifier>macos-x64</classifier>
-                    <type>tar.gz</type>
-                    <scope>system</scope>
-                </dependency>
-                <dependency>
-                    <groupId>net.adoptium</groupId>
-                    <artifactId>jre</artifactId>
-                    <classifier>macos-arm64</classifier>
-                    <type>tar.gz</type>
-                    <scope>system</scope>
-                </dependency>
-            </dependencies>
             <build>
                 <plugins>
                     <plugin>
@@ -827,19 +741,6 @@
                         <artifactId>maven-dependency-plugin</artifactId>
                         <version>3.5.0</version>
                         <executions>
-                            <execution>
-                                <id>unpack-jres</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>unpack-dependencies</goal>
-                                </goals>
-                                <configuration>
-                                    <ignorePermissions>true</ignorePermissions>
-                                    <includeArtifactIds>jre</includeArtifactIds>
-                                    <stripVersion>true</stripVersion>
-                                    <useSubDirectoryPerArtifact>true</useSubDirectoryPerArtifact>
-                                </configuration>
-                            </execution>
                             <execution>
                                 <id>download-mssql-jdbc_auth</id>
                                 <goals>
@@ -866,6 +767,44 @@
                                     </artifactItems>
                                 </configuration>
                             </execution>
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <executions>
+                            <execution>
+                                <id>unpack-jres</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <unzip src="${basedir}/src/main/assembly/OpenJDK21U-jre_x64_windows_hotspot_${jre.version}_11.zip" dest="${project.build.directory}/dependency/jre-windows-x64"/>
+                                        <untar compression="gzip" src="${basedir}/src/main/assembly/OpenJDK21U-jre_x64_linux_hotspot_${jre.version}_11.tar.gz" dest="${project.build.directory}/dependency/jre-linux-x64"/>
+                                        <untar compression="gzip" src="${basedir}/src/main/assembly/OpenJDK21U-jre_x64_alpine-linux_hotspot_${jre.version}_11.tar.gz" dest="${project.build.directory}/dependency/jre-linux-alpine-x64"/>
+                                        <untar compression="gzip" src="${basedir}/src/main/assembly/OpenJDK21U-jre_x64_mac_hotspot_${jre.version}_11.tar.gz" dest="${project.build.directory}/dependency/jre-macos-x64"/>
+                                        <untar compression="gzip" src="${basedir}/src/main/assembly/OpenJDK21U-jre_aarch64_mac_hotspot_${jre.version}_11.tar.gz" dest="${project.build.directory}/dependency/jre-macos-arm64"/>
+                                    </target>
+                                </configuration>
+                            </execution>
+
+
 
 
 
@@ -931,26 +870,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                 </plugins>
             </build>
         </profile>
@@ -963,33 +882,39 @@
                     <value>windows-latest</value>
                 </property>
             </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>net.adoptium</groupId>
-                    <artifactId>jre</artifactId>
-                    <classifier>windows-x64</classifier>
-                    <type>zip</type>
-                    <scope>system</scope>
-                </dependency>
-            </dependencies>
             <build>
                 <plugins>
                     <plugin>
-                        <artifactId>maven-dependency-plugin</artifactId>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>3.1.0</version>
                         <executions>
                             <execution>
                                 <id>unpack-jres</id>
                                 <phase>package</phase>
                                 <goals>
-                                    <goal>unpack-dependencies</goal>
+                                    <goal>run</goal>
                                 </goals>
                                 <configuration>
-                                    <ignorePermissions>true</ignorePermissions>
-                                    <includeArtifactIds>jre</includeArtifactIds>
-                                    <stripVersion>true</stripVersion>
-                                    <useSubDirectoryPerArtifact>true</useSubDirectoryPerArtifact>
+                                    <target>
+                                        <unzip src="${basedir}/src/main/assembly/OpenJDK21U-jre_x64_windows_hotspot_${jre.version}_11.zip" dest="${project.build.directory}/dependency/jre-windows-x64"/>
+                                    </target>
                                 </configuration>
                             </execution>
+                            <!-- [master] -->
+                            <execution>
+                                <id>prepare</id>
+                                <phase>pre-integration-test</phase>
+                                <configuration>
+                                    <target>
+                                        <unzip src="${project.build.directory}/flyway-commandline-${project.version}-windows-x64.zip" dest="${unpackDir}"/>
+                                    </target>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                            <!-- [/master] -->
                         </executions>
                     </plugin>
                     <plugin>
@@ -1016,25 +941,6 @@
                     </plugin>
                     <!-- [master] -->
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <version>3.1.0</version>
-                        <executions>
-                            <execution>
-                                <id>prepare</id>
-                                <phase>pre-integration-test</phase>
-                                <configuration>
-                                    <target>
-                                        <unzip src="${project.build.directory}/flyway-commandline-${project.version}-windows-x64.zip" dest="${unpackDir}"/>
-                                    </target>
-                                </configuration>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
                             <skip>false</skip>
@@ -1055,34 +961,12 @@
                     <value>ubuntu-latest</value>
                 </property>
             </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>net.adoptium</groupId>
-                    <artifactId>jre</artifactId>
-                    <classifier>linux-x64</classifier>
-                    <type>tar.gz</type>
-                    <scope>system</scope>
-                </dependency>
-            </dependencies>
             <build>
                 <plugins>
+                    <!-- [master] -->
                     <plugin>
                         <artifactId>maven-dependency-plugin</artifactId>
                         <executions>
-                            <execution>
-                                <id>unpack-jres</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>unpack-dependencies</goal>
-                                </goals>
-                                <configuration>
-                                    <ignorePermissions>true</ignorePermissions>
-                                    <includeArtifactIds>jre</includeArtifactIds>
-                                    <stripVersion>true</stripVersion>
-                                    <useSubDirectoryPerArtifact>true</useSubDirectoryPerArtifact>
-                                </configuration>
-                            </execution>
-                            <!-- [master] -->
                             <execution>
                                 <id>pre-largetest-addJars</id>
                                 <phase>pre-integration-test</phase>
@@ -1093,6 +977,39 @@
                                     <includeArtifactIds>flyway-sample</includeArtifactIds>
                                     <outputDirectory>${unpackDir}/flyway-${project.version}/jardir</outputDirectory>
                                 </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- [/master] -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <executions>
+                            <execution>
+                                <id>unpack-jres</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <untar compression="gzip" src="${basedir}/src/main/assembly/OpenJDK21U-jre_x64_linux_hotspot_${jre.version}_11.tar.gz" dest="${project.build.directory}/dependency/jre-linux-x64"/>
+                                    </target>
+                                </configuration>
+                            </execution>
+                            <!-- [master] -->
+                            <execution>
+                                <id>prepare</id>
+                                <phase>pre-integration-test</phase>
+                                <configuration>
+                                    <target>
+                                        <untar src="${project.build.directory}/flyway-commandline-${project.version}-linux-x64.tar.gz" compression="gzip" dest="${unpackDir}"/>
+                                    </target>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
                             </execution>
                             <!-- [/master] -->
                         </executions>
@@ -1121,25 +1038,6 @@
                     </plugin>
                     <!-- [master] -->
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <version>3.1.0</version>
-                        <executions>
-                            <execution>
-                                <id>prepare</id>
-                                <phase>pre-integration-test</phase>
-                                <configuration>
-                                    <target>
-                                        <untar src="${project.build.directory}/flyway-commandline-${project.version}-linux-x64.tar.gz" compression="gzip" dest="${unpackDir}"/>
-                                    </target>
-                                </configuration>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
                             <skip>false</skip>
@@ -1160,31 +1058,22 @@
                     <value>macOS-latest</value>
                 </property>
             </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>net.adoptium</groupId>
-                    <artifactId>jre</artifactId>
-                    <classifier>macos-x64</classifier>
-                    <type>tar.gz</type>
-                    <scope>system</scope>
-                </dependency>
-            </dependencies>
             <build>
                 <plugins>
                     <plugin>
-                        <artifactId>maven-dependency-plugin</artifactId>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>3.1.0</version>
                         <executions>
                             <execution>
                                 <id>unpack-jres</id>
                                 <phase>package</phase>
                                 <goals>
-                                    <goal>unpack-dependencies</goal>
+                                    <goal>run</goal>
                                 </goals>
                                 <configuration>
-                                    <ignorePermissions>true</ignorePermissions>
-                                    <includeArtifactIds>jre</includeArtifactIds>
-                                    <stripVersion>true</stripVersion>
-                                    <useSubDirectoryPerArtifact>true</useSubDirectoryPerArtifact>
+                                    <target>
+                                        <untar compression="gzip" src="${basedir}/src/main/assembly/OpenJDK21U-jre_x64_mac_hotspot_${jre.version}_11.tar.gz" dest="${project.build.directory}/dependency/jre-macos-x64"/></target>
                                 </configuration>
                             </execution>
                         </executions>
@@ -1222,33 +1111,39 @@
                     <value>macOS-latest</value>
                 </property>
             </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>net.adoptium</groupId>
-                    <artifactId>jre</artifactId>
-                    <classifier>macos-arm64</classifier>
-                    <type>tar.gz</type>
-                    <scope>system</scope>
-                </dependency>
-            </dependencies>
             <build>
                 <plugins>
                     <plugin>
-                        <artifactId>maven-dependency-plugin</artifactId>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>3.1.0</version>
                         <executions>
                             <execution>
                                 <id>unpack-jres</id>
                                 <phase>package</phase>
                                 <goals>
-                                    <goal>unpack-dependencies</goal>
+                                    <goal>run</goal>
                                 </goals>
                                 <configuration>
-                                    <ignorePermissions>true</ignorePermissions>
-                                    <includeArtifactIds>jre</includeArtifactIds>
-                                    <stripVersion>true</stripVersion>
-                                    <useSubDirectoryPerArtifact>true</useSubDirectoryPerArtifact>
+                                    <target>
+                                        <untar compression="gzip" src="${basedir}/src/main/assembly/OpenJDK21U-jre_aarch64_mac_hotspot_${jre.version}_11.tar.gz" dest="${project.build.directory}/dependency/jre-macos-arm64"/>
+                                    </target>
                                 </configuration>
                             </execution>
+                            <!-- [master] -->
+                            <execution>
+                                <id>prepare</id>
+                                <phase>pre-integration-test</phase>
+                                <configuration>
+                                    <target>
+                                        <untar src="${project.build.directory}/flyway-commandline-${project.version}-macosx-arm64.tar.gz" dest="${unpackDir}" compression="gzip" />
+                                    </target>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                            <!-- [/master] -->
                         </executions>
                     </plugin>
                     <plugin>
@@ -1275,25 +1170,6 @@
                     </plugin>
                     <!-- [master] -->
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <version>3.1.0</version>
-                        <executions>
-                            <execution>
-                                <id>prepare</id>
-                                <phase>pre-integration-test</phase>
-                                <configuration>
-                                    <target>
-                                        <untar src="${project.build.directory}/flyway-commandline-${project.version}-macosx-arm64.tar.gz" dest="${unpackDir}" compression="gzip" />
-                                    </target>
-                                </configuration>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
                             <skip>false</skip>
@@ -1310,23 +1186,10 @@
             <id>build-assemblies-no-jre</id>
             <build>
                 <plugins>
+                    <!-- [master] -->
                     <plugin>
                         <artifactId>maven-dependency-plugin</artifactId>
                         <executions>
-                            <execution>
-                                <id>unpack-jres</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>unpack-dependencies</goal>
-                                </goals>
-                                <configuration>
-                                    <ignorePermissions>true</ignorePermissions>
-                                    <includeArtifactIds>jre</includeArtifactIds>
-                                    <stripVersion>true</stripVersion>
-                                    <useSubDirectoryPerArtifact>true</useSubDirectoryPerArtifact>
-                                </configuration>
-                            </execution>
-                            <!-- [master] -->
                             <execution>
                                 <id>pre-largetest-addJars</id>
                                 <phase>pre-integration-test</phase>
@@ -1338,9 +1201,9 @@
                                     <outputDirectory>${unpackDir}/flyway-${project.version}/jardir</outputDirectory>
                                 </configuration>
                             </execution>
-                            <!-- [/master] -->
                         </executions>
                     </plugin>
+                    <!-- [/master] -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-assembly-plugin</artifactId>

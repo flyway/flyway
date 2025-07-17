@@ -44,12 +44,12 @@ The `ConfigurationExtension` interface (`org.flywaydb.core.extensibility.Configu
 
 ## Flyway Plugin Archetype
 To make it easier to create plugins for Flyway, we have created a Maven archetype to create a basic plugin project.
-This archetype can be found in the `flyway-plugin-archetype` module in the `flyway` repository.
+This archetype can be found in the `flyway-plugins/flyway-plugin-archetype` module in the `flyway` repository.
 
 ### Installing locally
 If you wish to compile the Flyway Plugin Archetype locally, you can do so by running the following command from the root of the `flyway` repository:
 
-    mvn clean install -DskipTests -DskipIts -pl flyway-plugin-archetype -am
+    mvn clean install -DskipTests -DskipIts -pl flyway-plugins/flyway-plugin-archetype -am
 
 ### Using the archetype
 To create a new Flyway plugin project via commandline, run the following command:

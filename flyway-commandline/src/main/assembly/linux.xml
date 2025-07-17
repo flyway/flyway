@@ -30,13 +30,13 @@
     </componentDescriptors>
     <fileSets>
         <fileSet>
-            <directory>target/dependency/jre-linux-x64-tar.gz/jdk-${jre.version}+11-jre</directory>
+            <directory>target/dependency/jre-linux-x64/jdk-${jre.version}+11-jre</directory>
             <outputDirectory>jre</outputDirectory>
             <fileMode>755</fileMode>
         </fileSet>
         <!-- [redgate] -->
         <fileSet>
-            <directory>../flyway-rgcompare/src/main/resources/rgcompare/linux-x64</directory>
+            <directory>../flyway-comparison/flyway-rgcompare/src/main/resources/rgcompare/linux-x64</directory>
             <outputDirectory>lib/rgcompare</outputDirectory>
             <includes>
                 <include>**/*</include>
@@ -44,7 +44,7 @@
             <fileMode>755</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../flyway-comparison-engines/src/main/resources/flyway-comparison/linux-x64</directory>
+            <directory>../flyway-comparison/flyway-comparison-engines/src/main/resources/flyway-comparison/linux-x64</directory>
             <outputDirectory>lib/flyway-comparison</outputDirectory>
             <includes>
                 <include>**/*</include>

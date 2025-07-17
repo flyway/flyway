@@ -30,7 +30,7 @@
     </componentDescriptors>
     <fileSets>
         <fileSet>
-            <directory>target/dependency/jre-windows-x64-zip/jdk-${jre.version}+11-jre</directory>
+            <directory>target/dependency/jre-windows-x64/jdk-${jre.version}+11-jre</directory>
             <outputDirectory>jre</outputDirectory>
             <fileMode>644</fileMode>
         </fileSet>
@@ -40,7 +40,7 @@
         </fileSet>
         <!-- [redgate] -->
         <fileSet>
-            <directory>../flyway-rgcompare/src/main/resources/rgcompare/windows-x64</directory>
+            <directory>../flyway-comparison/flyway-rgcompare/src/main/resources/rgcompare/windows-x64</directory>
             <outputDirectory>lib/rgcompare</outputDirectory>
             <includes>
                 <include>**/*</include>
@@ -48,7 +48,7 @@
             <fileMode>644</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../flyway-comparison-engines/src/main/resources/flyway-comparison/windows-x64</directory>
+            <directory>../flyway-comparison/flyway-comparison-engines/src/main/resources/flyway-comparison/windows-x64</directory>
             <outputDirectory>lib/flyway-comparison</outputDirectory>
             <includes>
                 <include>**/*</include>

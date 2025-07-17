@@ -3,7 +3,8 @@
     <parent>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>11.10.2</version>
+        <version>11.10.3</version>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>flyway-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>

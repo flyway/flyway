@@ -110,4 +110,4 @@ LANGUAGE SQL
  
 ## Limitations
 
-- *None*
+- Flyway doesn't currently support the use of DB2 utility commands [CLP & CLPPlus](https://www.ibm.com/docs/en/db2/10.1.0?topic=clp-command-line-processor-features) within SQL migrations. These utilities will need to accessed through Script migrations or Script [Callbacks](/callback-events).

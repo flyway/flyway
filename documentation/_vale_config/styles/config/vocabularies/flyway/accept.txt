@@ -82,6 +82,7 @@ beforeValidate
 buildEnvironment
 
 createSchema
+CLPPlus
 diffText
 env
 errorOverride

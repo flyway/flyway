@@ -30,13 +30,13 @@
     </componentDescriptors>
     <fileSets>
         <fileSet>
-            <directory>target/dependency/jre-macos-arm64-tar.gz/jdk-${jre.version}+11-jre/Contents/Home</directory>
+            <directory>target/dependency/jre-macos-arm64/jdk-${jre.version}+11-jre/Contents/Home</directory>
             <outputDirectory>jre</outputDirectory>
             <fileMode>755</fileMode>
         </fileSet>
         <!-- [redgate] -->
         <fileSet>
-            <directory>../flyway-rgcompare/src/main/resources/rgcompare/macos-arm64</directory>
+            <directory>../flyway-comparison/flyway-rgcompare/src/main/resources/rgcompare/macos-arm64</directory>
             <outputDirectory>lib/rgcompare</outputDirectory>
             <includes>
                 <include>**/*</include>
@@ -44,7 +44,7 @@
             <fileMode>755</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../flyway-comparison-engines/src/main/resources/flyway-comparison/macos-arm64</directory>
+            <directory>../flyway-comparison/flyway-comparison-engines/src/main/resources/flyway-comparison/macos-arm64</directory>
             <outputDirectory>lib/flyway-comparison</outputDirectory>
             <includes>
                 <include>**/*</include>
