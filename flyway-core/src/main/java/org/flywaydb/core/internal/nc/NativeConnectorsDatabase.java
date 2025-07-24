@@ -63,6 +63,15 @@ public sealed interface NativeConnectorsDatabase<T> extends Plugin, AutoCloseabl
     boolean supportsTransactions();
 
     /**
+     * Checks if the database supports non-transactional statements.
+     * This is used to determine if the database has statements that cannot be inside a transaction.
+     * @return True if the database supports non-transactional statements, false otherwise.
+     */
+    default boolean hasNonTransactionalStatements() {
+        return true;
+    }
+
+    /**
      * To initialize the connection to the database. This function will vary between the connection types.
      * For example, a JDBC connection will establish a connection object.
      * However, an API connection may require this function to create an authentication object instead.

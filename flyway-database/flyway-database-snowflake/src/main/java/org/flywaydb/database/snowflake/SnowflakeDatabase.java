@@ -80,7 +80,7 @@ public class SnowflakeDatabase extends Database<SnowflakeConnection> {
 
         ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("3", Tier.PREMIUM, configuration);
 
-        checkDatabaseVersionUntested("9.10");
+        checkDatabaseVersionUntested("9.19");
     }
 
     @Override

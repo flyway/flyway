@@ -1,4 +1,5 @@
 import sys
+import os
 import utils
 import subprocess
 
@@ -20,7 +21,7 @@ def get_buildx_command(edition, version, tag_suffix, folder, mongo=False, push=F
         pull_or_push = "push"
     platforms = "linux/arm64/v8,linux/amd64"
     target = edition if not mongo else "mongo"
-    command = f'docker buildx build --target {target} --platform {platforms} --{pull_or_push} --build-arg FLYWAY_VERSION={version} --build-arg EDITION={edition} '
+    command = f'docker buildx build --target {target} --platform {platforms} --{pull_or_push} --build-arg FLYWAY_VERSION={version} --build-arg EDITION={edition}'
     command += get_tag_flags(version, edition, tag_suffix, mongo)
     file_flag = f'-f ./dockerfiles/{folder}/Dockerfile '
     return command + file_flag + "."
@@ -28,7 +29,9 @@ def get_buildx_command(edition, version, tag_suffix, folder, mongo=False, push=F
     
 def get_build_command(edition, version, tag_suffix, folder, mongo=False):
     target = edition if not mongo else "mongo"
-    command = f'docker build --target {target} --pull --build-arg FLYWAY_VERSION={version} --build-arg EDITION={edition} '
+    sqlfluff = f"--build-arg SQLFLUFF_VERSION={os.environ["SQLFLUFF_VERSION"]} " if edition == 'redgate' else ""
+    print(sqlfluff)
+    command = f'docker build --target {target} --pull --build-arg FLYWAY_VERSION={version} --build-arg EDITION={edition} {sqlfluff}'
     command += get_tag_flags(version, edition, tag_suffix, mongo)
     file_flag = f'-f ./dockerfiles/{folder}/Dockerfile '
     return command + file_flag + "."

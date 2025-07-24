@@ -107,32 +107,34 @@ public class JdbcMigrator extends Migrator {
                 .toList();
         }
 
-        final List<Pair<MigrationInfo, Boolean>> migrationContainsNonTransactionalStatements = currentGroup.stream()
-            .map(x -> Pair.of(x,
-                containsNonTransactionalStatements(configuration, experimentalDatabase, x, parsingContext)))
-            .toList();
-        for (final Pair<MigrationInfo, Boolean> pair : migrationContainsNonTransactionalStatements) {
-            final MigrationInfo migrationInfo = pair.getLeft();
-            if (migrationInfo instanceof final LoadableMigrationInfo loadableMigrationInfo) {
-                final boolean containsNonTransactionalStatements = containsNonTransactionalStatements(configuration,
-                    experimentalDatabase,
-                    loadableMigrationInfo,
-                    parsingContext);
-                if (containsNonTransactionalStatements) {
-                    if (configuration.isMixed()) {
-                        return Arrays.stream(allPendingMigrations)
-                            .map(x -> new MigrationExecutionGroup(List.of(x), pair.getRight()))
-                            .toList();
+        if (experimentalDatabase.hasNonTransactionalStatements()) {
+            final List<Pair<MigrationInfo, Boolean>> migrationContainsNonTransactionalStatements = currentGroup.stream()
+                .map(x -> Pair.of(x,
+                    containsNonTransactionalStatements(configuration, experimentalDatabase, x, parsingContext)))
+                .toList();
+            for (final Pair<MigrationInfo, Boolean> pair : migrationContainsNonTransactionalStatements) {
+                final MigrationInfo migrationInfo = pair.getLeft();
+                if (migrationInfo instanceof final LoadableMigrationInfo loadableMigrationInfo) {
+                    final boolean containsNonTransactionalStatements = containsNonTransactionalStatements(configuration,
+                        experimentalDatabase,
+                        loadableMigrationInfo,
+                        parsingContext);
+                    if (containsNonTransactionalStatements) {
+                        if (configuration.isMixed()) {
+                            return Arrays.stream(allPendingMigrations)
+                                .map(x -> new MigrationExecutionGroup(List.of(x), pair.getRight()))
+                                .toList();
+                        }
+                        throw new FlywayMigrateException(migrationInfo,
+                            "Detected both transactional and non-transactional migrations within the same migration group"
+                                + " (even though mixed is false). First offending migration: "
+                                + experimentalDatabase.doQuote((migrationInfo.isVersioned() ? migrationInfo.getVersion()
+                                .getVersion() : "") + (StringUtils.hasLength(migrationInfo.getDescription()) ? " "
+                                + migrationInfo.getDescription() : ""))
+                                + (" [non-transactional]"),
+                            false,
+                            migrateResult);
                     }
-                    throw new FlywayMigrateException(migrationInfo,
-                        "Detected both transactional and non-transactional migrations within the same migration group"
-                            + " (even though mixed is false). First offending migration: "
-                            + experimentalDatabase.doQuote((migrationInfo.isVersioned() ? migrationInfo.getVersion()
-                            .getVersion() : "") + (StringUtils.hasLength(migrationInfo.getDescription()) ? " "
-                            + migrationInfo.getDescription() : ""))
-                            + (" [non-transactional]"),
-                        false,
-                        migrateResult);
                 }
             }
         }

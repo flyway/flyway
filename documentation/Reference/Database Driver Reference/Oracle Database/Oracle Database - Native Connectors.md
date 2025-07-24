@@ -77,4 +77,22 @@ Native Connectors for Oracle will not use referenced scripts, `login.sql`, or `g
 
 This is because non-Native Connectors Flyway included any referenced scripts when calculating checksums. This also extended to `login.sql` and `glogin.sql` since their contents can affect the reproducibility of a migration and can differ in different environments.
 
+## Flashback Restore Points (Enterprise Edition)
 
+Flyway Enterprise supports the use of Oracle Flashback Database restore points as a safety mechanism during migrations. When running with the appropriate Oracle privileges and Flashback Database enabled, Flyway will automatically create a restore point at the start of a migration and drop it on commit. If a migration fails, the restore point can be used to manually restore the database to its previous state.
+
+> **Note:** This feature replaces Flyway's traditional transaction management for Oracle Native Connectors. It does **not** use Oracle transactions. Instead, it leverages Oracle's Flashback Database capability to provide a rollback mechanism at the database level.
+
+**Requirements:**
+- Oracle Flashback Database must be enabled.
+- The connected user must have the `CREATE ANY RESTORE POINT`, `SYSDBA`, or `SYSOPER` privilege.
+- Available in Flyway Enterprise Edition only.
+
+**How it works:**
+- At the start of a migration, Flyway creates a restore point named `FLYWAY_RP_<timestamp>`.
+- On successful commit, the restore point is dropped.
+- On rollback, Flyway logs the restore point name for manual use. Actual database flashback must be performed manually by a DBA.
+
+**Limitations:**
+- Flashback restore points affect the entire database and require downtime to restore.
+- Automatic flashback is not performed by Flyway; only the restore point is created and managed.

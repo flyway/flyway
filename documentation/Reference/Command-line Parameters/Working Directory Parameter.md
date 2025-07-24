@@ -7,11 +7,11 @@ redirect_from: Configuration/workingDirectory/
 
 The working directory to consider when dealing with relative paths. If configured, this parameter will affect the below areas:
 
-- Looking for the default [migration locations](<Configuration/Flyway Namespace/Flyway Locations Setting>)folder.
+- Looking for the default [migration locations](<Configuration/Flyway Namespace/Flyway Locations Setting>) folder.
 - Looking for the default [jars](<Configuration/Flyway Namespace/Flyway Jar Dirs Setting>) folder.
 - Looking for the default [Rules Location](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Rules Location Setting>) folder.
 - Looking for default [Configuration Files](https://documentation.red-gate.com/flyway/flyway-concepts/flyway-projects).
-- The [`locations`](<Configuration/Flyway Namespace/Flyway Locations Setting>)parameter
+- The [`locations`](<Configuration/Flyway Namespace/Flyway Locations Setting>) parameter
 - The [`jarDirs`](<Configuration/Flyway Namespace/Flyway Jar Dirs Setting>) parameter
 - The [`configFiles`](<Command-line Parameters/Config Files Parameter>) parameter
 - The [`reportFilename`](<Configuration/Flyway Namespace/Flyway Report Filename Setting>) parameter

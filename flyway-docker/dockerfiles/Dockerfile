@@ -31,7 +31,7 @@ CMD ["-?"]
 FROM flyway AS redgate
 
 ENV REDGATE_DOCKER=true
-ARG SQLFLUFF_VERSION=3.0.7
+ARG SQLFLUFF_VERSION
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends python3-pip \
