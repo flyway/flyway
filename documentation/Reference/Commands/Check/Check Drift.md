@@ -4,6 +4,8 @@ subtitle: Check Changes
 
 ## Description
 
+{% include enterprise.html %}
+
 The `check -drift` command checks a target environment for drift, in order to ensure that it is still in the expected state for running deployments.
 
 Deployment can be aborted if drift is detected, and a report will be generated.

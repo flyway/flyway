@@ -80,7 +80,7 @@ public class SnowflakeDatabase extends Database<SnowflakeConnection> {
 
         ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("3", Tier.PREMIUM, configuration);
 
-        checkDatabaseVersionUntested("9.19");
+        checkDatabaseVersionUntested(9);
     }
 
     @Override
@@ -173,15 +173,15 @@ public class SnowflakeDatabase extends Database<SnowflakeConnection> {
         }
     }
 
-    private void checkDatabaseVersionUntested(String newestSupportedVersion) {
-        if (getVersion().isNewerThan(newestSupportedVersion)) {
+    private void checkDatabaseVersionUntested(final int newestSupportedVersion) {
+        if (getVersion().getMajor().intValue() > (newestSupportedVersion)) {
             informVersionUntested(newestSupportedVersion);
         }
     }
 
-    private void informVersionUntested(final String newestSupportedVersion) {
+    private void informVersionUntested(final int newestSupportedVersion) {
         final String message = databaseType + " " + computeVersionDisplayName(getVersion())
-            + " is newer than the latest version tested with this version of Flyway: " + newestSupportedVersion + "."
+            + " is newer than the latest major version tested with this version of Flyway: Snowflake " + newestSupportedVersion + ".x ."
             + "\nCheck here: " + FlywayDbWebsiteLinks.SNOWFLAKE + " to see if your version is supported in the latest Flyway release";
         LOG.info(message);
     }

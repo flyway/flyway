@@ -146,6 +146,13 @@
             </includes>
             <fileMode>644</fileMode>
         </fileSet>
+        <fileSet>
+            <directory>src/main/assembly/drivers/aws</directory>
+            <outputDirectory>drivers/aws</outputDirectory>
+            <includes>
+                <include>*</include>
+            </includes>
+        </fileSet>
 
 
 
@@ -403,6 +410,7 @@
                 <include>*</include>
             </includes>
             <excludes>
+                <exclude>com.amazonaws.secretsmanager:aws-secretsmanager-jdbc</exclude>
                 <exclude>org.flywaydb:flyway-*</exclude>
                 <exclude>org.flywaydb.enterprise:flyway-*</exclude>
                 <exclude>org.flywaydb:flyway-*</exclude>

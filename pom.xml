@@ -9,12 +9,18 @@
     mvn clean install -Pbuild-assemblies-mac
     mvn clean install -Pbuild-assemblies-mac-arm64
     mvn clean install -Pbuild-assemblies-no-jre
+
+    To build modules for releasing with lombok processing and javadoc generation:
+    mvn clean install -Plombok-javadoc -DskipTests -DskipITs -ntp
+    
+    The lombok-javadoc profile enables lombok delombok processing and javadoc generation for modules that need them.
+    Modules that don't require these features (e.g., flyway-bom) will build without unnecessary plugin overhead.
     -->
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>11.10.4</version>
+    <version>11.10.5</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -911,50 +917,7 @@
                     <publishingServerId>central</publishingServerId>
                 </configuration>
             </plugin>
-            <plugin>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <detectJavaApiLink>false</detectJavaApiLink>
-                    <encoding>UTF-8</encoding>
-                    <doclint>none</doclint>
-                    <sourcepath>${project.basedir}/target/generated-sources/delombok</sourcepath>
-                    <quiet>true</quiet>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok-maven-plugin</artifactId>
-                <version>${version.lombok-maven-plugin}</version>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>delombok</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                    <sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
-                    <outputDirectory>${project.basedir}/target/generated-sources/delombok</outputDirectory>
-                    <addOutputDirectory>false</addOutputDirectory>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.projectlombok</groupId>
-                        <artifactId>lombok</artifactId>
-                        <version>${version.lombok}</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
+
             <plugin>
                 <artifactId>maven-gpg-plugin</artifactId>
                 <version>1.6</version>
@@ -1193,19 +1156,56 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        <profile>
+            <id>lombok-javadoc</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.projectlombok</groupId>
+                        <artifactId>lombok-maven-plugin</artifactId>
+                        <version>${version.lombok-maven-plugin}</version>
+                        <executions>
+                            <execution>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>delombok</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <encoding>UTF-8</encoding>
+                            <sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
+                            <outputDirectory>${project.basedir}/target/generated-sources/delombok</outputDirectory>
+                            <addOutputDirectory>false</addOutputDirectory>
+                        </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${version.lombok}</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <configuration>
+                            <detectJavaApiLink>false</detectJavaApiLink>
+                            <encoding>UTF-8</encoding>
+                            <doclint>none</doclint>
+                            <sourcepath>${project.basedir}/target/generated-sources/delombok</sourcepath>
+                            <quiet>true</quiet>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 </project>

@@ -4,6 +4,8 @@ subtitle: Diff
 
 ## Description
 
+{% include enterprise.html %}
+
 Compares two comparison sources and returns a summary of the differences. A comparison source can either be a database
 environment, build environment, a schema model folder, a snapshot or empty type.
 Additionally, the `diff` command will generate and store the differences between the two comparison sources in the artifact
