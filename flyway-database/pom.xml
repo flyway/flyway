@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>11.10.4</version>
+        <version>11.10.4-zoined.0</version>
     </parent>
 
     <artifactId>flyway-database</artifactId>
@@ -25,6 +25,7 @@
         <module>flyway-database-saphana</module>
         <module>flyway-database-snowflake</module>
         <module>flyway-database-sybasease</module>
+        <module>flyway-database-vertica</module>
         <module>flyway-firebird</module>
         <module>flyway-gcp-bigquery</module>
         <module>flyway-gcp-spanner</module>

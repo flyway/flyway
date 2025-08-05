@@ -1,3 +1,61 @@
+This fork:
+
+- includes custom `flyway-database-vertica` plugin
+
+To work with the repository you may need to use Java 17. On MacOS you can use sdkman to switch Java:
+
+```
+sdk install java 17.0.15-tem
+sdk use java 17.0.15-tem
+```
+
+To build necessary packages (`flyway-core`, `flyway-database-vertica`, `flyway-mysql` and `flyway-parent`) and publish them to your local Maven repository:
+
+```
+./mvnw clean install -DskipTests -pl :flyway-mysql,:flyway-database-vertica,:flyway-core,:flyway-parent
+```
+
+If you want to install the package from your local Maven repository in an SBT project add the resolver to build.sbt:
+
+```
+resolvers += Resolver.mavenLocal
+```
+
+To publish the JAR to Zoined's S3 maven repository create Maven settings file in `~/.m2/settings.xml` with the following content:
+
+```
+<settings>
+  <servers>
+    <server>
+      <id>aws-release</id>
+      <username>your-access-key</username>
+      <password>your-secret-key</password>
+    </server>
+  </servers>
+</settings>
+```
+
+You probably already have necessary AWS access and secret keys in `~/.aws/credentials` configured for other projects.
+
+This file is accessed by `maven-s3-wagon` extention that publishes the package to S3.
+
+Then publish the packages (note that `11.0.4-zoined.0` is subject to change):
+
+```
+./mvnw deploy:deploy-file -Dfile=pom.xml -DgroupId=org.flywaydb -DartifactId=flyway-parent -Dversion=11.10.4-zoined.0 -Dpackaging=pom -DrepositoryId=aws-release -Durl=s3://maven.zoined.com/releases
+
+./mvnw deploy:deploy-file -Dfile=flyway-core/target/flyway-core-11.10.4-zoined.0.jar -DgroupId=org.flywaydb -DartifactId=flyway-core -Dversion=11.10.4-zoined.0 -Dpackaging=jar -DrepositoryId=aws-release -Durl=s3://maven.zoined.com/releases
+
+./mvnw deploy:deploy-file -Dfile=flyway-database/flyway-database-vertica/target/flyway-database-vertica-11.10.4-zoined.0.jar -DgroupId=org.flywaydb -DartifactId=flyway-database-vertica -Dversion=11.10.4-zoined.0 -Dpackaging=jar -DrepositoryId=aws-release -Durl=s3://maven.zoined.com/releases
+
+./mvnw deploy:deploy-file -Dfile=flyway-database/flyway-mysql/target/flyway-mysql-11.10.4-zoined.0.jar -DgroupId=org.flywaydb -DartifactId=flyway-mysql -Dversion=11.10.4-zoined.0 -Dpackaging=jar -DrepositoryId=aws-release -Durl=s3://maven.zoined.com/releases
+```
+
+Note, we did not attempt to build any other packages or run the tests, further changes may be required to do so.
+
+
+
+
 # [Flyway](https://github.com/flyway/flyway) by [Redgate](https://www.red-gate.com/) [![Build Release Tags](https://github.com/flyway/flyway/actions/workflows/build-release.yml/badge.svg)](https://github.com/flyway/flyway/actions/workflows/build-release.yml) [![Maven Central](https://img.shields.io/maven-central/v/org.flywaydb/flyway-core?logo=apachemaven&logoColor=red)](https://search.maven.org/artifact/org.flywaydb/flyway-core) [![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
 
 ### Database Migrations Made Easy.

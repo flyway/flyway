@@ -26,6 +26,8 @@ documentation/_vale_config/styles/proselint
 !**/.idea/codeStyles/
 !**/.idea/codeStyles/*
 
+.vscode
+
 flyway-core-test/spooledContents.sql
 flyway-core-test/spool.sql
 flyway-cli-sample/jars/
