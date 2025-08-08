@@ -19,9 +19,10 @@
  */
 package org.flywaydb.commandline.command.dbsupport;
 
+import static org.flywaydb.core.internal.util.TelemetryUtils.getTelemetryManager;
+
 import lombok.CustomLog;
 import lombok.SneakyThrows;
-import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.TelemetrySpan;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -35,7 +36,6 @@ import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @CustomLog
 public class ListEnginesCommandExtension implements CommandExtension {
@@ -56,9 +56,8 @@ public class ListEnginesCommandExtension implements CommandExtension {
     @SneakyThrows
     public OperationResult handle(String command,
         Configuration config,
-        List<String> flags,
-        FlywayTelemetryManager flywayTelemetryManager) throws FlywayException {
-        return TelemetrySpan.trackSpan(new EventTelemetryModel(DB_SUPPORT, flywayTelemetryManager),
+        List<String> flags) throws FlywayException {
+        return TelemetrySpan.trackSpan(new EventTelemetryModel(DB_SUPPORT, getTelemetryManager(config)),
             (telemetryModel) -> listEngines(config));
     }
 

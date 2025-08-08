@@ -517,7 +517,7 @@ public class Flyway {
     }
 
     private OperationResult runCommand(String command, List<String> flags) {
-        return CommandExtensionUtils.runCommandExtension(configuration, command, flags, flywayTelemetryManager);
+        return CommandExtensionUtils.runCommandExtension(configuration, command, flags);
     }
 
     private CleanResult doClean(Database database, SchemaHistory schemaHistory, Schema defaultSchema, Schema[] schemas, CallbackExecutor callbackExecutor) {

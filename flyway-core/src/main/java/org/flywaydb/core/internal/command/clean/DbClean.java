@@ -74,7 +74,7 @@ public class DbClean {
             cleanResult = configuration.getPluginRegister().getPlugins(CommandExtension.class).stream()
                                        .filter(e -> e.handlesCommand(command))
                                        .findFirst()
-                                       .map(e -> (CleanResult) e.handle(command, configuration, Collections.emptyList(), null))
+                                       .map(e -> (CleanResult) e.handle(command, configuration, Collections.emptyList()))
                                        .orElseThrow(() -> new FlywayException("No command extension found to handle command " + command));
         }
 

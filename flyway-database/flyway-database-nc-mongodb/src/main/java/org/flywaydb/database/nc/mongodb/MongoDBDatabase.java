@@ -136,7 +136,8 @@ public class MongoDBDatabase extends AbstractNativeConnectorsDatabase<NonJdbcExe
             LOG.debug("SSL is not enabled in the current connection configuration");
         }
 
-        if (connectionString.getCredential() != null) {
+        if (connectionString.getCredential() != null
+            || configuration.getPassword() == null) {
             mongoClient = MongoClients.create(MongoClientSettings.builder()
                 .applyConnectionString(connectionString)
                 .applicationName(APPLICATION_NAME)

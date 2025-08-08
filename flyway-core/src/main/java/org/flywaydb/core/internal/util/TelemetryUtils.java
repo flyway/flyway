@@ -1,6 +1,6 @@
 /*-
  * ========================LICENSE_START=================================
- * flyway-commandline
+ * flyway-core
  * ========================================================================
  * Copyright (C) 2010 - 2025 Red Gate Software Ltd
  * ========================================================================
@@ -17,14 +17,15 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.commandline.utils;
+package org.flywaydb.core.internal.util;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.experimental.ExtensionMethod;
+import org.flywaydb.core.FlywayTelemetryManager;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.InfoOutput;
 import org.flywaydb.core.extensibility.Tier;
-import org.flywaydb.core.internal.util.StringUtils;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -55,5 +56,9 @@ public class TelemetryUtils {
         } else {
             return "";
         }
+    }
+
+    public static FlywayTelemetryManager getTelemetryManager(final Configuration configuration) {
+        return configuration != null ? configuration.getPluginRegister().getPluginInstanceOf(FlywayTelemetryManager.class) : null;
     }
 }

@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>11.10.5</version>
+        <version>11.11.0</version>
     </parent>
     <artifactId>flyway-commandline</artifactId>
     <packaging>jar</packaging>
@@ -127,73 +127,73 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-ignite</artifactId>
-            <version>10.22.0</version>
+            <version>10.24.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-tidb</artifactId>
-            <version>10.22.0</version>
+            <version>10.24.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-yugabytedb</artifactId>
-            <version>10.22.0</version>
+            <version>10.24.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-clickhouse</artifactId>
-            <version>10.22.0</version>
+            <version>10.24.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-oceanbase</artifactId>
-            <version>10.22.0</version>
+            <version>10.24.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-databricks</artifactId>
-            <version>10.22.0</version>
+            <version>10.24.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-db2zos</artifactId>
-            <version>10.22.0</version>
+            <version>10.24.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-duckdb</artifactId>
-            <version>10.22.0</version>
+            <version>10.24.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-timeplus</artifactId>
-            <version>10.22.0</version>
+            <version>10.24.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-cubrid</artifactId>
-            <version>10.22.0</version>
+            <version>10.24.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-questdb</artifactId>
-            <version>10.22.0</version>
+            <version>10.24.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-iris</artifactId>
-            <version>10.22.0</version>
+            <version>10.24.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -657,6 +657,12 @@
 
 
 
+
+
+
+
+
+
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>flyway-database-nc-mongodb</artifactId>
@@ -741,6 +747,19 @@
         </plugins>
     </build>
     <profiles>
+
+
+
+
+
+
+
+
+
+
+
+
+
         <profile>
             <id>build-assemblies</id>
             <activation>
@@ -913,20 +932,6 @@
                                     </target>
                                 </configuration>
                             </execution>
-                            <!-- [master] -->
-                            <execution>
-                                <id>prepare</id>
-                                <phase>pre-integration-test</phase>
-                                <configuration>
-                                    <target>
-                                        <unzip src="${project.build.directory}/flyway-commandline-${project.version}-windows-x64.zip" dest="${unpackDir}"/>
-                                    </target>
-                                </configuration>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                            <!-- [/master] -->
                         </executions>
                     </plugin>
                     <plugin>
@@ -951,114 +956,6 @@
                             <encoding>UTF-8</encoding>
                         </configuration>
                     </plugin>
-                    <!-- [master] -->
-                    <plugin>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <configuration>
-                            <skip>false</skip>
-                            <systemProperties>
-                                <target.dir>${project.build.directory}</target.dir>
-                            </systemProperties>
-                        </configuration>
-                    </plugin>
-                    <!-- [/master] -->
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>build-assemblies-linux</id>
-            <activation>
-                <property>
-                    <name>github.os</name>
-                    <value>ubuntu-latest</value>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <!-- [master] -->
-                    <plugin>
-                        <artifactId>maven-dependency-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>pre-largetest-addJars</id>
-                                <phase>pre-integration-test</phase>
-                                <goals>
-                                    <goal>copy-dependencies</goal>
-                                </goals>
-                                <configuration>
-                                    <includeArtifactIds>flyway-sample</includeArtifactIds>
-                                    <outputDirectory>${unpackDir}/flyway-${project.version}/jardir</outputDirectory>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <!-- [/master] -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <version>3.1.0</version>
-                        <executions>
-                            <execution>
-                                <id>unpack-jres</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                                <configuration>
-                                    <target>
-                                        <untar compression="gzip" src="${basedir}/src/main/assembly/OpenJDK21U-jre_x64_linux_hotspot_${jre.version}_11.tar.gz" dest="${project.build.directory}/dependency/jre-linux-x64"/>
-                                    </target>
-                                </configuration>
-                            </execution>
-                            <!-- [master] -->
-                            <execution>
-                                <id>prepare</id>
-                                <phase>pre-integration-test</phase>
-                                <configuration>
-                                    <target>
-                                        <untar src="${project.build.directory}/flyway-commandline-${project.version}-linux-x64.tar.gz" compression="gzip" dest="${unpackDir}"/>
-                                    </target>
-                                </configuration>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                            <!-- [/master] -->
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-assembly-plugin</artifactId>
-                        <version>3.5.0</version>
-                        <executions>
-                            <execution>
-                                <id>jre-assemblies</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>single</goal>
-                                </goals>
-                                <configuration>
-                                    <descriptors>
-                                        <descriptor>src/main/assembly/linux.xml</descriptor>
-                                    </descriptors>
-                                </configuration>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <encoding>UTF-8</encoding>
-                        </configuration>
-                    </plugin>
-                    <!-- [master] -->
-                    <plugin>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <configuration>
-                            <skip>false</skip>
-                            <systemProperties>
-                                <target.dir>${project.build.directory}</target.dir>
-                            </systemProperties>
-                        </configuration>
-                    </plugin>
-                    <!-- [/master] -->
                 </plugins>
             </build>
         </profile>
@@ -1142,13 +1039,87 @@
                                     </target>
                                 </configuration>
                             </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <version>3.5.0</version>
+                        <executions>
+                            <execution>
+                                <id>jre-assemblies</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>src/main/assembly/macos-arm64.xml</descriptor>
+                                    </descriptors>
+                                </configuration>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <encoding>UTF-8</encoding>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+
+        <profile>
+            <id>build-assemblies-linux</id>
+            <activation>
+                <property>
+                    <name>github.os</name>
+                    <value>ubuntu-latest</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <!-- [master] -->
+                    <plugin>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>pre-largetest-addJars</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>copy-dependencies</goal>
+                                </goals>
+                                <configuration>
+                                    <includeArtifactIds>flyway-sample</includeArtifactIds>
+                                    <outputDirectory>${unpackDir}/flyway-${project.version}/jardir</outputDirectory>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- [/master] -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <executions>
+                            <execution>
+                                <id>unpack-jres</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <untar compression="gzip" src="${basedir}/src/main/assembly/OpenJDK21U-jre_x64_linux_hotspot_${jre.version}_11.tar.gz" dest="${project.build.directory}/dependency/jre-linux-x64"/>
+                                    </target>
+                                </configuration>
+                            </execution>
                             <!-- [master] -->
                             <execution>
                                 <id>prepare</id>
                                 <phase>pre-integration-test</phase>
                                 <configuration>
                                     <target>
-                                        <untar src="${project.build.directory}/flyway-commandline-${project.version}-macosx-arm64.tar.gz" dest="${unpackDir}" compression="gzip" />
+                                        <untar src="${project.build.directory}/flyway-commandline-${project.version}-linux-x64.tar.gz" compression="gzip" dest="${unpackDir}"/>
                                     </target>
                                 </configuration>
                                 <goals>
@@ -1171,7 +1142,7 @@
                                 </goals>
                                 <configuration>
                                     <descriptors>
-                                        <descriptor>src/main/assembly/macos-arm64.xml</descriptor>
+                                        <descriptor>src/main/assembly/linux.xml</descriptor>
                                     </descriptors>
                                 </configuration>
                             </execution>

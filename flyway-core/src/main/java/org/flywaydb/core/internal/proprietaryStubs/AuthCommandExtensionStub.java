@@ -19,17 +19,16 @@
  */
 package org.flywaydb.core.internal.proprietaryStubs;
 
+import static org.flywaydb.core.internal.util.TelemetryUtils.getTelemetryManager;
+
 import lombok.CustomLog;
-import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.TelemetrySpan;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
-import org.flywaydb.core.extensibility.Tier;
 import org.flywaydb.core.internal.license.FlywayRedgateEditionRequiredException;
-import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
 import java.util.List;
 
@@ -50,8 +49,8 @@ public class AuthCommandExtensionStub implements CommandExtension {
     }
 
     @Override
-    public OperationResult handle(String command, Configuration config, List<String> flags, FlywayTelemetryManager flywayTelemetryManager) throws FlywayException {
-        return TelemetrySpan.trackSpan(new EventTelemetryModel(command, flywayTelemetryManager), (telemetryModel) -> {
+    public OperationResult handle(String command, Configuration config, List<String> flags) throws FlywayException {
+        return TelemetrySpan.trackSpan(new EventTelemetryModel(command, getTelemetryManager(config)), (telemetryModel) -> {
             throw new FlywayRedgateEditionRequiredException(FEATURE_NAME);
         });
     }

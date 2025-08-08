@@ -38,7 +38,7 @@ import lombok.SneakyThrows;
 import org.flywaydb.commandline.configuration.CommandLineArguments;
 import org.flywaydb.commandline.configuration.ConfigurationManagerImpl;
 import org.flywaydb.commandline.logging.console.ConsoleLog.Level;
-import org.flywaydb.commandline.utils.TelemetryUtils;
+import org.flywaydb.core.internal.util.TelemetryUtils;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.api.FlywayException;
@@ -344,8 +344,7 @@ public class Main {
         } else {
             result = CommandExtensionUtils.runCommandExtension(configuration,
                 operation,
-                commandLineArguments.getFlags(),
-                telemetryManager);
+                commandLineArguments.getFlags());
         }
 
         return result;

@@ -177,7 +177,7 @@ public class FlywayExecutor {
                     flywayTelemetryManager.notifyDatabaseChanged(
                         database.getDatabaseType().getName(),
                         database.getVersion().toString(),
-                        database.getDatabaseHosting());
+                        configuration.getUrl() != null ? database.getDatabaseHosting() : null);
                 }
             }
 

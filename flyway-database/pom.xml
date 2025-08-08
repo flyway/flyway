@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>11.10.5</version>
+        <version>11.11.0</version>
     </parent>
 
     <artifactId>flyway-database</artifactId>
@@ -33,6 +33,8 @@
         <module>flyway-sqlserver</module>
         <module>flyway-database-cassandra</module>
         <module>flyway-database-nc-mongodb</module>
+
+
 
 
 
