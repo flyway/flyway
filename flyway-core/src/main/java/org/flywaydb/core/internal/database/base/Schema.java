@@ -166,7 +166,7 @@ public abstract class Schema<D extends Database, T extends Table> {
                 types.add(getType(resultSet.getString("TYPE_NAME")));
             }
 
-            return types.toArray(new Type[0]);
+            return types.toArray(Type[]::new);
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to retrieve all types in schema " + this, e);
         } finally {

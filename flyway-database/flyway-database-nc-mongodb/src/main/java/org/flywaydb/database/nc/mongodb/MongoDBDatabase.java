@@ -19,6 +19,8 @@
  */
 package org.flywaydb.database.nc.mongodb;
 
+import static org.flywaydb.core.internal.logging.PreviewFeatureWarning.NATIVE_CONNECTORS;
+import static org.flywaydb.core.internal.logging.PreviewFeatureWarning.logPreviewFeature;
 import static org.flywaydb.core.internal.util.UrlUtils.extractQueryParams;
 
 import com.mongodb.ConnectionString;
@@ -110,6 +112,8 @@ public class MongoDBDatabase extends AbstractNativeConnectorsDatabase<NonJdbcExe
 
     @Override
     public void initialize(final ResolvedEnvironment environment, final Configuration configuration) {
+        logPreviewFeature(NATIVE_CONNECTORS + " for " + getDatabaseType());
+
         initializeConnectionType(configuration, false);
 
         if (environment.getUrl().startsWith("jdbc:")) {

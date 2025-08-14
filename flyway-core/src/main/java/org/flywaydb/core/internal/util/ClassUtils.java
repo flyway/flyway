@@ -184,7 +184,7 @@ public class ClassUtils {
                 throw new FlywayException("Unable to load " + jarFile.getPath(), e);
             }
         }
-        return new URLClassLoader(urls.toArray(new URL[0]), classLoader);
+        return new URLClassLoader(urls.toArray(URL[]::new), classLoader);
     }
 
     /**

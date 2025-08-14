@@ -22,7 +22,7 @@ Human readable console output
 
 ### Command-line
 
-```pwershell
+```powershell
 ./flyway info -outputType=json
 ```
 

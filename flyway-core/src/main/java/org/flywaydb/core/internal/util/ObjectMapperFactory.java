@@ -29,14 +29,11 @@ import org.flywaydb.core.api.FlywayException;
 public class ObjectMapperFactory {
     public static ObjectMapper getObjectMapper(String file) {
         String extension = getFileExtension(file);
-        switch (extension.toLowerCase()) {
-            case ".json":
-                return new JsonMapper();
-            case ".toml":
-                return new TomlMapper();
-            default:
-                throw new FlywayException("No mapper found for '" + extension + "' extension");
-        }
+        return switch (extension.toLowerCase()) {
+            case ".json" -> new JsonMapper();
+            case ".toml" -> new TomlMapper();
+            default -> throw new FlywayException("No mapper found for '" + extension + "' extension");
+        };
     }
 
     private static String getFileExtension(String filename) {

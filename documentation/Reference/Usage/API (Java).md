@@ -11,7 +11,9 @@ be migrated to a state the rest of the code can work with.
 
 ## Supported Java Versions
 
-- `Java 17`
+- `Java JDK 17+`
+- Flyway is built with language level 17.
+**Note: JDK 24 is known to emit warnings with Flyway. We recommend avoiding**
 
 ## Download
 <table class="table">

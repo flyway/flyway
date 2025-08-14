@@ -92,6 +92,10 @@ When a build environment is used, settings from the following sections of the [F
 * Flyway schema history settings
 * Placeholders
 
+_Note_:
+- _Drift detection will not interrupt the execution of subsequent Flyway verb operations if they are chained. This means that even if a `failOnDrift` error occurs, Flyway will continue processing the remaining verb operations. 
+For this reason, it is recommended to run subsequent Flyway verbs separately._
+
 ## JSON output format
 
 ```json

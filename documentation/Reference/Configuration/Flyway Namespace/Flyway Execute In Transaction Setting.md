@@ -46,7 +46,7 @@ flyway.executeInTransaction=false
 ### Script Configuration File
 
 ```properties
-flyway.executeInTransaction=false
+executeInTransaction=false
 ```
 
 ### Environment Variable

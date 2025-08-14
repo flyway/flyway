@@ -652,20 +652,14 @@ public class OracleParser extends Parser {
     }
 
     private String computeAlternativeCloseQuote(char specialChar) {
-        switch (specialChar) {
-            case '!':
-                return "!'";
-            case '[':
-                return "]'";
-            case '(':
-                return ")'";
-            case '{':
-                return "}'";
-            case '<':
-                return ">'";
-            default:
-                return specialChar + "'";
-        }
+        return switch (specialChar) {
+            case '!' -> "!'";
+            case '[' -> "]'";
+            case '(' -> ")'";
+            case '{' -> "}'";
+            case '<' -> ">'";
+            default -> specialChar + "'";
+        };
     }
 
 

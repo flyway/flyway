@@ -291,7 +291,7 @@ public class DB2Schema extends Schema<DB2Database, DB2Table> {
             functions.add(getFunction(functionName));
         }
 
-        return functions.toArray(new Function[0]);
+        return functions.toArray(Function[]::new);
     }
 
     @Override

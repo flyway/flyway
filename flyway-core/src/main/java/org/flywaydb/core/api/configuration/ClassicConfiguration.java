@@ -336,7 +336,7 @@ public class ClassicConfiguration implements Configuration {
 
     @Override
     public String[] getSchemas() {
-        return getCurrentResolvedEnvironment().getSchemas().toArray(new String[0]);
+        return getCurrentResolvedEnvironment().getSchemas().toArray(String[]::new);
     }
 
     public void setSchemas(String[] tokenizeToStringArray) {
@@ -412,7 +412,7 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public Callback[] getCallbacks() {
         loadUnloadedCallbacks();
-        return callbacks.toArray(new Callback[0]);
+        return callbacks.toArray(Callback[]::new);
     }
 
     public void setCallbacks(Callback... callbacks) {
@@ -433,7 +433,7 @@ public class ClassicConfiguration implements Configuration {
                 .filter(p -> Arrays.stream(resolvers).noneMatch(r -> r.getClass().getCanonicalName().equals(p)))
                 .map(p -> ClassUtils.<MigrationResolver>instantiate(p, classLoader))
                 .toList());
-            setResolvers(migrationResolvers.toArray(new MigrationResolver[0]));
+            setResolvers(migrationResolvers.toArray(MigrationResolver[]::new));
         }
         return resolvers;
     }
@@ -486,8 +486,8 @@ public class ClassicConfiguration implements Configuration {
         if (getEnvironmentOverrides().getLocations() != null) {
             locationsList = getEnvironmentOverrides().getLocations();
         }
-        Locations locations = new Locations(locationsList.toArray(new String[0]));
-        return locations.getLocations().toArray(new Location[0]);
+        Locations locations = new Locations(locationsList.toArray(String[]::new));
+        return locations.getLocations().toArray(Location[]::new);
     }
 
     /**
@@ -550,7 +550,7 @@ public class ClassicConfiguration implements Configuration {
         if (getEnvironmentOverrides().getIgnoreMigrationPatterns() != null) {
             ignoreMigrationPatternsList = getEnvironmentOverrides().getIgnoreMigrationPatterns();
         }
-        String[] ignoreMigrationPatterns = ignoreMigrationPatternsList.toArray(new String[0]);
+        String[] ignoreMigrationPatterns = ignoreMigrationPatternsList.toArray(String[]::new);
         if (Arrays.equals(ignoreMigrationPatterns, new String[] { "" })) {
             return new ValidatePattern[0];
         } else {
@@ -689,9 +689,9 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public String[] getErrorOverrides() {
         if (getEnvironmentOverrides().getErrorOverrides() != null) {
-            return getEnvironmentOverrides().getErrorOverrides().toArray(new String[0]);
+            return getEnvironmentOverrides().getErrorOverrides().toArray(String[]::new);
         }
-        return getModernFlyway().getErrorOverrides().toArray(new String[0]);
+        return getModernFlyway().getErrorOverrides().toArray(String[]::new);
     }
 
     /**
@@ -900,8 +900,8 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public String[] getLoggers() {
         return getEnvironmentOverrides().getLoggers() != null ?
-            getEnvironmentOverrides().getLoggers().toArray(new String[0]) :
-            getModernFlyway().getLoggers().toArray(new String[0]);
+            getEnvironmentOverrides().getLoggers().toArray(String[]::new) :
+            getModernFlyway().getLoggers().toArray(String[]::new);
     }
 
     /**
@@ -1092,8 +1092,8 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public String[] getSqlMigrationSuffixes() {
         return getEnvironmentOverrides().getSqlMigrationSuffixes() != null
-            ? getEnvironmentOverrides().getSqlMigrationSuffixes().toArray(new String[0])
-            : getModernFlyway().getSqlMigrationSuffixes().toArray(new String[0]);
+            ? getEnvironmentOverrides().getSqlMigrationSuffixes().toArray(String[]::new)
+            : getModernFlyway().getSqlMigrationSuffixes().toArray(String[]::new);
     }
 
     /**

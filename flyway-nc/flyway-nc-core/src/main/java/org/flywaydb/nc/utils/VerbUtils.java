@@ -298,7 +298,7 @@ public class VerbUtils {
     public static String[] getAllSchemas(final String[] schemas, final String defaultSchema) {
         final Collection<String> schemaList = new ArrayList<>(List.of(schemas));
         schemaList.add(defaultSchema);
-        return schemaList.toArray(new String[0]);
+        return schemaList.toArray(String[]::new);
     }
 
     public static String toMigrationText(final MigrationInfo migration,

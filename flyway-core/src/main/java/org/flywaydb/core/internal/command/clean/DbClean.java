@@ -91,14 +91,11 @@ public class DbClean {
         }
 
         try {
-            switch (Mode.valueOf(mode.toUpperCase())) {
-                case SCHEMA:
-                    return "clean-schemas";
-                case ALL:
-                    return "clean-all";
-                default:
-                    return "clean";
-            }
+            return switch (Mode.valueOf(mode.toUpperCase())) {
+                case SCHEMA -> "clean-schemas";
+                case ALL -> "clean-all";
+                default -> "clean";
+            };
         } catch (IllegalArgumentException e) {
             return mode;
         }

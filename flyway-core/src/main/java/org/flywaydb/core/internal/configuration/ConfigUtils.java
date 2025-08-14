@@ -913,7 +913,7 @@ public class ConfigUtils {
     }
 
     public static void makeRelativeLocationsBasedOnWorkingDirectory(String workingDirectory, List<String> locations) {
-        String[] locationsArray = locations.toArray(new String[0]);
+        String[] locationsArray = locations.toArray(String[]::new);
         makeRelativeLocationsBasedOnWorkingDirectory(workingDirectory, locationsArray);
         locations.clear();
         locations.addAll(Arrays.asList(locationsArray));

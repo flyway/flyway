@@ -212,7 +212,7 @@ public class FlywayExecutor {
                     schemaHistory,
                     database,
                     defaultSchema,
-                    schemas.getRight().toArray(new Schema[0]),
+                    schemas.getRight().toArray(Schema[]::new),
                     callbackExecutor,
                     statementInterceptor);
         } finally {

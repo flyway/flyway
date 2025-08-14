@@ -47,7 +47,7 @@ public class PreviewFeatureWarning {
         if (LOGGED_FEATURES.contains(featureName)) {
             return;
         }
-        String link = featureName.equals(NATIVE_CONNECTORS) ? FEEDBACK_SURVEY_LINK : "DatabaseDevOps@red-gate.com";
+        String link = featureName.startsWith(NATIVE_CONNECTORS) ? FEEDBACK_SURVEY_LINK : "DatabaseDevOps@red-gate.com";
         
         LOG.info("-----------------------------------------------------------------------------");
         LOG.info("You are using a preview feature '" + featureName + "'.");

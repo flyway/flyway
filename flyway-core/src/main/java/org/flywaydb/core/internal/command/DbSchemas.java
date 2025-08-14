@@ -106,7 +106,7 @@ public class DbSchemas {
 
                     if (!createdSchemas.isEmpty()) {
                         schemaHistory.create(baseline);
-                        schemaHistory.addSchemasMarker(createdSchemas.toArray(new Schema[0]));
+                        schemaHistory.addSchemasMarker(createdSchemas.toArray(Schema[]::new));
                     }
 
                     return null;
