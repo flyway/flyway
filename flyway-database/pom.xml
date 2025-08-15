@@ -19,6 +19,7 @@
         <module>flyway-database-hsqldb</module>
         <module>flyway-database-informix</module>
         <module>flyway-database-postgresql</module>
+        <module>flyway-database-gaussdb</module>
         <module>flyway-database-oracle</module>
         <module>flyway-database-mongodb</module>
         <module>flyway-database-redshift</module>

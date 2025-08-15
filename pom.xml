@@ -169,6 +169,7 @@
         <version.osgi>4.3.1</version.osgi>
         <version.p6spy>3.9.1</version.p6spy>
         <version.postgresql>42.7.2</version.postgresql>
+        <version.gaussdb>506.0.0.b058</version.gaussdb>
         <version.reactor-netty>1.2.8</version.reactor-netty>
         <version.redshift>2.1.0.32</version.redshift>
         <version.sap>2.6.30</version.sap>
@@ -294,6 +295,12 @@
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
                 <version>${version.postgresql}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>com.huaweicloud.gaussdb</groupId>
+                <artifactId>gaussdbjdbc</artifactId>
+                <version>${version.gaussdb}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
