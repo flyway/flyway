@@ -1,0 +1,2 @@
+org.flywaydb.database.gaussdb.GaussDBDatabaseType
+org.flywaydb.database.gaussdb.GaussDBConfigurationExtension
