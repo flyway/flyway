@@ -132,7 +132,7 @@ public class Flyway {
         this.configuration = new ClassicConfiguration(configuration);
         List<Callback> callbacks = this.configuration.loadCallbackLocation("db/callback", false);
         if (!callbacks.isEmpty()) {
-            this.configuration.setCallbacks(callbacks.toArray(new Callback[0]));
+            this.configuration.setCallbacks(callbacks.toArray(Callback[]::new));
         }
         this.flywayExecutor = new FlywayExecutor(this.configuration);
 
@@ -172,7 +172,6 @@ public class Flyway {
     public MigrateResult migrate() throws FlywayException {
         try (MigrateTelemetryModel telemetryModel = new MigrateTelemetryModel(flywayTelemetryManager)) {
             if (canUseNativeConnectors(configuration, "migrate")) {
-                logPreviewFeature(NATIVE_CONNECTORS);
                 final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("migrate")).findFirst();
                 if (verb.isPresent()) {
                     LOG.debug("Native Connectors for migrate is set and a verb is present");
@@ -196,7 +195,7 @@ public class Flyway {
                     if (configuration.isValidateOnMigrate()) {
                         List<ValidatePattern> ignorePatterns = new ArrayList<>(Arrays.asList(configuration.getIgnoreMigrationPatterns()));
                         ignorePatterns.add(ValidatePattern.fromPattern("*:pending"));
-                        ValidateResult validateResult = doValidate(database, migrationResolver, schemaHistory, defaultSchema, schemas, callbackExecutor, ignorePatterns.toArray(new ValidatePattern[0]));
+                        ValidateResult validateResult = doValidate(database, migrationResolver, schemaHistory, defaultSchema, schemas, callbackExecutor, ignorePatterns.toArray(ValidatePattern[]::new));
                         if (!validateResult.validationSuccessful) {
                             throw new FlywayValidateException(validateResult.errorDetails, validateResult.getAllErrorMessages());
                         }
@@ -268,7 +267,6 @@ public class Flyway {
      */
     public MigrationInfoService info() {
         if (canUseNativeConnectors(configuration, "info")) {
-            logPreviewFeature(NATIVE_CONNECTORS);
             final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("info")).findFirst();
             if (verb.isPresent()) {
                 LOG.debug("Native Connectors for info is set and a verb is present");
@@ -299,7 +297,6 @@ public class Flyway {
     public CleanResult clean() {
         try (EventTelemetryModel telemetryModel = new EventTelemetryModel("clean", flywayTelemetryManager)) {
             if (canUseNativeConnectors(configuration, "clean")) {
-                logPreviewFeature(NATIVE_CONNECTORS);
                 final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("clean")).findFirst();
                 if (verb.isPresent()) {
                     LOG.debug("Native Connectors for clean is set and a verb is present");
@@ -368,7 +365,6 @@ public class Flyway {
      */
     public ValidateResult validateWithResult() throws FlywayException {
         if (canUseNativeConnectors(configuration, "validate")) {
-            logPreviewFeature(NATIVE_CONNECTORS);
             final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("validate")).findFirst();
             if (verb.isPresent()) {
                 LOG.debug("Native Connectors for validate is set and a verb is present");
@@ -399,7 +395,6 @@ public class Flyway {
     public BaselineResult baseline() throws FlywayException {
         try (EventTelemetryModel telemetryModel = new EventTelemetryModel("baseline", flywayTelemetryManager)) {
             if (canUseNativeConnectors(configuration, "baseline")) {
-                logPreviewFeature(NATIVE_CONNECTORS);
                 final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("baseline")).findFirst();
                 if (verb.isPresent()) {
                     LOG.debug("Native Connectors for baseline is set and a verb is present");
@@ -453,7 +448,6 @@ public class Flyway {
     public RepairResult repair() throws FlywayException {
         try (EventTelemetryModel telemetryModel = new EventTelemetryModel("repair", flywayTelemetryManager)) {
             if (canUseNativeConnectors(configuration, "repair")) {
-                logPreviewFeature(NATIVE_CONNECTORS);
                 final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("repair")).findFirst();
                 if (verb.isPresent()) {
                     LOG.debug("Native Connectors for repair is set and a verb is present");
@@ -495,7 +489,6 @@ public class Flyway {
      */
     public OperationResult undo() throws FlywayException {
         if (canUseNativeConnectors(configuration, "undo")) {
-            logPreviewFeature(NATIVE_CONNECTORS);
             final var verb = configuration.getPluginRegister().getPlugins(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("undo")).findFirst();
             if (verb.isPresent()) {
                 try (EventTelemetryModel telemetryModel = new EventTelemetryModel("undo", flywayTelemetryManager)) {
@@ -517,7 +510,7 @@ public class Flyway {
     }
 
     private OperationResult runCommand(String command, List<String> flags) {
-        return CommandExtensionUtils.runCommandExtension(configuration, command, flags, flywayTelemetryManager);
+        return CommandExtensionUtils.runCommandExtension(configuration, command, flags);
     }
 
     private CleanResult doClean(Database database, SchemaHistory schemaHistory, Schema defaultSchema, Schema[] schemas, CallbackExecutor callbackExecutor) {

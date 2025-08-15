@@ -99,22 +99,13 @@ public class LogFactory {
             return new BufferedLogCreator();
         }
         
-        return new MultiLogCreator(Arrays.stream(configuration.getLoggers()).map(logger -> {
-            switch (logger) {
-                case "auto":
-                    return autoDetectLogCreator(classLoader, fallbackLogCreator);
-                case "maven":
-                case "console":
-                    return fallbackLogCreator;
-                case "slf4j":
-                    return ClassUtils.instantiate(Slf4jLogCreator.class.getName(), classLoader);
-                case "log4j2":
-                    return ClassUtils.instantiate(Log4j2LogCreator.class.getName(), classLoader);
-                case "apache-commons":
-                    return ClassUtils.instantiate(ApacheCommonsLogCreator.class.getName(), classLoader);
-                default:
-                    return ClassUtils.instantiate(logger, classLoader);
-            }
+        return new MultiLogCreator(Arrays.stream(configuration.getLoggers()).map(logger -> switch (logger) {
+            case "auto" -> autoDetectLogCreator(classLoader, fallbackLogCreator);
+            case "maven", "console" -> fallbackLogCreator;
+            case "slf4j" -> ClassUtils.instantiate(Slf4jLogCreator.class.getName(), classLoader);
+            case "log4j2" -> ClassUtils.instantiate(Log4j2LogCreator.class.getName(), classLoader);
+            case "apache-commons" -> ClassUtils.instantiate(ApacheCommonsLogCreator.class.getName(), classLoader);
+            default -> ClassUtils.instantiate(logger, classLoader);
         }).collect(Collectors.toList()));
     }
 

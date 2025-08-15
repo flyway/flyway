@@ -143,6 +143,6 @@ You will need to have:
 
 ### Once your PR is accepted
 * We will add it to the flyway command line module and assemblies.
-* We'll include in the next release of FLyway
+* We'll include in the next release of Flyway
 
 

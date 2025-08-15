@@ -226,7 +226,7 @@ public class StringUtils {
             return null;
         }
 
-        return tokenizeToStringCollection(str, delimiter).toArray(new String[0]);
+        return tokenizeToStringCollection(str, delimiter).toArray(String[]::new);
     }
 
     /**

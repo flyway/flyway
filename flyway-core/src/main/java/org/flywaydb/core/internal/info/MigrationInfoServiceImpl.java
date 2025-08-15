@@ -374,12 +374,12 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
 
     @Override
     public MigrationInfo[] all() {
-        return migrationInfos.toArray(new MigrationInfo[0]);
+        return migrationInfos.toArray(MigrationInfo[]::new);
     }
 
     public MigrationInfo[] all(MigrationFilter filter) {
         if (filter == null) {
-            return migrationInfos.toArray(new MigrationInfo[0]);
+            return migrationInfos.toArray(MigrationInfo[]::new);
         }
 
         return migrationInfos.stream()
@@ -428,7 +428,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
                 pendingMigrations.add(migrationInfo);
             }
         }
-        return pendingMigrations.toArray(new MigrationInfoImpl[0]);
+        return pendingMigrations.toArray(MigrationInfoImpl[]::new);
     }
 
     @Override
@@ -439,7 +439,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
                 appliedMigrations.add(migrationInfo);
             }
         }
-        return appliedMigrations.toArray(new MigrationInfoImpl[0]);
+        return appliedMigrations.toArray(MigrationInfoImpl[]::new);
     }
 
     /**
@@ -452,7 +452,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
                 resolvedMigrations.add(migrationInfo);
             }
         }
-        return resolvedMigrations.toArray(new MigrationInfo[0]);
+        return resolvedMigrations.toArray(MigrationInfo[]::new);
     }
 
     /**
@@ -465,7 +465,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
                 failedMigrations.add(migrationInfo);
             }
         }
-        return failedMigrations.toArray(new MigrationInfoImpl[0]);
+        return failedMigrations.toArray(MigrationInfoImpl[]::new);
     }
 
     /**
@@ -481,7 +481,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
                 futureMigrations.add(migrationInfo);
             }
         }
-        return futureMigrations.toArray(new MigrationInfo[0]);
+        return futureMigrations.toArray(MigrationInfo[]::new);
     }
 
     /**
@@ -494,7 +494,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
                 outOfOrderMigrations.add(migrationInfo);
             }
         }
-        return outOfOrderMigrations.toArray(new MigrationInfo[0]);
+        return outOfOrderMigrations.toArray(MigrationInfo[]::new);
     }
 
     /**
@@ -507,7 +507,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
                 result.add(migrationInfo);
             }
         }
-        return result.toArray(new MigrationInfoImpl[0]);
+        return result.toArray(MigrationInfoImpl[]::new);
     }
 
     /**

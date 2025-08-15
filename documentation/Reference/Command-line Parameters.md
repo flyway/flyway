@@ -16,6 +16,7 @@ The following flags provide helpful information without carrying out any other o
 | `--help`<br/>`-h`<br/>`-?` | Print the list of available commands and options |
 | `--version`<br/>`-v`       | Print the Flyway version                         |
 
+
 The following options modify the console output:
 
 | Flag                                                           | Purpose                                                         |
@@ -25,6 +26,7 @@ The following options modify the console output:
 | [-color](<Command-line Parameters/Color Parameter>)            | Colorize the terminal output                                    |
 | [-outputType](<Command-line Parameters/Output Type Parameter>) | Human or machine-readable output                                |
 
+
 The following command line options modify behavior for all commands:
 
 | Parameter                                                                        | Tier      | Type   | Description                                                         |
@@ -33,13 +35,16 @@ The following command line options modify behavior for all commands:
 | [`configFiles`](<Command-line Parameters/Config Files Parameter>)                | Community | String | The Flyway configuration files to load.                             |
 | [`workingDirectory`](<Command-line Parameters/Working Directory Parameter>)      | Community | String | The working directory to consider when dealing with relative paths. |
 
+
 The following settings can be overridden for all commands:
 
 | Setting                                                              | Tier      | Type         | Description                                                   |
 |----------------------------------------------------------------------|-----------|--------------|---------------------------------------------------------------|
 | [`loggers`](<Configuration/Flyway Namespace/Flyway Loggers Setting>) | Community | String array | Loggers to use.                                               |
+| [`outputFile`](<Command-line Parameters/Output File>)                | Community | String       | Write console output to file.                                 |
 | [`email`](<Configuration/Flyway Namespace/Flyway Email Setting>)     | Community | String       | Email to be used in conjunction with a personal access token. |
 | [`token`](<Configuration/Flyway Namespace/Flyway Token Setting>)     | Community | String       | Personal access token used for licensing Flyway.              |
+
 
 The following deprecated settings can be overridden for all commands:
 

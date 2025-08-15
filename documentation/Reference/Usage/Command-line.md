@@ -202,7 +202,7 @@ The corresponding system environment variable would be
 Name: JAVA_ARGS
 Value: -Xms308M -Xmx432M
 
-See Oracle's documentation for a full list of available [JAVA_ARGS](https://docs.oracle.com/en/java/javase/17/docs/specs/man/java.html).
+See Oracle's documentation for a full list of available [JAVA_ARGS](https://docs.oracle.com/en/java/javase/21/docs/specs/man/java.html).
 
 ## Output
 

@@ -4,6 +4,8 @@ subtitle: Check Changes
 
 ## Description
 
+{% include teams.html %}
+
 The `check -dryrun` command generates a dry run script.
 This is equivalent to a dry run script generated via `migrate` or `prepare`. The flag exists for the convenience of generating all pre-deployment reports in a single command invocation.
 

@@ -45,12 +45,10 @@ class ReportsDeserializer extends JsonDeserializer {
         if (reportElement.has("operation")) {
             final String operation = reportElement.get("operation").asText();
             final List<HtmlResultDeserializer> deserializers = pluginRegister.getPlugins(HtmlResultDeserializer.class);
-            final Optional<HtmlResultDeserializer> matchedDeserializer = deserializers.stream()
-                .filter(x -> x.operationKey().equals(operation)).findFirst();
-            if (matchedDeserializer.isPresent()) {
-                return ctxt.readTreeAsValue(reportElement, matchedDeserializer.get().getDeserializingClass());
-            }
-            throw new FlywayException("Unable to find matching deserializer for " + operation);
+            final HtmlResultDeserializer matchedDeserializer = deserializers.stream()
+                .filter(x -> x.operationKey().equals(operation)).findFirst().orElseThrow(()-> new FlywayException(
+                    "Unable to find matching deserializer for " + operation));
+            return ctxt.readTreeAsValue(reportElement, matchedDeserializer.getDeserializingClass());
         }
         throw new FlywayException("Unable to deserialize report. Corrupt json report file");
     }

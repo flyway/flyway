@@ -151,7 +151,7 @@ public class MongoDBJdbcTemplate extends JdbcTemplate {
     private static ResultSet convertMongoResultset(ResultSet resultSet) throws SQLException {
         Document doc = (Document)resultSet.getObject(1);
         doc.remove("_id");
-        String[] columnNames = doc.keySet().stream().toList().toArray(new String[0]);
+        String[] columnNames = doc.keySet().stream().toList().toArray(String[]::new);
         List<Object[]> data = new ArrayList<>();
         Collection<Object> vals = doc.values();
         Object[] valsArray = vals.toArray();

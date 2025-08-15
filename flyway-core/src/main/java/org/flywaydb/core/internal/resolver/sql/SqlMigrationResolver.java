@@ -94,12 +94,12 @@ public class SqlMigrationResolver implements MigrationResolver {
             return ChecksumCalculator.calculate(createPlaceholderReplacingLoadableResources(loadableResources));
         }
 
-        return ChecksumCalculator.calculate(loadableResources.toArray(new LoadableResource[0]));
+        return ChecksumCalculator.calculate(loadableResources.toArray(LoadableResource[]::new));
     }
 
     private Integer getEquivalentChecksumForLoadableResource(boolean repeatable, List<LoadableResource> loadableResources) {
         if (repeatable) {
-            return ChecksumCalculator.calculate(loadableResources.toArray(new LoadableResource[0]));
+            return ChecksumCalculator.calculate(loadableResources.toArray(LoadableResource[]::new));
         }
 
         return null;

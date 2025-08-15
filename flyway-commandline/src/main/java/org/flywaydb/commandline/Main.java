@@ -34,11 +34,13 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import lombok.SneakyThrows;
 import org.flywaydb.commandline.configuration.CommandLineArguments;
 import org.flywaydb.commandline.configuration.ConfigurationManagerImpl;
 import org.flywaydb.commandline.logging.console.ConsoleLog.Level;
-import org.flywaydb.commandline.utils.TelemetryUtils;
+import org.flywaydb.core.internal.util.TelemetryUtils;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.api.FlywayException;
@@ -101,7 +103,7 @@ public class Main {
 
             try {
                 ReportGenerationOutput reportGenerationOutput = new ReportGenerationOutput();
-                
+
                 final Configuration configuration;
                 try (final var ignored = new EventTelemetryModel("parse-args", flywayTelemetryManager)) {
                     commandLineArguments.validate();
@@ -115,12 +117,14 @@ public class Main {
                     flywayTelemetryManager.notifyRootConfigChanged(configuration);
                 }
 
-
-                if (!commandLineArguments.skipCheckForUpdate()) {
-                    try (final var ignored = new EventTelemetryModel("check-for-update", flywayTelemetryManager)) {
-                        MavenVersionChecker.checkForVersionUpdates();
-                    }
-                }
+                final CompletableFuture<String> updateCheckFuture = commandLineArguments.skipCheckForUpdate()
+                    || "json".equalsIgnoreCase(configuration.getModernConfig().getFlyway().getOutputType())
+                    ? CompletableFuture.completedFuture(null)
+                    : CompletableFuture.supplyAsync(() -> {
+                        try (final var ignored = new EventTelemetryModel("check-for-update", flywayTelemetryManager)) {
+                            return new MavenVersionChecker().checkForVersionUpdates();
+                        }
+                    });
 
                 LocalDateTime executionTime = LocalDateTime.now();
                 OperationResult result = executeFlyway(flywayTelemetryManager, commandLineArguments, configuration);
@@ -142,6 +146,8 @@ public class Main {
                 if (commandLineArguments.shouldOutputJson()) {
                     printJson(commandLineArguments, result, reportGenerationOutput.reportDetails);
                 }
+
+                printUpdateMessage(updateCheckFuture);
             } catch (final FlywayLicensingException e) {
                 final OperationResult errorOutput = ErrorOutput.toOperationResult(e);
                 printError(commandLineArguments, e, errorOutput);
@@ -171,6 +177,18 @@ public class Main {
                 LOG.error(e.getMessage());
             }
             hasPrintedLicense = true;
+        }
+    }
+
+    private static void printUpdateMessage(final CompletableFuture<String> updateCheckFuture)
+        throws ExecutionException, InterruptedException {
+        if (updateCheckFuture.isDone()
+            && !updateCheckFuture.isCompletedExceptionally()
+            && !updateCheckFuture.isCancelled()) {
+            final var updateMessage = updateCheckFuture.get();
+            if (updateMessage != null) {
+                LOG.info(updateMessage);
+            }
         }
     }
 
@@ -277,13 +295,13 @@ public class Main {
 
 
 
-                
+
                 result = flyway.migrate();
-                
 
 
 
-                
+
+
             } catch (final FlywayMigrateException e) {
                 result = ErrorOutput.fromMigrateException(e);
                 final HtmlResult hr = (HtmlResult) result;
@@ -320,6 +338,14 @@ public class Main {
                     final MigrationFilter filter = getInfoFilter(commandLineArguments);
                     result = info.getInfoResult(filter);
                     final MigrationInfo[] infos = info.all(filter);
+                    final boolean hasOnDiskMigrations = Arrays.stream(infos)
+                        .map(MigrationInfo::getPhysicalLocation)
+                        .anyMatch(StringUtils::hasLength);
+
+                    if (!hasOnDiskMigrations) {
+                        LOG.info("No migrations found on disk.\nHere are some relevant configuration settings.");
+                        MigrationConfigPrinter.print(LOG, configuration);
+                    }
 
                     if (commandLineArguments.isFilterOnMigrationIds()) {
                         //Must use System.out here rather than LOG.info because LogCreator is empty.
@@ -327,6 +353,7 @@ public class Main {
                     } else {
                         LOG.info(MigrationInfoDumper.dumpToAsciiTable(infos));
                     }
+
                     infoTelemetryModel.setNumberOfMigrations(((InfoResult) result).migrations.size());
                     infoTelemetryModel.setNumberOfPendingMigrations((int) ((InfoResult) result).migrations.stream()
                         .filter(m -> "Pending".equals(m.state))
@@ -344,8 +371,7 @@ public class Main {
         } else {
             result = CommandExtensionUtils.runCommandExtension(configuration,
                 operation,
-                commandLineArguments.getFlags(),
-                telemetryManager);
+                commandLineArguments.getFlags());
         }
 
         return result;

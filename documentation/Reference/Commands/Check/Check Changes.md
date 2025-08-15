@@ -4,6 +4,8 @@ subtitle: Check Changes
 
 ## Description
 
+{% include enterprise.html %}
+
 The `check -changes` command produces a report indicating differences between what is applied on your target database and pending changes (i.e. the set of instructions you want to use to change your target database).
 
 The report is generated entirely using [snapshots](https://documentation.red-gate.com/display/FD/Snapshots) of the configured [build environment](https://documentation.red-gate.com/display/FD/Shadow+and+build+environments) which means that any drift to the production database will be ignored in this report.

@@ -19,9 +19,10 @@
  */
 package org.flywaydb.commandline.command.version;
 
+import static org.flywaydb.core.internal.util.TelemetryUtils.getTelemetryManager;
+
 import lombok.CustomLog;
 import lombok.SneakyThrows;
-import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.TelemetrySpan;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -63,8 +64,8 @@ public class VersionCommandExtension implements CommandExtension {
 
     @Override
     @SneakyThrows
-    public OperationResult handle(String command, Configuration config, List<String> flags, FlywayTelemetryManager flywayTelemetryManager) throws FlywayException {
-        return TelemetrySpan.trackSpan(new EventTelemetryModel("version", flywayTelemetryManager), (telemetryModel) -> {
+    public OperationResult handle(String command, Configuration config, List<String> flags) throws FlywayException {
+        return TelemetrySpan.trackSpan(new EventTelemetryModel("version", getTelemetryManager(config)), (telemetryModel) -> {
             return version(command, config);
         });
     }

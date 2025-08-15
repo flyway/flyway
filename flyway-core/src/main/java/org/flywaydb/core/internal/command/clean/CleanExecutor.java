@@ -85,9 +85,9 @@ public class CleanExecutor {
                 i++;
             }
         }
-        cleanSchemas(schemaList.toArray(new Schema[0]), dropSchemas, cleanResult);
+        cleanSchemas(schemaList.toArray(Schema[]::new), dropSchemas, cleanResult);
         Collections.reverse(schemaList);
-        cleanSchemas(schemaList.toArray(new Schema[0]), dropSchemas, null);
+        cleanSchemas(schemaList.toArray(Schema[]::new), dropSchemas, null);
 
         dropDatabaseObjectsPostSchemas(schemas);
 

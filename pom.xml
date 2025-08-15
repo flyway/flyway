@@ -9,12 +9,18 @@
     mvn clean install -Pbuild-assemblies-mac
     mvn clean install -Pbuild-assemblies-mac-arm64
     mvn clean install -Pbuild-assemblies-no-jre
+
+    To build modules for releasing with lombok processing and javadoc generation:
+    mvn clean install -Plombok-javadoc -DskipTests -DskipITs -ntp
+    
+    The lombok-javadoc profile enables lombok delombok processing and javadoc generation for modules that need them.
+    Modules that don't require these features (e.g., flyway-bom) will build without unnecessary plugin overhead.
     -->
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>11.10.4</version>
+    <version>11.11.1</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -85,6 +91,7 @@
 
 
 
+
     </modules>
 
     <repositories>
@@ -120,7 +127,7 @@
         <version.aws-secretsmanager>2.0.2</version.aws-secretsmanager>
         <version.azure-identity>1.15.4</version.azure-identity>
         <version.bcpkix-jdk18on>1.80</version.bcpkix-jdk18on>
-        <version.byte-buddy-agent>1.11.18</version.byte-buddy-agent>
+        <version.byte-buddy-agent>1.17.6</version.byte-buddy-agent>
         <version.cassandra>4.13.0</version.cassandra>
         <version.commonslogging>1.2</version.commonslogging>
         <version.commonstext>1.10.0</version.commonstext>
@@ -153,12 +160,14 @@
         <version.system-stubs>2.0.1</version.system-stubs>
         <version.log4net2>2.17.1</version.log4net2>
         <version.logback>1.2.3</version.logback>
-        <version.lombok>1.18.32</version.lombok>
+        <version.lombok>1.18.38</version.lombok>
         <version.lombok-maven-plugin>1.18.20.0</version.lombok-maven-plugin>
         <version.mariadb>2.7.11</version.mariadb>
         <version.maven>3.9.6</version.maven>
-        <version.mockito>5.10.0</version.mockito>
+        <version.mockito>5.18.0</version.mockito>
+        <version.mockserver>5.15.0</version.mockserver>
         <version.msal4j>1.20.0</version.msal4j>
+        <version.msal4j-persistence>1.3.0</version.msal4j-persistence>
         <version.mssql>12.10.1</version.mssql>
         <version.mssql-jdbc>${version.mssql}.jre11</version.mssql-jdbc>
         <version.mssql-jdbc_auth.x86>${version.mssql}.x86</version.mssql-jdbc_auth.x86>
@@ -387,6 +396,18 @@
                 <version>${version.system-stubs}</version>
                 <optional>true</optional>
             </dependency>
+          <dependency>
+            <groupId>org.mock-server</groupId>
+            <artifactId>mockserver-client-java</artifactId>
+            <version>${version.mockserver}</version>
+            <optional>true</optional>
+          </dependency>
+          <dependency>
+            <groupId>org.mock-server</groupId>
+            <artifactId>mockserver-junit-jupiter</artifactId>
+            <version>${version.mockserver}</version>
+            <optional>true</optional>
+          </dependency>
             <dependency>
                 <groupId>org.testcontainers</groupId>
                 <artifactId>postgresql</artifactId>
@@ -506,6 +527,11 @@
                 <groupId>io.projectreactor.netty</groupId>
                 <artifactId>reactor-netty-http</artifactId>
                 <version>${version.reactor-netty}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.microsoft.azure</groupId>
+                <artifactId>msal4j-persistence-extension</artifactId>
+                <version>${version.msal4j-persistence}</version>
             </dependency>
 
 
@@ -749,7 +775,7 @@
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-server</artifactId>
-                <version>9.4.57.v20241219</version>
+                <version>12.0.21</version>
             </dependency>
             <dependency>
                 <groupId>com.oracle.database.security</groupId>
@@ -918,50 +944,7 @@
                     <publishingServerId>central</publishingServerId>
                 </configuration>
             </plugin>
-            <plugin>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <detectJavaApiLink>false</detectJavaApiLink>
-                    <encoding>UTF-8</encoding>
-                    <doclint>none</doclint>
-                    <sourcepath>${project.basedir}/target/generated-sources/delombok</sourcepath>
-                    <quiet>true</quiet>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok-maven-plugin</artifactId>
-                <version>${version.lombok-maven-plugin}</version>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>delombok</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                    <sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
-                    <outputDirectory>${project.basedir}/target/generated-sources/delombok</outputDirectory>
-                    <addOutputDirectory>false</addOutputDirectory>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.projectlombok</groupId>
-                        <artifactId>lombok</artifactId>
-                        <version>${version.lombok}</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
+
             <plugin>
                 <artifactId>maven-gpg-plugin</artifactId>
                 <version>1.6</version>
@@ -1200,19 +1183,56 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        <profile>
+            <id>lombok-javadoc</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.projectlombok</groupId>
+                        <artifactId>lombok-maven-plugin</artifactId>
+                        <version>${version.lombok-maven-plugin}</version>
+                        <executions>
+                            <execution>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>delombok</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <encoding>UTF-8</encoding>
+                            <sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
+                            <outputDirectory>${project.basedir}/target/generated-sources/delombok</outputDirectory>
+                            <addOutputDirectory>false</addOutputDirectory>
+                        </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${version.lombok}</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <configuration>
+                            <detectJavaApiLink>false</detectJavaApiLink>
+                            <encoding>UTF-8</encoding>
+                            <doclint>none</doclint>
+                            <sourcepath>${project.basedir}/target/generated-sources/delombok</sourcepath>
+                            <quiet>true</quiet>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 </project>

@@ -6,7 +6,7 @@ subtitle: flyway.gcsm.secrets
 
 ## Description
 
-An array of paths to key-value secrets in a [Google Secret Manager](Configuration/Secrets Management#google-cloud-secret-manager) account that contain Flyway configurations.
+An array of paths to key-value secrets in a [Google Secret Manager](Configuration/flyway-namespace/flyway-google-cloud-secret-manager-namespace) account that contain Flyway configurations.
 
 If multiple secrets specify the same configuration parameter, then the last secret takes precedence.
 

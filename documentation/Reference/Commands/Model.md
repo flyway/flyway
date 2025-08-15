@@ -4,6 +4,8 @@ subtitle: Model
 
 ## Description
 
+{% include enterprise.html %}
+
 The `model` command allows differences found by running the diff command to be applied to the schema model.
 The schema model must be one of the comparison sources used in the diff artifact provided to `model`.
 

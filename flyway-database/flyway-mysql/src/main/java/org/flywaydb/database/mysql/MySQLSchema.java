@@ -57,7 +57,7 @@ public class MySQLSchema extends Schema<MySQLDatabase, MySQLTable> {
                                                 // when the event scheduled is DISABLED or in some rare cases OFF
                                                 + (database.eventSchedulerQueryable ? " UNION ALL (SELECT 1 as found FROM information_schema.events WHERE event_schema=? LIMIT 1)" : "")
                                                 + ") as all_found",
-                                        params.toArray(new String[0])
+                                        params.toArray(String[]::new)
                                        ) == 0;
     }
 

@@ -19,27 +19,39 @@
  */
 package org.flywaydb.commandline;
 
+import static lombok.AccessLevel.PACKAGE;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import lombok.AccessLevel;
-import lombok.Cleanup;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse.BodyHandlers;
+import java.time.Duration;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import lombok.CustomLog;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
-import javax.net.ssl.HttpsURLConnection;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
-
 @CustomLog
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class MavenVersionChecker {
+@RequiredArgsConstructor(access = PACKAGE)
+class MavenVersionChecker {
+
+    private final String flywayUrl;
+    private final Supplier<MigrationVersion> currentVersionSupplier;
+
+    MavenVersionChecker() {
+        this(FLYWAY_URL, MavenVersionChecker::getCurrentVersion);
+    }
 
     @Setter
     @Getter
@@ -55,6 +67,8 @@ public class MavenVersionChecker {
         private MavenVersioning versioning;
     }
 
+    private static final int CONNECT_TIMEOUT_MS = 1000;
+    private static final int REQUEST_TIMEOUT_MS = 8000;
     private static final String FLYWAY_URL =
 
              "https://repo1.maven.org/maven2/org/flywaydb/flyway-core/maven-metadata.xml";
@@ -63,37 +77,51 @@ public class MavenVersionChecker {
 
 
 
-    public static void checkForVersionUpdates() {
+    String checkForVersionUpdates() {
         try {
-            URL url = new URL(FLYWAY_URL);
-            @Cleanup(value = "disconnect") HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setRequestProperty("User-Agent", "Flyway");
-            connection.setConnectTimeout(500);
-
-            StringBuilder response = new StringBuilder();
-
-            try (BufferedReader rd = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-                String line;
-                while ((line = rd.readLine()) != null) {
-                    response.append(line);
-                }
-            }
-
-            ObjectMapper xmlMapper = new XmlMapper();
-            MavenMetadata metadata = xmlMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                                              .readValue(response.toString(), MavenMetadata.class);
-
-            MigrationVersion current = MigrationVersion.fromVersion(VersionPrinter.getVersion());
-
-            MigrationVersion latest = MigrationVersion.fromVersion(metadata.getVersioning().getRelease());
+            final var metadata = getMavenMetadata();
+            final var current = currentVersionSupplier.get();
+            final var latest = MigrationVersion.fromVersion(metadata.getVersioning().getRelease());
 
             if (current.compareTo(latest) < 0) {
-                LOG.info("A more recent version of Flyway is available. Find out more about Flyway " + latest + " at "
-                                 + FlywayDbWebsiteLinks.STAYING_UP_TO_DATE + "\n");
+                return getMessage(latest);
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LOG.debug("Unable to check for updates: " + e.getMessage());
         }
+
+        return null;
+    }
+
+    private MavenMetadata getMavenMetadata()
+        throws URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
+        final var url = new URI(flywayUrl);
+
+        final var client = HttpClient.newBuilder().connectTimeout(Duration.ofMillis(CONNECT_TIMEOUT_MS)).build();
+        final var request = HttpRequest.newBuilder(url)
+            .GET()
+            .header("User-Agent", "Flyway")
+            .timeout(Duration.ofMillis(REQUEST_TIMEOUT_MS))
+            .build();
+        final var response = client.sendAsync(request, BodyHandlers.ofString())
+            .orTimeout(REQUEST_TIMEOUT_MS, TimeUnit.MILLISECONDS)
+            .get();
+
+        final var xmlMapper = new XmlMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        return xmlMapper.readValue(response.body(), MavenMetadata.class);
+    }
+
+    private static MigrationVersion getCurrentVersion() {
+        return MigrationVersion.fromVersion(VersionPrinter.getVersion());
+    }
+
+    private static String getMessage(final MigrationVersion latest) {
+        final var message = "\nA more recent version of Flyway is available. Find out more about Flyway "
+            + latest
+            + " at "
+            + FlywayDbWebsiteLinks.STAYING_UP_TO_DATE
+            + "\n";
+        final var border = "-".repeat(message.trim().length());
+        return "\n" + border + message + border;
     }
 }

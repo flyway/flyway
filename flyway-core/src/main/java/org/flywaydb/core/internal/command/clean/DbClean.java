@@ -74,7 +74,7 @@ public class DbClean {
             cleanResult = configuration.getPluginRegister().getPlugins(CommandExtension.class).stream()
                                        .filter(e -> e.handlesCommand(command))
                                        .findFirst()
-                                       .map(e -> (CleanResult) e.handle(command, configuration, Collections.emptyList(), null))
+                                       .map(e -> (CleanResult) e.handle(command, configuration, Collections.emptyList()))
                                        .orElseThrow(() -> new FlywayException("No command extension found to handle command " + command));
         }
 
@@ -91,14 +91,11 @@ public class DbClean {
         }
 
         try {
-            switch (Mode.valueOf(mode.toUpperCase())) {
-                case SCHEMA:
-                    return "clean-schemas";
-                case ALL:
-                    return "clean-all";
-                default:
-                    return "clean";
-            }
+            return switch (Mode.valueOf(mode.toUpperCase())) {
+                case SCHEMA -> "clean-schemas";
+                case ALL -> "clean-all";
+                default -> "clean";
+            };
         } catch (IllegalArgumentException e) {
             return mode;
         }

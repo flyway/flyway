@@ -600,7 +600,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
             addConfigurationArtifacts(determineConfigurations(envVars), extraURLs);
 
             ClassLoader classLoader = new URLClassLoader(
-                    extraURLs.toArray(new URL[0]),
+                    extraURLs.toArray(URL[]::new),
                     getProject().getBuildscript().getClassLoader());
 
             Map<String, String> config = createFlywayConfig(envVars);

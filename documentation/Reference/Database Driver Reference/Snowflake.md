@@ -86,10 +86,13 @@ INSERT INTO ${tableName} (name) VALUES ('Mr. T');
 
 Snowflake JDBC supports key-based authentication. To use this, you will need to:
 
-- ensure you are using at least v3.11 of the Snowflake JDBC driver (Flyway currently ships with this version)
+- ensure you are using at least v3.11 of the Snowflake JDBC driver (Flyway ships with a more recent version)
 - generate a public/private key pair
 - assign the public key to the relevant Snowflake user account using <code>ALTER USER</code> - for complete
-instructions on these steps, refer to [Snowflake's documentation](https://docs.snowflake.net/manuals/user-guide/jdbc-configure.html#using-key-pair-authentication)
+instructions on these steps, refer to [Snowflake's documentation](https://docs.snowflake.com/developer-guide/jdbc/jdbc-configure#using-key-pair-authentication-and-key-rotation)
+- If you are using an encrypted key pair then you may need to set a JVM flag for the [Snowflake JDBC driver to be able to decrypt it](https://docs.snowflake.com/en/developer-guide/jdbc/jdbc-configure#key-decryption-errors):
+  - For example  in linux you would do it this way `export JAVA_OPTS='-Dnet.snowflake.jdbc.enableBouncyCastle=true'`
+
 
 Finally, amend your JDBC connection string with the extra parameters to enable key-based auth and to refer to the
 location of the private key:

@@ -114,6 +114,6 @@ public class BaselineMigrationResolver implements MigrationResolver {
     }
 
     private Integer getChecksumForLoadableResource(List<LoadableResource> loadableResources) {
-        return ChecksumCalculator.calculate(loadableResources.toArray(new LoadableResource[0]));
+        return ChecksumCalculator.calculate(loadableResources.toArray(LoadableResource[]::new));
     }
 }

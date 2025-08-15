@@ -43,6 +43,7 @@ import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 
 import static org.flywaydb.core.internal.command.clean.CleanModeConfigurationExtension.Mode.ALL;
 import static org.flywaydb.core.internal.command.clean.CleanModeConfigurationExtension.Mode.SCHEMA;
+import static org.flywaydb.core.internal.util.TelemetryUtils.getTelemetryManager;
 
 @ExtensionMethod({ CleanModeSupportedDatabases.class, Arrays.class })
 public class CleanModeCommandExtension implements CommandExtension {
@@ -63,8 +64,8 @@ public class CleanModeCommandExtension implements CommandExtension {
     @Override
     public OperationResult handle(String command,
         Configuration config,
-        List<String> flags,
-        FlywayTelemetryManager flywayTelemetryManager) throws FlywayException {
+        List<String> flags) throws FlywayException {
+        final FlywayTelemetryManager flywayTelemetryManager = getTelemetryManager(config);
         return TelemetrySpan.trackSpan(new EventTelemetryModel("cleanmode", flywayTelemetryManager),
             (telemetryModel) -> new FlywayExecutor(config).execute((migrationResolver, schemaHistory, database, defaultSchema, schemas, callbackExecutor, statementInterceptor) -> cleanMode(
                 config,

@@ -116,7 +116,7 @@ public class SpannerSchema extends Schema<SpannerDatabase, SpannerTable> {
         }
         viewResults.close();
 
-        return  viewList.toArray(new String[0]);
+        return  viewList.toArray(String[]::new);
     }
 
     @Override

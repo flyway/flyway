@@ -177,7 +177,7 @@ public class FlywayExecutor {
                     flywayTelemetryManager.notifyDatabaseChanged(
                         database.getDatabaseType().getName(),
                         database.getVersion().toString(),
-                        database.getDatabaseHosting());
+                        configuration.getUrl() != null ? database.getDatabaseHosting() : null);
                 }
             }
 
@@ -212,7 +212,7 @@ public class FlywayExecutor {
                     schemaHistory,
                     database,
                     defaultSchema,
-                    schemas.getRight().toArray(new Schema[0]),
+                    schemas.getRight().toArray(Schema[]::new),
                     callbackExecutor,
                     statementInterceptor);
         } finally {

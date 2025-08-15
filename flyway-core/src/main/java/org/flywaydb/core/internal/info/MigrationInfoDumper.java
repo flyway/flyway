@@ -130,6 +130,6 @@ public class MigrationInfoDumper {
                 result.add(migrationInfo);
             }
         }
-        return result.toArray(new MigrationInfo[0]);
+        return result.toArray(MigrationInfo[]::new);
     }
 }

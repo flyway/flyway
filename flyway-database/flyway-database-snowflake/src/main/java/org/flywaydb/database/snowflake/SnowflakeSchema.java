@@ -115,7 +115,7 @@ public class SnowflakeSchema extends Schema<SnowflakeDatabase, SnowflakeTable> {
                 return (SnowflakeTable) getTable(tableName);
             }
         });
-        return tables.toArray(new SnowflakeTable[0]);
+        return tables.toArray(SnowflakeTable[]::new);
     }
 
     @Override
