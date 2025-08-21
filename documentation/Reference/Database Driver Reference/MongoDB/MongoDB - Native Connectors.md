@@ -14,10 +14,10 @@ subtitle: MongoDB - Native Connectors
 We have to map Flyway concepts and language rooted in the relational database world to MongoDB - this is how Flyway sees the mapping:
 
 | MongoDB Concept | Flyway Concept  |
-| --------------- | --------------- |
+| --------------- |-----------------|
 | database        | database/schema |
 | collection      | table           |
-| row             | document        |
+| document        | row             |
 | transaction     | transaction     |
 
 ## Using Flyway with MongoDB Native Connectors

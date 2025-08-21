@@ -257,5 +257,9 @@ The Info command may be internally triggered by Flyway._
         <td>beforeConnect {% include redgate.html %}</td>
         <td>Before Flyway connects to the database</td>
     </tr>
+    <tr id="afterConnect">
+        <td>afterConnect</td>
+        <td>Immediately after Flyway connects to the database</td>
+    </tr>
     </tbody>
 </table>

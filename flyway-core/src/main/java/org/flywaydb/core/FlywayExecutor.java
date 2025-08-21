@@ -63,6 +63,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.flywaydb.core.api.callback.Event.AFTER_CONNECT;
 import static org.flywaydb.core.api.callback.Event.CREATE_SCHEMA;
 import static org.flywaydb.core.internal.database.DatabaseTypeRegister.redactJdbcUrl;
 import static org.flywaydb.core.internal.util.DataUnits.MEGABYTE;
@@ -197,6 +198,7 @@ public class FlywayExecutor {
             DefaultCallbackExecutor callbackExecutor = new DefaultCallbackExecutor(configuration, database, defaultSchema, flywayTelemetryManager, prepareCallbacks(
                     database, resourceProvider, jdbcConnectionFactory, sqlScriptFactory, statementInterceptor, defaultSchema, parsingContext, flywayTelemetryManager));
 
+            callbackExecutor.onEvent(AFTER_CONNECT);
             SqlScriptExecutorFactory sqlScriptExecutorFactory = databaseType.createSqlScriptExecutorFactory(jdbcConnectionFactory, callbackExecutor, statementInterceptor);
 
             SchemaHistory schemaHistory = SchemaHistoryFactory.getSchemaHistory(

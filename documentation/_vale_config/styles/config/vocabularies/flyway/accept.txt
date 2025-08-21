@@ -46,6 +46,7 @@ repeatables
 (?i)stdin
 (?i)stdout
 (?i)SQL
+SQLFluff
 [Tt]ablespace
 [Tt]ruststore
 (?i)TOML

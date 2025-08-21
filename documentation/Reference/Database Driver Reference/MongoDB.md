@@ -37,7 +37,7 @@ We have to map Flyway concepts and language rooted in the relational database wo
 |-----------------|-----------------|
 | database        | database/schema |
 | collection      | table           |
-| row             | document        |
+| document        | row             |
 | transaction     | transaction     |
 
 ## Using Flyway with MongoDB

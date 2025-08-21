@@ -27,4 +27,11 @@ import lombok.Getter;
 public class NonJdbcExecutorExecutionUnit {
     private String script;
     private String contextPath;
+    private boolean executeInTransaction;
+
+    public NonJdbcExecutorExecutionUnit(String script, String contextPath) {
+        this.script = script;
+        this.contextPath = contextPath;
+        executeInTransaction = false;
+    }
 }

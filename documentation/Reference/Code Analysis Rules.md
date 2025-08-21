@@ -8,9 +8,10 @@ When using regular expression rules for static code analysis through [check -cod
 
 | Field            | Purpose                                                  | Type               | Possible values                                                                                               | Example                                               |
 | ---------------- | -------------------------------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
-| dialects         | Which dialect of SQL does this rule apply to             | Array (of Strings) | `TEXT`, `BIGQUERY`, `DBS`, <BR>`MYSQL`, `ORACLE`, `POSTGRES`,<BR>`REDSHIFT`, `SNOWFLAKE`,<BR>`SQLITE`, `TSQL` | ["TEXT"]                                              |
+| dialects         | Which dialect of SQL does this rule apply to             | Array (of Strings) | `text`, `bigquery`, `db2`, <BR>`mysql`, `oracle`, `postgres`,<BR>`redshift`, `snowflake`,<BR>`sqlite`, `tsql` | ["text"]                                              |
 | rules            | The regex rule you want                                  | Array (of Strings) | [Regular Expressions](https://www.regular-expressions.info/)                                                  | ["your regex here"]                                   |
 | description      | Allows a more in-depth description of the rule           | String             | Anything                                                                                                      | "Descriptive comment that will appear in your report" |
+| severity         | Controls how violations are handled                      | String             | `error`, `warning`, `disabled`                                                                                | "error"                                               |
 
 ### Dialects
 
@@ -19,6 +20,16 @@ The way your regex rule is structured will vary depending on the dialect of SQL 
 Flyway will identify the variety of SQL relevant to database based on the JDBC connection string and only apply relevant rules (so a rule declared for the Oracle dialect won't be applied when using a PostgreSQL database).
 
 * The `TEXT` dialect means the rule will be applied to all migrations regardless of the DB type Flyway is configured to use.
+
+### Severity
+
+The `severity` field controls how violations of this rule are handled:
+
+* `error` - Violations will cause the check command to fail when [`check.code.strictMode`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Code Strict Mode Setting>) is enabled
+* `warning` - Violations will be reported but will not cause the operation to fail
+* `disabled` - The rule will be ignored and no violations will be reported
+
+The `disabled` severity level allows you to temporarily disable specific rules without removing them from your configuration.
 
 ### passOnRegexMatch [Deprecated]
 
@@ -42,6 +53,7 @@ dialects = ["TEXT"]
 rules = ["(?i)(^|\\s)TO\\s+DO($|\\s|;)"]
 passOnRegexMatch = false
 description = "Phrase 'to do' remains in the code"
+severity = "error"
 ```
 
 ## Built in enterprise rules

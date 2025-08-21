@@ -19,6 +19,9 @@
  */
 package org.flywaydb.nc;
 
+import static org.flywaydb.core.internal.logging.PreviewFeatureWarning.NATIVE_CONNECTORS;
+import static org.flywaydb.core.internal.logging.PreviewFeatureWarning.logPreviewFeature;
+
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -48,6 +51,8 @@ public abstract class NativeConnectorsJdbc<T> extends AbstractNativeConnectorsDa
 
     @Override
     public void initialize(final ResolvedEnvironment environment, final Configuration configuration) {
+        logPreviewFeature(NATIVE_CONNECTORS + " for " + getDatabaseType());
+
         final int connectRetries = environment.getConnectRetries() != null ? environment.getConnectRetries() : 0;
         final int connectRetriesInterval = environment.getConnectRetriesInterval() != null
             ? environment.getConnectRetriesInterval()

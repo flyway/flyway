@@ -51,7 +51,7 @@ if __name__ == "__main__":
             print(run_command)
             subprocess.run(run_command, check=True, shell=True)
 
-        if (edition == "redgate") or (i == len(images) - 1):
+        if i == len(images) - 1:
             flyway_cli_params_mongo = f'-url={os.getenv("MONGO_CONNECTION_DETAILS")} -sqlMigrationSuffixes=".js" -cleanDisabled=false '
             for flyway_command in ["clean", "info", "migrate"]:
                 run_command = f'docker run --rm -v "{test_sql_path}:/flyway/sql" {env_var_flag} {image} {flyway} {flyway_command} {flyway_cli_params_mongo}'

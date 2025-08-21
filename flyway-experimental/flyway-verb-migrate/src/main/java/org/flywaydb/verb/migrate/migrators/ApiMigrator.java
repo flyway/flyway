@@ -24,6 +24,7 @@ import static org.flywaydb.nc.utils.VerbUtils.toMigrationText;
 
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import lombok.CustomLog;
 import org.flywaydb.core.ProgressLogger;
@@ -112,7 +113,11 @@ public class ApiMigrator extends Migrator {
         if (executeInTransaction) {
             experimentalDatabase.startTransaction();
         }
-        for (final MigrationInfo migrationInfo : executionGroup.migrations()) {
+
+        Iterator<MigrationInfo> it = executionGroup.migrations().iterator();
+        while (it.hasNext()) {
+            MigrationInfo migrationInfo = it.next();
+            boolean isLast = !it.hasNext();
             doIndividualMigration(migrationInfo,
                 experimentalDatabase,
                 configuration,
@@ -121,7 +126,8 @@ public class ApiMigrator extends Migrator {
                 parsingContext,
                 callbackManager,
                 executeInTransaction,
-                progress);
+                progress,
+                isLast);
             rank++;
         }
         if (executeInTransaction) {
@@ -138,7 +144,8 @@ public class ApiMigrator extends Migrator {
         final ParsingContext parsingContext,
         final CallbackManager callbackManager,
         final boolean executeInTransaction,
-        final ProgressLogger progress) {
+        final ProgressLogger progress,
+        final boolean isLast) {
         final StopWatch watch = new StopWatch();
         watch.start();
 
@@ -179,9 +186,11 @@ public class ApiMigrator extends Migrator {
                             parsingContext,
                             loadableMigrationInfo.getLoadableResource(),
                             null).findFirst().get(),
-                        getParentDir(loadableMigrationInfo.getLoadableResource().getAbsolutePath()));
+                        getParentDir(loadableMigrationInfo.getLoadableResource().getAbsolutePath()), executeInTransaction);
                     executor.execute(experimentalDatabase, nonJdbcExecutorExecutionUnit, configuration);
-                    executor.finishExecution(experimentalDatabase, configuration);
+                    if(isLast) {
+                        executor.finishExecution(experimentalDatabase, configuration);
+                    }
                 }
 
                 if (!migrationInfo.getType().isUndo()) {
@@ -246,6 +255,11 @@ public class ApiMigrator extends Migrator {
             failedMsg = "Migration of " + migrationText + " failed!";
         } else {
             failedMsg = "Undo of migration of " + migrationText + " failed!";
+        }
+
+        if (executeInTransaction && experimentalDatabase.transactionAsBatch()) {
+            LOG.warn("When running transactions in bulk, the reported failed migration may be incorrect. "
+                + "Flyway always flags the last migration in the bulk as failed");
         }
 
         migrateResult.putFailedMigration(migrationInfo, totalTimeMillis);

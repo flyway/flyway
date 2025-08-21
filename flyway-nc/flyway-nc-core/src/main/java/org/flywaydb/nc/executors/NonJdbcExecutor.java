@@ -19,6 +19,7 @@
  */
 package org.flywaydb.nc.executors;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.nc.ConnectionType;
 import org.flywaydb.core.internal.nc.Executor;
@@ -30,12 +31,28 @@ public class NonJdbcExecutor implements Executor<NonJdbcExecutorExecutionUnit> {
     public void execute(final NativeConnectorsDatabase experimentalDatabase,
         final NonJdbcExecutorExecutionUnit executionUnit,
         final Configuration configuration) {
-        experimentalDatabase.doExecute(executionUnit, configuration.isOutputQueryResults());
+        
+        if (configuration.isBatch() && !experimentalDatabase.supportsBatch()) {
+            throw new FlywayException("The Batch feature is not supported for " + experimentalDatabase.getDatabaseType());
+        }
+
+        if (configuration.isBatch() ||
+            (experimentalDatabase.transactionAsBatch() && executionUnit.isExecuteInTransaction())) {
+            experimentalDatabase.addToBatch(executionUnit.getScript());
+        } else {
+            // There may be previously added scripts pending execution; flush them out.
+            if (experimentalDatabase.transactionAsBatch()) {
+                experimentalDatabase.doExecuteBatch();
+            }
+            experimentalDatabase.doExecute(executionUnit, configuration.isOutputQueryResults());
+        }
     }
 
     @Override
     public void finishExecution(final NativeConnectorsDatabase experimentalDatabase, final Configuration configuration) {
-
+        if (configuration.isBatch() || experimentalDatabase.transactionAsBatch()) {
+            experimentalDatabase.doExecuteBatch();
+        }
     }
 
     @Override

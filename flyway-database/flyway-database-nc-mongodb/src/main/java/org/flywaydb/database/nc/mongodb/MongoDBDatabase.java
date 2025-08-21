@@ -326,7 +326,16 @@ public class MongoDBDatabase extends AbstractNativeConnectorsDatabase<NonJdbcExe
     }
 
     @Override
+    public boolean supportsBatch() {
+        return (connectionType == ConnectionType.API);
+    }
+
+    @Override
     public void doExecuteBatch() {
+        if (batch.isEmpty()) {
+            return;
+        }
+
         mongoDatabase.runCommand(BsonDocument.parse(String.join(";", batch)));
         batch.clear();
     }
