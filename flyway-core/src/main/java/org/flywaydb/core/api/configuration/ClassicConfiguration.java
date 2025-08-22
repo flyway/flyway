@@ -1544,7 +1544,11 @@ public class ClassicConfiguration implements Configuration {
                     DatabaseType databaseType = DatabaseTypeRegister.getDatabaseTypeForConnection(connection, this);
                     model.setDatabaseType(databaseType);
                     return databaseType;
-                } catch (SQLException ignored) {
+                } catch (SQLException sqlException) {
+                    LOG.warn("Unable to get database type from connection caused by "
+                            + ClassUtils.formatThrowable(sqlException) + " at "
+                            + ExceptionUtils.getThrowLocation(sqlException)
+                    );
                 }
             }
         }
