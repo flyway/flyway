@@ -36,6 +36,26 @@ public class JavaUtilLog implements Log {
         return logger.isLoggable(Level.FINE);
     }
 
+    @Override
+    public boolean isInfoEnabled() {
+        return logger.isLoggable(Level.INFO);
+    }
+
+    @Override
+    public boolean isWarnEnabled() {
+        return logger.isLoggable(Level.WARNING);
+    }
+
+    @Override
+    public boolean isErrorEnabled() {
+        return logger.isLoggable(Level.SEVERE);
+    }
+
+    @Override
+    public boolean isNoticeEnabled() {
+        return false;
+    }
+
     public void debug(String message) {
         log(Level.FINE, message, null);
     }

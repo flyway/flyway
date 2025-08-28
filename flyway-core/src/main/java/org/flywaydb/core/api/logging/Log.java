@@ -23,6 +23,14 @@ public interface Log {
 
     boolean isDebugEnabled();
 
+    boolean isInfoEnabled();
+
+    boolean isWarnEnabled();
+
+    boolean isErrorEnabled();
+
+    boolean isNoticeEnabled();
+
     void debug(String message);
 
     void info(String message);
