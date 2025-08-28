@@ -32,6 +32,26 @@ public class ApacheCommonsLog implements Log {
         return logger.isDebugEnabled();
     }
 
+    @Override
+    public boolean isInfoEnabled() {
+        return logger.isInfoEnabled();
+    }
+
+    @Override
+    public boolean isWarnEnabled() {
+        return logger.isWarnEnabled();
+    }
+
+    @Override
+    public boolean isErrorEnabled() {
+        return logger.isErrorEnabled();
+    }
+
+    @Override
+    public boolean isNoticeEnabled() {
+        return false;
+    }
+
     public void debug(String message) {
         logger.debug(message);
     }

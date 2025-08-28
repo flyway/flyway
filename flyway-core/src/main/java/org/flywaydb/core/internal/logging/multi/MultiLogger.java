@@ -44,6 +44,50 @@ public class MultiLogger implements Log {
     }
 
     @Override
+    public boolean isInfoEnabled() {
+        for (Log log : logs) {
+            if (!log.isInfoEnabled()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean isWarnEnabled() {
+        for (Log log : logs) {
+            if (!log.isWarnEnabled()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean isErrorEnabled() {
+        for (Log log : logs) {
+            if (!log.isErrorEnabled()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean isNoticeEnabled() {
+        for (Log log : logs) {
+            if (!log.isNoticeEnabled()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
     public void debug(String message) {
         for (Log log : logs) {
             log.debug(message);

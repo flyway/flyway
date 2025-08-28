@@ -20,6 +20,7 @@
 package org.flywaydb.core.internal.logging.log4j2;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 import org.flywaydb.core.api.logging.Log;
 
@@ -31,6 +32,26 @@ public class Log4j2Log implements Log {
     @Override
     public boolean isDebugEnabled() {
         return logger.isDebugEnabled();
+    }
+
+    @Override
+    public boolean isInfoEnabled() {
+        return logger.isInfoEnabled();
+    }
+
+    @Override
+    public boolean isWarnEnabled() {
+        return logger.isWarnEnabled();
+    }
+
+    @Override
+    public boolean isErrorEnabled() {
+        return logger.isErrorEnabled();
+    }
+
+    @Override
+    public boolean isNoticeEnabled() {
+        return false;
     }
 
     public void debug(String message) {logger.debug(message);}

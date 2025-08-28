@@ -35,6 +35,26 @@ public class ConsoleLog implements Log {
         return level == Level.DEBUG;
     }
 
+    @Override
+    public boolean isInfoEnabled() {
+        return level.compareTo(Level.INFO) <= 0;
+    }
+
+    @Override
+    public boolean isWarnEnabled() {
+        return level.compareTo(Level.WARN) <= 0;
+    }
+
+    @Override
+    public boolean isErrorEnabled() {
+        return true;
+    }
+
+    @Override
+    public boolean isNoticeEnabled() {
+        return level.compareTo(Level.INFO) <= 0;
+    }
+
     public void debug(String message) {
         if (isDebugEnabled()) {
             System.out.println("DEBUG: " + message);
