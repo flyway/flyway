@@ -112,7 +112,13 @@ class MavenVersionChecker {
     }
 
     private static MigrationVersion getCurrentVersion() {
-        return MigrationVersion.fromVersion(VersionPrinter.getVersion());
+        String currentVersion = VersionPrinter.getVersion();
+
+        // Extra suffixes in the current version may cause MigrationVersion parsing to fail
+        int idx = currentVersion.indexOf('-');
+        currentVersion = idx >= 0 ? currentVersion.substring(0, idx) : currentVersion;
+
+        return MigrationVersion.fromVersion(currentVersion);
     }
 
     private static String getMessage(final MigrationVersion latest) {

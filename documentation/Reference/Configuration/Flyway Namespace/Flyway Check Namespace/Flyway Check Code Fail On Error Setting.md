@@ -1,5 +1,5 @@
 ---
-subtitle: flyway.check.code.strictMode
+subtitle: flyway.check.code.failOnError
 ---
 
 {% include enterprise.html %}
@@ -29,12 +29,12 @@ Boolean
 ### Command-line
 
 ```powershell
-./flyway check -code "-check.code.strictMode=true"
+./flyway check -code "-check.code.failOnError=true"
 ```
 
 ### TOML Configuration File
 
 ```toml
 [flyway.check.code]
-strictMode = true
+failOnError = true
 ```

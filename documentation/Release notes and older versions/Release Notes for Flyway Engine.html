@@ -8,6 +8,47 @@
 </div>
 <div class="col-md-9">
   <div class="release">
+        <h2 id="11.11.2">Flyway 11.11.2 (2025-08-21)</h2>
+
+        <h3>New features</h3>
+        <ul>
+            <li>afterConnect callback is now available outside of Native Connectors</li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>Fixed jar for aws-secretsmanager</li>
+        </ul>
+
+        <h3>Library upgrades</h3>
+        <ul>
+            <li>Upgraded RgCompare.Cli from 1.39.4.1185 to 1.40.1.1194</li>
+            <li>Bump Netty-common, netty-resolver and netty-codec-http2 to 4.1.124 to fix CVE-2025-55163</li>
+        </ul>
+
+  </div>
+
+  <div class="release">
+        <h2 id="11.11.1">Flyway 11.11.1 (2025-08-14)</h2>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Table of useful configuration options will now print if no migrations found</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>When performing operations using the results of database comparison capabilities (model, generate, prepare, diffText) for SQL Server and Oracle databases, selecting static data differences will fail if the associated table does not exist in the target database and is not also included for selection</li>
+        </ul>
+
+        <h3>Library upgrades</h3>
+        <ul>
+            <li>Upgraded RgCompare.Cli from 1.39.0.1098 to 1.39.4.1185</li>
+        </ul>
+
+  </div>
+
+  <div class="release">
         <h2 id="11.11.0">Flyway 11.11.0 (2025-08-08)</h2>
 
         <h3>Breaking changes</h3>

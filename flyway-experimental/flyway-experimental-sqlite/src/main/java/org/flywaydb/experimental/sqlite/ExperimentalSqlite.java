@@ -36,7 +36,7 @@ import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
 
 @CustomLog
-public class ExperimentalSqlite extends NativeConnectorsJdbc<String> {
+public class ExperimentalSqlite extends NativeConnectorsJdbc {
 
     @Override
     public DatabaseSupport supportsUrl(final String url) {

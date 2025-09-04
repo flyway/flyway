@@ -31,11 +31,16 @@ import org.flywaydb.core.extensibility.ConfigurationParameter;
 public class PrepareScriptFilenameConfigurationExtension implements ConfigurationExtension {
     private static final String SCRIPT_FOLDER_DEFAULT = "deployments";
     private static final String SCRIPT_FILE_DEFAULT = "D__deployment.sql";
+    private static final String UNDO_FILE_DEFAULT = "DU__undo.sql";
 
     private static final String SCRIPT_FILENAME_DEFAULT = SCRIPT_FOLDER_DEFAULT + FileSystems.getDefault()
         .getSeparator() + SCRIPT_FILE_DEFAULT;
 
+    private static final String UNDO_FILENAME_DEFAULT = SCRIPT_FOLDER_DEFAULT + FileSystems.getDefault()
+        .getSeparator() + UNDO_FILE_DEFAULT;
+
     private String scriptFilename = SCRIPT_FILENAME_DEFAULT;
+    private String undoFilename = UNDO_FILENAME_DEFAULT;
 
     @Override
     public String getNamespace() {
@@ -49,8 +54,12 @@ public class PrepareScriptFilenameConfigurationExtension implements Configuratio
 
     public static List<ConfigurationParameter> getConfigurationParameters() {
         return List.of(new ConfigurationParameter("scriptFilename",
-            "A deployment script to generate for use with `deploy`. If not specified the location will default to "
-                + SCRIPT_FILENAME_DEFAULT,
-            false));
+                "A deployment script to generate for use with `deploy`. If not specified the location will default to "
+                    + SCRIPT_FILENAME_DEFAULT,
+                false),
+            new ConfigurationParameter("undoFilename",
+                "A deployment undo script to generate for use with `deploy`. If not specified the location will default to "
+                    + UNDO_FILENAME_DEFAULT,
+                false));
     }
 }

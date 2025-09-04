@@ -30,7 +30,7 @@ flyway check -code
 | [`minorTolerance`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Minor Tolerance Setting>) | check     | The number of minor rules violations to be tolerated before throwing an error.                                   |
 | [`regexEnabled`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Regex Enabled Setting>) | check     | Enable or disable the Regex Engine for code analysis.                                                            |  
 | [`sqlfluffEnabled`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check SQLFluff Enabled Setting>) | check     | Enable or disable the `SQLFluff` Engine for code analysis.                                                       |
-| [`code.strictMode`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Code Strict Mode Setting>) | check     | Whether to fail based on the violation severity level.                                                      |  
+| [`code.failOnError`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Code Fail On Error Setting>) | check     | Whether to fail based on the violation severity level.                                                      |  
 | [`reportFilename`](<Configuration/Flyway Namespace/Flyway Report Filename Setting>)                              | (root)    | The output path of the generated report.                                                                         |
 | [`workingDirectory`](<Command-line Parameters/Working Directory Parameter>)                                       | (root)    | The directory to consider the current working directory. All relative paths will be considered relative to this. |
 | [{environment parameters}](<Configuration/Environments Namespace>)                                               | (root)    | Environment configuration for the source and/or target environments.                                             |
@@ -38,7 +38,8 @@ flyway check -code
 Universal commandline parameters are listed [here](<Command-line Parameters>).
 
 _Note_:
-- _Static code analysis will not interrupt the execution of subsequent Flyway verb operations if they are chained. This means that even if a `majorTolerance` or `minorTolerance` error occurs, Flyway will continue processing the remaining verb operations.
+- _The following parameters are now deprecated - `majorRules/majorTolerance/minorRules/minorTolerance`. Consider using `failOnError` instead._
+- _Static code analysis will not interrupt the execution of subsequent Flyway verb operations if they are chained. This means that even if `failOnError` is enabled, Flyway will continue processing the remaining verb operations.
   For this reason, it is recommended to run subsequent Flyway verbs separately._
 
 ## JSON output format

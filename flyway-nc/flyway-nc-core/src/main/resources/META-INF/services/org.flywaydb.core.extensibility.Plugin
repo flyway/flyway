@@ -1,8 +1,9 @@
 org.flywaydb.nc.preparation.PreparationContext
 org.flywaydb.nc.info.VersionOrderMigrationComparator
 org.flywaydb.nc.info.filters.ShouldExecuteMigrationInfoFilter
-org.flywaydb.nc.executors.NonJdbcExecutor
+org.flywaydb.nc.executors.ApiExecutor
 org.flywaydb.nc.executors.JdbcExecutor
+org.flywaydb.nc.executors.ExecutableExecutor
 org.flywaydb.nc.readers.NonJdbcReader
 org.flywaydb.nc.readers.JdbcReader
 org.flywaydb.nc.migration.BaselineMigrationTypeResolver

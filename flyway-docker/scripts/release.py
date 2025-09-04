@@ -15,14 +15,28 @@ if __name__ == "__main__":
     release_commands = []
     tags = []
     if edition == "flyway":
-        # Multi-arch images are pushed using the buildx command
-        release_commands.append(get_buildx_command(edition, version, "", ".", False, True))
-        release_commands.append(get_buildx_command(edition, version, "-alpine", "alpine", False, True))
-        tags.extend(utils.generate_tags(version, "-azure"))
-        release_commands.append(get_buildx_command(edition, version, "", ".", True, True))
-        release_commands.append(get_buildx_command(edition, version, "-alpine", "alpine", True, True))
-        tags.extend(utils.generate_tags(version, "-azure-mongo"))
+        # Multi-arch images are pushed using the buildx command with --push for each base variant.
+        variants = [
+            ("", "base"),
+            ("-alpine", "alpine"),
+            ("-azure", "azure"),
+        ]
+        for suffix, folder in variants:
+            release_commands.append(get_buildx_command(edition, version, suffix, folder) + " --push")
+
+        # Push tags (latest, major.minor, major) for all variant combinations (base, alpine, azure) and mongo layers.
+        variant_suffixes = [
+            "",  # base
+            "-alpine",
+            "-azure",
+            "-mongo",
+            "-alpine-mongo",
+            "-azure-mongo",
+        ]
+        for suf in variant_suffixes:
+            tags.extend(utils.generate_tags(version, suf))
     else:
+        # For redgate, push all tags for all variants
         tags.extend(utils.generate_tags(version, ""))
         tags.extend(utils.generate_tags(version, "-mongo"))
         tags.extend(utils.generate_tags(version, "-alpine"))

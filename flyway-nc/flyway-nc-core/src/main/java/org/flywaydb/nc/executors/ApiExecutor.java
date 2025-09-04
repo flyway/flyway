@@ -23,12 +23,12 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.nc.ConnectionType;
 import org.flywaydb.core.internal.nc.Executor;
-import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
+import org.flywaydb.nc.NativeConnectorsNonJdbc;
 
-public class NonJdbcExecutor implements Executor<NonJdbcExecutorExecutionUnit> {
+public class ApiExecutor implements Executor<NonJdbcExecutorExecutionUnit, NativeConnectorsNonJdbc> {
 
     @Override
-    public void execute(final NativeConnectorsDatabase experimentalDatabase,
+    public void execute(final NativeConnectorsNonJdbc experimentalDatabase,
         final NonJdbcExecutorExecutionUnit executionUnit,
         final Configuration configuration) {
         
@@ -38,7 +38,7 @@ public class NonJdbcExecutor implements Executor<NonJdbcExecutorExecutionUnit> {
 
         if (configuration.isBatch() ||
             (experimentalDatabase.transactionAsBatch() && executionUnit.isExecuteInTransaction())) {
-            experimentalDatabase.addToBatch(executionUnit.getScript());
+            experimentalDatabase.addToBatch(executionUnit);
         } else {
             // There may be previously added scripts pending execution; flush them out.
             if (experimentalDatabase.transactionAsBatch()) {
@@ -49,7 +49,7 @@ public class NonJdbcExecutor implements Executor<NonJdbcExecutorExecutionUnit> {
     }
 
     @Override
-    public void finishExecution(final NativeConnectorsDatabase experimentalDatabase, final Configuration configuration) {
+    public void finishExecution(final NativeConnectorsNonJdbc experimentalDatabase, final Configuration configuration) {
         if (configuration.isBatch() || experimentalDatabase.transactionAsBatch()) {
             experimentalDatabase.doExecuteBatch();
         }
@@ -57,7 +57,7 @@ public class NonJdbcExecutor implements Executor<NonJdbcExecutorExecutionUnit> {
 
     @Override
     public boolean canExecute(final ConnectionType connectionType) {
-        return connectionType == ConnectionType.EXECUTABLE || connectionType == ConnectionType.API;
+        return connectionType == ConnectionType.API;
     }
 
     @Override

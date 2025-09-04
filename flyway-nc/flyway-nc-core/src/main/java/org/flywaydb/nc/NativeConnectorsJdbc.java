@@ -46,7 +46,7 @@ import org.flywaydb.core.internal.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.jdbc.Result;
 import org.flywaydb.core.internal.util.AsciiTable;
 
-public abstract class NativeConnectorsJdbc<T> extends AbstractNativeConnectorsDatabase<T> {
+public abstract class NativeConnectorsJdbc extends AbstractNativeConnectorsDatabase<String> {
     protected Connection connection;
 
     @Override
@@ -69,9 +69,14 @@ public abstract class NativeConnectorsJdbc<T> extends AbstractNativeConnectorsDa
     }
 
     @Override
-    public void doExecute(final T executionUnit, final boolean outputQueryResults) {
+    public boolean supportsBatch() {
+        return true;
+    }
+
+    @Override
+    public void doExecute(final String executionUnit, final boolean outputQueryResults) {
         try (final Statement statement = connection.createStatement()) {
-            final boolean hasResult = statement.execute((String) executionUnit);
+            final boolean hasResult = statement.execute(executionUnit);
             parseResults(hasResult, statement, outputQueryResults);
         } catch (SQLException e) {
             throw new FlywayException(e);
@@ -124,7 +129,7 @@ public abstract class NativeConnectorsJdbc<T> extends AbstractNativeConnectorsDa
             version,
             productVersion,
             databaseName,
-            getConnectionType());
+            connectionType);
     }
 
     @Override
@@ -358,7 +363,7 @@ public abstract class NativeConnectorsJdbc<T> extends AbstractNativeConnectorsDa
     }
 
     @Override
-    protected final String getDefaultSchema(final Configuration configuration) {
+    public final String getDefaultSchema(final Configuration configuration) {
         if (!supportsSchema()) {
             return getSchemaPlaceHolder();
         }

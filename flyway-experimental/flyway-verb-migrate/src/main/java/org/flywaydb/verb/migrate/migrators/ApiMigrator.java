@@ -36,12 +36,12 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.CommandResultFactory;
 import org.flywaydb.core.api.output.MigrateResult;
 import org.flywaydb.core.api.resource.LoadableResource;
-import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
 import org.flywaydb.core.internal.exception.FlywayMigrateException;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.nc.NativeConnectorsNonJdbc;
 import org.flywaydb.nc.callbacks.CallbackManager;
 import org.flywaydb.nc.utils.ErrorUtils;
 import org.flywaydb.nc.executors.NonJdbcExecutorExecutionUnit;
@@ -52,12 +52,12 @@ import org.flywaydb.core.internal.nc.Reader;
 import org.flywaydb.nc.readers.ReaderFactory;
 
 @CustomLog
-public class ApiMigrator extends Migrator {
+public class ApiMigrator extends Migrator<NativeConnectorsNonJdbc> {
 
     @Override
     public List<MigrationExecutionGroup> createGroups(final MigrationInfo[] allPendingMigrations,
         final Configuration configuration,
-        final NativeConnectorsDatabase experimentalDatabase,
+        final NativeConnectorsNonJdbc experimentalDatabase,
         final MigrateResult migrateResult,
         final ParsingContext parsingContext) {
         final List<MigrationInfo> currentGroup = Arrays.asList(allPendingMigrations);
@@ -102,7 +102,7 @@ public class ApiMigrator extends Migrator {
     @Override
     public int doExecutionGroup(final Configuration configuration,
         final MigrationExecutionGroup executionGroup,
-        final NativeConnectorsDatabase experimentalDatabase,
+        final NativeConnectorsNonJdbc experimentalDatabase,
         final MigrateResult migrateResult,
         final ParsingContext parsingContext,
         final int installedRank,
@@ -137,7 +137,7 @@ public class ApiMigrator extends Migrator {
     }
 
     private void doIndividualMigration(final MigrationInfo migrationInfo,
-        final NativeConnectorsDatabase experimentalDatabase,
+        final NativeConnectorsNonJdbc experimentalDatabase,
         final Configuration configuration,
         final MigrateResult migrateResult,
         final int installedRank,
@@ -155,7 +155,7 @@ public class ApiMigrator extends Migrator {
             executeInTransaction,
             experimentalDatabase,
             outOfOrder);
-        final Executor<NonJdbcExecutorExecutionUnit> executor = ExecutorFactory.getExecutor(experimentalDatabase,
+        final Executor<NonJdbcExecutorExecutionUnit, NativeConnectorsNonJdbc> executor = ExecutorFactory.getExecutor(experimentalDatabase,
             configuration);
         final Reader<String> reader = ReaderFactory.getReader(experimentalDatabase, configuration);
 
@@ -236,7 +236,7 @@ public class ApiMigrator extends Migrator {
     }
 
     private void handleMigrationError(final Exception e,
-        final NativeConnectorsDatabase experimentalDatabase,
+        final NativeConnectorsNonJdbc experimentalDatabase,
         final MigrationInfo migrationInfo,
         final MigrateResult migrateResult,
         final String schemaHistoryTableName,

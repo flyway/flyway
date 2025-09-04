@@ -26,14 +26,14 @@ import org.flywaydb.core.internal.nc.Executor;
 import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
 
 public class ExecutorFactory {
-    public static <T> Executor<T> getExecutor(final NativeConnectorsDatabase experimentalDatabase,
+    public static <T, DB extends NativeConnectorsDatabase> Executor<T, DB> getExecutor(final DB experimentalDatabase,
         final Configuration configuration) {
         final ConnectionType connectionType = experimentalDatabase.getDatabaseMetaData().connectionType();
         return configuration.getPluginRegister()
             .getLicensedPlugins(Executor.class, configuration)
             .stream()
             .filter(x -> x.canExecute(connectionType))
-            .map(x -> (Executor<T>) x)
+            .map(x -> (Executor<T, DB>) x)
             .findFirst()
             .orElseThrow(() -> new FlywayException("No executor found for connection type: " + connectionType));
     }

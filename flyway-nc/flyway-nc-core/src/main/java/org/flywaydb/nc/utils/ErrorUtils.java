@@ -22,15 +22,16 @@ package org.flywaydb.nc.utils;
 import java.nio.file.Path;
 import lombok.CustomLog;
 import org.flywaydb.core.api.resource.LoadableResource;
+import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.nc.Executor;
 
 @CustomLog
 public class ErrorUtils {
-    public static <T> String calculateErrorMessage(final String title,
+    public static <T, DB extends NativeConnectorsDatabase> String calculateErrorMessage(final String title,
         final LoadableResource loadableResource,
         final String physicalLocation,
-        final Executor<T> executor,
+        final Executor<T, DB> executor,
         final T executionUnit,
         final String message) {
 

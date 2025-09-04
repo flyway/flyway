@@ -46,12 +46,12 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import org.bson.BsonDocument;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.nc.AbstractNativeConnectorsDatabase;
 import org.flywaydb.core.internal.nc.ConnectionType;
 import org.flywaydb.core.internal.nc.DatabaseSupport;
 import org.flywaydb.core.internal.nc.DatabaseVersionImpl;
@@ -69,10 +69,11 @@ import org.flywaydb.core.internal.util.DockerUtils;
 import org.flywaydb.core.internal.util.FileUtils;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.nc.NativeConnectorsNonJdbc;
 import org.flywaydb.nc.executors.NonJdbcExecutorExecutionUnit;
 import org.flywaydb.nc.utils.TemporaryFileUtils;
 
-public class MongoDBDatabase extends AbstractNativeConnectorsDatabase<NonJdbcExecutorExecutionUnit> {
+public class MongoDBDatabase extends NativeConnectorsNonJdbc {
     private MongoClient mongoClient;
     private MongoDatabase mongoDatabase;
     private String schemaHistoryTableName = null;
@@ -336,7 +337,10 @@ public class MongoDBDatabase extends AbstractNativeConnectorsDatabase<NonJdbcExe
             return;
         }
 
-        mongoDatabase.runCommand(BsonDocument.parse(String.join(";", batch)));
+        mongoDatabase.runCommand(BsonDocument.parse(batch.stream()
+        .map(NonJdbcExecutorExecutionUnit::getScript)
+            .collect(Collectors.joining(";"))));
+
         batch.clear();
     }
 

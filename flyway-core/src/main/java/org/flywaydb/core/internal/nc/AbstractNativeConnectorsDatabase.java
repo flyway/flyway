@@ -20,21 +20,19 @@
 package org.flywaydb.core.internal.nc;
 
 import java.util.ArrayList;
-import lombok.Getter;
 import org.flywaydb.core.api.configuration.Configuration;
 
 public abstract non-sealed class AbstractNativeConnectorsDatabase<T> implements NativeConnectorsDatabase<T> {
-    protected final ArrayList<String> batch = new ArrayList<>();
+    protected final ArrayList<T> batch = new ArrayList<>();
     protected MetaData metaData;
 
-    @Getter
     protected ConnectionType connectionType;
 
     // This is the schema that contains the Schema History Table; it is not the schema of the current connection
     protected String currentSchema;
 
     @Override
-    public void addToBatch(final String executionUnit) {
+    public void addToBatch(final T executionUnit) {
         batch.add(executionUnit);
     }
 

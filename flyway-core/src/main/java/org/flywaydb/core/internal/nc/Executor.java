@@ -22,14 +22,14 @@ package org.flywaydb.core.internal.nc;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.Plugin;
 
-public interface Executor<T> extends Plugin {
+public interface Executor<T,  DB extends NativeConnectorsDatabase> extends Plugin {
 
-    void execute(NativeConnectorsDatabase experimentalDatabase, T executionUnit, Configuration configuration);
+    void execute(DB experimentalDatabase, T executionUnit, Configuration configuration);
 
     boolean canExecute(ConnectionType connectionType);
 
     void appendErrorMessage(T executionUnit, StringBuilder messageBuilder, boolean isDebugEnabled);
 
-    void finishExecution(NativeConnectorsDatabase experimentalDatabase, Configuration configuration);
+    void finishExecution(DB experimentalDatabase, Configuration configuration);
 }
 

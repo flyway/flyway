@@ -25,14 +25,14 @@ import lombok.CustomLog;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.nc.ConnectionType;
 import org.flywaydb.core.internal.nc.Executor;
-import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
 import org.flywaydb.core.internal.sqlscript.SqlStatement;
+import org.flywaydb.nc.NativeConnectorsJdbc;
 
 @CustomLog
-public class JdbcExecutor implements Executor<SqlStatement> {
+public class JdbcExecutor implements Executor<SqlStatement, NativeConnectorsJdbc> {
 
     @Override
-    public void execute(final NativeConnectorsDatabase experimentalDatabase,
+    public void execute(final NativeConnectorsJdbc experimentalDatabase,
         final SqlStatement executionUnit,
         final Configuration configuration) {
         if (configuration.isBatch()) {
@@ -51,7 +51,7 @@ public class JdbcExecutor implements Executor<SqlStatement> {
     }
 
     @Override
-    public void finishExecution(final NativeConnectorsDatabase experimentalDatabase, final Configuration configuration) {
+    public void finishExecution(final NativeConnectorsJdbc experimentalDatabase, final Configuration configuration) {
         if (configuration.isBatch()) {
             experimentalDatabase.doExecuteBatch();
         }

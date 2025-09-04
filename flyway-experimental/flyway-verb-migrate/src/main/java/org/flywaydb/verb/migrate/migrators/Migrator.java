@@ -33,28 +33,28 @@ import org.flywaydb.nc.callbacks.CallbackManager;
 import org.flywaydb.verb.migrate.MigrationExecutionGroup;
 
 @CustomLog
-public abstract class Migrator {
+public abstract class Migrator <DB extends NativeConnectorsDatabase> {
 
     public abstract List<MigrationExecutionGroup> createGroups(final MigrationInfo[] allPendingMigrations,
         final Configuration configuration,
-        final NativeConnectorsDatabase experimentalDatabase,
+        final DB experimentalDatabase,
         final MigrateResult migrateResult,
         final ParsingContext parsingContext);
 
     public abstract int doExecutionGroup(final Configuration configuration,
         final MigrationExecutionGroup executionGroup,
-        final NativeConnectorsDatabase experimentalDatabase,
+        final DB experimentalDatabase,
         final MigrateResult migrateResult,
         final ParsingContext parsingContext,
         final int installedRank,
         final CallbackManager callbackManager,
         final ProgressLogger progress);
 
-    static void updateSchemaHistoryTable(final String tableName,
+    public void updateSchemaHistoryTable(final String tableName,
         final MigrationInfo migrationInfo,
         final int totalTimeMillis,
         final int installedRank,
-        final NativeConnectorsDatabase experimentalDatabase,
+        final DB experimentalDatabase,
         final String installedBy,
         final boolean success) {
         final SchemaHistoryItemBuilder schemaHistoryItem = SchemaHistoryItem.builder()

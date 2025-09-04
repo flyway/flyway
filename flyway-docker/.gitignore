@@ -13,3 +13,5 @@ target
 .gradle
 *.h2.db
 .DS_Store
+
+*.tar.gz

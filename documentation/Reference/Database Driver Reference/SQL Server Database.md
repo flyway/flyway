@@ -139,6 +139,7 @@ INSERT INTO ${tableName} (name) VALUES ('Mr. T');
 
 ## Authentication
 
+For Flyway Desktop, please see [using SQL Server with Flyway Desktop](https://documentation.red-gate.com/flyway/getting-started-with-flyway/system-requirements/flyway-desktop-requirements/flyway-desktop-using-sql-server).
 SQL Server supports several methods of authentication. These include:
 
 - SQL Server Authentication

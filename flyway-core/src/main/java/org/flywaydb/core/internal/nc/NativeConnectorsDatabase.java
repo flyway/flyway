@@ -39,7 +39,8 @@ import org.flywaydb.core.internal.util.TimeFormat;
  * Interface to define new experimental database plugins.
  */
 public sealed interface NativeConnectorsDatabase<T> extends Plugin, AutoCloseable permits
-                                                                                  AbstractNativeConnectorsDatabase {
+                                                                                  AbstractNativeConnectorsDatabase,
+                                                                                  AbstractNativeConnectorsHybridDatabase {
     Log LOG = org.flywaydb.core.api.logging.LogFactory.getLog(NativeConnectorsDatabase.class);
     String APPLICATION_NAME = "Flyway by Redgate";
 
@@ -62,21 +63,7 @@ public sealed interface NativeConnectorsDatabase<T> extends Plugin, AutoCloseabl
 
     boolean supportsTransactions();
 
-    /**
-     * By default, databases that use Batch to implement Transactions cannot support Batch, as it would cause a conflict.
-     * Furthermore, if a database type supports any ConnectionType other than JDBC, it should consider overriding this method
-     */
-    default boolean supportsBatch() {
-        return !transactionAsBatch();
-    }
-
-    /**
-     * Only applies to certain non-JDBC databases that put all statements within a block and execute them as a single transaction.
-     * For these databases, transactions are handled via batching
-     */
-    default boolean transactionAsBatch() {
-        return false;
-    }
+    boolean supportsBatch();
 
     /**
      * Checks if the database supports non-transactional statements.
@@ -184,7 +171,7 @@ public sealed interface NativeConnectorsDatabase<T> extends Plugin, AutoCloseabl
 
     BiFunction<Configuration, ParsingContext, Parser> getParser();
 
-    void addToBatch(String executionUnit);
+    void addToBatch(T executionUnit);
 
     /**
      * Executes the current batch against the database.

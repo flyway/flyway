@@ -103,7 +103,7 @@ public class CleanExecutor {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         try {
-            ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(), database).execute(() -> {
+            ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(), database, true).execute(() -> {
                 database.cleanPreSchemas();
                 return null;
             });
@@ -121,7 +121,7 @@ public class CleanExecutor {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         try {
-            ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(), database).execute(() -> {
+            ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(), database, true).execute(() -> {
                 database.cleanPostSchemas(schemas);
                 return null;
             });
@@ -139,7 +139,7 @@ public class CleanExecutor {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         try {
-            ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(), database).execute(() -> {
+            ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(), database, true).execute(() -> {
                 schema.drop();
                 return null;
             });
@@ -182,7 +182,7 @@ public class CleanExecutor {
     }
 
     protected void doCleanSchema(Schema schema) {
-        ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(), database).execute(() -> {
+        ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(), database, true).execute(() -> {
             schema.clean();
             return null;
         });

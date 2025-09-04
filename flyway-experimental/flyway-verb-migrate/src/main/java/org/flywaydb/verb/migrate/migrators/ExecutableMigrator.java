@@ -49,7 +49,7 @@ import org.flywaydb.core.internal.nc.Reader;
 import org.flywaydb.nc.readers.ReaderFactory;
 
 @CustomLog
-public class ExecutableMigrator extends Migrator {
+public class ExecutableMigrator extends Migrator<NativeConnectorsDatabase> {
     @Override
     public List<MigrationExecutionGroup> createGroups(final MigrationInfo[] allPendingMigrations,
         final Configuration configuration,
@@ -102,7 +102,7 @@ public class ExecutableMigrator extends Migrator {
         final boolean outOfOrder = migrationInfo.getState() == MigrationState.OUT_OF_ORDER
             && configuration.isOutOfOrder();
         final String migrationText = toMigrationText(migrationInfo, false, experimentalDatabase, outOfOrder);
-        final Executor<NonJdbcExecutorExecutionUnit> executor = ExecutorFactory.getExecutor(experimentalDatabase,
+        final Executor<NonJdbcExecutorExecutionUnit, NativeConnectorsDatabase> executor = ExecutorFactory.getExecutor(experimentalDatabase,
             configuration);
         final Reader<String> reader = ReaderFactory.getReader(experimentalDatabase, configuration);
 

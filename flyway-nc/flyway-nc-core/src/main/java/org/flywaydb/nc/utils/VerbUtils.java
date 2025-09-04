@@ -355,7 +355,7 @@ public class VerbUtils {
 
     private static boolean handlesConnection(final NativeConnectorsDatabase database,
         final Lazy<? extends Connection> connection) {
-        if (!(database instanceof final NativeConnectorsJdbc<?> jdbcDatabase)) {
+        if (!(database instanceof final NativeConnectorsJdbc jdbcDatabase)) {
             // Assume that a non JDBC database is valid for the url
             return true;
         }

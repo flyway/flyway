@@ -19,6 +19,7 @@
  */
 package org.flywaydb.verb.migrate;
 
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -49,11 +50,9 @@ import org.flywaydb.nc.callbacks.CallbackManager;
 import org.flywaydb.nc.utils.VerbUtils;
 import org.flywaydb.verb.baseline.BaselineVerbExtension;
 import org.flywaydb.nc.info.NativeConnectorsMigrationInfoService;
-import org.flywaydb.verb.migrate.migrators.ApiMigrator;
-import org.flywaydb.verb.migrate.migrators.ExecutableMigrator;
-import org.flywaydb.verb.migrate.migrators.JdbcMigrator;
 import org.flywaydb.verb.migrate.migrators.Migrator;
 import org.flywaydb.nc.preparation.PreparationContext;
+import org.flywaydb.verb.migrate.migrators.MigratorFactory;
 import org.flywaydb.verb.schemas.SchemasVerbExtension;
 import org.flywaydb.verb.validate.ValidateVerbExtension;
 
@@ -74,7 +73,7 @@ public class MigrateVerbExtension implements VerbExtension {
             validate(configuration);
         }
 
-        final NativeConnectorsDatabase database = context.getDatabase();
+        NativeConnectorsDatabase database = context.getDatabase();
 
         if (configuration.isCreateSchemas()) {
             try {
@@ -94,9 +93,10 @@ public class MigrateVerbExtension implements VerbExtension {
         }
 
         if (!database.schemaHistoryTableExists(configuration.getTable())) {
+            final NativeConnectorsDatabase finalDatabase = database;
             final List<String> populatedSchemas = Arrays.stream(VerbUtils.getAllSchemas(configuration.getSchemas(), database.getCurrentSchema()))
                 .filter(database::isSchemaExists)
-                .filter(x -> !database.isSchemaEmpty(x))
+                .filter(x -> !finalDatabase.isSchemaEmpty(x))
                 .toList();
 
             if (populatedSchemas.isEmpty() && configuration.isBaselineOnMigrate()) {
@@ -162,11 +162,7 @@ public class MigrateVerbExtension implements VerbExtension {
             allPendingMigrations = removeOutOfOrderPendingMigrations(allPendingMigrations);
         }
 
-        final Migrator migrator = switch (database.getDatabaseMetaData().connectionType()) {
-            case API -> new ApiMigrator();
-            case JDBC -> new JdbcMigrator();
-            case EXECUTABLE -> new ExecutableMigrator();
-        };
+        final Migrator migrator = MigratorFactory.getMigrator(database);
 
         final List<MigrationExecutionGroup> executionGroups = migrator.createGroups(allPendingMigrations,
             configuration,
