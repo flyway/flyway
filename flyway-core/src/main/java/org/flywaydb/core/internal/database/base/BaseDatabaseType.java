@@ -49,7 +49,7 @@ import static org.flywaydb.core.internal.sqlscript.SqlScriptMetadata.getMetadata
 @CustomLog
 public abstract class BaseDatabaseType implements DatabaseType {
     // Don't grab semicolons and ampersands - they have special meaning in URLs
-    private static final Pattern defaultJdbcCredentialsPattern = Pattern.compile("password=([^;&]*).*", Pattern.CASE_INSENSITIVE);
+    private static final Pattern defaultJdbcCredentialsPattern = Pattern.compile("[;&?]password=([^;&]*)(?=[;&])?", Pattern.CASE_INSENSITIVE);
     private static final Pattern hostJdbcCredentialsPattern = Pattern.compile("(?:jdbc:)?[^:]+://[^:]+:([^@]+)@.*", Pattern.CASE_INSENSITIVE);
 
     /**
