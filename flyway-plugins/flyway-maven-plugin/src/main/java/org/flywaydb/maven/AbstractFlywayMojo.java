@@ -206,6 +206,18 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String[] locations;
 
     /**
+     * Locations to scan recursively for callbacks.
+     * The location type is determined by its prefix.
+     * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
+     * contain both SQL and Java-based callbacks.
+     * Locations starting with {@code filesystem:} point to a directory on the filesystem, may only
+     * contain SQL callbacks and are only scanned recursively down non-hidden directories.
+     * <p>Also configurable with Maven or System Property: ${flyway.callbackLocations} (Comma-separated list)</p>
+     */
+    @Parameter
+    private String[] callbackLocations;
+
+    /**
      * The fully qualified class names of the custom MigrationResolvers to be used in addition or as replacement
      * (if skipDefaultResolvers is true) to the built-in ones for resolving Migrations to apply. (default: none)
      * <p>Also configurable with Maven or System Property: ${flyway.resolvers} (Comma-separated list)</p>
@@ -734,17 +746,15 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                     mavenProject.getBasedir();
 
             if (locations != null) {
-                for (int i = 0; i < locations.length; i++) {
-                    if (locations[i].startsWith(Location.FILESYSTEM_PREFIX)) {
-                        String newLocation = locations[i].substring(Location.FILESYSTEM_PREFIX.length());
-                        File file = toFile(workDir, newLocation);
-                        locations[i] = Location.FILESYSTEM_PREFIX + file.getAbsolutePath();
-                    }
-                }
+                makeLocationPathsAbsolute(workDir, locations);
             } else {
                 locations = new String[] {
                         Location.FILESYSTEM_PREFIX + workDir.getAbsolutePath() + "/src/main/resources/db/migration"
                 };
+            }
+
+            if (callbackLocations != null) {
+                makeLocationPathsAbsolute(workDir, callbackLocations);
             }
 
             Map<String, String> envVars = ConfigUtils.environmentVariablesToPropertyMap();
@@ -767,6 +777,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.BASELINE_VERSION, baselineVersion);
             putIfSet(conf, ConfigUtils.BASELINE_DESCRIPTION, baselineDescription);
             putArrayIfSet(conf, ConfigUtils.LOCATIONS, locations);
+            putArrayIfSet(conf, ConfigUtils.CALLBACK_LOCATIONS, callbackLocations);
             putArrayIfSet(conf, ConfigUtils.RESOLVERS, resolvers);
             putIfSet(conf, ConfigUtils.SKIP_DEFAULT_RESOLVERS, skipDefaultResolvers);
             putArrayIfSet(conf, ConfigUtils.CALLBACKS, callbacks);
@@ -844,6 +855,16 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             Log currentLog = ((EvolvingLog) log).getLog();
             if (currentLog instanceof BufferedLog) {
                 ((BufferedLog) currentLog).flush(new MavenLog(this.getLog()));
+            }
+        }
+    }
+
+    private void makeLocationPathsAbsolute(final File workDir, final String[] locations) {
+        for (int i = 0; i < locations.length; i++) {
+            if (locations[i].startsWith(Location.FILESYSTEM_PREFIX)) {
+                final String newLocation = locations[i].substring(Location.FILESYSTEM_PREFIX.length());
+                final File file = toFile(workDir, newLocation);
+                locations[i] = Location.FILESYSTEM_PREFIX + file.getAbsolutePath();
             }
         }
     }

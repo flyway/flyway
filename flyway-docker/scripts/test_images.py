@@ -83,15 +83,16 @@ def main(argv: List[str]):
 
     planned_commands: List[str] = []
     for i, image in enumerate(images):
+        flyway = "flyway" if "azure" in image else ""
         for flyway_command in flyway_commands:
             planned_commands.append(
-                f'docker run --rm -v "{test_sql_path}:/flyway/sql" {env_var_flag} {image} {flyway_command} {flyway_cli_params}'.strip()
+                f'docker run --rm -v "{test_sql_path}:/flyway/sql" {env_var_flag} {image} {flyway} {flyway_command} {flyway_cli_params}'.strip()
             )
         if i == len(images) - 1:
             flyway_cli_params_mongo = f'-url={os.getenv("MONGO_CONNECTION_DETAILS", "<unset>")} -sqlMigrationSuffixes=".js" -cleanDisabled=false '
             for flyway_command in ["clean", "info", "migrate"]:
                 planned_commands.append(
-                    f'docker run --rm -v "{test_sql_path}:/flyway/sql" {env_var_flag} {image} {flyway_command} {flyway_cli_params_mongo}'.strip()
+                    f'docker run --rm -v "{test_sql_path}:/flyway/sql" {env_var_flag} {image} {flyway} {flyway_command} {flyway_cli_params_mongo}'.strip()
                 )
 
     if args.dry_run:

@@ -34,12 +34,15 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -490,6 +493,13 @@ public class ClassicConfiguration implements Configuration {
         return locations.getLocations().toArray(Location[]::new);
     }
 
+    @Override
+    public Location[] getCallbackLocations() {
+        final Collection<String> stringLocations = Optional.ofNullable(getEnvironmentOverrides().getCallbackLocations())
+            .orElse(Optional.ofNullable(getModernFlyway().getCallbackLocations()).orElse(Collections.emptyList()));
+        return new Locations(stringLocations.toArray(String[]::new)).getLocations().toArray(Location[]::new);
+    }
+
     /**
      * Sets the locations to scan recursively for migrations. The location type is determined by its prefix. Unprefixed
      * locations or locations starting with {@code classpath:} point to a package on the classpath and may contain both
@@ -500,6 +510,20 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setLocations(Location... locations) {
         getModernFlyway().setLocations(Arrays.stream(locations).map(Location::getDescriptor).collect(Collectors.toList()));
+    }
+
+    /**
+     * Sets the locations to scan recursively for callbacks. The location type is determined by its prefix. Unprefixed
+     * locations or locations starting with {@code classpath:} point to a package on the classpath and may contain both
+     * SQL and Java-based callbacks. Locations starting with {@code filesystem:} point to a directory on the filesystem,
+     * may only contain SQL callbacks and are only scanned recursively down non-hidden directories.
+     *
+     * @param callbackLocations Locations to scan recursively for callbacks.
+     */
+    public void setCallbackLocations(final Location... callbackLocations) {
+        getModernFlyway().setCallbackLocations(Arrays.stream(callbackLocations)
+            .map(Location::getDescriptor)
+            .collect(Collectors.toList()));
     }
 
     @Override
@@ -1437,6 +1461,18 @@ public class ClassicConfiguration implements Configuration {
         getModernFlyway().setLocations(Arrays.stream(locations).collect(Collectors.toList()));
     }
 
+    /**
+     * Sets the locations to scan recursively for callbacks. The location type is determined by its prefix. Unprefixed
+     * locations or locations starting with {@code classpath:} point to a package on the classpath and may contain both
+     * SQL and Java-based callbacks. Locations starting with {@code filesystem:} point to a directory on the filesystem,
+     * may only contain SQL callbacks and are only scanned recursively down non-hidden directories.
+     *
+     * @param callbackLocations Locations to scan recursively for callbacks.
+     */
+    public void setCallbackLocationsAsStrings(final String... callbackLocations) {
+        getModernFlyway().setCallbackLocations(Arrays.stream(callbackLocations).collect(Collectors.toList()));
+    }
+
     public void setEnvironment(String environment) {
         if (modernConfig.getEnvironments().containsKey(environment)) {
             getModernFlyway().setEnvironment(environment);
@@ -1820,6 +1856,10 @@ public class ClassicConfiguration implements Configuration {
         String locationsProp = props.remove(ConfigUtils.LOCATIONS);
         if (locationsProp != null) {
             setLocationsAsStrings(StringUtils.tokenizeToStringArray(locationsProp, ","));
+        }
+        final String callbackLocationsProp = props.remove(ConfigUtils.CALLBACK_LOCATIONS);
+        if (callbackLocationsProp != null) {
+            setCallbackLocationsAsStrings(StringUtils.tokenizeToStringArray(callbackLocationsProp, ","));
         }
         String jarDirsProp = props.remove(ConfigUtils.JAR_DIRS);
         if (jarDirsProp != null) {

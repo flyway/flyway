@@ -20,7 +20,6 @@
 package org.flywaydb.core.internal.sqlscript;
 
 import lombok.CustomLog;
-import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.callback.Error;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.callback.Warning;
@@ -46,7 +45,7 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
     /**
      * The callback executor.
      */
-    private final CallbackExecutor callbackExecutor;
+    private final CallbackExecutor<Event> callbackExecutor;
 
 
 
@@ -78,7 +77,7 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
     public DefaultSqlScriptExecutor(JdbcTemplate jdbcTemplate,
-                                    CallbackExecutor callbackExecutor, boolean undo, boolean batch, boolean outputQueryResults,
+                                    CallbackExecutor<Event> callbackExecutor, boolean undo, boolean batch, boolean outputQueryResults,
                                     StatementInterceptor statementInterceptor
                                    ) {
         this.jdbcTemplate = jdbcTemplate;
@@ -174,7 +173,6 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
         Results results = jdbcTemplate.executeBatch(sqlBatch, config);
 
         if (results.getException() != null) {
-            handleException(results, sqlScript, batchStatements.get(0), config);
 
             for (int i = 0; i < results.getResults().size(); i++) {
                 SqlStatement sqlStatement = batchStatements.get(i);
@@ -187,6 +185,7 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
                     handleUpdateCount(updateCount);
                 }
             }
+            handleException(results, sqlScript, batchStatements.get(0), config);
             return results;
         }
 

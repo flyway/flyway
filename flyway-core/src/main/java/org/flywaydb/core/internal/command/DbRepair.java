@@ -69,7 +69,7 @@ public class DbRepair {
     /**
      * The callback executor.
      */
-    private final CallbackExecutor callbackExecutor;
+    private final CallbackExecutor<Event> callbackExecutor;
 
     /**
      * The database-specific support.

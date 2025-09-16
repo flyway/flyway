@@ -30,14 +30,21 @@ public class MigrationConfigPrinter {
         final Location[] locations = configuration.getLocations();
         final String locationsValue = String.join(", ", Arrays.stream(locations).map(Location::toString).toList());
 
+        final Location[] callbackLocations = configuration.getCallbackLocations();
+        final String callbackLocationsValue = String.join(", ",
+            Arrays.stream(callbackLocations).map(Location::toString).toList());
+
         final String workingDirectory = configuration.getWorkingDirectory();
-        final String workingDirectoryValue = (workingDirectory != null && !workingDirectory.isEmpty()) ? workingDirectory : System.getProperty("user.dir");
+        final String workingDirectoryValue = (workingDirectory != null && !workingDirectory.isEmpty())
+            ? workingDirectory
+            : System.getProperty("user.dir");
 
         final String repeatablePrefixValue = configuration.getRepeatableSqlMigrationPrefix();
 
         final String sqlPrefixValue = configuration.getSqlMigrationPrefix();
 
-        final BaselineMigrationConfigurationExtension baselineExt = configuration.getPluginRegister().getPlugin(BaselineMigrationConfigurationExtension.class);
+        final BaselineMigrationConfigurationExtension baselineExt = configuration.getPluginRegister()
+            .getPlugin(BaselineMigrationConfigurationExtension.class);
         final String baselinePrefixValue = baselineExt.getBaselineMigrationPrefix();
 
         final String sqlSeparatorValue = configuration.getSqlMigrationSeparator();
@@ -45,21 +52,20 @@ public class MigrationConfigPrinter {
         final String[] sqlSuffixes = configuration.getSqlMigrationSuffixes();
         final String sqlSuffixesValue = String.join(", ", sqlSuffixes);
 
-        final String[][] rows = {
-            {"locations", locationsValue},
-            {"workingDirectory", workingDirectoryValue},
-            {"repeatableSqlMigrationPrefix", repeatablePrefixValue},
-            {"sqlMigrationPrefix", sqlPrefixValue},
-            {"baselineMigrationPrefix", baselinePrefixValue},
-            {"sqlMigrationSeparator", sqlSeparatorValue},
-            {"sqlMigrationSuffixes", sqlSuffixesValue}
-        };
+        final String[][] rows = { { "locations", locationsValue },
+                                  { "callbackLocations", callbackLocationsValue },
+                                  { "workingDirectory", workingDirectoryValue },
+                                  { "repeatableSqlMigrationPrefix", repeatablePrefixValue },
+                                  { "sqlMigrationPrefix", sqlPrefixValue },
+                                  { "baselineMigrationPrefix", baselinePrefixValue },
+                                  { "sqlMigrationSeparator", sqlSeparatorValue },
+                                  { "sqlMigrationSuffixes", sqlSuffixesValue } };
 
         log.info("\n" + buildTable(rows));
     }
 
     private static String buildTable(final String[][] rows) {
-        final int[] colWidths = { "Setting".length(), "Current value".length()};
+        final int[] colWidths = { "Setting".length(), "Current value".length() };
         for (final String[] row : rows) {
             if (row[0].length() > colWidths[0]) {
                 colWidths[0] = row[0].length();
@@ -72,19 +78,18 @@ public class MigrationConfigPrinter {
         colWidths[1] += 2;
 
         final StringBuilder table = new StringBuilder();
-        table.append(String.format("| %s | %s |\n",
-            pad("Setting", colWidths[0]), pad("Value", colWidths[1])));
-        table.append(String.format("|%s|%s|\n",
-            makeLine(colWidths[0] + 2), makeLine(colWidths[1] + 2)));
+        table.append(String.format("| %s | %s |\n", pad("Setting", colWidths[0]), pad("Value", colWidths[1])));
+        table.append(String.format("|%s|%s|\n", makeLine(colWidths[0] + 2), makeLine(colWidths[1] + 2)));
         for (final String[] row : rows) {
-            table.append(String.format("| %s | %s |\n",
-                pad(row[0], colWidths[0]), pad(row[1], colWidths[1])));
+            table.append(String.format("| %s | %s |\n", pad(row[0], colWidths[0]), pad(row[1], colWidths[1])));
         }
         return table.toString();
     }
 
     private static String pad(final String s, final int len) {
-        if (s.length() >= len) return s;
+        if (s.length() >= len) {
+            return s;
+        }
         return String.format("%-" + len + "s", s);
     }
 

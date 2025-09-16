@@ -36,7 +36,7 @@ import java.util.List;
 public class CleanModeCleanExecutor extends CleanExecutor {
     private final String cleanMode;
 
-    public CleanModeCleanExecutor(Connection connection, Database database, SchemaHistory schemaHistory, CallbackExecutor callbackExecutor, String cleanMode) {
+    public CleanModeCleanExecutor(Connection connection, Database database, SchemaHistory schemaHistory, CallbackExecutor<Event> callbackExecutor, String cleanMode) {
         super(connection, database, schemaHistory, callbackExecutor);
         this.cleanMode = cleanMode;
     }

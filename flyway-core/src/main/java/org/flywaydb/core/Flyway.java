@@ -513,12 +513,12 @@ public class Flyway {
         return CommandExtensionUtils.runCommandExtension(configuration, command, flags);
     }
 
-    private CleanResult doClean(Database database, SchemaHistory schemaHistory, Schema defaultSchema, Schema[] schemas, CallbackExecutor callbackExecutor) {
+    private CleanResult doClean(Database database, SchemaHistory schemaHistory, Schema defaultSchema, Schema[] schemas, CallbackExecutor<Event> callbackExecutor) {
         return new DbClean(database, schemaHistory, defaultSchema, schemas, callbackExecutor, configuration).clean();
     }
 
     private ValidateResult doValidate(Database database, CompositeMigrationResolver migrationResolver, SchemaHistory schemaHistory,
-                                      Schema defaultSchema, Schema[] schemas, CallbackExecutor callbackExecutor, ValidatePattern[] ignorePatterns) {
+                                      Schema defaultSchema, Schema[] schemas, CallbackExecutor<Event> callbackExecutor, ValidatePattern[] ignorePatterns) {
         ValidateResult validateResult = new DbValidate(database, schemaHistory, defaultSchema, migrationResolver, configuration, callbackExecutor, ignorePatterns).validate();
 
         if (configuration.isCleanOnValidationError()) {
@@ -527,7 +527,7 @@ public class Flyway {
         return validateResult;
     }
 
-    private BaselineResult doBaseline(SchemaHistory schemaHistory, CallbackExecutor callbackExecutor, Database database) {
+    private BaselineResult doBaseline(SchemaHistory schemaHistory, CallbackExecutor<Event> callbackExecutor, Database database) {
         return new DbBaseline(schemaHistory, configuration.getBaselineVersion(), configuration.getBaselineDescription(), callbackExecutor, database).baseline();
     }
 }

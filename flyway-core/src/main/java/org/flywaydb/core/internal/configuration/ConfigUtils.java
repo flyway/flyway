@@ -99,6 +99,7 @@ public class ConfigUtils {
     public static final String INSTALLED_BY = "flyway.installedBy";
     public static final String LICENSE_KEY = "flyway.licenseKey";
     public static final String LOCATIONS = "flyway.locations";
+    public static final String CALLBACK_LOCATIONS = "flyway.callbackLocations";
     public static final String MIXED = "flyway.mixed";
     public static final String OUT_OF_ORDER = "flyway.outOfOrder";
     public static final String SKIP_EXECUTING_MIGRATIONS = "flyway.skipExecutingMigrations";
@@ -253,6 +254,9 @@ public class ConfigUtils {
         }
         if ("FLYWAY_LOCATIONS".equals(key)) {
             return LOCATIONS;
+        }
+        if ("FLYWAY_CALLBACK_LOCATIONS".equals(key)) {
+            return CALLBACK_LOCATIONS;
         }
         if ("FLYWAY_MIXED".equals(key)) {
             return MIXED;
@@ -900,16 +904,16 @@ public class ConfigUtils {
         }
     }
 
-    public static void makeRelativeLocationsBasedOnWorkingDirectory(String workingDirectory,
-        Map<String, String> config) {
-        String locationString = config.get(ConfigUtils.LOCATIONS);
-        String[] locations = new String[] { Location.FILESYSTEM_PREFIX };
+    public static void makeRelativeLocationsBasedOnWorkingDirectory(final String workingDirectory,
+        final Map<? super String, String> config, final String key) {
+        final String locationString = config.get(key);
+        String[] locations = { Location.FILESYSTEM_PREFIX };
         if (StringUtils.hasText(locationString)) {
             locations = locationString.split(",");
         }
         makeRelativeLocationsBasedOnWorkingDirectory(workingDirectory, locations);
 
-        config.put(ConfigUtils.LOCATIONS, StringUtils.arrayToCommaDelimitedString(locations));
+        config.put(key, StringUtils.arrayToCommaDelimitedString(locations));
     }
 
     public static void makeRelativeLocationsBasedOnWorkingDirectory(String workingDirectory, List<String> locations) {
@@ -919,13 +923,19 @@ public class ConfigUtils {
         locations.addAll(Arrays.asList(locationsArray));
     }
 
-    public static void makeRelativeLocationsInEnvironmentsBasedOnWorkingDirectory(String workingDirectory,
-        Map<String, EnvironmentModel> environments) {
+    public static void makeRelativeLocationsInEnvironmentsBasedOnWorkingDirectory(final String workingDirectory,
+        final Map<String, ? extends EnvironmentModel> environments) {
         environments.forEach((key, model) -> {
-            List<String> locations = model.getFlyway().getLocations();
+            final List<String> locations = model.getFlyway().getLocations();
             if (locations != null) {
                 makeRelativeLocationsBasedOnWorkingDirectory(workingDirectory, locations);
                 model.getFlyway().setLocations(locations);
+            }
+
+            final  List<String> callbackLocations = model.getFlyway().getCallbackLocations();
+            if (callbackLocations != null) {
+                makeRelativeLocationsBasedOnWorkingDirectory(workingDirectory, callbackLocations);
+                model.getFlyway().setCallbackLocations(callbackLocations);
             }
         });
     }

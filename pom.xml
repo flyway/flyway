@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>11.12.0</version>
+    <version>11.13.0</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -170,7 +170,7 @@
         <version.mssql-jdbc_auth.x86>${version.mssql}.x86</version.mssql-jdbc_auth.x86>
         <version.mssql-jdbc_auth.x64>${version.mssql}.x64</version.mssql-jdbc_auth.x64>
         <version.mysql>8.0.24</version.mysql>
-        <version.netty>4.1.124.Final</version.netty>
+        <version.netty>4.1.125.Final</version.netty>
         <version.oracle>21.18.0.0</version.oracle>
         <version.osgi>4.3.1</version.osgi>
         <version.p6spy>3.9.1</version.p6spy>
@@ -517,6 +517,11 @@
                 <groupId>io.netty</groupId>
                 <artifactId>netty-codec-http2</artifactId>
                 <version>${version.netty}</version>
+            </dependency>
+            <dependency>
+              <groupId>io.netty</groupId>
+              <artifactId>netty-codec-http</artifactId>
+              <version>${version.netty}</version>
             </dependency>
             <dependency>
                 <groupId>io.projectreactor.netty</groupId>
@@ -942,12 +947,11 @@
 
             <plugin>
                 <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.6</version>
+                <version>3.2.8</version>
                 <configuration>
                     <gpgArguments>
                         <arg>--pinentry-mode=loopback</arg>
                     </gpgArguments>
-                    <passphraseServerId>flyway-gpg</passphraseServerId>
                 </configuration>
             </plugin>
 
@@ -1070,7 +1074,7 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.6</version>
+                        <version>3.2.8</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
@@ -1084,7 +1088,6 @@
                             <gpgArguments>
                                 <arg>--pinentry-mode=loopback</arg>
                             </gpgArguments>
-                            <passphraseServerId>flyway-gpg</passphraseServerId>
                         </configuration>
                     </plugin>
                 </plugins>

@@ -384,6 +384,16 @@ public interface Configuration {
     Location[] getLocations();
 
     /**
+     * Retrieves the locations to scan recursively for callbacks. The location type is determined by its prefix.
+     * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
+     * contain both SQL and Java-based callbacks. Locations starting with {@code filesystem:} point to a directory on
+     * the filesystem, may only contain SQL callbacks and are only scanned recursively down non-hidden directories.
+     *
+     * @return Locations to scan recursively for callbacks.
+     */
+    Location[] getCallbackLocations();
+
+    /**
      * Whether to automatically call baseline when migrate is executed against a non-empty schema with no schema history table.
      * This schema will then be initialized with the {@code baselineVersion} before executing the migrations.
      * Only migrations above {@code baselineVersion} will then be applied.

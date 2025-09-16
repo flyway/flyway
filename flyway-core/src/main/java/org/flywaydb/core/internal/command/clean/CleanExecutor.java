@@ -43,9 +43,9 @@ public class CleanExecutor {
     protected final Connection connection;
     protected final Database database;
     protected final SchemaHistory schemaHistory;
-    protected final CallbackExecutor callbackExecutor;
+    protected final CallbackExecutor<Event> callbackExecutor;
 
-    public CleanExecutor(Connection connection, Database database, SchemaHistory schemaHistory, CallbackExecutor callbackExecutor) {
+    public CleanExecutor(Connection connection, Database database, SchemaHistory schemaHistory, CallbackExecutor<Event> callbackExecutor) {
         this.connection = connection;
         this.database = database;
         this.schemaHistory = schemaHistory;

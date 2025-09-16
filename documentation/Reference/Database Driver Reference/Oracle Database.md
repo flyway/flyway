@@ -2,7 +2,7 @@
 subtitle: Oracle
 ---
 
-- **Verified Versions:** 11.1, 21
+- **Verified Versions:** 18.4, 21
 - **Maintainer:** {% include redgate-badge.html %}
 
 All editions are supported, including XE.

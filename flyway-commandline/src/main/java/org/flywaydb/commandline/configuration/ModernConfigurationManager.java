@@ -182,6 +182,7 @@ public class ModernConfigurationManager implements ConfigurationManager {
 
         if (workingDirectory != null) {
             makeRelativeLocationsBasedOnWorkingDirectory(workingDirectory, config.getFlyway().getLocations());
+            makeRelativeLocationsBasedOnWorkingDirectory(workingDirectory, config.getFlyway().getCallbackLocations());
             makeRelativeLocationsInEnvironmentsBasedOnWorkingDirectory(workingDirectory, config.getEnvironments());
             makeRelativeJarDirsBasedOnWorkingDirectory(workingDirectory, config.getFlyway().getJarDirs());
             makeRelativeJarDirsInEnvironmentsBasedOnWorkingDirectory(workingDirectory, config.getEnvironments());

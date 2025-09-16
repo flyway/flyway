@@ -20,7 +20,8 @@ The working directory to consider when dealing with relative paths. If configure
 - The [`deployedSnapshot`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Deployed Snapshot Setting>) parameter
 - The [`nextSnapshot`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Next Snapshot Setting>) parameter
 - The [`filterFile`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Filter File Setting>) parameter
-- The [`rulesLocation`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Rules Location Setting>) parameter
+- The [`rulesLocation`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Rules Location Setting>) parameter 
+- The [`rulesConfig`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Rules Config Setting>) parameter
 
 ## Type
 

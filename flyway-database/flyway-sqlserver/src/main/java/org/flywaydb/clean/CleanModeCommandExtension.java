@@ -24,6 +24,7 @@ import org.flywaydb.core.FlywayExecutor;
 import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.TelemetrySpan;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.CleanResult;
 import org.flywaydb.core.api.output.CommandResultFactory;
@@ -79,7 +80,7 @@ public class CleanModeCommandExtension implements CommandExtension {
         final SchemaHistory schemaHistory,
         final Database database,
         final Schema defaultSchema,
-        final CallbackExecutor callbackExecutor) {
+        final CallbackExecutor<Event> callbackExecutor) {
         if (!database.supportsCleanMode()) {
             throw new FlywayException("Clean modes other than default are not supported for "
                 + database.getDatabaseType().getName());

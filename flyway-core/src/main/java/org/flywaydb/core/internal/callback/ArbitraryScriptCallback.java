@@ -19,37 +19,36 @@
  */
 package org.flywaydb.core.internal.callback;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
-import org.flywaydb.core.api.callback.Callback;
+import org.flywaydb.core.api.callback.CallbackEvent;
 import org.flywaydb.core.api.callback.Context;
-import org.flywaydb.core.api.callback.Event;
+import org.flywaydb.core.api.callback.GenericCallback;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.resolver.script.ScriptMigrationExecutor;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
 @CustomLog
 @RequiredArgsConstructor
-public class ArbitraryScriptCallback implements Callback, Comparable<ArbitraryScriptCallback> {
+public class ArbitraryScriptCallback<E extends CallbackEvent<E>> implements GenericCallback<E>, Comparable<ArbitraryScriptCallback<E>> {
 
-    private final Event event;
+    private final E event;
     private final String description;
     private final ScriptMigrationExecutor scriptMigrationExecutor;
 
     @Override
-    public boolean supports(Event event, Context context) {
+    public boolean supports(final E event, final Context context) {
         return this.event == event;
     }
 
     @Override
-    public boolean canHandleInTransaction(Event event, Context context) {
+    public boolean canHandleInTransaction(final E event, final Context context) {
         return scriptMigrationExecutor.canExecuteInTransaction();
     }
 
     @Override
-    public void handle(Event event, Context context) {
+    public void handle(final E event, final Context context) {
         LOG.info("Executing script callback: " + event.getId()
                          + (description == null ? "" : " - " + description)
                          + (scriptMigrationExecutor.canExecuteInTransaction() ? "" : " [non-transactional]"));
@@ -66,7 +65,7 @@ public class ArbitraryScriptCallback implements Callback, Comparable<ArbitrarySc
                     return context.getConnection();
                 }
             });
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             LOG.error("Script callback \"" + description + "\" failed.", e);
         }
     }
@@ -77,7 +76,7 @@ public class ArbitraryScriptCallback implements Callback, Comparable<ArbitrarySc
     }
 
     @Override
-    public int compareTo(ArbitraryScriptCallback o) {
+    public int compareTo(final ArbitraryScriptCallback<E> o) {
         int result = event.compareTo(o.event);
         if (result == 0) {
             if (description == null) {

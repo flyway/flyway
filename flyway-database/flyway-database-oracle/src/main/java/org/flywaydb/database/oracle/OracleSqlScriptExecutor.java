@@ -24,6 +24,7 @@ import lombok.CustomLog;
 import lombok.Getter;
 import lombok.Setter;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
@@ -77,7 +78,7 @@ public class OracleSqlScriptExecutor extends DefaultSqlScriptExecutor {
 
 
 
-    public OracleSqlScriptExecutor(JdbcTemplate jdbcTemplate, CallbackExecutor callbackExecutor, boolean undo, boolean batch, boolean outputQueryResults, StatementInterceptor statementInterceptor) {
+    public OracleSqlScriptExecutor(JdbcTemplate jdbcTemplate, CallbackExecutor<Event> callbackExecutor, boolean undo, boolean batch, boolean outputQueryResults, StatementInterceptor statementInterceptor) {
         super(jdbcTemplate, callbackExecutor, undo, batch, outputQueryResults, statementInterceptor);
     }
 

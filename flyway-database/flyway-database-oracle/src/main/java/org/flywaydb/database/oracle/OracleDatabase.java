@@ -21,7 +21,9 @@ package org.flywaydb.database.oracle;
 
 import static org.flywaydb.core.internal.database.base.DatabaseConstants.DATABASE_HOSTING_AWS_RDS;
 import static org.flywaydb.core.internal.database.base.DatabaseConstants.DATABASE_HOSTING_RDS_URL_IDENTIFIER;
+import static org.flywaydb.core.internal.util.FlywayDbWebsiteLinks.COMMUNITY_SUPPORT;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.Tier;
 import org.flywaydb.core.internal.database.base.Database;
@@ -40,6 +42,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@CustomLog
 public class OracleDatabase extends Database<OracleConnection> {
     public OracleDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
@@ -53,8 +56,11 @@ public class OracleDatabase extends Database<OracleConnection> {
     @Override
     public void ensureSupported(Configuration configuration) {
         ensureDatabaseIsRecentEnough("10");
-
-        ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("18.0", Tier.PREMIUM, configuration);
+        if (!getVersion().isAtLeast("12")) {
+            LOG.info(databaseType.getName() + " " + computeVersionDisplayName(getVersion()) + " is outside of Redgate support. You may be able to find help with the Flyway community if you need it, see " + COMMUNITY_SUPPORT + " for details");
+        } else {
+            ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("18.0", Tier.PREMIUM, configuration);
+        }
 
         recommendFlywayUpgradeIfNecessaryForMajorVersion("21.3");
     }

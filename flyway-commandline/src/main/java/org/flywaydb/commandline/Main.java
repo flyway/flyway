@@ -19,6 +19,7 @@
  */
 package org.flywaydb.commandline;
 
+import static org.flywaydb.commandline.ThreadUtils.terminate;
 import static org.flywaydb.commandline.logging.LoggingUtils.getLogCreator;
 import static org.flywaydb.commandline.logging.LoggingUtils.initLogging;
 
@@ -109,6 +110,7 @@ public class Main {
                     commandLineArguments.validate();
 
                     if (printHelp(commandLineArguments)) {
+                        terminate(0, flywayTelemetryHandle);
                         return;
                     }
 
@@ -160,13 +162,11 @@ public class Main {
                 flushLog(commandLineArguments);
             }
         } finally {
-            flywayTelemetryHandle.close();
-        }
-
-        if (exitCode != 0) {
-            System.exit(exitCode);
+            terminate(exitCode, flywayTelemetryHandle);
         }
     }
+
+
 
     private static void printLicenseInfo(final Configuration configuration, final String operation) {
         if (!hasPrintedLicense && !"auth".equals(operation)) {

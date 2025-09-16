@@ -19,31 +19,34 @@
  */
 package org.flywaydb.core.internal.callback;
 
+import java.util.Collection;
+import java.util.List;
 import org.flywaydb.core.api.MigrationInfo;
+import org.flywaydb.core.api.callback.CallbackEvent;
 import org.flywaydb.core.api.callback.Error;
-import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.callback.Warning;
 import org.flywaydb.core.api.output.OperationResult;
-
-import java.util.List;
 
 /**
  * Executes the callbacks for a specific event.
  */
-public interface CallbackExecutor {
+public interface CallbackExecutor<E extends CallbackEvent<E>> {
     /**
-     * Executes the callbacks for this event on the main connection, within a separate transaction per callback if possible.
+     * Executes the callbacks for this event on the main connection, within a separate transaction per callback if
+     * possible.
      *
      * @param event The event to handle.
+     * @return The names of the executed callbacks
      */
-    void onEvent(Event event);
+    Collection<String> onEvent(E event);
 
     /**
-     * Executes the callbacks for this event on the migration connection, within a separate transaction per callback if possible.
+     * Executes the callbacks for this event on the migration connection, within a separate transaction per callback if
+     * possible.
      *
      * @param event The event to handle.
      */
-    void onMigrateOrUndoEvent(Event event);
+    void onMigrateOrUndoEvent(E event);
 
     /**
      * Sets the current migration info.
@@ -57,23 +60,23 @@ public interface CallbackExecutor {
      *
      * @param event The event to handle.
      */
-    void onEachMigrateOrUndoEvent(Event event);
+    void onEachMigrateOrUndoEvent(E event);
 
     /**
      * Executes the callbacks for an "each statement" event within the same transaction (if any) as the main operation.
      *
-     * @param event The event to handle.
-     * @param sql The sql from the statement.
+     * @param event    The event to handle.
+     * @param sql      The sql from the statement.
      * @param warnings The warnings from the statement. {@code null} if it hasn't been executed yet.
-     * @param errors The errors from the statement. {@code null} if it hasn't been executed yet.
+     * @param errors   The errors from the statement. {@code null} if it hasn't been executed yet.
      */
-    void onEachMigrateOrUndoStatementEvent(Event event, String sql, List<Warning> warnings, List<Error> errors);
+    void onEachMigrateOrUndoStatementEvent(E event, String sql, List<Warning> warnings, List<Error> errors);
 
     /**
      * Executes the callbacks for an operation finish event.
      *
-     * @param event The event to handle.
+     * @param event           The event to handle.
      * @param operationResult The operation result.
      */
-    void onOperationFinishEvent(Event event, OperationResult operationResult);
+    void onOperationFinishEvent(E event, OperationResult operationResult);
 }

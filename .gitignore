@@ -35,6 +35,7 @@ flyway-*compare/**/resources/*compare/
 flyway-rulesengine-sqlfluff/**/resources/sqlfluff*/.pytest_cache
 flyway-rulesengine-sqlfluff/**/resources/sqlfluff*/**/*.pyc
 flyway-rulesengine-sqlfluff/sqlfluff*
+flyway-rulesengine-sqlfluff/scripts/default_config.cfg
 
 flyway-comparison/flyway-rgcompare/**/resources/rgcompare/
 flyway-comparison/flyway-rgcompare/**/resources/obj/

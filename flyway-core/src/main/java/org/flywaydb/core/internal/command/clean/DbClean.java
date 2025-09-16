@@ -44,10 +44,10 @@ public class DbClean {
     protected final Schema[] schemas;
     protected final Connection connection;
     protected final Database database;
-    protected final CallbackExecutor callbackExecutor;
+    protected final CallbackExecutor<Event> callbackExecutor;
     protected final Configuration configuration;
 
-    public DbClean(Database database, SchemaHistory schemaHistory, Schema defaultSchema, Schema[] schemas, CallbackExecutor callbackExecutor, Configuration configuration) {
+    public DbClean(Database database, SchemaHistory schemaHistory, Schema defaultSchema, Schema[] schemas, CallbackExecutor<Event> callbackExecutor, Configuration configuration) {
         this.schemaHistory = schemaHistory;
         this.defaultSchema = defaultSchema;
         this.schemas = schemas;

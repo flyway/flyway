@@ -66,7 +66,8 @@ public class LegacyConfigurationManager implements ConfigurationManager {
         }
 
         if (workingDirectory != null) {
-            makeRelativeLocationsBasedOnWorkingDirectory(workingDirectory, config);
+            makeRelativeLocationsBasedOnWorkingDirectory(workingDirectory, config, ConfigUtils.LOCATIONS);
+            makeRelativeLocationsBasedOnWorkingDirectory(workingDirectory, config, ConfigUtils.CALLBACK_LOCATIONS);
             makeRelativeJarDirsBasedOnWorkingDirectory(workingDirectory, config);
         }
 

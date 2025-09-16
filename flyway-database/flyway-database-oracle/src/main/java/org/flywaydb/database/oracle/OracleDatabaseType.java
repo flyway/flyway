@@ -28,6 +28,7 @@ import lombok.CustomLog;
 import oracle.jdbc.OracleConnection;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.ResourceProvider;
+import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.LicenseGuard;
 import org.flywaydb.core.extensibility.Tier;
@@ -136,7 +137,7 @@ public class OracleDatabaseType extends BaseDatabaseType {
 
     @Override
     public SqlScriptExecutorFactory createSqlScriptExecutorFactory(JdbcConnectionFactory jdbcConnectionFactory,
-                                                                   final CallbackExecutor callbackExecutor,
+                                                                   final CallbackExecutor<Event> callbackExecutor,
                                                                    final StatementInterceptor statementInterceptor) {
         final boolean supportsBatch = jdbcConnectionFactory.isSupportsBatch();
 

@@ -16,112 +16,110 @@ be migrated to a state the rest of the code can work with.
 **Note: JDK 24 is known to emit warnings with Flyway. We recommend avoiding**
 
 ## Download
-<table class="table">
-    <tr>
-        <th>Maven</th>
-        <td>
-            <pre class="prettyprint">&lt;repositories&gt;
-    ...
-    &lt;repository&gt;
-        &lt;id&gt;redgate&lt;/id&gt;
-        &lt;url&gt;https://download.red-gate.com/maven/release&lt;/url&gt;
-    &lt;/repository&gt;
-    ...
-&lt;/repositories&gt;
-&lt;dependencies&gt;
-    ...
-    &lt;dependency&gt;
-        &lt;groupId&gt;<strong>com.redgate.flyway</strong>&lt;/groupId&gt;
-        &lt;artifactId&gt;flyway-core&lt;/artifactId&gt;
-        &lt;version&gt;{{ site.flywayVersion }}&lt;/version&gt;
-    &lt;/dependency&gt;
-     &lt;!-- If you need Teams features then you'll need this additional dependency --&gt;
-     &lt;dependency&gt;
-        &lt;groupId&gt;<strong>com.redgate.flyway</strong>&lt;/groupId&gt;
-        &lt;artifactId&gt;flyway-proprietary&lt;/artifactId&gt;
-        &lt;version&gt;{{ site.flywayVersion }}&lt;/version&gt;
-    &lt;/dependency&gt;   
-    ...
-&lt;/dependencies&gt;</pre>
-        </td>
-    </tr>
-    <tr>
-        <th>Gradle</th>
-        <td>
-            <pre class="prettyprint">repositories {
+
+### Redgate Edition
+
+#### Maven
+
+```xml
+<repositories>
+  ...
+  <repository>
+    <id>redgate</id>
+    <url>https://download.red-gate.com/maven/release</url>
+  </repository>
+  ...
+</repositories>
+<dependencies>
+  ...
+  <dependency>
+    <groupId>com.redgate.flyway</groupId>
+    <artifactId>flyway-core</artifactId>
+    <version>{{ site.flywayVersion }}</version>
+  </dependency>
+  <!-- If you need Teams or Enterprise features then you'll need these additional dependencies -->
+  <dependency>
+    <groupId>com.redgate.flyway</groupId>
+    <artifactId>flyway-proprietary</artifactId>
+    <version>{{ site.flywayVersion }}</version>
+  </dependency>
+  <dependency>
+    <groupId>com.redgate.flyway</groupId>
+    <artifactId>flyway-redgate-licensing</artifactId>
+    <version>{{ site.flywayVersion }}</version>
+  </dependency>
+  ...
+</dependencies>
+```
+
+#### Gradle
+
+```groovy
+repositories {
     mavenCentral()
     maven {
         url "https://download.red-gate.com/maven/release"
     }
 }
 dependencies {
-    implementation "<strong>com.redgate.flyway</strong>:flyway-core:{{ site.flywayVersion }}"
-}</pre>
-        </td>
-    </tr>
-    <tr>
-        <th>Binary</th>
-        <td>
-            <a style="text-decoration: none; background: rgb(204,0,0); padding: 6px 40px; border-radius: 10px; color: white; font-weight: bold;" href="{{site.enterpriseUrl}}/flyway-core/{{site.flywayVersion}}/flyway-core-{{site.flywayVersion}}.jar"><i class="fa fa-download"></i> flyway-core-{{site.flywayVersion}}.jar</a>
-            <a class="note" href="{{site.enterpriseUrl}}/flyway-core/{{site.flywayVersion}}/flyway-core-{{site.flywayVersion}}.jar.md5">md5</a>
-            <a class="note" href="{{site.enterpriseUrl}}/flyway-core/{{site.flywayVersion}}/flyway-core-{{site.flywayVersion}}.jar.sha1">sha1</a>
-        </td>
-    </tr>
-    <tr>
-        <th>Licensing</th>
-        <td>
-            By downloading Flyway Community you confirm that you have read and agree to the terms of the <a href="https://www.red-gate.com/assets/purchase/assets/subscription-license.pdf">Redgate EULA</a>.
-        </td>
-    </tr>
-</table>
+    implementation "com.redgate.flyway:flyway-core:{{ site.flywayVersion }}"
+    // If you need Teams or Enterprise features then you'll need these additional dependencies
+    implementation "com.redgate.flyway:flyway-proprietary:{{ site.flywayVersion }}"
+    implementation "com.redgate.flyway:flyway-redgate-licensing:{{ site.flywayVersion }}"
+}
+```
 
+#### Binary
+
+<a style="text-decoration: none; background: rgb(204,0,0); padding: 6px 40px; border-radius: 10px; color: white; font-weight: bold;" href="{{site.enterpriseUrl}}/flyway-core/{{site.flywayVersion}}/flyway-core-{{site.flywayVersion}}.jar"><i class="fa fa-download"></i> flyway-core-{{site.flywayVersion}}.jar</a>
+<a class="note" href="{{site.enterpriseUrl}}/flyway-core/{{site.flywayVersion}}/flyway-core-{{site.flywayVersion}}.jar.md5">md5</a>
+<a class="note" href="{{site.enterpriseUrl}}/flyway-core/{{site.flywayVersion}}/flyway-core-{{site.flywayVersion}}.jar.sha1">sha1</a>
+
+#### Licensing
+
+By downloading Flyway Community you confirm that you have read and agree to the terms of the <a href="https://www.red-gate.com/assets/purchase/assets/subscription-license.pdf">Redgate EULA</a>.
+
+---
 
 Please note, the `groupId` changed at Flyway V10.0.0 from `org.flywaydb.enterprise` to `com.redgate.flyway` and published as a convenience in both locations up till Flyway V10.22.0
 
 For older versions see [Accessing Older Versions of Flyway Engine](https://documentation.red-gate.com/flyway/release-notes-and-older-versions/accessing-older-versions-of-flyway-engine)
 
 ### Open Source Edition
-<table class="table">
-    <tr>
-        <th>Maven</th>
-        <td>
-            <pre class="prettyprint">&lt;dependencies&gt;
-    ...
-    &lt;dependency&gt;
-        &lt;groupId&gt;org.flywaydb&lt;/groupId&gt;
-        &lt;artifactId&gt;flyway-core&lt;/artifactId&gt;
-        &lt;version&gt;{{ site.flywayVersion }}&lt;/version&gt;
-    &lt;/dependency&gt;
-    ...
-&lt;/dependencies&gt;</pre>
-        </td>
-    </tr>
-    <tr>
-        <th>Gradle</th>
-        <td>
-            <pre class="prettyprint">dependencies {
-    implementation "org.flywaydb:flyway-core:{{ site.flywayVersion }}"
-}</pre>
-        </td>
-    </tr>
-    <tr>
-        <th>Binary</th>
-        <td>
-            <a style="text-decoration: none; background: rgb(204,0,0); padding: 6px 40px; border-radius: 10px; color: white; font-weight: bold;" href="https://repo1.maven.org/maven2/org/flywaydb/flyway-core/{{site.flywayVersion}}/flyway-core-{{site.flywayVersion}}.jar"><i class="fa fa-download"></i> flyway-core-{{site.flywayVersion}}.jar</a>
-            <a class="note" href="https://repo1.maven.org/maven2/org/flywaydb/flyway-core/{{site.flywayVersion}}/flyway-core-{{site.flywayVersion}}.jar.md5">md5</a>
-            <a class="note" href="https://repo1.maven.org/maven2/org/flywaydb/flyway-core/{{site.flywayVersion}}/flyway-core-{{site.flywayVersion}}.jar.sha1">sha1</a>
-        </td>
-    </tr>
-    <tr>
-        <th>Sources</th>
-        <td>
-            <a style="text-decoration: none; background: rgb(204,0,0); padding: 6px 40px; border-radius: 10px; color: white; font-weight: bold;" href="https://repo1.maven.org/maven2/org/flywaydb/flyway-core/{{site.flywayVersion}}/flyway-core-{{site.flywayVersion}}-sources.jar"><i class="fa fa-download"></i> flyway-core-{{site.flywayVersion}}-sources.jar</a>
-            <a class="note" href="https://repo1.maven.org/maven2/org/flywaydb/flyway-core/{{site.flywayVersion}}/flyway-core-{{site.flywayVersion}}-sources.jar.md5">md5</a>
-            <a class="note" href="https://repo1.maven.org/maven2/org/flywaydb/flyway-core/{{site.flywayVersion}}/flyway-core-{{site.flywayVersion}}-sources.jar.sha1">sha1</a>
-        </td>
-    </tr>
-</table>
 
+#### Maven
+
+```xml
+<dependencies>
+  ...
+  <dependency>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-core</artifactId>
+    <version>{{ site.flywayVersion }}</version>
+  </dependency>
+  ...
+</dependencies>
+```
+
+#### Gradle
+
+```groovy
+dependencies {
+    implementation "org.flywaydb:flyway-core:{{ site.flywayVersion }}"
+}
+```
+
+#### Binary
+
+<a style="text-decoration: none; background: rgb(204,0,0); padding: 6px 40px; border-radius: 10px; color: white; font-weight: bold;" href="https://repo1.maven.org/maven2/org/flywaydb/flyway-core/{{site.flywayVersion}}/flyway-core-{{site.flywayVersion}}.jar"><i class="fa fa-download"></i> flyway-core-{{site.flywayVersion}}.jar</a>
+<a class="note" href="https://repo1.maven.org/maven2/org/flywaydb/flyway-core/{{site.flywayVersion}}/flyway-core-{{site.flywayVersion}}.jar.md5">md5</a>
+<a class="note" href="https://repo1.maven.org/maven2/org/flywaydb/flyway-core/{{site.flywayVersion}}/flyway-core-{{site.flywayVersion}}.jar.sha1">sha1</a>
+
+#### Sources
+
+<a style="text-decoration: none; background: rgb(204,0,0); padding: 6px 40px; border-radius: 10px; color: white; font-weight: bold;" href="https://repo1.maven.org/maven2/org/flywaydb/flyway-core/{{site.flywayVersion}}/flyway-core-{{site.flywayVersion}}-sources.jar"><i class="fa fa-download"></i> flyway-core-{{site.flywayVersion}}-sources.jar</a>
+<a class="note" href="https://repo1.maven.org/maven2/org/flywaydb/flyway-core/{{site.flywayVersion}}/flyway-core-{{site.flywayVersion}}-sources.jar.md5">md5</a>
+<a class="note" href="https://repo1.maven.org/maven2/org/flywaydb/flyway-core/{{site.flywayVersion}}/flyway-core-{{site.flywayVersion}}-sources.jar.sha1">sha1</a>
 
 ## The Flyway Class
 

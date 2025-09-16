@@ -60,7 +60,7 @@ public class DbSchemas {
     /**
      * The callback executor.
      */
-    private final CallbackExecutor callbackExecutor;
+    private final CallbackExecutor<Event> callbackExecutor;
 
     /**
      * Creates a new DbSchemas.

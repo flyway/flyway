@@ -49,28 +49,29 @@ import java.util.*;
 @CustomLog
 public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
 
-    private final List<LoadableResource> resources = new ArrayList<>();
-    private final List<Class<? extends I>> classes = new ArrayList<>();
+    private final Collection<LoadableResource> resources = new ArrayList<>();
+    private final Collection<Class<? extends I>> classes = new ArrayList<>();
 
     // Lookup maps to speed up getResource
     private final HashMap<String, LoadableResource> relativeResourceMap = new HashMap<>();
-    private HashMap<String, LoadableResource> absoluteResourceMap = null;
+    private HashMap<String, LoadableResource> absoluteResourceMap;
 
-    public Scanner (
-            Class<I> implementedInterface,
-            boolean stream,
-            ResourceNameCache resourceNameCache,
-            LocationScannerCache locationScannerCache,
-            Configuration configuration) {
+    public Scanner(
+            final Class<I> implementedInterface,
+            final ResourceNameCache resourceNameCache,
+            final LocationScannerCache locationScannerCache,
+            final Configuration configuration,
+            final Location[] locations) {
 
-        Charset encoding = configuration.getEncoding();
-        boolean throwOnMissingLocations = configuration.isFailOnMissingLocations();
-        ClassLoader classLoader = configuration.getClassLoader();
+        final Charset encoding = configuration.getEncoding();
+        final boolean throwOnMissingLocations = configuration.isFailOnMissingLocations();
+        final ClassLoader classLoader = configuration.getClassLoader();
 
-        FileSystemScanner fileSystemScanner = new FileSystemScanner(stream, configuration);
+        boolean stream = configuration.isStream();
+        final FileSystemScanner fileSystemScanner = new FileSystemScanner(stream, configuration);
 
-        FeatureDetector detector = new FeatureDetector(classLoader);
-        for (Location location : configuration.getLocations()) {
+        final FeatureDetector detector = new FeatureDetector(classLoader);
+        for (final Location location : locations) {
             if (location.isFileSystem()) {
                 resources.addAll(fileSystemScanner.scanForResources(location));
             } else if (location.isGCS()) {
@@ -88,26 +89,26 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
 
             } else if (location.isAwsS3()) {
                 if (detector.isAwsAvailable()) {
-                    Collection<LoadableResource> awsResources = new AwsS3Scanner(encoding, throwOnMissingLocations).scanForResources(location);
+                    final Collection<LoadableResource> awsResources = new AwsS3Scanner(encoding, throwOnMissingLocations).scanForResources(location);
                     resources.addAll(awsResources);
                 } else {
                     LOG.error("Can't read location " + location + "; AWS SDK not found");
                 }
             } else {
-                ResourceAndClassScanner<I> resourceAndClassScanner = new ClassPathScanner<>(implementedInterface, classLoader, encoding, location, resourceNameCache, locationScannerCache, throwOnMissingLocations, stream);
+                final ResourceAndClassScanner<I> resourceAndClassScanner = new ClassPathScanner<>(implementedInterface, classLoader, encoding, location, resourceNameCache, locationScannerCache, throwOnMissingLocations, stream);
                 resources.addAll(resourceAndClassScanner.scanForResources());
                 classes.addAll(resourceAndClassScanner.scanForClasses());
             }
         }
 
-        for (LoadableResource resource : resources) {
-            relativeResourceMap.put(resource.getRelativePath().toLowerCase(), resource);
+        for (final LoadableResource resource : resources) {
+            relativeResourceMap.put(resource.getRelativePath().toLowerCase(Locale.ROOT), resource);
         }
     }
 
     @Override
-    public LoadableResource getResource(String name) {
-        LoadableResource loadedResource = relativeResourceMap.get(name.toLowerCase());
+    public LoadableResource getResource(final String name) {
+        LoadableResource loadedResource = relativeResourceMap.get(name.toLowerCase(Locale.ROOT));
 
         if (loadedResource != null) {
             return loadedResource;
@@ -119,12 +120,12 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
         if (Paths.get(name).isAbsolute()) {
             if (absoluteResourceMap == null) {
                 absoluteResourceMap = new HashMap<>();
-                for (LoadableResource resource : resources) {
-                    absoluteResourceMap.put(resource.getAbsolutePathOnDisk().toLowerCase(), resource);
+                for (final LoadableResource resource : resources) {
+                    absoluteResourceMap.put(resource.getAbsolutePathOnDisk().toLowerCase(Locale.ROOT), resource);
                 }
             }
 
-            loadedResource = absoluteResourceMap.get(name.toLowerCase());
+            loadedResource = absoluteResourceMap.get(name.toLowerCase(Locale.ROOT));
 
             if (loadedResource != null) {
                 return loadedResource;
@@ -141,10 +142,10 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
      * @param suffixes The suffixes of the resource names to match.
      * @return The resources that were found.
      */
-    public Collection<LoadableResource> getResources(String prefix, String... suffixes) {
-        List<LoadableResource> result = new ArrayList<>();
-        for (LoadableResource resource : resources) {
-            String fileName = resource.getFilename();
+    public Collection<LoadableResource> getResources(final String prefix, final String... suffixes) {
+        final Collection<LoadableResource> result = new ArrayList<>();
+        for (final LoadableResource resource : resources) {
+            final String fileName = resource.getFilename();
             if (StringUtils.startsAndEndsWith(fileName, prefix, suffixes)) {
                 result.add(resource);
             } else {

@@ -360,6 +360,7 @@
         <include>org.flywaydb:flyway-verb-repair</include>
         <include>org.flywaydb:flyway-experimental-sqlite</include>
         <include>org.flywaydb:flyway-nc-callbacks</include>
+        <include>org.flywaydb:flyway-database-nc-couchbase</include>
       </includes>
     </dependencySet>
     <dependencySet>
@@ -396,6 +397,13 @@
       </includes>
     </dependencySet>
     <dependencySet>
+      <outputDirectory>drivers/couchbase</outputDirectory>
+      <useTransitiveFiltering>true</useTransitiveFiltering>
+      <includes>
+        <include>com.couchbase.client:java-client</include>
+      </includes>
+    </dependencySet>
+    <dependencySet>
       <outputDirectory>drivers</outputDirectory>
       <!-- Workaround for https://issues.apache.org/jira/browse/MASSEMBLY-864 -->
       <useTransitiveDependencies>false</useTransitiveDependencies>
@@ -419,6 +427,7 @@
         <exclude>com.google.cloud:google-cloud-spanner-jdbc</exclude>
         <exclude>net.java.dev.jna</exclude>
         <exclude>org.mongodb:mongodb-driver-sync</exclude>
+        <exclude>com.couchbase.client:java-client</exclude>
 
 
 

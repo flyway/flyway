@@ -329,6 +329,19 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
+     * Sets the locations to scan recursively for callbacks. The location type is determined by its prefix. Unprefixed
+     * locations or locations starting with {@code classpath:} point to a package on the classpath and may contain both
+     * SQL and Java-based callbacks. Locations starting with {@code filesystem:} point to a directory on the filesystem,
+     * may only contain SQL callbacks and are only scanned recursively down non-hidden directories.
+     *
+     * @param callbackLocations Locations to scan recursively for callbacks.
+     */
+    public FluentConfiguration callbackLocations(final String... callbackLocations) {
+        config.setCallbackLocationsAsStrings(callbackLocations);
+        return this;
+    }
+
+    /**
      * Sets the locations to scan recursively for migrations.
      * The location type is determined by its prefix.
      * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
@@ -340,6 +353,19 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration locations(Location... locations) {
         config.setLocations(locations);
+        return this;
+    }
+
+    /**
+     * Sets the locations to scan recursively for callbacks. The location type is determined by its prefix. Unprefixed
+     * locations or locations starting with {@code classpath:} point to a package on the classpath and may contain both
+     * SQL and Java-based callbacks. Locations starting with {@code filesystem:} point to a directory on the filesystem,
+     * may only contain SQL callbacks and are only scanned recursively down non-hidden directories.
+     *
+     * @param callbackLocations Locations to scan recursively for callbacks.
+     */
+    public FluentConfiguration callbackLocations(Location... callbackLocations) {
+        config.setCallbackLocations(callbackLocations);
         return this;
     }
 
