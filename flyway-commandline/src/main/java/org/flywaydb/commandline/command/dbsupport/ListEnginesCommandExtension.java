@@ -98,7 +98,7 @@ public class ListEnginesCommandExtension implements CommandExtension {
      */
     public List<DbInfoResult> getEngines(Configuration config) {
         return config.getPluginRegister()
-            .getPlugins(DatabaseType.class)
+            .getInstancesOf(DatabaseType.class)
             .stream()
             .map(p -> new DbInfoResult(p.getName()))
             .toList();

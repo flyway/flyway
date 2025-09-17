@@ -127,7 +127,7 @@ public class FlywayExecutor {
         configurationValidator.validate(configuration);
 
         final StatementInterceptor statementInterceptor = configuration.getPluginRegister()
-            .getPlugins(StatementInterceptor.class)
+            .getInstancesOf(StatementInterceptor.class)
             .stream()
             .filter(i -> i.isConfigured(configuration))
             .findFirst()
@@ -324,7 +324,7 @@ public class FlywayExecutor {
 
         effectiveCallbacks.addAll(Arrays.asList(configuration.getCallbacks()));
 
-        final ErrorOverrideInitializer errorOverride = configuration.getPluginRegister().getPluginInstanceOf(ErrorOverrideInitializer.class);
+        final ErrorOverrideInitializer errorOverride = configuration.getPluginRegister().getInstanceOf(ErrorOverrideInitializer.class);
         if (configuration.getErrorOverrides().length > 0) {
             errorOverride.setCallback(configuration.getErrorOverrides());
             callbackExecutor = errorOverride.getCallbackExecutor(configuration, database, schema, flywayTelemetryManager);

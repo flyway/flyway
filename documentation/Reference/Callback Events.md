@@ -7,7 +7,8 @@ Flyway offers you the possibility to **hook into its lifecycle** by using Callba
 
 For more information see [Callbacks](https://documentation.red-gate.com/display/FD/Callbacks).
 
-_Note: Callbacks are [partially supported by Native Connectors](https://documentation.red-gate.com/display/FD/Flyway+Native+Connectors+-+MongoDB)._
+_Note: Callbacks
+are [partially supported by Native Connectors](https://documentation.red-gate.com/display/FD/Flyway+Native+Connectors+-+MongoDB)._
 
 ## List of events
 
@@ -120,12 +121,34 @@ _Note: Callbacks are [partially supported by Native Connectors](https://document
 <table class="table table-hover">
     <thead>
     <tr>
+        <th><strong>Deploy</strong></th>
+        <th><strong>Execution</strong></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr id="beforeDeploy">
+        <td>beforeDeploy</td>
+        <td>Before Deploy runs</td>
+    </tr>
+    <tr id="afterDeploy">
+        <td>afterDeploy</td>
+        <td>After successful Deploy runs</td>
+    </tr>
+    <tr id="afterDeployError">
+        <td>afterDeployError</td>
+        <td>After failed Deploy runs</td>
+    </tr>
+    </tbody>
+</table>
+
+<table class="table table-hover">
+    <thead>
+    <tr>
         <th><strong>Clean</strong></th>
         <th><strong>Execution</strong></th>
     </tr>
     </thead>
-    <tbody>	
-
+    <tbody>
     <tr id="beforeClean">
         <td>beforeClean</td>
         <td>Before Clean runs</td>
@@ -139,7 +162,6 @@ _Note: Callbacks are [partially supported by Native Connectors](https://document
         <td>After failed Clean runs</td>
     </tr>
     </tbody>
-
 </table>
 
 <table class="table table-hover">

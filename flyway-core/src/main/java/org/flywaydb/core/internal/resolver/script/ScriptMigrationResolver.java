@@ -69,7 +69,8 @@ public class ScriptMigrationResolver<E extends CallbackEvent<E>> implements Migr
 
         addMigrations(CoreMigrationType.SCRIPT, migrations, configuration.getSqlMigrationPrefix(), false);
 
-        for (final MigrationResolver migrationResolver : context.configuration.getPluginRegister().getPlugins(MigrationResolver.class)) {
+        for (final MigrationResolver migrationResolver : context.configuration.getPluginRegister()
+            .getInstancesOf(MigrationResolver.class)) {
             final String prefix = migrationResolver.getPrefix(context.configuration);
             if (prefix != null) {
                 final MigrationType migrationType = migrationResolver.getDefaultMigrationType();

@@ -37,7 +37,6 @@ import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.base.BaseDatabaseType;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
-import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
@@ -169,7 +168,7 @@ public class OracleDatabaseType extends BaseDatabaseType {
     @Override
     public void setConfigConnectionProps(Configuration config, Properties props, ClassLoader classLoader) {
         if (config != null) {
-            OracleConfigurationExtension configurationExtension = config.getPluginRegister().getPlugin(OracleConfigurationExtension.class);
+            OracleConfigurationExtension configurationExtension = config.getPluginRegister().getExact(OracleConfigurationExtension.class);
 
 
 

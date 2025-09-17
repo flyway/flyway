@@ -59,6 +59,6 @@ public class TelemetryUtils {
     }
 
     public static FlywayTelemetryManager getTelemetryManager(final Configuration configuration) {
-        return configuration != null ? configuration.getPluginRegister().getPluginInstanceOf(FlywayTelemetryManager.class) : null;
+        return configuration != null ? configuration.getPluginRegister().getInstanceOf(FlywayTelemetryManager.class) : null;
     }
 }

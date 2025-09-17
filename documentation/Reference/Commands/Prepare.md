@@ -52,7 +52,8 @@ available, or want to review the exact script to be run before execution, but it
 * This approach does not handle Java migrations or other non-SQL migrations
 * Callbacks are not supported
 
-This is currently functionally equivalent to running a [dry run](<https://documentation.red-gate.com/fd/migration-command-dry-runs-275218517.html>) on `migrate`.
+This is currently functionally equivalent to running
+a [dry run](<https://documentation.red-gate.com/fd/migration-command-dry-runs-275218517.html>) on `migrate`.
 
 ## Complete list of parameters for deploying from schema model or source database
 
@@ -65,17 +66,19 @@ This is currently functionally equivalent to running a [dry run](<https://docume
 
 ### Optional
 
-| Parameter                                                                                                                              | Namespace | Description                                                                                                                                                    |
-|----------------------------------------------------------------------------------------------------------------------------------------|-----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [`scriptFilename`](<Configuration/Flyway Namespace/Flyway Prepare Namespace/Flyway Prepare Script Filename Setting>)                   | prepare   | The path to the deployment script that will be generated.                                                                                                      |
-| [`abortOnWarningSeverity`](<Configuration/Flyway Namespace/Flyway Prepare Namespace/Flyway Prepare Abort On Warning Severity Setting>) | prepare   | Will cause an error to be returned if any warnings of configured severity are raised when generating the deployment script.                                    |
-| [`force`](<Configuration/Flyway Namespace/Flyway Prepare Namespace/Flyway Prepare Force Setting>)                                      | prepare   | If the deployment script already exists, overwrite it.                                                                                                         |
-| [`configFiles`](<Command-line Parameters/Config Files Parameter>)                                                                      | (root)    | The location of the flyway configuration files.                                                                                                                |
-| [`encoding`](<Configuration/Flyway Namespace/Flyway Encoding Setting>)                                                                 | (root)    | The encoding to use for the generated script.                                                                                                                  |
-| [{environment parameters}](<Configuration/Environments Namespace>)                                                                     | (root)    | Environment configuration for the source and/or target environments.                                                                                           |
-| [`schemaModelLocation`](<Configuration/Flyway Namespace/Flyway Schema Model Location Setting>)                                         | (root)    | The path to the schema model.                                                                                                                                  |
-| [`schemaModelSchemas`](<Configuration/Flyway Namespace/Flyway Schema Model Schemas Setting>)                                           | (root)    | The schemas in the schema model.                                                                                                                               |
-| [`workingDirectory`](<Command-line Parameters/Working Directory Parameter>)                                                            | (root)    | The directory to consider the current working directory. All relative paths will be considered relative to this.                                               |
+| Parameter                                                                                                                              | Namespace | Description                                                                                                                 |
+|----------------------------------------------------------------------------------------------------------------------------------------|-----------|-----------------------------------------------------------------------------------------------------------------------------|
+| [`types`](<Configuration/Flyway Namespace/Flyway Prepare Namespace/Flyway Prepare Types Setting>)                                      | prepare   | A comma separated list of script types to generate.                                                                         |
+| [`scriptFilename`](<Configuration/Flyway Namespace/Flyway Prepare Namespace/Flyway Prepare Script Filename Setting>)                   | prepare   | The path to the deployment script that will be generated.                                                                   |
+| [`undoFilename`](<Configuration/Flyway Namespace/Flyway Prepare Namespace/Flyway Prepare Undo Filename Setting>)                       | prepare   | The path to the undo script that will be generated.                                                                         |
+| [`abortOnWarningSeverity`](<Configuration/Flyway Namespace/Flyway Prepare Namespace/Flyway Prepare Abort On Warning Severity Setting>) | prepare   | Will cause an error to be returned if any warnings of configured severity are raised when generating the deployment script. |
+| [`force`](<Configuration/Flyway Namespace/Flyway Prepare Namespace/Flyway Prepare Force Setting>)                                      | prepare   | If the deployment script already exists, overwrite it.                                                                      |
+| [`configFiles`](<Command-line Parameters/Config Files Parameter>)                                                                      | (root)    | The location of the flyway configuration files.                                                                             |
+| [`encoding`](<Configuration/Flyway Namespace/Flyway Encoding Setting>)                                                                 | (root)    | The encoding to use for the generated script.                                                                               |
+| [{environment parameters}](<Configuration/Environments Namespace>)                                                                     | (root)    | Environment configuration for the source and/or target environments.                                                        |
+| [`schemaModelLocation`](<Configuration/Flyway Namespace/Flyway Schema Model Location Setting>)                                         | (root)    | The path to the schema model.                                                                                               |
+| [`schemaModelSchemas`](<Configuration/Flyway Namespace/Flyway Schema Model Schemas Setting>)                                           | (root)    | The schemas in the schema model.                                                                                            |
+| [`workingDirectory`](<Command-line Parameters/Working Directory Parameter>)                                                            | (root)    | The directory to consider the current working directory. All relative paths will be considered relative to this.            |
 
 Universal commandline parameters are listed [here](<Command-line Parameters>).
 
@@ -90,7 +93,9 @@ specified within the TOML config file, and can't yet be overridden on the comman
 |--------------------------------------------------------------------------------------------------------------------------|-----------|------------------------------------------------------------------------------------------------------------------|
 | [`artifactFilename`](<Configuration/Flyway Namespace/Flyway Prepare Namespace/Flyway Prepare Artifact Filename Setting>) | prepare   | The path to the diff artifact.                                                                                   |
 | [`changes`](<Configuration/Flyway Namespace/Flyway Prepare Namespace/Flyway Prepare Changes Setting>)                    | prepare   | A comma separated list of change ids.                                                                            |
+| [`types`](<Configuration/Flyway Namespace/Flyway Prepare Namespace/Flyway Prepare Types Setting>)                        | prepare   | A comma separated list of script types to generate.                                                              |
 | [`scriptFilename`](<Configuration/Flyway Namespace/Flyway Prepare Namespace/Flyway Prepare Script Filename Setting>)     | prepare   | The path to the deployment script that will be generated.                                                        |
+| [`undoFilename`](<Configuration/Flyway Namespace/Flyway Prepare Namespace/Flyway Prepare Undo Filename Setting>)         | prepare   | The path to the undo script that will be generated.                                                              |
 | [`configFiles`](<Command-line Parameters/Config Files Parameter>)                                                        | (root)    | The location of the flyway configuration files.                                                                  |
 | [`encoding`](<Configuration/Flyway Namespace/Flyway Encoding Setting>)                                                   | (root)    | The encoding to use for the generated script.                                                                    |
 | [`workingDirectory`](<Command-line Parameters/Working Directory Parameter>)                                              | (root)    | The directory to consider the current working directory. All relative paths will be considered relative to this. |
@@ -150,9 +155,9 @@ Universal commandline parameters are listed [here](<Command-line Parameters>).
 }
 ```
 
-
 ## Error codes
 
 This command can produce the following error codes:
+
 - [Generic error codes](<Exit codes and error codes/General error codes>)
 - [Prepare error codes](<Exit codes and error codes/Prepare error codes>)

@@ -64,6 +64,7 @@ baselineVersion
 afterBaseline
 afterConnect
 afterClean
+afterDeploy
 afterInfo
 afterMigrate
 afterRepair
@@ -74,6 +75,7 @@ afterVersioned
 beforeBaseline
 beforeClean
 beforeConnect
+beforeDeploy
 beforeInfo
 beforeMigrate
 beforeRepair

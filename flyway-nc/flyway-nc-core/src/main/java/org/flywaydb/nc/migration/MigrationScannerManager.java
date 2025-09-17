@@ -47,7 +47,7 @@ public class MigrationScannerManager {
     private final List<? extends NativeConnectorsMigrationScanner> scanners;
 
     public MigrationScannerManager(final Configuration configuration) {
-        this(configuration.getPluginRegister().getPlugins(NativeConnectorsMigrationScanner.class));
+        this(configuration.getPluginRegister().getInstancesOf(NativeConnectorsMigrationScanner.class));
     }
     
     public MigrationScannerManager(final List<? extends NativeConnectorsMigrationScanner> scanners) {

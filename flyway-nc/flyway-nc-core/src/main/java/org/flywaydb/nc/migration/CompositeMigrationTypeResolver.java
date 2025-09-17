@@ -28,7 +28,7 @@ import org.flywaydb.core.extensibility.MigrationType;
 public class CompositeMigrationTypeResolver implements MigrationTypeResolver {
     @Override
     public MigrationType resolveMigrationType(final String filename, final Configuration configuration) {
-        final List<MigrationTypeResolver> plugins = configuration.getPluginRegister().getPlugins(MigrationTypeResolver.class);
+        final List<MigrationTypeResolver> plugins = configuration.getPluginRegister().getInstancesOf(MigrationTypeResolver.class);
         return plugins
             .stream()
             .map(plugin -> plugin.resolveMigrationType(filename, configuration))
@@ -39,7 +39,7 @@ public class CompositeMigrationTypeResolver implements MigrationTypeResolver {
 
     @Override
     public MigrationType resolveMigrationTypeFromName(final String name, final Configuration configuration) {
-        final List<MigrationTypeResolver> plugins = configuration.getPluginRegister().getPlugins(MigrationTypeResolver.class);
+        final List<MigrationTypeResolver> plugins = configuration.getPluginRegister().getInstancesOf(MigrationTypeResolver.class);
         return plugins
             .stream()
             .map(plugin -> {

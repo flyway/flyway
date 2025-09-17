@@ -218,14 +218,14 @@ public class VerbUtils {
 
     private static List<NativeConnectorsStateCalculator> getMigrationStateCalculators(final Configuration configuration) {
         final List<NativeConnectorsStateCalculator> stateCalculators = configuration.getPluginRegister()
-            .getLicensedPlugins(NativeConnectorsStateCalculator.class, configuration);
+            .getLicensedInstancesOf(NativeConnectorsStateCalculator.class, configuration);
         stateCalculators.add(new CoreMigrationStateCalculator());
         return stateCalculators;
     }
 
     private static NativeConnectorsMigrationComparator getOrderComparator(final Configuration configuration) {
         return configuration.getPluginRegister()
-            .getPlugins(NativeConnectorsMigrationComparator.class)
+            .getInstancesOf(NativeConnectorsMigrationComparator.class)
             .stream()
             .filter(comparatorPlugin -> comparatorPlugin.getName().equals("Info"))
             .max(Comparator.comparingInt(experimentalMigrationComparator -> experimentalMigrationComparator.getPriority(

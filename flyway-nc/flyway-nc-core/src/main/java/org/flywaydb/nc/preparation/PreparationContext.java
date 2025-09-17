@@ -125,7 +125,7 @@ public final class PreparationContext implements Plugin {
 
     public static PreparationContext get(final Configuration configuration, final boolean cached) {
         final PreparationContext preparationContext = configuration.getPluginRegister()
-            .getPlugin(PreparationContext.class);
+            .getExact(PreparationContext.class);
 
         if (cached) {
             preparationContext.refresh(configuration);

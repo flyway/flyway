@@ -26,7 +26,7 @@ import org.flywaydb.core.api.configuration.Configuration;
 public class NativeConnectorsModeUtils {
 
     public static boolean canUseNativeConnectors(final Configuration config,  final String verb) {
-        final NativeConnectorsSupport supportChecker = config.getPluginRegister().getPluginInstanceOf(
+        final NativeConnectorsSupport supportChecker = config.getPluginRegister().getInstanceOf(
             NativeConnectorsSupport.class);
         if (supportChecker == null) {
             return false;
@@ -35,7 +35,7 @@ public class NativeConnectorsModeUtils {
     }
 
     public static boolean canCreateDataSource(final Configuration config) {
-        final NativeConnectorsSupport supportChecker = config.getPluginRegister().getPluginInstanceOf(
+        final NativeConnectorsSupport supportChecker = config.getPluginRegister().getInstanceOf(
             NativeConnectorsSupport.class);
         if (supportChecker == null) {
             return true;

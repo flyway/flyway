@@ -112,7 +112,7 @@ public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
 
     @Override
     public boolean useSingleConnection() {
-        PostgreSQLConfigurationExtension configurationExtension = configuration.getPluginRegister().getPlugin(PostgreSQLConfigurationExtension.class);
+        PostgreSQLConfigurationExtension configurationExtension = configuration.getPluginRegister().getExact(PostgreSQLConfigurationExtension.class);
         return !configurationExtension.isTransactionalLock();
     }
 

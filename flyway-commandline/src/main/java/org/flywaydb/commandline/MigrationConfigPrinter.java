@@ -44,7 +44,7 @@ public class MigrationConfigPrinter {
         final String sqlPrefixValue = configuration.getSqlMigrationPrefix();
 
         final BaselineMigrationConfigurationExtension baselineExt = configuration.getPluginRegister()
-            .getPlugin(BaselineMigrationConfigurationExtension.class);
+            .getExact(BaselineMigrationConfigurationExtension.class);
         final String baselinePrefixValue = baselineExt.getBaselineMigrationPrefix();
 
         final String sqlSeparatorValue = configuration.getSqlMigrationSeparator();

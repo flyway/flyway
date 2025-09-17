@@ -222,7 +222,7 @@ public class ModernConfigurationManager implements ConfigurationManager {
     private void configurePlugins(ConfigurationModel config, ClassicConfiguration cfg) {
         List<String> configuredPluginParameters = new ArrayList<>();
         for (ConfigurationExtension configurationExtension : cfg.getPluginRegister()
-            .getPlugins(ConfigurationExtension.class)) {
+            .getInstancesOf(ConfigurationExtension.class)) {
             if (configurationExtension.getNamespace().isEmpty()) {
                 processParametersByNamespace("plugins", config, configurationExtension, configuredPluginParameters);
             }

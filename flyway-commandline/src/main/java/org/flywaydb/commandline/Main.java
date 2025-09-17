@@ -94,7 +94,7 @@ public class Main {
         JavaVersionPrinter.printJavaVersion();
 
         final var telemetryStartSpan = new EventTelemetryModel("telemetry-startup", null);
-        final var flywayTelemetryManager = PLUGIN_REGISTER.getPluginInstanceOf(FlywayTelemetryManager.class);
+        final var flywayTelemetryManager = PLUGIN_REGISTER.getInstanceOf(FlywayTelemetryManager.class);
         final var flywayTelemetryHandle = flywayTelemetryManager.start();
         flywayTelemetryManager.logEvent(telemetryStartSpan);
 
@@ -131,12 +131,12 @@ public class Main {
                 LocalDateTime executionTime = LocalDateTime.now();
                 OperationResult result = executeFlyway(flywayTelemetryManager, commandLineArguments, configuration);
 
-                final List<ResultReportGenerator> reportGenerators = PLUGIN_REGISTER.getPlugins(ResultReportGenerator.class);
+                final List<ResultReportGenerator> reportGenerators = PLUGIN_REGISTER.getInstancesOf(ResultReportGenerator.class);
                 for (final ResultReportGenerator resultReportGenerator : reportGenerators) {
                     reportGenerationOutput = resultReportGenerator.generateReport(result, configuration, executionTime);
                 }
 
-                if (configuration.getPluginRegister().getPlugin(PublishingConfigurationExtension.class).isPublishResult()) {
+                if (configuration.getPluginRegister().getExact(PublishingConfigurationExtension.class).isPublishResult()) {
                     publishOperationResult(configuration, result);
                     publishReport(configuration, reportGenerationOutput.reportDetails);
                 }
@@ -383,7 +383,7 @@ public class Main {
             return;
         }
 
-        final List<OperationResultPublisher> publishers = configuration.getPluginRegister().getPlugins(
+        final List<OperationResultPublisher> publishers = configuration.getPluginRegister().getInstancesOf(
             OperationResultPublisher.class);
         for (final OperationResultPublisher publisher : publishers) {
             publisher.publish(configuration, result);
@@ -391,7 +391,7 @@ public class Main {
     }
 
     private static void publishReport(final Configuration configuration, final ReportDetails reportDetails) {
-        final List<OperationResultPublisher> publishers = configuration.getPluginRegister().getPlugins(
+        final List<OperationResultPublisher> publishers = configuration.getPluginRegister().getInstancesOf(
             OperationResultPublisher.class);
 
         for (final OperationResultPublisher publisher : publishers) {
@@ -462,7 +462,7 @@ public class Main {
         }
 
         LOG.info("Commands");
-        final List<Pair<String, String>> usages = PLUGIN_REGISTER.getPlugins(CommandExtension.class)
+        final List<Pair<String, String>> usages = PLUGIN_REGISTER.getInstancesOf(CommandExtension.class)
             .stream()
             .flatMap(e -> e.getUsage().stream().map(p -> e.inPreview() ? Pair.of(p.getLeft() + " (preview)", p.getRight()) : p))
             .toList();

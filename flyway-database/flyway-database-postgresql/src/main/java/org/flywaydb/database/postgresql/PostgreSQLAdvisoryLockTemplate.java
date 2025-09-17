@@ -54,7 +54,7 @@ public class PostgreSQLAdvisoryLockTemplate {
     }
 
     public <T> T execute(Callable<T> callable) {
-        PostgreSQLConfigurationExtension configurationExtension = configuration.getPluginRegister().getPlugin(PostgreSQLConfigurationExtension.class);
+        PostgreSQLConfigurationExtension configurationExtension = configuration.getPluginRegister().getExact(PostgreSQLConfigurationExtension.class);
 
         if (configurationExtension.isTransactionalLock()) {
             return new TransactionalExecutionTemplate(jdbcTemplate.getConnection(), true).execute(() -> execute(callable, this::tryLockTransactional));

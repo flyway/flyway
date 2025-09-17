@@ -71,7 +71,7 @@ public class DbClean {
             cleanResult = CommandResultFactory.createCleanResult(database.getCatalog());
             new CleanExecutor(connection, database, schemaHistory, callbackExecutor).clean(defaultSchema, schemas, cleanResult);
         } else {
-            cleanResult = configuration.getPluginRegister().getPlugins(CommandExtension.class).stream()
+            cleanResult = configuration.getPluginRegister().getInstancesOf(CommandExtension.class).stream()
                                        .filter(e -> e.handlesCommand(command))
                                        .findFirst()
                                        .map(e -> (CleanResult) e.handle(command, configuration, Collections.emptyList()))

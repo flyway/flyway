@@ -30,7 +30,7 @@ public class ReaderFactory {
         final Configuration configuration) {
         final ConnectionType connectionType = experimentalDatabase.getDatabaseMetaData().connectionType();
         return configuration.getPluginRegister()
-            .getLicensedPlugins(Reader.class, configuration)
+            .getLicensedInstancesOf(Reader.class, configuration)
             .stream()
             .filter(x -> x.canRead(connectionType))
             .map(x -> (Reader<T>) x)

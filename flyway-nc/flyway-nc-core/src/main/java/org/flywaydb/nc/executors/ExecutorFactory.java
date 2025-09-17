@@ -30,7 +30,7 @@ public class ExecutorFactory {
         final Configuration configuration) {
         final ConnectionType connectionType = experimentalDatabase.getDatabaseMetaData().connectionType();
         return configuration.getPluginRegister()
-            .getLicensedPlugins(Executor.class, configuration)
+            .getLicensedInstancesOf(Executor.class, configuration)
             .stream()
             .filter(x -> x.canExecute(connectionType))
             .map(x -> (Executor<T, DB>) x)

@@ -298,8 +298,8 @@ public class ClassicConfiguration implements Configuration {
 
     public ResolvedEnvironment getResolvedEnvironment(String envName, ProvisionerMode provisionerMode, ProgressLogger progress) {
         if (environmentResolver == null) {
-            environmentResolver = new EnvironmentResolver(pluginRegister.getLicensedPlugins(PropertyResolver.class, this).stream().collect(Collectors.toMap(PropertyResolver::getName, x -> x)),
-                pluginRegister.getLicensedPlugins(EnvironmentProvisioner.class, this).stream().collect(Collectors.toMap(EnvironmentProvisioner::getName, x -> x)));
+            environmentResolver = new EnvironmentResolver(pluginRegister.getInstancesOf(PropertyResolver.class).stream().collect(Collectors.toMap(PropertyResolver::getName, x -> x)),
+                pluginRegister.getInstancesOf(EnvironmentProvisioner.class).stream().collect(Collectors.toMap(EnvironmentProvisioner::getName, x -> x)));
         }
 
         ResolvedEnvironment cachedEnvironment = resolvedEnvironments.get(envName);
@@ -1296,7 +1296,7 @@ public class ClassicConfiguration implements Configuration {
 
     @Override
     public MigrationPattern[] getCherryPick() {
-        final var patternsStub = pluginRegister.getPluginInstanceOf(CherryPickConfiguration.class);
+        final var patternsStub = pluginRegister.getInstanceOf(CherryPickConfiguration.class);
         if (patternsStub == null) {
             LOG.debug("CherryPickConfigurationExtension not found");
             return null;
@@ -1785,7 +1785,7 @@ public class ClassicConfiguration implements Configuration {
             Matcher matcher = ANY_WORD_BETWEEN_TWO_DOTS_PATTERN.matcher(text);
             final String rootNamespace = matcher.find() ? matcher.group(1) : "";
 
-            List<ConfigurationExtension> configExtensions = pluginRegister.getPlugins(ConfigurationExtension.class)
+            List<ConfigurationExtension> configExtensions = pluginRegister.getInstancesOf(ConfigurationExtension.class)
                 .stream()
                 .filter(c -> c.getNamespace().isEmpty() || rootNamespace.equals(c.getNamespace()) || rootNamespace.equals(deprecatedNameSpace))
                 .collect(Collectors.toList());
@@ -2157,7 +2157,7 @@ public class ClassicConfiguration implements Configuration {
         List<String> keysToRemove,
         Map<String, String> props) {
         for (Map.Entry<String, Map<String, Object>> property : configExtensionsPropertyMap.entrySet()) {
-            ConfigurationExtension cfg = pluginRegister.getPlugins(ConfigurationExtension.class)
+            ConfigurationExtension cfg = pluginRegister.getInstancesOf(ConfigurationExtension.class)
                 .stream()
                 .filter(c -> c.getClass().toString().equals(property.getKey()))
                 .findFirst()
@@ -2198,8 +2198,8 @@ public class ClassicConfiguration implements Configuration {
 
     private void configureFromConfigurationProviders(ClassicConfiguration configuration) {
         Map<String, String> config = new HashMap<>();
-        for (ConfigurationProvider configurationProvider : pluginRegister.getPlugins(ConfigurationProvider.class)) {
-            ConfigurationExtension configurationExtension = (ConfigurationExtension) pluginRegister.getPlugin(
+        for (ConfigurationProvider configurationProvider : pluginRegister.getInstancesOf(ConfigurationProvider.class)) {
+            ConfigurationExtension configurationExtension = (ConfigurationExtension) pluginRegister.getExact(
                 configurationProvider.getConfigurationExtensionClass());
             try {
                 config.putAll(configurationProvider.getConfiguration(configurationExtension, configuration));

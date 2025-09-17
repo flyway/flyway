@@ -43,7 +43,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.Callable;
 import org.flywaydb.core.internal.util.Pair;
@@ -254,7 +253,7 @@ class JdbcTableSchemaHistory extends SchemaHistory {
                     }
                 }
 
-                return configuration.getPluginRegister().getPlugins(AppliedMigration.class).stream()
+                return configuration.getPluginRegister().getInstancesOf(AppliedMigration.class).stream()
                                     .filter(am -> am.handlesType(type))
                                     .findFirst()
                                     .orElse(new BaseAppliedMigration())

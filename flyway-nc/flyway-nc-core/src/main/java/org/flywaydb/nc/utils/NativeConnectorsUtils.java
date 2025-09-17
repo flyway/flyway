@@ -39,6 +39,6 @@ public class NativeConnectorsUtils {
     }
 
     public static FlywayTelemetryManager getFlywayTelemetryManager(final Configuration configuration) {
-        return configuration.getPluginRegister().getPluginInstanceOf(FlywayTelemetryManager.class);
+        return configuration.getPluginRegister().getInstanceOf(FlywayTelemetryManager.class);
     }
 }

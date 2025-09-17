@@ -26,7 +26,6 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.reports.json.HtmlResultDeserializer;
@@ -44,7 +43,7 @@ class ReportsDeserializer extends JsonDeserializer {
         final JsonNode reportElement = ctxt.readTree(p);
         if (reportElement.has("operation")) {
             final String operation = reportElement.get("operation").asText();
-            final List<HtmlResultDeserializer> deserializers = pluginRegister.getPlugins(HtmlResultDeserializer.class);
+            final List<HtmlResultDeserializer> deserializers = pluginRegister.getInstancesOf(HtmlResultDeserializer.class);
             final HtmlResultDeserializer matchedDeserializer = deserializers.stream()
                 .filter(x -> x.operationKey().equals(operation)).findFirst().orElseThrow(()-> new FlywayException(
                     "Unable to find matching deserializer for " + operation));

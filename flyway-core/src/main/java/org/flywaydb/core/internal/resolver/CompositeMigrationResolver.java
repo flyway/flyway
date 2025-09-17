@@ -71,7 +71,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
             migrationResolvers.add(new SqlMigrationResolver(resourceProvider, sqlScriptExecutorFactory, sqlScriptFactory, configuration, parsingContext));
             migrationResolvers.add(new ScanningJavaMigrationResolver(classProvider, configuration));
 
-            migrationResolvers.addAll(configuration.getPluginRegister().getPlugins(MigrationResolver.class));
+            migrationResolvers.addAll(configuration.getPluginRegister().getInstancesOf(MigrationResolver.class));
 
             migrationResolvers.add(new ScriptMigrationResolver<Event>(resourceProvider, configuration, parsingContext, statementInterceptor));
         }

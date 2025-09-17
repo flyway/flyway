@@ -77,7 +77,7 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
 
     @Override
     public FlywayTelemetryManager getTelemetryManager() {
-        return configuration.getPluginRegister().getPluginInstanceOf(FlywayTelemetryManager.class);
+        return configuration.getPluginRegister().getInstanceOf(FlywayTelemetryManager.class);
     }
 
     @Override

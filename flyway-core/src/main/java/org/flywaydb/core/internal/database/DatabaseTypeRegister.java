@@ -38,7 +38,7 @@ import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 @CustomLog
 public class DatabaseTypeRegister {
 
-    private static final List<DatabaseType> SORTED_DATABASE_TYPES = new PluginRegister().getPlugins(DatabaseType.class)
+    private static final List<DatabaseType> SORTED_DATABASE_TYPES = new PluginRegister().getInstancesOf(DatabaseType.class)
         .stream()
         .sorted()
         .toList();

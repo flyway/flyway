@@ -20,10 +20,8 @@
 package org.flywaydb.commandline.configuration;
 
 import java.io.File;
-import java.lang.module.ModuleDescriptor.Version;
 import lombok.CustomLog;
 import java.lang.reflect.Field;
-import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import org.flywaydb.commandline.logging.console.ConsoleLog.Level;
 import org.flywaydb.core.api.FlywayException;
@@ -42,7 +40,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.flywaydb.core.internal.util.VersionUtils;
 
 @CustomLog
 public class CommandLineArguments {
@@ -80,7 +77,7 @@ public class CommandLineArguments {
     private final String[] args;
 
     static Collection<String>  getParametersByNamespace(final String namespace) {
-      return (new ClassicConfiguration()).getPluginRegister().getPlugins(ConfigurationExtension.class).stream()
+      return (new ClassicConfiguration()).getPluginRegister().getInstancesOf(ConfigurationExtension.class).stream()
           .filter(p -> p.getNamespace().equalsIgnoreCase(namespace)).flatMap(configurationExtension -> Arrays.stream(
           configurationExtension.getClass().getDeclaredFields()).map(Field::getName).toList().stream()).collect(
           Collectors.toCollection(ArrayList::new));
@@ -141,7 +138,7 @@ public class CommandLineArguments {
         List<String> flags = Arrays.stream(args).filter(x -> x.startsWith("-")).collect(Collectors.toList());
         List<String> operations = Arrays.stream(args).filter(arg -> !arg.startsWith("-")).collect(Collectors.toList());
 
-        pluginRegister.getPlugins(CommandExtension.class).forEach(extension -> flags.stream()
+        pluginRegister.getInstancesOf(CommandExtension.class).forEach(extension -> flags.stream()
             .map(extension::getCommandForFlag)
             .filter(Objects::nonNull)
             .forEach(operations::add));
@@ -302,7 +299,7 @@ public class CommandLineArguments {
     }
 
     private boolean isHandledByExtension(String arg) {
-        for (CommandExtension extension : pluginRegister.getPlugins(CommandExtension.class)) {
+        for (CommandExtension extension : pluginRegister.getInstancesOf(CommandExtension.class)) {
             if (extension.handlesCommand(arg) || extension.handlesParameter(arg)) {
                 return true;
             }
@@ -335,7 +332,7 @@ public class CommandLineArguments {
         }
 
         for (String operation : getOperations()) {
-            String helpTextForOperation = pluginRegister.getPlugins(CommandExtension.class)
+            String helpTextForOperation = pluginRegister.getInstancesOf(CommandExtension.class)
                 .stream()
                 .filter(e -> e.handlesCommand(operation))
                 .map(e -> e.getHelpText(getFlags()))

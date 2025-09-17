@@ -393,7 +393,7 @@ public class ConfigUtils {
             DEPRECATED_PLUGINS_WARNED.add(key);
         }
 
-        for (ConfigurationExtension configurationExtension : PLUGIN_REGISTER.getPlugins(ConfigurationExtension.class)) {
+        for (ConfigurationExtension configurationExtension : PLUGIN_REGISTER.getInstancesOf(ConfigurationExtension.class)) {
             String configurationParameter = configurationExtension.getConfigurationParameterFromEnvironmentVariable(key);
             if (configurationParameter != null) {
                 return configurationParameter;
@@ -774,7 +774,7 @@ public class ConfigUtils {
 
     private static List<String> findPossibleNamespaces(final String unknownConfig) {
         return new ClassicConfiguration().getPluginRegister()
-            .getPlugins(ConfigurationExtension.class)
+            .getInstancesOf(ConfigurationExtension.class)
             .stream()
             .filter(p -> Arrays.stream(p.getClass().getDeclaredFields()).map(Field::getName).toList().contains(unknownConfig))
             .map(ConfigurationExtension::getNamespace)
@@ -840,10 +840,10 @@ public class ConfigUtils {
     }
 
     public static CleanModel getCleanModel(Configuration conf) {
-        ConfigurationExtension extensionNew = conf.getPluginRegister().getLicensedPlugin(
+        ConfigurationExtension extensionNew = conf.getPluginRegister().getLicensedExact(
             "SQLServerConfigurationExtension",
             conf);
-        ConfigurationExtension extensionDepreciated = conf.getPluginRegister().getLicensedPlugin(
+        ConfigurationExtension extensionDepreciated = conf.getPluginRegister().getLicensedExact(
             "CleanModeConfigurationExtension",
             conf);
         CleanModel cleanModelNew = null;
@@ -866,10 +866,10 @@ public class ConfigUtils {
     }
 
     public static void setCleanModel(Configuration conf, CleanModel model) {
-        ConfigurationExtension extensionNew = conf.getPluginRegister().getLicensedPlugin(
+        ConfigurationExtension extensionNew = conf.getPluginRegister().getLicensedExact(
             "SQLServerConfigurationExtension",
             conf);
-        ConfigurationExtension extensionDepreciated = conf.getPluginRegister().getLicensedPlugin(
+        ConfigurationExtension extensionDepreciated = conf.getPluginRegister().getLicensedExact(
             "CleanModeConfigurationExtension",
             conf);
 

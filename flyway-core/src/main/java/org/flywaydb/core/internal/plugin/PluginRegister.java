@@ -38,7 +38,63 @@ public class PluginRegister {
     private final ClassLoader CLASS_LOADER = this.getClass().getClassLoader();
     private boolean hasRegisteredPlugins;
 
+    /**
+     * @deprecated Use {@link #getExact(Class)} instead.
+     */
+    @Deprecated
     public <T extends Plugin> T getPlugin(final Class<T> clazz) {
+        return getExact(clazz);
+    }
+
+    /**
+     * @deprecated Use {@link #getInstancesOf(Class)} instead.
+     */
+    @Deprecated
+    public <T extends Plugin> List<T> getPlugins(final Class<T> clazz) {
+        return getInstancesOf(clazz);
+    }
+
+    /**
+     * @deprecated Use {@link #getLicensedInstancesOf(Class, Configuration)} instead.
+     */
+    @Deprecated
+    public <T extends Plugin> List<T> getLicensedPlugins(final Class<T> clazz, final Configuration configuration) {
+        return getLicensedInstancesOf(clazz, configuration);
+    }
+
+    /**
+     * @deprecated Use {@link #getLicensedInstanceOf(Class, Configuration)} instead.
+     */
+    @Deprecated
+    public <T extends Plugin> T getLicensedPlugin(final Class<T> clazz, final Configuration configuration) {
+        return getLicensedInstanceOf(clazz, configuration);
+    }
+
+    /**
+     * @deprecated Use {@link #getLicensedExact(String, Configuration)} instead.
+     */
+    @Deprecated
+    public <T extends Plugin> T getLicensedPlugin(final String className, final Configuration configuration) {
+        return getLicensedExact(className, configuration);
+    }
+
+    /**
+     * @deprecated Use {@link #getExact(String)} instead.
+     */
+    @Deprecated
+    public <T extends Plugin> T getPlugin(final String className) {
+        return getExact(className);
+    }
+
+    /**
+     * @deprecated Use {@link #getInstanceOf(Class)} instead.
+     */
+    @Deprecated
+    public <T extends Plugin> T getPluginInstanceOf(final Class<T> clazz) {
+        return getInstanceOf(clazz);
+    }
+
+    public <T extends Plugin> T getExact(final Class<T> clazz) {
         return (T) getPlugins()
                 .stream()
                 .filter(p -> p.getClass().getCanonicalName().equals(clazz.getCanonicalName()))
@@ -46,7 +102,7 @@ public class PluginRegister {
                 .orElse(null);
     }
 
-    public <T extends Plugin> List<T> getPlugins(final Class<T> clazz) {
+    public <T extends Plugin> List<T> getInstancesOf(final Class<T> clazz) {
         return (List<T>) getPlugins()
                 .stream()
                 .filter(clazz::isInstance)
@@ -54,7 +110,7 @@ public class PluginRegister {
                 .collect(Collectors.toList());
     }
 
-    public <T extends Plugin> List<T> getLicensedPlugins(final Class<T> clazz, final Configuration configuration) {
+    public <T extends Plugin> List<T> getLicensedInstancesOf(final Class<T> clazz, final Configuration configuration) {
         return (List<T>) getPlugins()
                 .stream()
                 .filter(clazz::isInstance)
@@ -63,11 +119,11 @@ public class PluginRegister {
                 .collect(Collectors.toList());
     }
 
-    public <T extends Plugin> T getLicensedPlugin(final Class<T> clazz, final Configuration configuration) {
-        return getLicensedPlugins(clazz, configuration).stream().findFirst().orElse(null);
+    public <T extends Plugin> T getLicensedInstanceOf(final Class<T> clazz, final Configuration configuration) {
+        return getLicensedInstancesOf(clazz, configuration).stream().findFirst().orElse(null);
     }
 
-    public <T extends Plugin> T getLicensedPlugin(final String className, final Configuration configuration) {
+    public <T extends Plugin> T getLicensedExact(final String className, final Configuration configuration) {
         return (T) getPlugins()
                 .stream()
                 .filter(p -> p.isLicensed(configuration))
@@ -77,7 +133,7 @@ public class PluginRegister {
                 .orElse(null);
     }
 
-    public <T extends Plugin> T getPlugin(final String className) {
+    public <T extends Plugin> T getExact(final String className) {
         return (T) getPlugins()
             .stream()
             .filter(p -> p.getClass().getSimpleName().equals(className))
@@ -86,7 +142,7 @@ public class PluginRegister {
             .orElse(null);
     }
 
-    public <T extends Plugin> T getPluginInstanceOf(final Class<T> clazz) {
+    public <T extends Plugin> T getInstanceOf(final Class<T> clazz) {
         return (T) getPlugins()
             .stream()
             .filter(clazz::isInstance)

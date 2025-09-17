@@ -278,7 +278,7 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
 
         String cleanMode = ConfigUtils.getCleanModel(configuration).getMode();
         if (Mode.ALL.name().equalsIgnoreCase(cleanMode)) {
-            CleanModePlugin cleanModePlugin = configuration.getPluginRegister().getPlugins(CleanModePlugin.class).stream()
+            CleanModePlugin cleanModePlugin = configuration.getPluginRegister().getInstancesOf(CleanModePlugin.class).stream()
                                                            .filter(p -> p.handlesMode(Mode.valueOf(cleanMode)))
                                                            .filter(p -> p.handlesDatabase(this))
                                                            .findFirst()
