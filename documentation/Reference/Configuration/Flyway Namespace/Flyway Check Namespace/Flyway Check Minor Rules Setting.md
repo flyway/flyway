@@ -7,6 +7,7 @@ subtitle: flyway.check.minorRules
 {% include commandlineonly.html %}
 
 ## Description
+***This is deprecated - please look at using the `check.code.failOnError` mechanism described in [Code Analysis Rules](<Code Analysis Rules>)***
 
 You can configure your pipeline to fail when specified static code analysis rules beyond a given tolerance level are violated.
 

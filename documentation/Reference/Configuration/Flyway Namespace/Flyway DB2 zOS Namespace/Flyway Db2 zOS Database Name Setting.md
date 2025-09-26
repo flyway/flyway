@@ -49,7 +49,7 @@ FLYWAY_DB2Z_DATABASE_NAME=example_database
 ### API
 
 ```java
-DB2ZConfigurationExtension dB2ZConfigurationExtension = configuration.getPluginRegister().getPlugin(DB2ZConfigurationExtension.class);
+DB2ZConfigurationExtension dB2ZConfigurationExtension = configuration.getConfigurationExtension(DB2ZConfigurationExtension.class);
 dB2ZConfigurationExtension.setDatabaseName("example_database");
 ```
 

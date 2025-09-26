@@ -83,7 +83,7 @@ def main(argv: List[str]):
 
     planned_commands: List[str] = []
     for i, image in enumerate(images):
-        flyway = "flyway" if "azure" in image else ""
+        flyway = "flyway" if "-azure" in image else ""
         for flyway_command in flyway_commands:
             planned_commands.append(
                 f'docker run --rm -v "{test_sql_path}:/flyway/sql" {env_var_flag} {image} {flyway} {flyway_command} {flyway_cli_params}'.strip()

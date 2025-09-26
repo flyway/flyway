@@ -54,11 +54,11 @@ are [partially supported by Native Connectors](https://documentation.red-gate.co
     </tr>
     <tr id="afterMigrate">
         <td>afterMigrate</td>
-        <td>After successful Migrate runs</td>
+        <td>After Migrate command succeeds</td>
     </tr>
     <tr id="afterMigrateApplied">
         <td>afterMigrateApplied</td>
-        <td>After successful Migrate runs where at least one migration has been applied</td>
+        <td>After Migrate command succeeds where at least one migration has been applied</td>
     </tr>
     <tr id="afterVersioned">
         <td>afterVersioned</td>
@@ -66,7 +66,7 @@ are [partially supported by Native Connectors](https://documentation.red-gate.co
     </tr>
     <tr id="afterMigrateError">
         <td>afterMigrateError</td>
-        <td>After failed Migrate runs</td>
+        <td>After Migrate command fails</td>
     </tr>
     </tbody>
 </table>
@@ -109,11 +109,11 @@ are [partially supported by Native Connectors](https://documentation.red-gate.co
     </tr>
     <tr id="afterUndo">
         <td>afterUndo <br>{% include teams.html %}</td>
-        <td>After successful Undo runs</td>
+        <td>After Undo command succeeds</td>
     </tr>
     <tr id="afterUndoError">
         <td>afterUndoError <br>{% include teams.html %}</td>
-        <td>After failed Undo runs</td>
+        <td>After Undo command fails</td>
     </tr>
     </tbody>
 </table>
@@ -132,11 +132,11 @@ are [partially supported by Native Connectors](https://documentation.red-gate.co
     </tr>
     <tr id="afterDeploy">
         <td>afterDeploy</td>
-        <td>After successful Deploy runs</td>
+        <td>After Deploy command succeeds</td>
     </tr>
     <tr id="afterDeployError">
         <td>afterDeployError</td>
-        <td>After failed Deploy runs</td>
+        <td>After Deploy command fails</td>
     </tr>
     </tbody>
 </table>
@@ -155,11 +155,11 @@ are [partially supported by Native Connectors](https://documentation.red-gate.co
     </tr>
     <tr id="afterClean">
         <td>afterClean</td>
-        <td>After successful Clean runs</td>
+        <td>After Clean command succeeds</td>
     </tr>
     <tr id="afterCleanError">
         <td>afterCleanError</td>
-        <td>After failed Clean runs</td>
+        <td>After Clean command fails</td>
     </tr>
     </tbody>
 </table>
@@ -178,11 +178,11 @@ are [partially supported by Native Connectors](https://documentation.red-gate.co
     </tr>
     <tr id="afterInfo">
         <td>afterInfo</td>
-        <td>After successful Info runs</td>
+        <td>After Info command succeeds</td>
     </tr>
     <tr id="afterInfoError">
         <td>afterInfoError</td>
-        <td>After failed Info runs</td>
+        <td>After Info command fails</td>
     </tr>
     </tbody>
 </table>
@@ -204,11 +204,11 @@ The Info command may be internally triggered by Flyway._
     </tr>
     <tr id="afterValidate">
         <td>afterValidate</td>
-        <td>After successful Validate runs</td>
+        <td>After Validate command succeeds</td>
     </tr>
     <tr id="afterValidateError">
         <td>afterValidateError</td>
-        <td>After failed Validate runs</td>
+        <td>After Validate command fails</td>
     </tr>
     </tbody>
 </table>
@@ -227,11 +227,11 @@ The Info command may be internally triggered by Flyway._
     </tr>
     <tr id="afterBaseline">
         <td>afterBaseline</td>
-        <td>After successful Baseline runs</td>
+        <td>After Baseline command succeeds</td>
     </tr>
     <tr id="afterBaselineError">
         <td>afterBaselineError</td>
-        <td>After failed Baseline runs</td>
+        <td>After Baseline command fails</td>
     </tr>
     </tbody>
 </table>
@@ -250,11 +250,11 @@ The Info command may be internally triggered by Flyway._
     </tr>
     <tr id="afterRepair">
         <td>afterRepair</td>
-        <td>After successful Repair runs</td>
+        <td>After Repair command succeeds</td>
     </tr>
     <tr id="afterRepairError">
         <td>afterRepairError</td>
-        <td>After failed Repair runs</td>
+        <td>After Repair command fails</td>
     </tr>
     </tbody>
 </table>

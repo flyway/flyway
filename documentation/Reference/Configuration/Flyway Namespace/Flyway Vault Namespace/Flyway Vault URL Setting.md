@@ -52,7 +52,7 @@ FLYWAY_VAULT_URL=http://localhost:8200/v1/
 ### API
 
 ```java
-VaultConfigurationExtension vaultConfigurationExtension = configuration.getPluginRegister().getPlugin(VaultConfigurationExtension.class)
+VaultConfigurationExtension vaultConfigurationExtension = configuration.getConfigurationExtension(VaultConfigurationExtension.class);
 vaultConfigurationExtension.setVaultUrl("http://localhost:8200/v1/");
 ```
 

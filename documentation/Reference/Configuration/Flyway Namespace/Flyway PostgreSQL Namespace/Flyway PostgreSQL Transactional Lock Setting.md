@@ -52,7 +52,7 @@ FLYWAY_POSTGRESQL_TRANSACTIONAL_LOCK=false
 ### API
 
 ```java
-PostgreSQLConfigurationExtension configurationExtension = configuration.getPluginRegister().getPlugin(PostgreSQLConfigurationExtension.class)
+PostgreSQLConfigurationExtension configurationExtension = configuration.getConfigurationExtension(PostgreSQLConfigurationExtension.class);
 configurationExtension.setTransactionalLock(false);
 ```
 

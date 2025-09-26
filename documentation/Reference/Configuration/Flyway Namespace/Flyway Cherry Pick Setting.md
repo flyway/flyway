@@ -65,7 +65,7 @@ FLYWAY_CHERRY_PICK=2.0
 ### API
 
 ```java
-CherryPickConfigurationExtension cherryPickConfigurationExtension = configuration.getPluginRegister().getPlugin(CherryPickConfigurationExtension.class);
+CherryPickConfigurationExtension cherryPickConfigurationExtension = configuration.getConfigurationExtension(CherryPickConfigurationExtension.class);
 cherryPickConfigurationExtension.setCherryPick(List.of("2.0"));
 ```
 

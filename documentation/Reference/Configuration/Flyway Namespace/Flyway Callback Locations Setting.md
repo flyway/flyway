@@ -6,7 +6,20 @@ subtitle: flyway.callbackLocations
 
 Array of locations to scan recursively for callbacks. The location type is determined by its prefix.
 
-Callbacks can also be scanned from [migration locations](<Configuration/Flyway Namespace/Flyway Locations Setting>).
+If the `callbackLocations` setting is not set, then callbacks will be scanned
+from [migration locations](<Configuration/Flyway Namespace/Flyway Locations Setting>).
+Note that [deploy command](<Commands/Deploy>) callbacks can only be read from `callbackLocations`, and never from
+`locations`.
+
+### Default value
+
+There is no default value if not set, but projects created through the [init command](<Commands/Init>) will set the
+following:
+
+```toml
+[flyway]
+callbackLocations = ["filesystem:callbacks"]
+```
 
 ### Classpath
 

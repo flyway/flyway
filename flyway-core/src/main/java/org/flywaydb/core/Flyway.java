@@ -21,6 +21,7 @@ package org.flywaydb.core;
 
 import static org.flywaydb.core.internal.nc.NativeConnectorsModeUtils.canUseNativeConnectors;
 
+import java.util.Collection;
 import lombok.CustomLog;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -67,9 +68,9 @@ import java.util.List;
 
 /**
  * This is the centre point of Flyway, and for most users, the only class they will ever have to deal with.
- *
+ * <p>
  * It is THE public API from which all important Flyway functions such as clean, validate and migrate can be called.
- *
+ * <p>
  * To get started all you need to do is create a configured Flyway object and then invoke its principal methods.
  * <pre>
  * Flyway flyway = Flyway.configure().dataSource(url, user, password).load();
@@ -89,7 +90,7 @@ public class Flyway {
     /**
      * This is your starting point. This creates a configuration which can be customized to your needs before being
      * loaded into a new Flyway instance using the load() method.
-     *
+     * <p>
      * In its simplest form, this is how you configure Flyway with all defaults to get started:
      * <pre>Flyway flyway = Flyway.configure().dataSource(url, user, password).load();</pre>
      *
@@ -105,7 +106,7 @@ public class Flyway {
     /**
      * This is your starting point. This creates a configuration which can be customized to your needs before being
      * loaded into a new Flyway instance using the load() method.
-     *
+     * <p>
      * In its simplest form, this is how you configure Flyway with all defaults to get started:
      * <pre>Flyway flyway = Flyway.configure().dataSource(url, user, password).load();</pre>
      *
@@ -116,7 +117,7 @@ public class Flyway {
      *
      * @return A new configuration from which Flyway can be loaded.
      */
-    public static FluentConfiguration configure(ClassLoader classLoader) {
+    public static FluentConfiguration configure(final ClassLoader classLoader) {
         return new FluentConfiguration(classLoader);
     }
 
@@ -126,9 +127,9 @@ public class Flyway {
      *
      * @param configuration The configuration to use.
      */
-    public Flyway(Configuration configuration) {
+    public Flyway(final Configuration configuration) {
         this.configuration = new ClassicConfiguration(configuration);
-        List<Callback> callbacks = this.configuration.loadCallbackLocation("db/callback", false);
+        final List<Callback> callbacks = this.configuration.loadCallbackLocation("db/callback", false);
         if (!callbacks.isEmpty()) {
             this.configuration.setCallbacks(callbacks.toArray(Callback[]::new));
         }
@@ -153,7 +154,7 @@ public class Flyway {
     /**
      * @return The configuration extension type requested from the plugin register.
      */
-    public <T extends ConfigurationExtension> T getConfigurationExtension(Class<T> configClass) {
+    public <T extends ConfigurationExtension> T getConfigurationExtension(final Class<T> configClass) {
         return getConfiguration().getPluginRegister().getExact(configClass);
     }
 
@@ -168,7 +169,7 @@ public class Flyway {
      */
     @SneakyThrows
     public MigrateResult migrate() throws FlywayException {
-        try (MigrateTelemetryModel telemetryModel = new MigrateTelemetryModel(flywayTelemetryManager)) {
+        try (final MigrateTelemetryModel telemetryModel = new MigrateTelemetryModel(flywayTelemetryManager)) {
             if (canUseNativeConnectors(configuration, "migrate")) {
                 final var verb = configuration.getPluginRegister().getInstancesOf(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("migrate")).findFirst();
                 if (verb.isPresent()) {
@@ -191,9 +192,9 @@ public class Flyway {
 
 
                     if (configuration.isValidateOnMigrate()) {
-                        List<ValidatePattern> ignorePatterns = new ArrayList<>(Arrays.asList(configuration.getIgnoreMigrationPatterns()));
+                        final Collection<ValidatePattern> ignorePatterns = new ArrayList<>(Arrays.asList(configuration.getIgnoreMigrationPatterns()));
                         ignorePatterns.add(ValidatePattern.fromPattern("*:pending"));
-                        ValidateResult validateResult = doValidate(database, migrationResolver, schemaHistory, defaultSchema, schemas, callbackExecutor, ignorePatterns.toArray(ValidatePattern[]::new));
+                        final ValidateResult validateResult = doValidate(database, migrationResolver, schemaHistory, defaultSchema, schemas, callbackExecutor, ignorePatterns.toArray(ValidatePattern[]::new));
                         if (!validateResult.validationSuccessful) {
                             throw new FlywayValidateException(validateResult.errorDetails, validateResult.getAllErrorMessages());
                         }
@@ -209,8 +210,8 @@ public class Flyway {
                     }
 
                     if (!schemaHistory.exists()) {
-                        List<Schema> nonEmptySchemas = new ArrayList<>();
-                        for (Schema schema : schemas) {
+                        final Collection<Schema> nonEmptySchemas = new ArrayList<>();
+                        for (final Schema schema : schemas) {
                             if (schema.exists() && !schema.empty()) {
                                 nonEmptySchemas.add(schema);
                             }
@@ -241,13 +242,13 @@ public class Flyway {
                         schemaHistory.create(false);
                     }
 
-                    MigrateResult result = new DbMigrate(database, schemaHistory, defaultSchema, migrationResolver, configuration, callbackExecutor).migrate();
+                    final MigrateResult result = new DbMigrate(database, schemaHistory, defaultSchema, migrationResolver, configuration, callbackExecutor).migrate();
                     telemetryModel.setFromMigrateResult(result);
                     callbackExecutor.onOperationFinishEvent(Event.AFTER_MIGRATE_OPERATION_FINISH, result);
 
                     return result;
                 }, true, flywayTelemetryManager);
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 telemetryModel.setException(e);
                 throw e;
             }
@@ -274,7 +275,7 @@ public class Flyway {
             }
         }
         return flywayExecutor.execute((migrationResolver, schemaHistory, database, defaultSchema, schemas, callbackExecutor, statementInterceptor) -> {
-            MigrationInfoService migrationInfoService = new DbInfo(migrationResolver, schemaHistory, configuration, database, callbackExecutor, schemas).info();
+            final MigrationInfoService migrationInfoService = new DbInfo(migrationResolver, schemaHistory, configuration, database, callbackExecutor, schemas).info();
 
             callbackExecutor.onOperationFinishEvent(Event.AFTER_INFO_OPERATION_FINISH, migrationInfoService.getInfoResult());
 
@@ -293,7 +294,7 @@ public class Flyway {
      */
     @SneakyThrows
     public CleanResult clean() {
-        try (EventTelemetryModel telemetryModel = new EventTelemetryModel("clean", flywayTelemetryManager)) {
+        try (final EventTelemetryModel telemetryModel = new EventTelemetryModel("clean", flywayTelemetryManager)) {
             if (canUseNativeConnectors(configuration, "clean")) {
                 final var verb = configuration.getPluginRegister().getInstancesOf(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("clean")).findFirst();
                 if (verb.isPresent()) {
@@ -306,7 +307,7 @@ public class Flyway {
 
             try {
                 return flywayExecutor.execute((migrationResolver, schemaHistory, database, defaultSchema, schemas, callbackExecutor, statementInterceptor) -> {
-                    CleanResult cleanResult = doClean(database, schemaHistory, defaultSchema, schemas, callbackExecutor);
+                    final CleanResult cleanResult = doClean(database, schemaHistory, defaultSchema, schemas, callbackExecutor);
 
 
 
@@ -316,7 +317,7 @@ public class Flyway {
 
                     return cleanResult;
                 }, false, flywayTelemetryManager);
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 telemetryModel.setException(e);
                 throw e;
             }
@@ -372,7 +373,7 @@ public class Flyway {
             }
         }
         return flywayExecutor.execute((migrationResolver, schemaHistory, database, defaultSchema, schemas, callbackExecutor, statementInterceptor) -> {
-            ValidateResult validateResult = doValidate(database, migrationResolver, schemaHistory, defaultSchema, schemas, callbackExecutor, configuration.getIgnoreMigrationPatterns());
+            final ValidateResult validateResult = doValidate(database, migrationResolver, schemaHistory, defaultSchema, schemas, callbackExecutor, configuration.getIgnoreMigrationPatterns());
 
             callbackExecutor.onOperationFinishEvent(Event.AFTER_VALIDATE_OPERATION_FINISH, validateResult);
 
@@ -382,7 +383,7 @@ public class Flyway {
 
     /**
      * Baselines an existing database, excluding all migrations up to and including baselineVersion.
-     *
+     * <p>
      * <img src="https://flyway.github.io/flyway/assets/command-baseline.png" alt="baseline">
      *
      * @return An object summarising the actions taken
@@ -391,7 +392,7 @@ public class Flyway {
      */
     @SneakyThrows
     public BaselineResult baseline() throws FlywayException {
-        try (EventTelemetryModel telemetryModel = new EventTelemetryModel("baseline", flywayTelemetryManager)) {
+        try (final EventTelemetryModel telemetryModel = new EventTelemetryModel("baseline", flywayTelemetryManager)) {
             if (canUseNativeConnectors(configuration, "baseline")) {
                 final var verb = configuration.getPluginRegister().getInstancesOf(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("baseline")).findFirst();
                 if (verb.isPresent()) {
@@ -413,7 +414,7 @@ public class Flyway {
                                          "See " + FlywayDbWebsiteLinks.MIGRATIONS);
                     }
 
-                    BaselineResult baselineResult = doBaseline(schemaHistory, callbackExecutor, database);
+                    final BaselineResult baselineResult = doBaseline(schemaHistory, callbackExecutor, database);
 
 
 
@@ -423,7 +424,7 @@ public class Flyway {
 
                     return baselineResult;
                 }, false, flywayTelemetryManager);
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 telemetryModel.setException(e);
                 throw e;
             }
@@ -444,7 +445,7 @@ public class Flyway {
      */
     @SneakyThrows
     public RepairResult repair() throws FlywayException {
-        try (EventTelemetryModel telemetryModel = new EventTelemetryModel("repair", flywayTelemetryManager)) {
+        try (final EventTelemetryModel telemetryModel = new EventTelemetryModel("repair", flywayTelemetryManager)) {
             if (canUseNativeConnectors(configuration, "repair")) {
                 final var verb = configuration.getPluginRegister().getInstancesOf(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("repair")).findFirst();
                 if (verb.isPresent()) {
@@ -457,7 +458,7 @@ public class Flyway {
 
             try {
                 return flywayExecutor.execute((migrationResolver, schemaHistory, database, defaultSchema, schemas, callbackExecutor, statementInterceptor) -> {
-                    RepairResult repairResult = new DbRepair(database, migrationResolver, schemaHistory, callbackExecutor, configuration).repair();
+                    final RepairResult repairResult = new DbRepair(database, migrationResolver, schemaHistory, callbackExecutor, configuration).repair();
 
 
 
@@ -467,7 +468,7 @@ public class Flyway {
 
                     return repairResult;
                 }, true, flywayTelemetryManager);
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 telemetryModel.setException(e);
                 throw e;
             }
@@ -489,7 +490,7 @@ public class Flyway {
         if (canUseNativeConnectors(configuration, "undo")) {
             final var verb = configuration.getPluginRegister().getInstancesOf(VerbExtension.class).stream().filter(verbExtension -> verbExtension.handlesVerb("undo")).findFirst();
             if (verb.isPresent()) {
-                try (EventTelemetryModel telemetryModel = new EventTelemetryModel("undo", flywayTelemetryManager)) {
+                try (final EventTelemetryModel ignored = new EventTelemetryModel("undo", flywayTelemetryManager)) {
                     LOG.debug("Native Connectors for undo is set and a verb is present");
                     return (OperationResult) verb.get().executeVerb(configuration);
                 }
@@ -499,7 +500,7 @@ public class Flyway {
         }
         try {
             return runCommand("undo", Collections.emptyList());
-        } catch (FlywayException e) {
+        } catch (final FlywayException e) {
             if (e.getMessage().startsWith("No command extension found")) {
                 throw new FlywayException("The command 'undo' was not recognized. Make sure you have added 'flyway-proprietary' as a dependency.", e);
             }
@@ -507,17 +508,17 @@ public class Flyway {
         }
     }
 
-    private OperationResult runCommand(String command, List<String> flags) {
+    private OperationResult runCommand(final String command, final List<String> flags) {
         return CommandExtensionUtils.runCommandExtension(configuration, command, flags);
     }
 
-    private CleanResult doClean(Database database, SchemaHistory schemaHistory, Schema defaultSchema, Schema[] schemas, CallbackExecutor<Event> callbackExecutor) {
+    private CleanResult doClean(final Database database, final SchemaHistory schemaHistory, final Schema defaultSchema, final Schema[] schemas, final CallbackExecutor<Event> callbackExecutor) {
         return new DbClean(database, schemaHistory, defaultSchema, schemas, callbackExecutor, configuration).clean();
     }
 
-    private ValidateResult doValidate(Database database, CompositeMigrationResolver migrationResolver, SchemaHistory schemaHistory,
-                                      Schema defaultSchema, Schema[] schemas, CallbackExecutor<Event> callbackExecutor, ValidatePattern[] ignorePatterns) {
-        ValidateResult validateResult = new DbValidate(database, schemaHistory, defaultSchema, migrationResolver, configuration, callbackExecutor, ignorePatterns).validate();
+    private ValidateResult doValidate(final Database database, final CompositeMigrationResolver migrationResolver, final SchemaHistory schemaHistory,
+                                      final Schema defaultSchema, final Schema[] schemas, final CallbackExecutor<Event> callbackExecutor, final ValidatePattern[] ignorePatterns) {
+        final ValidateResult validateResult = new DbValidate(database, schemaHistory, defaultSchema, migrationResolver, configuration, callbackExecutor, ignorePatterns).validate();
 
         if (configuration.isCleanOnValidationError()) {
             throw new FlywayException("cleanOnValidationError has been removed");
@@ -525,7 +526,7 @@ public class Flyway {
         return validateResult;
     }
 
-    private BaselineResult doBaseline(SchemaHistory schemaHistory, CallbackExecutor<Event> callbackExecutor, Database database) {
+    private BaselineResult doBaseline(final SchemaHistory schemaHistory, final CallbackExecutor<Event> callbackExecutor, final Database database) {
         return new DbBaseline(schemaHistory, configuration.getBaselineVersion(), configuration.getBaselineDescription(), callbackExecutor, database).baseline();
     }
 }

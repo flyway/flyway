@@ -51,7 +51,7 @@ FLYWAY_SQL_SERVER_KERBEROS_LOGIN_FILE=/path/to/SQLJDBCDriver.conf
 ### API
 
 ```java
-SQLServerConfigurationExtension sqlServerConfigurationExtension = configuration.getPluginRegister().getPlugin(SQLServerConfigurationExtension.class);
+SQLServerConfigurationExtension sqlServerConfigurationExtension = configuration.getConfigurationExtension(SQLServerConfigurationExtension.class);
 sqlServerConfigurationExtension.setKerberosLoginFile("/path/to/SQLJDBCDriver.conf");
 ```
 

@@ -50,6 +50,8 @@ public final class PreparationContext implements Plugin {
 
     private Collection<LoadableResourceMetadata> resources;
 
+    private Collection<LoadableResourceMetadata> callbackResources;
+
     private MigrationInfo[] migrations;
 
     private ParsingContext parsingContext;
@@ -67,14 +69,26 @@ public final class PreparationContext implements Plugin {
 
             final Future<Collection<LoadableResourceMetadata>> resourcesFuture = CompletableFuture.supplyAsync(() -> VerbUtils.scanForResources(
                 configuration,
-                parsingContext));
+                parsingContext,
+                configuration.getLocations()));
 
             resources = (Collection<LoadableResourceMetadata>) getFromFuture(resourcesFuture);
+
+            if (configuration.getCallbackLocations().length > 0) {
+                final Future<Collection<LoadableResourceMetadata>> callbackResourcesFuture = CompletableFuture.supplyAsync(() -> VerbUtils.scanForResources(
+                    configuration,
+                    parsingContext,
+                    configuration.getCallbackLocations()));
+
+                callbackResources = (Collection<LoadableResourceMetadata>) getFromFuture(callbackResourcesFuture);
+            } else {
+                callbackResources = resources;
+            }
 
             if (configuration.getInitSql() != null) {
                 throw new FlywayException("InitSql is not supported in Native Connectors. Please use the afterConnect callback instead");
             }
-            final CallbackManager callbackManager = new CallbackManager(configuration, resources);
+            final CallbackManager callbackManager = new CallbackManager(configuration, callbackResources);
             callbackManager.handleEvent(Event.AFTER_CONNECT, database, configuration, parsingContext);
 
             final CompletableFuture<SchemaHistoryModel> schemaHistoryModelFuture = CompletableFuture.supplyAsync(() -> VerbUtils.getSchemaHistoryModel(

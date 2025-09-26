@@ -48,7 +48,7 @@ FLYWAY_CLICKHOUSE_ZOOKEEPER_PATH=/clickhouse/tables/{shard}/{database}/{table}
 ### API
 
 ```java
-ClickHouseConfigurationExtension clickHouseConfigurationExtension = configuration.getPluginRegister().getPlugin(ClickHouseConfigurationExtension.class);
+ClickHouseConfigurationExtension clickHouseConfigurationExtension = configuration.getConfigurationExtension(ClickHouseConfigurationExtension.class);
 clickHouseConfigurationExtension.setZookeeperPath("/clickhouse/tables/{shard}/{database}/{table}");
 ```
 

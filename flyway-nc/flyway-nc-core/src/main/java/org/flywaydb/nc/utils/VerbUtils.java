@@ -31,6 +31,7 @@ import java.util.Optional;
 import lombok.CustomLog;
 import org.flywaydb.core.api.CoreMigrationType;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
@@ -62,10 +63,9 @@ public class VerbUtils {
     private static boolean databaseInfoPrinted;
 
     public static Collection<LoadableResourceMetadata> scanForResources(final Configuration configuration,
-        final ParsingContext parsingContext) {
+        final ParsingContext parsingContext, final Location[] locations) {
         final MigrationScannerManager scannerManager = new MigrationScannerManager(configuration);
-        final Collection<LoadableResourceMetadata> resources = scannerManager.scan(configuration, parsingContext);
-        return resources;
+        return scannerManager.scan(configuration, parsingContext, locations);
     }
 
     public static SchemaHistoryModel getSchemaHistoryModel(final Configuration configuration,

@@ -120,7 +120,7 @@ public class MigrateVerbExtension implements VerbExtension {
             }
         }
 
-        final CallbackManager callbackManager = new CallbackManager(configuration, context.getResources());
+        final CallbackManager callbackManager = new CallbackManager(configuration, context.getCallbackResources());
 
         database.createSchemaHistoryTableIfNotExists(configuration);
 

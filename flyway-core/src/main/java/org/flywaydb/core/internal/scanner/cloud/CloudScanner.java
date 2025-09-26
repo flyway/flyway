@@ -19,22 +19,21 @@
  */
 package org.flywaydb.core.internal.scanner.cloud;
 
-import org.flywaydb.core.api.Location;
-import org.flywaydb.core.api.resource.LoadableResource;
-
 import java.nio.charset.Charset;
 import java.util.Collection;
+import org.flywaydb.core.api.Location;
+import org.flywaydb.core.api.resource.LoadableResource;
 
 public abstract class CloudScanner {
     protected Charset encoding;
 
-    public CloudScanner(Charset encoding) {
+    protected CloudScanner(final Charset encoding) {
         this.encoding = encoding;
     }
 
     public abstract Collection<LoadableResource> scanForResources(final Location location);
 
-    protected String getPrefix(String bucketName, String path) {
+    protected String getPrefix(final String bucketName, final String path) {
         String relativePathToBucket = path.substring(bucketName.length());
         if (relativePathToBucket.startsWith("/")) {
             relativePathToBucket = relativePathToBucket.substring(1);
@@ -46,13 +45,13 @@ public abstract class CloudScanner {
     }
 
     protected String getBucketName(final Location location) {
-        int index = location.getPath().indexOf("/");
+        final int index = location.getRootPath().indexOf("/");
 
         if (index >= 0) {
-            return location.getPath().substring(0, location.getPath().indexOf("/"));
+            return location.getRootPath().substring(0, location.getRootPath().indexOf("/"));
         }
 
         // in top level of bucket
-        return location.getPath();
+        return location.getRootPath();
     }
 }

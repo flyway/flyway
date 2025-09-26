@@ -8,6 +8,65 @@
 </div>
 <div class="col-md-9">
   <div class="release">
+        <h2 id="11.13.2">Flyway 11.13.2 (2025-09-26)</h2>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>it is now possible to implement locations via plugins</li>
+        </ul>
+
+        <h3>Library upgrades</h3>
+        <ul>
+            <li>Upgraded RgCompare.Cli from 1.42.2.1345 to 1.43.0.1498</li>
+        </ul>
+
+  </div>
+
+  <div class="release">
+        <h2 id="11.13.1">Flyway 11.13.1 (2025-09-17)</h2>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Flyway now provides clearer error messages when attempting to load an unlicensed plugin</li>
+        </ul>
+
+  </div>
+
+  <div class="release">
+        <h2 id="11.13.0">Flyway 11.13.0 (2025-09-16)</h2>
+        <h3>Due to issues in the release process, this version has been skipped</h3>
+
+        <h3>New features</h3>
+        <ul>
+            <li>It is now possible to define `beforeDeploy`, `afterDeploy`, and `afterDeployError` callbacks in locations specified by the `callbackLocations` parameter. This allows logic to be executed before and after script execution for state-based deployments.</li>
+            <li>deploy command now supports errorOverrides, allowing for graceful handling of SQL Server PRINT statements</li>
+            <li>it is now possible to specify callback-specific locations using the `callbackLocations` parameter</li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>Couchbase foundational support is now in preview</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Exceptions using batch will now display the line number of the offending SQL causing the error</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>The `Callback` interface now extends a generic interface. The compile-time signature is unchanged.</li>
+        </ul>
+
+        <h3>Library upgrades</h3>
+        <ul>
+            <li>Upgraded RgCompare.Cli from 1.41.0.1246 to 1.42.2.1345</li>
+            <li>Bump netty-common-http to 4.1.125 to fix CVE-2025-58057</li>
+        </ul>
+
+  </div>
+
+  <div class="release">
         <h2 id="11.12.0">Flyway 11.12.0 (2025-09-04)</h2>
 
         <h3>New features</h3>

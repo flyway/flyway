@@ -57,7 +57,7 @@ FLYWAY_ORACLE_KERBEROS_CACHE_FILE=/temp/krb5cc_123
 ### API
 
 ```java
-OracleConfigurationExtension oracleConfigurationExtension = configuration.getPluginRegister().getPlugin(OracleConfigurationExtension.class);
+OracleConfigurationExtension oracleConfigurationExtension = configuration.getConfigurationExtension(OracleConfigurationExtension.class);
 oracleConfigurationExtension.setKerberosCacheFile("/temp/krb5cc_123");
 ```
 

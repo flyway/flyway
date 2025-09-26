@@ -19,6 +19,15 @@
  */
 package org.flywaydb.core;
 
+import static org.flywaydb.core.api.callback.Event.AFTER_CONNECT;
+import static org.flywaydb.core.api.callback.Event.CREATE_SCHEMA;
+import static org.flywaydb.core.internal.database.DatabaseTypeRegister.redactJdbcUrl;
+import static org.flywaydb.core.internal.util.DataUnits.MEGABYTE;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import lombok.CustomLog;
 import org.flywaydb.core.api.ClassProvider;
@@ -30,7 +39,11 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.extensibility.LicenseGuard;
 import org.flywaydb.core.extensibility.Tier;
-import org.flywaydb.core.internal.callback.*;
+import org.flywaydb.core.internal.callback.CallbackExecutor;
+import org.flywaydb.core.internal.callback.DefaultCallbackExecutor;
+import org.flywaydb.core.internal.callback.NoopCallback;
+import org.flywaydb.core.internal.callback.NoopCallbackExecutor;
+import org.flywaydb.core.internal.callback.SqlScriptCallbackFactory;
 
 import org.flywaydb.core.internal.clazz.NoopClassProvider;
 import org.flywaydb.core.internal.configuration.ConfigurationValidator;
@@ -47,8 +60,6 @@ import org.flywaydb.core.internal.resolver.script.ScriptMigrationResolver;
 import org.flywaydb.core.internal.resource.NoopResourceProvider;
 import org.flywaydb.core.internal.resource.ResourceNameValidator;
 import org.flywaydb.core.internal.resource.StringResource;
-import org.flywaydb.core.internal.scanner.LocationScannerCache;
-import org.flywaydb.core.internal.scanner.ResourceNameCache;
 import org.flywaydb.core.internal.scanner.Scanner;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.schemahistory.SchemaHistoryFactory;
@@ -59,16 +70,6 @@ import org.flywaydb.core.internal.strategy.RetryStrategy;
 import org.flywaydb.core.internal.util.FileUtils;
 import org.flywaydb.core.internal.util.IOUtils;
 import org.flywaydb.core.internal.util.Pair;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.flywaydb.core.api.callback.Event.AFTER_CONNECT;
-import static org.flywaydb.core.api.callback.Event.CREATE_SCHEMA;
-import static org.flywaydb.core.internal.database.DatabaseTypeRegister.redactJdbcUrl;
-import static org.flywaydb.core.internal.util.DataUnits.MEGABYTE;
 
 @CustomLog
 public class FlywayExecutor {
@@ -90,14 +91,7 @@ public class FlywayExecutor {
      * Designed so we can fail fast if the SQL file resources are invalid
      */
     private final ResourceNameValidator resourceNameValidator;
-    /**
-     * Used to cache resource names for classpath scanning between commands
-     */
-    private final ResourceNameCache resourceNameCache;
-    /**
-     * Used to cache LocationScanners between commands
-     */
-    private final LocationScannerCache locationScannerCache;
+
     /**
      * Whether the database connection info has already been printed in the logs
      */
@@ -107,8 +101,6 @@ public class FlywayExecutor {
     public FlywayExecutor(final Configuration configuration) {
         this.configurationValidator = new ConfigurationValidator();
         this.resourceNameValidator = new ResourceNameValidator();
-        this.resourceNameCache = new ResourceNameCache();
-        this.locationScannerCache = new LocationScannerCache();
         this.configuration = configuration;
     }
 
@@ -304,7 +296,7 @@ public class FlywayExecutor {
     }
 
     private Scanner<JavaMigration> createScanner(final Location[] locations) {
-        return new Scanner<>(JavaMigration.class, resourceNameCache, locationScannerCache, configuration, locations);
+        return new Scanner<>(JavaMigration.class, configuration, locations);
     }
 
     private List<GenericCallback<Event>> prepareCallbacks(final Database database,
@@ -324,10 +316,14 @@ public class FlywayExecutor {
 
         effectiveCallbacks.addAll(Arrays.asList(configuration.getCallbacks()));
 
-        final ErrorOverrideInitializer errorOverride = configuration.getPluginRegister().getInstanceOf(ErrorOverrideInitializer.class);
+        final ErrorOverrideInitializer errorOverride = configuration.getPluginRegister()
+            .getInstanceOf(ErrorOverrideInitializer.class);
         if (configuration.getErrorOverrides().length > 0) {
             errorOverride.setCallback(configuration.getErrorOverrides());
-            callbackExecutor = errorOverride.getCallbackExecutor(configuration, database, schema, flywayTelemetryManager);
+            callbackExecutor = errorOverride.getCallbackExecutor(configuration,
+                database,
+                schema,
+                flywayTelemetryManager);
         }
 
         LOG.debug("Scanning for script callbacks ...");

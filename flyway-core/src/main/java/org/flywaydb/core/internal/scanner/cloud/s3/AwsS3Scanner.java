@@ -19,6 +19,11 @@
  */
 package org.flywaydb.core.internal.scanner.cloud.s3;
 
+import java.nio.charset.Charset;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.TreeSet;
 import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
@@ -32,9 +37,6 @@ import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
-import java.nio.charset.Charset;
-import java.util.*;
-
 @CustomLog
 public class AwsS3Scanner extends CloudScanner {
     private final boolean throwOnMissingLocations;
@@ -42,35 +44,41 @@ public class AwsS3Scanner extends CloudScanner {
     /**
      * Creates a new AWS S3 scanner.
      *
-     * @param encoding The encoding to use.
+     * @param encoding                The encoding to use.
      * @param throwOnMissingLocations whether to throw on missing locations.
      */
-    public AwsS3Scanner(Charset encoding, boolean throwOnMissingLocations) {
+    public AwsS3Scanner(final Charset encoding, final boolean throwOnMissingLocations) {
         super(encoding);
         this.throwOnMissingLocations = throwOnMissingLocations;
     }
 
     /**
-     * Scans S3 for the resources. In AWS SDK v2, only the region that the client is configured with can be used.
-     * The format of the path is expected to be {@code s3:{bucketName}/{optional prefix}}.
+     * Scans S3 for the resources. In AWS SDK v2, only the region that the client is configured with can be used. The
+     * format of the path is expected to be {@code s3:{bucketName}/{optional prefix}}.
      *
      * @param location The location in S3 to start searching. Subdirectories are also searched.
      * @return The resources that were found.
      */
     @Override
     public Collection<LoadableResource> scanForResources(final Location location) {
-        String bucketName = getBucketName(location);
-        String prefix = getPrefix(bucketName, location.getPath());
-        S3Client s3Client = S3ClientFactory.getClient();
+        final String bucketName = getBucketName(location);
+        final String prefix = getPrefix(bucketName, location.getRootPath());
+        final S3Client s3Client = S3ClientFactory.getClient();
         try {
-            ListObjectsV2Request.Builder builder = ListObjectsV2Request.builder().bucket(bucketName).prefix(prefix);
-            ListObjectsV2Request request = builder.build();
-            ListObjectsV2Response listObjectResult = s3Client.listObjectsV2(request);
+            final ListObjectsV2Request.Builder builder = ListObjectsV2Request.builder()
+                .bucket(bucketName)
+                .prefix(prefix);
+            final ListObjectsV2Request request = builder.build();
+            final ListObjectsV2Response listObjectResult = s3Client.listObjectsV2(request);
             return getLoadableResources(bucketName, listObjectResult);
-        } catch (SdkClientException e) {
+        } catch (final SdkClientException e) {
 
             if (throwOnMissingLocations) {
-                throw new FlywayException("Could not access s3 location:" + bucketName + prefix + " due to error: " + e.getMessage());
+                throw new FlywayException("Could not access s3 location:"
+                    + bucketName
+                    + prefix
+                    + " due to error: "
+                    + e.getMessage());
             }
 
             LOG.error("Skipping s3 location:" + bucketName + prefix + " due to error: " + e.getMessage());
@@ -78,11 +86,12 @@ public class AwsS3Scanner extends CloudScanner {
         }
     }
 
-    private Collection<LoadableResource> getLoadableResources(String bucketName, final ListObjectsV2Response listObjectResult) {
-        List<S3Object> objectSummaries = listObjectResult.contents();
-        Set<LoadableResource> resources = new TreeSet<>();
-        for (S3Object objectSummary : objectSummaries) {
-            LOG.debug("Found Amazon S3 resource: " + bucketName.concat("/").concat(objectSummary.key()));
+    private Collection<LoadableResource> getLoadableResources(final String bucketName,
+        final ListObjectsV2Response listObjectResult) {
+        final List<S3Object> objectSummaries = listObjectResult.contents();
+        final Collection<LoadableResource> resources = new TreeSet<>();
+        for (final S3Object objectSummary : objectSummaries) {
+            LOG.debug("Found Amazon S3 resource: " + (bucketName + "/") + objectSummary.key());
             resources.add(new AwsS3Resource(bucketName, objectSummary, encoding));
         }
         return resources;

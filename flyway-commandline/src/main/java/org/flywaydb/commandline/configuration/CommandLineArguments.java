@@ -20,8 +20,9 @@
 package org.flywaydb.commandline.configuration;
 
 import java.io.File;
+import java.lang.reflect.Modifier;
+import java.util.stream.Stream;
 import lombok.CustomLog;
-import java.lang.reflect.Field;
 import lombok.RequiredArgsConstructor;
 import org.flywaydb.commandline.logging.console.ConsoleLog.Level;
 import org.flywaydb.core.api.FlywayException;
@@ -78,9 +79,19 @@ public class CommandLineArguments {
 
     static Collection<String>  getParametersByNamespace(final String namespace) {
       return (new ClassicConfiguration()).getPluginRegister().getInstancesOf(ConfigurationExtension.class).stream()
-          .filter(p -> p.getNamespace().equalsIgnoreCase(namespace)).flatMap(configurationExtension -> Arrays.stream(
-          configurationExtension.getClass().getDeclaredFields()).map(Field::getName).toList().stream()).collect(
-          Collectors.toCollection(ArrayList::new));
+          .filter(p -> p.getNamespace().equalsIgnoreCase(namespace)).flatMap(ext ->
+                  Arrays.stream(ext.getClass().getDeclaredFields())
+                      .filter(field -> !(Modifier.isStatic(field.getModifiers())))
+                      .flatMap(
+                          f -> {
+                              if (shouldNotExpand(f.getType())) {
+                                  return Stream.of(f.getName());
+                              } else {
+                                  return Arrays.stream(f.getType().getDeclaredFields())
+                                      .filter(subfield -> !(Modifier.isStatic(subfield.getModifiers())))
+                                      .map(subfield -> f.getName() + "." + subfield.getName());
+                              }
+                          })).collect(Collectors.toList());
     }
 
     public enum PrintUsage {
@@ -92,6 +103,11 @@ public class CommandLineArguments {
     public CommandLineArguments(PluginRegister pluginRegister, String... args) {
         this.pluginRegister = pluginRegister;
         this.args = Arrays.stream(args).filter(StringUtils::hasText).toArray(String[]::new);
+    }
+
+    private static boolean shouldNotExpand(Class<?> c) {
+        String pn = c.getPackageName();
+        return c.isEnum() || pn.startsWith("java.") || pn.startsWith("javax.") || pn.startsWith("jdk.");
     }
 
     private static List<String> getValidOperationsAndFlags() {
@@ -159,11 +175,16 @@ public class CommandLineArguments {
         final String[] processedArgs = new String[args.length];
         for (int i = 0; i < args.length; i++) {
             final String arg = args[i];
+            processedArgs[i] = arg;
+
             if (!arg.startsWith("-")) {
                 //it's a verb, lets set the namespace to this.
                 validNamespace = arg;
-                processedArgs[i] = arg;
             } else {
+                if (validNamespace.isEmpty()) {
+                    continue;
+                }
+
                 if (arg.contains("=")) {
                     //it's a param, lets scope it.
                     final String paramName = arg.substring(1, arg.contains("=") ? arg.indexOf("=") : arg.length());
@@ -174,17 +195,20 @@ public class CommandLineArguments {
                         break;
                     } else {
                         final var paramsInNamespace = getParametersByNamespace(validNamespace);
-                        if (paramsInNamespace != null && paramsInNamespace.contains(paramName)) {
-                            final String replacedParamName = "-" + (validNamespace.isEmpty() ? "" : validNamespace + "." ) + paramName;
+                        if (paramsInNamespace.contains(paramName)) {
+                            final String replacedParamName = "-" + validNamespace + "." + paramName;
                             processedArgs[i] = replacedParamName + "=" + paramValue;
                         } else {
-                            //the namespace doesn't have a field for this param, so lets just process it as normal.
-                            processedArgs[i] = arg;
+                            String pre_arg = args[i - 1];
+                            if (pre_arg.startsWith("-") && !pre_arg.contains("=")) {
+                                pre_arg = pre_arg.substring(1);
+                                if (paramsInNamespace.contains(pre_arg + "." + paramName)) {
+                                    final String replacedParamName = "-" + validNamespace + "." + pre_arg + "." + paramName;
+                                    processedArgs[i] = replacedParamName + "=" + paramValue;
+                                }
+                            }
                         }
                     }
-                } else {
-                    //this is a flag - currently excluding flags from scoping
-                    processedArgs[i] = arg;
                 }
             }
         }

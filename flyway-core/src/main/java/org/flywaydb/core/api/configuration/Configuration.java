@@ -25,6 +25,7 @@ import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.extensibility.ConfigurationExtension;
 import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
 import org.flywaydb.core.internal.configuration.models.DataSourceModel;
 import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
@@ -54,6 +55,14 @@ public interface Configuration {
      * @apiNote Currently under development and not recommended for use.
      */
     PluginRegister getPluginRegister();
+
+    /**
+     * Retrieves a configuration extension.
+     *
+     * @param extensionClass the extension class
+     * @return configuration extension
+     */
+    <T extends ConfigurationExtension> T getConfigurationExtension(Class<T> extensionClass);
 
     /**
      * Get the filename of generated reports

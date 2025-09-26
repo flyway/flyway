@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.api.FlywayException;
@@ -168,7 +169,11 @@ public class DefaultCallbackExecutor<E extends CallbackEvent<E>> implements Call
     }
 
     private void handleEvent(final GenericCallback<? super E> callback, final E event, final Context context) {
-        try (final EventTelemetryModel telemetryModel = new EventTelemetryModel(event.getId(),
+        final String callbackType = Optional.ofNullable(callback.getClass().getCanonicalName())
+            .map(x -> x.startsWith("org.flywaydb"))
+            .orElse(false) ? callback.getClass().getSimpleName() : "(custom callback class)";
+        try (final EventTelemetryModel ignored = new CallbackTelemetryModel(event.getId(),
+            callbackType,
             flywayTelemetryManager)) {
             callback.handle(event, context);
         } catch (final FlywayBlockStatementExecutionException e) {

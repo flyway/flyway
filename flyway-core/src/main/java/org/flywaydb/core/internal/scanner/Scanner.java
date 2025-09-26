@@ -19,29 +19,20 @@
  */
 package org.flywaydb.core.internal.scanner;
 
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Locale;
 import lombok.CustomLog;
 import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResource;
-import org.flywaydb.core.extensibility.LicenseGuard;
-import org.flywaydb.core.extensibility.Tier;
-import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
-import org.flywaydb.core.internal.scanner.classpath.ClassPathScanner;
-import org.flywaydb.core.internal.scanner.classpath.ResourceAndClassScanner;
-import org.flywaydb.core.internal.scanner.cloud.s3.AwsS3Scanner;
-import org.flywaydb.core.internal.scanner.filesystem.FileSystemScanner;
-import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.StringUtils;
-
-
-
-
-
-import java.nio.charset.Charset;
-import java.nio.file.Paths;
-import java.util.*;
 
 /**
  * Scanner for Resources and Classes.
@@ -56,54 +47,32 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
     private final HashMap<String, LoadableResource> relativeResourceMap = new HashMap<>();
     private HashMap<String, LoadableResource> absoluteResourceMap;
 
-    public Scanner(
-            final Class<I> implementedInterface,
-            final ResourceNameCache resourceNameCache,
-            final LocationScannerCache locationScannerCache,
-            final Configuration configuration,
-            final Location[] locations) {
-
-        final Charset encoding = configuration.getEncoding();
-        final boolean throwOnMissingLocations = configuration.isFailOnMissingLocations();
-        final ClassLoader classLoader = configuration.getClassLoader();
-
-        boolean stream = configuration.isStream();
-        final FileSystemScanner fileSystemScanner = new FileSystemScanner(stream, configuration);
-
-        final FeatureDetector detector = new FeatureDetector(classLoader);
-        for (final Location location : locations) {
-            if (location.isFileSystem()) {
-                resources.addAll(fileSystemScanner.scanForResources(location));
-            } else if (location.isGCS()) {
-
-                 throw new FlywayEditionUpgradeRequiredException(LicenseGuard.getTier(configuration), "Google Cloud Storage");
-
-
-
-
-
-
-
-
-
-
-            } else if (location.isAwsS3()) {
-                if (detector.isAwsAvailable()) {
-                    final Collection<LoadableResource> awsResources = new AwsS3Scanner(encoding, throwOnMissingLocations).scanForResources(location);
-                    resources.addAll(awsResources);
-                } else {
-                    LOG.error("Can't read location " + location + "; AWS SDK not found");
-                }
-            } else {
-                final ResourceAndClassScanner<I> resourceAndClassScanner = new ClassPathScanner<>(implementedInterface, classLoader, encoding, location, resourceNameCache, locationScannerCache, throwOnMissingLocations, stream);
-                resources.addAll(resourceAndClassScanner.scanForResources());
-                classes.addAll(resourceAndClassScanner.scanForClasses());
-            }
-        }
+    public Scanner(final Class<? extends I> implementedInterface,
+        final Configuration configuration,
+        final Location[] locations) {
+        final Collection<ReadOnlyLocationHandler> locationHandlers = configuration.getPluginRegister()
+            .getInstancesOf(ReadOnlyLocationHandler.class);
+        Arrays.stream(locations)
+            .forEach(location -> locationHandlers.stream()
+                .filter(x -> x.canHandleLocation(location))
+                .findFirst()
+                .ifPresent(readOnlyLocationHandler -> resources.addAll(readOnlyLocationHandler.scanForResources(location,
+                    configuration))));
 
         for (final LoadableResource resource : resources) {
             relativeResourceMap.put(resource.getRelativePath().toLowerCase(Locale.ROOT), resource);
         }
+
+        final Collection<ClasspathLocationHandler> classpathLocationHandlers = configuration.getPluginRegister()
+            .getInstancesOf(ClasspathLocationHandler.class);
+        Arrays.stream(locations)
+            .forEach(location -> classpathLocationHandlers.stream()
+                .filter(x -> x.canHandleLocation(location))
+                .findFirst()
+                .ifPresent(classpathLocationHandler -> classes.addAll(classpathLocationHandler.scanForClasses(
+                    implementedInterface,
+                    location,
+                    configuration))));
     }
 
     @Override
@@ -127,9 +96,7 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
 
             loadedResource = absoluteResourceMap.get(name.toLowerCase(Locale.ROOT));
 
-            if (loadedResource != null) {
-                return loadedResource;
-            }
+            return loadedResource;
         }
 
         return null;
@@ -138,7 +105,7 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
     /**
      * Returns all known resources starting with the specified prefix and ending with any of the specified suffixes.
      *
-     * @param prefix The prefix of the resource names to match.
+     * @param prefix   The prefix of the resource names to match.
      * @param suffixes The suffixes of the resource names to match.
      * @return The resources that were found.
      */

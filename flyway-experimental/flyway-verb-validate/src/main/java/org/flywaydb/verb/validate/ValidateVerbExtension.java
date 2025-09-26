@@ -61,7 +61,7 @@ public class ValidateVerbExtension extends CachingVerbExtension {
 
         final NativeConnectorsDatabase database = context.getDatabase();
 
-        final CallbackManager callbackManager = new CallbackManager(configuration, context.getResources());
+        final CallbackManager callbackManager = new CallbackManager(configuration, context.getCallbackResources());
 
         callbackManager.handleEvent(Event.BEFORE_VALIDATE, database, configuration, context.getParsingContext());
 
