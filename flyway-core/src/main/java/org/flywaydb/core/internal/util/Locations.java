@@ -20,12 +20,17 @@
 package org.flywaydb.core.internal.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import lombok.CustomLog;
 import lombok.Getter;
+import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
+import org.flywaydb.core.internal.scanner.LocationParser;
+import org.flywaydb.core.internal.scanner.ReadOnlyLocationHandler;
 
 /**
  * Encapsulation of a location list.
@@ -39,11 +44,7 @@ public class Locations {
      * @param rawLocations The raw locations to process.
      */
     public Locations(final String... rawLocations) {
-        final List<Location> normalizedLocations = new ArrayList<>();
-        for (final String rawLocation : rawLocations) {
-            normalizedLocations.add(new Location(rawLocation));
-        }
-        processLocations(normalizedLocations);
+        processLocations(Arrays.stream(rawLocations).map(LocationParser::parseLocation).toList());
     }
 
     /**
@@ -54,6 +55,10 @@ public class Locations {
     }
 
     private void processLocations(final List<Location> rawLocations) {
+        final Collection<ReadOnlyLocationHandler> locationHandlers = Flyway.configure()
+            .getPluginRegister()
+            .getInstancesOf(ReadOnlyLocationHandler.class);
+
         final List<Location> sortedLocations = new ArrayList<>(rawLocations);
         Collections.sort(sortedLocations);
 
@@ -63,7 +68,7 @@ public class Locations {
                 continue;
             }
 
-            final Location parentLocation = getParentLocationIfExists(normalizedLocation, locations);
+            final Location parentLocation = getParentLocationIfExists(locationHandlers, normalizedLocation, locations);
             if (parentLocation != null) {
                 LOG.warn("Discarding location '"
                     + normalizedLocation
@@ -84,7 +89,26 @@ public class Locations {
      * @param finalLocations The list to search.
      * @return The parent location. {@code null} if none.
      */
-    private Location getParentLocationIfExists(final Location location, final Collection<Location> finalLocations) {
-        return finalLocations.stream().filter(fl -> fl.isParentOf(location)).findFirst().orElse(null);
+    private Location getParentLocationIfExists(final Collection<? extends ReadOnlyLocationHandler> locationHandlers,
+        final Location location,
+        final Collection<Location> finalLocations) {
+        return finalLocations.stream().filter(fl -> {
+            final ReadOnlyLocationHandler locationHandler = locationHandlers.stream()
+                .filter(x -> x.canHandleLocation(fl))
+                .findFirst()
+                .orElseThrow(() -> new FlywayException("Unknown prefix for location: " + fl.getPrefix()));
+            return isParent(locationHandler, fl, location);
+        }).findFirst().orElse(null);
+    }
+
+    private boolean isParent(final ReadOnlyLocationHandler locationHandler,
+        final Location potentialParent,
+        final Location location) {
+        if (potentialParent.getPathRegex() != null || location.getPathRegex() != null) {
+            return false;
+        }
+
+        final var pathSeparator = locationHandler.getPathSeparator();
+        return (location.getDescriptor() + pathSeparator).startsWith(potentialParent.getDescriptor() + pathSeparator);
     }
 }

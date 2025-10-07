@@ -90,6 +90,8 @@ public class Main {
     private static boolean hasPrintedLicense;
 
     public static void main(String[] args) throws Exception {
+        final long appStart = System.currentTimeMillis();
+        final long jvmStart = java.lang.management.ManagementFactory.getRuntimeMXBean().getStartTime();
         int exitCode = 0;
         JavaVersionPrinter.printJavaVersion();
 
@@ -113,7 +115,7 @@ public class Main {
                         terminate(0, flywayTelemetryHandle);
                         return;
                     }
-
+                    LOG.debug("JVM startup time: " + (appStart - jvmStart) + "ms");
                     configuration = new ConfigurationManagerImpl().getConfiguration(commandLineArguments);
                     flywayTelemetryManager.notifyPermitChanged(LicenseGuard.getPermit(configuration));
                     flywayTelemetryManager.notifyRootConfigChanged(configuration);
@@ -456,7 +458,7 @@ public class Main {
         LOG.info("");
 
         if (fullVersion) {
-            LOG.info("By default, the configuration will be read from conf/flyway.conf.");
+            LOG.info("By default, the configuration will be read from conf/flyway.toml file.");
             LOG.info("Options passed from the command-line override the configuration.");
             LOG.info("");
         }

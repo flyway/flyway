@@ -41,6 +41,7 @@ import org.flywaydb.core.internal.resource.ResourceName;
 import org.flywaydb.core.internal.resource.ResourceNameParser;
 import org.flywaydb.core.internal.resource.filesystem.FileSystemResource;
 import org.flywaydb.core.internal.scanner.filesystem.DirectoryValidationResult;
+import org.flywaydb.core.internal.scanner.filesystem.FilesystemLocationHandler;
 import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
 import org.flywaydb.core.internal.util.Pair;
 
@@ -52,11 +53,12 @@ public abstract class BaseSqlMigrationScanner implements NativeConnectorsMigrati
         final Configuration configuration,
         final ParsingContext parsingContext) {
         final DirectoryValidationResult validationResult = getDirectoryValidationResult(dir);
-        final String fileOrClasspath = location.isFileSystem() ? "filesystem" : "classpath";
+        final String locationType = location.getPrefix().substring(0, location.getPrefix().length() - 1);
+        final var isFilesystem = FilesystemLocationHandler.FILESYSTEM_PREFIX.equals(location.getPrefix());
         if (validationResult != DirectoryValidationResult.VALID) {
             if (configuration.isFailOnMissingLocations()) {
                 throw new FlywayException("Failed to find "
-                    + fileOrClasspath
+                    + locationType
                     + " location: "
                     + location.getRootPath()
                     + " ("
@@ -64,14 +66,14 @@ public abstract class BaseSqlMigrationScanner implements NativeConnectorsMigrati
                     + ")");
             }
 
-            String message = "Skipping "
-                + fileOrClasspath
+            final String message = "Skipping "
+                + locationType
                 + " location: "
                 + location.getRootPath()
                 + " ("
                 + validationResult
                 + ")";
-            if (location.isFileSystem()) {
+            if (isFilesystem) {
                 LOG.error(message);
             } else {
                 LOG.debug(message);
@@ -85,7 +87,7 @@ public abstract class BaseSqlMigrationScanner implements NativeConnectorsMigrati
             configuration.isFailOnMissingLocations(),
             configuration.isValidateMigrationNaming(),
             new ResourceNameParser(configuration),
-            location.isFileSystem(),
+            isFilesystem,
             configuration.getSqlMigrationSuffixes());
         return resourceNames.stream()
             .filter(path -> matchesPath(path, location))
@@ -111,8 +113,11 @@ public abstract class BaseSqlMigrationScanner implements NativeConnectorsMigrati
                 encodingBlurb = " (with overriding encoding " + encoding + ")";
             }
         }
-        final String fileOrClasspath = location.isFileSystem() ? "filesystem" : "classpath";
-        LOG.debug("Found " + fileOrClasspath + " resource: " + resourceName + encodingBlurb);
+        LOG.debug("Found "
+            + location.getPrefix().substring(0, location.getPrefix().length() - 1)
+            + " resource: "
+            + resourceName
+            + encodingBlurb);
 
         final FileSystemResource fileSystemResource = new FileSystemResource(location,
             resourceName,
@@ -179,7 +184,7 @@ public abstract class BaseSqlMigrationScanner implements NativeConnectorsMigrati
                     + ")");
             }
 
-            String message = "Skipping "
+            final String message = "Skipping "
                 + fileOrClasspath
                 + " location: "
                 + path

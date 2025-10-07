@@ -271,7 +271,7 @@ public class ModernConfigurationManager implements ConfigurationManager {
             .toArray(String[]::new)).getLocations().toArray(Location[]::new);
         if (ConfigUtils.shouldUseDefaultCliSqlLocation(sqlFolder,
             !Arrays.equals(cfg.getLocations(), defaultLocations))) {
-            cfg.setLocations(new Location("filesystem:" + sqlFolder.getAbsolutePath()));
+            cfg.setLocations(Location.fromPath("filesystem:", sqlFolder.getAbsolutePath()));
         }
     }
 

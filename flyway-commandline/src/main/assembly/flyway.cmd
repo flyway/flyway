@@ -1,4 +1,3 @@
-
 @Echo off
 
 setlocal
@@ -6,15 +5,19 @@ setlocal
 @REM Set the current directory to the installation directory
 set INSTALLDIR=%~dp0
 
-if exist "%INSTALLDIR%\jre\bin\java.exe" (
- set JAVA_CMD="%INSTALLDIR%\jre\bin\java.exe"
+if not "%FLYWAY_JAVA_CMD%"=="" (
+  set JAVA_CMD=%FLYWAY_JAVA_CMD%
 ) else (
- @REM Use JAVA_HOME if it is set
- if "%JAVA_HOME%"=="" (
-  set JAVA_CMD=java
- ) else (
-  set JAVA_CMD="%JAVA_HOME%\bin\java.exe"
- )
+  if exist "%INSTALLDIR%\jre\bin\java.exe" (
+    set JAVA_CMD="%INSTALLDIR%\jre\bin\java.exe"
+  ) else (
+    @REM Use JAVA_HOME if it is set
+    if "%JAVA_HOME%"=="" (
+      set JAVA_CMD=java
+    ) else (
+      set JAVA_CMD="%JAVA_HOME%\bin\java.exe"
+    )
+  )
 )
 
 if "%JAVA_ARGS%"=="" (

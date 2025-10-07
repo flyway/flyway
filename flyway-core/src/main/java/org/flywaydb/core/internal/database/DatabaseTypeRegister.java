@@ -23,6 +23,7 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -48,12 +49,13 @@ public class DatabaseTypeRegister {
     }
 
     public static DatabaseType getDatabaseTypeForUrl(final String url, final Configuration configuration) {
-        final List<DatabaseType> typesAcceptingUrl = getDatabaseTypesForUrl(url, configuration);
+        final ArrayList<DatabaseType> typesAcceptingUrl = new ArrayList<>(getDatabaseTypesForUrl(url, configuration));
 
         if (typesAcceptingUrl.isEmpty()) {
             throw new FlywayException("No Flyway database plugin found to handle " + redactJdbcUrl(url, typesAcceptingUrl)
                 + ". See " + FlywayDbWebsiteLinks.DATABASE_TROUBLESHOOTING + " for troubleshooting");
         } else {
+            typesAcceptingUrl.sort(Comparator.comparing(DatabaseType::getPriority));
             return typesAcceptingUrl.get(0);
         }
     }

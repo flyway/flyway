@@ -41,7 +41,7 @@ public class ClasspathClassScanner {
         final ResourceAndClassScanner<?> s = new ClassPathScanner<>(classType,
             classLoader,
             Charset.defaultCharset(),
-            new Location("classpath:" + location),
+            LocationParser.parseLocation("classpath:" + location),
             resourceNameCache,
             locationScannerCache,
             errorOnNotFound,

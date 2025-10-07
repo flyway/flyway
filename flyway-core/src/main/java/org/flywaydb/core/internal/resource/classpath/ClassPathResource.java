@@ -19,22 +19,24 @@
  */
 package org.flywaydb.core.internal.resource.classpath;
 
-import lombok.CustomLog;
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.Location;
-import org.flywaydb.core.api.resource.LoadableResource;
-import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
-import org.flywaydb.core.internal.util.UrlUtils;
-
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.Objects;
-
+import lombok.CustomLog;
+import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.Location;
+import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.filesystem.EncodingDetector;
 import org.flywaydb.core.internal.resource.filesystem.FlywayEncodingDetectionException;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
+import org.flywaydb.core.internal.util.UrlUtils;
 
 @CustomLog
 public class ClassPathResource extends LoadableResource {
@@ -47,20 +49,33 @@ public class ClassPathResource extends LoadableResource {
 
     private final boolean stream;
 
-    public ClassPathResource(Location location, String fileNameWithAbsolutePath, ClassLoader classLoader,
-                             Charset encoding) {
+    public ClassPathResource(final Location location,
+        final String fileNameWithAbsolutePath,
+        final ClassLoader classLoader,
+        final Charset encoding) {
         this(location, fileNameWithAbsolutePath, classLoader, encoding, false, "", false);
     }
 
-    public ClassPathResource(Location location, String fileNameWithAbsolutePath, ClassLoader classLoader,
-                             Charset encoding, String parentURL, boolean stream) {
+    public ClassPathResource(final Location location,
+        final String fileNameWithAbsolutePath,
+        final ClassLoader classLoader,
+        final Charset encoding,
+        final String parentURL,
+        final boolean stream) {
         this(location, fileNameWithAbsolutePath, classLoader, encoding, false, parentURL, stream);
     }
 
-    public ClassPathResource(Location location, String fileNameWithAbsolutePath, ClassLoader classLoader,
-                             Charset encoding, Boolean detectEncoding, String parentURL, boolean stream) {
+    public ClassPathResource(final Location location,
+        final String fileNameWithAbsolutePath,
+        final ClassLoader classLoader,
+        final Charset encoding,
+        final Boolean detectEncoding,
+        final String parentURL,
+        final boolean stream) {
         this.fileNameWithAbsolutePath = fileNameWithAbsolutePath;
-        this.fileNameWithRelativePath = location == null ? fileNameWithAbsolutePath : location.getPathRelativeToThis(fileNameWithAbsolutePath);
+        this.fileNameWithRelativePath = location == null
+            ? fileNameWithAbsolutePath
+            : location.getPathRelativeToThis(fileNameWithAbsolutePath);
         this.classLoader = classLoader;
         this.encoding = encoding;
         this.detectEncoding = detectEncoding;
@@ -80,7 +95,7 @@ public class ClassPathResource extends LoadableResource {
 
     @Override
     public String getAbsolutePathOnDisk() {
-        URL url = getUrl();
+        final URL url = getUrl();
         if (url == null) {
             throw new FlywayException("Unable to find resource on disk: " + fileNameWithAbsolutePath);
         }
@@ -89,14 +104,14 @@ public class ClassPathResource extends LoadableResource {
 
     private URL getUrl() {
         try {
-            Enumeration<URL> urls = classLoader.getResources(fileNameWithAbsolutePath);
+            final Enumeration<URL> urls = classLoader.getResources(fileNameWithAbsolutePath);
             while (urls.hasMoreElements()) {
-                URL url = urls.nextElement();
+                final URL url = urls.nextElement();
                 if (url.getPath() != null && url.getPath().contains(parentURL)) {
                     return url;
                 }
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new FlywayException(e);
         }
 
@@ -107,15 +122,15 @@ public class ClassPathResource extends LoadableResource {
     public Reader read() {
         InputStream inputStream = null;
         try {
-            Enumeration<URL> urls = classLoader.getResources(fileNameWithAbsolutePath);
+            final Enumeration<URL> urls = classLoader.getResources(fileNameWithAbsolutePath);
             while (urls.hasMoreElements()) {
-                URL url = urls.nextElement();
+                final URL url = urls.nextElement();
                 if (url.getPath() != null && url.getPath().contains(parentURL)) {
                     inputStream = url.openStream();
                     break;
                 }
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new FlywayException(e);
         }
 
@@ -127,9 +142,12 @@ public class ClassPathResource extends LoadableResource {
         if (detectEncoding) {
             try {
                 charset = EncodingDetector.detectFileEncoding(Paths.get(fileNameWithAbsolutePath));
-            } catch (FlywayEncodingDetectionException e) {
-                LOG.warn("Could not detect file encoding: " + e.getMessage() + "\nThis may cause issues with your deployments." +
-                                 " We recommend using a consistent and supported encoding for all your files. See " + FlywayDbWebsiteLinks.FILE_ENCODING_HELP);
+            } catch (final FlywayEncodingDetectionException e) {
+                LOG.warn("Could not detect file encoding: "
+                    + e.getMessage()
+                    + "\nThis may cause issues with your deployments."
+                    + " We recommend using a consistent and supported encoding for all your files. See "
+                    + FlywayDbWebsiteLinks.FILE_ENCODING_HELP);
             }
         }
 
@@ -146,7 +164,7 @@ public class ClassPathResource extends LoadableResource {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }
@@ -154,7 +172,7 @@ public class ClassPathResource extends LoadableResource {
             return false;
         }
 
-        ClassPathResource that = (ClassPathResource) o;
+        final ClassPathResource that = (ClassPathResource) o;
 
         return fileNameWithAbsolutePath.equals(that.fileNameWithAbsolutePath) && parentURL.equals(that.parentURL);
     }
@@ -168,5 +186,4 @@ public class ClassPathResource extends LoadableResource {
     public boolean shouldStream() {
         return stream;
     }
-
 }

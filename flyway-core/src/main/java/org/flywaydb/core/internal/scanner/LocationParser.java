@@ -20,26 +20,35 @@
 package org.flywaydb.core.internal.scanner;
 
 import static org.flywaydb.core.internal.scanner.ClasspathLocationHandler.CLASSPATH_PREFIX;
+import static org.flywaydb.core.internal.scanner.filesystem.FilesystemLocationHandler.FILESYSTEM_PREFIX;
 
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
+import org.flywaydb.core.internal.util.Pair;
 
 public class LocationParser {
+
+    private static final String LOCATION_SEPARATOR = ":";
+    private static final Pattern FILE_PATH_WITH_DRIVE_PATTERN = Pattern.compile("^[A-Za-z]:[\\\\/].*");
+    private static final Pattern FILE_URL_PATTERN = Pattern.compile("^file:[\\\\/]{3}.*");
+
+    public static FileLocation parseFileLocation(final String descriptor) {
+        final String normalizedDescriptor = descriptor.trim();
+        final Pair<String, String> parsedDescriptor = parseDescriptor(normalizedDescriptor, FILESYSTEM_PREFIX);
+        final String prefix = parsedDescriptor.getLeft();
+        final String path = parsedDescriptor.getRight();
+
+        return new FileLocation(prefix, path);
+    }
+
     public static Location parseLocation(final String descriptor) {
         final String normalizedDescriptor = descriptor.trim();
-
-        final String prefix;
-        final String rawPath;
-        if (normalizedDescriptor.contains(":")) {
-            prefix = normalizedDescriptor.substring(0, normalizedDescriptor.indexOf(":") + 1);
-            rawPath = normalizedDescriptor.substring(normalizedDescriptor.indexOf(":") + 1);
-        } else {
-            prefix = CLASSPATH_PREFIX;
-            rawPath = normalizedDescriptor;
-        }
+        final Pair<String, String> parsedDescriptor = parseDescriptor(normalizedDescriptor, CLASSPATH_PREFIX);
+        final String prefix = parsedDescriptor.getLeft();
+        final String rawPath = parsedDescriptor.getRight();
 
         final ReadOnlyLocationHandler locationHandler = Flyway.configure()
             .getPluginRegister()
@@ -55,6 +64,21 @@ public class LocationParser {
             prefix,
             locationHandler.getPathSeparator(),
             locationHandler::normalizePath) : Location.fromPath(prefix, locationHandler.normalizePath(rawPath));
+    }
+
+    private static Pair<String, String> parseDescriptor(final String descriptor, final String defaultPrefix) {
+        final String prefix;
+        final String path;
+        if (descriptor.contains(LOCATION_SEPARATOR)
+            && !FILE_PATH_WITH_DRIVE_PATTERN.matcher(descriptor).matches()
+            && !FILE_URL_PATTERN.matcher(descriptor).matches()) {
+            prefix = descriptor.substring(0, descriptor.indexOf(LOCATION_SEPARATOR) + 1);
+            path = descriptor.substring(descriptor.indexOf(LOCATION_SEPARATOR) + 1);
+        } else {
+            prefix = defaultPrefix;
+            path = descriptor;
+        }
+        return Pair.of(prefix, path);
     }
 
     private static boolean containsWildcards(final String rawPath) {

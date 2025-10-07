@@ -30,17 +30,19 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.Location;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.jdbc.DriverDataSource;
+import org.flywaydb.core.internal.scanner.filesystem.FilesystemLocationHandler;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.gradle.FlywayExtension;
 import org.gradle.api.DefaultTask;
@@ -266,7 +268,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
 
     /**
      * Properties to pass to the JDBC driver object.
-     *
+     * <p>
      * <i>Flyway Teams only</i>
      * <p>Also configurable with Gradle or System Property: ${flyway.jdbcProperties}</p>
      */
@@ -392,8 +394,8 @@ public abstract class AbstractFlywayTask extends DefaultTask {
 
     /**
      * Ignore migrations that match this comma-separated list of patterns when validating migrations. Each pattern is of
-     * the form <migration_type>:<migration_state> See
-     * https://documentation.red-gate.com/flyway/reference/configuration/flyway-namespace/flyway-ignore-migration-patterns-setting
+     * the form <migration_type>:<migration_state> See <a
+     * href="https://documentation.red-gate.com/flyway/reference/configuration/flyway-namespace/flyway-ignore-migration-patterns-setting">...</a>
      * for full details Example: repeatable:missing,versioned:pending,*:failed (default: *:future)
      */
     public String[] ignoreMigrationPatterns;
@@ -583,7 +585,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      */
     public Map<String, String> pluginConfiguration;
 
-    public AbstractFlywayTask() {
+    protected AbstractFlywayTask() {
         super();
         setGroup("Flyway");
         extension = (FlywayExtension) getProject().getExtensions().getByName("flyway");
@@ -592,77 +594,78 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     @TaskAction
     public Object runTask() {
         try {
-            Map<String, String> envVars = ConfigUtils.environmentVariablesToPropertyMap();
+            final Map<String, String> envVars = ConfigUtils.environmentVariablesToPropertyMap();
 
-            Set<URL> extraURLs = new HashSet<>();
+            final Set<URL> extraURLs = new HashSet<>();
             if (isJavaProject()) {
                 addClassesAndResourcesDirs(extraURLs);
             }
 
             addConfigurationArtifacts(determineConfigurations(envVars), extraURLs);
 
-            ClassLoader classLoader = new URLClassLoader(extraURLs.toArray(URL[]::new),
+            final ClassLoader classLoader = new URLClassLoader(extraURLs.toArray(URL[]::new),
                 getProject().getBuildscript().getClassLoader());
 
-            Map<String, String> config = createFlywayConfig(envVars);
+            final Map<String, String> config = createFlywayConfig(envVars);
             ConfigUtils.dumpConfigurationMap(config, "Using configuration:");
 
-            Flyway flyway = Flyway.configure(classLoader).configuration(config).load();
-            Object result = run(flyway);
+            final Flyway flyway = Flyway.configure(classLoader).configuration(config).load();
+            final Object result = run(flyway);
             ((DriverDataSource) flyway.getConfiguration().getDataSource()).shutdownDatabase();
             return result;
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new FlywayException(collectMessages(e, "Error occurred while executing " + getName()), e);
         }
     }
 
-    private void addClassesAndResourcesDirs(Set<URL> extraURLs)
+    private void addClassesAndResourcesDirs(final Collection<? super URL> extraURLs)
         throws MalformedURLException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         final SourceSetContainer sourceSets = getProject().getExtensions().getByType(SourceSetContainer.class);
 
         for (final SourceSet sourceSet : sourceSets) {
             try {
-                FileCollection classesDirs = sourceSet.getOutput().getClassesDirs();
-                for (File directory : classesDirs.getFiles()) {
-                    URL classesUrl = directory.toURI().toURL();
+                final FileCollection classesDirs = sourceSet.getOutput().getClassesDirs();
+                for (final File directory : classesDirs.getFiles()) {
+                    final URL classesUrl = directory.toURI().toURL();
                     getLogger().debug("Adding directory to Classpath: " + classesUrl);
                     extraURLs.add(classesUrl);
                 }
-            } catch (NoSuchMethodError ex) {
+            } catch (final NoSuchMethodError ex) {
                 getLogger().debug("Falling back to legacy getClassesDir method");
 
                 // try legacy gradle 3.0 method instead
-                @SuppressWarnings("JavaReflectionMemberAccess") Method getClassesDir = SourceSetOutput.class.getMethod(
+                @SuppressWarnings("JavaReflectionMemberAccess") final Method getClassesDir = SourceSetOutput.class.getMethod(
                     "getClassesDir");
 
-                File classesDir = (File) getClassesDir.invoke(sourceSet.getOutput());
-                URL classesUrl = classesDir.toURI().toURL();
+                final File classesDir = (File) getClassesDir.invoke(sourceSet.getOutput());
+                final URL classesUrl = classesDir.toURI().toURL();
 
                 getLogger().debug("Adding directory to Classpath: " + classesUrl);
                 extraURLs.add(classesUrl);
             }
 
-            URL resourcesUrl = sourceSet.getOutput().getResourcesDir().toURI().toURL();
+            final URL resourcesUrl = sourceSet.getOutput().getResourcesDir().toURI().toURL();
             getLogger().debug("Adding directory to Classpath: " + resourcesUrl);
             extraURLs.add(resourcesUrl);
         }
     }
 
-    private void addConfigurationArtifacts(String[] configurations, Set<URL> urls) throws IOException {
-        for (String configuration : configurations) {
+    private void addConfigurationArtifacts(final String[] configurations, final Collection<? super URL> urls)
+        throws IOException {
+        for (final String configuration : configurations) {
             getLogger().debug("Adding configuration to classpath: " + configuration);
-            ResolvedConfiguration resolvedConfiguration = getProject().getConfigurations()
+            final ResolvedConfiguration resolvedConfiguration = getProject().getConfigurations()
                 .getByName(configuration)
                 .getResolvedConfiguration();
-            for (ResolvedArtifact artifact : resolvedConfiguration.getResolvedArtifacts()) {
-                URL artifactUrl = artifact.getFile().toURI().toURL();
+            for (final ResolvedArtifact artifact : resolvedConfiguration.getResolvedArtifacts()) {
+                final URL artifactUrl = artifact.getFile().toURI().toURL();
                 getLogger().debug("Adding artifact to classpath: " + artifactUrl);
                 urls.add(artifactUrl);
             }
         }
     }
 
-    private String[] determineConfigurations(Map<String, String> envVars) {
+    private String[] determineConfigurations(final Map<String, String> envVars) {
         if (envVars.containsKey(ConfigUtils.CONFIGURATIONS)) {
             return StringUtils.tokenizeToStringArray(envVars.get(ConfigUtils.CONFIGURATIONS), ",");
         }
@@ -694,8 +697,8 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      */
     protected abstract Object run(Flyway flyway);
 
-    private Map<String, String> createFlywayConfig(Map<String, String> envVars) {
-        Map<String, String> conf = new HashMap<>();
+    private Map<String, String> createFlywayConfig(final Map<String, String> envVars) {
+        final Map<String, String> conf = new HashMap<>();
 
         addLocationsToConfig(conf);
         addCallbackLocationsToConfig(conf);
@@ -794,25 +797,25 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.KERBEROS_CONFIG_FILE, kerberosConfigFile, extension.kerberosConfigFile);
 
         if (extension.placeholders != null) {
-            for (Map.Entry<Object, Object> entry : extension.placeholders.entrySet()) {
+            for (final Map.Entry<Object, Object> entry : extension.placeholders.entrySet()) {
                 conf.put(ConfigUtils.PLACEHOLDERS_PROPERTY_PREFIX + entry.getKey().toString(),
                     entry.getValue().toString());
             }
         }
         if (placeholders != null) {
-            for (Map.Entry<Object, Object> entry : placeholders.entrySet()) {
+            for (final Map.Entry<Object, Object> entry : placeholders.entrySet()) {
                 conf.put(ConfigUtils.PLACEHOLDERS_PROPERTY_PREFIX + entry.getKey().toString(),
                     entry.getValue().toString());
             }
         }
 
         if (extension.jdbcProperties != null) {
-            for (Map.Entry<Object, Object> entry : extension.jdbcProperties.entrySet()) {
+            for (final Map.Entry<Object, Object> entry : extension.jdbcProperties.entrySet()) {
                 conf.put(ConfigUtils.JDBC_PROPERTIES_PREFIX + entry.getKey().toString(), entry.getValue().toString());
             }
         }
         if (jdbcProperties != null) {
-            for (Map.Entry<Object, Object> entry : jdbcProperties.entrySet()) {
+            for (final Map.Entry<Object, Object> entry : jdbcProperties.entrySet()) {
                 conf.put(ConfigUtils.JDBC_PROPERTIES_PREFIX + entry.getKey().toString(), entry.getValue().toString());
             }
         }
@@ -828,24 +831,24 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         return conf;
     }
 
-    public Map<String, String> getPluginConfiguration(Map<String, String> pluginConfiguration,
-        Map<String, String> extensionPluginConfiguration) {
-        Map<String, String> conf = new HashMap<>();
+    public Map<String, String> getPluginConfiguration(final Map<String, String> pluginConfiguration,
+        final Map<String, String> extensionPluginConfiguration) {
+        final Map<String, String> conf = new HashMap<>();
 
         if (pluginConfiguration == null && extensionPluginConfiguration == null) {
             return conf;
         }
 
-        String camelCaseRegex = "(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])";
+        final String camelCaseRegex = "(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])";
         if (extensionPluginConfiguration != null) {
-            for (String key : extensionPluginConfiguration.keySet()) {
-                conf.put(FLYWAY_PLUGINS_PREFIX + String.join(".", key.split(camelCaseRegex)).toLowerCase(),
+            for (final String key : extensionPluginConfiguration.keySet()) {
+                conf.put(FLYWAY_PLUGINS_PREFIX + String.join(".", key.split(camelCaseRegex)).toLowerCase(Locale.ROOT),
                     extensionPluginConfiguration.get(key));
             }
         }
         if (pluginConfiguration != null) {
-            for (String key : pluginConfiguration.keySet()) {
-                conf.put(FLYWAY_PLUGINS_PREFIX + String.join(".", key.split(camelCaseRegex)).toLowerCase(),
+            for (final String key : pluginConfiguration.keySet()) {
+                conf.put(FLYWAY_PLUGINS_PREFIX + String.join(".", key.split(camelCaseRegex)).toLowerCase(Locale.ROOT),
                     pluginConfiguration.get(key));
             }
         }
@@ -853,13 +856,13 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         return conf;
     }
 
-    private void addLocationsToConfig(Map<String, String> conf) {
-        File workingDirectory = getWorkingDirectory();
+    private void addLocationsToConfig(final Map<? super String, String> conf) {
+        final File workingDirectory = getWorkingDirectory();
 
         conf.put(ConfigUtils.LOCATIONS,
-            Location.FILESYSTEM_PREFIX + workingDirectory + "/src/main/resources/db/migration");
+            FilesystemLocationHandler.FILESYSTEM_PREFIX + workingDirectory + "/src/main/resources/db/migration");
 
-        String[] locationsToAdd = getLocations();
+        final String[] locationsToAdd = getLocations();
 
         if (locationsToAdd != null) {
             ConfigUtils.makeRelativeLocationsBasedOnWorkingDirectory(workingDirectory.getAbsolutePath(),
@@ -869,7 +872,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.LOCATIONS, StringUtils.arrayToCommaDelimitedString(locationsToAdd));
     }
 
-    private void addCallbackLocationsToConfig(final Map<String, String> conf) {
+    private void addCallbackLocationsToConfig(final Map<? super String, String> conf) {
         final String[] callbackLocationsToAdd = getCallbackLocations();
 
         if (callbackLocationsToAdd != null) {
@@ -926,11 +929,12 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * @param envVars          The environment variables converted to Flyway properties.
      * @return The properties.
      */
-    private Map<String, String> loadConfigurationFromConfigFiles(File workingDirectory, Map<String, String> envVars) {
-        String encoding = determineConfigurationFileEncoding(envVars);
+    private Map<String, String> loadConfigurationFromConfigFiles(final File workingDirectory,
+        final Map<String, String> envVars) {
+        final String encoding = determineConfigurationFileEncoding(envVars);
 
-        Map<String, String> conf = new HashMap<>();
-        for (File configFile : determineConfigFiles(workingDirectory, envVars)) {
+        final Map<String, String> conf = new HashMap<>();
+        for (final File configFile : determineConfigFiles(workingDirectory, envVars)) {
             conf.putAll(ConfigUtils.loadConfigurationFile(configFile, encoding, true));
         }
         return conf;
@@ -942,10 +946,10 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * @param envVars The environment variables converted to Flyway properties.
      * @return The properties.
      */
-    private Map<String, String> loadConfigurationFromDefaultConfigFiles(Map<String, String> envVars) {
-        String encoding = determineConfigurationFileEncoding(envVars);
+    private Map<String, String> loadConfigurationFromDefaultConfigFiles(final Map<String, String> envVars) {
+        final String encoding = determineConfigurationFileEncoding(envVars);
 
-        Map<String, String> configMap = new HashMap<>();
+        final Map<String, String> configMap = new HashMap<>();
         configMap.putAll(ConfigUtils.loadConfigurationFile(new File(System.getProperty("user.home")
             + "/"
             + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
@@ -960,7 +964,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * @param envVars The environment variables converted to Flyway properties.
      * @return The encoding. (default: UTF-8)
      */
-    private String determineConfigurationFileEncoding(Map<String, String> envVars) {
+    private String determineConfigurationFileEncoding(final Map<String, String> envVars) {
         if (envVars.containsKey(ConfigUtils.CONFIG_FILE_ENCODING)) {
             return envVars.get(ConfigUtils.CONFIG_FILE_ENCODING);
         }
@@ -983,18 +987,18 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * @param envVars          The environment variables converted to Flyway properties.
      * @return The configuration files.
      */
-    private List<File> determineConfigFiles(File workingDirectory, Map<String, String> envVars) {
-        List<File> configFiles = new ArrayList<>();
+    private List<File> determineConfigFiles(final File workingDirectory, final Map<String, String> envVars) {
+        final List<File> configFiles = new ArrayList<>();
 
         if (envVars.containsKey(ConfigUtils.CONFIG_FILES)) {
-            for (String file : StringUtils.tokenizeToStringArray(envVars.get(ConfigUtils.CONFIG_FILES), ",")) {
+            for (final String file : StringUtils.tokenizeToStringArray(envVars.get(ConfigUtils.CONFIG_FILES), ",")) {
                 configFiles.add(toFile(workingDirectory, file));
             }
             return configFiles;
         }
 
         if (System.getProperties().containsKey(ConfigUtils.CONFIG_FILES)) {
-            for (String file : StringUtils.tokenizeToStringArray(System.getProperties()
+            for (final String file : StringUtils.tokenizeToStringArray(System.getProperties()
                 .getProperty(ConfigUtils.CONFIG_FILES), ",")) {
                 configFiles.add(toFile(workingDirectory, file));
             }
@@ -1002,7 +1006,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         }
 
         if (getProject().getProperties().containsKey(ConfigUtils.CONFIG_FILES)) {
-            for (String file : StringUtils.tokenizeToStringArray(String.valueOf(getProject().getProperties()
+            for (final String file : StringUtils.tokenizeToStringArray(String.valueOf(getProject().getProperties()
                 .get(ConfigUtils.CONFIG_FILES)), ",")) {
                 configFiles.add(toFile(workingDirectory, file));
             }
@@ -1010,14 +1014,14 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         }
 
         if (this.configFiles != null) {
-            for (String file : this.configFiles) {
+            for (final String file : this.configFiles) {
                 configFiles.add(toFile(workingDirectory, file));
             }
             return configFiles;
         }
 
         if (extension.configFiles != null) {
-            for (String file : extension.configFiles) {
+            for (final String file : extension.configFiles) {
                 configFiles.add(toFile(workingDirectory, file));
             }
             return configFiles;
@@ -1033,8 +1037,8 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * @param fileName         The name of the file, relative or absolute.
      * @return The resulting file.
      */
-    private File toFile(File workingDirectory, String fileName) {
-        File file = new File(fileName);
+    private File toFile(final File workingDirectory, final String fileName) {
+        final File file = new File(fileName);
         if (file.isAbsolute()) {
             return file;
         }
@@ -1046,7 +1050,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      *
      * @param conf The properties to filter.
      */
-    private static void removeGradlePluginSpecificPropertiesToAvoidWarnings(Map<String, String> conf) {
+    private static void removeGradlePluginSpecificPropertiesToAvoidWarnings(final Map<String, String> conf) {
         conf.remove(ConfigUtils.CONFIG_FILES);
         conf.remove(ConfigUtils.CONFIG_FILE_ENCODING);
         conf.remove(ConfigUtils.CONFIGURATIONS);
@@ -1054,16 +1058,18 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         conf.remove("flyway.workingDirectory");
     }
 
-    private static void addConfigFromProperties(Map<String, String> config, Properties properties) {
-        for (String prop : properties.stringPropertyNames()) {
+    private static void addConfigFromProperties(final Map<? super String, ? super String> config,
+        final Properties properties) {
+        for (final String prop : properties.stringPropertyNames()) {
             if (prop.startsWith("flyway.")) {
                 config.put(prop, properties.getProperty(prop));
             }
         }
     }
 
-    private static void addConfigFromProperties(Map<String, String> config, Map<String, ?> properties) {
-        for (String prop : properties.keySet()) {
+    private static void addConfigFromProperties(final Map<? super String, ? super String> config,
+        final Map<String, ?> properties) {
+        for (final String prop : properties.keySet()) {
             if (prop.startsWith("flyway.")) {
                 config.put(prop, properties.get(prop).toString());
             }
@@ -1077,7 +1083,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * @param message   The message to which the error message will be appended.
      * @return A String containing the composed messages.
      */
-    private String collectMessages(Throwable throwable, String message) {
+    private String collectMessages(final Throwable throwable, String message) {
         if (throwable != null) {
             message += "\n" + throwable.getMessage();
             return collectMessages(throwable.getCause(), message);

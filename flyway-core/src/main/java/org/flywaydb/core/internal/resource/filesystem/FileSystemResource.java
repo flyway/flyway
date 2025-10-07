@@ -19,20 +19,24 @@
  */
 package org.flywaydb.core.internal.resource.filesystem;
 
+import static org.flywaydb.core.internal.util.DataUnits.MEGABYTE;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
+import java.nio.file.StandardOpenOption;
 import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.util.BomStrippingReader;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
-
-import java.io.*;
-import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
-import java.nio.charset.Charset;
-import java.nio.file.StandardOpenOption;
-
-import static org.flywaydb.core.internal.util.DataUnits.MEGABYTE;
 
 @CustomLog
 public class FileSystemResource extends LoadableResource {
@@ -47,13 +51,22 @@ public class FileSystemResource extends LoadableResource {
     private final Charset encoding;
     private final boolean detectEncoding;
 
-    public FileSystemResource(Location location, String fileNameWithPath, Charset encoding, boolean stream) {
+    public FileSystemResource(final Location location,
+        final String fileNameWithPath,
+        final Charset encoding,
+        final boolean stream) {
         this(location, fileNameWithPath, encoding, false, stream);
     }
 
-    public FileSystemResource(Location location, String fileNameWithPath, Charset encoding, boolean detectEncoding, boolean stream) {
+    public FileSystemResource(final Location location,
+        final String fileNameWithPath,
+        final Charset encoding,
+        final boolean detectEncoding,
+        final boolean stream) {
         this.file = new File(new File(fileNameWithPath).getPath());
-        this.relativePath = location == null ? file.getPath() : location.getPathRelativeToThis(file.getPath()).replace("\\", "/");
+        this.relativePath = location == null
+            ? file.getPath()
+            : location.getPathRelativeToThis(file.getPath()).replace("\\", "/");
         this.encoding = encoding;
         this.detectEncoding = detectEncoding;
         this.stream = stream;
@@ -75,22 +88,35 @@ public class FileSystemResource extends LoadableResource {
         if (detectEncoding) {
             try {
                 charSet = EncodingDetector.detectFileEncoding(file.toPath());
-            } catch (FlywayEncodingDetectionException e) {
-                LOG.warn("Could not detect file encoding: " + e.getMessage() + "\nThis may cause issues with your deployments." +
-                                 " We recommend using a consistent and supported encoding for all your files. See " + FlywayDbWebsiteLinks.FILE_ENCODING_HELP);
+            } catch (final FlywayEncodingDetectionException e) {
+                LOG.warn("Could not detect file encoding: "
+                    + e.getMessage()
+                    + "\nThis may cause issues with your deployments."
+                    + " We recommend using a consistent and supported encoding for all your files. See "
+                    + FlywayDbWebsiteLinks.FILE_ENCODING_HELP);
             }
         }
         try {
-            return Channels.newReader(FileChannel.open(file.toPath(), StandardOpenOption.READ), charSet.newDecoder(), 4096);
-        } catch (IOException e) {
-            LOG.debug("Unable to load filesystem resource" + file.getPath() + " using FileChannel.open." +
-                              " Falling back to FileInputStream implementation. Exception message: " + e.getMessage());
+            return Channels.newReader(FileChannel.open(file.toPath(), StandardOpenOption.READ),
+                charSet.newDecoder(),
+                4096);
+        } catch (final IOException e) {
+            LOG.debug("Unable to load filesystem resource"
+                + file.getPath()
+                + " using FileChannel.open."
+                + " Falling back to FileInputStream implementation. Exception message: "
+                + e.getMessage());
         }
 
         try {
-            return new BufferedReader(new BomStrippingReader(new InputStreamReader(new FileInputStream(file), charSet)));
-        } catch (IOException e) {
-            throw new FlywayException("Unable to load filesystem resource: " + file.getPath() + " (encoding: " + charSet + ")", e);
+            return new BufferedReader(new BomStrippingReader(new InputStreamReader(new FileInputStream(file),
+                charSet)));
+        } catch (final IOException e) {
+            throw new FlywayException("Unable to load filesystem resource: "
+                + file.getPath()
+                + " (encoding: "
+                + charSet
+                + ")", e);
         }
     }
 

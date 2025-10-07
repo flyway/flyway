@@ -1,0 +1,94 @@
+Prompts inspired by:
+https://github.com/humanlayer/advanced-context-engineering-for-coding-agents/blob/main/ace-fca.md
+
+# Usage
+
+## Research
+
+__Note: Designed for CoPilot extension in IntelliJ__
+
+- Have no files open
+- Start a fresh branch
+- Select the `.llm/prompts/1.a Research.md` file and add to context
+- Choose an agent - I recommend Claude Sonnet 4
+
+Use the following prompt:
+
+```
+Read your instructions from `1.a Research.md`.
+
+<Research question>
+
+```
+
+For example:
+
+```
+Read your instructions from `1.a Research.md`.
+
+Please research how to create a new JDBC based Native Connectors plugin for MySQL.
+
+You will find:
+ - Existing JDBC legacy plugin for MySQL in `flyway-database/flyway-mysql`
+ - Existing Native Connectors plugin for Oracle in `flyway-database/flyway-database-nc-oracle`
+ - Existing Tests for Native Connectors Oracle in `flyway-database/flyway-database-nc-oracle-test`
+ - Existing documentation for Oracle in `documentation/Reference/Database Driver Reference/Oracle Database.md`
+ - Existing documentation for MySQL in `documentation/Reference/Database Driver Reference/MySQL.md`
+ - Existing documentation for Native Connectors Oracle in `documentation/Reference/Database Driver Reference/Oracle Database/Oracle Database - Native Connectors.md`
+ - The parent Maven pom in `pom.xml`
+ - The reactor pom in `flyway-database/pom.xml`
+ - The command line pom in `flyway-commandline/pom.xml`
+ - The CI/CD configuration for legacy tests in `.github/workflows/zz-build-and-test-edition.yml` under the Job `medium-tests-mysql`
+
+ ```
+
+ - Be as detailed as you can.
+ - If things go wrong - reset the branch, start again with better information in the prompt.
+
+ ### Sub-agents
+
+ You'll need to create a new chat in order to clear out the context. You can then use the same prompt as above except:
+ - With the correct sub-agent prompt file
+ - With the prompt from the checklist.md
+
+ I recommend once a sub-agent has completed making a commit along with ticking off that agent in the checklist.
+
+### 1.b Post sub-agents
+
+```
+Read the instructions in `1.b Post sub agents`
+
+Working directory is `.llm/research/2025-09-26-mysql-native-connectors-plugin/`
+```
+
+## Planning
+
+### 2.a Planning
+```
+Read the instructions in `2.a Planning`
+
+Working directory is `.llm/research/2025-09-26-mysql-native-connectors-plugin/`
+```
+
+### 2.b Planning
+```
+Read the instructions in `2.b Planning`
+
+Working directory is `.llm/research/2025-09-26-mysql-native-connectors-plugin/`
+```
+
+### 2.c Planning
+```
+Read the instructions in `2.c Planning`
+
+Working directory is `.llm/research/2025-09-26-mysql-native-connectors-plugin/`
+```
+
+## Implementation
+
+### 3. Implementation
+```
+Read the instructions in `3. Implementation`
+
+Working directory is `.llm/research/2025-09-26-mysql-native-connectors-plugin/`
+```

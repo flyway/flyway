@@ -8,10 +8,33 @@
 </div>
 <div class="col-md-9">
   <div class="release">
+        <h2 id="11.13.3">Flyway 11.13.3 (2025-10-07)</h2>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>JVM Startup time added to verbose logs</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/4119">Issue 4119</a>
+                Update shaded aws-secretsmanager-jdbc to not include io.netty to remove vulnerable dependencies
+            </li>
+        </ul>
+
+        <h3>Library upgrades</h3>
+        <ul>
+            <li>Upgraded RgCompare.Cli from 1.43.0.1498 to 1.44.0.1569</li>
+        </ul>
+
+        <p>
+            Thanks to numeraltwo for reporting these issues.
+        </p>
+  </div>
+
+  <div class="release">
         <h2 id="11.13.2">Flyway 11.13.2 (2025-09-26)</h2>
 
         <h3>Java compatibility</h3>
         <ul>
+            <li>Deprecated constructor on Location class. Use new static factory method instread.</li>
             <li>it is now possible to implement locations via plugins</li>
         </ul>
 

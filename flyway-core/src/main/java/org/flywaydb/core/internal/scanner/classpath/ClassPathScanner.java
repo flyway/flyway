@@ -19,34 +19,47 @@
  */
 package org.flywaydb.core.internal.scanner.classpath;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.regex.Pattern;
 import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.classpath.ClassPathResource;
+import org.flywaydb.core.internal.scanner.ClasspathLocationHandler;
 import org.flywaydb.core.internal.scanner.LocationScannerCache;
 import org.flywaydb.core.internal.scanner.ResourceNameCache;
 import org.flywaydb.core.internal.scanner.classpath.jboss.JBossVFSv2UrlResolver;
 import org.flywaydb.core.internal.scanner.classpath.jboss.JBossVFSv3ClassPathLocationScanner;
-import org.flywaydb.core.internal.util.*;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.nio.charset.Charset;
-import java.util.*;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.regex.Pattern;
+import org.flywaydb.core.internal.util.ClassUtils;
+import org.flywaydb.core.internal.util.ExceptionUtils;
+import org.flywaydb.core.internal.util.FeatureDetector;
+import org.flywaydb.core.internal.util.Pair;
+import org.flywaydb.core.internal.util.UrlUtils;
 
 @CustomLog
 public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
-    private final Class<I> implementedInterface;
+    private final Class<? extends I> implementedInterface;
     private final ClassLoader classLoader;
     private final Location location;
-    private final Set<LoadableResource> resources = new HashSet<>();
+    private final Collection<LoadableResource> resources = new HashSet<>();
     /**
      * Cache location lookups.
      */
@@ -64,12 +77,14 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
      */
     private final boolean throwOnMissingLocations;
 
-
-    public ClassPathScanner(Class<I> implementedInterface, ClassLoader classLoader, Charset encoding, Location location,
-                            ResourceNameCache resourceNameCache,
-                            LocationScannerCache locationScannerCache,
-                            boolean throwOnMissingLocations,
-                            boolean stream) {
+    public ClassPathScanner(final Class<? extends I> implementedInterface,
+        final ClassLoader classLoader,
+        final Charset encoding,
+        final Location location,
+        final ResourceNameCache resourceNameCache,
+        final LocationScannerCache locationScannerCache,
+        final boolean throwOnMissingLocations,
+        final boolean stream) {
         this.implementedInterface = implementedInterface;
         this.classLoader = classLoader;
         this.location = location;
@@ -78,9 +93,9 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
         this.throwOnMissingLocations = throwOnMissingLocations;
 
         LOG.debug("Scanning for classpath resources at '" + location + "' ...");
-        for (Pair<String, String> resourceNameAndParentURL : findResourceNamesAndParentURLs()) {
-            String resourceName = resourceNameAndParentURL.getLeft();
-            String parentURL = resourceNameAndParentURL.getRight();
+        for (final Pair<String, String> resourceNameAndParentURL : findResourceNamesAndParentURLs()) {
+            final String resourceName = resourceNameAndParentURL.getLeft();
+            final String parentURL = resourceNameAndParentURL.getRight();
             resources.add(new ClassPathResource(location, resourceName, classLoader, encoding, parentURL, stream));
             LOG.debug("Found resource: " + resourceNameAndParentURL.getLeft());
         }
@@ -95,24 +110,23 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
     public Collection<Class<? extends I>> scanForClasses() {
         LOG.debug("Scanning for classes at " + location);
 
-        List<Class<? extends I>> classes = new ArrayList<>();
+        final Collection<Class<? extends I>> classes = new ArrayList<>();
 
-        for (LoadableResource resource : resources) {
+        for (final LoadableResource resource : resources) {
             if (resource.getAbsolutePath().endsWith(".class")) {
                 Class<? extends I> clazz;
                 try {
-                    clazz = ClassUtils.loadClass(
-                            implementedInterface,
-                            toClassName(resource.getAbsolutePath()),
-                            classLoader);
-                } catch(Throwable e) {
-                    Throwable rootCause = ExceptionUtils.getRootCause(e);
-                    LOG.warn("Skipping " + Callback.class + ": " + ClassUtils.formatThrowable(e) + (
-                            rootCause == e
-                                    ? ""
-                                    : " caused by " + ClassUtils.formatThrowable(rootCause)
-                                    + " at " + ExceptionUtils.getThrowLocation(rootCause)
-                    ));
+                    clazz = ClassUtils.loadClass(implementedInterface,
+                        toClassName(resource.getAbsolutePath()),
+                        classLoader);
+                } catch (final Throwable e) {
+                    final Throwable rootCause = ExceptionUtils.getRootCause(e);
+                    LOG.warn("Skipping " + Callback.class + ": " + ClassUtils.formatThrowable(e) + (rootCause == e
+                        ? ""
+                        : " caused by "
+                            + ClassUtils.formatThrowable(rootCause)
+                            + " at "
+                            + ExceptionUtils.getThrowLocation(rootCause)));
                     clazz = null;
                 }
                 if (clazz != null) {
@@ -130,25 +144,25 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
      * @param resourceName The resource name.
      * @return The class name.
      */
-    private String toClassName(String resourceName) {
-        String nameWithDots = resourceName.replace("/", ".");
+    private String toClassName(final String resourceName) {
+        final String nameWithDots = resourceName.replace("/", ".");
         return nameWithDots.substring(0, (nameWithDots.length() - ".class".length()));
     }
 
     private Set<Pair<String, String>> findResourceNamesAndParentURLs() {
-        Set<Pair<String, String>> resourceNamesAndParentURLs = new TreeSet<>();
+        final Set<Pair<String, String>> resourceNamesAndParentURLs = new TreeSet<>();
 
-        List<URL> locationUrls = getLocationUrlsForPath(location);
-        for (URL locationUrl : locationUrls) {
+        final List<URL> locationUrls = getLocationUrlsForPath(location);
+        for (final URL locationUrl : locationUrls) {
             LOG.debug("Scanning URL: " + locationUrl.toExternalForm());
 
-            UrlResolver urlResolver = createUrlResolver(locationUrl.getProtocol());
-            URL resolvedUrl = urlResolver.toStandardJavaUrl(locationUrl);
+            final UrlResolver urlResolver = createUrlResolver(locationUrl.getProtocol());
+            final URL resolvedUrl = urlResolver.toStandardJavaUrl(locationUrl);
 
-            String protocol = resolvedUrl.getProtocol();
-            ClassPathLocationScanner classPathLocationScanner = createLocationScanner(protocol);
+            final String protocol = resolvedUrl.getProtocol();
+            final ClassPathLocationScanner classPathLocationScanner = createLocationScanner(protocol);
             if (classPathLocationScanner == null) {
-                String scanRoot = UrlUtils.toFilePath(resolvedUrl);
+                final String scanRoot = UrlUtils.toFilePath(resolvedUrl);
                 LOG.warn("Unable to scan location: " + scanRoot + " (unsupported protocol: " + protocol + ")");
             } else {
                 Set<String> names = resourceNameCache.get(classPathLocationScanner, resolvedUrl);
@@ -156,14 +170,14 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
                     names = classPathLocationScanner.findResourceNames(location.getRootPath(), resolvedUrl);
                     resourceNameCache.put(classPathLocationScanner, resolvedUrl, names);
                 }
-                Set<String> filteredNames = new HashSet<>();
-                for (String name : names) {
-                    if (location.matchesPath(name)) {
+                final Collection<String> filteredNames = new HashSet<>();
+                for (final String name : names) {
+                    if (matchesAnyWildcardRestrictions(location, name)) {
                         filteredNames.add(name);
                     }
                 }
 
-                for (String filteredName : filteredNames) {
+                for (final String filteredName : filteredNames) {
                     resourceNamesAndParentURLs.add(Pair.of(filteredName, resolvedUrl.getPath()));
                 }
             }
@@ -175,33 +189,32 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
 
         // Starting with Java 11, resources at the root of the classpath aren't being found using the URL scanning
         // method above and we need to revert to Jar file walking.
-        boolean isClassPathRoot = location.isClassPath() && "".equals(location.getRootPath());
+        final boolean isClassPathRoot = ClasspathLocationHandler.CLASSPATH_PREFIX.equals(location.getPrefix())
+            && "".equals(location.getRootPath());
 
         if (!locationResolved || isClassPathRoot) {
-            if (classLoader instanceof URLClassLoader) {
-                URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
-                for (URL url : urlClassLoader.getURLs()) {
-                    if ("file".equals(url.getProtocol())
-                            && url.getPath().endsWith(".jar")
-                            && !url.getPath().matches(".*" + Pattern.quote("/jre/lib/") + ".*")) {
+            if (classLoader instanceof final URLClassLoader urlClassLoader) {
+                for (final URL url : urlClassLoader.getURLs()) {
+                    if ("file".equals(url.getProtocol()) && url.getPath().endsWith(".jar") && !url.getPath()
+                        .matches(".*" + Pattern.quote("/jre/lib/") + ".*")) {
                         // All non-system jars on disk
                         JarFile jarFile;
                         try {
                             try {
                                 jarFile = new JarFile(url.toURI().getSchemeSpecificPart());
-                            } catch (URISyntaxException ex) {
+                            } catch (final URISyntaxException ex) {
                                 // Fallback for URLs that are not valid URIs (should hardly ever happen).
                                 jarFile = new JarFile(url.getPath().substring("file:".length()));
                             }
-                        } catch (IOException | SecurityException e) {
+                        } catch (final IOException | SecurityException e) {
                             LOG.warn("Skipping unloadable jar file: " + url + " (" + e.getMessage() + ")");
                             continue;
                         }
 
                         try {
-                            Enumeration<JarEntry> entries = jarFile.entries();
+                            final Enumeration<JarEntry> entries = jarFile.entries();
                             while (entries.hasMoreElements()) {
-                                String entryName = entries.nextElement().getName();
+                                final String entryName = entries.nextElement().getName();
                                 if (entryName.startsWith(location.getRootPath())) {
                                     locationResolved = true;
                                     resourceNamesAndParentURLs.add(Pair.of(entryName, url.getPath()));
@@ -210,7 +223,7 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
                         } finally {
                             try {
                                 jarFile.close();
-                            } catch (IOException e) {
+                            } catch (final IOException e) {
                                 // Ignore
                             }
                         }
@@ -220,7 +233,7 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
         }
 
         if (!locationResolved) {
-            String message = "Unable to resolve location " + location + ".";
+            final String message = "Unable to resolve location " + location + ".";
 
             if (throwOnMissingLocations) {
                 throw new FlywayException(message);
@@ -232,47 +245,65 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
         return resourceNamesAndParentURLs;
     }
 
+    private static Boolean matchesAnyWildcardRestrictions(final Location location, final String path) {
+        return Optional.ofNullable(location.getPathRegex()).map(x -> x.matcher(path).matches()).orElse(true);
+    }
+
     /**
      * Gets the physical location urls for this logical path on the classpath.
      *
      * @param location The location on the classpath.
      * @return The underlying physical URLs.
      */
-    private List<URL> getLocationUrlsForPath(Location location) {
+    private List<URL> getLocationUrlsForPath(final Location location) {
         if (locationUrlCache.containsKey(location)) {
             return locationUrlCache.get(location);
         }
 
         LOG.debug("Determining location urls for " + location + " using ClassLoader " + classLoader + " ...");
 
-        List<URL> locationUrls = new ArrayList<>();
+        final List<URL> locationUrls = new ArrayList<>();
 
         if (classLoader.getClass().getName().startsWith("com.ibm")) {
             // WebSphere
-            Enumeration<URL> urls;
+            final Enumeration<URL> urls;
             try {
                 urls = classLoader.getResources(location.getRootPath() + "/flyway.location");
                 if (!urls.hasMoreElements()) {
-                    LOG.error("Unable to resolve location " + location + " (ClassLoader: " + classLoader + ")"
-                                      + " On WebSphere an empty file named flyway.location must be present on the classpath location for WebSphere to find it!");
+                    LOG.error("Unable to resolve location "
+                        + location
+                        + " (ClassLoader: "
+                        + classLoader
+                        + ")"
+                        + " On WebSphere an empty file named flyway.location must be present on the classpath location for WebSphere to find it!");
                 }
                 while (urls.hasMoreElements()) {
-                    URL url = urls.nextElement();
+                    final URL url = urls.nextElement();
                     locationUrls.add(new URL(UrlUtils.decodeURL(url.toExternalForm()).replace("/flyway.location", "")));
                 }
-            } catch (IOException e) {
-                LOG.error("Unable to resolve location " + location + " (ClassLoader: " + classLoader + ")"
-                                  + " On WebSphere an empty file named flyway.location must be present on the classpath location for WebSphere to find it!");
+            } catch (final IOException e) {
+                LOG.error("Unable to resolve location "
+                    + location
+                    + " (ClassLoader: "
+                    + classLoader
+                    + ")"
+                    + " On WebSphere an empty file named flyway.location must be present on the classpath location for WebSphere to find it!");
             }
         } else {
-            Enumeration<URL> urls;
+            final Enumeration<URL> urls;
             try {
                 urls = classLoader.getResources(location.getRootPath());
                 while (urls.hasMoreElements()) {
                     locationUrls.add(urls.nextElement());
                 }
-            } catch (IOException e) {
-                LOG.error("Unable to resolve location " + location + " (ClassLoader: " + classLoader + "): " + e.getMessage() + ".");
+            } catch (final IOException e) {
+                LOG.error("Unable to resolve location "
+                    + location
+                    + " (ClassLoader: "
+                    + classLoader
+                    + "): "
+                    + e.getMessage()
+                    + ".");
             }
         }
 
@@ -287,7 +318,7 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
      * @param protocol The protocol of the location url to scan.
      * @return The url resolver for this protocol.
      */
-    private UrlResolver createUrlResolver(String protocol) {
+    private UrlResolver createUrlResolver(final String protocol) {
         if (protocol.startsWith("vfs") && new FeatureDetector(classLoader).isJBossVFSv2Available()) {
             return new JBossVFSv2UrlResolver();
         }
@@ -301,35 +332,35 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
      * @param protocol The protocol of the location url to scan.
      * @return The location scanner or {@code null} if it could not be created.
      */
-    private ClassPathLocationScanner createLocationScanner(String protocol) {
+    private ClassPathLocationScanner createLocationScanner(final String protocol) {
         if (locationScannerCache.containsKey(protocol)) {
             return locationScannerCache.get(protocol);
         }
 
         if ("file".equals(protocol)) {
-            FileSystemClassPathLocationScanner locationScanner = new FileSystemClassPathLocationScanner();
+            final ClassPathLocationScanner locationScanner = new FileSystemClassPathLocationScanner();
             locationScannerCache.put(protocol, locationScanner);
             resourceNameCache.put(locationScanner, new HashMap<>());
             return locationScanner;
         }
 
         if ("jar".equals(protocol) || isTomcat(protocol) || isWebLogic(protocol) || isWebSphere(protocol)) {
-            String separator = isTomcat(protocol) ? "*/" : "!/";
-            ClassPathLocationScanner locationScanner = new JarFileClassPathLocationScanner(separator);
+            final String separator = isTomcat(protocol) ? "*/" : "!/";
+            final ClassPathLocationScanner locationScanner = new JarFileClassPathLocationScanner(separator);
             locationScannerCache.put(protocol, locationScanner);
             resourceNameCache.put(locationScanner, new HashMap<>());
             return locationScanner;
         }
 
-        FeatureDetector featureDetector = new FeatureDetector(classLoader);
+        final FeatureDetector featureDetector = new FeatureDetector(classLoader);
         if ("vfs".equals(protocol) && featureDetector.isJBossVFSv3Available()) {
-            JBossVFSv3ClassPathLocationScanner locationScanner = new JBossVFSv3ClassPathLocationScanner();
+            final ClassPathLocationScanner locationScanner = new JBossVFSv3ClassPathLocationScanner();
             locationScannerCache.put(protocol, locationScanner);
             resourceNameCache.put(locationScanner, new HashMap<>());
             return locationScanner;
         }
         if ((isFelix(protocol) || isEquinox(protocol)) && featureDetector.isOsgiFrameworkAvailable()) {
-            OsgiClassPathLocationScanner locationScanner = new OsgiClassPathLocationScanner();
+            final ClassPathLocationScanner locationScanner = new OsgiClassPathLocationScanner();
             locationScannerCache.put(protocol, locationScanner);
             resourceNameCache.put(locationScanner, new HashMap<>());
             return locationScanner;
@@ -338,23 +369,23 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
         return null;
     }
 
-    private boolean isEquinox(String protocol) {
+    private boolean isEquinox(final String protocol) {
         return "bundleresource".equals(protocol);
     }
 
-    private boolean isFelix(String protocol) {
+    private boolean isFelix(final String protocol) {
         return "bundle".equals(protocol);
     }
 
-    private boolean isWebSphere(String protocol) {
+    private boolean isWebSphere(final String protocol) {
         return "wsjar".equals(protocol);
     }
 
-    private boolean isWebLogic(String protocol) {
+    private boolean isWebLogic(final String protocol) {
         return "zip".equals(protocol);
     }
 
-    private boolean isTomcat(String protocol) {
+    private boolean isTomcat(final String protocol) {
         return "war".equals(protocol);
     }
 }

@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.flywaydb.core.internal.scanner.LocationParser;
+import org.flywaydb.core.internal.scanner.filesystem.FilesystemLocationHandler;
 
 /**
  * A location to load migrations from.
@@ -38,6 +39,7 @@ public final class Location implements Comparable<Location> {
     /**
      * The prefix for filesystem locations.
      */
+    @Deprecated
     public static final String FILESYSTEM_PREFIX = "filesystem:";
     /**
      * The prefix for AWS S3 locations.
@@ -82,6 +84,7 @@ public final class Location implements Comparable<Location> {
         return new Location(prefix, rootPath, wildcardPath, pathRegex);
     }
 
+    @Deprecated
     public Location(final String descriptor) {
         final Location location = LocationParser.parseLocation(descriptor);
         this.rawPath = location.rawPath;
@@ -101,6 +104,7 @@ public final class Location implements Comparable<Location> {
      * @return Whether the given path matches this locations regex. Will always return true when the location did not
      * contain any wildcards.
      */
+    @Deprecated
     public boolean matchesPath(final String path) {
         if (pathRegex == null) {
             return true;
@@ -131,6 +135,7 @@ public final class Location implements Comparable<Location> {
      *
      * @return {@code true} if it does, {@code false} if it doesn't.
      */
+    @Deprecated
     public boolean isClassPath() {
         return CLASSPATH_PREFIX.equals(prefix);
     }
@@ -140,8 +145,9 @@ public final class Location implements Comparable<Location> {
      *
      * @return {@code true} if it does, {@code false} if it doesn't.
      */
+    @Deprecated
     public boolean isFileSystem() {
-        return FILESYSTEM_PREFIX.equals(prefix);
+        return FilesystemLocationHandler.FILESYSTEM_PREFIX.equals(prefix);
     }
 
     /**
@@ -149,6 +155,7 @@ public final class Location implements Comparable<Location> {
      *
      * @return {@code true} if it does, {@code false} if it doesn't;
      */
+    @Deprecated
     public boolean isAwsS3() {
         return AWS_S3_PREFIX.equals(prefix);
     }
@@ -158,6 +165,7 @@ public final class Location implements Comparable<Location> {
      *
      * @return {@code true} if it does, {@code false} if it doesn't;
      */
+    @Deprecated
     public boolean isGCS() {
         return GCS_PREFIX.equals(prefix);
     }
@@ -168,15 +176,17 @@ public final class Location implements Comparable<Location> {
      * @param other The other location.
      * @return {@code true} if it is, {@code false} if it isn't.
      */
+    @Deprecated
     @SuppressWarnings("SimplifiableIfStatement")
     public boolean isParentOf(final Location other) {
         if (pathRegex != null || other.pathRegex != null) {
             return false;
         }
-        if (isClassPath() && other.isClassPath()) {
+        if (CLASSPATH_PREFIX.equals(prefix) && CLASSPATH_PREFIX.equals(other.prefix)) {
             return (other.getDescriptor() + "/").startsWith(getDescriptor() + "/");
         }
-        if (isFileSystem() && other.isFileSystem()) {
+        if (FilesystemLocationHandler.FILESYSTEM_PREFIX.equals(prefix)
+            && FilesystemLocationHandler.FILESYSTEM_PREFIX.equals(other.prefix)) {
             return (other.getDescriptor() + File.separator).startsWith(getDescriptor() + File.separator);
         }
         return false;

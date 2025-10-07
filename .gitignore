@@ -16,6 +16,7 @@ __pycache__
 *.asc
 
 venv
+.venv
 
 documentation/.jekyll-metadata
 documentation/_site

@@ -22,11 +22,13 @@ package org.flywaydb.scanners;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import lombok.CustomLog;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.parser.ParsingContext;
+import org.flywaydb.core.internal.scanner.filesystem.FilesystemLocationHandler;
 import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
 import org.flywaydb.core.internal.util.Pair;
 
@@ -37,7 +39,7 @@ public class FileSystemSqlMigrationScanner extends BaseSqlMigrationScanner {
     public Collection<Pair<LoadableResource, SqlScriptMetadata>> scan(final Location location,
         final Configuration configuration,
         final ParsingContext parsingContext) {
-        if (!location.isFileSystem()) {
+        if (!FilesystemLocationHandler.FILESYSTEM_PREFIX.equals(location.getPrefix())) {
             return List.of();
         }
 
@@ -51,6 +53,6 @@ public class FileSystemSqlMigrationScanner extends BaseSqlMigrationScanner {
 
     @Override
     boolean matchesPath(final String path, final Location location) {
-        return location.matchesPath(path);
+        return Optional.ofNullable(location.getPathRegex()).map(x -> x.matcher(path).matches()).orElse(true);
     }
 }

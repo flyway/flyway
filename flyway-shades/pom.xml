@@ -1,0 +1,77 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-parent</artifactId>
+    <version>11.13.3</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>flyway-shades</artifactId>
+  <packaging>pom</packaging>
+  <name>${project.artifactId}</name>
+
+  <properties>
+    <shade.image.name>aws-sm-jdbc-shade</shade.image.name>
+    <aws.secretsmanager.jdbc.repo>https://github.com/aws/aws-secretsmanager-jdbc.git</aws.secretsmanager.jdbc.repo>
+    <aws.secretsmanager.jdbc.version>2.0.3</aws.secretsmanager.jdbc.version>
+  </properties>
+
+  <profiles>
+    <profile>
+      <id>build-shades</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <executions>
+              <!-- Build the multi-stage Docker image -->
+              <execution>
+                <id>docker-build-shade</id>
+                <phase>generate-resources</phase>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <configuration>
+                  <executable>docker</executable>
+                  <arguments>
+                    <argument>build</argument>
+                    <argument>-f</argument>
+                    <argument>${maven.multiModuleProjectDirectory}/flyway-shades/shades/aws-secretsmanager-jdbc/Dockerfile</argument>
+                    <argument>-t</argument>
+                    <argument>${shade.image.name}:latest</argument>
+                    <argument>--build-arg</argument>
+                    <argument>AWS_SECRETSMANAGER_JDBC_VERSION=${aws.secretsmanager.jdbc.version}</argument>
+                    <argument>--build-arg</argument>
+                    <argument>AWS_SECRETSMANAGER_JDBC_REPO=${aws.secretsmanager.jdbc.repo}</argument>
+                    <argument>${maven.multiModuleProjectDirectory}/flyway-shades/shades</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+              <!-- Run the container to export the shaded jar -->
+              <execution>
+                <id>docker-run-shade</id>
+                <phase>generate-resources</phase>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <configuration>
+                  <executable>docker</executable>
+                  <arguments>
+                    <argument>run</argument>
+                    <argument>--rm</argument>
+                    <argument>-v</argument>
+                    <argument>${maven.multiModuleProjectDirectory}/flyway-commandline/src/main/assembly/drivers/aws:/out</argument>
+                    <argument>${shade.image.name}:latest</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>

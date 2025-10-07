@@ -19,6 +19,13 @@
  */
 package org.flywaydb.core.internal.scanner.filesystem;
 
+import java.io.File;
+import java.nio.charset.Charset;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
@@ -27,22 +34,15 @@ import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.filesystem.FileSystemResource;
 import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
 
-import java.io.File;
-import java.nio.charset.Charset;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
-import java.util.TreeSet;
-
 @CustomLog
 public class FileSystemScanner {
     private final Charset defaultEncoding;
     private final boolean detectEncoding;
     private final boolean throwOnMissingLocations;
     private final boolean stream;
-    private Configuration config;
+    private final Configuration config;
 
-    public FileSystemScanner(boolean stream, Configuration config) {
+    public FileSystemScanner(final boolean stream, final Configuration config) {
         this.defaultEncoding = config.getEncoding();
         this.detectEncoding = config.isDetectEncoding();
         this.stream = stream;
@@ -51,46 +51,57 @@ public class FileSystemScanner {
     }
 
     /**
-     * Scans the FileSystem for resources under the specified location, starting with the specified prefix and ending with
-     * the specified suffix.
+     * Scans the FileSystem for resources under the specified location, starting with the specified prefix and ending
+     * with the specified suffix.
      *
      * @param location The location in the filesystem to start searching. Subdirectories are also searched.
      * @return The resources that were found.
      */
-    public Collection<LoadableResource> scanForResources(Location location) {
-        String path = location.getRootPath();
+    public Collection<LoadableResource> scanForResources(final Location location) {
+        final String path = location.getRootPath();
         LOG.debug("Scanning for filesystem resources at '" + path + "'");
 
-        File dir = new File(path);
+        final File dir = new File(path);
 
-        DirectoryValidationResult validationResult = getDirectoryValidationResult(dir);
+        final DirectoryValidationResult validationResult = getDirectoryValidationResult(dir);
 
         if (validationResult != DirectoryValidationResult.VALID) {
             if (throwOnMissingLocations) {
-                throw new FlywayException("Failed to find filesystem location: " + path + " (" + validationResult + ")");
+                throw new FlywayException("Failed to find filesystem location: "
+                    + path
+                    + " ("
+                    + validationResult
+                    + ")");
             }
 
             LOG.error("Skipping filesystem location: " + path + " (" + validationResult + ")");
             return Collections.emptyList();
         }
 
-        Set<LoadableResource> resources = new TreeSet<>();
+        final Set<LoadableResource> resources = new TreeSet<>();
 
-        for (String resourceName : findResourceNamesFromFileSystem(path, dir)) {
+        for (final String resourceName : findResourceNamesFromFileSystem(path, dir)) {
             boolean detectEncodingForThisResource = detectEncoding;
-            if (location.matchesPath(resourceName)) {
+            if (matchesAnyWildcardRestrictions(location, resourceName)) {
                 Charset encoding = defaultEncoding;
                 String encodingBlurb = "";
                 if (new File(resourceName + ".conf").exists()) {
-                    LoadableResource metadataResource = new FileSystemResource(location, resourceName + ".conf", defaultEncoding, false);
-                    SqlScriptMetadata metadata = SqlScriptMetadata.fromResource(metadataResource, null, config);
+                    final LoadableResource metadataResource = new FileSystemResource(location,
+                        resourceName + ".conf",
+                        defaultEncoding,
+                        false);
+                    final SqlScriptMetadata metadata = SqlScriptMetadata.fromResource(metadataResource, null, config);
                     if (metadata.encoding() != null) {
                         encoding = Charset.forName(metadata.encoding());
                         detectEncodingForThisResource = false;
                         encodingBlurb = " (with overriding encoding " + encoding + ")";
                     }
                 }
-                resources.add(new FileSystemResource(location, resourceName, encoding, detectEncodingForThisResource, stream));
+                resources.add(new FileSystemResource(location,
+                    resourceName,
+                    encoding,
+                    detectEncodingForThisResource,
+                    stream));
 
                 LOG.debug("Found filesystem resource: " + resourceName + encodingBlurb);
             }
@@ -99,7 +110,11 @@ public class FileSystemScanner {
         return resources;
     }
 
-    private DirectoryValidationResult getDirectoryValidationResult(File directory) {
+    private static Boolean matchesAnyWildcardRestrictions(final Location location, final String path) {
+        return Optional.ofNullable(location.getPathRegex()).map(x -> x.matcher(path).matches()).orElse(true);
+    }
+
+    private DirectoryValidationResult getDirectoryValidationResult(final File directory) {
         if (!directory.exists()) {
             return DirectoryValidationResult.NOT_FOUND;
         }
@@ -112,24 +127,32 @@ public class FileSystemScanner {
         return DirectoryValidationResult.VALID;
     }
 
-    private Set<String> findResourceNamesFromFileSystem(String scanRootLocation, File folder) {
-        String path = folder.getPath();
+    private Set<String> findResourceNamesFromFileSystem(final String scanRootLocation, final File folder) {
+        final String path = folder.getPath();
         LOG.debug("Scanning for resources in path: " + folder.getPath() + " (" + scanRootLocation + ")");
 
-        Set<String> resourceNames = new TreeSet<>();
+        final Set<String> resourceNames = new TreeSet<>();
 
-        File[] files = folder.listFiles();
+        final File[] files = folder.listFiles();
 
         if (files == null) {
             if (throwOnMissingLocations) {
-                throw new FlywayException("Failed to find filesystem location: " + path + " (" + DirectoryValidationResult.UNABLE_TO_ACCESS_FOLDER + ")");
+                throw new FlywayException("Failed to find filesystem location: "
+                    + path
+                    + " ("
+                    + DirectoryValidationResult.UNABLE_TO_ACCESS_FOLDER
+                    + ")");
             }
 
-            LOG.error("Skipping filesystem location: " + path + " (" + DirectoryValidationResult.UNABLE_TO_ACCESS_FOLDER + ")");
+            LOG.error("Skipping filesystem location: "
+                + path
+                + " ("
+                + DirectoryValidationResult.UNABLE_TO_ACCESS_FOLDER
+                + ")");
             return Collections.emptySet();
         }
 
-        for (File file : files) {
+        for (final File file : files) {
             if (file.canRead()) {
                 if (file.isDirectory()) {
                     if (file.isHidden()) {

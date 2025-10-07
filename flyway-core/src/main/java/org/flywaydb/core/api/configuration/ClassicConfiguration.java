@@ -68,7 +68,6 @@ import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.internal.nc.NativeConnectorsModeUtils;
 import org.flywaydb.core.extensibility.ConfigurationExtension;
 import org.flywaydb.core.extensibility.ConfigurationProvider;
 import org.flywaydb.core.extensibility.LicenseGuard;
@@ -88,20 +87,19 @@ import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
+import org.flywaydb.core.internal.nc.NativeConnectorsModeUtils;
 import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.proprietaryInterfaces.CherryPickConfiguration;
 import org.flywaydb.core.internal.scanner.ClasspathClassScanner;
+import org.flywaydb.core.internal.scanner.FileLocation;
+import org.flywaydb.core.internal.scanner.LocationParser;
+import org.flywaydb.core.internal.scanner.ReadWriteLocationHandler;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.MergeUtils;
 import org.flywaydb.core.internal.util.StringUtils;
-
-
-
-
-
 
 /**
  * JavaBean-style configuration for Flyway. This is primarily meant for compatibility with scenarios where the new
@@ -603,8 +601,8 @@ public class ClassicConfiguration implements Configuration {
 
     /**
      * Ignore migrations that match this comma-separated list of patterns when validating migrations. Each pattern is of
-     * the form <migration_type>:<migration_state> See
-     * <a href="https://documentation.red-gate.com/flyway/reference/configuration/flyway-namespace/flyway-ignore-migration-patterns-setting">...</a>
+     * the form <migration_type>:<migration_state> See <a
+     * href="https://documentation.red-gate.com/flyway/reference/configuration/flyway-namespace/flyway-ignore-migration-patterns-setting">...</a>
      * for full details Example: repeatable:missing,versioned:pending,*:failed
      */
     public void setIgnoreMigrationPatterns(final String... ignoreMigrationPatterns) {
@@ -613,8 +611,8 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
-     * Ignore migrations that match this array of ValidatePatterns when validating migrations. See
-     * <a href="https://documentation.red-gate.com/flyway/reference/configuration/flyway-namespace/flyway-ignore-migration-patterns-setting">...</a>
+     * Ignore migrations that match this array of ValidatePatterns when validating migrations. See <a
+     * href="https://documentation.red-gate.com/flyway/reference/configuration/flyway-namespace/flyway-ignore-migration-patterns-setting">...</a>
      * for full details
      */
     public void setIgnoreMigrationPatterns(final ValidatePattern... ignoreMigrationPatterns) {
@@ -784,8 +782,6 @@ public class ClassicConfiguration implements Configuration {
             if (!StringUtils.hasText(dryRunOutputFileName)) {
                 return null;
             }
-
-
 
 
 
@@ -1404,57 +1400,6 @@ public class ClassicConfiguration implements Configuration {
 
     }
 
-    private OutputStream getDryRunOutputAsFile(final File dryRunOutput) {
-
-        throw new org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException(LicenseGuard.getTier(this), "dryRunOutput");
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    }
-
     /**
      * Sets the file where to output the SQL statements of a migration dry run. {@code null} to execute the SQL
      * statements directly against the database. If the file specified is in a non-existent directory, Flyway will
@@ -1604,7 +1549,8 @@ public class ClassicConfiguration implements Configuration {
             }
             if (model.getDataSource() != null) {
                 try (final Connection connection = model.getDataSource().getConnection()) {
-                    final DatabaseType databaseType = DatabaseTypeRegister.getDatabaseTypeForConnection(connection, this);
+                    final DatabaseType databaseType = DatabaseTypeRegister.getDatabaseTypeForConnection(connection,
+                        this);
                     model.setDatabaseType(databaseType);
                     return databaseType;
                 } catch (final SQLException ignored) {
@@ -1735,12 +1681,12 @@ public class ClassicConfiguration implements Configuration {
      * Configure with the same values as this existing configuration.
      */
     public void configure(final Configuration configuration) {
-        setModernConfig(ConfigurationModel.clone(configuration.getModernConfig()));
-        setWorkingDirectory(configuration.getWorkingDirectory());
+        modernConfig = ConfigurationModel.clone(configuration.getModernConfig());
+        workingDirectory = configuration.getWorkingDirectory();
 
         setJavaMigrations(configuration.getJavaMigrations());
-        setResourceProvider(configuration.getResourceProvider());
-        setJavaMigrationClassProvider(configuration.getJavaMigrationClassProvider());
+        resourceProvider = configuration.getResourceProvider();
+        javaMigrationClassProvider = configuration.getJavaMigrationClassProvider();
         setCallbacks(configuration.getCallbacks());
 
         setClassLoader(configuration.getClassLoader());
@@ -2223,7 +2169,8 @@ public class ClassicConfiguration implements Configuration {
 
                         mp.put(entry.getKey(), value);
                     }
-                    final ConfigurationExtension newConfigurationExtension = objectMapper.convertValue(mp, cfg.getClass());
+                    final ConfigurationExtension newConfigurationExtension = objectMapper.convertValue(mp,
+                        cfg.getClass());
                     MergeUtils.mergeModel(newConfigurationExtension, cfg);
                 } catch (final Exception e) {
                     final Matcher matcher = ANY_WORD_BETWEEN_TWO_QUOTES_PATTERN.matcher(e.getMessage());

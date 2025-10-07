@@ -20,7 +20,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.flywaydb</groupId>
   <artifactId>flyway-parent</artifactId>
-  <version>11.13.2</version>
+  <version>11.13.3</version>
   <packaging>pom</packaging>
   <name>${project.artifactId}</name>
   <description>Flyway: Database Migrations Made Easy.</description>
@@ -60,11 +60,10 @@
     <module>flyway-commandline</module>
     <module>flyway-database</module>
     <module>flyway-experimental</module>
+    <module>flyway-locations</module>
     <module>flyway-reports</module>
     <module>flyway-nc</module>
-
-
-
+    <module>flyway-shades</module>
 
 
 
@@ -534,8 +533,6 @@
         <artifactId>msal4j-persistence-extension</artifactId>
         <version>${version.msal4j-persistence}</version>
       </dependency>
-
-
 
 
 
