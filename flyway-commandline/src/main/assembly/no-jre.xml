@@ -47,6 +47,14 @@
             </includes>
             <fileMode>755</fileMode>
         </fileSet>
-    </fileSets>    
+        <fileSet>
+          <directory>../flyway-rulesengine-sqlfluff/target/sqlfluff/</directory>
+          <outputDirectory>lib/sqlfluff</outputDirectory>
+          <includes>
+            <include>flyway_sqlfluff_runner</include>
+          </includes>
+          <fileMode>755</fileMode>
+        </fileSet>
+    </fileSets>
     <!-- [/redgate] -->
 </assembly>

@@ -27,7 +27,6 @@ import java.util.TreeSet;
 import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
-import org.flywaydb.core.api.configuration.S3ClientFactory;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.scanner.cloud.CloudScanner;
 import software.amazon.awssdk.core.exception.SdkClientException;

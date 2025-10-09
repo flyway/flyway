@@ -69,7 +69,7 @@ public class DB2Database extends Database<DB2Connection> {
                 ")" + (getVersion().isAtLeast("10.5") ? "" : " ORGANIZE BY ROW")
                 + tablespace + ";\n" +
                 "ALTER TABLE " + table + " ADD CONSTRAINT \"" + table.getName() + "_pk\" PRIMARY KEY (\"installed_rank\");\n" +
-                "CREATE INDEX \"" + table.getSchema().getName() + "\".\"" + table.getName() + "_s_idx\" ON " + table + " (\"success\");" +
+                "CREATE INDEX \"" + table.getSchema().getName() + "\".\"" + table.getName() + "_s_idx\" ON " + table + " (\"success\") " + tablespace + ";" +
                 (baseline ? getBaselineStatement(table) + ";\n" : "");
     }
 

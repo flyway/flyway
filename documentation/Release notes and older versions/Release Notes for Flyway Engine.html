@@ -8,6 +8,40 @@
 </div>
 <div class="col-md-9">
   <div class="release">
+        <h2 id="11.14.0">Flyway 11.14.0 (2025-10-09)</h2>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Packaged SQL Fluff added to docker images</li>
+            <li>Enhanced exception handling during Code Analysis to allow Flyway to continue generating the Report if partial results are already available</li>
+            <li>Flyway now provides more comprehensive details in code analysis results</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/4155">Issue 4155</a>
+                Schema history index is now created in a specified tablespace for Oracle and DB2
+            </li>
+            <li>stop detecting schema model folder as a SQL server schema model when it was empty but had empty sub folders</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>S3ClientFactory has moved to the flyway-locations-s3 module</li>
+        </ul>
+
+        <h3>Library upgrades</h3>
+        <ul>
+            <li>Upgraded RgCompare.Cli from 1.44.0.1569 to 1.44.0.1580</li>
+        </ul>
+
+        <p>
+            Thanks to acarstensen for reporting these issues.
+        </p>
+  </div>
+
+  <div class="release">
         <h2 id="11.13.3">Flyway 11.13.3 (2025-10-07)</h2>
 
         <h3>Changes</h3>

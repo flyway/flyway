@@ -22,7 +22,6 @@ package org.flywaydb.locations.s3;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import lombok.CustomLog;
-import org.flywaydb.core.api.configuration.S3ClientFactory;
 import org.flywaydb.core.internal.util.FeatureDetector;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;

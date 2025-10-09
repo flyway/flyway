@@ -33,6 +33,12 @@ class Tag:
     def without_registry(self):
         return Tag(self.edition, self.version, self.variant, self.qualifier)
 
+    def with_registry(self, registry: str):
+        return Tag(self.edition, self.version, self.variant, self.qualifier, registry)
+
+    def with_edition(self, edition: str):
+        return Tag(edition, self.version, self.variant, self.qualifier, self.registry)
+
 def get_minor_version(version_number):
   return re.match(r"\d+\.\d+", version_number).group(0)
 

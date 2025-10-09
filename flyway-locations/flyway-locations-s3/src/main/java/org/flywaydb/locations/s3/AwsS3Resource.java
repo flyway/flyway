@@ -25,7 +25,6 @@ import java.nio.charset.Charset;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.configuration.S3ClientFactory;
 import org.flywaydb.core.api.resource.LoadableResource;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.ResponseInputStream;

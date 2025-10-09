@@ -1,6 +1,6 @@
 /*-
  * ========================LICENSE_START=================================
- * flyway-core
+ * flyway-locations-s3
  * ========================================================================
  * Copyright (C) 2010 - 2025 Red Gate Software Ltd
  * ========================================================================
@@ -17,7 +17,7 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.core.api.configuration;
+package org.flywaydb.locations.s3;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -26,13 +26,14 @@ import software.amazon.awssdk.services.s3.S3Client;
 
 /**
  * Factory class for S3 clients. By default the basic S3 client from the AWS SDK v2 is generated, but this class
- * provides the facility to configure Flyway with a custom client (eg. <a href="https://github.com/localstack/localstack">Localstack</a>)
+ * provides the facility to configure Flyway with a custom client (eg. <a
+ * href="https://github.com/localstack/localstack">Localstack</a>)
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class S3ClientFactory {
 
     @Setter
-    private static S3Client client = null;
+    private static S3Client client;
 
     public static S3Client getClient() {
         if (client != null) {

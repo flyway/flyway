@@ -52,7 +52,7 @@ def _overlay_build_commands(edition: str, flyway_tags: list[Tag]) -> tuple[list[
         return [], flyway_tags
 
 
-def _final_layer_commands(tags: list[Tag], use_buildx: bool) -> list[str]:
+def _final_layer_commands(tags: list[Tag], use_buildx: bool) -> tuple[list[str], list[Tag]]:
     commands = []
     layer_tags = []
     for tag in tags:
