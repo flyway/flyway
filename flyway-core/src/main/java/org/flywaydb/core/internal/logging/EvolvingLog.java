@@ -51,37 +51,75 @@ public class EvolvingLog implements Log {
     }
 
     @Override
+    public boolean isInfoEnabled() {
+        return log.isInfoEnabled();
+    }
+
+    @Override
+    public boolean isWarnEnabled() {
+        return log.isWarnEnabled();
+    }
+
+    @Override
+    public boolean isErrorEnabled() {
+        return log.isErrorEnabled();
+    }
+
+    @Override
+    public boolean isNoticeEnabled() {
+        return log.isNoticeEnabled();
+    }
+
+    @Override
     public void debug(String message) {
+        if (!isDebugEnabled()) {
+            return;
+        }
         updateLog();
         log.debug(message);
     }
 
     @Override
     public void info(String message) {
+        if (!isInfoEnabled()) {
+            return;
+        }
         updateLog();
         log.info(message);
     }
 
     @Override
     public void warn(String message) {
+        if (!isWarnEnabled()) {
+            return;
+        }
         updateLog();
         log.warn(message);
     }
 
     @Override
     public void error(String message) {
+        if (!isErrorEnabled()) {
+            return;
+        }
         updateLog();
         log.error(message);
     }
 
     @Override
     public void error(String message, Exception e) {
+        if (!isErrorEnabled()) {
+            return;
+        }
         updateLog();
         log.error(message, e);
     }
 
     @Override
     public void notice(String message) {
+        if (!isNoticeEnabled()) {
+            return;
+        }
         updateLog();
         log.notice(message);
     }
