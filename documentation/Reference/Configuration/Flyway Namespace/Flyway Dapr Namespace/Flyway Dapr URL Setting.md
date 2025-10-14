@@ -52,7 +52,7 @@ FLYWAY_DAPR_URL=http://localhost:3500/v1.0/secrets/my-secrets-store
 ### API
 
 ```java
-DaprConfigurationExtension daprConfigurationExtension = configuration.getPluginRegister().getPlugin(DaprConfigurationExtension.class)
+DaprConfigurationExtension daprConfigurationExtension = configuration.getConfigurationExtension(DaprConfigurationExtension.class);
 daprConfigurationExtension.setDaprUrl("http://localhost:3500/v1.0/secrets/my-secrets-store");
 ```
 

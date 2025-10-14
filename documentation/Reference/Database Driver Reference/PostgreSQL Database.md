@@ -2,7 +2,7 @@
 subtitle: PostgreSQL
 ---
 
-- **Verified Versions:** 9.2, 17
+- **Verified Versions:** 9.2, 18
 - **Maintainer:** {% include redgate-badge.html %}
 
 ## Supported Versions and Support Levels

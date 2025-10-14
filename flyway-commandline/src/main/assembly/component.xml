@@ -151,17 +151,9 @@
       <directory>src/main/assembly/drivers/aws</directory>
       <outputDirectory>drivers/aws</outputDirectory>
       <includes>
-        <include>*</include>
+        <include>*.jar</include>
       </includes>
     </fileSet>
-
-
-
-
-
-
-
-
 
 
 
@@ -293,10 +285,13 @@
         <include>org.flywaydb:flyway-gcp-spanner</include>
         <include>org.flywaydb:flyway-sqlserver</include>
         <include>org.flywaydb:flyway-singlestore</include>
+        <include>org.flywaydb:flyway-locations-s3</include>
         <include>org.flywaydb:flyway-mysql</include>
         <include>org.flywaydb:flyway-firebird</include>
         <include>org.flywaydb:flyway-database-cassandra</include>
         <include>org.flywaydb:flyway-reports</include>
+
+
 
 
 
@@ -360,6 +355,7 @@
         <include>org.flywaydb:flyway-verb-repair</include>
         <include>org.flywaydb:flyway-experimental-sqlite</include>
         <include>org.flywaydb:flyway-nc-callbacks</include>
+        <include>org.flywaydb:flyway-database-nc-couchbase</include>
       </includes>
     </dependencySet>
     <dependencySet>
@@ -396,6 +392,13 @@
       </includes>
     </dependencySet>
     <dependencySet>
+      <outputDirectory>drivers/couchbase</outputDirectory>
+      <useTransitiveFiltering>true</useTransitiveFiltering>
+      <includes>
+        <include>com.couchbase.client:java-client</include>
+      </includes>
+    </dependencySet>
+    <dependencySet>
       <outputDirectory>drivers</outputDirectory>
       <!-- Workaround for https://issues.apache.org/jira/browse/MASSEMBLY-864 -->
       <useTransitiveDependencies>false</useTransitiveDependencies>
@@ -419,6 +422,7 @@
         <exclude>com.google.cloud:google-cloud-spanner-jdbc</exclude>
         <exclude>net.java.dev.jna</exclude>
         <exclude>org.mongodb:mongodb-driver-sync</exclude>
+        <exclude>com.couchbase.client:java-client</exclude>
 
 
 

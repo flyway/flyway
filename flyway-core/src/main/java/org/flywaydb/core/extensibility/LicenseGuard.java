@@ -19,7 +19,6 @@
  */
 package org.flywaydb.core.extensibility;
 
-import java.lang.module.ModuleDescriptor.Version;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -35,7 +34,6 @@ import org.flywaydb.core.internal.license.FlywayPermit;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
-import org.flywaydb.core.internal.util.VersionUtils;
 
 @CustomLog
 @ExtensionMethod(Tier.class)

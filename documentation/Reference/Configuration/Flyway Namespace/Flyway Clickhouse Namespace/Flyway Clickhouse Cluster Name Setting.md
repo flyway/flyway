@@ -48,7 +48,7 @@ FLYWAY_CLICKHOUSE_CLUSTER_NAME=example_cluster
 ### API
 
 ```java
-ClickHouseConfigurationExtension clickHouseConfigurationExtension = configuration.getPluginRegister().getPlugin(ClickHouseConfigurationExtension.class);
+ClickHouseConfigurationExtension clickHouseConfigurationExtension = configuration.getConfigurationExtension(ClickHouseConfigurationExtension.class);
 clickHouseConfigurationExtension.setClusterName("example_cluster");
 ```
 

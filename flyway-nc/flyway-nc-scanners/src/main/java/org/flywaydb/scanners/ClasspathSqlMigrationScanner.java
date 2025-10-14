@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.jar.JarEntry;
@@ -45,6 +46,7 @@ import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.resource.ResourceName;
 import org.flywaydb.core.internal.resource.ResourceNameParser;
 import org.flywaydb.core.internal.resource.classpath.ClassPathResource;
+import org.flywaydb.core.internal.scanner.ClasspathLocationHandler;
 import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
 import org.flywaydb.core.internal.util.Pair;
 
@@ -54,21 +56,21 @@ public class ClasspathSqlMigrationScanner extends BaseSqlMigrationScanner {
     public Collection<Pair<LoadableResource, SqlScriptMetadata>> scan(final Location location,
         final Configuration configuration,
         final ParsingContext parsingContext) {
-        if (!location.isClassPath()) {
+        if (!ClasspathLocationHandler.CLASSPATH_PREFIX.equals(location.getPrefix())) {
             return List.of();
         }
 
         LOG.debug("Scanning for classpath resources at '" + location.getRootPath() + "'");
 
         final ClassLoader classLoader = configuration.getClassLoader();
-        List<URL> locationUrls = new ArrayList<>();
-        Enumeration<URL> urls;
+        final Collection<URL> locationUrls = new ArrayList<>();
+        final Enumeration<URL> urls;
         try {
             urls = classLoader.getResources(location.getRootPath());
             while (urls.hasMoreElements()) {
                 locationUrls.add(urls.nextElement());
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             LOG.error("Unable to resolve location "
                 + location
                 + " (ClassLoader: "
@@ -87,11 +89,11 @@ public class ClasspathSqlMigrationScanner extends BaseSqlMigrationScanner {
             return Collections.emptyList();
         }
 
-        Collection<Pair<LoadableResource, SqlScriptMetadata>> classPathMigrations = new ArrayList<>();
-        for (URL locationUrl : locationUrls) {
+        final Collection<Pair<LoadableResource, SqlScriptMetadata>> classPathMigrations = new ArrayList<>();
+        for (final URL locationUrl : locationUrls) {
             LOG.debug("Scanning URL: " + locationUrl.toExternalForm());
 
-            String protocol = locationUrl.getProtocol();
+            final String protocol = locationUrl.getProtocol();
             if ("file".equals(protocol)) {
                 classPathMigrations.addAll(scanFromFileSystem(new File(locationUrl.getPath()),
                     location,
@@ -111,9 +113,13 @@ public class ClasspathSqlMigrationScanner extends BaseSqlMigrationScanner {
             .getContextClassLoader()
             .getResource(".")
             .getPath()).getAbsolutePath();
-        String remainingPath = path.replace("\\", "/").substring(rootPath.length() + 1);
+        final String remainingPath = path.replace("\\", "/").substring(rootPath.length() + 1);
 
-        return location.matchesPath(remainingPath);
+        return matchesAnyWildcardRestrictions(location, remainingPath);
+    }
+
+    private static Boolean matchesAnyWildcardRestrictions(final Location location, final String path) {
+        return Optional.ofNullable(location.getPathRegex()).map(x -> x.matcher(path).matches()).orElse(true);
     }
 
     private Collection<Pair<LoadableResource, SqlScriptMetadata>> scanFromJarFile(final Location location,
@@ -156,16 +162,16 @@ public class ClasspathSqlMigrationScanner extends BaseSqlMigrationScanner {
     }
 
     private Set<String> findResourceNames(final String location, final URL locationUrl) {
-        JarFile jarFile;
+        final JarFile jarFile;
         try {
-            URLConnection con = locationUrl.openConnection();
+            final URLConnection con = locationUrl.openConnection();
             if (con instanceof final JarURLConnection jarCon) {
                 jarCon.setUseCaches(false);
                 jarFile = jarCon.getJarFile();
             } else {
                 return Collections.emptySet();
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             LOG.warn("Unable to determine jar from url (" + locationUrl + "): " + e.getMessage());
             return Collections.emptySet();
         }
@@ -175,22 +181,22 @@ public class ClasspathSqlMigrationScanner extends BaseSqlMigrationScanner {
         } finally {
             try {
                 jarFile.close();
-            } catch (IOException ignored) {
+            } catch (final IOException ignored) {
             }
         }
     }
 
     private Set<String> findResourceNamesFromJarFile(final JarFile jarFile, final String location) {
-        String toScan = location + (location.endsWith("/") ? "" : "/");
-        Set<String> resourceNames = new TreeSet<>();
+        final String toScan = location + (location.endsWith("/") ? "" : "/");
+        final Set<String> resourceNames = new TreeSet<>();
 
-        Enumeration<JarEntry> entries = jarFile.entries();
+        final Enumeration<JarEntry> entries = jarFile.entries();
         while (entries.hasMoreElements()) {
-            JarEntry entry = entries.nextElement();
+            final JarEntry entry = entries.nextElement();
             if (entry.isDirectory()) {
                 continue;
             }
-            String entryName = entry.getName();
+            final String entryName = entry.getName();
             if (entryName.startsWith(toScan)) {
                 resourceNames.add(entryName);
             }

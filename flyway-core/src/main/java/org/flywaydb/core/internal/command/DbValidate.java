@@ -60,7 +60,7 @@ public class DbValidate {
     private final Database database;
     private final CompositeMigrationResolver migrationResolver;
     private final Configuration configuration;
-    private final CallbackExecutor callbackExecutor;
+    private final CallbackExecutor<Event> callbackExecutor;
     private final Connection connection;
     private final ValidatePattern[] ignorePatterns;
 

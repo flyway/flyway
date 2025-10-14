@@ -38,7 +38,7 @@ public class DbInfo {
     private final SchemaHistory schemaHistory;
     private final Configuration configuration;
     private final Database database;
-    private final CallbackExecutor callbackExecutor;
+    private final CallbackExecutor<Event> callbackExecutor;
     private final Schema[] schemas;
 
     public MigrationInfoService info() {

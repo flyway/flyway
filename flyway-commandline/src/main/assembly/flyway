@@ -16,15 +16,24 @@ THIS="$0"
 # Detect the installation directory
 INSTALLDIR=`dirname "$THIS"`
 
-if [ -x "$INSTALLDIR/jre/bin/java" ]; then
- JAVA_CMD=$INSTALLDIR/jre/bin/java
+# Check if FLYWAY_JAVA_CMD is set
+if [ -n "$FLYWAY_JAVA_CMD" ]; then
+  JAVA_CMD="$FLYWAY_JAVA_CMD"
 else
- # Use JAVA_HOME if it is set
- if [ -z "$JAVA_HOME" ]; then JAVA_CMD=java; else JAVA_CMD=$JAVA_HOME/bin/java; fi
+  if [ -x "$INSTALLDIR/jre/bin/java" ]; then
+    JAVA_CMD=$INSTALLDIR/jre/bin/java
+  else
+    # Use JAVA_HOME if it is set
+    if [ -z "$JAVA_HOME" ]; then
+      JAVA_CMD=java
+    else
+      JAVA_CMD=$JAVA_HOME/bin/java
+    fi
+  fi
 fi
 
 
-CP="$CLASSPATH:$INSTALLDIR/lib/*:$INSTALLDIR/lib/aad/*:$INSTALLDIR/lib/plugins/*:$INSTALLDIR/lib/oracle_wallet/*:$INSTALLDIR/lib/flyway/*:$INSTALLDIR/lib/netty/*:$INSTALLDIR/lib/opentelemetry/*:$INSTALLDIR/drivers/*:$INSTALLDIR/drivers/aws/*:$INSTALLDIR/drivers/gcp/*:$INSTALLDIR/drivers/cassandra/*:$INSTALLDIR/drivers/mongo/*"
+CP="$CLASSPATH:$INSTALLDIR/lib/*:$INSTALLDIR/lib/aad/*:$INSTALLDIR/lib/plugins/*:$INSTALLDIR/lib/oracle_wallet/*:$INSTALLDIR/lib/flyway/*:$INSTALLDIR/lib/netty/*:$INSTALLDIR/lib/opentelemetry/*:$INSTALLDIR/drivers/*:$INSTALLDIR/drivers/aws/*:$INSTALLDIR/drivers/gcp/*:$INSTALLDIR/drivers/cassandra/*:$INSTALLDIR/drivers/couchbase/*:$INSTALLDIR/drivers/mongo/*"
 
 
 EXTRA_ARGS=

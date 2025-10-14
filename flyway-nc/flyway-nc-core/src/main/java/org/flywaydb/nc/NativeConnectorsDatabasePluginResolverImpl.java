@@ -42,7 +42,7 @@ public class NativeConnectorsDatabasePluginResolverImpl implements NativeConnect
 
     @Override
     public List<NativeConnectorsDatabase> resolve(final String url) {
-        return pluginRegister.getPlugins(NativeConnectorsDatabase.class)
+        return pluginRegister.getInstancesOf(NativeConnectorsDatabase.class)
             .stream()
             .map(p -> Pair.of(p.supportsUrl(url), p))
             .filter(p -> p.getLeft().isSupported())

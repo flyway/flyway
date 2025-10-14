@@ -50,7 +50,7 @@ FLYWAY_DB2Z_SQL_ID=example_group
 ### API
 
 ```java
-DB2ZConfigurationExtension dB2ZConfigurationExtension = configuration.getPluginRegister().getPlugin(DB2ZConfigurationExtension.class);
+DB2ZConfigurationExtension dB2ZConfigurationExtension = configuration.getConfigurationExtension(DB2ZConfigurationExtension.class);
 dB2ZConfigurationExtension.setSqlId("example_group");
 ```
 

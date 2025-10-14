@@ -34,7 +34,7 @@ public class CallbackManager {
     private final List<? extends CallbackHandler> callbackHandlers;
 
     public CallbackManager(final Configuration configuration, final Collection<LoadableResourceMetadata> resources) {
-        callbackHandlers = configuration.getPluginRegister().getPlugins(CallbackHandler.class);
+        callbackHandlers = configuration.getPluginRegister().getInstancesOf(CallbackHandler.class);
 
         if (callbackHandlers.isEmpty()){
             LOG.warn("Native Connectors Mode is set but no callback handlers loaded");

@@ -19,41 +19,46 @@
  */
 package org.flywaydb.core.internal.callback;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.callback.Error;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.callback.Warning;
 import org.flywaydb.core.api.output.OperationResult;
 
-import java.util.List;
-
 /**
  * A callback executor that does nothing.
  */
-public enum NoopCallbackExecutor implements CallbackExecutor {
+public enum NoopCallbackExecutor implements CallbackExecutor<Event> {
     INSTANCE;
 
     @Override
-    public void onEvent(Event event) {
+    public Collection<String> onEvent(final Event event) {
+        return Collections.emptyList();
     }
 
     @Override
-    public void onMigrateOrUndoEvent(Event event) {
+    public void onMigrateOrUndoEvent(final Event event) {
     }
 
     @Override
-    public void setMigrationInfo(MigrationInfo migrationInfo) {
+    public void setMigrationInfo(final MigrationInfo migrationInfo) {
     }
 
     @Override
-    public void onEachMigrateOrUndoEvent(Event event) {
+    public void onEachMigrateOrUndoEvent(final Event event) {
     }
 
     @Override
-    public void onOperationFinishEvent(Event event, OperationResult operationResult) {
+    public void onOperationFinishEvent(final Event event, final OperationResult operationResult) {
     }
 
     @Override
-    public void onEachMigrateOrUndoStatementEvent(Event event, String sql, List<Warning> warnings, List<Error> errors) {
+    public void onEachMigrateOrUndoStatementEvent(final Event event,
+        final String sql,
+        final List<Warning> warnings,
+        final List<Error> errors) {
     }
 }

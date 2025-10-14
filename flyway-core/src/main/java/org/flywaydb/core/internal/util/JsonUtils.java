@@ -27,14 +27,20 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
@@ -132,6 +138,27 @@ public class JsonUtils {
     public static <T> T parseJson(final String json, final TypeReference<T> typeReference) {
         try {
             return getJsonMapper().readValue(json, typeReference);
+        } catch (final Exception e) {
+            throw new FlywayException("Unable to parse JSON: " + e.getMessage());
+        }
+    }
+
+    public static List<String> getJsonSectionItems(final String json, final String sectionName) {
+        try {
+            final ObjectMapper mapper = new ObjectMapper();
+            final JsonNode root = mapper.readTree(json);
+            final JsonNode section = root.get(0).get(sectionName);
+            final List<String> fieldNames = new ArrayList<>();
+
+            if (section != null && section.isObject()) {
+                final Iterator<Entry<String, JsonNode>> fields = section.fields();
+                while (fields.hasNext()) {
+                    final Map.Entry<String, JsonNode> entry = fields.next();
+                    fieldNames.add(entry.getKey());
+                }
+            }
+
+            return fieldNames;
         } catch (final Exception e) {
             throw new FlywayException("Unable to parse JSON: " + e.getMessage());
         }

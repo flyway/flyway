@@ -55,7 +55,7 @@ FLYWAY_ORACLE_WALLET_LOCATION=/User/db/my_wallet
 ### API
 
 ```java
-OracleConfigurationExtension oracleConfigurationExtension = configuration.getPluginRegister().getPlugin(OracleConfigurationExtension.class);
+OracleConfigurationExtension oracleConfigurationExtension = configuration.getConfigurationExtension(OracleConfigurationExtension.class);
 oracleConfigurationExtension.setWalletLocation("/User/db/my_wallet");
 ```
 

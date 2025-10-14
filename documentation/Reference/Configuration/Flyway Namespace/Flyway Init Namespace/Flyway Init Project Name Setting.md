@@ -5,7 +5,7 @@ subtitle: flyway.init.projectName
 ## Description
 
 The name of the project.
-Will set [`name`](<Configuration/Name Setting>) in the generated configuration file.
+Will set [`projectName`](<Configuration/Project Name Setting>) in the generated configuration file.
 
 ## Type
 
@@ -21,5 +21,5 @@ String
 ### Command-line
 
 ```bash
-./flyway init -name="My Project" -databaseType="sqlserver"
+./flyway init -projectName="My Project" -databaseType="sqlserver"
 ```

@@ -47,20 +47,20 @@ public class MigrationScannerManager {
     private final List<? extends NativeConnectorsMigrationScanner> scanners;
 
     public MigrationScannerManager(final Configuration configuration) {
-        this(configuration.getPluginRegister().getPlugins(NativeConnectorsMigrationScanner.class));
+        this(configuration.getPluginRegister().getInstancesOf(NativeConnectorsMigrationScanner.class));
     }
     
     public MigrationScannerManager(final List<? extends NativeConnectorsMigrationScanner> scanners) {
         this.scanners = scanners;
     }
 
-    public Collection<LoadableResourceMetadata> scan(final Configuration configuration, final ParsingContext parsingContext) {
+    public Collection<LoadableResourceMetadata> scan(final Configuration configuration, final ParsingContext parsingContext, final Location[] locations) {
         if (scanners.isEmpty()){
             LOG.warn("Native Connectors Mode is set but no migrations scanners loaded");
             return Collections.emptyList();
         }
 
-        final List<LoadableResourceMetadata> resources = Arrays.stream(configuration.getLocations())
+        final List<LoadableResourceMetadata> resources = Arrays.stream(locations)
                                                                .flatMap(location -> scan(location,configuration, parsingContext).stream())
                                                                .map(resource -> getLoadableResourceMetadata(resource, configuration, parsingContext))
                                                                .toList();

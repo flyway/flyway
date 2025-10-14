@@ -22,8 +22,9 @@ package org.flywaydb.core.internal.resolver.script;
 import lombok.CustomLog;
 import org.flywaydb.core.api.CoreMigrationType;
 import org.flywaydb.core.api.ResourceProvider;
-import org.flywaydb.core.api.callback.Callback;
+import org.flywaydb.core.api.callback.CallbackEvent;
 import org.flywaydb.core.api.callback.Event;
+import org.flywaydb.core.api.callback.GenericCallback;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
@@ -44,7 +45,7 @@ import java.io.Reader;
 import java.util.*;
 
 @CustomLog
-public class ScriptMigrationResolver implements MigrationResolver {
+public class ScriptMigrationResolver<E extends CallbackEvent<E>> implements MigrationResolver {
 
     private final String[] fileTypes = new String[] {"cmd", "bat", "ps1", "py", "sh", "bash"};
     private final String[] suffixes = Arrays.stream(fileTypes).map(s -> "." + s).toArray(String[]::new);
@@ -52,9 +53,9 @@ public class ScriptMigrationResolver implements MigrationResolver {
     private final Configuration configuration;
     private final ParsingContext parsingContext;
     private final StatementInterceptor statementInterceptor;
-    public final Set<Callback> scriptCallbacks;
+    public final Set<GenericCallback<E>> scriptCallbacks;
 
-    public ScriptMigrationResolver(ResourceProvider resourceProvider, Configuration configuration, ParsingContext parsingContext, StatementInterceptor statementInterceptor) {
+    public ScriptMigrationResolver(final ResourceProvider resourceProvider, final Configuration configuration, final ParsingContext parsingContext, final StatementInterceptor statementInterceptor) {
         this.resourceProvider = resourceProvider;
         this.configuration = configuration;
         this.parsingContext = parsingContext;
@@ -63,15 +64,16 @@ public class ScriptMigrationResolver implements MigrationResolver {
     }
 
     @Override
-    public Collection<ResolvedMigration> resolveMigrations(Context context) {
-        List<ResolvedMigration> migrations = new ArrayList<>();
+    public Collection<ResolvedMigration> resolveMigrations(final Context context) {
+        final List<ResolvedMigration> migrations = new ArrayList<>();
 
         addMigrations(CoreMigrationType.SCRIPT, migrations, configuration.getSqlMigrationPrefix(), false);
 
-        for (MigrationResolver migrationResolver : context.configuration.getPluginRegister().getPlugins(MigrationResolver.class)) {
-            String prefix = migrationResolver.getPrefix(context.configuration);
+        for (final MigrationResolver migrationResolver : context.configuration.getPluginRegister()
+            .getInstancesOf(MigrationResolver.class)) {
+            final String prefix = migrationResolver.getPrefix(context.configuration);
             if (prefix != null) {
-                MigrationType migrationType = migrationResolver.getDefaultMigrationType();
+                final MigrationType migrationType = migrationResolver.getDefaultMigrationType();
                 if (migrationType == null) {
                     addMigrations(CoreMigrationType.SCRIPT, migrations, prefix, false);
                 } else {
@@ -86,11 +88,11 @@ public class ScriptMigrationResolver implements MigrationResolver {
         return migrations;
     }
 
-    private LoadableResource[] createPlaceholderReplacingLoadableResources(List<LoadableResource> loadableResources) {
-        List<LoadableResource> list = new ArrayList<>();
+    private LoadableResource[] createPlaceholderReplacingLoadableResources(final List<LoadableResource> loadableResources) {
+        final List<LoadableResource> list = new ArrayList<>();
 
         for (final LoadableResource loadableResource : loadableResources) {
-            LoadableResource placeholderReplacingLoadableResource = new LoadableResource() {
+            final LoadableResource placeholderReplacingLoadableResource = new LoadableResource() {
                 @Override
                 public Reader read() {
                     return PlaceholderReplacingReader.createForScriptMigration(
@@ -118,7 +120,7 @@ public class ScriptMigrationResolver implements MigrationResolver {
         return list.toArray(LoadableResource[]::new);
     }
 
-    private Integer getChecksumForLoadableResource(boolean repeatable, List<LoadableResource> loadableResources) {
+    private Integer getChecksumForLoadableResource(final boolean repeatable, final List<LoadableResource> loadableResources) {
         if (repeatable && configuration.isPlaceholderReplacement()) {
             return ChecksumCalculator.calculate(createPlaceholderReplacingLoadableResources(loadableResources));
         }
@@ -126,7 +128,7 @@ public class ScriptMigrationResolver implements MigrationResolver {
         return ChecksumCalculator.calculate(loadableResources.toArray(LoadableResource[]::new));
     }
 
-    private Integer getEquivalentChecksumForLoadableResource(boolean repeatable, List<LoadableResource> loadableResources) {
+    private Integer getEquivalentChecksumForLoadableResource(final boolean repeatable, final List<LoadableResource> loadableResources) {
         if (repeatable) {
             return ChecksumCalculator.calculate(loadableResources.toArray(LoadableResource[]::new));
         }
@@ -134,22 +136,22 @@ public class ScriptMigrationResolver implements MigrationResolver {
         return null;
     }
 
-    private void addMigrations(MigrationType migrationType, List<ResolvedMigration> migrations, String prefix, boolean repeatable) {
-        ResourceNameParser resourceNameParser = new ResourceNameParser(configuration);
+    private void addMigrations(final MigrationType migrationType, final List<ResolvedMigration> migrations, final String prefix, final boolean repeatable) {
+        final ResourceNameParser resourceNameParser = new ResourceNameParser(configuration);
 
-        for (LoadableResource resource : resourceProvider.getResources(prefix, new String[] {""})) {
-            String filename = resource.getFilename();
-            ResourceName result = resourceNameParser.parse(filename, suffixes);
+        for (final LoadableResource resource : resourceProvider.getResources(prefix, new String[] { ""})) {
+            final String filename = resource.getFilename();
+            final ResourceName result = resourceNameParser.parse(filename, suffixes);
 
             if (!result.isValid() || isCallback(result) || !prefix.equals(result.getPrefix()) || isNotScriptFile(filename)) {
                 continue;
             }
 
-            List<LoadableResource> resources = new ArrayList<>();
+            final List<LoadableResource> resources = new ArrayList<>();
             resources.add(resource);
 
-            Integer checksum = getChecksumForLoadableResource(repeatable, resources);
-            Integer equivalentChecksum = getEquivalentChecksumForLoadableResource(repeatable, resources);
+            final Integer checksum = getChecksumForLoadableResource(repeatable, resources);
+            final Integer equivalentChecksum = getEquivalentChecksumForLoadableResource(repeatable, resources);
 
             migrations.add(new ResolvedMigrationImpl(
                     result.getVersion(),
@@ -163,21 +165,22 @@ public class ScriptMigrationResolver implements MigrationResolver {
         }
     }
 
-    public void resolveCallbacks() {
-        ResourceNameParser resourceNameParser = new ResourceNameParser(configuration);
+    public void resolveCallbacks(final ParseCallbackEvent<E> parseCallbackEvent) {
+        final ResourceNameParser resourceNameParser = new ResourceNameParser(configuration);
 
-        for (LoadableResource resource : resourceProvider.getResources("", new String[] {""})) {
-            String filename = resource.getFilename();
-            ResourceName result = resourceNameParser.parse(filename, suffixes);
+        for (final LoadableResource resource : resourceProvider.getResources("", new String[] { ""})) {
+            final String filename = resource.getFilename();
+            final ResourceName result = resourceNameParser.parse(filename, suffixes);
 
             if (!result.isValid() || isNotScriptFile(filename)) {
                 continue;
             }
 
-            if (isCallback(result)) {
+            final Optional<E> maybeEvent = parseCallbackEvent.parse(result.getPrefix());
+            if (maybeEvent.isPresent()) {
                 LOG.debug("Found script callback: " + resource.getAbsolutePath() + " (filename: " + resource.getFilename() + ")");
-                scriptCallbacks.add(new ArbitraryScriptCallback(
-                        Event.fromId(result.getPrefix()),
+                scriptCallbacks.add(new ArbitraryScriptCallback<>(
+                        maybeEvent.get(),
                         result.getDescription(),
                         new ScriptMigrationExecutor(resource, parsingContext, result, statementInterceptor)
                 ));
@@ -185,9 +188,9 @@ public class ScriptMigrationResolver implements MigrationResolver {
         }
     }
 
-    boolean isNotScriptFile(String filename) {
-        boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("win");
-        String extension = StringUtils.getFileNameAndExtension(filename).getRight();
+    boolean isNotScriptFile(final String filename) {
+        final boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("win");
+        final String extension = StringUtils.getFileNameAndExtension(filename).getRight();
 
         boolean isScriptFile = false;
         if (!isWindows) {
@@ -195,7 +198,7 @@ public class ScriptMigrationResolver implements MigrationResolver {
         }
 
         if (!isScriptFile) {
-            for (String suffix : fileTypes) {
+            for (final String suffix : fileTypes) {
                 if (suffix.equalsIgnoreCase(extension)) {
                     isScriptFile = true;
                     break;
@@ -214,5 +217,10 @@ public class ScriptMigrationResolver implements MigrationResolver {
      */
     private static boolean isCallback(ResourceName result) {
         return Event.fromId(result.getPrefix()) != null;
+    }
+
+    @FunctionalInterface
+    public interface ParseCallbackEvent<E extends CallbackEvent<E>> {
+        Optional<E> parse(final String id);
     }
 }

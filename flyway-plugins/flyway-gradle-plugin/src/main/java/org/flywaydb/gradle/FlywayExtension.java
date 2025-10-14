@@ -136,6 +136,16 @@ public class FlywayExtension {
     public String[] locations;
 
     /**
+     * Locations to scan recursively for callbacks.
+     * The location type is determined by its prefix.
+     * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
+     * contain both SQL and Java-based callbacks.
+     * Locations starting with {@code filesystem:} point to a directory on the filesystem, may only
+     * contain SQL callbacks and are only scanned recursively down non-hidden directories.
+     */
+    public String[] callbackLocations;
+
+    /**
      * The fully qualified class names of the custom MigrationResolvers to be used in addition (default)
      * or as a replacement (using skipDefaultResolvers) to the built-in ones for resolving Migrations to apply.
      * (default: none)<

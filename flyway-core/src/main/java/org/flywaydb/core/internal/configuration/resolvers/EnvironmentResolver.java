@@ -153,11 +153,11 @@ public class EnvironmentResolver {
     }
 
     private Class<? extends Plugin> getResolverClassFromKey(final PluginRegister pluginRegister, final String key) {
-        Plugin plugin = pluginRegister.getPlugins(EnvironmentProvisioner.class).stream().filter(p -> p.getName()
+        Plugin plugin = pluginRegister.getInstancesOf(EnvironmentProvisioner.class).stream().filter(p -> p.getName()
             .equalsIgnoreCase(key)).findFirst().orElse(null);
 
         if (plugin == null) {
-            plugin = pluginRegister.getPlugins(PropertyResolver.class).stream().filter(p -> p.getName()
+            plugin = pluginRegister.getInstancesOf(PropertyResolver.class).stream().filter(p -> p.getName()
                 .equalsIgnoreCase(key)).findFirst().orElse(null);
         }
 
@@ -174,7 +174,7 @@ public class EnvironmentResolver {
             return null;
         }
 
-        final Plugin plugin = pluginRegister.getPlugin(resolverClass);
+        final Plugin plugin = pluginRegister.getExact(resolverClass);
         if (plugin instanceof final EnvironmentProvisioner environmentProvisioner) {
             return environmentProvisioner.getConfigClass();
         }

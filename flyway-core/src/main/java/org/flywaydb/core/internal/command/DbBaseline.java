@@ -55,7 +55,7 @@ public class DbBaseline {
     /**
      * The callback executor.
      */
-    private final CallbackExecutor callbackExecutor;
+    private final CallbackExecutor<Event> callbackExecutor;
 
     /**
      * The POJO containing the baseline result
@@ -72,7 +72,7 @@ public class DbBaseline {
      * @param database Database-specific functionality.
      */
     public DbBaseline(SchemaHistory schemaHistory, MigrationVersion baselineVersion, String baselineDescription,
-                      CallbackExecutor callbackExecutor, Database database) {
+                      CallbackExecutor<Event> callbackExecutor, Database database) {
         this.schemaHistory = schemaHistory;
         this.baselineVersion = baselineVersion;
         this.baselineDescription = baselineDescription;

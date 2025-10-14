@@ -5,7 +5,7 @@ redirect_from: Configuration/createSchemas/
 
 ## Description
 
-Whether Flyway should attempt to create the schemas specified in the schemas property. [See this page for more details](https://documentation.red-gate.com/flyway/flyway-concepts/migrations/flyway-schema-history-table)
+Whether Flyway should attempt to create the schemas specified in the schemas property when performing a migration. [See this page for more details](https://documentation.red-gate.com/flyway/flyway-concepts/migrations/flyway-schema-history-table)
 
 If Flyway automatically creates a schema, then the schemas themselves will be dropped when cleaning.
 

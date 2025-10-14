@@ -19,5 +19,3 @@ LABEL "com.azure.dev.pipelines.agent.handler.node.path"="/usr/local/bin/node"
 WORKDIR /flyway
 COPY --from=untar /flyway /flyway
 RUN ln -s /flyway/flyway /usr/local/bin/flyway
-ENTRYPOINT ["flyway"]
-CMD ["-?"]

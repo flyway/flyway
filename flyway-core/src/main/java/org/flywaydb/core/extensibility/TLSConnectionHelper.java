@@ -29,7 +29,7 @@ public interface TLSConnectionHelper extends Plugin{
 
     static List<TLSConnectionHelper> get(Configuration configuration) {
         return configuration.getPluginRegister()
-            .getPlugins(TLSConnectionHelper.class)
+            .getInstancesOf(TLSConnectionHelper.class)
             .stream().toList();
     }
 

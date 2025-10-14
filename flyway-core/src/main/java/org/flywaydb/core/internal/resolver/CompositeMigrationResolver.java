@@ -23,6 +23,7 @@ import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.api.CoreErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.ResourceProvider;
+import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
@@ -70,9 +71,9 @@ public class CompositeMigrationResolver implements MigrationResolver {
             migrationResolvers.add(new SqlMigrationResolver(resourceProvider, sqlScriptExecutorFactory, sqlScriptFactory, configuration, parsingContext));
             migrationResolvers.add(new ScanningJavaMigrationResolver(classProvider, configuration));
 
-            migrationResolvers.addAll(configuration.getPluginRegister().getPlugins(MigrationResolver.class));
+            migrationResolvers.addAll(configuration.getPluginRegister().getInstancesOf(MigrationResolver.class));
 
-            migrationResolvers.add(new ScriptMigrationResolver(resourceProvider, configuration, parsingContext, statementInterceptor));
+            migrationResolvers.add(new ScriptMigrationResolver<Event>(resourceProvider, configuration, parsingContext, statementInterceptor));
         }
 
         migrationResolvers.add(new FixedJavaMigrationResolver(configuration.getJavaMigrations()));

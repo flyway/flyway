@@ -51,7 +51,7 @@ public class BaselineMigrationResolver implements MigrationResolver {
     public Collection<ResolvedMigration> resolveMigrations(Context context) {
         List<ResolvedMigration> migrations = new ArrayList<>();
 
-        BaselineMigrationConfigurationExtension configurationExtension = context.configuration.getPluginRegister().getPlugin(BaselineMigrationConfigurationExtension.class);
+        BaselineMigrationConfigurationExtension configurationExtension = context.configuration.getPluginRegister().getExact(BaselineMigrationConfigurationExtension.class);
         Configuration configuration = context.configuration;
 
         addMigrations(migrations, configurationExtension.getBaselineMigrationPrefix(), configuration, context.resourceProvider, context.sqlScriptFactory, context.sqlScriptExecutorFactory);
@@ -67,7 +67,7 @@ public class BaselineMigrationResolver implements MigrationResolver {
 
     @Override
     public String getPrefix(Configuration configuration) {
-        return configuration.getPluginRegister().getPlugin(BaselineMigrationConfigurationExtension.class).getBaselineMigrationPrefix();
+        return configuration.getPluginRegister().getExact(BaselineMigrationConfigurationExtension.class).getBaselineMigrationPrefix();
     }
 
     private void addMigrations(List<ResolvedMigration> migrations,

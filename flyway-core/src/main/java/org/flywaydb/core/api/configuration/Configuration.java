@@ -25,6 +25,7 @@ import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.extensibility.ConfigurationExtension;
 import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
 import org.flywaydb.core.internal.configuration.models.DataSourceModel;
 import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
@@ -54,6 +55,14 @@ public interface Configuration {
      * @apiNote Currently under development and not recommended for use.
      */
     PluginRegister getPluginRegister();
+
+    /**
+     * Retrieves a configuration extension.
+     *
+     * @param extensionClass the extension class
+     * @return configuration extension
+     */
+    <T extends ConfigurationExtension> T getConfigurationExtension(Class<T> extensionClass);
 
     /**
      * Get the filename of generated reports
@@ -382,6 +391,16 @@ public interface Configuration {
      * @return Locations to scan recursively for migrations. (default: classpath:db/migration)
      */
     Location[] getLocations();
+
+    /**
+     * Retrieves the locations to scan recursively for callbacks. The location type is determined by its prefix.
+     * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
+     * contain both SQL and Java-based callbacks. Locations starting with {@code filesystem:} point to a directory on
+     * the filesystem, may only contain SQL callbacks and are only scanned recursively down non-hidden directories.
+     *
+     * @return Locations to scan recursively for callbacks.
+     */
+    Location[] getCallbackLocations();
 
     /**
      * Whether to automatically call baseline when migrate is executed against a non-empty schema with no schema history table.

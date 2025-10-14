@@ -24,5 +24,9 @@ org.flywaydb.core.internal.proprietaryStubs.DiffTextCommandExtensionStub
 org.flywaydb.core.internal.proprietaryStubs.GenerateCommandExtensionStub
 org.flywaydb.core.internal.proprietaryStubs.PrepareCommandExtensionStub
 org.flywaydb.core.internal.proprietaryStubs.PATTokenConfigurationExtensionStub
+org.flywaydb.core.internal.proprietaryStubs.OfflinePermitConfigurationExtensionStub
 org.flywaydb.core.internal.publishing.PublishingConfigurationExtension
+org.flywaydb.core.internal.scanner.classpath.ClasspathLocationHandlerImpl
+org.flywaydb.core.internal.scanner.filesystem.FilesystemLocationHandler
 org.flywaydb.core.internal.NullFlywayTelemetryManager
+org.flywaydb.core.internal.jdbc.ErrorOverrideInitializerStub

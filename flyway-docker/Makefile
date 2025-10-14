@@ -10,4 +10,4 @@ build:
 test:
 	python ./scripts/test_images.py $(EDITION) $(VERSION) $(TEST_MODE) $(if $(ENV_PASS),--env-pass $(ENV_PASS),) $(if $(DRY_RUN),--dry-run,)
 release:
-	python ./scripts/release.py $(EDITION) $(VERSION)
+	python ./scripts/release.py $(EDITION) $(VERSION) $(TEST_MODE)

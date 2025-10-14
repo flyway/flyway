@@ -125,7 +125,7 @@ public class ResourceNameParser {
     private List<Pair<String, ResourceType>> populatePrefixes(Configuration configuration) {
         List<Pair<String, ResourceType>> prefixes = new ArrayList<>();
 
-        configuration.getPluginRegister().getPlugins(ResourceTypeProvider.class)
+        configuration.getPluginRegister().getInstancesOf(ResourceTypeProvider.class)
                 .forEach(resourceTypeProvider -> prefixes.addAll(resourceTypeProvider.getPrefixTypePairs(configuration)));
 
         Comparator<Pair<String, ResourceType>> prefixComparator = (p1, p2) -> {

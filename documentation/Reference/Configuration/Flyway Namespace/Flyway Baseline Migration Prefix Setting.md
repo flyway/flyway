@@ -53,7 +53,7 @@ FLYWAY_BASELINE_MIGRATION_PREFIX=IB
 ### API
 
 ```java
-BaselineMigrationConfigurationExtension baselineMigrationConfigurationExtension = configuration.getPluginRegister().getPlugin(BaselineMigrationConfigurationExtension.class)
+BaselineMigrationConfigurationExtension baselineMigrationConfigurationExtension = configuration.getConfigurationExtension(BaselineMigrationConfigurationExtension.class);
 baselineMigrationConfigurationExtension.setBaselineMigrationPrefix("IB");
 ```
 

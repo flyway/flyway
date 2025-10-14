@@ -30,7 +30,7 @@ public class CommandExtensionUtils {
         final String command,
         final List<String> flags) {
         return configuration.getPluginRegister()
-            .getPlugins(CommandExtension.class)
+            .getInstancesOf(CommandExtension.class)
             .stream()
             .filter(commandExtension -> commandExtension.handlesCommand(command))
             .findFirst()

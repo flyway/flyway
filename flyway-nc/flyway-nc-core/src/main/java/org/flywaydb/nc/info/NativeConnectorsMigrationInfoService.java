@@ -55,7 +55,7 @@ public class NativeConnectorsMigrationInfoService implements MigrationInfoServic
         final Configuration configuration) {
         final MigrationInfo[] applicableMigrations;
         final List<NativeConnectorsMigrationInfoFilter> filters = configuration.getPluginRegister()
-            .getLicensedPlugins(NativeConnectorsMigrationInfoFilter.class, configuration);
+            .getLicensedInstancesOf(NativeConnectorsMigrationInfoFilter.class, configuration);
         MigrationInfo[] tempMigrations = Arrays.copyOf(migrations, migrations.length);
         for (final NativeConnectorsMigrationInfoFilter filter : filters) {
             final Predicate<MigrationInfo> predicate = filter.getFilter(configuration);

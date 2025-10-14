@@ -31,7 +31,6 @@ import org.flywaydb.reports.api.extensibility.HtmlReportSummary;
 import org.flywaydb.core.extensibility.LicenseGuard;
 import org.flywaydb.core.extensibility.Tier;
 import org.flywaydb.core.internal.util.FileUtils;
-import org.flywaydb.core.internal.util.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -174,7 +173,7 @@ public class HtmlReportGenerator {
     }
 
     public static HtmlRenderer<HtmlResult> getRenderer(HtmlResult htmlResult, Configuration config) {
-        HtmlRenderer result = config.getPluginRegister().getPlugins(HtmlRenderer.class).stream()
+        HtmlRenderer result = config.getPluginRegister().getInstancesOf(HtmlRenderer.class).stream()
                                     .filter(t -> t.getType().isAssignableFrom(htmlResult.getClass()))
                                     .findFirst()
                                     .orElse(null);

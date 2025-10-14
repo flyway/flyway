@@ -19,15 +19,18 @@
  */
 package org.flywaydb.core.api;
 
-import lombok.Getter;
-
 import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import org.flywaydb.core.internal.scanner.LocationParser;
+import org.flywaydb.core.internal.scanner.filesystem.FilesystemLocationHandler;
 
 /**
  * A location to load migrations from.
  */
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public final class Location implements Comparable<Location> {
     /**
      * The prefix for classpath locations.
@@ -36,6 +39,7 @@ public final class Location implements Comparable<Location> {
     /**
      * The prefix for filesystem locations.
      */
+    @Deprecated
     public static final String FILESYSTEM_PREFIX = "filesystem:";
     /**
      * The prefix for AWS S3 locations.
@@ -54,144 +58,54 @@ public final class Location implements Comparable<Location> {
     /**
      * The path part of the location.
      */
-    private String rawPath;
+    private final String rawPath;
     /**
      * The first folder in the path. This will equal rawPath if the path does not contain any wildcards
      *
      * @return The root part of the path part of the location.
      */
     @Getter
-    private String rootPath;
+    private final String rootPath;
     /**
-     * @return The regex that matches wildcards in the original path. Null if the original path did not contain any wildcards.
+     * @return The regex that matches wildcards in the original path. Null if the original path did not contain any
+     * wildcards.
      */
     @Getter
-    private Pattern pathRegex = null;
+    private final Pattern pathRegex;
 
-    public Location(String descriptor) {
-        String normalizedDescriptor = descriptor.trim();
+    public static Location fromPath(final String prefix, final String path) {
+        return new Location(prefix, path, path, null);
+    }
 
-        if (normalizedDescriptor.contains(":")) {
-            prefix = normalizedDescriptor.substring(0, normalizedDescriptor.indexOf(":") + 1);
-            rawPath = normalizedDescriptor.substring(normalizedDescriptor.indexOf(":") + 1);
-        } else {
-            prefix = CLASSPATH_PREFIX;
-            rawPath = normalizedDescriptor;
-        }
+    public static Location fromWildcardPath(final String prefix,
+        final String rootPath,
+        final String wildcardPath,
+        final Pattern pathRegex) {
+        return new Location(prefix, rootPath, wildcardPath, pathRegex);
+    }
 
-        if (isClassPath()) {
-            if (rawPath.startsWith("/")) {
-                rawPath = rawPath.substring(1);
-            }
-            if (rawPath.endsWith("/")) {
-                rawPath = rawPath.substring(0, rawPath.length() - 1);
-            }
-            processRawPath();
-        } else if (isFileSystem()) {
-            processRawPath();
-            rootPath = new File(rootPath).getPath();
+    @Deprecated
+    public Location(final String descriptor) {
+        final Location location = LocationParser.parseLocation(descriptor);
+        this.rawPath = location.rawPath;
+        this.rootPath = location.rootPath;
+        this.prefix = location.prefix;
+        this.pathRegex = location.pathRegex;
+    }
 
-            if (pathRegex == null) {
-                // if the original path contained no wildcards, also normalise it
-                rawPath = new File(rawPath).getPath();
-            }
-        } else if (!isAwsS3() && !isGCS()) {
-            throw new FlywayException("Unknown prefix for location (should be one of filesystem:, classpath:, gcs:, or s3:): "
-                                              + normalizedDescriptor);
-        }
-
-        if (rawPath.endsWith(File.separator)) {
-            rawPath = rawPath.substring(0, rawPath.length() - 1);
-        }
+    private Location(final String prefix, final String rootPath, final String rawPath, final Pattern pathRegex) {
+        this.rawPath = rawPath;
+        this.rootPath = rootPath;
+        this.prefix = prefix;
+        this.pathRegex = pathRegex;
     }
 
     /**
-     * Process the rawPath into a rootPath and a regex.
-     * Supported wildcards:
-     * **: Match any 0 or more directories
-     * *: Match any sequence of non-separator characters
-     * ?: Match any single character
+     * @return Whether the given path matches this locations regex. Will always return true when the location did not
+     * contain any wildcards.
      */
-    private void processRawPath() {
-        if (rawPath.contains("*") || rawPath.contains("?")) {
-            // we need to figure out the root, and create the regex
-
-            String separator = isFileSystem() ? File.separator : "/";
-            String escapedSeparator = separator.replace("\\", "\\\\").replace("/", "\\/");
-
-            // split on either of the path separators
-            String[] pathSplit = rawPath.split("[\\\\/]");
-
-            StringBuilder rootPart = new StringBuilder();
-            StringBuilder patternPart = new StringBuilder();
-
-            boolean endsInFile = false;
-            boolean skipSeparator = false;
-            boolean inPattern = false;
-            for (String pathPart : pathSplit) {
-                endsInFile = false;
-
-                if (pathPart.contains("*") || pathPart.contains("?")) {
-                    inPattern = true;
-                }
-
-                if (inPattern) {
-                    if (skipSeparator) {
-                        skipSeparator = false;
-                    } else {
-                        patternPart.append("/");
-                    }
-
-                    String regex;
-                    if ("**".equals(pathPart)) {
-                        regex = "([^/]+/)*?";
-
-                        // this pattern contains the ending separator, so make sure we skip appending it after
-                        skipSeparator = true;
-                    } else {
-                        endsInFile = pathPart.contains(".");
-
-                        regex = pathPart;
-                        regex = regex.replace(".", "\\.");
-                        regex = regex.replace("?", "[^/]");
-                        regex = regex.replace("*", "[^/]+?");
-                    }
-
-                    patternPart.append(regex);
-                } else {
-                    rootPart.append(separator).append(pathPart);
-                }
-            }
-
-            // We always append a separator before each part, so ensure we skip it when setting the final rootPath
-            rootPath = rootPart.length() > 0 ? rootPart.substring(1) : "";
-
-            // Again, skip first separator
-            String pattern = patternPart.substring(1);
-
-            // Replace the temporary / with the actual escaped separator
-            pattern = pattern.replace("/", escapedSeparator);
-
-            // Append the rootPath if it is non-empty
-            if (rootPart.length() > 0) {
-                pattern = rootPath.replace(separator, escapedSeparator) + escapedSeparator + pattern;
-            }
-
-            // if the path did not end in a file, then append the file match pattern
-            if (!endsInFile) {
-                pattern = pattern + escapedSeparator + "(?<relpath>.*)";
-            }
-
-            pathRegex = Pattern.compile(pattern);
-        } else {
-            rootPath = rawPath;
-        }
-    }
-
-    /**
-     * @return Whether the given path matches this locations regex. Will always return true when the location did not contain any wildcards.
-     */
-    public boolean matchesPath(String path) {
+    @Deprecated
+    public boolean matchesPath(final String path) {
         if (pathRegex == null) {
             return true;
         }
@@ -199,21 +113,21 @@ public final class Location implements Comparable<Location> {
     }
 
     /**
-     * Returns the path relative to this location. If the location path contains wildcards, the returned path will be relative
-     * to the last non-wildcard folder in the path.
+     * Returns the path relative to this location. If the location path contains wildcards, the returned path will be
+     * relative to the last non-wildcard folder in the path.
      */
-    public String getPathRelativeToThis(String path) {
+    public String getPathRelativeToThis(final String path) {
         if (pathRegex != null && pathRegex.pattern().contains("?<relpath>")) {
-            Matcher matcher = pathRegex.matcher(path);
+            final Matcher matcher = pathRegex.matcher(path);
             if (matcher.matches()) {
-                String relPath = matcher.group("relpath");
-                if (relPath != null && relPath.length() > 0) {
+                final String relPath = matcher.group("relpath");
+                if (relPath != null && !relPath.isEmpty()) {
                     return relPath;
                 }
             }
         }
 
-        return rootPath.length() > 0 ? path.substring(rootPath.length() + 1) : path;
+        return !rootPath.isEmpty() ? path.substring(rootPath.length() + 1) : path;
     }
 
     /**
@@ -221,6 +135,7 @@ public final class Location implements Comparable<Location> {
      *
      * @return {@code true} if it does, {@code false} if it doesn't.
      */
+    @Deprecated
     public boolean isClassPath() {
         return CLASSPATH_PREFIX.equals(prefix);
     }
@@ -230,8 +145,9 @@ public final class Location implements Comparable<Location> {
      *
      * @return {@code true} if it does, {@code false} if it doesn't.
      */
+    @Deprecated
     public boolean isFileSystem() {
-        return FILESYSTEM_PREFIX.equals(prefix);
+        return FilesystemLocationHandler.FILESYSTEM_PREFIX.equals(prefix);
     }
 
     /**
@@ -239,6 +155,7 @@ public final class Location implements Comparable<Location> {
      *
      * @return {@code true} if it does, {@code false} if it doesn't;
      */
+    @Deprecated
     public boolean isAwsS3() {
         return AWS_S3_PREFIX.equals(prefix);
     }
@@ -248,6 +165,7 @@ public final class Location implements Comparable<Location> {
      *
      * @return {@code true} if it does, {@code false} if it doesn't;
      */
+    @Deprecated
     public boolean isGCS() {
         return GCS_PREFIX.equals(prefix);
     }
@@ -258,15 +176,17 @@ public final class Location implements Comparable<Location> {
      * @param other The other location.
      * @return {@code true} if it is, {@code false} if it isn't.
      */
+    @Deprecated
     @SuppressWarnings("SimplifiableIfStatement")
-    public boolean isParentOf(Location other) {
+    public boolean isParentOf(final Location other) {
         if (pathRegex != null || other.pathRegex != null) {
             return false;
         }
-        if (isClassPath() && other.isClassPath()) {
+        if (CLASSPATH_PREFIX.equals(prefix) && CLASSPATH_PREFIX.equals(other.prefix)) {
             return (other.getDescriptor() + "/").startsWith(getDescriptor() + "/");
         }
-        if (isFileSystem() && other.isFileSystem()) {
+        if (FilesystemLocationHandler.FILESYSTEM_PREFIX.equals(prefix)
+            && FilesystemLocationHandler.FILESYSTEM_PREFIX.equals(other.prefix)) {
             return (other.getDescriptor() + File.separator).startsWith(getDescriptor() + File.separator);
         }
         return false;
@@ -274,7 +194,11 @@ public final class Location implements Comparable<Location> {
 
     /**
      * @return The path part of the location.
+     * @see #getRootPath()
+     * @deprecated Use the root path instead. This path will not be a genuine path for wildcard locations, whereas the
+     * root path is always a path.
      */
+    @Deprecated
     public String getPath() {
         return rawPath;
     }
@@ -282,30 +206,14 @@ public final class Location implements Comparable<Location> {
     /**
      * @return The complete location descriptor.
      */
+    @EqualsAndHashCode.Include
     public String getDescriptor() {
         return prefix + rawPath;
     }
 
     @Override
-    public int compareTo(Location o) {
+    public int compareTo(final Location o) {
         return getDescriptor().compareTo(o.getDescriptor());
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Location location = (Location) o;
-        return getDescriptor().equals(location.getDescriptor());
-    }
-
-    @Override
-    public int hashCode() {
-        return getDescriptor().hashCode();
     }
 
     /**

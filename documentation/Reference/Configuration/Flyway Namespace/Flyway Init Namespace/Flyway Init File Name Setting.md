@@ -20,5 +20,5 @@ String
 ### Command-line
 
 ```bash
-./flyway init -name="My Project" -databaseType="sqlserver" -fileName="custom.toml"
+./flyway init -projectName="My Project" -databaseType="sqlserver" -fileName="custom.toml"
 ```

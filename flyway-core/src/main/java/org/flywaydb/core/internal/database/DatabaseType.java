@@ -20,6 +20,7 @@
 package org.flywaydb.core.internal.database;
 
 import org.flywaydb.core.api.ResourceProvider;
+import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.Plugin;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
@@ -159,7 +160,7 @@ public interface DatabaseType extends Plugin {
      */
     SqlScriptExecutorFactory createSqlScriptExecutorFactory(
             final JdbcConnectionFactory jdbcConnectionFactory,
-            final CallbackExecutor callbackExecutor,
+            final CallbackExecutor<Event> callbackExecutor,
             final StatementInterceptor statementInterceptor
                                                            );
 

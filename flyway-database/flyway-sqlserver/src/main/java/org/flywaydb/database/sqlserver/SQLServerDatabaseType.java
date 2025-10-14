@@ -107,7 +107,7 @@ public class SQLServerDatabaseType extends BaseDatabaseType {
     @Override
     public void setConfigConnectionProps(Configuration config, Properties props, ClassLoader classLoader) {
         if (config != null) {
-            SQLServerConfigurationExtension configurationExtension = config.getPluginRegister().getPlugin(SQLServerConfigurationExtension.class);
+            SQLServerConfigurationExtension configurationExtension = config.getPluginRegister().getExact(SQLServerConfigurationExtension.class);
 
 
 

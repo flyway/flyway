@@ -44,10 +44,10 @@ public class DbClean {
     protected final Schema[] schemas;
     protected final Connection connection;
     protected final Database database;
-    protected final CallbackExecutor callbackExecutor;
+    protected final CallbackExecutor<Event> callbackExecutor;
     protected final Configuration configuration;
 
-    public DbClean(Database database, SchemaHistory schemaHistory, Schema defaultSchema, Schema[] schemas, CallbackExecutor callbackExecutor, Configuration configuration) {
+    public DbClean(Database database, SchemaHistory schemaHistory, Schema defaultSchema, Schema[] schemas, CallbackExecutor<Event> callbackExecutor, Configuration configuration) {
         this.schemaHistory = schemaHistory;
         this.defaultSchema = defaultSchema;
         this.schemas = schemas;
@@ -71,7 +71,7 @@ public class DbClean {
             cleanResult = CommandResultFactory.createCleanResult(database.getCatalog());
             new CleanExecutor(connection, database, schemaHistory, callbackExecutor).clean(defaultSchema, schemas, cleanResult);
         } else {
-            cleanResult = configuration.getPluginRegister().getPlugins(CommandExtension.class).stream()
+            cleanResult = configuration.getPluginRegister().getInstancesOf(CommandExtension.class).stream()
                                        .filter(e -> e.handlesCommand(command))
                                        .findFirst()
                                        .map(e -> (CleanResult) e.handle(command, configuration, Collections.emptyList()))

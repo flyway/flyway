@@ -29,7 +29,7 @@ import org.flywaydb.core.extensibility.MigrationType;
 public class BaselineMigrationTypeResolver implements MigrationTypeResolver {
     @Override
     public MigrationType resolveMigrationType(final String filename, final Configuration configuration) {
-        final BaselineMigrationConfigurationExtension baselineConfiguration = configuration.getPluginRegister().getPlugin(BaselineMigrationConfigurationExtension.class);
+        final BaselineMigrationConfigurationExtension baselineConfiguration = configuration.getPluginRegister().getExact(BaselineMigrationConfigurationExtension.class);
         if (filename.startsWith(baselineConfiguration.getBaselineMigrationPrefix())) {
             final String[] split = filename.split("\\.");
             final String suffix = "." + split[split.length - 1];

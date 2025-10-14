@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>11.12.0</version>
+    <version>11.14.0</version>
   </parent>
   <artifactId>flyway-commandline</artifactId>
   <packaging>jar</packaging>
@@ -198,10 +198,22 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>flyway-locations-s3</artifactId>
+      <version>${project.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>flyway-reports</artifactId>
       <version>${project.version}</version>
       <scope>runtime</scope>
     </dependency>
+
+
+
+
+
+
 
 
 
@@ -531,6 +543,12 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
+      <groupId>com.couchbase.client</groupId>
+      <artifactId>java-client</artifactId>
+      <version>3.8.3</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
       <groupId>org.fusesource.jansi</groupId>
       <artifactId>jansi</artifactId>
     </dependency>
@@ -657,15 +675,15 @@
 
 
 
-
-
-
-
-
-
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>flyway-database-nc-mongodb</artifactId>
+      <version>${project.parent.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>flyway-database-nc-couchbase</artifactId>
       <version>${project.parent.version}</version>
       <scope>runtime</scope>
     </dependency>
@@ -747,6 +765,12 @@
     </plugins>
   </build>
   <profiles>
+
+
+
+
+
+
 
 
 

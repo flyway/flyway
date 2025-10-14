@@ -63,6 +63,7 @@ public class FlywayModel extends FlywayEnvironmentModel {
         model.setCleanOnValidationError(false);
         model.setCommunityDBSupportEnabled(true);
         model.setLocations(new ArrayList<>(Collections.singletonList("db/migration")));
+        model.setCallbackLocations(Collections.emptyList());
         model.setJarDirs(new ArrayList<>());
         model.setTarget("latest");
         model.setTable("flyway_schema_history");
@@ -127,6 +128,7 @@ public class FlywayModel extends FlywayEnvironmentModel {
         result.setCleanOnValidationError(getCleanOnValidationError().merge(otherPojo.getCleanOnValidationError()));
         result.setCommunityDBSupportEnabled(getCommunityDBSupportEnabled().merge(otherPojo.getCommunityDBSupportEnabled()));
         result.setLocations(getLocations().merge(otherPojo.getLocations()));
+        result.setCallbackLocations(getCallbackLocations().merge(otherPojo.getCallbackLocations()));
         result.setJarDirs(getJarDirs().merge(otherPojo.getJarDirs()));
         result.setTable(getTable().merge(otherPojo.getTable()));
         result.setTablespace(getTablespace().merge(otherPojo.getTablespace()));

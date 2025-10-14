@@ -55,7 +55,7 @@ FLYWAY_UNDO_SQL_MIGRATION_PREFIX=B
 ### API
 
 ```java
-UndoConfigurationExtension undoConfigurationExtension = flyway.getConfiguration().getPluginRegister().getPlugin(UndoConfigurationExtension.class);
+UndoConfigurationExtension undoConfigurationExtension = flyway.getConfiguration().getConfigurationExtension(UndoConfigurationExtension.class);
 undoConfigurationExtension.setUndoSqlMigrationPrefix("B");
 ```
 

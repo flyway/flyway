@@ -57,7 +57,7 @@ public class DbMigrate {
     private final Schema schema;
     private final CompositeMigrationResolver migrationResolver;
     private final Configuration configuration;
-    private final CallbackExecutor callbackExecutor;
+    private final CallbackExecutor<Event> callbackExecutor;
     /**
      * The connection to use to perform the actual database migrations.
      */

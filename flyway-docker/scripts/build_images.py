@@ -25,7 +25,7 @@ def _flyway_build_commands(edition: str, version: str, variants: list, use_build
     fn = docker_utils.get_buildx_command if use_buildx else docker_utils.get_build_command
     result = [fn(edition, version, variant) for variant in variants] if variants else []
     commands, tags = zip(*result)
-    return commands, tags
+    return list(commands), list(tags)
 
 
 def _overlay_build_commands(edition: str, flyway_tags: list[Tag]) -> tuple[list[str], list[Tag]]:
@@ -52,13 +52,16 @@ def _overlay_build_commands(edition: str, flyway_tags: list[Tag]) -> tuple[list[
         return [], flyway_tags
 
 
-def _final_layer_commands(tags: list[Tag], use_buildx: bool) -> list[str]:
+def _final_layer_commands(tags: list[Tag], use_buildx: bool) -> tuple[list[str], list[Tag]]:
     commands = []
+    layer_tags = []
     for tag in tags:
         for layer in FINAL_LAYERS:
             if layer.applies(tag.as_docker_tag(), tag.edition, tag.variant):
-                commands.append(docker_utils.layer_command(tag, layer, use_buildx))
-    return commands
+                layer_command, layer_tag = docker_utils.layer_command(tag, layer, use_buildx)
+                commands.append(layer_command)
+                layer_tags.append(layer_tag)
+    return commands, layer_tags
 
 
 def _compute_plan(edition: str, version: str, test_mode: bool, clean_buildx: bool = False) -> list[tuple[str, list[str]]]:
@@ -80,7 +83,7 @@ def _compute_plan(edition: str, version: str, test_mode: bool, clean_buildx: boo
     if overlay_cmds:
         plan.append(("Overlay Build Commands", overlay_cmds))
 
-    final_layer_cmds = _final_layer_commands(overlay_tags, use_buildx)
+    final_layer_cmds, _ = _final_layer_commands(overlay_tags, use_buildx)
     if final_layer_cmds:
         plan.append(("Final Layer Commands", final_layer_cmds))
 

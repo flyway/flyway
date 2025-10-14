@@ -74,7 +74,7 @@ public class VersionCommandExtension implements CommandExtension {
         LOG.debug("Java " + System.getProperty("java.version") + " (" + System.getProperty("java.vendor") + ")");
         LOG.debug(System.getProperty("os.name") + " " + System.getProperty("os.version") + " " + System.getProperty("os.arch") + "\n");
 
-        List<Plugin> allPlugins = config.getPluginRegister().getPlugins(Plugin.class);
+        List<Plugin> allPlugins = config.getPluginRegister().getInstancesOf(Plugin.class);
 
         List<PluginVersionResult> pluginVersions = allPlugins.stream()
             .map(p -> new PluginVersionResult(p.getName(), p.getPluginVersion(config), p.isLicensed(config)))

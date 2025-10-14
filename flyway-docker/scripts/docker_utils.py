@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional, Dict
 from models import Variant, FinalLayer
+import re
 
 PLATFORMS = "linux/arm64/v8,linux/amd64"
 
@@ -12,10 +13,38 @@ class Tag:
     qualifier: Optional[str] = None
     registry: Optional[str] = None
 
-    def as_docker_tag(self) -> str:
+    def _get_tag(self, edition, version, suffix) -> str:
         q = self.qualifier or ""
         r = self.registry or ""
-        return f"{r}{self.edition}/flyway:{self.version}{self.variant.suffix}{q}"
+        return f"{r}{edition}/flyway:{version}{suffix}{q}"
+
+    def as_docker_tag(self) -> str:
+        return self._get_tag(self.edition, self.version, self.variant.suffix)
+
+    def as_latest(self) -> str:
+        return self._get_tag(self.edition, "latest", self.variant.suffix)
+
+    def as_major(self) -> str:
+        return self._get_tag(self.edition, get_major_version(self.version), self.variant.suffix)
+
+    def as_minor(self) -> str:
+        return self._get_tag(self.edition, get_minor_version(self.version), self.variant.suffix)
+
+    def without_registry(self):
+        return Tag(self.edition, self.version, self.variant, self.qualifier)
+
+    def with_registry(self, registry: str):
+        return Tag(self.edition, self.version, self.variant, self.qualifier, registry)
+
+    def with_edition(self, edition: str):
+        return Tag(edition, self.version, self.variant, self.qualifier, self.registry)
+
+def get_minor_version(version_number):
+  return re.match(r"\d+\.\d+", version_number).group(0)
+
+
+def get_major_version(version_number):
+  return re.match(r"\d+", version_number).group(0)
 
 def get_tag_flag(tag: Tag) -> str:
     return f'-t {tag.as_docker_tag()} '
@@ -94,10 +123,11 @@ docker buildx build \\
   ."""
   return command
 
-def layer_command(base_tag: Tag, layer: FinalLayer, use_buildx: bool) -> str:  # Updated type hint to use FinalLayer
+def layer_command(base_tag: Tag, layer: FinalLayer, use_buildx: bool) -> tuple[str, Tag]:  # Updated type hint to use FinalLayer
   fn = get_custom_buildx_command if use_buildx else get_custom_build_command
+  image_tag = get_layer_image_tag(base_tag, layer)
   return fn(
-        image_tag=get_layer_image_tag(base_tag, layer),
+        image_tag=image_tag,
         base_tag=base_tag,
         dockerfile=layer.dockerfile,
-  )
+  ), image_tag
