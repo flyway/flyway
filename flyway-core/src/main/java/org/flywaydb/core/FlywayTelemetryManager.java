@@ -19,6 +19,7 @@
  */
 package org.flywaydb.core;
 
+import java.time.Instant;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.extensibility.Plugin;
@@ -28,6 +29,8 @@ import org.flywaydb.core.internal.nc.MetaData;
 public interface FlywayTelemetryManager extends Plugin {
 
     AutoCloseable start();
+
+    AutoCloseable start(Instant startTime);
 
     void logEvent(final EventTelemetryModel model);
 

@@ -13,7 +13,8 @@ Rules cant take one of three severity levels:
 - Error - a rule violations will be reported and will cause the operation to fail if [`check.code.failOnError`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Code Fail On Error Setting>) is enabled
 
 # Enforcing Code Analysis Policy
-Once you are satisfied that your code analysis rules are correctly configured you can enforce them in your project by setting [`check.code.failOnError`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Code Fail On Error Setting>) parameter to cause the `check -code` task to exit with a failure in case of any violations.
+{% include enterprise.html %}
+Once you are satisfied that your code analysis rules are correctly configured you can enforce them in your project by setting [`check.code.failOnError`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Code Fail On Error Setting>) parameter to cause the `check -code` task to exit with a failure in case of any Error-level violations.
 
 # Redgate Rules Description 
 {% include enterprise.html %}

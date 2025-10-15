@@ -153,19 +153,34 @@ public class ClassUtils {
 
     public static String getLibDir(Class<?> clazz) {
         String classLocation = Objects.requireNonNull(ClassUtils.getLocationOnDisk(clazz));
-        return new File(classLocation)  // jar file
-                .getParentFile()        // edition dir
-                .getParentFile()        // lib dir
-                .getAbsolutePath();
+        File jarFile = new File(classLocation);
+        File editionDir = jarFile.getParentFile();
+        if (editionDir == null) {
+            return jarFile.getAbsolutePath();
+        }
+        File libDir = editionDir.getParentFile();
+        if (libDir == null) {
+            return editionDir.getAbsolutePath();
+        }
+        return libDir.getAbsolutePath();
     }
 
     public static String getInstallDir(Class<?> clazz) {
         String path = Objects.requireNonNull(ClassUtils.getLocationOnDisk(clazz));
-        return new File(path)    // jar file
-                .getParentFile() // edition dir
-                .getParentFile() // lib dir
-                .getParentFile() // installation dir
-                .getAbsolutePath();
+        File jarFile = new File(path);
+        File editionDir = jarFile.getParentFile();
+        if (editionDir == null) {
+            return jarFile.getAbsolutePath();
+        }
+        File libDir = editionDir.getParentFile();
+        if (libDir == null) {
+            return editionDir.getAbsolutePath();
+        }
+        File installDir = libDir.getParentFile();
+        if (installDir == null) {
+            return libDir.getAbsolutePath();
+        }
+        return installDir.getAbsolutePath();
     }
 
     /**

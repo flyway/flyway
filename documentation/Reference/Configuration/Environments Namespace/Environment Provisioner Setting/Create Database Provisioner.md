@@ -11,17 +11,17 @@ re-provisions a databases by creating it if necessary.
 
 Benefits of using the create-database provisioner:
 
-* The database doesn't have to exist on the target database server before using it with Flyway verbs, as the database
+- The database doesn't have to exist on the target database server before using it with Flyway verbs, as the database
   will be created when required.
-* When re-provisioned, the database will be reset back to a clean state if it already exists.
+- When re-provisioned, the database will be reset back to a clean state if it already exists.
 
 ## Supported database engines
 
 The following database engines are currently supported:
 
-* SQL Server
-* MySQL
-* PostgreSQL
+- SQL Server
+- MySQL
+- PostgreSQL
 
 ## To configure this provisioner:
 
@@ -77,18 +77,23 @@ This example will create the database, named `my_database`, if it does not exist
 server. The create-database provisioner extracts the database name from the JDBC URL to determine the database to
 create.
 
-## `allowClean` Option
+## `reprovisionMethod` Option
 
-The `create-database` provisioner supports an `allowClean` boolean option which defaults to `true`. This parameter
-controls whether the specified database should be cleaned when it already exists on reprovision.
+The `create-database` provisioner supports a `reprovisionMethod` parameter which controls how the specified database should be cleaned if it already exists when re-provisioned.
 
 For example, if the create-database provisioner is configured with a URL containing the database name `TestDatabase`,
-and that database already exists, then when the environment is re-provisioned the `TestDatabase` database will be
-cleaned.
+and that database already exists, then upon re-provisioning the `TestDatabase` would be cleaned in the method of your choice.
 
-The example configuration below shows how to disable this option for the shadow environment:
+### Valid values
+
+- CLEAN - This is the default behavior which will clean all objects in the database using the [clean](<Configuration/Environments Namespace/Environment Provisioner Setting/Clean Provisioner>) provisioner.
+- DROP - This is a comparatively faster option which will simply drop the database configured.
+- NONE - The database will not be re-provisioned with this option.
+
+
+The example configuration below shows how to configure the `NONE` option for the shadow environment to prevent it from being re-provisioned:
 
 ```toml
 [environments.shadow.resolvers.create-database]
-allowClean = false
+reprovisionMethod = "NONE"
 ```

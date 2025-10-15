@@ -97,7 +97,7 @@ public class Main {
 
         final var telemetryStartSpan = new EventTelemetryModel("telemetry-startup", null);
         final var flywayTelemetryManager = PLUGIN_REGISTER.getInstanceOf(FlywayTelemetryManager.class);
-        final var flywayTelemetryHandle = flywayTelemetryManager.start();
+        final var flywayTelemetryHandle = flywayTelemetryManager.start(telemetryStartSpan.getStartTime());
         flywayTelemetryManager.logEvent(telemetryStartSpan);
 
         try {

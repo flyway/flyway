@@ -115,11 +115,17 @@ public class DatabaseTypeRegister {
 
     private static String redactJdbcUrl(final String url, final Pattern pattern) {
         final Matcher matcher = pattern.matcher(url);
-        if (matcher.find()) {
-            final String password = matcher.group(1);
-            return url.replace(password, "********");
+        final String replacement = "********";
+        final StringBuilder redactedJdbcUrlBuilder = new StringBuilder();
+        int lastEndIndex = 0;
+
+        while (matcher.find()) {
+            redactedJdbcUrlBuilder.append(url, lastEndIndex, matcher.start(1));
+            redactedJdbcUrlBuilder.append(replacement);
+            lastEndIndex = matcher.end(1);
         }
-        return url;
+        redactedJdbcUrlBuilder.append(url.substring(lastEndIndex));
+        return redactedJdbcUrlBuilder.toString();
     }
 
     public static DatabaseType getDatabaseTypeForConnection(final Connection connection,

@@ -19,6 +19,7 @@
  */
 package org.flywaydb.core.internal;
 
+import java.time.Instant;
 import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.FlywayTelemetryProperties;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -36,6 +37,11 @@ public class NullFlywayTelemetryManager implements FlywayTelemetryManager {
 
     @Override
     public AutoCloseable start() {
+        return () -> {};
+    }
+
+    @Override
+    public AutoCloseable start(final Instant startTime) {
         return () -> {};
     }
 

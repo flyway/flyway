@@ -19,11 +19,20 @@ For purposes of setting policy, all you need to do is change the `severity` file
 When using regular expression rules for static code analysis through [check -code](<Commands/Check/Check Code>), the format of the [TOML](https://toml.io/en/) rules files is as follows:
 
 | Field       | Purpose                                        | Type               | Possible Values                                                                                               | Example                                               |
-| ----------- | ---------------------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+|-------------|------------------------------------------------|--------------------|---------------------------------------------------------------------------------------------------------------|-------------------------------------------------------|
+| code        | Rule Code                                      | String             | Anything                                                                                                      | RX001                                                 |
 | dialects    | Which dialect of SQL does this rule apply to   | Array (of Strings) | `text`, `bigquery`, `db2`, <BR>`mysql`, `oracle`, `postgres`,<BR>`redshift`, `snowflake`,<BR>`sqlite`, `tsql` | ["text"]                                              |
 | rules       | The regex rule you want                        | Array (of Strings) | [Regular Expressions](https://www.regular-expressions.info/)                                                  | ["your regex here"]                                   |
 | description | Allows a more in-depth description of the rule | String             | Anything                                                                                                      | "Descriptive comment that will appear in your report" |
 | severity    | Controls how violations are handled            | String             | `error`, `warning`, `disabled`                                                                                | "error"                                               |
+
+
+### Rule file naming
+
+The file name will be used as the source of rule metadata: A__B.toml (that's two underscores)
+
+* Where A is the rule code (If the `code` field is not set in the file content, this value will be used as the default code)
+* Where B is a short rule description (If the `description` field is not set in the file content, this value will be used as the default description)
 
 ### Dialects
 
@@ -62,6 +71,7 @@ If your previous configuration relied on `passOnRegexMatch = true` (i.e. expecti
 ### File content example
 
 ```
+code = "RX001"
 dialects = ["TEXT"]
 rules = ["(?i)(^|\\s)TO\\s+DO($|\\s|;)"]
 description = "Phrase 'to do' remains in the code"

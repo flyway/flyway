@@ -26,6 +26,10 @@ import org.flywaydb.core.internal.license.FlywayRedgateEditionRequiredException;
 
 @CustomLog
 public class OfflinePermitConfigurationExtensionStub implements ConfigurationExtension {
+
+    public static final String FLYWAY_OFFLINE_PERMIT_PATH_ENV = "FLYWAY_OFFLINE_PERMIT_PATH";
+
+    private static final String FLYWAY_OFFLINE_PERMIT_PATH = "flyway.offlinePermitPath";
     private String offlinePermitPath;
 
     @Override
@@ -35,6 +39,9 @@ public class OfflinePermitConfigurationExtensionStub implements ConfigurationExt
 
     @Override
     public String getConfigurationParameterFromEnvironmentVariable(final String environmentVariable) {
+        if (FLYWAY_OFFLINE_PERMIT_PATH_ENV.equals(environmentVariable)) {
+            return FLYWAY_OFFLINE_PERMIT_PATH;
+        }
         return null;
     }
 

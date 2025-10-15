@@ -37,6 +37,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -113,7 +114,7 @@ public class JsonUtils {
                 }
             }
         } catch (final IOException e) {
-            throw new FlywayException("Unable to parse JSON: " + json, e);
+            throw new FlywayException("Unable to parse JSON: " + e.getMessage(), e);
         }
 
         return null;
@@ -147,7 +148,13 @@ public class JsonUtils {
         try {
             final ObjectMapper mapper = new ObjectMapper();
             final JsonNode root = mapper.readTree(json);
-            final JsonNode section = root.get(0).get(sectionName);
+            final JsonNode firstElement = root.get(0);
+
+            if (firstElement == null) {
+                return Collections.emptyList();
+            }
+
+            final JsonNode section = firstElement.get(sectionName);
             final List<String> fieldNames = new ArrayList<>();
 
             if (section != null && section.isObject()) {
