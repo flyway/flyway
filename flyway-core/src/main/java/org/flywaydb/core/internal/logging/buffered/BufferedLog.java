@@ -34,6 +34,26 @@ public class BufferedLog implements Log {
     }
 
     @Override
+    public boolean isInfoEnabled() {
+        return true;
+    }
+
+    @Override
+    public boolean isWarnEnabled() {
+        return true;
+    }
+
+    @Override
+    public boolean isErrorEnabled() {
+        return true;
+    }
+
+    @Override
+    public boolean isNoticeEnabled() {
+        return true;
+    }
+
+    @Override
     public void debug(String message) {
         bufferedLogMessages.add(new BufferedLogMessage(message, Level.DEBUG));
     }

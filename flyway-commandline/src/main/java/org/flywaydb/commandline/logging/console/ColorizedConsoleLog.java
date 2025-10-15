@@ -45,6 +45,26 @@ public class ColorizedConsoleLog implements Log {
     }
 
     @Override
+    public boolean isInfoEnabled() {
+        return this.log.isInfoEnabled();
+    }
+
+    @Override
+    public boolean isWarnEnabled() {
+        return this.log.isWarnEnabled();
+    }
+
+    @Override
+    public boolean isErrorEnabled() {
+        return this.log.isErrorEnabled();
+    }
+
+    @Override
+    public boolean isNoticeEnabled() {
+        return this.log.isNoticeEnabled();
+    }
+
+    @Override
     public void debug(String message) {
         colorizeBright(System.out, Color.BLACK);
         this.log.debug(message);
