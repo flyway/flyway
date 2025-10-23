@@ -21,6 +21,7 @@ package org.flywaydb.core.internal.logging.slf4j;
 
 import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.slf4j.Logger;
 
 @RequiredArgsConstructor
@@ -28,17 +29,17 @@ public class Slf4jLog implements Log {
 
     private final Logger logger;
 
-    @Override
-    public boolean isDebugEnabled() {
-        return logger.isDebugEnabled();
-    }
-
     public void debug(String message) {
-        logger.debug(message);
+
+        if (LogFactory.isDebugEnabled()) {
+            logger.debug(message);
+        }
     }
 
     public void info(String message) {
-        logger.info(message);
+        if (!LogFactory.isQuietMode()) {
+            logger.info(message);
+        }
     }
 
     public void warn(String message) {

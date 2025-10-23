@@ -57,8 +57,10 @@ You will also need to [configure the repository](Usage/api-java)
 ### Gradle
 #### Redgate
 ```groovy
-dependencies {
-    implementation "com.redgate.flyway:flyway-singlestore"
+buildscript {
+    dependencies {
+        implementation "com.redgate.flyway:flyway-singlestore"
+    }
 }
 ```
 You will also need to [configure the repository](Usage/api-java)

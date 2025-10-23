@@ -19,4 +19,4 @@
  */
 package org.flywaydb.core;
 
-public record FlywayTelemetryProperties(String userId, String sessionId, String operationId) {}
+public record FlywayTelemetryProperties(String userId, String sessionId, String operationId, String parentId) {}

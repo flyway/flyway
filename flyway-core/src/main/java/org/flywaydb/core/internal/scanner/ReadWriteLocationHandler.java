@@ -20,8 +20,9 @@
 package org.flywaydb.core.internal.scanner;
 
 import java.io.OutputStream;
+import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.Configuration;
 
-public interface ReadWriteLocationHandler extends ReadOnlyLocationHandler{
-    OutputStream getOutputStream(FileLocation fileLocation, final Configuration configuration);
+public interface ReadWriteLocationHandler extends ReadOnlyLocationHandler {
+    OutputStream getOutputStream(Location fileLocation, final Configuration configuration);
 }

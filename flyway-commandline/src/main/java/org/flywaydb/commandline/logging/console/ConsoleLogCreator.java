@@ -30,7 +30,7 @@ public class ConsoleLogCreator implements LogCreator {
     private final CommandLineArguments commandLineArguments;
 
     public Log createLogger(Class<?> clazz) {
-        ConsoleLog log = new ConsoleLog(commandLineArguments.getLogLevel());
+        ConsoleLog log = new ConsoleLog();
         Color color = commandLineArguments.getColor();
 
         if (Color.NEVER.equals(color) || (Color.AUTO.equals(color) && System.console() == null)) {

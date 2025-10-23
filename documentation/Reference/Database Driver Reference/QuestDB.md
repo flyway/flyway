@@ -37,8 +37,10 @@ QuestDB support is a separate dependency for Flyway and will need to be added to
 ### Gradle
 
 ```groovy
-dependencies {
-    implementation "org.flywaydb:flyway-database-questdb"
+buildscript {
+    dependencies {
+        implementation "org.flywaydb:flyway-database-questdb"
+    }
 }
 ```
 

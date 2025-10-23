@@ -44,13 +44,13 @@ import org.apache.maven.settings.crypto.SettingsDecrypter;
 import org.apache.maven.settings.crypto.SettingsDecryptionResult;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.CoreLocationPrefix;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.logging.EvolvingLog;
 import org.flywaydb.core.internal.logging.buffered.BufferedLog;
-import org.flywaydb.core.internal.scanner.filesystem.FilesystemLocationHandler;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -743,7 +743,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             if (locations != null) {
                 makeLocationPathsAbsolute(workDir, locations);
             } else {
-                locations = new String[] { FilesystemLocationHandler.FILESYSTEM_PREFIX
+                locations = new String[] { CoreLocationPrefix.FILESYSTEM_PREFIX
                                                + workDir.getAbsolutePath()
                                                + "/src/main/resources/db/migration" };
             }
@@ -856,10 +856,10 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
     private void makeLocationPathsAbsolute(final File workDir, final String[] locations) {
         for (int i = 0; i < locations.length; i++) {
-            if (locations[i].startsWith(FilesystemLocationHandler.FILESYSTEM_PREFIX)) {
-                final String newLocation = locations[i].substring(FilesystemLocationHandler.FILESYSTEM_PREFIX.length());
+            if (locations[i].startsWith(CoreLocationPrefix.FILESYSTEM_PREFIX)) {
+                final String newLocation = locations[i].substring(CoreLocationPrefix.FILESYSTEM_PREFIX.length());
                 final File file = toFile(workDir, newLocation);
-                locations[i] = FilesystemLocationHandler.FILESYSTEM_PREFIX + file.getAbsolutePath();
+                locations[i] = CoreLocationPrefix.FILESYSTEM_PREFIX + file.getAbsolutePath();
             }
         }
     }

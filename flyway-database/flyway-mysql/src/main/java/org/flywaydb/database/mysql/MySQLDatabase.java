@@ -261,7 +261,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
 
 
-        recommendFlywayUpgradeIfNecessary("8.1");
+        recommendFlywayUpgradeIfNecessary("9.4");
 
     }
 

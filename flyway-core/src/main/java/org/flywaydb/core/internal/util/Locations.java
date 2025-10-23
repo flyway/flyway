@@ -29,7 +29,7 @@ import lombok.Getter;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
-import org.flywaydb.core.internal.scanner.LocationParser;
+import org.flywaydb.core.api.locations.LocationParser;
 import org.flywaydb.core.internal.scanner.ReadOnlyLocationHandler;
 
 /**

@@ -118,15 +118,19 @@ public class LicenseGuard {
         return getPermit(configuration, true);
     }
 
+    public static FlywayPermit getPermitNoCache(Configuration configuration) {
+        return getPermit(configuration, false);
+    }
+
     public static Tier getTier(Configuration configuration) {
-        return getPermit(configuration, true).getTier();
+        return getPermit(configuration).getTier();
     }
 
     public static String getTierAsString(Configuration configuration) {
-        return getPermit(configuration, true).getTier().asString();
+        return getPermit(configuration).getTier().asString();
     }
 
-    public static FlywayPermit getPermit(Configuration configuration, boolean fromCache) {
+    private static FlywayPermit getPermit(Configuration configuration, boolean fromCache) {
 
 
 

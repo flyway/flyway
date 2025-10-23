@@ -42,14 +42,18 @@ HSQLDB is found within the `flyway-database-hsqldb` plugin module.
 ### Gradle
 #### Redgate
 ```groovy
-dependencies {
-    implementation "com.redgate.flyway:flyway-database-hsqldb"
+buildscript {
+    dependencies {
+        implementation "com.redgate.flyway:flyway-database-hsqldb"
+    }
 }
 ```
 #### Open source
 ```groovy
-dependencies {
-    implementation "org.flywaydb:flyway-database-hsqldb"
+buildscript {
+    dependencies {
+        implementation "org.flywaydb:flyway-database-hsqldb"
+    }
 }
 ```
 

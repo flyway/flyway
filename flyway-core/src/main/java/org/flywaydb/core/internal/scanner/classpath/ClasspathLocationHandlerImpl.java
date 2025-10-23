@@ -20,6 +20,8 @@
 package org.flywaydb.core.internal.scanner.classpath;
 
 import java.util.Collection;
+import lombok.Getter;
+import org.flywaydb.core.api.CoreLocationPrefix;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.migration.JavaMigration;
@@ -29,15 +31,11 @@ import org.flywaydb.core.internal.scanner.LocationScannerCache;
 import org.flywaydb.core.internal.scanner.ResourceNameCache;
 
 public class ClasspathLocationHandlerImpl implements ClasspathLocationHandler {
-    private static final String CLASSPATH_PREFIX = "classpath:";
+    @Getter
+    private final String prefix = CoreLocationPrefix.CLASSPATH_PREFIX;
 
     private final ResourceNameCache resourceNameCache = new ResourceNameCache();
     private final LocationScannerCache locationScannerCache = new LocationScannerCache();
-
-    @Override
-    public boolean canHandlePrefix(final String prefix) {
-        return CLASSPATH_PREFIX.equals(prefix);
-    }
 
     @Override
     public Collection<LoadableResource> scanForResources(final Location location, final Configuration configuration) {
@@ -80,6 +78,8 @@ public class ClasspathLocationHandlerImpl implements ClasspathLocationHandler {
     @Override
     public String normalizePath(final String path) {
         final var pathWithoutPrefix = path.startsWith("/") ? path.substring(1) : path;
-        return pathWithoutPrefix.endsWith("/") ? pathWithoutPrefix.substring(0, pathWithoutPrefix.length() - 1) : pathWithoutPrefix;
+        return pathWithoutPrefix.endsWith("/")
+            ? pathWithoutPrefix.substring(0, pathWithoutPrefix.length() - 1)
+            : pathWithoutPrefix;
     }
 }

@@ -50,9 +50,11 @@ import lombok.CustomLog;
 import lombok.NoArgsConstructor;
 import org.apache.commons.text.similarity.FuzzyScore;
 import org.flywaydb.core.api.CoreErrorCode;
+import org.flywaydb.core.api.CoreLocationPrefix;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.extensibility.ConfigurationExtension;
 import org.flywaydb.core.internal.command.clean.CleanModel;
 import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
@@ -61,7 +63,6 @@ import org.flywaydb.core.internal.configuration.models.FlywayEnvironmentModel;
 import org.flywaydb.core.internal.configuration.models.FlywayModel;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.plugin.PluginRegister;
-import org.flywaydb.core.internal.scanner.filesystem.FilesystemLocationHandler;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.FileUtils;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
@@ -721,7 +722,7 @@ public class ConfigUtils {
     }
 
     public static void dumpConfigurationModel(final ConfigurationModel config, final String configMessage) {
-        if (!LOG.isDebugEnabled()) {
+        if (!LogFactory.isDebugEnabled()) {
             return;
         }
         dumpConfigurationMap(getConfigurationMapFromModel(config), configMessage);
@@ -754,10 +755,8 @@ public class ConfigUtils {
     }
 
     public static void dumpConfigurationMap(final Map<String, String> config, final String configMessage) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(configMessage);
-            LOG.debug(getConfigMapDump(config));
-        }
+        LOG.debug(configMessage);
+        LOG.debug(getConfigMapDump(config));
     }
 
     static String getConfigMapDump(final Map<String, String> config) {
@@ -918,7 +917,7 @@ public class ConfigUtils {
         final Map<? super String, String> config,
         final String key) {
         final String locationString = config.get(key);
-        String[] locations = { FilesystemLocationHandler.FILESYSTEM_PREFIX };
+        String[] locations = { CoreLocationPrefix.FILESYSTEM_PREFIX };
         if (StringUtils.hasText(locationString)) {
             locations = locationString.split(",");
         }
@@ -955,13 +954,13 @@ public class ConfigUtils {
     public static void makeRelativeLocationsBasedOnWorkingDirectory(final String workingDirectory,
         final String[] locations) {
         for (int i = 0; i < locations.length; i++) {
-            if (locations[i].startsWith(FilesystemLocationHandler.FILESYSTEM_PREFIX)) {
-                final String newLocation = locations[i].substring(FilesystemLocationHandler.FILESYSTEM_PREFIX.length());
+            if (locations[i].startsWith(CoreLocationPrefix.FILESYSTEM_PREFIX)) {
+                final String newLocation = locations[i].substring(CoreLocationPrefix.FILESYSTEM_PREFIX.length());
                 File file = new File(newLocation);
                 if (!file.isAbsolute()) {
                     file = new File(workingDirectory, newLocation);
                 }
-                locations[i] = FilesystemLocationHandler.FILESYSTEM_PREFIX + file.getAbsolutePath();
+                locations[i] = CoreLocationPrefix.FILESYSTEM_PREFIX + file.getAbsolutePath();
             }
         }
     }

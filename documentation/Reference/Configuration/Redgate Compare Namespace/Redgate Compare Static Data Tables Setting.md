@@ -12,12 +12,12 @@ Tables to track static data for. Note that these tables must have a primary key.
 
 Object array with the following properties:
 
-| Property          | Tier       | Required? | Type         | Description                                              |
-|-------------------|------------|-----------|--------------|----------------------------------------------------------|
-| `table`           | Teams      | Yes       | String       | The name of the table to track static data for           |
-| `schema`          | Teams      | No        | String       | The schema this table lives in                           |
-| `excludedColumns` | Enterprise | No        | String array | Columns to exclude tracking static data for              |
-| `whereClause`     | Enterprise | No        | String       | An expression used to filter rows of the specified table |
+| Property                        | Tier       | Required? | Type         | Description                                              |
+|---------------------------------|------------|-----------|--------------|----------------------------------------------------------|
+| `table`                         | Teams      | Yes       | String       | The name of the table to track static data for           |
+| `schema`                        | Teams      | No        | String       | The schema this table lives in                           |
+| `excludedColumns`               | Enterprise | No        | String array | Columns to exclude tracking static data for              |
+| `whereClause` (SQL Server only) | Enterprise | No        | String       | An expression used to filter rows of the specified table |
 
 ## Default
 
@@ -33,8 +33,9 @@ Static data tables can be configured from the static data settings in Flyway Des
 
 ### `whereClause`
 
-The `whereClause` property makes it possible to filter static data in a table, by applying a `WHERE` clause to any
-comparison. This is useful, for example, to exclude a particular set of test data, or to speed up a comparison.
+The `whereClause` property (supported only for SQL Server) makes it possible to filter static data in a table, by
+applying a `WHERE` clause to any comparison. This is useful, for example, to exclude a particular set of test data, or
+to speed up a comparison.
 
 Note that:
 

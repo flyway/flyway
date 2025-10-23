@@ -42,14 +42,18 @@ Sybase ASE is found within the `flyway-database-sybasease` plugin module.
 ### Gradle
 #### Redgate
 ```groovy
-dependencies {
-    implementation "com.redgate.flyway:flyway-database-sybasease"
+buildscript {
+    dependencies {
+        implementation "com.redgate.flyway:flyway-database-sybasease"
+    }
 }
 ```
 #### Open Source
 ```groovy
-dependencies {
-    implementation "org.flywaydb:flyway-database-sybasease"
+buildscript {
+    dependencies {
+        implementation "org.flywaydb:flyway-database-sybasease"
+    }
 }
 ```
 

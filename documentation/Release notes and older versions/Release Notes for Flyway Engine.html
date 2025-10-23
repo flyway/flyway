@@ -8,6 +8,26 @@
 </div>
 <div class="col-md-9">
   <div class="release">
+        <h2 id="11.15.0">Flyway 11.15.0 (2025-10-23)</h2>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Flyway now provides clearer error messages when online authentication methods fail</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Simplified setting `debugMode` and `quietMode` in Loggers. When using Flyway via the Java API, Log level is now configured via `LogFactory.setLogLevel(LogLevel)`. All appropriate loggers will now honor the LogLevel including `quietMode` (most loggers were previously flawed and would ignore this)</li>
+        </ul>
+
+        <h3>Library upgrades</h3>
+        <ul>
+            <li>Upgraded RgCompare.Cli from 1.44.0.1656 to 1.44.0.1673</li>
+        </ul>
+
+  </div>
+
+  <div class="release">
         <h2 id="11.14.1">Flyway 11.14.1 (2025-10-15)</h2>
 
         <h3>New features</h3>
@@ -17,7 +37,7 @@
 
         <h3>Changes</h3>
         <ul>
-            <li>Released first set of <a href="https://documentation.red-gate.com/fd/redgate-sqlfluff-rules-313493158.html">Redgate code analysis rules for SQLFLuff</a> (RG01-RG08)</li>
+            <li>Released first set of <a href="https://documentation.red-gate.com/fd/redgate-sqlfluff-rules-library-317489950.html">Redgate code analysis rules for SQLFLuff</a> (RG01-RG08)</li>
         </ul>
 
         <h3>Database compatibility</h3>

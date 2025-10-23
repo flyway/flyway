@@ -25,23 +25,23 @@ import org.flywaydb.core.api.logging.Log;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+import org.flywaydb.core.api.logging.LogFactory;
 
 @RequiredArgsConstructor
 public class JavaUtilLog implements Log {
 
     private final Logger logger;
 
-    @Override
-    public boolean isDebugEnabled() {
-        return logger.isLoggable(Level.FINE);
-    }
-
     public void debug(String message) {
-        log(Level.FINE, message, null);
+        if (LogFactory.isDebugEnabled()) {
+            log(Level.FINE, message, null);
+        }
     }
 
     public void info(String message) {
-        log(Level.INFO, message, null);
+        if (!LogFactory.isQuietMode()) {
+            log(Level.INFO, message, null);
+        }
     }
 
     public void warn(String message) {

@@ -17,6 +17,17 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.core.internal.scanner;
+package org.flywaydb.core.api;
 
-public record FileLocation(String prefix, String path) {}
+public class CoreLocationPrefix {
+    public static final String FILESYSTEM_PREFIX = "filesystem:";
+    public static final String CLASSPATH_PREFIX = "classpath:";
+
+    public static boolean isClassPath(Location location) {
+        return CLASSPATH_PREFIX.equals(location.getPrefix());
+    }
+
+    public static boolean isFileSystem(Location location) {
+        return FILESYSTEM_PREFIX.equals(location.getPrefix());
+    }
+}

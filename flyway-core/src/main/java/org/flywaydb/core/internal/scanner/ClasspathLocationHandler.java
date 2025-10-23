@@ -24,7 +24,6 @@ import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.Configuration;
 
 public interface ClasspathLocationHandler extends ReadOnlyLocationHandler {
-    String CLASSPATH_PREFIX = "classpath:";
 
     <I> Collection<Class<? extends I>> scanForClasses(final Class<I> clazz,
         final Location location,

@@ -41,7 +41,9 @@ DB2 is found within the `flyway-database-db2zos` plugin module.
 ### Gradle
 #### Open Source
 ```groovy
-dependencies {
-    implementation "org.flywaydb:flyway-database-db2zos"
+buildscript {
+    dependencies {
+        implementation "org.flywaydb:flyway-database-db2zos"
+    }
 }
 ```

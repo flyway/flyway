@@ -29,6 +29,7 @@ import org.flywaydb.core.FlywayTelemetryManager;
 @Setter
 public class EventTelemetryModel implements AutoCloseable {
     private String name;
+    private String id;
     private long duration;
     private Exception exception;
 
@@ -39,6 +40,9 @@ public class EventTelemetryModel implements AutoCloseable {
         startTime = Instant.now();
         this.flywayTelemetryManager = flywayTelemetryManager;
         this.name = name;
+        if (flywayTelemetryManager != null) {
+            this.id = flywayTelemetryManager.startEvent(this);
+        }
     }
 
     @Override

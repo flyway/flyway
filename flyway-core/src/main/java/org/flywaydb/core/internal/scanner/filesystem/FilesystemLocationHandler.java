@@ -25,22 +25,20 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
+import lombok.Getter;
 import org.flywaydb.core.api.CoreErrorCode;
+import org.flywaydb.core.api.CoreLocationPrefix;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
-import org.flywaydb.core.internal.scanner.FileLocation;
 import org.flywaydb.core.internal.scanner.ReadWriteLocationHandler;
 
 public class FilesystemLocationHandler implements ReadWriteLocationHandler {
-    public static final String FILESYSTEM_PREFIX = "filesystem:";
 
-    @Override
-    public boolean canHandlePrefix(final String prefix) {
-        return FILESYSTEM_PREFIX.equals(prefix);
-    }
+    @Getter
+    private final String prefix = CoreLocationPrefix.FILESYSTEM_PREFIX;
 
     @Override
     public Collection<LoadableResource> scanForResources(final Location location, final Configuration configuration) {
@@ -65,14 +63,14 @@ public class FilesystemLocationHandler implements ReadWriteLocationHandler {
     }
 
     @Override
-    public OutputStream getOutputStream(final FileLocation fileLocation, final Configuration configuration) {
+    public OutputStream getOutputStream(final Location fileLocation, final Configuration configuration) {
         final File file;
         try {
-            file = new File(ConfigUtils.getFilenameWithWorkingDirectory(fileLocation.path(),
+            file = new File(ConfigUtils.getFilenameWithWorkingDirectory(fileLocation.getRootPath(),
                 configuration)).getCanonicalFile();
         } catch (final IOException e) {
             throw new FlywayException("Unable to get canonical path for file "
-                + fileLocation.path()
+                + fileLocation.getRootPath()
                 + ": "
                 + e.getMessage(), e, CoreErrorCode.ERROR);
         }

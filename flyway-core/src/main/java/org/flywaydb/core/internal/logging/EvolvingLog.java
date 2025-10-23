@@ -46,11 +46,6 @@ public class EvolvingLog implements Log {
     }
 
     @Override
-    public boolean isDebugEnabled() {
-        return log.isDebugEnabled();
-    }
-
-    @Override
     public void debug(String message) {
         updateLog();
         log.debug(message);

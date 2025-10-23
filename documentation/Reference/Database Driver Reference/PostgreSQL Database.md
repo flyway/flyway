@@ -54,16 +54,20 @@ PostgreSQL is found within the `flyway-database-postgresql` plugin module.
 #### Redgate
 
 ```groovy
-dependencies {
-    implementation "com.redgate.flyway:flyway-database-postgresql"
+buildscript {
+    dependencies {
+        implementation "com.redgate.flyway:flyway-database-postgresql"
+    }
 }
 ```
 
 #### Open Source
 
 ```groovy
-dependencies {
-    implementation "org.flywaydb:flyway-database-postgresql"
+buildscript {
+    dependencies {
+        implementation "org.flywaydb:flyway-database-postgresql"
+    }
 }
 ```
 

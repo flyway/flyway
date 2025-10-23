@@ -41,14 +41,18 @@ Firebird support is a separate dependency for Flyway and will need to be added t
 ### Gradle
 #### Redgate
 ```groovy
-dependencies {
-    implementation "com.redgate.flyway:flyway-firebird"
+buildscript {
+    dependencies {
+        implementation "com.redgate.flyway:flyway-firebird"
+    }
 }
 ```
 #### Open Source
 ```groovy
-dependencies {
-    implementation "org.flywaydb:flyway-firebird"
+buildscript {
+    dependencies {
+        implementation "org.flywaydb:flyway-firebird"
+    }
 }
 ```
 

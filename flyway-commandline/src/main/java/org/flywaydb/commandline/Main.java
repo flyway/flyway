@@ -41,6 +41,7 @@ import lombok.SneakyThrows;
 import org.flywaydb.commandline.configuration.CommandLineArguments;
 import org.flywaydb.commandline.configuration.ConfigurationManagerImpl;
 import org.flywaydb.commandline.logging.console.ConsoleLog.Level;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.util.TelemetryUtils;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.FlywayTelemetryManager;
@@ -98,6 +99,7 @@ public class Main {
         final var telemetryStartSpan = new EventTelemetryModel("telemetry-startup", null);
         final var flywayTelemetryManager = PLUGIN_REGISTER.getInstanceOf(FlywayTelemetryManager.class);
         final var flywayTelemetryHandle = flywayTelemetryManager.start(telemetryStartSpan.getStartTime());
+        telemetryStartSpan.setId(flywayTelemetryManager.startEvent(telemetryStartSpan));
         flywayTelemetryManager.logEvent(telemetryStartSpan);
 
         try {
@@ -110,6 +112,7 @@ public class Main {
                 final Configuration configuration;
                 try (final var ignored = new EventTelemetryModel("parse-args", flywayTelemetryManager)) {
                     commandLineArguments.validate();
+                    LogFactory.setLogLevel(commandLineArguments.getLogLevel().toLogLevel());
 
                     if (printHelp(commandLineArguments)) {
                         terminate(0, flywayTelemetryHandle);

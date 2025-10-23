@@ -22,6 +22,7 @@ package org.flywaydb.core.internal.sqlscript;
 import java.sql.SQLException;
 import lombok.CustomLog;
 import lombok.Getter;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resource.Resource;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 
@@ -68,7 +69,7 @@ public class FlywaySqlScriptException extends FlywaySqlException {
         if (statement != null) {
             builder.append("Line       : ").append(getLineNumber()).append("\n");
             builder.append("Statement  : ")
-                .append(LOG.isDebugEnabled() ? getStatement() : STATEMENT_MESSAGE)
+                .append(LogFactory.isDebugEnabled() ? getStatement() : STATEMENT_MESSAGE)
                 .append("\n");
         }
         this.decoratedMessage = builder.toString();

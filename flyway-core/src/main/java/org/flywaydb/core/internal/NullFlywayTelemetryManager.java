@@ -51,6 +51,11 @@ public class NullFlywayTelemetryManager implements FlywayTelemetryManager {
     }
 
     @Override
+    public String startEvent(final EventTelemetryModel event) {
+        return null;
+    }
+
+    @Override
     public void notifyRootConfigChanged(final Configuration config) {
 
     }
@@ -72,6 +77,6 @@ public class NullFlywayTelemetryManager implements FlywayTelemetryManager {
 
     @Override
     public FlywayTelemetryProperties getProperties() {
-        return new FlywayTelemetryProperties(null, null, null);
+        return new FlywayTelemetryProperties(null, null, null, null);
     }
 }

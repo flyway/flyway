@@ -39,10 +39,10 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.CoreLocationPrefix;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.jdbc.DriverDataSource;
-import org.flywaydb.core.internal.scanner.filesystem.FilesystemLocationHandler;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.gradle.FlywayExtension;
 import org.gradle.api.DefaultTask;
@@ -860,7 +860,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         final File workingDirectory = getWorkingDirectory();
 
         conf.put(ConfigUtils.LOCATIONS,
-            FilesystemLocationHandler.FILESYSTEM_PREFIX + workingDirectory + "/src/main/resources/db/migration");
+            CoreLocationPrefix.FILESYSTEM_PREFIX + workingDirectory + "/src/main/resources/db/migration");
 
         final String[] locationsToAdd = getLocations();
 

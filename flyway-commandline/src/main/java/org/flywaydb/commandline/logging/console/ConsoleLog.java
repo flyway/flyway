@@ -21,34 +21,36 @@ package org.flywaydb.commandline.logging.console;
 
 import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.api.logging.LogLevel;
 
 @RequiredArgsConstructor
 public class ConsoleLog implements Log {
     public enum Level {
-        DEBUG, INFO, WARN
-    }
-
-    private final Level level;
-
-    @Override
-    public boolean isDebugEnabled() {
-        return level == Level.DEBUG;
+        DEBUG, INFO, WARN;
+        public LogLevel toLogLevel() {
+            return switch (this) {
+                case DEBUG -> LogLevel.DEBUG;
+                case INFO -> LogLevel.INFO;
+                case WARN -> LogLevel.WARN;
+            };
+        }
     }
 
     public void debug(String message) {
-        if (isDebugEnabled()) {
+        if (LogFactory.isDebugEnabled()) {
             System.out.println("DEBUG: " + message);
         }
     }
 
     public void info(String message) {
-        if (level.compareTo(Level.INFO) <= 0) {
+        if (!LogFactory.isQuietMode()) {
             System.out.println(message);
         }
     }
 
     public void notice(String message) {
-        if (level.compareTo(Level.INFO) <= 0) {
+        if (!LogFactory.isQuietMode()) {
             System.out.println(message);
         }
     }

@@ -21,6 +21,7 @@ package org.flywaydb.core.internal.sqlscript;
 
 import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.parser.Parser;
 
@@ -101,10 +102,8 @@ public class ParserSqlScript implements SqlScript {
 
 
 
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Found statement at line " + sqlStatement.getLineNumber() + ": " + sqlStatement.getSql()
-                                      + (sqlStatement.canExecuteInTransaction() ? "" : " [non-transactional]"));
-                }
+                LOG.debug("Found statement at line " + sqlStatement.getLineNumber() + ": " + sqlStatement.getSql()
+                                  + (sqlStatement.canExecuteInTransaction() ? "" : " [non-transactional]"));
             }
         }
         parsed = true;

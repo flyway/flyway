@@ -39,7 +39,9 @@ Database support
 ### Gradle
 
 ```groovy
-dependencies {
-    implementation "org.flywaydb:flyway-database-databricks"
+buildscript {
+    dependencies {
+        implementation "org.flywaydb:flyway-database-databricks"
+    }
 }
 ```

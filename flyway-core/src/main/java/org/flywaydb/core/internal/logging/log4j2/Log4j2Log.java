@@ -22,21 +22,23 @@ package org.flywaydb.core.internal.logging.log4j2;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.Logger;
 import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 
 @RequiredArgsConstructor
 public class Log4j2Log implements Log {
 
     private final Logger logger;
 
-    @Override
-    public boolean isDebugEnabled() {
-        return logger.isDebugEnabled();
+    public void debug(String message) {
+        if (LogFactory.isDebugEnabled()) {
+            logger.debug(message);
+        }
     }
 
-    public void debug(String message) {logger.debug(message);}
-
     public void info(String message) {
-        logger.info(message);
+        if (!LogFactory.isQuietMode()) {
+            logger.info(message);
+        }
     }
 
     public void warn(String message) {

@@ -31,6 +31,9 @@ The following database engines and backup file formats are supported:
 * The environment [URL](<Configuration/Environments Namespace/Environment URL Setting>) must have the `databaseName`
   parameter set to the name of the database that the backup will be restored to. If this database doesn't yet exist on
   the target server then it will be created by the backup provisioner.
+* The user specified for the environment must have sufficient privileges to restore a database. This requires membership
+  of the `dbcreator`, `##MS_DatabaseManager##` or `sysadmin` server-level roles. Using a user without one of these
+  server-level roles is not supported.
 
 **For Oracle**:
 

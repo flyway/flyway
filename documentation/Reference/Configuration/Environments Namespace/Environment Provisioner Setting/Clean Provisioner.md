@@ -1,7 +1,6 @@
 ---
 subtitle: Clean Provisioner
 ---
-{% include enterprise.html %}
 
 This [provisioner](https://documentation.red-gate.com/flyway/flyway-concepts/environments/provisioning) allows for re-provisioning of databases using [clean](Commands/Clean).
 It is used as the default mechanism in Flyway Desktop for resetting the [shadow database](https://documentation.red-gate.com/flyway/flyway-concepts/environments-todo/shadow-and-build-environments) whenever the state is stale.

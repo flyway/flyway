@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import lombok.CustomLog;
+import org.flywaydb.core.api.CoreLocationPrefix;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -41,7 +42,6 @@ import org.flywaydb.core.internal.resource.ResourceName;
 import org.flywaydb.core.internal.resource.ResourceNameParser;
 import org.flywaydb.core.internal.resource.filesystem.FileSystemResource;
 import org.flywaydb.core.internal.scanner.filesystem.DirectoryValidationResult;
-import org.flywaydb.core.internal.scanner.filesystem.FilesystemLocationHandler;
 import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
 import org.flywaydb.core.internal.util.Pair;
 
@@ -54,7 +54,7 @@ public abstract class BaseSqlMigrationScanner implements NativeConnectorsMigrati
         final ParsingContext parsingContext) {
         final DirectoryValidationResult validationResult = getDirectoryValidationResult(dir);
         final String locationType = location.getPrefix().substring(0, location.getPrefix().length() - 1);
-        final var isFilesystem = FilesystemLocationHandler.FILESYSTEM_PREFIX.equals(location.getPrefix());
+        final var isFilesystem = CoreLocationPrefix.FILESYSTEM_PREFIX.equals(location.getPrefix());
         if (validationResult != DirectoryValidationResult.VALID) {
             if (configuration.isFailOnMissingLocations()) {
                 throw new FlywayException("Failed to find "

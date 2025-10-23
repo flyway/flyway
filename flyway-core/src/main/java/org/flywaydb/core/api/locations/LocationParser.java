@@ -17,48 +17,65 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.core.internal.scanner;
+package org.flywaydb.core.api.locations;
 
-import static org.flywaydb.core.internal.scanner.ClasspathLocationHandler.CLASSPATH_PREFIX;
-import static org.flywaydb.core.internal.scanner.filesystem.FilesystemLocationHandler.FILESYSTEM_PREFIX;
-
+import java.util.Arrays;
 import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.CoreLocationPrefix;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
+import org.flywaydb.core.internal.scanner.ReadOnlyLocationHandler;
 import org.flywaydb.core.internal.util.Pair;
 
+/**
+ * Parses location descriptors (e.g. `filesystem:migrations`) Note that a location is no longer just a place to read
+ * migrations from, but an abstraction for any resource or resource folder It can be used for different configurations -
+ * e.g. where to read migrations from, where to read callbacks from, where to write output files to
+ *
+ * @see Location
+ */
 public class LocationParser {
 
     private static final String LOCATION_SEPARATOR = ":";
     private static final Pattern FILE_PATH_WITH_DRIVE_PATTERN = Pattern.compile("^[A-Za-z]:[\\\\/].*");
     private static final Pattern FILE_URL_PATTERN = Pattern.compile("^file:[\\\\/]{3}.*");
 
-    public static FileLocation parseFileLocation(final String descriptor) {
-        final String normalizedDescriptor = descriptor.trim();
-        final Pair<String, String> parsedDescriptor = parseDescriptor(normalizedDescriptor, FILESYSTEM_PREFIX);
-        final String prefix = parsedDescriptor.getLeft();
-        final String path = parsedDescriptor.getRight();
-
-        return new FileLocation(prefix, path);
+    /**
+     * Parses a location descriptor as provided in flyway configuration Validates that the location type, as defined by
+     * the prefix, can be handled Handles wildcard location parsing Normalizes the location path For a known location
+     * with no wildcards, the location can instead be constructed directly using
+     * {@link Location#fromPath(String, String)}
+     *
+     * @param descriptor the descriptor to parse (e.g. `filesystem:migrations`)
+     * @return the parsed location - the prefix will always be set, and the path will be normalized
+     */
+    public static Location parseLocation(final String descriptor) {
+        return parseLocation(descriptor, CoreLocationPrefix.CLASSPATH_PREFIX);
     }
 
-    public static Location parseLocation(final String descriptor) {
+    public static Location parseLocation(final String descriptor,
+        final String defaultPrefix,
+        final ReadOnlyLocationHandler... additionalLocationHandlers) {
         final String normalizedDescriptor = descriptor.trim();
-        final Pair<String, String> parsedDescriptor = parseDescriptor(normalizedDescriptor, CLASSPATH_PREFIX);
+        final Pair<String, String> parsedDescriptor = parseDescriptor(normalizedDescriptor, defaultPrefix);
         final String prefix = parsedDescriptor.getLeft();
         final String rawPath = parsedDescriptor.getRight();
 
-        final ReadOnlyLocationHandler locationHandler = Flyway.configure()
+        final var locationHandlers = Stream.concat(Flyway.configure()
             .getPluginRegister()
             .getInstancesOf(ReadOnlyLocationHandler.class)
-            .stream()
-            .filter(x -> x.canHandlePrefix(prefix))
+            .stream(), Arrays.stream(additionalLocationHandlers)).toList();
+        final ReadOnlyLocationHandler locationHandler = locationHandlers.stream()
+            .filter(x -> prefix.equals(x.getPrefix()))
             .findFirst()
-            .orElseThrow(() -> new FlywayException(
-                "Unknown prefix for location (should be one of filesystem:, classpath:, gcs:, or s3:): "
-                    + normalizedDescriptor));
+            .orElseThrow(() -> new FlywayException("Unknown prefix for location (should be one of "
+                + locationHandlers.stream().map(ReadOnlyLocationHandler::getPrefix).collect(Collectors.joining(", "))
+                + "): "
+                + normalizedDescriptor));
 
         return locationHandler.handlesWildcards() && containsWildcards(rawPath) ? parseWildcardLocation(rawPath,
             prefix,

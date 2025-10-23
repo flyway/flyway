@@ -36,7 +36,7 @@ Whether Flyway will fail or not if there is an error is governed by the [`check.
 ### Parameters
 Many rules have configurable options that allow you to customize their behavior. For the [standard SQLFluff rules](https://docs.sqlfluff.com/en/stable/reference/rules.html) you will see these defined in each rule in a section labelled "Configuration"
 
-For the [Redgate SQLFluff rules](<Code Analysis Rules/Redgate SQLFluff Rules>) you will also find a "Configuration" section for rules where this is applicable.
+For the [Redgate SQLFluff rules Library](<Code Analysis Rules/Redgate SQLFluff Rules Library>) you will also find a "Configuration" section for rules where this is applicable.
 
 In order to configure these rules you would edit the SQLFluff configuration file
 

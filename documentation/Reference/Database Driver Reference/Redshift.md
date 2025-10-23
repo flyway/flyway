@@ -44,14 +44,18 @@ Redshift is found within the `flyway-database-redshift` plugin module.
 ### Gradle
 #### Redgate
 ```groovy
-dependencies {
-    implementation "com.redgate.flyway:flyway-database-redshift"
+buildscript {
+    dependencies {
+        implementation "com.redgate.flyway:flyway-database-redshift"
+    }
 }
 ```
 #### Open Source
 ```groovy
-dependencies {
-    implementation "org.flywaydb:flyway-database-redshift"
+buildscript {
+    dependencies {
+        implementation "org.flywaydb:flyway-database-redshift"
+    }
 }
 ```
 

@@ -33,17 +33,6 @@ public class MultiLogger implements Log {
     private final List<Log> logs;
 
     @Override
-    public boolean isDebugEnabled() {
-        for (Log log : logs) {
-            if (!log.isDebugEnabled()) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    @Override
     public void debug(String message) {
         for (Log log : logs) {
             log.debug(message);

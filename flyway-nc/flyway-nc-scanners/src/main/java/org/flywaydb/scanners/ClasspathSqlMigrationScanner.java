@@ -38,6 +38,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import lombok.CustomLog;
+import org.flywaydb.core.api.CoreLocationPrefix;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -46,7 +47,6 @@ import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.resource.ResourceName;
 import org.flywaydb.core.internal.resource.ResourceNameParser;
 import org.flywaydb.core.internal.resource.classpath.ClassPathResource;
-import org.flywaydb.core.internal.scanner.ClasspathLocationHandler;
 import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
 import org.flywaydb.core.internal.util.Pair;
 
@@ -56,7 +56,7 @@ public class ClasspathSqlMigrationScanner extends BaseSqlMigrationScanner {
     public Collection<Pair<LoadableResource, SqlScriptMetadata>> scan(final Location location,
         final Configuration configuration,
         final ParsingContext parsingContext) {
-        if (!ClasspathLocationHandler.CLASSPATH_PREFIX.equals(location.getPrefix())) {
+        if (!CoreLocationPrefix.CLASSPATH_PREFIX.equals(location.getPrefix())) {
             return List.of();
         }
 

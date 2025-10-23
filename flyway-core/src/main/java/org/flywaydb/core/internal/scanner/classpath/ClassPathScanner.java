@@ -38,12 +38,12 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Pattern;
 import lombok.CustomLog;
+import org.flywaydb.core.api.CoreLocationPrefix;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.classpath.ClassPathResource;
-import org.flywaydb.core.internal.scanner.ClasspathLocationHandler;
 import org.flywaydb.core.internal.scanner.LocationScannerCache;
 import org.flywaydb.core.internal.scanner.ResourceNameCache;
 import org.flywaydb.core.internal.scanner.classpath.jboss.JBossVFSv2UrlResolver;
@@ -189,7 +189,7 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
 
         // Starting with Java 11, resources at the root of the classpath aren't being found using the URL scanning
         // method above and we need to revert to Jar file walking.
-        final boolean isClassPathRoot = ClasspathLocationHandler.CLASSPATH_PREFIX.equals(location.getPrefix())
+        final boolean isClassPathRoot = CoreLocationPrefix.CLASSPATH_PREFIX.equals(location.getPrefix())
             && "".equals(location.getRootPath());
 
         if (!locationResolved || isClassPathRoot) {

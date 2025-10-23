@@ -22,7 +22,8 @@ package org.flywaydb.core.internal.scanner;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-import org.flywaydb.core.api.Location;
+import org.flywaydb.core.api.CoreLocationPrefix;
+import org.flywaydb.core.api.locations.LocationParser;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.scanner.classpath.ClassPathScanner;
 import org.flywaydb.core.internal.scanner.classpath.ResourceAndClassScanner;
@@ -41,7 +42,7 @@ public class ClasspathClassScanner {
         final ResourceAndClassScanner<?> s = new ClassPathScanner<>(classType,
             classLoader,
             Charset.defaultCharset(),
-            LocationParser.parseLocation("classpath:" + location),
+            LocationParser.parseLocation(CoreLocationPrefix.CLASSPATH_PREFIX + location),
             resourceNameCache,
             locationScannerCache,
             errorOnNotFound,

@@ -23,21 +23,20 @@ import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Collections;
 import lombok.CustomLog;
+import lombok.Getter;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResource;
-import org.flywaydb.core.internal.scanner.FileLocation;
 import org.flywaydb.core.internal.scanner.ReadWriteLocationHandler;
 import org.flywaydb.core.internal.util.FeatureDetector;
 
 @CustomLog
 public class AwsS3LocationHandler implements ReadWriteLocationHandler {
-    private static final String AWS_S3_PREFIX = "s3:";
 
-    @Override
-    public boolean canHandlePrefix(final String prefix) {
-        return AWS_S3_PREFIX.equals(prefix);
-    }
+    public static final String AWS_S3_PREFIX = "s3:";
+
+    @Getter
+    private final String prefix = AWS_S3_PREFIX;
 
     @Override
     public Collection<LoadableResource> scanForResources(final Location location, final Configuration configuration) {
@@ -67,7 +66,7 @@ public class AwsS3LocationHandler implements ReadWriteLocationHandler {
     }
 
     @Override
-    public OutputStream getOutputStream(final FileLocation fileLocation, final Configuration configuration) {
-        return new S3OutputStream(fileLocation.path());
+    public OutputStream getOutputStream(final Location fileLocation, final Configuration configuration) {
+        return new S3OutputStream(fileLocation.getRootPath());
     }
 }

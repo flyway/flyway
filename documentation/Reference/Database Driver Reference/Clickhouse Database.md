@@ -48,8 +48,10 @@ Clickhouse support is a separate dependency for Flyway and will need to be added
 #### Open Source
 
 ```groovy
-dependencies {
-    compile "org.flywaydb:flyway-database-clickhouse"
+buildscript {
+    dependencies {
+        implementation "org.flywaydb:flyway-database-clickhouse"
+    }
 }
 ```
 

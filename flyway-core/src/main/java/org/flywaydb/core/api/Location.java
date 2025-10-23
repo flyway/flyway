@@ -24,8 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import org.flywaydb.core.internal.scanner.LocationParser;
-import org.flywaydb.core.internal.scanner.filesystem.FilesystemLocationHandler;
+import org.flywaydb.core.api.locations.LocationParser;
 
 /**
  * A location to load migrations from.
@@ -33,14 +32,14 @@ import org.flywaydb.core.internal.scanner.filesystem.FilesystemLocationHandler;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public final class Location implements Comparable<Location> {
     /**
-     * The prefix for classpath locations.
-     */
-    private static final String CLASSPATH_PREFIX = "classpath:";
-    /**
      * The prefix for filesystem locations.
+     *
+     * @see CoreLocationPrefix#FILESYSTEM_PREFIX
+     * @deprecated The Location class should no longer know about possible location types, which can now be implemented
+     * by plugins, and should be treated as a POJO.
      */
     @Deprecated
-    public static final String FILESYSTEM_PREFIX = "filesystem:";
+    public static final String FILESYSTEM_PREFIX = CoreLocationPrefix.FILESYSTEM_PREFIX;
     /**
      * The prefix for AWS S3 locations.
      */
@@ -84,6 +83,13 @@ public final class Location implements Comparable<Location> {
         return new Location(prefix, rootPath, wildcardPath, pathRegex);
     }
 
+    /**
+     * @see LocationParser#parseLocation(String)
+     * @deprecated The Location class should no longer know about possible location types or contain parsing logic.
+     * Parsing has been extracted to {@link LocationParser}. If you know the type of location to create, use
+     * {@link Location#fromPath(String, String) or {@link Location#fromWildcardPath(String, String, String, Pattern)}}.
+     * If you need to parse a location descriptor, use {@link LocationParser#parseLocation(String)}
+     */
     @Deprecated
     public Location(final String descriptor) {
         final Location location = LocationParser.parseLocation(descriptor);
@@ -103,6 +109,8 @@ public final class Location implements Comparable<Location> {
     /**
      * @return Whether the given path matches this locations regex. Will always return true when the location did not
      * contain any wildcards.
+     * @deprecated This method was previously for internal use by Flyway and is specific to the calling code use case.
+     * Usages can be inlined into calling code.
      */
     @Deprecated
     public boolean matchesPath(final String path) {
@@ -134,26 +142,38 @@ public final class Location implements Comparable<Location> {
      * Checks whether this denotes a location on the classpath.
      *
      * @return {@code true} if it does, {@code false} if it doesn't.
+     * @deprecated The Location class should no longer know about possible location types, which can now be implemented
+     * by plugins, and should be treated as a POJO. Calling code ought to know what type of location they are dealing
+     * with, or check the prefix directly. Replace with `CoreLocationPrefix.isClassPath(location)`
      */
     @Deprecated
     public boolean isClassPath() {
-        return CLASSPATH_PREFIX.equals(prefix);
+        return CoreLocationPrefix.CLASSPATH_PREFIX.equals(prefix);
     }
 
     /**
      * Checks whether this denotes a location on the filesystem.
      *
      * @return {@code true} if it does, {@code false} if it doesn't.
+     * @see org.flywaydb.core.internal.scanner.ReadWriteLocationHandler
+     * @deprecated The Location class should no longer know about possible location types, which can now be implemented
+     * by plugins, and should be treated as a POJO. Calling code ought to know what type of location they are dealing
+     * with, or check the prefix directly. Replace with `CoreLocationPrefix.isFileSystem(location)`
      */
     @Deprecated
     public boolean isFileSystem() {
-        return FilesystemLocationHandler.FILESYSTEM_PREFIX.equals(prefix);
+        return CoreLocationPrefix.FILESYSTEM_PREFIX.equals(prefix);
     }
 
     /**
      * Checks whether this denotes a location in AWS S3.
      *
      * @return {@code true} if it does, {@code false} if it doesn't;
+     * @see org.flywaydb.core.internal.scanner.ReadWriteLocationHandler
+     * @deprecated The Location class should no longer know about possible location types, which can now be implemented
+     * by plugins, and should be treated as a POJO. Calling code ought to know what type of location they are dealing
+     * with, or check the prefix directly. Replace with `AwsS3LocationHandler.PREFIX.equals(location.getPrefix())` (in
+     * flyway-locations-s3 module)
      */
     @Deprecated
     public boolean isAwsS3() {
@@ -164,6 +184,11 @@ public final class Location implements Comparable<Location> {
      * Checks whether this denotes a location in Google cloud storage.
      *
      * @return {@code true} if it does, {@code false} if it doesn't;
+     * @see org.flywaydb.core.internal.scanner.ReadWriteLocationHandler
+     * @deprecated The Location class should no longer know about possible location types, which can now be implemented
+     * by plugins, and should be treated as a POJO. Calling code ought to know what type of location they are dealing
+     * with, or check the prefix directly. Replace with `GcsLocationHandler.PREFIX.equals(location.getPrefix())` (in
+     * flyway-locations-gcs module)
      */
     @Deprecated
     public boolean isGCS() {
@@ -175,6 +200,9 @@ public final class Location implements Comparable<Location> {
      *
      * @param other The other location.
      * @return {@code true} if it is, {@code false} if it isn't.
+     * @deprecated This method was previously for internal use by Flyway and is specific to the calling code use case.
+     * The implementation-specific logic can be removed using
+     * {@link org.flywaydb.core.internal.scanner.ReadOnlyLocationHandler}.
      */
     @Deprecated
     @SuppressWarnings("SimplifiableIfStatement")
@@ -182,11 +210,12 @@ public final class Location implements Comparable<Location> {
         if (pathRegex != null || other.pathRegex != null) {
             return false;
         }
-        if (CLASSPATH_PREFIX.equals(prefix) && CLASSPATH_PREFIX.equals(other.prefix)) {
+        if (CoreLocationPrefix.CLASSPATH_PREFIX.equals(prefix)
+            && CoreLocationPrefix.CLASSPATH_PREFIX.equals(other.prefix)) {
             return (other.getDescriptor() + "/").startsWith(getDescriptor() + "/");
         }
-        if (FilesystemLocationHandler.FILESYSTEM_PREFIX.equals(prefix)
-            && FilesystemLocationHandler.FILESYSTEM_PREFIX.equals(other.prefix)) {
+        if (CoreLocationPrefix.FILESYSTEM_PREFIX.equals(prefix)
+            && CoreLocationPrefix.FILESYSTEM_PREFIX.equals(other.prefix)) {
             return (other.getDescriptor() + File.separator).startsWith(getDescriptor() + File.separator);
         }
         return false;

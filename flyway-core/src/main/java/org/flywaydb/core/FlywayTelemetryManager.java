@@ -34,6 +34,8 @@ public interface FlywayTelemetryManager extends Plugin {
 
     void logEvent(final EventTelemetryModel model);
 
+    String startEvent(final EventTelemetryModel model);
+
     void notifyRootConfigChanged(final Configuration config);
 
     void notifyPermitChanged(final FlywayPermit permit);

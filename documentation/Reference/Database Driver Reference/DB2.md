@@ -44,14 +44,18 @@ DB2 is found within the `flyway-database-db2` plugin module.
 ### Gradle
 #### Redgate
 ```groovy
-dependencies {
-    implementation "com.redgate.flyway:flyway-database-db2"
+buildscript {
+    dependencies {
+        implementation "com.redgate.flyway:flyway-database-db2"
+    }
 }
 ```
 #### Open Source
 ```groovy
-dependencies {
-    implementation "org.flywaydb:flyway-database-db2"
+buildscript {
+    dependencies {
+        implementation "org.flywaydb:flyway-database-db2"
+    }
 }
 ```
 

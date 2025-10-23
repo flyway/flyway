@@ -17,26 +17,8 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.core.internal.scanner;
+package org.flywaydb.core.api.logging;
 
-import java.util.Collection;
-import org.flywaydb.core.api.Location;
-import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.resource.LoadableResource;
-import org.flywaydb.core.extensibility.Plugin;
-
-public interface ReadOnlyLocationHandler extends Plugin {
-    default boolean canHandleLocation(final Location location) {
-        return getPrefix().equals(location.getPrefix());
-    }
-
-    String getPrefix();
-
-    Collection<LoadableResource> scanForResources(Location location, final Configuration configuration);
-
-    boolean handlesWildcards();
-
-    String getPathSeparator();
-
-    String normalizePath(String path);
+public enum LogLevel {
+    DEBUG, INFO, WARN
 }

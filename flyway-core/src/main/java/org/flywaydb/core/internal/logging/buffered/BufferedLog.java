@@ -26,12 +26,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class BufferedLog implements Log {
-    public final List<BufferedLogMessage> bufferedLogMessages = Collections.synchronizedList(new ArrayList<>());
-
-    @Override
-    public boolean isDebugEnabled() {
-        return true;
-    }
+    private final List<BufferedLogMessage> bufferedLogMessages = Collections.synchronizedList(new ArrayList<>());
 
     @Override
     public void debug(String message) {

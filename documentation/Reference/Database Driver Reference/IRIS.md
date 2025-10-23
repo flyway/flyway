@@ -37,8 +37,10 @@ IRIS support is a separate dependency for Flyway and will need to be added to yo
 ### Gradle
 
 ```groovy
-dependencies {
-    implementation "org.flywaydb:flyway-database-iris"
+buildscript {
+    dependencies {
+        implementation "org.flywaydb:flyway-database-iris"
+    }
 }
 ```
 

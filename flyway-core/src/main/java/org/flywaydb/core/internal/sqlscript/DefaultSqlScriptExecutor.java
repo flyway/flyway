@@ -146,11 +146,9 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
     }
 
     protected void logStatementExecution(SqlStatement sqlStatement) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Executing "
-                              + (batch && sqlStatement.isBatchable() ? "batchable " : "")
-                              + "SQL: " + sqlStatement.getSql());
-        }
+        LOG.debug("Executing "
+            + (batch && sqlStatement.isBatchable() ? "batchable " : "")
+            + "SQL: " + sqlStatement.getSql());
     }
 
     private Results executeBatch(JdbcTemplate jdbcTemplate, SqlScript sqlScript, List<SqlStatement> batchStatements, Configuration config) {

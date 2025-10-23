@@ -43,16 +43,20 @@ MariaDB is found within the `flyway-mysql` plugin module.
 ### Gradle
 #### Redgate
 ```groovy
-dependencies {
-    implementation "com.redgate.flyway:flyway-mysql"
+buildscript {
+    dependencies {
+        implementation "com.redgate.flyway:flyway-mysql"
+    }
 }
 ```
 #### Open Source
 ```groovy
-dependencies {
-    implementation "org.flywaydb:flyway-mysql"
+buildscript {
+    dependencies {
+        implementation "org.flywaydb:flyway-mysql"
+    }
 }
-`
+```
 
 ## SQL Script Syntax
 

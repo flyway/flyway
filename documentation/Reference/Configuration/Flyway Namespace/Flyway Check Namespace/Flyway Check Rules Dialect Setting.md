@@ -24,7 +24,11 @@ If not specified, Flyway will automatically detect the SQL dialect based on the 
 
 - `ansi`
 - `bigquery`
+- `clickhouse`
+- `databricks`
 - `db2`
+- `duckdb`
+- `mariadb`
 - `mysql`
 - `oracle`
 - `postgres`

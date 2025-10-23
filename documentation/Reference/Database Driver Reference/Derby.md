@@ -65,16 +65,20 @@ Derby is found within the `flyway-database-derby` plugin module.
 #### Redgate
 
 ```groovy
-dependencies {
-    implementation "com.redgate.flyway:flyway-database-derby"
+buildscript {
+    dependencies {
+        implementation "com.redgate.flyway:flyway-database-derby"
+    }
 }
 ```
 
 #### Open Source
 
 ```groovy
-dependencies {
-    implementation "org.flywaydb:flyway-database-derby"
+buildscript {
+    dependencies {
+        implementation "org.flywaydb:flyway-database-derby"
+    }
 }
 ```
 

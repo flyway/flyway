@@ -34,6 +34,7 @@ import lombok.CustomLog;
 import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.output.CompositeResult;
 import org.flywaydb.core.api.output.HtmlResult;
 import org.flywaydb.core.api.output.OperationResult;
@@ -107,7 +108,7 @@ public class OperationsReportUtils {
             } catch (final FlywayException e) {
                 if (DEFAULT_REPORT_FILENAME.equals(reportFilename)) {
                     LOG.warn("Unable to create default report files.");
-                    if (LOG.isDebugEnabled()) {
+                    if (LogFactory.isDebugEnabled()) {
                         e.printStackTrace(System.out);
                     }
                 } else {

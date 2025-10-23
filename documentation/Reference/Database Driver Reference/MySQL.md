@@ -2,7 +2,7 @@
 subtitle: MySQL
 ---
 
- - **Verified Versions:** 5.7, 8.0, 8.1
+ - **Verified Versions:** 5.7, 8.0, 9.4
  - **Maintainer:** {% include redgate-badge.html %}
 
 ## Supported Versions and Support Levels
@@ -48,14 +48,18 @@ MySQL support is a separate dependency for Flyway and will need to be added to y
 ### Gradle
 #### Redgate
 ```groovy
-dependencies {
-    implementation "com.redgate.flyway:flyway-mysql"
+buildscript {
+    dependencies {
+        implementation "com.redgate.flyway:flyway-mysql"
+    }
 }
 ```
 #### Open Source
 ```groovy
-dependencies {
-    implementation "org.flywaydb:flyway-mysql"
+buildscript {
+    dependencies {
+        implementation "org.flywaydb:flyway-mysql"
+    }
 }
 ```
 

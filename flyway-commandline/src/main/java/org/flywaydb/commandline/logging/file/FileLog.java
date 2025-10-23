@@ -30,28 +30,23 @@ import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import org.flywaydb.core.api.logging.LogFactory;
 
 @RequiredArgsConstructor
 public class FileLog implements Log {
 
     private final Path path;
-    private final Level level;
-
-    @Override
-    public boolean isDebugEnabled() {
-        return level == Level.DEBUG;
-    }
 
     @Override
     public void debug(String message) {
-        if (isDebugEnabled()) {
+        if (LogFactory.isDebugEnabled()) {
             writeLogMessage("DEBUG", message);
         }
     }
 
     @Override
     public void info(String message) {
-        if (level.compareTo(Level.INFO) <= 0) {
+        if (!LogFactory.isQuietMode()) {
             writeLogMessage(message);
         }
     }

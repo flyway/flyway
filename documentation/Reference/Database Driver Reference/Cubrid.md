@@ -39,7 +39,9 @@ Database support
 ### Gradle
 
 ```groovy
-dependencies {
-    implementation "org.flywaydb:flyway-database-cubrid"
+buildscript {
+    dependencies {
+        implementation "org.flywaydb:flyway-database-cubrid"
+    }
 }
 ```

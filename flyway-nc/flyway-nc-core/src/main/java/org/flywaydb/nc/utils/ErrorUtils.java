@@ -21,6 +21,7 @@ package org.flywaydb.nc.utils;
 
 import java.nio.file.Path;
 import lombok.CustomLog;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -57,7 +58,7 @@ public class ErrorUtils {
         }
 
         if (executionUnit != null && executor != null) {
-            executor.appendErrorMessage(executionUnit, messageBuilder, LOG.isDebugEnabled());
+            executor.appendErrorMessage(executionUnit, messageBuilder, LogFactory.isDebugEnabled());
         }
 
         return messageBuilder.toString();

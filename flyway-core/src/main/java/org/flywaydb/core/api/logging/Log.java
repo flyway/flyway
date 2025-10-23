@@ -21,7 +21,13 @@ package org.flywaydb.core.api.logging;
 
 public interface Log {
 
-    boolean isDebugEnabled();
+    @Deprecated
+    /// @deprecated Use LogFactory.isDebugEnabled() instead.
+    /// if you require custom behavior from this property in your own logger
+    /// remove the @override decorator.
+    default boolean isDebugEnabled() {
+        return LogFactory.isDebugEnabled();
+    }
 
     void debug(String message);
 

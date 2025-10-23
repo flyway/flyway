@@ -43,14 +43,18 @@ Informix is found within the `flyway-database-informix` plugin module.
 ### Gradle
 #### Redgate
 ```groovy
-dependencies {
-    implementation "com.redgate.flyway:flyway-database-informix"
+buildscript {
+    dependencies {
+        implementation "com.redgate.flyway:flyway-database-informix"
+    }
 }
 ```
 #### Open Source
 ```groovy
-dependencies {
-    implementation "org.flywaydb:flyway-database-informix"
+buildscript {
+    dependencies {
+        implementation "org.flywaydb:flyway-database-informix"
+    }
 }
 ```
 

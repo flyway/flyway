@@ -20,6 +20,7 @@
 package org.flywaydb.core.api.logging;
 
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.Synchronized;
@@ -71,6 +72,17 @@ public class LogFactory {
     @Setter(onMethod = @__(@Synchronized))
     private static LogCreator fallbackLogCreator;
     private static Configuration configuration;
+    @Getter
+    @Setter
+    private static LogLevel logLevel;
+
+    public static boolean isDebugEnabled() {
+        return logLevel == LogLevel.DEBUG;
+    }
+
+    public static boolean isQuietMode() {
+        return logLevel == LogLevel.WARN;
+    }
 
     @Synchronized
     public static void setConfiguration(Configuration configuration) {

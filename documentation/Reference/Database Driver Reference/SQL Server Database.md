@@ -55,16 +55,20 @@ SQL Server support is a separate dependency for Flyway and will need to be added
 #### Redgate
 
 ```groovy
-dependencies {
-    implementation "com.redgate.flyway:flyway-sqlserver"
+buildscript {
+    dependencies {
+        implementation "com.redgate.flyway:flyway-sqlserver"
+    }
 }
 ```
 
 #### Open Source
 
 ```groovy
-dependencies {
-    implementation "org.flywaydb:flyway-sqlserver"
+buildscript {
+    dependencies {
+        implementation "org.flywaydb:flyway-sqlserver"
+    }
 }
 ```
 

@@ -58,16 +58,20 @@ Oracle support is a separate dependency for Flyway and will need to be added to 
 #### Redgate
 
 ```groovy
-dependencies {
-    implementation "com.redgate.flyway:flyway-database-oracle"
+buildscript {
+    dependencies {
+        implementation "com.redgate.flyway:flyway-database-oracle"
+    }
 }
 ```
 
 #### Open Source
 
 ```groovy
-dependencies {
-    implementation "org.flywaydb:flyway-database-oracle"
+buildscript {
+    dependencies {
+        implementation "org.flywaydb:flyway-database-oracle"
+    }
 }
 ```
 
