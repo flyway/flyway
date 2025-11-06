@@ -21,6 +21,7 @@ package org.flywaydb.nc;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.flywaydb.core.api.FlywayException;
@@ -30,11 +31,11 @@ import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.parser.PlaceholderReplacingReader;
 
 public class FileReadingWithPlaceholderReplacement {
-    public static String readFile(Configuration configuration, ParsingContext parsingContext, String physicalLocation) {
+    public static String readFile(final Configuration configuration, final ParsingContext parsingContext, final String physicalLocation, final Charset encoding) {
         try {
             final PlaceholderReplacingReader reader = PlaceholderReplacingReader.create(configuration,
                 parsingContext,
-                Files.newBufferedReader(Path.of(physicalLocation)));
+                Files.newBufferedReader(Path.of(physicalLocation), encoding));
             try (final BufferedReader bufferedReader = new BufferedReader(reader)) {
                 return String.join("\n", bufferedReader.lines().toList());
             }

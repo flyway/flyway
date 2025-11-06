@@ -19,10 +19,13 @@
  */
 package org.flywaydb.locations.s3;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.TreeSet;
 import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
@@ -31,6 +34,7 @@ import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.scanner.cloud.CloudScanner;
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3Uri;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.S3Object;
@@ -76,11 +80,43 @@ public class AwsS3Scanner extends CloudScanner {
                     + bucketName
                     + prefix
                     + " due to error: "
-                    + e.getMessage());
+                    + e.getMessage(), e);
             }
 
             LOG.error("Skipping s3 location:" + bucketName + prefix + " due to error: " + e.getMessage());
             return Collections.emptyList();
+        }
+    }
+
+    Optional<LoadableResource> getResource(final Location location) {
+        try {
+            final String bucketName = getBucketName(location);
+            final String prefix = getPrefix(bucketName, location.getRootPath());
+            final S3Client s3Client = S3ClientFactory.getClient();
+            final S3Uri s3Uri;
+            s3Uri = s3Client.utilities().parseUri(new URI("s3://" + location.getRootPath()));
+            try {
+                final ListObjectsV2Request.Builder builder = ListObjectsV2Request.builder()
+                    .bucket(bucketName)
+                    .prefix(prefix);
+                final ListObjectsV2Request request = builder.build();
+                final ListObjectsV2Response listObjectResult = s3Client.listObjectsV2(request);
+
+                return listObjectResult.contents()
+                    .stream()
+                    .filter(obj -> obj.key().equals(s3Uri.key().orElse(null)))
+                    .findFirst()
+                    .map(x -> new AwsS3Resource(bucketName, x, encoding));
+            } catch (final SdkClientException e) {
+
+                throw new FlywayException("Could not access s3 location:"
+                    + bucketName
+                    + prefix
+                    + " due to error: "
+                    + e.getMessage(), e);
+            }
+        } catch (final URISyntaxException e) {
+            throw new FlywayException(e);
         }
     }
 

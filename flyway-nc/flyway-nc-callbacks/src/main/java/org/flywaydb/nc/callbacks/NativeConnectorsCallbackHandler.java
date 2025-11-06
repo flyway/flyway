@@ -79,18 +79,8 @@ public class NativeConnectorsCallbackHandler implements CallbackHandler {
             NativeConnectorsUtils.getFlywayTelemetryManager(configuration))) {
             executionUnits.forEach(executionUnit -> {
 
-                Object executionUnitObj;
-                if (executor instanceof JdbcExecutor) {
-                    executionUnitObj = executionUnit;
-                } else {
-                    final String parentDir = getParentDir(callback.getLoadableResourceMetadata()
-                        .loadableResource()
-                        .getAbsolutePath());
-                    executionUnitObj = new NonJdbcExecutorExecutionUnit((String) executionUnit, parentDir);
-                }
-
-                try {
-                    executor.execute(database, executionUnitObj, configuration);
+                                try {
+                    executor.execute(database, executionUnit, configuration);
                 } catch (Exception e) {
                     final String title = "Error while executing "
                         + callback.getEvent().getId()
@@ -101,7 +91,7 @@ public class NativeConnectorsCallbackHandler implements CallbackHandler {
                         callback.getLoadableResourceMetadata().loadableResource(),
                         callback.getPhysicalLocation(),
                         executor,
-                        executionUnitObj,
+                        executionUnit,
                         "Message    : " + e.getMessage() + "\n");
 
                     throw new FlywayException(errorMessage);

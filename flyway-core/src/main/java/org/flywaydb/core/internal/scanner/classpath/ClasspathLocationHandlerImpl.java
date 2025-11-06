@@ -19,9 +19,11 @@
  */
 package org.flywaydb.core.internal.scanner.classpath;
 
+import static org.flywaydb.core.api.CoreLocationPrefix.CLASSPATH_PREFIX;
+
 import java.util.Collection;
+import java.util.Optional;
 import lombok.Getter;
-import org.flywaydb.core.api.CoreLocationPrefix;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.migration.JavaMigration;
@@ -32,22 +34,24 @@ import org.flywaydb.core.internal.scanner.ResourceNameCache;
 
 public class ClasspathLocationHandlerImpl implements ClasspathLocationHandler {
     @Getter
-    private final String prefix = CoreLocationPrefix.CLASSPATH_PREFIX;
+    private final String prefix = CLASSPATH_PREFIX;
 
     private final ResourceNameCache resourceNameCache = new ResourceNameCache();
     private final LocationScannerCache locationScannerCache = new LocationScannerCache();
 
     @Override
     public Collection<LoadableResource> scanForResources(final Location location, final Configuration configuration) {
-        final ResourceAndClassScanner<JavaMigration> classPathScanner = new ClassPathScanner<>(JavaMigration.class,
-            configuration.getClassLoader(),
-            configuration.getEncoding(),
-            location,
-            resourceNameCache,
-            locationScannerCache,
-            configuration.isFailOnMissingLocations(),
-            configuration.isStream());
+        final ClassPathScanner<JavaMigration> classPathScanner = createClassPathScanner(location, configuration);
         return classPathScanner.scanForResources();
+    }
+
+    @Override
+    public Optional<LoadableResource> getResource(final Location location, final Configuration configuration) {
+        final String packagePath = location.getRootPath().substring(0, location.getRootPath().lastIndexOf("/"));
+        final ClassPathScanner<JavaMigration> classPathScanner = createClassPathScanner(Location.fromPath(
+            CLASSPATH_PREFIX,
+            packagePath), configuration);
+        return classPathScanner.getResource(location);
     }
 
     @Override
@@ -81,5 +85,17 @@ public class ClasspathLocationHandlerImpl implements ClasspathLocationHandler {
         return pathWithoutPrefix.endsWith("/")
             ? pathWithoutPrefix.substring(0, pathWithoutPrefix.length() - 1)
             : pathWithoutPrefix;
+    }
+
+    private ClassPathScanner<JavaMigration> createClassPathScanner(final Location location,
+        final Configuration configuration) {
+        return new ClassPathScanner<>(JavaMigration.class,
+            configuration.getClassLoader(),
+            configuration.getEncoding(),
+            location,
+            resourceNameCache,
+            locationScannerCache,
+            configuration.isFailOnMissingLocations(),
+            configuration.isStream());
     }
 }

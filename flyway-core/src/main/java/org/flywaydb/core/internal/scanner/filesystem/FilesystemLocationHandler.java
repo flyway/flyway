@@ -19,15 +19,19 @@
  */
 package org.flywaydb.core.internal.scanner.filesystem;
 
+import static org.flywaydb.core.api.CoreLocationPrefix.FILESYSTEM_PREFIX;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
+import java.util.Optional;
 import lombok.Getter;
 import org.flywaydb.core.api.CoreErrorCode;
-import org.flywaydb.core.api.CoreLocationPrefix;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -38,13 +42,24 @@ import org.flywaydb.core.internal.scanner.ReadWriteLocationHandler;
 public class FilesystemLocationHandler implements ReadWriteLocationHandler {
 
     @Getter
-    private final String prefix = CoreLocationPrefix.FILESYSTEM_PREFIX;
+    private final String prefix = FILESYSTEM_PREFIX;
 
     @Override
     public Collection<LoadableResource> scanForResources(final Location location, final Configuration configuration) {
-        final boolean stream = configuration.isStream();
-        final FileSystemScanner fileSystemScanner = new FileSystemScanner(stream, configuration);
+        final FileSystemScanner fileSystemScanner = new FileSystemScanner(configuration);
         return fileSystemScanner.scanForResources(location);
+    }
+
+    @Override
+    public Optional<LoadableResource> getResource(final Location location, final Configuration configuration) {
+        final Path resolvedPath = Path.of(ConfigUtils.getFilenameWithWorkingDirectory(location.getRootPath(),
+            configuration));
+        final String parentPath = Optional.ofNullable(resolvedPath.getParent()).map(Path::toString).orElse("");
+        final Location parentLocation = Location.fromPath(FILESYSTEM_PREFIX, parentPath);
+
+        final FileSystemScanner fileSystemScanner = new FileSystemScanner(configuration);
+        return Files.exists(resolvedPath) ? Optional.of(fileSystemScanner.getResource(parentLocation,
+            resolvedPath.toString())) : Optional.empty();
     }
 
     @Override

@@ -199,7 +199,13 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
             return metaData;
         }
 
-        final Document buildInfo = mongoDatabase.runCommand(new Document("buildInfo", 1));
+        final Document buildInfo;
+        try {
+            buildInfo = mongoDatabase.runCommand(new Document("buildInfo", 1));
+        } catch (final Exception e) {
+            throw new FlywayException(e);
+        }
+
         final String version = buildInfo.getString("version");
         return new MetaData(getDatabaseType(), "MongoDB", new DatabaseVersionImpl(version), version, getCurrentSchema(), connectionType);
     }

@@ -1813,7 +1813,7 @@ public class ClassicConfiguration implements Configuration {
         }
 
         final String outputProgress = props.remove(ConfigUtils.OUTPUT_PROGRESS);
-        if (userProp != null) {
+        if (outputProgress != null) {
             getModernFlyway().setOutputProgress(Boolean.parseBoolean(outputProgress));
         }
 

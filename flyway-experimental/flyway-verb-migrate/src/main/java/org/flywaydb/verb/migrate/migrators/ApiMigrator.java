@@ -157,7 +157,7 @@ public class ApiMigrator extends Migrator<NativeConnectorsNonJdbc> {
             outOfOrder);
         final Executor<NonJdbcExecutorExecutionUnit, NativeConnectorsNonJdbc> executor = ExecutorFactory.getExecutor(experimentalDatabase,
             configuration);
-        final Reader<String> reader = ReaderFactory.getReader(experimentalDatabase, configuration);
+        final Reader<NonJdbcExecutorExecutionUnit> reader = ReaderFactory.getReader(experimentalDatabase, configuration);
 
         try {
             if (configuration.isSkipExecutingMigrations()) {
@@ -180,13 +180,16 @@ public class ApiMigrator extends Migrator<NativeConnectorsNonJdbc> {
                 }
 
                 if (migrationInfo instanceof final LoadableMigrationInfo loadableMigrationInfo) {
+                    final NonJdbcExecutorExecutionUnit initialUnit = reader.read(configuration,
+                        experimentalDatabase,
+                        parsingContext,
+                        loadableMigrationInfo.getLoadableResource(),
+                        null).findFirst().get();
                     final NonJdbcExecutorExecutionUnit nonJdbcExecutorExecutionUnit = new NonJdbcExecutorExecutionUnit(
-                        reader.read(configuration,
-                            experimentalDatabase,
-                            parsingContext,
-                            loadableMigrationInfo.getLoadableResource(),
-                            null).findFirst().get(),
-                        getParentDir(loadableMigrationInfo.getLoadableResource().getAbsolutePath()), executeInTransaction);
+                        initialUnit.getScript(),
+                        initialUnit.getContextPath(),
+                        initialUnit.getEncoding(),
+                        executeInTransaction);
                     executor.execute(experimentalDatabase, nonJdbcExecutorExecutionUnit, configuration);
                     if(isLast) {
                         executor.finishExecution(experimentalDatabase, configuration);

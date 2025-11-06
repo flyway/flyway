@@ -1,41 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>org.flywaydb</groupId>
-        <artifactId>flyway-parent</artifactId>
-        <version>11.15.0</version>
-    </parent>
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-parent</artifactId>
+    <version>11.16.0</version>
+  </parent>
 
-    <artifactId>flyway-database</artifactId>
-    <packaging>pom</packaging>
-    <name>${project.artifactId}</name>
+  <artifactId>flyway-database</artifactId>
+  <packaging>pom</packaging>
+  <name>${project.artifactId}</name>
 
-    <modules>
-        <module>flyway-database-db2</module>
-        <module>flyway-database-derby</module>
-        <module>flyway-database-hsqldb</module>
-        <module>flyway-database-informix</module>
-        <module>flyway-database-postgresql</module>
-        <module>flyway-database-oracle</module>
-        <module>flyway-database-mongodb</module>
-        <module>flyway-database-redshift</module>
-        <module>flyway-database-saphana</module>
-        <module>flyway-database-snowflake</module>
-        <module>flyway-database-sybasease</module>
-        <module>flyway-firebird</module>
-        <module>flyway-gcp-bigquery</module>
-        <module>flyway-gcp-spanner</module>
-        <module>flyway-mysql</module>
-        <module>flyway-singlestore</module>
-        <module>flyway-sqlserver</module>
-        <module>flyway-database-cassandra</module>
-        <module>flyway-database-nc-mongodb</module>
-        <module>flyway-database-nc-couchbase</module>
-
-
+  <modules>
+    <module>flyway-database-db2</module>
+    <module>flyway-database-derby</module>
+    <module>flyway-database-hsqldb</module>
+    <module>flyway-database-informix</module>
+    <module>flyway-database-postgresql</module>
+    <module>flyway-database-oracle</module>
+    <module>flyway-database-mongodb</module>
+    <module>flyway-database-redshift</module>
+    <module>flyway-database-saphana</module>
+    <module>flyway-database-snowflake</module>
+    <module>flyway-database-sybasease</module>
+    <module>flyway-firebird</module>
+    <module>flyway-gcp-bigquery</module>
+    <module>flyway-gcp-spanner</module>
+    <module>flyway-mysql</module>
+    <module>flyway-singlestore</module>
+    <module>flyway-sqlserver</module>
+    <module>flyway-database-cassandra</module>
+    <module>flyway-database-nc-mongodb</module>
+    <module>flyway-database-nc-couchbase</module>
 
 
 
@@ -59,7 +57,9 @@
 
 
 
-    </modules>
+
+
+  </modules>
 
 
 </project>

@@ -7,6 +7,8 @@ Local DB is only supported by the JTDS JDBC driver and can only be connected to 
 This means that the instance name for your LocalDB will change every time the service is restarted, which would mean you'd have to edit your connection string every time too.
 This resolver allows you to avoid this by automatically querying for the instance name before each connection.
 
+This resolver requires the SqlLocalDB utility to be available locally in order to function.
+
 ## Settings
 
 | Setting                                                                                                                                            | Required | Type   | Description                                    |

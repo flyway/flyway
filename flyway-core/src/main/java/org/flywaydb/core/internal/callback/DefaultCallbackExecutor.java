@@ -83,9 +83,10 @@ public class DefaultCallbackExecutor<E extends CallbackEvent<E>> implements Call
 
     @Override
     public void onMigrateOrUndoEvent(final E event) {
-
-        if (callbacks.stream().anyMatch(callback -> callback.supports(event, null))) {
-            execute(event, database.getEventConnection());
+        final var eventConnection = database.getEventConnection();
+        final Context context = new SimpleContext(configuration, eventConnection, migrationInfo, null);
+        if (callbacks.stream().anyMatch(callback -> callback.supports(event, context))) {
+            execute(event, eventConnection);
             database.disposeEventConnection();
         }
     }

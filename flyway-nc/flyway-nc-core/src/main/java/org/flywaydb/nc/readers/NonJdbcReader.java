@@ -19,6 +19,9 @@
  */
 package org.flywaydb.nc.readers;
 
+import static org.flywaydb.core.internal.util.FileUtils.getParentDir;
+
+import java.nio.charset.Charset;
 import java.util.stream.Stream;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResource;
@@ -28,16 +31,26 @@ import org.flywaydb.core.internal.nc.Reader;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
 import org.flywaydb.nc.FileReadingWithPlaceholderReplacement;
+import org.flywaydb.nc.executors.NonJdbcExecutorExecutionUnit;
 
-public class NonJdbcReader implements Reader<String> {
-    public Stream<String> read(final Configuration configuration,
+public class NonJdbcReader implements Reader<NonJdbcExecutorExecutionUnit> {
+    public Stream<NonJdbcExecutorExecutionUnit> read(final Configuration configuration,
         final NativeConnectorsDatabase database,
         final ParsingContext parsingContext,
         final LoadableResource loadableResource,
         final SqlScriptMetadata metadata) {
-        return Stream.of(FileReadingWithPlaceholderReplacement.readFile(configuration,
+        final Charset encoding = metadata != null && metadata.encoding() != null ?
+            Charset.forName(metadata.encoding()) :
+            configuration.getEncoding();
+        final String content = FileReadingWithPlaceholderReplacement.readFile(configuration,
             parsingContext,
-            loadableResource.getAbsolutePath()));
+            loadableResource.getAbsolutePath(),
+            encoding);
+        return Stream.of(new NonJdbcExecutorExecutionUnit(
+            content,
+            getParentDir(loadableResource.getAbsolutePath()),
+            encoding
+            ));
     }
 
     @Override

@@ -42,10 +42,10 @@ public class FileSystemScanner {
     private final boolean stream;
     private final Configuration config;
 
-    public FileSystemScanner(final boolean stream, final Configuration config) {
+    public FileSystemScanner(final Configuration config) {
         this.defaultEncoding = config.getEncoding();
         this.detectEncoding = config.isDetectEncoding();
-        this.stream = stream;
+        this.stream = config.isStream();
         this.throwOnMissingLocations = config.isFailOnMissingLocations();
         this.config = config;
     }
@@ -78,36 +78,41 @@ public class FileSystemScanner {
             return Collections.emptyList();
         }
 
-        final Set<LoadableResource> resources = new TreeSet<>();
-
+        final Collection<LoadableResource> resources = new TreeSet<>();
         for (final String resourceName : findResourceNamesFromFileSystem(path, dir)) {
-            boolean detectEncodingForThisResource = detectEncoding;
             if (matchesAnyWildcardRestrictions(location, resourceName)) {
-                Charset encoding = defaultEncoding;
-                String encodingBlurb = "";
-                if (new File(resourceName + ".conf").exists()) {
-                    final LoadableResource metadataResource = new FileSystemResource(location,
-                        resourceName + ".conf",
-                        defaultEncoding,
-                        false);
-                    final SqlScriptMetadata metadata = SqlScriptMetadata.fromResource(metadataResource, null, config);
-                    if (metadata.encoding() != null) {
-                        encoding = Charset.forName(metadata.encoding());
-                        detectEncodingForThisResource = false;
-                        encodingBlurb = " (with overriding encoding " + encoding + ")";
-                    }
-                }
-                resources.add(new FileSystemResource(location,
-                    resourceName,
-                    encoding,
-                    detectEncodingForThisResource,
-                    stream));
-
-                LOG.debug("Found filesystem resource: " + resourceName + encodingBlurb);
+                final var resource = getResource(location, resourceName);
+                resources.add(resource);
             }
         }
 
         return resources;
+    }
+
+    public LoadableResource getResource(final Location location, final String resourceName) {
+        boolean detectEncodingForThisResource = detectEncoding;
+        Charset encoding = defaultEncoding;
+        String encodingBlurb = "";
+        if (new File(resourceName + ".conf").exists()) {
+            final LoadableResource metadataResource = new FileSystemResource(location,
+                resourceName + ".conf",
+                defaultEncoding,
+                false);
+            final SqlScriptMetadata metadata = SqlScriptMetadata.fromResource(metadataResource, null, config);
+            if (metadata.encoding() != null) {
+                encoding = Charset.forName(metadata.encoding());
+                detectEncodingForThisResource = false;
+                encodingBlurb = " (with overriding encoding " + encoding + ")";
+            }
+        }
+        final LoadableResource resource = new FileSystemResource(location,
+            resourceName,
+            encoding,
+            detectEncodingForThisResource,
+            stream);
+
+        LOG.debug("Found filesystem resource: " + resourceName + encodingBlurb);
+        return resource;
     }
 
     private static Boolean matchesAnyWildcardRestrictions(final Location location, final String path) {

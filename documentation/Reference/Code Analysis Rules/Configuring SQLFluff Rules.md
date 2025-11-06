@@ -12,6 +12,8 @@ There are a number of ways to enable and disable rules in the SQLFluff configura
 The default configuration shipped with Flyway enables only a subset of SQLFluff rules, primarily those that help make your SQL statements clearer, safer, and more consistently styled. 
 It also enables a set of custom rules provided by Redgate by default.
 
+Note that these custom rules are available only in the Redgate-packaged version of [`SQLFluff`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check SQLFluff Enabled Setting>).
+
 Redgate also recommends explicitly specifying the rules to enable (using `rules`) rather than relying on `exclude_rules` to disable unwanted ones. 
 This approach is safer and helps prevent potential issues if new Redgate custom rules are added in future releases.
 

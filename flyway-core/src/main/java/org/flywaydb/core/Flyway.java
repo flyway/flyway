@@ -47,6 +47,7 @@ import org.flywaydb.core.internal.command.*;
 import org.flywaydb.core.internal.command.clean.DbClean;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
+import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.CommandExtensionUtils;
@@ -507,7 +508,7 @@ public class Flyway {
             throw e;
         }
     }
-
+    
     private OperationResult runCommand(final String command, final List<String> flags) {
         return CommandExtensionUtils.runCommandExtension(configuration, command, flags);
     }

@@ -104,7 +104,7 @@ public class ExecutableMigrator extends Migrator<NativeConnectorsDatabase> {
         final String migrationText = toMigrationText(migrationInfo, false, experimentalDatabase, outOfOrder);
         final Executor<NonJdbcExecutorExecutionUnit, NativeConnectorsDatabase> executor = ExecutorFactory.getExecutor(experimentalDatabase,
             configuration);
-        final Reader<String> reader = ReaderFactory.getReader(experimentalDatabase, configuration);
+        final Reader<NonJdbcExecutorExecutionUnit> reader = ReaderFactory.getReader(experimentalDatabase, configuration);
 
         try {
             if (configuration.isSkipExecutingMigrations()) {
@@ -127,13 +127,11 @@ public class ExecutableMigrator extends Migrator<NativeConnectorsDatabase> {
                 }
 
                 if (migrationInfo instanceof final LoadableMigrationInfo loadableMigrationInfo) {
-                    final NonJdbcExecutorExecutionUnit nonJdbcExecutorExecutionUnit = new NonJdbcExecutorExecutionUnit(
-                        reader.read(configuration,
-                            experimentalDatabase,
-                            parsingContext,
-                            loadableMigrationInfo.getLoadableResource(),
-                            null).findFirst().get(),
-                        getParentDir(loadableMigrationInfo.getLoadableResource().getAbsolutePath()));
+                    final NonJdbcExecutorExecutionUnit nonJdbcExecutorExecutionUnit = reader.read(configuration,
+                        experimentalDatabase,
+                        parsingContext,
+                        loadableMigrationInfo.getLoadableResource(),
+                        null).findFirst().get();
                     executor.execute(experimentalDatabase, nonJdbcExecutorExecutionUnit, configuration);
                     executor.finishExecution(experimentalDatabase, configuration);
                 }

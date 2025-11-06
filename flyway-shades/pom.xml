@@ -1,10 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>11.15.0</version>
+    <version>11.16.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -39,7 +39,9 @@
                   <arguments>
                     <argument>build</argument>
                     <argument>-f</argument>
-                    <argument>${maven.multiModuleProjectDirectory}/flyway-shades/shades/aws-secretsmanager-jdbc/Dockerfile</argument>
+                    <argument>
+                      ${maven.multiModuleProjectDirectory}/flyway-shades/shades/aws-secretsmanager-jdbc/Dockerfile
+                    </argument>
                     <argument>-t</argument>
                     <argument>${shade.image.name}:latest</argument>
                     <argument>--build-arg</argument>
@@ -63,7 +65,9 @@
                     <argument>run</argument>
                     <argument>--rm</argument>
                     <argument>-v</argument>
-                    <argument>${maven.multiModuleProjectDirectory}/flyway-commandline/src/main/assembly/drivers/aws:/out</argument>
+                    <argument>
+                      ${maven.multiModuleProjectDirectory}/flyway-commandline/src/main/assembly/drivers/aws:/out
+                    </argument>
                     <argument>${shade.image.name}:latest</argument>
                   </arguments>
                 </configuration>

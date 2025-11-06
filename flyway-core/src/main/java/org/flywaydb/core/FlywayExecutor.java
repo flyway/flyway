@@ -41,6 +41,7 @@ import org.flywaydb.core.extensibility.LicenseGuard;
 import org.flywaydb.core.extensibility.Tier;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.callback.DefaultCallbackExecutor;
+import org.flywaydb.core.internal.callback.InternalCallback;
 import org.flywaydb.core.internal.callback.NoopCallback;
 import org.flywaydb.core.internal.callback.NoopCallbackExecutor;
 import org.flywaydb.core.internal.callback.SqlScriptCallbackFactory;
@@ -114,9 +115,14 @@ public class FlywayExecutor {
     public <T> T execute(final Command<T> command,
         final boolean scannerRequired,
         final FlywayTelemetryManager flywayTelemetryManager) {
-        T result;
+        return execute(command, scannerRequired, flywayTelemetryManager, init());
+    }
 
-        configurationValidator.validate(configuration);
+    private <T> T execute(final Command<T> command,
+        final boolean scannerRequired,
+        final FlywayTelemetryManager flywayTelemetryManager,
+        final JdbcConnectionFactory jdbcConnectionFactory) {
+        T result;
 
         final StatementInterceptor statementInterceptor = configuration.getPluginRegister()
             .getInstancesOf(StatementInterceptor.class)
@@ -138,10 +144,6 @@ public class FlywayExecutor {
 
 
 
-
-        final JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(configuration.getDataSource(),
-            configuration,
-            statementInterceptor);
 
         final DatabaseType databaseType = jdbcConnectionFactory.getDatabaseType();
         final SqlScriptFactory sqlScriptFactory = databaseType.createSqlScriptFactory(configuration, parsingContext);
@@ -179,14 +181,6 @@ public class FlywayExecutor {
                 if (database.getDatabaseType() instanceof CommunityDatabaseType) {
                     LOG.info(((CommunityDatabaseType) database.getDatabaseType()).announcementForCommunitySupport());
                 }
-
-                LOG.info("Database: "
-                    + redactJdbcUrl(jdbcConnectionFactory.getJdbcUrl())
-                    + " ("
-                    + jdbcConnectionFactory.getProductName()
-                    + ")");
-                LOG.debug("Database Type: " + database.getDatabaseType().getName());
-                LOG.debug("Driver: " + jdbcConnectionFactory.getDriverInfo());
 
                 if (flywayTelemetryManager != null) {
                     flywayTelemetryManager.notifyDatabaseChanged(database.getDatabaseType().getName(),
@@ -264,6 +258,31 @@ public class FlywayExecutor {
         }
 
         return result;
+    }
+
+    public JdbcConnectionFactory init() {
+        configurationValidator.validate(configuration);
+
+        final StatementInterceptor statementInterceptor = configuration.getPluginRegister()
+            .getInstancesOf(StatementInterceptor.class)
+            .stream()
+            .filter(i -> i.isConfigured(configuration))
+            .findFirst()
+            .orElse(null);
+
+        final JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(configuration.getDataSource(),
+            configuration,
+            statementInterceptor);
+
+        LOG.info("Database: "
+            + redactJdbcUrl(jdbcConnectionFactory.getJdbcUrl())
+            + " ("
+            + jdbcConnectionFactory.getProductName()
+            + ")");
+        LOG.debug("Database Type: " + jdbcConnectionFactory.getDatabaseType().getName());
+        LOG.debug("Driver: " + jdbcConnectionFactory.getDriverInfo());
+
+        return jdbcConnectionFactory;
     }
 
     private Pair<ResourceProvider, ClassProvider<JavaMigration>> createResourceAndClassProviders(final boolean scannerRequired) {
@@ -353,6 +372,14 @@ public class FlywayExecutor {
             LOG.warn(
                 "'createSchema' callback is deprecated and will be removed in a later release. Please use 'beforeCreateSchema' callback instead.");
         }
+
+        @SuppressWarnings("unchecked") final var internalCallbacks = configuration.getPluginRegister()
+            .getInstancesOf(InternalCallback.class)
+            .stream()
+            .filter(x -> x.supportsEventType(Event.class))
+            .map(x -> (GenericCallback<Event>) x)
+            .toList();
+        effectiveCallbacks.addAll(internalCallbacks);
 
         return effectiveCallbacks;
     }

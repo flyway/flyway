@@ -1,7 +1,10 @@
 from dataclasses import dataclass
 from typing import Optional, Dict
 from models import Variant, FinalLayer
+from constants import VARIANTS, REDGATE_OVERLAY, FINAL_LAYERS
 import re
+import os
+import subprocess
 
 PLATFORMS = "linux/arm64/v8,linux/amd64"
 
@@ -131,3 +134,24 @@ def layer_command(base_tag: Tag, layer: FinalLayer, use_buildx: bool) -> tuple[s
         base_tag=base_tag,
         dockerfile=layer.dockerfile,
   ), image_tag
+
+def ensure_image(tag: str) -> None:
+  """Fail fast if an expected image tag is not present locally."""
+  inspect_cmd = f'docker image inspect {tag} >$null 2>&1' if os.name == 'nt' else f'docker image inspect {tag} >/dev/null 2>&1'
+  result = subprocess.run(inspect_cmd, shell=True)
+  if result.returncode != 0:
+    raise SystemExit(f"Required image '{tag}' not found locally. Run build_images.py first for edition/version (got edition tag missing).")
+
+def get_all_tags(test_mode, edition, version):
+  use_buildx = (edition != REDGATE_OVERLAY.name) and (not test_mode)
+  variants = [v for v in VARIANTS if (not test_mode) or v.name == "base"]
+  if use_buildx:
+    tags = [Tag(edition=edition, version=version, variant=v, registry="redgate.azurecr.io/") for v in variants]
+  else:
+    tags = [Tag(edition=edition, version=version, variant=v) for v in variants]
+
+  # Add mongo variant (using base variant with mongo qualifier)
+  base_tag = next(t for t in tags if t.variant.name == "base")
+  final_layer_tags = [get_layer_image_tag(base_tag, layer) for layer in FINAL_LAYERS]
+  tags.append(*final_layer_tags)
+  return tags

@@ -37,12 +37,10 @@ sqlfluffEnabled = false
 flyway.check.sqlfluffEnabled=false
 ```
 
-### Native `SQLFluff` Engine
+### Packaged `SQLFluff` Engine
 
 {% include enterprise.html %}
 
 Flyway Enterprise now includes a built-in `SQLFluff` engine, allowing you to run `SQLFluff` without requiring a separate Python or `SQLFluff` installation in your local environment.
 
-You can enable this feature by setting the environment variable `FLYWAY_ENV_NATIVE_SQLFLUFF` to `true`. By default, this variable is set to `false`. Therefore, if you prefer to use your own local `SQLFluff` installation instead of the built-in version, no action is required.
-
-Note: The overall `sqlfluffEnabled` flag must be enabled for the built-in `SQLFluff` engine to work, even if `FLYWAY_ENV_NATIVE_SQLFLUFF` is set to `true`.
+To use your own `SQLFluff` installation, set the environment variable `FLYWAY_ENV_NATIVE_SQLFLUFF` to `false` to disable this feature.

@@ -4,10 +4,8 @@ subtitle: Redgate SQLFluff Rules Library
 {% include enterprise.html %}
 
 ## Accessing Redgate SQLFluff Rules
-Flyway CLI ships with a packaged version of SQLFluff that includes additional rules written by Redgate. In order to access the packaged version of SQLFluff you will need to define the following environment variable:
-```bash
-export FLYWAY_ENV_NATIVE_SQLFLUFF=true
-```
+Flyway CLI ships with a packaged version of SQLFluff that includes additional rules written by Redgate.
+
 If you are using the packaged version of SQLFluff then you will see something like this in the CLI output
 ```
 SqlFluff version 3.4.2 (Packaged)

@@ -7,6 +7,7 @@ import argparse
 import docker_utils
 from docker_utils import Tag
 from constants import VARIANTS, REDGATE_OVERLAY, FINAL_LAYERS
+from cli_utils import bool_arg
 
 
 def _pre_build_commands(use_buildx: bool, clean_buildx: bool) -> list[str]:
@@ -91,14 +92,6 @@ def _compute_plan(edition: str, version: str, test_mode: bool, clean_buildx: boo
 
 
 def _parse_args(argv: List[str]) -> argparse.Namespace:
-    def bool_arg(value: str) -> bool:
-        val = value.lower()
-        if val in {"true", "1", "yes", "y"}:
-            return True
-        if val in {"false", "0", "no", "n"}:
-            return False
-        raise argparse.ArgumentTypeError(f"Invalid boolean value: {value}")
-
     parser = argparse.ArgumentParser(description="Build Flyway / Redgate Docker images.")
     parser.add_argument("edition", choices=["flyway", "redgate"], help="Which edition to build images for.")
     parser.add_argument("version", help="Flyway version (e.g. 10.20.0)")

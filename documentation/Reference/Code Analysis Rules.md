@@ -7,7 +7,7 @@ These pages cover how to configure the various code analysis engines
 - [Regex Rules](<Code Analysis Rules/Configuring Regex Rules>)
 - [SQLFluff Rules](<Code Analysis Rules/Configuring SQLFluff Rules>)
 
-Rules cant take one of three severity levels:
+The rules take one of three severity levels:
 - Disabled - the rule will be ignored
 - Warning - a rule violations will be reported but not cause the operation to fail
 - Error - a rule violations will be reported and will cause the operation to fail if [`check.code.failOnError`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Code Fail On Error Setting>) is enabled

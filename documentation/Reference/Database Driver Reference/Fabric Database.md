@@ -2,7 +2,9 @@
 subtitle: Fabric Database (Azure SQL Database)
 ---
 
-- **Verified Versions:** 12.0.2000.8
+- **Verified Versions:**  SQL Azure (RTM) - 12.0.2000.8
+
+  (Note: Azure SQL Database is always running on the latest stable version of the SQL Server database engine)
 - **Maintainer:** {% include redgate-badge.html %}
 
 ## Supported Versions and Support Levels

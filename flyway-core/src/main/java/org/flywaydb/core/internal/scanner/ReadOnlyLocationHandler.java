@@ -20,6 +20,7 @@
 package org.flywaydb.core.internal.scanner;
 
 import java.util.Collection;
+import java.util.Optional;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResource;
@@ -33,6 +34,8 @@ public interface ReadOnlyLocationHandler extends Plugin {
     String getPrefix();
 
     Collection<LoadableResource> scanForResources(Location location, final Configuration configuration);
+
+    Optional<LoadableResource> getResource(Location location, final Configuration configuration);
 
     boolean handlesWildcards();
 

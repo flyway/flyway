@@ -32,6 +32,7 @@ import com.couchbase.client.java.json.JsonObject;
 import com.couchbase.client.java.query.QueryOptions;
 import com.couchbase.client.java.query.QueryResult;
 import com.couchbase.client.java.transactions.TransactionQueryOptions;
+import java.nio.charset.Charset;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -254,7 +255,7 @@ public class CouchbaseDatabase extends NativeConnectorsNonJdbc {
             if (batch.isEmpty()) {
                 scope.query(query, QueryOptions.queryOptions().scanConsistency(REQUEST_PLUS));
             } else {
-                batch.add(new NonJdbcExecutorExecutionUnit(query, ""));
+                batch.add(new NonJdbcExecutorExecutionUnit(query, "", Charset.defaultCharset()));
             }
 
         } catch (Exception e) {

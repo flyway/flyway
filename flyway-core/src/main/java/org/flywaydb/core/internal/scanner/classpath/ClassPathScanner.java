@@ -59,7 +59,7 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
     private final Class<? extends I> implementedInterface;
     private final ClassLoader classLoader;
     private final Location location;
-    private final Collection<LoadableResource> resources = new HashSet<>();
+    private final Collection<ClassPathResource> resources = new HashSet<>();
     /**
      * Cache location lookups.
      */
@@ -103,7 +103,15 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
 
     @Override
     public Collection<LoadableResource> scanForResources() {
-        return resources;
+        return resources.stream().map(LoadableResource.class::cast).toList();
+    }
+
+    public Optional<LoadableResource> getResource(final Location location) {
+        final var name = location.getRootPath().substring(location.getRootPath().lastIndexOf("/") + 1);
+        return resources.stream()
+            .filter(x -> x.getFilename().equals(name))
+            .map(LoadableResource.class::cast)
+            .findFirst();
     }
 
     @Override
@@ -189,8 +197,8 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
 
         // Starting with Java 11, resources at the root of the classpath aren't being found using the URL scanning
         // method above and we need to revert to Jar file walking.
-        final boolean isClassPathRoot = CoreLocationPrefix.CLASSPATH_PREFIX.equals(location.getPrefix())
-            && "".equals(location.getRootPath());
+        final boolean isClassPathRoot = CoreLocationPrefix.CLASSPATH_PREFIX.equals(location.getPrefix()) && "".equals(
+            location.getRootPath());
 
         if (!locationResolved || isClassPathRoot) {
             if (classLoader instanceof final URLClassLoader urlClassLoader) {

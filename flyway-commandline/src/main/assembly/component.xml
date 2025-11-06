@@ -357,6 +357,7 @@
         <include>org.flywaydb:flyway-experimental-sqlite</include>
         <include>org.flywaydb:flyway-nc-callbacks</include>
         <include>org.flywaydb:flyway-database-nc-couchbase</include>
+        <include>org.flywaydb:flyway-command-test-connection</include>
       </includes>
     </dependencySet>
     <dependencySet>

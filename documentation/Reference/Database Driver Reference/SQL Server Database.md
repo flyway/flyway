@@ -2,7 +2,7 @@
 subtitle: SQL Server
 ---
 
-- **Verified Versions:** 2008, 2022
+- **Verified Versions:** 2008, 2025
 - **Maintainer:** {% include redgate-badge.html %}
 
 ## Supported Versions and Support Levels

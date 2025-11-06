@@ -19,6 +19,7 @@
  */
 package org.flywaydb.nc.executors;
 
+import java.nio.charset.Charset;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -27,11 +28,13 @@ import lombok.Getter;
 public class NonJdbcExecutorExecutionUnit {
     private String script;
     private String contextPath;
+    private Charset encoding;
     private boolean executeInTransaction;
 
-    public NonJdbcExecutorExecutionUnit(String script, String contextPath) {
+    public NonJdbcExecutorExecutionUnit(String script, String contextPath, Charset encoding) {
         this.script = script;
         this.contextPath = contextPath;
+        this.encoding = encoding;
         executeInTransaction = false;
     }
 }

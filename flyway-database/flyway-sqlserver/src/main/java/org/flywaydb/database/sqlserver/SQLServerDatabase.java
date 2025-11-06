@@ -67,7 +67,7 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
 
             ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("14.0", Tier.PREMIUM, configuration);
 
-            recommendFlywayUpgradeIfNecessary("16.0");
+            recommendFlywayUpgradeIfNecessary("17.0");
         }
     }
 

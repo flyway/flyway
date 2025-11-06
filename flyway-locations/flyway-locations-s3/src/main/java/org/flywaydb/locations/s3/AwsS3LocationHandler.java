@@ -22,8 +22,11 @@ package org.flywaydb.locations.s3;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Optional;
 import lombok.CustomLog;
 import lombok.Getter;
+import org.flywaydb.core.api.CoreErrorCode;
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResource;
@@ -32,7 +35,7 @@ import org.flywaydb.core.internal.util.FeatureDetector;
 
 @CustomLog
 public class AwsS3LocationHandler implements ReadWriteLocationHandler {
-
+    @SuppressWarnings("WeakerAccess")
     public static final String AWS_S3_PREFIX = "s3:";
 
     @Getter
@@ -47,6 +50,17 @@ public class AwsS3LocationHandler implements ReadWriteLocationHandler {
         } else {
             LOG.error("Can't read location " + location + "; AWS SDK not found");
             return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public Optional<LoadableResource> getResource(final Location location, final Configuration configuration) {
+        final FeatureDetector detector = new FeatureDetector(configuration.getClassLoader());
+        if (detector.isAwsAvailable()) {
+            return new AwsS3Scanner(configuration.getEncoding(), configuration.isFailOnMissingLocations()).getResource(
+                location);
+        } else {
+            throw new FlywayException("Can't read location " + location + "; AWS SDK not found", CoreErrorCode.ERROR);
         }
     }
 

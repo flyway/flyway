@@ -8,6 +8,42 @@
 </div>
 <div class="col-md-9">
   <div class="release">
+        <h2 id="11.16.0">Flyway 11.16.0 (2025-11-06)</h2>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Regex code analysis now reports all identified violations instead of only the first one</li>
+            <li>Added a new 'testConnection' command to test the validity of a configured database connection</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Flyway now uses the packaged SQLFluff for Enterprise users by default, unless this feature is explicitly turned off</li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>Updated latest version of SQL Server to 2025</li>
+            <li>Oracle now respects the encoding configuration parameter when reading SQL migrations.</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Resolve issue causing output progress only being set when the user is set.</li>
+        </ul>
+
+        <h3>Library upgrades</h3>
+        <ul>
+            <li>Upgraded RgCompare.Cli from 1.44.0.1673 to 1.45.1.1821</li>
+            <li>Upgrade mssql-jdbc to 12.10.2</li>
+            <li>Upgrade Couchbase SDK to 3.9.2</li>
+            <li>Upgrade Databricks JDBC to 3.0.1</li>
+            <li>Upgraded Netty to 4.2.7</li>
+        </ul>
+
+  </div>
+
+  <div class="release">
         <h2 id="11.15.0">Flyway 11.15.0 (2025-10-23)</h2>
 
         <h3>New features</h3>
