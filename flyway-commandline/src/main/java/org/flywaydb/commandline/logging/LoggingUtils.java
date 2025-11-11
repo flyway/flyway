@@ -26,6 +26,7 @@ import org.flywaydb.commandline.logging.file.FileLogCreator;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.logging.JsonLogCreator;
 import org.flywaydb.core.internal.logging.multi.MultiLogCreator;
 
 import java.util.ArrayList;
@@ -36,7 +37,11 @@ public class LoggingUtils {
 
     public static LogCreator getLogCreator(CommandLineArguments commandLineArguments) {
         // JSON output uses a different mechanism, so we do not create any loggers
-        if (commandLineArguments.shouldOutputJson() || (commandLineArguments.hasOperation("info") && commandLineArguments.isFilterOnMigrationIds())) {
+        if (commandLineArguments.shouldOutputJson()) {
+            return new JsonLogCreator();
+        }
+
+        if (commandLineArguments.hasOperation("info") && commandLineArguments.isFilterOnMigrationIds()) {
             return MultiLogCreator.empty();
         }
 

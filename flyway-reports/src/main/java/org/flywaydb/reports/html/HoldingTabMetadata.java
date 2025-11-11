@@ -21,15 +21,9 @@ package org.flywaydb.reports.html;
 
 import java.util.Arrays;
 import java.util.List;
-import lombok.Getter;
 
-@Getter
-public class HoldingTabMetadata {
-    private String name;
-    private List<String> supportedEditions;
-
-    public HoldingTabMetadata(String name, String... supportedEditions) {
-        this.name = name;
-        this.supportedEditions = Arrays.asList(supportedEditions);
+record HoldingTabMetadata(String name, List<String> supportedEditions) {
+    HoldingTabMetadata(final String name, final String... supportedEditions) {
+        this(name, Arrays.asList(supportedEditions));
     }
 }

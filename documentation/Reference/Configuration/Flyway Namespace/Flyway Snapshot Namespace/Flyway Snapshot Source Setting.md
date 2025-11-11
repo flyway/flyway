@@ -14,11 +14,8 @@ String
 
 - `"<<env>>"` - uses the environment named \<\<env>>
 - `"empty"` - models an empty database
-- `"schemaModel"` - the schema model folder referenced by [
-  `schemaModelLocation`](<Configuration/Flyway Namespace/Flyway Schema Model Location Setting>)
--
-
-`"migrations"` - uses a buildEnvironment to represent the state of database after specified migrations have been applied
+- `"schemaModel"` - the schema model folder referenced by [`schemaModelLocation`](<Configuration/Flyway Namespace/Flyway Schema Model Location Setting>)
+- `"migrations"` - uses a buildEnvironment to represent the state of database after specified migrations have been applied
 
 In the case where an environment shares a name with one of the other values, it can be prefixed with `env:`
 

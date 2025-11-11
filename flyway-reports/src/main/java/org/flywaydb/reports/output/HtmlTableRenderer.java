@@ -29,11 +29,11 @@ public class HtmlTableRenderer {
     private List<String> fields;
     private List<List<String>> rows;
 
-    public void addHeadings(String... fields) {
+    public void addHeadings(final String... fields) {
         this.fields = Arrays.asList(fields);
     }
 
-    public void addRow(String... row) {
+    public void addRow(final String... row) {
         if (row.length != fields.size()) {
             throw new FlywayException("Row must have the same number of fields as the table headings");
         }
@@ -46,11 +46,11 @@ public class HtmlTableRenderer {
     }
 
     public String render() {
-        StringBuilder html = new StringBuilder();
+        final StringBuilder html = new StringBuilder();
         html.append("  <table class=\"tabulardata\">\n");
         html.append("    <thead>\n");
         html.append("       <tr>\n");
-        for (String field : fields) {
+        for (final String field : fields) {
             html.append("       <th>").append(field).append("</th>\n");
         }
         html.append("       </tr>\n");
@@ -60,10 +60,10 @@ public class HtmlTableRenderer {
         if (rows == null) {
             html.append("<tr><td colspan=\"").append(fields.size()).append("\">No data</td></tr>\n");
         } else {
-            for (List<String> row : rows) {
+            for (final List<String> row : rows) {
                 html.append("    <tr>\n");
 
-                for (String field : row) {
+                for (final String field : row) {
                     html.append("      <td>").append(field).append("</td>\n");
                 }
 

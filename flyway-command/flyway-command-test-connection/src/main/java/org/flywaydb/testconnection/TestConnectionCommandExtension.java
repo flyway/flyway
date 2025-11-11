@@ -74,8 +74,8 @@ public class TestConnectionCommandExtension implements CommandExtension {
         final FlywayTelemetryManager flywayTelemetryManager = getTelemetryManager(config);
 
         return TelemetrySpan.trackSpan(new EventTelemetryModel(VERB, flywayTelemetryManager), telemetryModel -> {
-            LOG.info("Connection successful");
             try (final var jdbcConnectionFactory = new FlywayExecutor(config).init()) {
+                LOG.info("Connection successful");
                 return new TestConnectionResult(jdbcConnectionFactory.getDatabaseType().getName());
             }
         });

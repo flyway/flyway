@@ -107,6 +107,7 @@ public class ConfigUtils {
     public static final String OUTPUT_QUERY_RESULTS = "flyway.outputQueryResults";
     public static final String PASSWORD = "flyway.password";
     public static final String OUTPUT_PROGRESS = "flyway.outputProgress";
+    public static final String OUTPUT_LOGS_IN_JSON = "flyway.outputLogsInJson";
     public static final String PLACEHOLDER_PREFIX = "flyway.placeholderPrefix";
     public static final String PLACEHOLDER_REPLACEMENT = "flyway.placeholderReplacement";
     public static final String PLACEHOLDER_SUFFIX = "flyway.placeholderSuffix";
@@ -715,7 +716,7 @@ public class ConfigUtils {
     public static void dumpEnvironmentModel(final EnvironmentModel model,
         final String envKey,
         final String configMessage) {
-        if (!LOG.isDebugEnabled()) {
+        if (!LogFactory.isDebugEnabled()) {
             return;
         }
         dumpConfigurationMap(getEnvironmentMap(model, envKey), configMessage);

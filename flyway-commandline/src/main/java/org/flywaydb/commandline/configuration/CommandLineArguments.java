@@ -55,6 +55,8 @@ public class CommandLineArguments {
     // Command line specific configuration options
     private static final String OUTPUT_FILE = "outputFile";
     private static final String OUTPUT_TYPE = "outputType";
+
+    private static final String OUTPUT_LOGS_IN_JSON = "outputLogsInJson";
     private static final String CONFIG_FILE_ENCODING = "configFileEncoding";
     private static final String CONFIG_FILES = "configFiles";
     private static final String COLOR = "color";
@@ -64,7 +66,7 @@ public class CommandLineArguments {
     private static final String INFO_SINCE_VERSION = "infoSinceVersion";
     private static final String INFO_UNTIL_VERSION = "infoUntilVersion";
     private static final String INFO_OF_STATE = "infoOfState";
-    private static final Set<String> COMMAND_LINE_ONLY_OPTIONS = new HashSet<>(Arrays.asList(OUTPUT_FILE,
+    private static final Collection<String> COMMAND_LINE_ONLY_OPTIONS = new HashSet<>(Arrays.asList(OUTPUT_FILE,
         WORKING_DIRECTORY,
         INFO_SINCE_DATE,
         INFO_UNTIL_DATE,
@@ -77,21 +79,23 @@ public class CommandLineArguments {
     private final PluginRegister pluginRegister;
     private final String[] args;
 
-    static Collection<String>  getParametersByNamespace(final String namespace) {
-      return (new ClassicConfiguration()).getPluginRegister().getInstancesOf(ConfigurationExtension.class).stream()
-          .filter(p -> p.getNamespace().equalsIgnoreCase(namespace)).flatMap(ext ->
-                  Arrays.stream(ext.getClass().getDeclaredFields())
-                      .filter(field -> !(Modifier.isStatic(field.getModifiers())))
-                      .flatMap(
-                          f -> {
-                              if (shouldNotExpand(f.getType())) {
-                                  return Stream.of(f.getName());
-                              } else {
-                                  return Arrays.stream(f.getType().getDeclaredFields())
-                                      .filter(subfield -> !(Modifier.isStatic(subfield.getModifiers())))
-                                      .map(subfield -> f.getName() + "." + subfield.getName());
-                              }
-                          })).collect(Collectors.toList());
+    private static Collection<String> getParametersByNamespace(final String namespace) {
+        return (new ClassicConfiguration()).getPluginRegister()
+            .getInstancesOf(ConfigurationExtension.class)
+            .stream()
+            .filter(p -> p.getNamespace().equalsIgnoreCase(namespace))
+            .flatMap(ext -> Arrays.stream(ext.getClass().getDeclaredFields())
+                .filter(field -> !(Modifier.isStatic(field.getModifiers())))
+                .flatMap(f -> {
+                    if (shouldNotExpand(f.getType())) {
+                        return Stream.of(f.getName());
+                    } else {
+                        return Arrays.stream(f.getType().getDeclaredFields())
+                            .filter(subfield -> !(Modifier.isStatic(subfield.getModifiers())))
+                            .map(subfield -> f.getName() + "." + subfield.getName());
+                    }
+                }))
+            .collect(Collectors.toList());
     }
 
     public enum PrintUsage {
@@ -100,22 +104,23 @@ public class CommandLineArguments {
         PRINT_SHORT
     }
 
-    public CommandLineArguments(PluginRegister pluginRegister, String... args) {
+    public CommandLineArguments(final PluginRegister pluginRegister, final String... args) {
         this.pluginRegister = pluginRegister;
         this.args = Arrays.stream(args).filter(StringUtils::hasText).toArray(String[]::new);
     }
 
-    private static boolean shouldNotExpand(Class<?> c) {
-        String pn = c.getPackageName();
+    private static boolean shouldNotExpand(final Class<?> c) {
+        final String pn = c.getPackageName();
         return c.isEnum() || pn.startsWith("java.") || pn.startsWith("javax.") || pn.startsWith("jdk.");
     }
 
     private static List<String> getValidOperationsAndFlags() {
-        List<String> operationsAndFlags = new ArrayList<>(Arrays.asList(DEBUG_FLAG,
+        final List<String> operationsAndFlags = new ArrayList<>(Arrays.asList(DEBUG_FLAG,
             QUIET_FLAG,
             COMMUNITY_FALLBACK_FLAG,
             SKIP_CHECK_FOR_UPDATE_FLAG,
             MIGRATIONS_IDS_FLAG,
+            OUTPUT_LOGS_IN_JSON,
             "help",
             "migrate",
             "clean",
@@ -129,40 +134,46 @@ public class CommandLineArguments {
         return operationsAndFlags;
     }
 
-    private static boolean isFlagSet(String[] args, String flag) {
+    private static boolean isFlagSet(final String[] args, final String flag) {
         return Arrays.asList(args).contains(flag);
     }
 
-    private static boolean isFlagSet(String[] args, List<String> flags) {
+    private static boolean isFlagSet(final String[] args, final List<String> flags) {
         return flags.stream().anyMatch(flag -> isFlagSet(args, flag));
     }
 
-    private static String getArgumentValue(String argName, String[] allArgs) {
-        return Arrays.stream(allArgs).filter(arg -> arg.startsWith("-" + argName + "=")).findFirst().map(
-            CommandLineArguments::parseConfigurationOptionValueFromArg).orElse("");
+    private static String getArgumentValue(final String argName, final String[] allArgs) {
+        return Arrays.stream(allArgs)
+            .filter(arg -> arg.startsWith("-" + argName + "="))
+            .findFirst()
+            .map(CommandLineArguments::parseConfigurationOptionValueFromArg)
+            .orElse("");
     }
 
-    private static String parseConfigurationOptionValueFromArg(String arg) {
-        int index = arg.indexOf("=");
+    private static String parseConfigurationOptionValueFromArg(final String arg) {
+        final int index = arg.indexOf("=");
         if (index < 0 || index == arg.length()) {
             return "";
         }
         return arg.substring(index + 1);
     }
 
-    private List<String> getOperationsFromArgs(String[] args) {
-        List<String> flags = Arrays.stream(args).filter(x -> x.startsWith("-")).collect(Collectors.toList());
-        List<String> operations = Arrays.stream(args).filter(arg -> !arg.startsWith("-")).collect(Collectors.toList());
+    private List<String> getOperationsFromArgs(final String[] args) {
+        final List<String> flags = Arrays.stream(args).filter(x -> x.startsWith("-")).toList();
+        final List<String> operations = Arrays.stream(args)
+            .filter(arg -> !arg.startsWith("-"))
+            .collect(Collectors.toList());
 
-        pluginRegister.getInstancesOf(CommandExtension.class).forEach(extension -> flags.stream()
-            .map(extension::getCommandForFlag)
-            .filter(Objects::nonNull)
-            .forEach(operations::add));
+        pluginRegister.getInstancesOf(CommandExtension.class)
+            .forEach(extension -> flags.stream()
+                .map(extension::getCommandForFlag)
+                .filter(Objects::nonNull)
+                .forEach(operations::add));
 
         return operations;
     }
 
-    private static List<String> getConfigFilesFromArgs(String[] args) {
+    private static List<String> getConfigFilesFromArgs(final String[] args) {
         return Arrays.stream(StringUtils.tokenizeToStringArray(getArgumentValue(CONFIG_FILES, args), ","))
             .filter(i -> !i.isEmpty())
             .collect(Collectors.toList());
@@ -189,7 +200,7 @@ public class CommandLineArguments {
                     //it's a param, lets scope it.
                     final String paramName = arg.substring(1, arg.contains("=") ? arg.indexOf("=") : arg.length());
                     final String paramValue = arg.substring(arg.indexOf("=") + 1);
-                    if (paramName.contains(".")) {
+                    if (paramName.contains(".") && !paramName.startsWith("environments.")) {
                         //there's a `.` in this param name so likely namespaced so lets break out of the scoping and process as normal.
                         processingValid = false;
                         break;
@@ -199,11 +210,16 @@ public class CommandLineArguments {
                             final String replacedParamName = "-" + validNamespace + "." + paramName;
                             processedArgs[i] = replacedParamName + "=" + paramValue;
                         } else {
-                            String pre_arg = args[i - 1];
-                            if (pre_arg.startsWith("-") && !pre_arg.contains("=")) {
-                                pre_arg = pre_arg.substring(1);
-                                if (paramsInNamespace.contains(pre_arg + "." + paramName)) {
-                                    final String replacedParamName = "-" + validNamespace + "." + pre_arg + "." + paramName;
+                            String preArg = args[i - 1];
+                            if (preArg.startsWith("-") && !preArg.contains("=")) {
+                                preArg = preArg.substring(1);
+                                if (paramsInNamespace.contains(preArg + "." + paramName)) {
+                                    final String replacedParamName = "-"
+                                        + validNamespace
+                                        + "."
+                                        + preArg
+                                        + "."
+                                        + paramName;
                                     processedArgs[i] = replacedParamName + "=" + paramValue;
                                 }
                             }
@@ -227,17 +243,16 @@ public class CommandLineArguments {
                 CommandLineArguments::parseConfigurationOptionValueFromArg));
     }
 
-    private static Map<String, Map<String, String>> getEnvironmentConfigurationFromArgs(String[] args) {
-        Map<String, String> envConfigs = Arrays.stream(args)
-            .filter(arg -> arg.toLowerCase()
-                .startsWith("-environments.") && arg.contains("="))
+    private static Map<String, Map<String, String>> getEnvironmentConfigurationFromArgs(final String[] args) {
+        final Map<String, String> envConfigs = Arrays.stream(args)
+            .filter(arg -> arg.toLowerCase().startsWith("-environments.") && arg.contains("="))
             .collect(Collectors.toMap(p -> getConfigurationOptionNameFromArg(p).substring("environments.".length()),
                 CommandLineArguments::parseConfigurationOptionValueFromArg));
 
-        Map<String, Map<String, String>> envConfigMap = new HashMap<>();
-        for (String envKey : envConfigs.keySet()) {
-            String envName = envKey.split("\\.")[0];
-            String envConfigKey = envKey.substring(envName.length() + 1);
+        final Map<String, Map<String, String>> envConfigMap = new HashMap<>();
+        for (final String envKey : envConfigs.keySet()) {
+            final String envName = envKey.split("\\.")[0];
+            final String envConfigKey = envKey.substring(envName.length() + 1);
             if (!envConfigMap.containsKey(envName)) {
                 envConfigMap.put(envName, new HashMap<>());
             }
@@ -247,22 +262,15 @@ public class CommandLineArguments {
         return envConfigMap;
     }
 
-    private static boolean isConfigurationOptionCommandlineOnly(String configurationOptionName) {
+    private static boolean isConfigurationOptionCommandlineOnly(final String configurationOptionName) {
         return COMMAND_LINE_ONLY_OPTIONS.contains(configurationOptionName);
     }
 
-    private static String getConfigurationOptionNameFromArg(String arg) {
+    private static String getConfigurationOptionNameFromArg(final String arg) {
         return arg.substring(1, arg.indexOf("="));
     }
 
-    private static String getEnvironmentNameFromArg(String arg) {
-        if (!arg.startsWith("-environments")) {
-            return null;
-        }
-        return arg.substring("-environments".length(), arg.indexOf("="));
-    }
-
-    private static boolean isConfigurationArg(String arg) {
+    private static boolean isConfigurationArg(final String arg) {
         return arg.startsWith("-") && arg.contains("=");
     }
 
@@ -284,8 +292,8 @@ public class CommandLineArguments {
                         + ". Please check you have not included any spaces in your configuration argument.");
                 } else {
                     String hint = "";
-                    if (args.length > i+1) {
-                        if (args[i+1] != null && args[i+1].startsWith(".")) {
+                    if (args.length > i + 1) {
+                        if (args[i + 1] != null && args[i + 1].startsWith(".")) {
                             hint = "Shell may cause input parameters containing periods (.) to be misinterpreted - do you need to wrap your parameter in double quotes?";
                         }
                     }
@@ -305,15 +313,15 @@ public class CommandLineArguments {
                 + ". Both the environment name and configuration option are required.");
         }
 
-        String outputTypeValue = getArgumentValue(OUTPUT_TYPE, args).toLowerCase();
+        final String outputTypeValue = getArgumentValue(OUTPUT_TYPE, args).toLowerCase();
 
-        if (!("json".equals(outputTypeValue) || "".equals(outputTypeValue))) {
+        if (!("json".equals(outputTypeValue) || outputTypeValue.isEmpty())) {
             throw new FlywayException("'"
                 + outputTypeValue
                 + "' is an invalid value for the -outputType option. Use 'json'.");
         }
 
-        String colorArgumentValue = getArgumentValue(COLOR, args);
+        final String colorArgumentValue = getArgumentValue(COLOR, args);
 
         if (!Color.isValid(colorArgumentValue)) {
             throw new FlywayException("'"
@@ -322,8 +330,8 @@ public class CommandLineArguments {
         }
     }
 
-    private boolean isHandledByExtension(String arg) {
-        for (CommandExtension extension : pluginRegister.getInstancesOf(CommandExtension.class)) {
+    private boolean isHandledByExtension(final String arg) {
+        for (final CommandExtension extension : pluginRegister.getInstancesOf(CommandExtension.class)) {
             if (extension.handlesCommand(arg) || extension.handlesParameter(arg)) {
                 return true;
             }
@@ -335,7 +343,11 @@ public class CommandLineArguments {
         return "json".equalsIgnoreCase(getArgumentValue(OUTPUT_TYPE, args));
     }
 
-    public PrintUsage shouldPrintUsage(StringBuilder helpText) {
+    public boolean shouldOutputLogsInJson() {
+        return "true".equalsIgnoreCase(getArgumentValue(OUTPUT_LOGS_IN_JSON, args));
+    }
+
+    public PrintUsage shouldPrintUsage(final StringBuilder helpText) {
 
         if (hasOperation("help") || isFlagSet(args, PRINT_USAGE_FLAGS)) {
 
@@ -349,14 +361,14 @@ public class CommandLineArguments {
         }
     }
 
-    private void getHelpTextForOperations(StringBuilder helpText) {
+    private void getHelpTextForOperations(final StringBuilder helpText) {
 
         if (helpText == null) {
             return;
         }
 
-        for (String operation : getOperations()) {
-            String helpTextForOperation = pluginRegister.getInstancesOf(CommandExtension.class)
+        for (final String operation : getOperations()) {
+            final String helpTextForOperation = pluginRegister.getInstancesOf(CommandExtension.class)
                 .stream()
                 .filter(e -> e.handlesCommand(operation))
                 .map(e -> e.getHelpText(getFlags()))
@@ -381,7 +393,7 @@ public class CommandLineArguments {
         return isFlagSet(args, COMMUNITY_FALLBACK_FLAG);
     }
 
-    public boolean hasOperation(String operation) {
+    public boolean hasOperation(final String operation) {
         return getOperations().contains(operation);
     }
 
@@ -390,23 +402,28 @@ public class CommandLineArguments {
     }
 
     public List<String> getConfigFiles() {
-        String workingDirectory = getWorkingDirectoryOrNull();
+        final String workingDirectory = getWorkingDirectoryOrNull();
 
-        return getConfigFilesFromArgs(args).stream().map(File::new).map(file -> !file.isAbsolute()
-            && workingDirectory != null
-            ? new File(workingDirectory, file.getPath()).getAbsolutePath()
-            : file.getAbsolutePath()).collect(Collectors.toList());
+        return getConfigFilesFromArgs(args).stream()
+            .map(File::new)
+            .map(file -> !file.isAbsolute() && workingDirectory != null ? new File(workingDirectory,
+                file.getPath()).getAbsolutePath() : file.getAbsolutePath())
+            .collect(Collectors.toList());
     }
 
-    public List<File> getConfigFilePathsFromEnv(boolean loadToml) {
-        String workingDirectory = getWorkingDirectoryOrNull();
-        String[] fileLocations = StringUtils.tokenizeToStringArray(System.getenv("FLYWAY_CONFIG_FILES"), ",");
+    public List<File> getConfigFilePathsFromEnv(final boolean loadToml) {
+        final String workingDirectory = getWorkingDirectoryOrNull();
+        final String[] fileLocations = StringUtils.tokenizeToStringArray(System.getenv("FLYWAY_CONFIG_FILES"), ",");
 
-        return fileLocations == null ? new ArrayList<>() : Arrays.stream(fileLocations).filter(loadToml
-            ? f -> f.endsWith(".toml")
-            : f -> !f.endsWith(".toml")).map(File::new).map(file -> !file.isAbsolute() && workingDirectory != null
-            ? new File(workingDirectory, file.getPath())
-            : file).collect(Collectors.toList());
+        return fileLocations == null
+            ? new ArrayList<>()
+            : Arrays.stream(fileLocations)
+                .filter(loadToml ? f -> f.endsWith(".toml") : f -> !f.endsWith(".toml"))
+                .map(File::new)
+                .map(file -> !file.isAbsolute() && workingDirectory != null
+                    ? new File(workingDirectory, file.getPath())
+                    : file)
+                .collect(Collectors.toList());
     }
 
     public String getOutputFile() {
@@ -438,7 +455,7 @@ public class CommandLineArguments {
     }
 
     public MigrationState[] getInfoOfState() {
-        String stateStr = getArgumentValue(INFO_OF_STATE, args);
+        final String stateStr = getArgumentValue(INFO_OF_STATE, args);
         if (!StringUtils.hasText(stateStr)) {
             return null;
         }
@@ -451,16 +468,16 @@ public class CommandLineArguments {
         return isFlagSet(args, MIGRATIONS_IDS_FLAG);
     }
 
-    private MigrationVersion parseVersion(String argument) {
-        String versionStr = getArgumentValue(argument, args);
+    private MigrationVersion parseVersion(final String argument) {
+        final String versionStr = getArgumentValue(argument, args);
         if (versionStr.isEmpty()) {
             return null;
         }
         return MigrationVersion.fromVersion(versionStr);
     }
 
-    private Date parseDate(String argument) {
-        String dateStr = getArgumentValue(argument, args);
+    private Date parseDate(final String argument) {
+        final String dateStr = getArgumentValue(argument, args);
 
         if (dateStr.isEmpty()) {
             return null;
@@ -468,7 +485,7 @@ public class CommandLineArguments {
 
         try {
             return DATE_FORMAT.parse(dateStr);
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
             throw new FlywayException("'"
                 + dateStr
                 + "' is an invalid value for the "
@@ -504,7 +521,7 @@ public class CommandLineArguments {
         return Color.fromString(getArgumentValue(COLOR, args));
     }
 
-    public Map<String, String> getConfiguration(boolean isModernConfig) {
+    public Map<String, String> getConfiguration(final boolean isModernConfig) {
         return getConfigurationFromArgs(args, isModernConfig);
     }
 
@@ -520,7 +537,7 @@ public class CommandLineArguments {
 
         private final String value;
 
-        public static Color fromString(String value) {
+        public static Color fromString(final String value) {
             if (value.isEmpty()) {
                 return AUTO;
             }
@@ -528,7 +545,7 @@ public class CommandLineArguments {
             return Arrays.stream(values()).filter(color -> color.value.equals(value)).findFirst().orElse(null);
         }
 
-        public static boolean isValid(String value) {
+        public static boolean isValid(final String value) {
             return fromString(value) != null;
         }
     }

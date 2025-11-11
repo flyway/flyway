@@ -28,7 +28,7 @@ public interface HtmlRenderer<T extends HtmlResult> extends Plugin {
     String render(T result, Configuration config);
     String tabTitle(T result, Configuration config);
     Class<T> getType();
-    default List<HtmlReportSummary> getHtmlSummary(T result, final Configuration config) {
+    default List<HtmlReportSummary> getHtmlSummary(final T result, final Configuration config) {
         return null;
     }
 }

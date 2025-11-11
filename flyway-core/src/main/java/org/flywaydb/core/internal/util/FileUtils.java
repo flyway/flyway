@@ -187,7 +187,7 @@ public class FileUtils {
         }
 
         if (!dir.mkdirs()) {
-            throw new FlywayException("Unable to creat report file directory");
+            throw new FlywayException("Unable to create report file directory");
         }
     }
 

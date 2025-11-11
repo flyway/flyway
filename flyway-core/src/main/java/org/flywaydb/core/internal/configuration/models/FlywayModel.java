@@ -39,6 +39,7 @@ public class FlywayModel extends FlywayEnvironmentModel {
     private String environment;
     private String outputType;
     private Boolean outputProgress;
+    private Boolean outputLogsInJson;
     private String provisionMode;
     private String color;
 
@@ -107,6 +108,7 @@ public class FlywayModel extends FlywayEnvironmentModel {
         FlywayModel result = new FlywayModel();
         result.environment = environment.merge(otherPojo.environment);
         result.outputProgress = outputProgress.merge(otherPojo.outputProgress);
+        result.outputLogsInJson = outputLogsInJson.merge(otherPojo.outputLogsInJson);
         result.outputType = outputType.merge(otherPojo.outputType);
         result.provisionMode = provisionMode.merge(otherPojo.provisionMode);
         result.color = color.merge(otherPojo.color);

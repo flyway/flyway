@@ -19,6 +19,7 @@
  */
 package org.flywaydb.reports.utils;
 
+import java.util.Locale;
 import org.apache.commons.text.StringEscapeUtils;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.HtmlResult;
@@ -33,30 +34,30 @@ import static org.flywaydb.reports.html.HtmlReportGenerator.generateHtml;
 import static org.flywaydb.core.internal.util.FileUtils.createDirIfNotExists;
 
 public class HtmlUtils {
-    public static String toHtmlFile(String filename, CompositeResult<HtmlResult> results, Configuration config) {
-        String fileContents = generateHtml(results, config);
+    public static String toHtmlFile(final String filename, final CompositeResult<? extends HtmlResult> results, final Configuration config) {
+        final String fileContents = generateHtml(results, config);
 
-        File file = new File(filename);
+        final File file = new File(filename);
 
         createDirIfNotExists(file);
 
-        try (FileWriter fileWriter = new FileWriter(file)) {
+        try (final FileWriter fileWriter = new FileWriter(file)) {
             fileWriter.write(fileContents);
             return file.getCanonicalPath();
-        } catch (Exception e) {
-            throw new FlywayException("Unable to write HTML to file: " + e.getMessage());
+        } catch (final Exception e) {
+            throw new FlywayException("Unable to write HTML to file: " + e.getMessage(), e);
         }
 
     }
 
-    public static String getFormattedTimestamp(HtmlResult result) {
+    public static String getFormattedTimestamp(final HtmlResult result) {
         if (result == null || result.getTimestamp() == null) {
             return "--";
         }
-        return result.getTimestamp().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        return result.getTimestamp().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.ROOT));
     }
 
-    public static String htmlEncode(String input) {
+    public static String htmlEncode(final String input) {
         return StringEscapeUtils.escapeHtml4(input);
     }
 }

@@ -793,6 +793,7 @@ public class ClassicConfiguration implements Configuration {
 
 
 
+
         }
 
         return this.dryRunOutput;
@@ -1815,6 +1816,11 @@ public class ClassicConfiguration implements Configuration {
         final String outputProgress = props.remove(ConfigUtils.OUTPUT_PROGRESS);
         if (outputProgress != null) {
             getModernFlyway().setOutputProgress(Boolean.parseBoolean(outputProgress));
+        }
+
+        final String outputLogsInJson = props.remove(ConfigUtils.OUTPUT_LOGS_IN_JSON);
+        if (outputLogsInJson != null) {
+            getModernFlyway().setOutputLogsInJson(Boolean.parseBoolean(outputLogsInJson));
         }
 
         final String passwordProp = props.remove(ConfigUtils.PASSWORD);

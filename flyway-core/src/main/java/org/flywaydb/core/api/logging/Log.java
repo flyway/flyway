@@ -20,7 +20,6 @@
 package org.flywaydb.core.api.logging;
 
 public interface Log {
-
     @Deprecated
     /// @deprecated Use LogFactory.isDebugEnabled() instead.
     /// if you require custom behavior from this property in your own logger

@@ -76,6 +76,10 @@ public class LogFactory {
     @Setter
     private static LogLevel logLevel;
 
+    @Getter
+    @Setter
+    private static boolean jsonLogsEnabled;
+
     public static boolean isDebugEnabled() {
         return logLevel == LogLevel.DEBUG;
     }
@@ -110,7 +114,7 @@ public class LogFactory {
         if (configuration == null) {
             return new BufferedLogCreator();
         }
-        
+
         return new MultiLogCreator(Arrays.stream(configuration.getLoggers()).map(logger -> switch (logger) {
             case "auto" -> autoDetectLogCreator(classLoader, fallbackLogCreator);
             case "maven", "console" -> fallbackLogCreator;

@@ -32,7 +32,7 @@ public class HtmlReportSummary {
     public HtmlReportSummary(){
 
     }
-    public HtmlReportSummary(String cssClass, String icon, String summaryText) {
+    public HtmlReportSummary(final String cssClass, final String icon, final String summaryText) {
         this.summaryText=summaryText;
         this.icon = icon;
         this.cssClass = cssClass;

@@ -8,6 +8,33 @@
 </div>
 <div class="col-md-9">
   <div class="release">
+        <h2 id="11.17.0">Flyway 11.17.0 (2025-11-11)</h2>
+
+        <h3>New features</h3>
+        <ul>
+            <li>It is now possible to capture and store snapshots in a target database in a flyway snapshot history table following a migrate, undo, or deploy action. These snapshots can be used for drift analysis and potentially for rollback. For more information see [snapshots](https://documentation.red-gate.com/flyway/flyway-concepts/snapshots).</li>
+            <li>standard logging is now included with `outputType=json`; it is posted via STDERR</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>if deployed snapshot is configured but not found, drift detection will warn rather than fail, allowing for initial deployment to succeed</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fixed issue where namespace short-circuiting would not work when environment parameters were set</li>
+            <li>Test connection will only output success if it is successful</li>
+        </ul>
+
+        <h3>Library upgrades</h3>
+        <ul>
+            <li>Upgraded RgCompare.Cli from 1.45.1.1821 to 1.45.1.1851</li>
+        </ul>
+
+  </div>
+
+  <div class="release">
         <h2 id="11.16.0">Flyway 11.16.0 (2025-11-06)</h2>
 
         <h3>New features</h3>

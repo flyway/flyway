@@ -130,10 +130,10 @@ This namespace contains the configurations specific to the Flyway engine.
 | Namespace                                                                    | Description                      |
 |------------------------------------------------------------------------------|----------------------------------|
 | [`clickhouse`](<Configuration/Flyway Namespace/Flyway Clickhouse Namespace>) | Settings specific to Clickhouse. |
-| [`db2z`](<Configuration/Flyway Namespace/Flyway DB2 zOS Namespace>)            | Settings specific to DB2 zOS.    |
-| [`oracle`](<Configuration/Flyway Namespace/Flyway Oracle Namespace>)           | Settings specific to Oracle.     |
-| [`postgresql`](<Configuration/Flyway Namespace/Flyway PostgreSQL Namespace>)   | Settings specific to PostgreSQL. |
-| [`sqlserver`](<Configuration/Flyway Namespace/Flyway SQL Server Namespace>)    | Settings specific to SQL Server. |
+| [`db2z`](<Configuration/Flyway Namespace/Flyway DB2 zOS Namespace>)          | Settings specific to DB2 zOS.    |
+| [`oracle`](<Configuration/Flyway Namespace/Flyway Oracle Namespace>)         | Settings specific to Oracle.     |
+| [`postgresql`](<Configuration/Flyway Namespace/Flyway PostgreSQL Namespace>) | Settings specific to PostgreSQL. |
+| [`sqlserver`](<Configuration/Flyway Namespace/Flyway SQL Server Namespace>)  | Settings specific to SQL Server. |
 
 ## Command-specific namespaces
 
@@ -146,13 +146,16 @@ This namespace contains the configurations specific to the Flyway engine.
 | [`diffText`](<Configuration/Flyway Namespace/Flyway DiffText Namespace>) | Teams            | Settings specific to the `diffText` command. |
 | [`generate`](<Configuration/Flyway Namespace/Flyway Generate Namespace>) | Enterprise       | Settings specific to the `generate` command. |
 | [`init`](<Configuration/Flyway Namespace/Flyway Init Namespace>)         | Community        | Settings specific to the `init` command.     |
+| [`migrate`](<Configuration/Flyway Namespace/Flyway Migrate Namespace>)   | Teams            | Settings specific to the `migrate` command.  |
 | [`model`](<Configuration/Flyway Namespace/Flyway Model Namespace>)       | Teams            | Settings specific to the `model` command.    |
 | [`prepare`](<Configuration/Flyway Namespace/Flyway Prepare Namespace>)   | Enterprise       | Settings specific to the `prepare` command.  |
 | [`snapshot`](<Configuration/Flyway Namespace/Flyway Snapshot Namespace>) | Enterprise       | Settings specific to the `snapshot` command. |
+| [`undo`](<Configuration/Flyway Namespace/Flyway Snapshot Namespace>)     | Enterprise       | Settings specific to the `undo` command.     |
 
 ## Secrets management namespaces
 
-Usage of [per-environment resolvers](https://documentation.red-gate.com/flyway/flyway-concepts/environments/resolvers) is preferred.
+Usage of [per-environment resolvers](https://documentation.red-gate.com/flyway/flyway-concepts/environments/resolvers)
+is preferred.
 
 | Namespace                                                                               | Description                                       |
 |-----------------------------------------------------------------------------------------|---------------------------------------------------|
@@ -166,5 +169,6 @@ Usage of [per-environment resolvers](https://documentation.red-gate.com/flyway/f
 |-----------------------------------------------------------------------------|-------|--------|--------------------------|
 | [`licenseKey`](<Configuration/Flyway Namespace/Flyway License Key Setting>) | Teams | String | Your Flyway license key. |
 
-\* There is no license restriction on this setting strictly speaking, but it is used to configure functionality which is only
+\* There is no license restriction on this setting strictly speaking, but it is used to configure functionality which is
+only
 available at Teams and above.

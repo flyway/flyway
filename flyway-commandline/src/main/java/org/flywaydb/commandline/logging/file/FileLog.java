@@ -20,7 +20,6 @@
 package org.flywaydb.commandline.logging.file;
 
 import lombok.RequiredArgsConstructor;
-import org.flywaydb.commandline.logging.console.ConsoleLog.Level;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 

@@ -24,12 +24,12 @@ import org.flywaydb.reports.api.extensibility.HtmlRenderer;
 
 public class HoldingRenderer implements HtmlRenderer<HoldingResult> {
     @Override
-    public String render(HoldingResult result, Configuration config) {
+    public String render(final HoldingResult result, final Configuration config) {
         return result.getBodyText();
     }
 
     @Override
-    public String tabTitle(HoldingResult result, Configuration config) {
+    public String tabTitle(final HoldingResult result, final Configuration config) {
         return result.getTabTitle();
     }
 

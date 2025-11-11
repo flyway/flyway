@@ -74,8 +74,6 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
      */
     protected final boolean outputQueryResults;
 
-
-
     public DefaultSqlScriptExecutor(JdbcTemplate jdbcTemplate,
                                     CallbackExecutor<Event> callbackExecutor, boolean undo, boolean batch, boolean outputQueryResults,
                                     StatementInterceptor statementInterceptor

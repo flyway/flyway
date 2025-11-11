@@ -20,6 +20,7 @@
 package org.flywaydb.core.internal.logging;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.Synchronized;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
@@ -27,22 +28,19 @@ import org.flywaydb.core.internal.logging.buffered.BufferedLog;
 
 @AllArgsConstructor
 public class EvolvingLog implements Log {
+    @Getter
     private Log log;
     private final Class<?> clazz;
 
     @Synchronized
     private void updateLog() {
-        Log newLog = ((EvolvingLog) LogFactory.getLog(clazz)).getLog();
+        final Log newLog = ((EvolvingLog) LogFactory.getLog(clazz)).getLog();
 
         if (log instanceof BufferedLog && !(newLog instanceof BufferedLog)) {
             ((BufferedLog) log).flush(newLog);
         }
 
         log = newLog;
-    }
-
-    public Log getLog() {
-        return log;
     }
 
     @Override

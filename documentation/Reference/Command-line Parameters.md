@@ -19,12 +19,13 @@ The following flags provide helpful information without carrying out any other o
 
 The following options modify the console output:
 
-| Flag                                                           | Purpose                                                         |
-|----------------------------------------------------------------|-----------------------------------------------------------------|
-| `-X`                                                           | Extended debug output enabled                                   |
-| `-q`                                                           | Quiet mode, suppress all output, except for errors and warnings |
-| [-color](<Command-line Parameters/Color Parameter>)            | Colorize the terminal output                                    |
-| [-outputType](<Command-line Parameters/Output Type Parameter>) | Human or machine-readable output                                |
+| Flag                                                           | Purpose                                                                    |
+|----------------------------------------------------------------|----------------------------------------------------------------------------|
+| `-X`                                                           | Extended debug output enabled                                              |
+| `-q`                                                           | Quiet mode, suppress all output, except for errors and warnings            |
+| [-color](<Command-line Parameters/Color Parameter>)            | Colorize the terminal output                                               |
+| [-outputType](<Command-line Parameters/Output Type Parameter>) | Human or machine-readable output                                           |
+| [-outputLogsInJson](<Command-line Parameters/Output Logs In Json Parameter>) | Output standard Flyway logs in JSON format when the above setting is `json` |
 
 
 The following command line options modify behavior for all commands:

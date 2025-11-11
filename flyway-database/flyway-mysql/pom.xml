@@ -5,7 +5,7 @@
   <parent>
     <artifactId>flyway-parent</artifactId>
     <groupId>org.flywaydb</groupId>
-    <version>11.16.0</version>
+    <version>11.17.0</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>

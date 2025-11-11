@@ -1,0 +1,43 @@
+---
+subtitle: output logs when using `outputType=json`
+---
+
+## Description
+
+Sets whether to output Flyways standard logs in JSON format when `outputType` is set to `json`.
+
+## Type
+
+Boolean
+
+## Default
+
+`false`
+
+## Usage
+
+### Command-line
+
+```powershell
+./flyway info -outputType=json -outputLogsInJson=true
+```
+
+### Environment Variable
+
+Not available
+
+### API
+
+Not available
+
+### Gradle
+
+Not available
+
+### Maven
+
+Not available
+
+## Use Cases
+
+You will require both JSON output and Flyways logs. Can be useful when diagnosing issues with Flyway's dependencies or Flyway itself.

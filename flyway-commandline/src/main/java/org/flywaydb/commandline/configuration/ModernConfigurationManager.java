@@ -505,9 +505,12 @@ public class ModernConfigurationManager implements ConfigurationManager {
     }
 
     private static void combineConfigurationExceptions(final Iterable<? extends FlywayException> configurationExceptions) {
-        final StringBuilder exceptionMessage = new StringBuilder("Failed to configure parameters:").append("\n");
-        configurationExceptions.forEach(e -> exceptionMessage.append(e.getMessage()).append("\n"));
-        exceptionMessage.deleteCharAt(exceptionMessage.length() - 1);
+        final StringBuilder exceptionMessage = new StringBuilder("Failed to configure parameters:").append(
+            System.lineSeparator());
+        configurationExceptions.forEach(e -> exceptionMessage.append(e.getMessage()).append(System.lineSeparator()));
+        exceptionMessage.append("Confirm the parameters are spelled correctly")
+            .append(System.lineSeparator())
+            .append("You may also need to update Flyway to the latest version");
         final FlywayException flywayException = new FlywayException(exceptionMessage.toString());
         configurationExceptions.forEach(flywayException::addSuppressed);
         throw flywayException;

@@ -113,6 +113,7 @@ public class Main {
                 try (final var ignored = new EventTelemetryModel("parse-args", flywayTelemetryManager)) {
                     commandLineArguments.validate();
                     LogFactory.setLogLevel(commandLineArguments.getLogLevel().toLogLevel());
+                    LogFactory.setJsonLogsEnabled(commandLineArguments.shouldOutputLogsInJson());
 
                     if (printHelp(commandLineArguments)) {
                         terminate(0, flywayTelemetryHandle);

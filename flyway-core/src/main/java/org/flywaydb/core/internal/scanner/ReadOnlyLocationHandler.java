@@ -28,7 +28,7 @@ import org.flywaydb.core.extensibility.Plugin;
 
 public interface ReadOnlyLocationHandler extends Plugin {
     default boolean canHandleLocation(final Location location) {
-        return getPrefix().equals(location.getPrefix());
+        return getPrefix().equalsIgnoreCase(location.getPrefix());
     }
 
     String getPrefix();

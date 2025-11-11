@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -45,7 +46,6 @@ import org.flywaydb.core.internal.reports.ReportDetails;
 import org.flywaydb.core.internal.util.FileUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.JsonUtils;
-import org.flywaydb.reports.json.HtmlResultDeserializer;
 
 @CustomLog
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -66,7 +66,7 @@ public class OperationsReportUtils {
     }
 
     static String createHtmlReport(final Configuration configuration,
-        final CompositeResult<HtmlResult> htmlCompositeResult,
+        final CompositeResult<? extends HtmlResult> htmlCompositeResult,
         final String tmpHtmlReportFilename) {
         return HtmlUtils.toHtmlFile(tmpHtmlReportFilename, htmlCompositeResult, configuration);
     }
@@ -142,22 +142,24 @@ public class OperationsReportUtils {
         final ReportsDeserializer reportsDeserializer = new ReportsDeserializer(pluginRegister);
         mapper.registerModule(new SimpleModule().addDeserializer(OperationResult.class, reportsDeserializer));
 
+        final CompositeResult<T> existingObject;
         try {
-            final CompositeResult<T> existingObject = mapper.readValue(jsonText, new TypeReference<>() {});
-            if (existingObject == null || existingObject.individualResults.isEmpty()) {
-                throw new FlywayException("Unable to deserialize existing JSON file: " + filename);
-            }
-            existingObject.individualResults.addAll(newObject.individualResults);
-            return existingObject;
+            existingObject = mapper.readValue(jsonText, new TypeReference<>() {});
         } catch (final Exception e) {
             throw new FlywayException("Unable to read filename: " + filename, e);
         }
+
+        if (existingObject == null || existingObject.individualResults.isEmpty()) {
+            throw new FlywayException("Unable to deserialize existing JSON file: " + filename);
+        }
+        existingObject.individualResults.addAll(newObject.individualResults);
+        return existingObject;
     }
 
     public static OperationResult filterHtmlResults(final OperationResult result) {
         if (result instanceof CompositeResult<?>) {
             final List<OperationResult> filteredResults = ((CompositeResult<?>) result).individualResults.stream().map(
-                OperationsReportUtils::filterHtmlResults).filter(Objects::nonNull).collect(Collectors.toList());
+                OperationsReportUtils::filterHtmlResults).filter(Objects::nonNull).toList();
 
             if (filteredResults.isEmpty()) {
                 return null;
@@ -175,7 +177,7 @@ public class OperationsReportUtils {
         if (result instanceof CompositeResult<?>) {
             Exception aggregate = null;
             final List<Exception> exceptions = ((CompositeResult<?>) result).individualResults.stream().map(
-                OperationsReportUtils::getAggregateExceptions).filter(Objects::nonNull).collect(Collectors.toList());
+                OperationsReportUtils::getAggregateExceptions).filter(Objects::nonNull).toList();
             for (final Exception e : exceptions) {
                 if (aggregate == null) {
                     aggregate = e;
@@ -213,7 +215,7 @@ public class OperationsReportUtils {
                 "changes",
                 "drift",
                 "dryrun",
-                "code").contains(r.getOperation().toLowerCase())).collect(Collectors.toList());
+                "code").contains(r.getOperation().toLowerCase(Locale.ROOT))).collect(Collectors.toList());
         }
         return htmlCompositeResult;
     }

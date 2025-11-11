@@ -150,3 +150,11 @@ A data type modification in an existing table may lead to unintended changes or 
 A CREATE ROLE statement may require review to ensure proper access restrictions.
 ### Groups: `all`, `redgate`
 ### Dialects supported: `all`
+
+---
+{% include anchor.html link="RG12"%}
+# Rule: RG12 ALTER PUBLIC ROLE
+## Check for modifications to the PUBLIC role
+Altering privileges for PUBLIC is discouraged, consider using explicit roles.
+### Groups: `all`, `redgate`
+### Dialects supported: `all`

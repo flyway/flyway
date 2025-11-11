@@ -19,7 +19,6 @@
  */
 package org.flywaydb.reports.utils;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -27,26 +26,29 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.List;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.output.HtmlResult;
 import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.reports.json.HtmlResultDeserializer;
 
-class ReportsDeserializer extends JsonDeserializer {
+class ReportsDeserializer extends JsonDeserializer<HtmlResult> {
     private final PluginRegister pluginRegister;
 
-    public ReportsDeserializer(final PluginRegister pluginRegister) {
+    ReportsDeserializer(final PluginRegister pluginRegister) {
         this.pluginRegister = pluginRegister;
     }
 
     @Override
-    public Object deserialize(final JsonParser p, final DeserializationContext ctxt)
-        throws IOException, JacksonException {
+    public HtmlResult deserialize(final JsonParser p, final DeserializationContext ctxt)
+        throws IOException {
         final JsonNode reportElement = ctxt.readTree(p);
         if (reportElement.has("operation")) {
             final String operation = reportElement.get("operation").asText();
-            final List<HtmlResultDeserializer> deserializers = pluginRegister.getInstancesOf(HtmlResultDeserializer.class);
-            final HtmlResultDeserializer matchedDeserializer = deserializers.stream()
-                .filter(x -> x.operationKey().equals(operation)).findFirst().orElseThrow(()-> new FlywayException(
-                    "Unable to find matching deserializer for " + operation));
+            @SuppressWarnings("unchecked") final List<HtmlResultDeserializer<HtmlResult>> deserializers = pluginRegister.getInstancesOf(
+                HtmlResultDeserializer.class).stream().map(x -> (HtmlResultDeserializer<HtmlResult>) x).toList();
+            final HtmlResultDeserializer<HtmlResult> matchedDeserializer = deserializers.stream()
+                .filter(x -> x.operationKey().equals(operation))
+                .findFirst()
+                .orElseThrow(() -> new FlywayException("Unable to find matching deserializer for " + operation));
             return ctxt.readTreeAsValue(reportElement, matchedDeserializer.getDeserializingClass());
         }
         throw new FlywayException("Unable to deserialize report. Corrupt json report file");

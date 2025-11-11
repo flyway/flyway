@@ -70,17 +70,19 @@ public class LocationParser {
             .getInstancesOf(ReadOnlyLocationHandler.class)
             .stream(), Arrays.stream(additionalLocationHandlers)).toList();
         final ReadOnlyLocationHandler locationHandler = locationHandlers.stream()
-            .filter(x -> prefix.equals(x.getPrefix()))
+            .filter(x -> prefix.equalsIgnoreCase(x.getPrefix()))
             .findFirst()
             .orElseThrow(() -> new FlywayException("Unknown prefix for location (should be one of "
                 + locationHandlers.stream().map(ReadOnlyLocationHandler::getPrefix).collect(Collectors.joining(", "))
                 + "): "
                 + normalizedDescriptor));
 
-        return locationHandler.handlesWildcards() && containsWildcards(rawPath) ? parseWildcardLocation(rawPath,
-            prefix,
+        return locationHandler.handlesWildcards() && containsWildcards(rawPath)
+            ? parseWildcardLocation(rawPath,
+            locationHandler.getPrefix(),
             locationHandler.getPathSeparator(),
-            locationHandler::normalizePath) : Location.fromPath(prefix, locationHandler.normalizePath(rawPath));
+            locationHandler::normalizePath)
+            : Location.fromPath(locationHandler.getPrefix(), locationHandler.normalizePath(rawPath));
     }
 
     private static Pair<String, String> parseDescriptor(final String descriptor, final String defaultPrefix) {

@@ -33,24 +33,24 @@ import static org.flywaydb.core.internal.util.TimeFormat.*;
 
 public class MigrateHtmlRenderer implements HtmlRenderer<MigrateResult> {
     @Override
-    public String render(MigrateResult result, Configuration config) {
+    public String render(final MigrateResult result, final Configuration config) {
 
         return getBody(result);
     }
 
-    private String getBody(MigrateResult result) {
-        StringBuilder html = new StringBuilder("<div>");
+    private String getBody(final MigrateResult result) {
+        final StringBuilder html = new StringBuilder("<div>");
 
-        if (result.warnings != null && result.warnings.size() > 0) {
+        if (result.warnings != null && !result.warnings.isEmpty()) {
             html.append("  <div><h3>Warnings</h3>\n");
-            for (String warning : result.warnings) {
+            for (final String warning : result.warnings) {
                 html.append("    <pre>").append(warning).append("</pre>\n");
             }
             html.append("  </div>\n");
         }
 
-        if (result.migrations != null && result.migrations.size() > 0) {
-            HtmlTableRenderer tableRenderer = new HtmlTableRenderer();
+        if (result.migrations != null && !result.migrations.isEmpty()) {
+            final HtmlTableRenderer tableRenderer = new HtmlTableRenderer();
             tableRenderer.addHeadings("Version", "Description", "Category", "Type", "Filepath", "ExecutionTime");
             result.migrations.forEach(output -> tableRenderer.addRow(output.version,
                                                                      output.description,
@@ -70,7 +70,7 @@ public class MigrateHtmlRenderer implements HtmlRenderer<MigrateResult> {
     }
 
     @Override
-    public String tabTitle(MigrateResult result, Configuration config) {
+    public String tabTitle(final MigrateResult result, final Configuration config) {
         return config.getDryRunOutput() == null ? "Migration report" : "DryRun report";
     }
 
@@ -80,10 +80,10 @@ public class MigrateHtmlRenderer implements HtmlRenderer<MigrateResult> {
     }
 
     @Override
-    public List<HtmlReportSummary> getHtmlSummary(MigrateResult result, final Configuration config) {
-        List<HtmlReportSummary> htmlResult = new ArrayList<>();
-        int migratedCount = result.migrationsExecuted;
-        String databaseVersion = result.targetSchemaVersion == null
+    public List<HtmlReportSummary> getHtmlSummary(final MigrateResult result, final Configuration config) {
+        final List<HtmlReportSummary> htmlResult = new ArrayList<>();
+        final int migratedCount = result.migrationsExecuted;
+        final String databaseVersion = result.targetSchemaVersion == null
                 ? result.migrations.stream().min((a, b) -> b.version.compareTo(a.version)).map(m -> m.version).orElse("0")
                 : result.targetSchemaVersion;
 
