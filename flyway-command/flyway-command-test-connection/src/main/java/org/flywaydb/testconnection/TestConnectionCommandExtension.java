@@ -23,7 +23,6 @@ import static org.flywaydb.core.internal.util.TelemetryUtils.getTelemetryManager
 
 import java.util.List;
 import lombok.CustomLog;
-import org.flywaydb.core.FlywayExecutor;
 import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.TelemetrySpan;
 import org.flywaydb.core.api.FlywayException;
@@ -31,11 +30,12 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
+import org.flywaydb.core.extensibility.TestConnectionRunner;
 import org.flywaydb.core.internal.util.Pair;
 
 @CustomLog
 public class TestConnectionCommandExtension implements CommandExtension {
-    static final String VERB = "testConnection";
+    public static final String VERB = "testConnection";
 
     @Override
     public boolean handlesCommand(final String command) {
@@ -74,10 +74,13 @@ public class TestConnectionCommandExtension implements CommandExtension {
         final FlywayTelemetryManager flywayTelemetryManager = getTelemetryManager(config);
 
         return TelemetrySpan.trackSpan(new EventTelemetryModel(VERB, flywayTelemetryManager), telemetryModel -> {
-            try (final var jdbcConnectionFactory = new FlywayExecutor(config).init()) {
-                LOG.info("Connection successful");
-                return new TestConnectionResult(jdbcConnectionFactory.getDatabaseType().getName());
-            }
+            final List<TestConnectionRunner> testConnectionRunners = config.getPluginRegister()
+                .getLicensedInstancesOf(TestConnectionRunner.class, config);
+            final List<String> results = testConnectionRunners.stream()
+                .map(testConnectionRunner -> testConnectionRunner.testConnection(config))
+                .filter(x -> !x.isEmpty())
+                .toList();
+            return new TestConnectionResult(results);
         });
     }
 }

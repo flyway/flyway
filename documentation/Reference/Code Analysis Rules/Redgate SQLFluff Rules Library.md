@@ -6,9 +6,9 @@ subtitle: Redgate SQLFluff Rules Library
 ## Accessing Redgate SQLFluff Rules
 Flyway CLI ships with a packaged version of SQLFluff that includes additional rules written by Redgate.
 
-If you are using the packaged version of SQLFluff then you will see something like this in the CLI output
+If you are using the Redgate bundled version of SQLFluff then you will see something like this in the CLI output
 ```
-SqlFluff version 3.4.2 (Packaged)
+SqlFluff version 3.4.2 (Redgate Bundle)
 ```
 These rules are under development so expect the list to grow.
 
@@ -156,5 +156,13 @@ A CREATE ROLE statement may require review to ensure proper access restrictions.
 # Rule: RG12 ALTER PUBLIC ROLE
 ## Check for modifications to the PUBLIC role
 Altering privileges for PUBLIC is discouraged, consider using explicit roles.
+### Groups: `all`, `redgate`
+### Dialects supported: `all`
+
+---
+{% include anchor.html link="RG13"%}
+# Rule: RG13 TRUNCATE Statement
+## Check for TRUNCATE statements
+TRUNCATE statements will remove all rows of data in the table
 ### Groups: `all`, `redgate`
 ### Dialects supported: `all`

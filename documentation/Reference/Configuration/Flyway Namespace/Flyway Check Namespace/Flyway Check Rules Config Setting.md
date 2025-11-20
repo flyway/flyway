@@ -18,7 +18,7 @@ String
 
 ## Default
 
-Flyway’s packaged version of SQLFluff will look for `sqlfluff.cfg` in the `conf/` folder of the Flyway installation.
+Flyway’s Redgate Bundle version of SQLFluff will look for `sqlfluff.cfg` in the `conf/` folder of the Flyway installation.
 
 If you're using your own installed version of SQLFluff, Flyway will not attempt to load any default configuration file.
 

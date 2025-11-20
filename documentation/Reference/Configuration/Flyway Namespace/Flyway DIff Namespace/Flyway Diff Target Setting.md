@@ -17,6 +17,7 @@ String
 - `"schemaModel"` - the schema model folder referenced by [`schemaModelLocation`](<Configuration/Flyway Namespace/Flyway Schema Model Location Setting>)
 - `"migrations"` - uses a buildEnvironment to represent the state of database after specified migrations have been applied
 - `"snapshot:<<path>>"` - uses a snapshot file at the specified path
+- `"snapshotHistory:<<name>>"` - uses a snapshot entry in the [snapshot history table](<Configuration/Flyway Namespace/Flyway Snapshot Namespace/Flyway Snapshot History Table Setting>); entries are either identified by name, or `current` for the most recent snapshot, or `previous` for the most recent but one.
 
 In the case where an environment shares a name with one of the other values, it can be prefixed with `env:`
 

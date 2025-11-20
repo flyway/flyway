@@ -37,7 +37,7 @@ sqlfluffEnabled = false
 flyway.check.sqlfluffEnabled=false
 ```
 
-### Packaged `SQLFluff` Engine
+### Redgate Bundle `SQLFluff` Engine
 
 {% include enterprise.html %}
 

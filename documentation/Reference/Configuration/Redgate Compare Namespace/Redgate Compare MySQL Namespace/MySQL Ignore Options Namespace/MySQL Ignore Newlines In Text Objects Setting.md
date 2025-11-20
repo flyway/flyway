@@ -21,11 +21,15 @@ String
 
 ## Usage
 
-This setting can't be configured other than in a TOML configuration file.
-
 ### Flyway Desktop
 
 This can't currently be set from Flyway Desktop, although it will be honoured.
+
+### Command-line
+
+```powershell
+./flyway diff -redgateCompare.mysql.options.ignores.ignoreNewlinesInTextObjects=all
+```
 
 ### TOML Configuration File
 

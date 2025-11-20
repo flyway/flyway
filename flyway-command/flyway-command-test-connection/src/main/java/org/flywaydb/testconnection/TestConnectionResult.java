@@ -19,7 +19,8 @@
  */
 package org.flywaydb.testconnection;
 
+import java.util.List;
 import org.flywaydb.core.api.output.OperationResult;
 
 @SuppressWarnings("WeakerAccess")
-public record TestConnectionResult(String databaseType) implements OperationResult {}
+public record TestConnectionResult(List<String> successfulConnections) implements OperationResult {}

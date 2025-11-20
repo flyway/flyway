@@ -6,7 +6,7 @@ clobs
 (?i)configFiles
 (?i)Dapr
 [Dd]atagrip
-Dockerfile
+Dockerfiles?
 [Dd]ropwizard
 fulltext
 flyway[.-]
@@ -111,5 +111,6 @@ Jochen
 Schalanda
 Toshiyuki
 Takahashi
+testConnection
 Webber
 

@@ -708,8 +708,15 @@ public class ConfigUtils {
     }
 
     public static boolean detectNullConfigModel(final ConfigurationModel model) {
+        final List<String> rootNamespaces = PLUGIN_REGISTER.getInstancesOf(ConfigurationExtension.class)
+            .stream()
+            .filter(c -> c.getNamespace().startsWith("\\"))
+            .map(c -> c.getNamespace().substring(1))
+            .toList();
+
         return model.getEnvironments().isEmpty()
             && model.getFlyway().getPluginConfigurations().isEmpty()
+            && rootNamespaces.stream().noneMatch(n -> model.getRootConfigurations().containsKey(n))
             && ClassUtils.getGettableFieldValues(model.getFlyway(), "").isEmpty();
     }
 

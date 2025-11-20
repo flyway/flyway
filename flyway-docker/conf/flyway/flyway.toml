@@ -1,0 +1,12 @@
+[flyway]
+locations = ["filesystem:/flyway/sql"]
+cleanDisabled = false
+
+[environments.default]
+url = "jdbc:sqlite:test"
+
+[environments.mongo]
+url = "${env.MONGO_CONNECTION_DETAILS}"
+
+[environments.mongo.flyway]
+sqlMigrationSuffixes = [".js"]

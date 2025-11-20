@@ -1,1 +1,2 @@
 org.flywaydb.testconnection.TestConnectionCommandExtension
+org.flywaydb.testconnection.FlywayTestConnectionRunner

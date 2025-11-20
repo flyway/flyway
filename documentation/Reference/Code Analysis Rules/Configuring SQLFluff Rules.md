@@ -85,3 +85,22 @@ This is the most granular change and just [ignores violation on an individual li
 -- Ignore rule CP02 & rule CP03
 SeLeCt  1 from tBl ;    -- noqa: CP02,CP03
 ```
+
+## Reporting `--noqa` Tag Usage
+{% include enterprise.html %}
+
+Using `--noqa` tags to suppress SQLFluff code analysis rules introduces risks, as those statements will bypass linting checks. 
+
+To help mitigate this, Flyway generates a warning-level violation whenever a `--noqa` tag is detected.
+
+In the command-line output, you will see something similar to the following:
+
+```
++--------------------+-----------+------------------+----------+
+| Engine             | Rule Code | Violations Count | Severity |
++--------------------+-----------+------------------+----------+
+| SQLFluff (Redgate) | RG01      | 1                | Error    |
+| SQLFluff (Redgate) | RG02      | 1                | Error    |
+| Policy Overrides   | noqa      | 4                | Warning  |
++--------------------+-----------+------------------+----------+
+```

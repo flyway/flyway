@@ -19,65 +19,60 @@
  */
 package org.flywaydb.database.mongodb;
 
-import com.dbschema.mongo.MongoConnection;
-import com.dbschema.mongo.MongoPreparedStatement;
 import com.dbschema.mongo.resultSet.ListResultSet;
-import lombok.NonNull;
-import org.bson.Document;
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.database.DatabaseType;
-import org.flywaydb.core.internal.database.DatabaseTypeRegister;
-import org.flywaydb.core.internal.jdbc.JdbcNullTypes;
-import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.jdbc.JdbcUtils;
-import org.flywaydb.core.internal.jdbc.RowMapper;
-import org.jetbrains.annotations.NotNull;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import lombok.NonNull;
+import org.bson.Document;
+import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.database.DatabaseType;
+import org.flywaydb.core.internal.jdbc.JdbcNullTypes;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.jdbc.JdbcUtils;
+import org.flywaydb.core.internal.jdbc.RowMapper;
 
 public class MongoDBJdbcTemplate extends JdbcTemplate {
 
-    public MongoDBJdbcTemplate(Connection connection, DatabaseType databaseType) {
+    public MongoDBJdbcTemplate(final Connection connection, final DatabaseType databaseType) {
         super(connection, databaseType);
     }
 
-
-
     @Override
-    protected PreparedStatement prepareStatement(String sql, Object[] params) throws SQLException {
-        Object[] params2 = new Object[params.length];
+    protected PreparedStatement prepareStatement(final String sql, final Object[] params) throws SQLException {
+        final Object[] params2 = new Object[params.length];
 
-        String replaceMe = sql.replaceAll("\\?", "%s");
+        final String replaceMe = sql.replaceAll("\\?", "%s");
         for (int i = 0; i < params.length; i++) {
-            if (params[i] instanceof Integer integerValue) {
+            if (params[i] instanceof final Integer integerValue) {
                 params2[i] = integerValue;
-            } else if (params[i] instanceof Boolean booleanValue) {
-                params2[i] =  booleanValue;
-            } else if (params[i] instanceof String stringValue) {
-                params2[i] = "'"+stringValue+"'";
-            } else if (params[i] == null || params[i] == JdbcNullTypes.StringNull || params[i] == JdbcNullTypes.IntegerNull || params[i] == JdbcNullTypes.BooleanNull) {
+            } else if (params[i] instanceof final Boolean booleanValue) {
+                params2[i] = booleanValue;
+            } else if (params[i] instanceof final String stringValue) {
+                params2[i] = "'" + stringValue + "'";
+            } else if (params[i] == null
+                || params[i] == JdbcNullTypes.StringNull
+                || params[i] == JdbcNullTypes.IntegerNull
+                || params[i] == JdbcNullTypes.BooleanNull) {
                 params2[i] = null;
             } else {
-                throw new FlywayException("Unhandled object of type '" + params[i].getClass().getName() + "'. " +
-                                                  "Please contact support or leave an issue on GitHub.");
+                throw new FlywayException("Unhandled object of type '"
+                    + params[i].getClass().getName()
+                    + "'. "
+                    + "Please contact support or leave an issue on GitHub.");
             }
         }
-        String statementString = String.format(replaceMe, params2);
+        final String statementString = String.format(replaceMe, params2);
 
         return connection.prepareStatement(statementString);
     }
 
     @Override
-    public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... params) throws SQLException {
+    public <T> List<T> query(final String sql, final RowMapper<? extends T> rowMapper, final Object... params) {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
 
@@ -88,12 +83,12 @@ public class MongoDBJdbcTemplate extends JdbcTemplate {
 
             results = new ArrayList<>();
             while (resultSet.next()) {
-                ResultSet rs = convertMongoResultset(resultSet);
+                final ResultSet rs = convertMongoResultset(resultSet);
                 while (rs.next()) {
                     results.add(rowMapper.mapRow(rs));
                 }
             }
-        } catch (Exception eeeee) {
+        } catch (final Exception eeeee) {
             throw new FlywayException("Error executing statement " + sql, eeeee);
         } finally {
             JdbcUtils.closeResultSet(resultSet);
@@ -103,22 +98,21 @@ public class MongoDBJdbcTemplate extends JdbcTemplate {
         return results;
     }
 
-    public String queryForString(String query, String... params) throws SQLException {
+    public String queryForString(final String query, final String... params) throws SQLException {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
 
-        String result;
+        String result = null;
         try {
             statement = prepareStatement(query, params);
             resultSet = statement.executeQuery();
-            result = null;
             if (resultSet.next()) {
                 try {
-                    ResultSet rs = convertMongoResultset(resultSet);
+                    final ResultSet rs = convertMongoResultset(resultSet);
                     while (rs.next()) {
                         result = rs.getString(1);
                     }
-                } catch (Exception e) {
+                } catch (final Exception e) {
                     result = resultSet.getString(1);
                 }
             }
@@ -130,10 +124,10 @@ public class MongoDBJdbcTemplate extends JdbcTemplate {
         return result;
     }
 
-    public void update(String sql, Object... params) throws SQLException {
-        if(sql.contains("updateOne")) {
-            List<Object> tmp = new ArrayList<>(List.of(params));
-            tmp.add(0, tmp.get(tmp.size() -1 ));
+    public void update(final String sql, Object... params) throws SQLException {
+        if (sql.contains("updateOne")) {
+            final List<Object> tmp = new ArrayList<>(List.of(params));
+            tmp.add(0, tmp.get(tmp.size() - 1));
             tmp.remove(tmp.size() - 1);
             params = tmp.toArray();
         }
@@ -148,13 +142,13 @@ public class MongoDBJdbcTemplate extends JdbcTemplate {
     }
 
     @NonNull
-    private static ResultSet convertMongoResultset(ResultSet resultSet) throws SQLException {
-        Document doc = (Document)resultSet.getObject(1);
+    private static ResultSet convertMongoResultset(final ResultSet resultSet) throws SQLException {
+        final Document doc = (Document) resultSet.getObject(1);
         doc.remove("_id");
-        String[] columnNames = doc.keySet().stream().toList().toArray(String[]::new);
-        List<Object[]> data = new ArrayList<>();
-        Collection<Object> vals = doc.values();
-        Object[] valsArray = vals.toArray();
+        final String[] columnNames = doc.keySet().stream().toList().toArray(String[]::new);
+        final List<Object[]> data = new ArrayList<>();
+        final Collection<Object> vals = doc.values();
+        final Object[] valsArray = vals.toArray();
         data.add(valsArray);
         return new ListResultSet(data, columnNames);
     }

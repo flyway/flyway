@@ -1,0 +1,24 @@
+[flyway]
+locations = ["filesystem:/flyway/sql"]
+cleanDisabled = false
+reportFilename = "report"
+
+[flyway.check]
+buildEnvironment = "default-build"
+
+[environments.default]
+url = "jdbc:sqlite:test"
+
+[environments.default-build]
+url = "jdbc:sqlite:temp"
+
+[environments.mongo]
+url = "${env.MONGO_CONNECTION_DETAILS}"
+
+[environments.mongo.flyway]
+sqlMigrationSuffixes = [".js"]
+
+[environments.oracle]
+url = "jdbc:oracle:thin:@//localhost:62065/FREEPDB1"
+user = "flyway"
+password = "flyway"

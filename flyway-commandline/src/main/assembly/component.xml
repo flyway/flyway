@@ -196,6 +196,7 @@
 
 
 
+
   </fileSets>
   <dependencySets>
     <dependencySet>
@@ -332,7 +333,6 @@
 
 
 
-
         <include>org.flywaydb:flyway-database-ignite</include>
         <include>org.flywaydb:flyway-database-tidb</include>
         <include>org.flywaydb:flyway-database-yugabytedb</include>
@@ -354,6 +354,7 @@
         <include>org.flywaydb:flyway-verb-clean</include>
         <include>org.flywaydb:flyway-verb-baseline</include>
         <include>org.flywaydb:flyway-verb-repair</include>
+        <include>org.flywaydb:flyway-verb-testConnection</include>
         <include>org.flywaydb:flyway-experimental-sqlite</include>
         <include>org.flywaydb:flyway-nc-callbacks</include>
         <include>org.flywaydb:flyway-database-nc-couchbase</include>

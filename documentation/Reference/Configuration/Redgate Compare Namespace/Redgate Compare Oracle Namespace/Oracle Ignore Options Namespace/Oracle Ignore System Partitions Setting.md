@@ -22,11 +22,15 @@ This option is active if the "all storage options" or "tablespaces and partition
 
 ## Usage
 
-This setting can't be configured other than in a TOML configuration file.
-
 ### Flyway Desktop
 
 This can be set from the comparison options settings in Oracle projects.
+
+### Command-line
+
+```powershell
+./flyway diff -redgateCompare.oracle.options.ignores.ignoreSystemPartitions=true
+```
 
 ### TOML Configuration File
 

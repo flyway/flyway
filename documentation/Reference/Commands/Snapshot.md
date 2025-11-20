@@ -15,7 +15,8 @@ Be sure to set [environment schemas](<Configuration/Environments Namespace/Envir
 a snapshot for Oracle databases.
 
 Snapshots may be stored in the snapshot history table by specifying an appropriate location using the
-[`filename`](<Configuration/Flyway Namespace/Flyway Snapshot Namespace/Flyway Snapshot Source Setting>) parameter. In this case, Flyway will create the snapshot history table automatically if it doesn't exist.
+[`filename`](<Configuration/Flyway Namespace/Flyway Snapshot Namespace/Flyway Snapshot Source Setting>) parameter. In
+this case, Flyway will create the snapshot history table automatically if it doesn't exist.
 
 See [Snapshots](https://documentation.red-gate.com/display/FD/Snapshots) for more information.
 
@@ -106,3 +107,17 @@ This command can produce the following error codes:
 
 - [Generic error codes](<Exit codes and error codes/General error codes>)
 - [Comparison error codes](<Exit codes and error codes/Comparison error codes>)
+
+### Database Binary size limits
+
+When storing snapshots to
+the [Flyway Snapshot History Table](<Configuration/Flyway Namespace/flyway-snapshot-namespace/flyway-snapshot-history-table-setting>),
+there is a size constraint.
+The snapshots will be compressed before insertion into the table, so the constraint only applies after compression.
+
+| Database   | Datatype       | Size |
+|------------|----------------|------|
+| SQL Server | VARBINARY(MAX) | 2Gb  |
+| Oracle     | BLOB           | 4Gb  |
+| MySQL      | LONGBLOB       | 2Gb  |
+| PostgreSQL | BYTEA          | 1Gb  |

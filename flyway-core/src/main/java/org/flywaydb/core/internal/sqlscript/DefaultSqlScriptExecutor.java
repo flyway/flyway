@@ -166,7 +166,7 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
             sqlBatch.add(sqlStatement.getSql());
         }
 
-        Results results = jdbcTemplate.executeBatch(sqlBatch, config);
+        Results results = jdbcTemplate.executeBatch(sqlBatch);
 
         if (results.getException() != null) {
 

@@ -8,11 +8,47 @@
 </div>
 <div class="col-md-9">
   <div class="release">
+        <h2 id="11.17.1">Flyway 11.17.1 (2025-11-20)</h2>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Added ability to run code analysis on individiual scripts with 'check.scriptFilename' and new 'SCRIPT' scope</li>
+            <li>Snapshot history version column will now be populated when a database is used as the source for the snapshot</li>
+            <li>Comparison options can now be configured via the command-line</li>
+            <li>testConnection command can test Comparison Engine connections</li>
+            <li>snapshots can be written to an s3 bucket and read from an s3 bucket when performing drift checks</li>
+            <li>Flyway now supports reporting the usage of '--noqa' tags that suppress code analysis linting</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fixed missing descriptions for SQLFluff rules RG07, RG08, RG11, and RG12</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/4172">Issue 4172</a>
+                Fix getting Oracle metadata properties
+            </li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/4169">Issue 4169</a>
+                Fixes an additional connection being created when running migrate or undo
+            </li>
+        </ul>
+
+        <h3>Library upgrades</h3>
+        <ul>
+            <li>Upgraded RgCompare.Cli from 1.45.1.1851 to 1.45.1.2021</li>
+        </ul>
+
+        <p>
+            Thanks to toadzky and MahogaWeerasinghe for reporting these issues.
+        </p>
+  </div>
+
+  <div class="release">
         <h2 id="11.17.0">Flyway 11.17.0 (2025-11-11)</h2>
 
         <h3>New features</h3>
         <ul>
-            <li>It is now possible to capture and store snapshots in a target database in a flyway snapshot history table following a migrate, undo, or deploy action. These snapshots can be used for drift analysis and potentially for rollback. For more information see [snapshots](https://documentation.red-gate.com/flyway/flyway-concepts/snapshots).</li>
+            <li>It is now possible to capture and store snapshots in a target database in a flyway snapshot history table following a migrate, undo, or deploy action. These snapshots can be used for drift analysis and potentially for rollback. For more information see <a href="https://documentation.red-gate.com/flyway/flyway-concepts/snapshots">snapshots</a>.</li>
             <li>standard logging is now included with `outputType=json`; it is posted via STDERR</li>
         </ul>
 
