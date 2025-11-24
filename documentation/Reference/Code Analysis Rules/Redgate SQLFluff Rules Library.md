@@ -166,3 +166,11 @@ Altering privileges for PUBLIC is discouraged, consider using explicit roles.
 TRUNCATE statements will remove all rows of data in the table
 ### Groups: `all`, `redgate`
 ### Dialects supported: `all`
+
+---
+{% include anchor.html link="RG14"%}
+# Rule: RG14 Drop Column
+## Check for DROP COLUMN statements
+This will cause data loss unless handled carefully. This rule will identify instances of this so you can verify that it is desired behavior in this case.
+### Groups: `all`, `redgate`
+### Dialects supported: `all`

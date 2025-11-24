@@ -82,9 +82,6 @@ import org.flywaydb.core.internal.util.JsonUtils;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StringUtils;
 
-
-
-
 public class Main {
     private static Log LOG;
     private static final PluginRegister PLUGIN_REGISTER = new PluginRegister();
@@ -294,19 +291,7 @@ public class Main {
             result = flyway.baseline();
         } else if ("migrate".equals(operation)) {
             try {
-
-
-
-
-
-
-
-
                 result = flyway.migrate();
-
-
-
-
 
             } catch (final FlywayMigrateException e) {
                 result = ErrorOutput.fromMigrateException(e);

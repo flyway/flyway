@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>11.17.1</version>
+    <version>11.17.2</version>
   </parent>
   <artifactId>flyway-commandline</artifactId>
   <packaging>jar</packaging>
@@ -771,6 +771,12 @@
     </plugins>
   </build>
   <profiles>
+
+
+
+
+
+
 
 
 

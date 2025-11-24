@@ -15,14 +15,14 @@ String
 
 ## Default
 
-`deployments/D__deployment.sql`
+This will default to the value of [prepare.scriptFilename](<Configuration/Flyway Namespace/Flyway Prepare Namespace/Flyway Prepare Script Filename Setting>).
 
 ## Usage
 
 ### Command-line
 
 ```powershell
-./flyway check -code -check.scriptFilename=custom_script.sql
+./flyway check -code -scriptFilename=custom_script.sql
 ```
 
 ### TOML Configuration File
