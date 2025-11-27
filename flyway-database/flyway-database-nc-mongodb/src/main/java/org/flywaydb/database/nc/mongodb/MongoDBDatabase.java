@@ -95,7 +95,7 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
 
     @Override
     public List<String> supportedVerbs() {
-        return List.of("info", "validate", "migrate", "clean", "undo", "baseline", "repair");
+        return List.of("info", "validate", "migrate", "clean", "undo", "baseline", "repair", "testConnection");
     }
 
     @Override
@@ -127,6 +127,7 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
             mongoshCredential = new MongoshCredential(environment.getUrl(),
                 environment.getUser(),
                 environment.getPassword());
+            checkMongoshConnectivity();
         }
 
         connectionString = new ConnectionString(configuration.getUrl());
@@ -438,13 +439,8 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
     }
 
     private void doExecuteWithMongosh(final String executionUnit, final boolean outputQueryResults) {
-        final List<String> commands = new ArrayList<>(List.of("mongosh", mongoshCredential.url()));
-        if (mongoshCredential.username() != null) {
-            commands.addAll(List.of("--username", mongoshCredential.username()));
-        }
-        if (mongoshCredential.password() != null) {
-            commands.addAll(List.of("--password", mongoshCredential.password()));
-        }
+        final List<String> commands = getMongoshConnectCommands();
+
         commands.addAll(List.of("--file", TemporaryFileUtils.createTempFile(executionUnit, ".js")));
 
         final var processBuilder = new ProcessBuilder(commands);
@@ -505,6 +501,31 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
         return true;
     }
 
+    private void checkMongoshConnectivity() {
+        final List<String> commands = getMongoshConnectCommands();
+
+        commands.add("--eval");
+        commands.add("db.runCommand({ ping: 1 })");
+
+        final ProcessBuilder processBuilder = new ProcessBuilder(commands);
+        processBuilder.environment();
+
+        try {
+            final Process process = processBuilder.start();
+            final boolean exited = process.waitFor(1, TimeUnit.MINUTES);
+            if (!exited) {
+                throw new FlywayException("Mongosh connection timeout");
+            }
+
+            final int exitCode = process.exitValue();
+            if (exitCode != 0) {
+                throw new FlywayException("Mongosh failed to connect to the provided connection URL");
+            }
+        } catch (final Exception e) {
+            throw new FlywayException(e.getMessage());
+        }
+    }
+
     private void initializeConnectionType(final Configuration configuration, final boolean silent) {
         if (connectionType != null) {
             return;
@@ -535,5 +556,16 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
         final List<Document> writeErrors = result.getList("writeErrors", Document.class);
         final String errMsg = writeErrors.get(0).getString("errmsg");
         throw new FlywayException(errMsg);
+    }
+
+    private List<String> getMongoshConnectCommands() {
+        List<String> commands = new ArrayList<>(List.of("mongosh", mongoshCredential.url()));
+        if (mongoshCredential.username() != null) {
+            commands.addAll(List.of("--username", mongoshCredential.username()));
+        }
+        if (mongoshCredential.password() != null) {
+            commands.addAll(List.of("--password", mongoshCredential.password()));
+        }
+        return commands;
     }
 }

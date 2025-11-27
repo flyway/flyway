@@ -19,6 +19,8 @@
  */
 package org.flywaydb.core.internal.license;
 
+import static org.flywaydb.core.internal.util.FlywayDbWebsiteLinks.LICENSING_ACTIVATING_CLI;
+
 import java.io.File;
 import lombok.CustomLog;
 import lombok.Getter;
@@ -124,7 +126,9 @@ public class FlywayPermit implements Serializable {
         }
 
         if (this.tier == Tier.COMMUNITY && PERMIT_FILE.exists()) {
-            LOG.info("No Flyway license detected for this user - using Community Edition. If you expected a Teams/Enterprise license then please add a Flyway license to your account and rerun auth. Alternatively, you can run auth -logout to remove your unlicensed permit on disk");
+            LOG.info("No Flyway license detected for this user, using Community Edition. If you expected a Teams or Enterprise license then please ensure your user account is allocated a Flyway license in Redgate portal.\n"
+                    + "Alternatively, you can run auth -logout to remove your unlicensed permit on disk.\n"
+                    + "For more information see " + LICENSING_ACTIVATING_CLI);
         }
 
         if (isTrial()) {

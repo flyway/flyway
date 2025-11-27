@@ -8,13 +8,51 @@
 </div>
 <div class="col-md-9">
   <div class="release">
+        <h2 id="11.18.0">Flyway 11.18.0 (2025-11-27)</h2>
+
+        <h3>New features</h3>
+        <ul>
+            <li>'testConnection' command is now supported in Native Connectors mode</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>When using Oracle in 'Native Connectors' mode, Flyway now fails early during database initialization if the migration execution tool cannot connect</li>
+            <li>When using MongoDB in 'Native Connectors' mode, Flyway now fails early during database initialization if the migration execution tool cannot connect</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fix issue with obtaining the value of SQLPlus placeholders on Oracle 26ai</li>
+            <li>fixed an issue with using the create-database provisioner where a reprovision operation would not fully occur if no additional provisioner configuration was specified</li>
+        </ul>
+
+        <h3>Library upgrades</h3>
+        <ul>
+            <li>Upgraded RgCompare.Cli from 1.45.1.2021 to 1.45.1.2083</li>
+            <li>Upgraded sqlfluff from 3.4.2 to 3.5.0</li>
+        </ul>
+
+  </div>
+
+  <div class="release">
         <h2 id="11.17.2">Flyway 11.17.2 (2025-11-24)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fixed an issue where the bundled SqlFluff was not included with some versions of the CLI</li>
+        </ul>
 
   </div>
 
   <div class="release">
         <h2 id="11.17.1">Flyway 11.17.1 (2025-11-20)</h2>
 
+        <h3>Known Issues</h3>
+        <ul>
+            <li>Redgate bundled SQLFluff was not shipped in this release due to a packaging problem</li>
+        </ul>
+        
         <h3>New features</h3>
         <ul>
             <li>Added ability to run code analysis on individiual scripts with 'check.scriptFilename' and new 'SCRIPT' scope</li>
@@ -77,6 +115,11 @@
 
   <div class="release">
         <h2 id="11.16.0">Flyway 11.16.0 (2025-11-06)</h2>
+        
+        <h3>Known Issues</h3>
+        <ul>
+            <li>Redgate bundled SQLFluff was not shipped in this release due to a packaging problem</li>
+        </ul>
 
         <h3>New features</h3>
         <ul>

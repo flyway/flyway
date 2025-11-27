@@ -76,6 +76,7 @@ public class FlywayDbWebsiteLinks {
     public static final String SQL_PLUS = "https://rd.gt/42ljPXB";
     public static final String ORACLE_BLOG = "https://rd.gt/3EuAlwU";
 
+    public static final String LICENSING_ACTIVATING_CLI = "https://rd.gt/4p5c9mO";
     public static final String OFFLINE_LICENSE_PERMITS = "https://rd.gt/3UHAJwO";
     public static final String V10_BLOG = "https://rd.gt/4hA3C7Y";
     public static final String MONGOSH = "https://rd.gt/3VudXc6";

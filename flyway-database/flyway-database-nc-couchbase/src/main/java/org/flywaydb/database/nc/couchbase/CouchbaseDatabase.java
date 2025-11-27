@@ -91,7 +91,7 @@ public class CouchbaseDatabase extends NativeConnectorsNonJdbc {
 
     @Override
     public List<String> supportedVerbs() {
-        return List.of("info", "migrate", "clean", "undo", "baseline", "validate", "repair");
+        return List.of("info", "migrate", "clean", "undo", "baseline", "validate", "repair", "testConnection");
     }
 
     @Override
