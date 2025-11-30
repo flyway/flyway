@@ -23,6 +23,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.exception.FlywayValidateException;
 
 /**
  * <p>Validate applied migrations against resolved ones (on the filesystem or classpath)
@@ -44,6 +45,15 @@ import org.flywaydb.core.Flyway;
 public class ValidateMojo extends AbstractFlywayMojo {
     @Override
     protected void doExecute(Flyway flyway) {
-        flyway.validate();
+        try {
+            flyway.validate();
+        } catch (final FlywayValidateException e) {
+            if (cleanOnValidationErrorEnabled) {
+                getLog().info("Validation failed. Cleaning database because cleanOnValidationError is enabled.");
+                flyway.clean();
+            } else {
+                throw e;
+            }
+        }
     }
 }
