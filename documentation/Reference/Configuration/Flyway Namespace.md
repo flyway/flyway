@@ -14,6 +14,7 @@ This namespace contains the configurations specific to the Flyway engine.
 | [`loggers`](<Configuration/Flyway Namespace/Flyway Loggers Setting>)                                        | Community | String array | Loggers to use.                                   |
 | [`reportEnabled`](<Configuration/Flyway Namespace/Flyway Report Enabled Setting>)                           | Community | Boolean      | Whether to enable generating a report file.       |
 | [`reportFilename`](<Configuration/Flyway Namespace/Flyway Report Filename Setting>)                         | Community | String       | Filename for the report file.                     |
+| [`provisionMode`](<Configuration/Flyway Namespace/Flyway Provision Mode Setting>)                         | Community | String       | Use a specific provision mode for the target environment                 |
 
 ## Migration location and naming settings
 

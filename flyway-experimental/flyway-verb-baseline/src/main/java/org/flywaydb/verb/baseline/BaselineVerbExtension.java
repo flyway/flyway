@@ -57,6 +57,7 @@ public class BaselineVerbExtension extends CachingVerbExtension {
             final SchemasVerbExtension schemasVerbExtension = new SchemasVerbExtension();
             schemasVerbExtension.useCaching();
             schemasVerbExtension.executeVerb(configuration);
+            context.refresh(configuration);
         } else {
             LOG.warn("""
                      The configuration option 'createSchemas' is false.

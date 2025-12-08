@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>11.18.0</version>
+    <version>11.19.0</version>
   </parent>
   <artifactId>flyway-commandline</artifactId>
   <packaging>jar</packaging>
@@ -13,7 +13,7 @@
 
 
 
-    <jre.version>21.0.5</jre.version>
+    <jre.version>25.0.1</jre.version>
   </properties>
 
   <dependencies>
@@ -427,12 +427,6 @@
 
 
 
-
-
-
-
-
-
     <dependency>
       <groupId>com.ing.data</groupId>
       <artifactId>cassandra-jdbc-wrapper</artifactId>
@@ -539,7 +533,7 @@
     <dependency>
       <groupId>org.mongodb</groupId>
       <artifactId>mongodb-driver-sync</artifactId>
-      <version>5.1.2</version>
+      <version>5.6.1</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -880,19 +874,19 @@
                 </goals>
                 <configuration>
                   <target>
-                    <unzip src="${basedir}/src/main/assembly/OpenJDK21U-jre_x64_windows_hotspot_${jre.version}_11.zip"
+                    <unzip src="${basedir}/src/main/assembly/OpenJDK25U-jre_x64_windows_hotspot_${jre.version}_8.zip"
                       dest="${project.build.directory}/dependency/jre-windows-x64"/>
                     <untar compression="gzip"
-                      src="${basedir}/src/main/assembly/OpenJDK21U-jre_x64_linux_hotspot_${jre.version}_11.tar.gz"
+                      src="${basedir}/src/main/assembly/OpenJDK25U-jre_x64_linux_hotspot_${jre.version}_8.tar.gz"
                       dest="${project.build.directory}/dependency/jre-linux-x64"/>
                     <untar compression="gzip"
-                      src="${basedir}/src/main/assembly/OpenJDK21U-jre_x64_alpine-linux_hotspot_${jre.version}_11.tar.gz"
+                      src="${basedir}/src/main/assembly/OpenJDK25U-jre_x64_alpine-linux_hotspot_${jre.version}_8.tar.gz"
                       dest="${project.build.directory}/dependency/jre-linux-alpine-x64"/>
                     <untar compression="gzip"
-                      src="${basedir}/src/main/assembly/OpenJDK21U-jre_x64_mac_hotspot_${jre.version}_11.tar.gz"
+                      src="${basedir}/src/main/assembly/OpenJDK25U-jre_x64_mac_hotspot_${jre.version}_8.tar.gz"
                       dest="${project.build.directory}/dependency/jre-macos-x64"/>
                     <untar compression="gzip"
-                      src="${basedir}/src/main/assembly/OpenJDK21U-jre_aarch64_mac_hotspot_${jre.version}_11.tar.gz"
+                      src="${basedir}/src/main/assembly/OpenJDK25U-jre_aarch64_mac_hotspot_${jre.version}_8.tar.gz"
                       dest="${project.build.directory}/dependency/jre-macos-arm64"/>
                   </target>
                 </configuration>
@@ -992,7 +986,7 @@
                             </goals>
                             <configuration>
                                 <target>
-                                    <unzip src="${basedir}/src/main/assembly/OpenJDK21U-jre_x64_windows_hotspot_${jre.version}_11.zip" dest="${project.build.directory}/dependency/jre-windows-x64"/>
+                                    <unzip src="${basedir}/src/main/assembly/OpenJDK25U-jre_x64_windows_hotspot_${jre.version}_8.zip" dest="${project.build.directory}/dependency/jre-windows-x64"/>
                                 </target>
                             </configuration>
                         </execution>
@@ -1046,7 +1040,7 @@
                             </goals>
                             <configuration>
                                 <target>
-                                    <untar compression="gzip" src="${basedir}/src/main/assembly/OpenJDK21U-jre_x64_mac_hotspot_${jre.version}_11.tar.gz" dest="${project.build.directory}/dependency/jre-macos-x64"/></target>
+                                    <untar compression="gzip" src="${basedir}/src/main/assembly/OpenJDK25U-jre_x64_mac_hotspot_${jre.version}_8.tar.gz" dest="${project.build.directory}/dependency/jre-macos-x64"/></target>
                             </configuration>
                         </execution>
                     </executions>
@@ -1099,7 +1093,7 @@
                             </goals>
                             <configuration>
                                 <target>
-                                    <untar compression="gzip" src="${basedir}/src/main/assembly/OpenJDK21U-jre_aarch64_mac_hotspot_${jre.version}_11.tar.gz" dest="${project.build.directory}/dependency/jre-macos-arm64"/>
+                                    <untar compression="gzip" src="${basedir}/src/main/assembly/OpenJDK25U-jre_aarch64_mac_hotspot_${jre.version}_8.tar.gz" dest="${project.build.directory}/dependency/jre-macos-arm64"/>
                                 </target>
                             </configuration>
                         </execution>
@@ -1174,7 +1168,7 @@
                 <configuration>
                   <target>
                     <untar compression="gzip"
-                      src="${basedir}/src/main/assembly/OpenJDK21U-jre_x64_linux_hotspot_${jre.version}_11.tar.gz"
+                      src="${basedir}/src/main/assembly/OpenJDK25U-jre_x64_linux_hotspot_${jre.version}_8.tar.gz"
                       dest="${project.build.directory}/dependency/jre-linux-x64"/>
                   </target>
                 </configuration>

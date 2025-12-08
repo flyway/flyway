@@ -71,6 +71,7 @@ public class MigrateVerbExtension implements VerbExtension {
 
         if (configuration.isValidateOnMigrate()) {
             validate(configuration);
+            context.refresh(configuration);
         }
 
         NativeConnectorsDatabase database = context.getDatabase();
@@ -80,6 +81,7 @@ public class MigrateVerbExtension implements VerbExtension {
                 final SchemasVerbExtension schemasVerbExtension = new SchemasVerbExtension();
                 schemasVerbExtension.useCaching();
                 schemasVerbExtension.executeVerb(configuration);
+                context.refresh(configuration);
             } catch (final NoClassDefFoundError e) {
                 throw new FlywayException("Schemas verb extension is required for creating schemas but is not present",
                     e);
@@ -206,12 +208,6 @@ public class MigrateVerbExtension implements VerbExtension {
                 context.getParsingContext());
         }
         callbackManager.handleEvent(Event.AFTER_MIGRATE, database, configuration, context.getParsingContext());
-
-        try {
-            database.close();
-        } catch (Exception e) {
-            throw new FlywayException(e);
-        }
 
         return migrateResult;
     }

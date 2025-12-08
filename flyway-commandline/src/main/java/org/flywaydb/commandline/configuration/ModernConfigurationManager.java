@@ -249,7 +249,7 @@ public class ModernConfigurationManager implements ConfigurationManager {
         }
         try {
             checkUnknownParamsInFlywayNamespace(config.getEnvironments()
-                    .get(cfg.getCurrentEnvironmentName())
+                    .getOrDefault(cfg.getCurrentEnvironmentName(), new EnvironmentModel())
                     .getFlyway(),
                 Collections.emptyList(),
                 rootConfigurationsIsEmpty,
@@ -505,8 +505,7 @@ public class ModernConfigurationManager implements ConfigurationManager {
     }
 
     private static void combineConfigurationExceptions(final Iterable<? extends FlywayException> configurationExceptions) {
-        final StringBuilder exceptionMessage = new StringBuilder("Failed to configure parameters:").append(
-            System.lineSeparator());
+        final StringBuilder exceptionMessage = new StringBuilder("Failed to configure parameters:").append(System.lineSeparator());
         configurationExceptions.forEach(e -> exceptionMessage.append(e.getMessage()).append(System.lineSeparator()));
         exceptionMessage.append("Confirm the parameters are spelled correctly")
             .append(System.lineSeparator())

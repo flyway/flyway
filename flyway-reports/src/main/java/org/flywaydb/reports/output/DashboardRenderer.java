@@ -19,15 +19,15 @@
  */
 package org.flywaydb.reports.output;
 
+import static org.flywaydb.reports.utils.HtmlUtils.getFormattedTimestamp;
+
+import java.util.List;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.HtmlResult;
+import org.flywaydb.core.internal.util.CollectionsUtils;
 import org.flywaydb.reports.api.extensibility.HtmlRenderer;
 import org.flywaydb.reports.api.extensibility.HtmlReportSummary;
 import org.flywaydb.reports.html.HtmlReportGenerator;
-
-import java.util.List;
-
-import static org.flywaydb.reports.utils.HtmlUtils.getFormattedTimestamp;
 
 public class DashboardRenderer implements HtmlRenderer<DashboardResult> {
     @Override
@@ -40,9 +40,10 @@ public class DashboardRenderer implements HtmlRenderer<DashboardResult> {
 
                 final HtmlRenderer<HtmlResult> resultRenderer = HtmlReportGenerator.getRenderer(htmlResult, config);
                 final List<HtmlReportSummary> summaries = resultRenderer.getHtmlSummary(htmlResult, config);
-                if (summaries != null) {
+                if (CollectionsUtils.hasItems(summaries)) {
                     final List<HtmlReportSummary> filteredSummaries = summaries.stream()
-                        .filter(x -> !x.getCssClass().contains("summaryNote")).toList();
+                        .filter(x -> !x.getCssClass().contains("summaryNote"))
+                        .toList();
                     html.append("<div class='dashboardSummaryGroup'>");
                     html.append("<h5>").append(resultRenderer.tabTitle(htmlResult, config)).append("</h5>");
                     for (final HtmlReportSummary s : filteredSummaries) {
@@ -55,7 +56,8 @@ public class DashboardRenderer implements HtmlRenderer<DashboardResult> {
                             .append(s.getSummaryText())
                             .append("</span></div></div>");
                     }
-                    final String id2 = htmlResult.getOperation() + "-" + tabCount + "_" + getFormattedTimestamp(htmlResult);
+                    final String id2 = htmlResult.getOperation() + "-" + tabCount + "_" + getFormattedTimestamp(
+                        htmlResult);
                     html.append("<button class='clickable inspectButton fancyButton' onclick=\"onTabClick(event, '")
                         .append(HtmlReportGenerator.getTabId(htmlResult, config, tabCount))
                         .append("','")

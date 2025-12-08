@@ -67,12 +67,12 @@ We have to map Flyway concepts and language rooted in the relational database wo
               <dependency>
                   <groupId>com.github.kornilova203</groupId>
                   <artifactId>mongo-jdbc-driver</artifactId>
-                  <version>1.19</version>
+                  <version>1.21</version>
                   <scope>system</scope>
-                  <systemPath>mongo-jdbc-standalone-1.19.jar</systemPath>  
+                  <systemPath>mongo-jdbc-standalone-1.21.jar</systemPath>  
               </dependency>
           ```
-        - or `mvn install:install-file -Dfile=mongo-jdbc-standalone-1.19.jar -DgroupId=com.github.kornilova203 -DartifactId=mongo-jdbc-driver -Dversion=1.19 -Dpackaging=jar -DgeneratePom=true`
+        - or `mvn install:install-file -Dfile=mongo-jdbc-standalone-1.21.jar -DgroupId=com.github.kornilova203 -DartifactId=mongo-jdbc-driver -Dversion=1.21 -Dpackaging=jar -DgeneratePom=true`
 
 - Using Flyway with Gradle?
     - Include the latest Flyway MongoDB dependency [here](https://central.sonatype.com/artifact/org.flywaydb/flyway-database-mongodb) as a buildscript dependency
@@ -80,7 +80,7 @@ We have to map Flyway concepts and language rooted in the relational database wo
         - For example:
       ```groovy
         dependencies {
-          implementation files('mongo-jdbc-standalone-1.19.jar')
+          implementation files('mongo-jdbc-standalone-1.21.jar')
         }
       ```
 

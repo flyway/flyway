@@ -161,6 +161,7 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
                 .credential(credential)
                 .build());
         }
+        isClosed = false;
         final String databaseName = getDefaultSchema(configuration);
 
         mongoDatabase = mongoClient.getDatabase(databaseName);
@@ -301,13 +302,11 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
     }
 
     @Override
-    public void close() throws Exception {
-
-    }
-
-    @Override
-    public boolean isClosed() {
-        return false;
+    public void close() {
+        if (mongoClient != null) {
+            mongoClient.close();
+            super.close();
+        }
     }
 
     @Override

@@ -20,7 +20,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.flywaydb</groupId>
   <artifactId>flyway-parent</artifactId>
-  <version>11.18.0</version>
+  <version>11.19.0</version>
   <packaging>pom</packaging>
   <name>${project.artifactId}</name>
   <description>Flyway: Database Migrations Made Easy.</description>
@@ -70,7 +70,6 @@
     <module>flyway-nc</module>
     <module>flyway-shades</module>
     <module>flyway-command</module>
-
 
 
 
@@ -169,6 +168,7 @@
     <version.maven>3.9.6</version.maven>
     <version.mockito>5.18.0</version.mockito>
     <version.mockserver>5.15.0</version.mockserver>
+    <version.mongodb>5.6.1</version.mongodb>
     <version.msal4j>1.20.0</version.msal4j>
     <version.msal4j-persistence>1.3.0</version.msal4j-persistence>
     <version.mssql>12.10.2</version.mssql>
@@ -525,6 +525,11 @@
         <groupId>com.microsoft.azure</groupId>
         <artifactId>msal4j-persistence-extension</artifactId>
         <version>${version.msal4j-persistence}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mongodb</groupId>
+        <artifactId>mongodb-driver-sync</artifactId>
+        <version>${version.mongodb}</version>
       </dependency>
 
 

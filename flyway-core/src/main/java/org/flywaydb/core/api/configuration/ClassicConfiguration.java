@@ -291,12 +291,16 @@ public class ClassicConfiguration implements Configuration {
         final ProvisionerMode provisionerMode = StringUtils.hasText(envProvisionMode) ? ProvisionerMode.fromString(
             envProvisionMode) : ProvisionerMode.Provision;
         final ResolvedEnvironment resolved = getResolvedEnvironment(envName, provisionerMode, progress);
-        if (resolved == null) {
+
+        if (resolved != null) {
+            return resolved;
+        } else if ("-".equals(envName)) {
+            return new ResolvedEnvironment();
+        } else {
             throw new FlywayException("Environment '"
                 + envName
                 + "' not found. Check that this environment exists in your configuration.");
         }
-        return resolved;
     }
 
     public ResolvedEnvironment getResolvedEnvironment(final String envName) {
@@ -2116,7 +2120,7 @@ public class ClassicConfiguration implements Configuration {
         if (!StringUtils.hasText(envName)) {
             envName = "default";
         }
-        if (!modernConfig.getEnvironments().containsKey(envName)) {
+        if (!modernConfig.getEnvironments().containsKey(envName) && !"-".equals(envName)) {
             throw new FlywayException("Environment '"
                 + envName
                 + "' not found. Check that this environment exists in your configuration.");
@@ -2126,7 +2130,7 @@ public class ClassicConfiguration implements Configuration {
     }
 
     private EnvironmentModel getCurrentUnresolvedEnvironment() {
-        return modernConfig.getEnvironments().get(getCurrentEnvironmentName());
+        return modernConfig.getEnvironments().getOrDefault(getCurrentEnvironmentName(), new EnvironmentModel());
     }
 
     private void licenseGuardJdbcUrl(final String url) {

@@ -262,4 +262,9 @@ public sealed interface NativeConnectorsDatabase<T> extends Plugin, AutoCloseabl
     }
     
     boolean isClosed();
+
+    @Override
+    default void close() {
+        //do nothing
+    }
 }

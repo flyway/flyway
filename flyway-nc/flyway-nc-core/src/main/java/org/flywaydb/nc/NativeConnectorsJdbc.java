@@ -142,9 +142,13 @@ public abstract class NativeConnectorsJdbc extends AbstractNativeConnectorsDatab
     }
 
     @Override
-    public void close() throws Exception {
-        if (!isClosed()) {
-            connection.close();
+    public void close() {
+        try {
+            if (!isClosed()) {
+                connection.close();
+            }
+        } catch (Exception e) {
+            throw new FlywayException(e);
         }
     }
 

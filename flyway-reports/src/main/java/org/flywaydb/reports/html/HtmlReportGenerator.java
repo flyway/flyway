@@ -19,48 +19,48 @@
  */
 package org.flywaydb.reports.html;
 
-import java.util.Collection;
-import java.util.Locale;
-import java.util.Objects;
-import lombok.CustomLog;
-import lombok.experimental.ExtensionMethod;
-import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.reports.output.DashboardResult;
-import org.flywaydb.reports.output.HoldingResult;
-import org.flywaydb.core.api.output.HtmlResult;
-import org.flywaydb.core.api.output.CompositeResult;
-import org.flywaydb.reports.api.extensibility.HtmlRenderer;
-import org.flywaydb.reports.api.extensibility.HtmlReportSummary;
-import org.flywaydb.core.extensibility.LicenseGuard;
-import org.flywaydb.core.extensibility.Tier;
-import org.flywaydb.core.internal.util.FileUtils;
+import static org.flywaydb.core.internal.util.ClassUtils.getInstallDir;
+import static org.flywaydb.reports.utils.HtmlUtils.getFormattedTimestamp;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
-
-import static org.flywaydb.core.internal.util.ClassUtils.getInstallDir;
-import static org.flywaydb.reports.utils.HtmlUtils.getFormattedTimestamp;
+import lombok.CustomLog;
+import lombok.experimental.ExtensionMethod;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.output.CompositeResult;
+import org.flywaydb.core.api.output.HtmlResult;
+import org.flywaydb.core.extensibility.LicenseGuard;
+import org.flywaydb.core.extensibility.Tier;
+import org.flywaydb.core.internal.util.CollectionsUtils;
+import org.flywaydb.core.internal.util.FileUtils;
+import org.flywaydb.reports.api.extensibility.HtmlRenderer;
+import org.flywaydb.reports.api.extensibility.HtmlReportSummary;
+import org.flywaydb.reports.output.DashboardResult;
+import org.flywaydb.reports.output.HoldingResult;
 
 @CustomLog
 @ExtensionMethod(Tier.class)
 public class HtmlReportGenerator {
-    private static final List<HoldingTabMetadata> HOLDING_TAB_METADATA = Arrays.asList(
-            new HoldingTabMetadata("changes", "ENTERPRISE"),
-            new HoldingTabMetadata("drift", "ENTERPRISE"),
-            new HoldingTabMetadata("migrate", "OSS"),
-            new HoldingTabMetadata("dryrun", "TEAMS", "ENTERPRISE"),
-            new HoldingTabMetadata("code", "OSS")
-                                                                                      );
+    private static final List<HoldingTabMetadata> HOLDING_TAB_METADATA = Arrays.asList(new HoldingTabMetadata("changes",
+            "ENTERPRISE"),
+        new HoldingTabMetadata("drift", "ENTERPRISE"),
+        new HoldingTabMetadata("migrate", "OSS"),
+        new HoldingTabMetadata("dryrun", "TEAMS", "ENTERPRISE"),
+        new HoldingTabMetadata("code", "OSS"));
     private static final String INSTALL_DIR = getInstallDir(HtmlReportGenerator.class);
 
     public static String generateHtml(final CompositeResult<? extends HtmlResult> result, final Configuration config) {
-        final Map<LocalDateTime, List<HtmlResult>> groupedResults = result.individualResults.stream().collect(Collectors.groupingBy(HtmlResult::getTimestamp));
+        final Map<LocalDateTime, List<HtmlResult>> groupedResults = result.individualResults.stream()
+            .collect(Collectors.groupingBy(HtmlResult::getTimestamp));
         final List<LocalDateTime> timestamps = new ArrayList<>(groupedResults.keySet());
 
         final StringBuilder content = new StringBuilder(getBeginning(timestamps));
@@ -84,7 +84,8 @@ public class HtmlReportGenerator {
                 }
             }
 
-            final String formattedTimestamp = timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.ROOT));
+            final String formattedTimestamp = timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss",
+                Locale.ROOT));
             content.append(getPage(formattedTimestamp, htmlResults, config));
         }
 
@@ -126,39 +127,37 @@ public class HtmlReportGenerator {
     }
 
     private static String getBeginning(final List<LocalDateTime> timestamps) {
-        return "<!doctype html>\n" +
-                "<html lang=\"en\">\n" +
-                "<head><meta charset=\"utf-8\">\n" +
-                "<style>\n" +
-                getCodeStyle() +
-                "</style>\n</head>\n" +
-                "<body>\n" +
-                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/AddFilled.svg") +
-                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/Calendar.svg") +
-                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/CheckFilled.svg") +
-                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/ClockOutlined.svg") +
-                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/Database.svg") +
-                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/DeleteFilled.svg") +
-                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/Document.svg") +
-                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/EditFilled.svg") +
-                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/ErrorFilled.svg") +
-                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/FeedbackOutlined.svg") +
-                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/flyway-upgrade-icon.svg") +
-                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/InfoOutlined.svg") +
-                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/PipelineFilled.svg") +
-                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/ScriptOutlined.svg") +
-                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/upgrade.svg") +
-                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/WarningFilled.svg") +
-                " <div class=\"container\">" +
-                "  <div class=\"header\">" +
-                "    <div class=\"flywayLogo headerElement\"></div>\n" +
-                "    <div class=\"headerElement leftPaddedElement\">Flyway Reports</div>" +
-                //"    <div class=\"headerElement redgateBanner\">" +
-                "      <div class=\"redgateText\"><a class='unstyledLink' href='https://www.redgate.com'>redgate</a></div>" +
-                //"    </div>" +
-                "  </div>\n" +
-                "  <div class=\"content\">\n" +
-                getDropdown(timestamps);
+        return "<!doctype html>\n"
+            + "<html lang=\"en\">\n"
+            + "<head><meta charset=\"utf-8\">\n"
+            + "<style>\n"
+            + getCodeStyle()
+            + "</style>\n</head>\n"
+            + "<body>\n"
+            + FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/AddFilled.svg")
+            + FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/Calendar.svg")
+            + FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/CheckFilled.svg")
+            + FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/ClockOutlined.svg")
+            + FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/Database.svg")
+            + FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/DeleteFilled.svg")
+            + FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/Document.svg")
+            + FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/EditFilled.svg")
+            + FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/ErrorFilled.svg")
+            + FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/FeedbackOutlined.svg")
+            + FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/flyway-upgrade-icon.svg")
+            + FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/InfoOutlined.svg")
+            + FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/PipelineFilled.svg")
+            + FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/ScriptOutlined.svg")
+            + FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/upgrade.svg")
+            + FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/WarningFilled.svg")
+            + " <div class=\"container\">"
+            + "  <div class=\"header\">"
+            + "    <div class=\"flywayLogo headerElement\"></div>\n"
+            + "    <div class=\"headerElement leftPaddedElement\">Flyway Reports</div>"
+            + "      <div class=\"redgateText\"><a class='unstyledLink' href='https://www.redgate.com'>redgate</a></div>"
+            + "  </div>\n"
+            + "  <div class=\"content\">\n"
+            + getDropdown(timestamps);
     }
 
     private static String getDropdown(final List<LocalDateTime> timestamps) {
@@ -166,7 +165,8 @@ public class HtmlReportGenerator {
 
         final StringBuilder options = new StringBuilder();
         for (int i = 0; i < timestamps.size(); i++) {
-            final String timestamp = timestamps.get(i).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.ROOT));
+            final String timestamp = timestamps.get(i)
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.ROOT));
 
             options.append("<option value=\"").append(timestamp).append("\"");
 
@@ -177,12 +177,12 @@ public class HtmlReportGenerator {
             options.append(">").append(timestamp).append("</option>\n");
         }
 
-        return "<div class=\"dropdown\">\n" +
-                "<label for=\"dropdown\">Report generated:</label>\n" +
-                "<select onchange=\"onTimestampClick(event, this.value)\" id=\"dropdown\">\n" +
-                options +
-                "</select>\n" +
-                "</div>\n";
+        return "<div class=\"dropdown\">\n"
+            + "<label for=\"dropdown\">Report generated:</label>\n"
+            + "<select onchange=\"onTimestampClick(event, this.value)\" id=\"dropdown\">\n"
+            + options
+            + "</select>\n"
+            + "</div>\n";
     }
 
     public static HtmlRenderer<HtmlResult> getRenderer(final HtmlResult htmlResult, final Configuration config) {
@@ -201,7 +201,9 @@ public class HtmlReportGenerator {
         return result;
     }
 
-    private static String getPage(final String timestamp, final Iterable<? extends HtmlResult> results, final Configuration config) {
+    private static String getPage(final String timestamp,
+        final Iterable<? extends HtmlResult> results,
+        final Configuration config) {
         final StringBuilder content = new StringBuilder();
 
         content.append("<div class=\"page ").append(timestamp).append("\">\n");
@@ -221,11 +223,8 @@ public class HtmlReportGenerator {
         int tabCount = 0;
         for (final HtmlResult htmlResult : result) {
             final String id2 = htmlResult.getOperation() + "-" + tabCount + "_" + getFormattedTimestamp(htmlResult);
-            final StringBuilder button = new StringBuilder("<button class=\"tab\" onclick=\"onTabClick(event, '")
-                .append(getTabId(htmlResult, config, tabCount))
-                .append("','")
-                .append(id2)
-                .append("')\"");
+            final StringBuilder button = new StringBuilder("<button class=\"tab\" onclick=\"onTabClick(event, '").append(
+                getTabId(htmlResult, config, tabCount)).append("','").append(id2).append("')\"");
             button.append(" id=\"").append(id2).append("\">");
             String tabTitle = "";
             final HtmlRenderer<HtmlResult> correctRenderer = getRenderer(htmlResult, config);
@@ -240,13 +239,14 @@ public class HtmlReportGenerator {
 
     private static String renderTab(final HtmlResult result, final Configuration config, final int tabCount) {
         final HtmlRenderer<HtmlResult> renderer = getRenderer(result, config);
-        return getTabOpening(result, config, tabCount) + renderTabSummary(result, config) + renderer.render(result, config) + getTabEnding(result);
+        return getTabOpening(result, config, tabCount) + renderTabSummary(result, config) + renderer.render(result,
+            config) + getTabEnding(result);
     }
 
     private static String renderTabSummary(final HtmlResult result, final Configuration config) {
         final HtmlRenderer<HtmlResult> renderer = getRenderer(result, config);
         final List<HtmlReportSummary> summaries = renderer.getHtmlSummary(result, config);
-        if (summaries == null) {
+        if (!CollectionsUtils.hasItems(summaries)) {
             return "";
         }
         final StringBuilder html = new StringBuilder("<div class='summaryHeader'>");
@@ -272,16 +272,22 @@ public class HtmlReportGenerator {
     private static String getTabEnding(final HtmlResult result) {
         String htmlResult = "";
         if (result.getException() != null) {
-            htmlResult += "<div class=\"error\">\n" +
-                    "<pre class=\"exception\">Flyway Exception: " + result.getException() + "</pre>\n" +
-                    "</div>\n";
+            htmlResult += "<div class=\"error\">\n"
+                + "<pre class=\"exception\">Flyway Exception: "
+                + result.getException()
+                + "</pre>\n"
+                + "</div>\n";
         }
         return htmlResult + "</div>\n";
     }
 
     public static String getTabId(final HtmlResult result, final Configuration config, final int tabCount) {
         final HtmlRenderer<HtmlResult> correctRenderer = getRenderer(result, config);
-        return (correctRenderer.tabTitle(result, config) + "_" + tabCount + "_" + getFormattedTimestamp(result)).replace(" ", "");
+        return (correctRenderer.tabTitle(result, config)
+            + "_"
+            + tabCount
+            + "_"
+            + getFormattedTimestamp(result)).replace(" ", "");
     }
 
     private static String getEnd() {

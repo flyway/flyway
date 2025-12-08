@@ -24,7 +24,6 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.extensibility.Plugin;
 import org.flywaydb.core.internal.license.FlywayPermit;
-import org.flywaydb.core.internal.nc.MetaData;
 
 public interface FlywayTelemetryManager extends Plugin {
 
@@ -42,7 +41,9 @@ public interface FlywayTelemetryManager extends Plugin {
 
     void notifyDatabaseChanged(final String engine, final String version, final String hosting);
 
-    void notifyExperimentalMetadataChanged(final MetaData metadata);
+    void notifyExperimentalModeChanged(final boolean experimentalMode);
+
+    void notifyUserIdChanged(final String hashedUserId);
 
     FlywayTelemetryProperties getProperties();
 }

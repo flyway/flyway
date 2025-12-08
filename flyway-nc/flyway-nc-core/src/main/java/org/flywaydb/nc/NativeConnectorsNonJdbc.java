@@ -23,6 +23,7 @@ import org.flywaydb.core.internal.nc.AbstractNativeConnectorsDatabase;
 import org.flywaydb.nc.executors.NonJdbcExecutorExecutionUnit;
 
 public abstract class NativeConnectorsNonJdbc extends AbstractNativeConnectorsDatabase<NonJdbcExecutorExecutionUnit> {
+    protected boolean isClosed;
 
     /**
      * By default, databases that use Batch to implement Transactions cannot support Batch, as it would cause a conflict.
@@ -43,5 +44,15 @@ public abstract class NativeConnectorsNonJdbc extends AbstractNativeConnectorsDa
     @Override
     public void doExecuteBatch() {
 
+    }
+
+    @Override
+    public boolean isClosed() {
+        return isClosed;
+    }
+
+    @Override
+    public void close() {
+        isClosed = true;
     }
 }

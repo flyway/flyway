@@ -55,9 +55,9 @@ The `snapshot.build*` arguments make it possible to create a snapshot for any mi
 
 ### Required
 
-| Parameter                                                                                               | Namespace | Description                                                                                   |
-|---------------------------------------------------------------------------------------------------------|-----------|-----------------------------------------------------------------------------------------------|
-| [`filename`](<Configuration/Flyway Namespace/Flyway Snapshot Namespace/Flyway Snapshot Source Setting>) | snapshot  | Destination location for the snapshot. Can be a file path, or a snapshot history table entry. |
+| Parameter                                                                                                 | Namespace | Description                                                                                   |
+|-----------------------------------------------------------------------------------------------------------|-----------|-----------------------------------------------------------------------------------------------|
+| [`filename`](<Configuration/Flyway Namespace/Flyway Snapshot Namespace/Flyway Snapshot Filename Setting>) | snapshot  | Destination location for the snapshot. Can be a file path, or a snapshot history table entry. |
 
 ### Optional
 

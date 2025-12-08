@@ -19,6 +19,7 @@
  */
 package org.flywaydb.nc.preparation;
 
+import static org.flywaydb.core.internal.util.TelemetryUtils.getTelemetryManager;
 import static org.flywaydb.nc.utils.NativeConnectorsUtils.logExperimentalDataTelemetry;
 
 import java.sql.SQLException;
@@ -97,7 +98,7 @@ public final class PreparationContext implements Plugin {
 
             schemaHistoryModel = (SchemaHistoryModel) getFromFuture(schemaHistoryModelFuture);
 
-            CompletableFuture.runAsync(() -> logExperimentalDataTelemetry(NativeConnectorsUtils.getFlywayTelemetryManager(
+            CompletableFuture.runAsync(() -> logExperimentalDataTelemetry(getTelemetryManager(
                 configuration), database.getDatabaseMetaData()));
 
             cacheString = getCacheString(configuration);

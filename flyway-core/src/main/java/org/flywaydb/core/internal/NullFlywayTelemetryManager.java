@@ -23,7 +23,6 @@ import java.time.Instant;
 import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.FlywayTelemetryProperties;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.nc.MetaData;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.internal.license.FlywayPermit;
 
@@ -70,8 +69,12 @@ public class NullFlywayTelemetryManager implements FlywayTelemetryManager {
 
     }
 
+    public void notifyExperimentalModeChanged(boolean experimentalMode) {
+
+    }
+
     @Override
-    public void notifyExperimentalMetadataChanged(final MetaData metadata) {
+    public void notifyUserIdChanged(String hashedUserId) {
 
     }
 

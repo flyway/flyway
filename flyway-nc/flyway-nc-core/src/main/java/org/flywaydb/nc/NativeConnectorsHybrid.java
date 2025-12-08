@@ -19,6 +19,8 @@
  */
 package org.flywaydb.nc;
 
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
 import org.flywaydb.core.internal.nc.AbstractNativeConnectorsHybridDatabase;
 
 public abstract class NativeConnectorsHybrid<T, U extends NativeConnectorsJdbc, V extends NativeConnectorsNonJdbc> extends AbstractNativeConnectorsHybridDatabase<T> {
@@ -31,5 +33,17 @@ public abstract class NativeConnectorsHybrid<T, U extends NativeConnectorsJdbc, 
 
     public V NativeConnectorsNonJdbc() {
         return innerNonJdbc;
+    }
+
+    @Override
+    public void initialize(final ResolvedEnvironment environment, final Configuration configuration) {
+        innerJdbc.initialize(environment, configuration);
+        innerNonJdbc.initialize(environment, configuration);
+    }
+
+    @Override
+    public void close() {
+        innerJdbc.close();
+        innerNonJdbc.close();
     }
 }

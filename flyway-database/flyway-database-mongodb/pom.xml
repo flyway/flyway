@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>11.18.0</version>
+    <version>11.19.0</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
 
@@ -26,7 +26,7 @@
     <dependency>
       <groupId>com.github.kornilova203</groupId>
       <artifactId>mongo-jdbc-driver</artifactId>
-      <version>1.19</version>
+      <version>1.21</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>

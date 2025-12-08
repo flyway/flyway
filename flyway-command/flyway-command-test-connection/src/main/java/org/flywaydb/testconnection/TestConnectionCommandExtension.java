@@ -22,20 +22,34 @@ package org.flywaydb.testconnection;
 import static org.flywaydb.core.internal.util.TelemetryUtils.getTelemetryManager;
 
 import java.util.List;
+import java.util.Map;
 import lombok.CustomLog;
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.TelemetrySpan;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.extensibility.TestConnectionRunner;
+import org.flywaydb.core.internal.configuration.models.EnvironmentModel;
 import org.flywaydb.core.internal.util.Pair;
 
 @CustomLog
+@RequiredArgsConstructor
 public class TestConnectionCommandExtension implements CommandExtension {
     public static final String VERB = "testConnection";
+
+    private static final String TEST_CONNECTION_INLINE_ENVIRONMENT = "default";
+
+    private final StandardInEnvironmentModelProvider modelProvider;
+
+    @SuppressWarnings("unused")
+    public TestConnectionCommandExtension() {
+        this.modelProvider = new StandardInEnvironmentModelProvider(System.in);
+    }
 
     @Override
     public boolean handlesCommand(final String command) {
@@ -73,14 +87,30 @@ public class TestConnectionCommandExtension implements CommandExtension {
 
         final FlywayTelemetryManager flywayTelemetryManager = getTelemetryManager(config);
 
-        return TelemetrySpan.trackSpan(new EventTelemetryModel(VERB, flywayTelemetryManager), telemetryModel -> {
-            final List<TestConnectionRunner> testConnectionRunners = config.getPluginRegister()
-                .getLicensedInstancesOf(TestConnectionRunner.class, config);
-            final List<String> results = testConnectionRunners.stream()
-                .map(testConnectionRunner -> testConnectionRunner.testConnection(config))
-                .filter(x -> !x.isEmpty())
-                .toList();
-            return new TestConnectionResult(results);
-        });
+        return TelemetrySpan.trackSpan(new EventTelemetryModel(VERB, flywayTelemetryManager),
+            telemetryModel -> testConnection(config));
+    }
+
+    private TestConnectionResult testConnection(final Configuration config) {
+        final Configuration configWithRelevantEnvironments = getConfigWithRelevantEnvironments(config);
+
+        final List<TestConnectionRunner> testConnectionRunners = configWithRelevantEnvironments.getPluginRegister()
+            .getLicensedInstancesOf(TestConnectionRunner.class, configWithRelevantEnvironments);
+        final List<String> results = testConnectionRunners.stream()
+            .map(testConnectionRunner -> testConnectionRunner.testConnection(configWithRelevantEnvironments))
+            .filter(x -> !x.isEmpty())
+            .toList();
+        return new TestConnectionResult(results);
+    }
+
+    private Configuration getConfigWithRelevantEnvironments(final Configuration config) {
+        if ("-".equals(config.getCurrentEnvironmentName())) {
+            final EnvironmentModel environment = modelProvider.getModel();
+            return new FluentConfiguration().configuration(config)
+                .environment(TEST_CONNECTION_INLINE_ENVIRONMENT)
+                .allEnvironments(Map.of(TEST_CONNECTION_INLINE_ENVIRONMENT, environment));
+        }
+
+        return config;
     }
 }

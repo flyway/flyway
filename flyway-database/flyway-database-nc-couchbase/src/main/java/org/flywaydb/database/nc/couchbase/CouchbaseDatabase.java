@@ -111,6 +111,7 @@ public class CouchbaseDatabase extends NativeConnectorsNonJdbc {
 
         cluster = Cluster.connect(environment.getUrl(),
             ClusterOptions.clusterOptions(environment.getUser(), environment.getPassword()).environment(env));
+        isClosed = false;
 
         initializeBucketAndScope(getDefaultSchema(configuration));
     }
@@ -443,14 +444,10 @@ public class CouchbaseDatabase extends NativeConnectorsNonJdbc {
     }
 
     @Override
-    public boolean isClosed() {
-        return false;
-    }
-
-    @Override
-    public void close() throws Exception {
+    public void close() {
         if (cluster != null) {
             cluster.close();
+            super.close();
         }
     }
 
