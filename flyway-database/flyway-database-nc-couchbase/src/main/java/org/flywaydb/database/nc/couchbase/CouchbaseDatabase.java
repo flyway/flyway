@@ -314,6 +314,9 @@ public class CouchbaseDatabase extends NativeConnectorsNonJdbc {
                 if (!DEFAULT_SCOPE.equals(scope)) {
                     String fullScope = String.format("`%s`.`%s`", bucket, scope);
                     cluster.query("CREATE SCOPE " + fullScope, QueryOptions.queryOptions().scanConsistency(REQUEST_PLUS));
+
+                    // Allow time for scope to become visible
+                    Thread.sleep(300);
                 }
 
             } catch (Exception e) {

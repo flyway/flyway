@@ -110,6 +110,24 @@
       <filtered>true</filtered>
     </fileSet>
     <fileSet>
+      <directory>../.github/scripts/licenses/src/licenses/license-texts</directory>
+      <outputDirectory>licenses/license-texts</outputDirectory>
+      <includes>
+        <include>*.txt</include>
+      </includes>
+      <fileMode>644</fileMode>
+      <filtered>true</filtered>
+    </fileSet>
+    <fileSet>
+      <directory>../.github/scripts/licenses/src/licenses/license-texts/cached</directory>
+      <outputDirectory>licenses/license-texts</outputDirectory>
+      <includes>
+        <include>*.txt</include>
+      </includes>
+      <fileMode>644</fileMode>
+      <filtered>true</filtered>
+    </fileSet>
+    <fileSet>
 
       <directory>src/main/assembly</directory>
 

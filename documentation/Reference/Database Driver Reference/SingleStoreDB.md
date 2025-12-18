@@ -2,7 +2,7 @@
 subtitle: SingleStoreDB
 ---
 
-- **Verified Versions:** 7.1, 7.8
+- **Verified Versions:** 8.9
 - **Maintainer:** {% include redgate-badge.html %}
 
 ## Supported Versions and Support Levels
@@ -17,7 +17,7 @@ subtitle: SingleStoreDB
 | **SSL support**                    | Yes - add `?useSsl=true`                                                |
 | **Ships with Flyway Command-line** | Yes                                                                     |
 | **Maven Central coordinates**      | `com.singlestore:singlestore-jdbc-client`                               |
-| **Supported versions**             | `1.1.4` and later                                                       |
+| **Supported versions**             | `1.2.8` and later                                                       |
 | **Default Java class**             | `com.singlestore.jdbc.Driver`                                           |
 
 Flyway's SinglestoreDB implementation reuses significant parts of the [MySQL Database](<Database Driver Reference/MySQL>) parser so it is worth reviewing that as part of your configuration setup.

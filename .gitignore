@@ -46,3 +46,5 @@ flyway-comparison/flyway-comparison-engines/**/resources/obj/
 flyway-comparison/flyway-comparison-engines/flyway-comparison/
 
 out/**
+
+**/*.egg-info/

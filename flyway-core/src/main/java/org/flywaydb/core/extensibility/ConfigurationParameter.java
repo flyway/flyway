@@ -21,12 +21,15 @@ package org.flywaydb.core.extensibility;
 
 import java.util.Collections;
 import java.util.List;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @RequiredArgsConstructor
 public class ConfigurationParameter {
+    @EqualsAndHashCode.Include
     public final String name;
     public final String description;
     public final boolean required;
@@ -34,7 +37,7 @@ public class ConfigurationParameter {
     // Certain configuration parameters apply only to specific sub-commands of a command operation
     public final List<String> parentSubCommands;
 
-    public ConfigurationParameter(String name, String description, boolean required) {
+    public ConfigurationParameter(final String name, final String description, final boolean required) {
         this(name, description, required, Collections.emptyList());
     }
 }

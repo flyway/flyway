@@ -178,7 +178,7 @@ public class ScriptMigrationExecutor implements MigrationExecutor {
 
         for (String key : placeHolders.keySet()) {
             String value = placeHolders.get(key);
-            builder.environment().put(prefix + key.replace(':', '_') + suffix, value);
+            setIfNotNull(builder, prefix + key.replace(':', '_') + suffix, value);
         }
 
         builder.redirectErrorStream(true);

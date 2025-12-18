@@ -6,11 +6,11 @@
   <parent>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>11.19.0</version>
+    <version>11.19.1</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
 
-  <artifactId>flyway-verb-migrate</artifactId>
+  <artifactId>flyway-verb-validate</artifactId>
   <name>${project.artifactId}</name>
 
   <properties>
@@ -28,24 +28,6 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>flyway-nc-core</artifactId>
-      <version>${project.parent.version}</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>flyway-verb-validate</artifactId>
-      <version>${project.parent.version}</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>flyway-verb-baseline</artifactId>
-      <version>${project.parent.version}</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>flyway-verb-schemas</artifactId>
       <version>${project.parent.version}</version>
       <scope>compile</scope>
     </dependency>

@@ -20,7 +20,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.flywaydb</groupId>
   <artifactId>flyway-parent</artifactId>
-  <version>11.19.0</version>
+  <version>11.19.1</version>
   <packaging>pom</packaging>
   <name>${project.artifactId}</name>
   <description>Flyway: Database Migrations Made Easy.</description>
@@ -64,7 +64,6 @@
     <module>flyway-plugins</module>
     <module>flyway-commandline</module>
     <module>flyway-database</module>
-    <module>flyway-experimental</module>
     <module>flyway-locations</module>
     <module>flyway-reports</module>
     <module>flyway-nc</module>
@@ -157,9 +156,9 @@
     <version.jimfs>1.3.0</version.jimfs>
     <version.jna>5.13.0</version.jna>
     <version.jtds>1.3.1</version.jtds>
-    <version.junit>5.9.0</version.junit>
+    <version.junit>6.0.1</version.junit>
     <version.java-diff-utils>4.12</version.java-diff-utils>
-    <version.system-stubs>2.0.1</version.system-stubs>
+    <version.system-stubs>2.1.8</version.system-stubs>
     <version.log4net2>2.17.1</version.log4net2>
     <version.logback>1.2.3</version.logback>
     <version.lombok>1.18.38</version.lombok>
@@ -184,7 +183,7 @@
     <version.reactor-netty>1.2.8</version.reactor-netty>
     <version.redshift>2.1.0.32</version.redshift>
     <version.sap>2.6.30</version.sap>
-    <version.singlestore>1.1.4</version.singlestore>
+    <version.singlestore>1.2.8</version.singlestore>
     <version.slf4j>1.7.30</version.slf4j>
     <version.snowflake>3.27.0</version.snowflake>
     <version.spanner>2.22.1</version.spanner>
@@ -531,12 +530,6 @@
         <artifactId>mongodb-driver-sync</artifactId>
         <version>${version.mongodb}</version>
       </dependency>
-
-
-
-
-
-
 
 
 

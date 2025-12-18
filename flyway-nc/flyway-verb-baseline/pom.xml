@@ -6,11 +6,11 @@
   <parent>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>11.19.0</version>
+    <version>11.19.1</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
 
-  <artifactId>flyway-verb-info</artifactId>
+  <artifactId>flyway-verb-baseline</artifactId>
   <name>${project.artifactId}</name>
 
   <properties>
@@ -26,15 +26,21 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>flyway-nc-core</artifactId>
       <version>${project.parent.version}</version>
       <scope>compile</scope>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>flyway-verb-schemas</artifactId>
+      <version>${project.parent.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+    </dependency>
   </dependencies>
+
 </project>

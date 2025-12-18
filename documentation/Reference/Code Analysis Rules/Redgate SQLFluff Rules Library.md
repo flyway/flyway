@@ -174,3 +174,11 @@ TRUNCATE statements will remove all rows of data in the table
 This will cause data loss unless handled carefully. This rule will identify instances of this so you can verify that it is desired behavior in this case.
 ### Groups: `all`, `redgate`
 ### Dialects supported: `all`
+
+---
+{% include anchor.html link="RG15"%}
+# Rule: RG15 CREATE TABLE without PRIMARY KEY
+## Check for CREATE TABLE statements without a PRIMARY KEY constraint
+Creating a table without a primary key constraint can lead to performance issues.
+### Groups: `all`, `redgate`
+### Dialects supported: `all`

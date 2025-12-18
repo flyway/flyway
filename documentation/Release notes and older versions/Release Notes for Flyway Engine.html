@@ -8,6 +8,36 @@
 </div>
 <div class="col-md-9">
   <div class="release">
+        <h2 id="11.19.1">Flyway 11.19.1 (2025-12-18)</h2>
+
+        <h3>New features</h3>
+        <ul>
+            <li>It is now possible to switch off automatic dependency handling for Oracle when performing comparison operations. This is done by setting `includeDependencies = false` in the `[redgateCompare.oracle.options.behavior]` section of the config file.</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>LICENSES-THIRD-PARTY.txt format has changed. Will now refer to the shipped license file instead of duplicating the license text.</li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>Verified compatibility for SingleStore 8.9</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fixed an issue where Flyway treated skipped SQLFluff code analysis as a successful linting run</li>
+        </ul>
+
+        <h3>Library upgrades</h3>
+        <ul>
+            <li>Upgraded RgCompare.Cli from 1.45.1.2176 to 1.46.0.2246</li>
+        </ul>
+
+  </div>
+
+  <div class="release">
         <h2 id="11.19.0">Flyway 11.19.0 (2025-12-08)</h2>
 
         <h3>Bug fixes</h3>

@@ -6,11 +6,11 @@
   <parent>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>11.19.0</version>
+    <version>11.19.1</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
 
-  <artifactId>flyway-verb-testConnection</artifactId>
+  <artifactId>flyway-verb-info</artifactId>
   <name>${project.artifactId}</name>
 
   <properties>
@@ -36,12 +36,5 @@
       <version>${project.parent.version}</version>
       <scope>compile</scope>
     </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>flyway-command-test-connection</artifactId>
-      <version>${project.parent.version}</version>
-      <scope>compile</scope>
-    </dependency>
   </dependencies>
-
 </project>
