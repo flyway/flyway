@@ -11,7 +11,9 @@ The version, description and location of the migration script can be specified o
 Baseline, versioned and undo script types can be generated.
 
 Note:
-- Specifying `-generate.types=baseline,versioned` or `-generate.types=baseline,undo` is disallowed and will result in an error.
+
+- Specifying `-generate.types=baseline,versioned` or `-generate.types=baseline,undo` is disallowed and will result in an
+  error.
 - `generate.target` must match one of the sources provided as either `diff.source` or `diff.target`.
 - A valid artifact must exist for the generate command to successfully generate migration scripts.
 
@@ -19,18 +21,24 @@ See [Migrations](https://documentation.red-gate.com/display/FD/Migrations) for m
 
 ## Usage examples
 
-In all examples below the `diff` command must first be run to find changes to generate scripts from. The result of a `diff` operation is stored in the diff artifact. The `diff` command can be combined with `generate` into a single flyway call with verb chaining.
+In all examples below the `diff` command must first be run to find changes to generate scripts from. The result of a
+`diff` operation is stored in the diff artifact. The `diff` command can be combined with `generate` into a single flyway
+call with verb chaining.
 
-For example, the following command performs a `diff` and `generate` between the schema model directory and state represented by the current project migrations. A shadow database is used as a temporary build environment for the project migrations:
+For example, the following command performs a `diff` and `generate` between the schema model directory and state
+represented by the current project migrations. A shadow database is used as a temporary build environment for the
+project migrations:
 <pre class="console">&gt; flyway diff generate -diff.source=schemaModel -diff.target=migrations -diff.buildEnvironment=shadow</pre>
 
 ### Generating a versioned migration script with auto-generated filename
 
 If the migrations directory has the following contents before running the generate command:
+
 ```
 B001__baseline.sql
 V002.sql
 ```
+
 Then running the `generate` command will create a new versioned `V003.sql` migration script:
 <pre class="console">&gt; flyway generate -outputType=json
 
@@ -47,6 +55,7 @@ Flyway {{ site.flywayVersion }} by Redgate
 </pre>
 
 Leaving the migrations directory with the following contents:
+
 ```
 B001__baseline.sql
 V002.sql
@@ -56,11 +65,14 @@ V003.sql
 ### Generating versioned and undo migration scripts with a specified version and description
 
 If the migrations directory has the following contents before running the generate command:
+
 ```
 B001__baseline.sql
 V002.sql
 ```
-Then running the following `generate` command will generate versioned and undo scripts with the specified version and description:
+
+Then running the following `generate` command will generate versioned and undo scripts with the specified version and
+description:
 <pre class="console">&gt; flyway generate -types=versioned,undo -version=003 -description=New-feature
 
 Flyway {{ site.flywayVersion }} by Redgate
@@ -74,6 +86,7 @@ Generated: C:\Users\FlywayUser\Project\migrations\U003__New-feature.sql
 </pre>
 
 Leaving the migrations directory with the following contents:
+
 ```
 B001__baseline.sql
 V002.sql
@@ -95,6 +108,7 @@ Generated: C:\Users\FlywayUser\Project\migrations\B000__initial_state.sql
 </pre>
 
 Leaving the migrations directory with the following contents:
+
 ```
 B000__initial_state.sql
 ```
@@ -102,11 +116,14 @@ B000__initial_state.sql
 ### Generating an undo migration script for an existing versioned migration
 
 If the migrations directory has the following contents before running the generate command:
+
 ```
 B001__baseline.sql
 V002_20240828161524__New_Feature.sql
 ```
-Then running the following `generate` command will generate a corresponding undo script for the `V002` migration, but only containing the changes for the comma separated change Ids specified in the `changes.txt` file:
+
+Then running the following `generate` command will generate a corresponding undo script for the `V002` migration, but
+only containing the changes for the comma separated change Ids specified in the `changes.txt` file:
 <pre class="console">&gt; flyway generate -types=undo -changes='-' -outputType=json < changes.txt
 
 Flyway {{ site.flywayVersion }} by Redgate
@@ -126,6 +143,7 @@ Flyway {{ site.flywayVersion }} by Redgate
 </pre>
 
 Leaving the migrations directory with the following contents:
+
 ```
 B001__baseline.sql
 U002_20240828161524__New_Feature.sql
@@ -150,7 +168,7 @@ V002_20240828161524__New_Feature.sql
 | [`versionedFilename`](<Configuration/Flyway Namespace/Flyway Generate Namespace/Flyway Generate Versioned Filename Setting>) | generate  | The filename (or full path) to use for the generated versioned migration.                                                                    |
 | [`undoFilename`](<Configuration/Flyway Namespace/Flyway Generate Namespace/Flyway Generate Undo Filename Setting>)           | generate  | The filename (or full path) to use for the generated undo migration.                                                                         |
 | [`force`](<Configuration/Flyway Namespace/Flyway Generate Namespace/Flyway Generate Force Setting>)                          | generate  | If the migration script already exists, overwrite it.                                                                                        |
-| [`usePlaceholders`](<Configuration/Flyway Namespace/Flyway Generate Namespace/Flyway Generate Use Placeholders Setting>)     | generate | Whether to use placeholders in the generated migration script. If set to `true`, Flyway will attempt to insert placeholders into the script. |
+| [`usePlaceholders`](<Configuration/Flyway Namespace/Flyway Generate Namespace/Flyway Generate Use Placeholders Setting>)     | generate  | Whether to use placeholders in the generated migration script. If set to `true`, Flyway will attempt to insert placeholders into the script. |
 | [`workingDirectory`](<Command-line Parameters/Working Directory Parameter>)                                                  | (root)    | The directory to consider the current working directory. All relative paths will be considered relative to this.                             |
 
 Universal commandline parameters are listed [here](<Command-line Parameters>).
@@ -164,8 +182,23 @@ Universal commandline parameters are listed [here](<Command-line Parameters>).
       "type": "versioned",
       "location": "C:\\flywayProejct\\migrations\\V001__AddTable.sql",
       "scriptConfigPath": "C:\\flywayProejct\\migrations\\V001__AddTable.sql.conf",
-        "includedDependencies": [
-        "dbo.someDependency"
+      "differences": [
+        {
+          "id": "1",
+          "from": { "fullyQualifiedName": "[dbo].[Table1]", "schema": "dbo", "name": "Table1" },
+          "to": null,
+          "differenceType": "Add",
+          "objectType": "Table",
+          "selectionType": "Selected"
+        },
+        {
+          "id": "2",
+          "from": { "fullyQualifiedName": "[dbo].[View1]", "schema": "dbo", "name": "View1" },
+          "to": null,
+          "differenceType": "Add",
+          "objectType": "View",
+          "selectionType": "Dependency"
+        }
       ],
       "warnings": [
         {
@@ -180,5 +213,6 @@ Universal commandline parameters are listed [here](<Command-line Parameters>).
 ## Error codes
 
 This command can produce the following error codes:
+
 - [Generic error codes](<Exit codes and error codes/General error codes>)
 - [Comparison error codes](<Exit codes and error codes/Comparison error codes>)

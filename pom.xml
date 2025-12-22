@@ -20,7 +20,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.flywaydb</groupId>
   <artifactId>flyway-parent</artifactId>
-  <version>11.19.1</version>
+  <version>11.20.0</version>
   <packaging>pom</packaging>
   <name>${project.artifactId}</name>
   <description>Flyway: Database Migrations Made Easy.</description>
@@ -163,7 +163,7 @@
     <version.logback>1.2.3</version.logback>
     <version.lombok>1.18.38</version.lombok>
     <version.lombok-maven-plugin>1.18.20.0</version.lombok-maven-plugin>
-    <version.mariadb>2.7.11</version.mariadb>
+    <version.mariadb>2.7.13</version.mariadb>
     <version.maven>3.9.6</version.maven>
     <version.mockito>5.18.0</version.mockito>
     <version.mockserver>5.15.0</version.mockserver>

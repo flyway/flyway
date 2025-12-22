@@ -143,8 +143,23 @@ Universal commandline parameters are listed [here](<Command-line Parameters>).
 {
   "scriptWasGenerated": true,
   "scriptFilename": "C:\\workingDirectory\\D__deployment.sql",
-  "includedDependencies": [
-    "dbo.someDependency"
+  "differences": [
+    {
+      "id": "1",
+      "from": { "fullyQualifiedName": "[dbo].[Table1]", "schema": "dbo", "name": "Table1" },
+      "to": null,
+      "differenceType": "Add",
+      "objectType": "Table",
+      "selectionType": "Selected"
+    },
+    {
+      "id": "2",
+      "from": { "fullyQualifiedName": "[dbo].[View1]", "schema": "dbo", "name": "View1" },
+      "to": null,
+      "differenceType": "Add",
+      "objectType": "View",
+      "selectionType": "Dependency"
+    }
   ],
   "warnings": [
     {
