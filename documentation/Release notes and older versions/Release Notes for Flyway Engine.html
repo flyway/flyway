@@ -8,6 +8,27 @@
 </div>
 <div class="col-md-9">
   <div class="release">
+        <h2 id="11.20.1">Flyway 11.20.1 (2026-01-08)</h2>
+
+        <h3>New features</h3>
+        <ul>
+            <li>generated drift incorporate script will now contain object existence checks for SQL Server</li>
+        </ul>
+
+        <h3>Performance improvements</h3>
+        <ul>
+            <li>When `check` is called with both `-drift` and `-changes` flags, `-drift` is now always run first as there will be a performance improvement when using a build environment</li>
+        </ul>
+
+        <h3>Library upgrades</h3>
+        <ul>
+            <li>Upgraded RgCompare.Cli from 1.47.0.2331 to 1.47.1.2438</li>
+            <li>Upgrade Netty from 4.2.7 to 4.2.9</li>
+        </ul>
+
+  </div>
+
+  <div class="release">
         <h2 id="11.20.0">Flyway 11.20.0 (2025-12-22)</h2>
 
         <h3>Changes</h3>

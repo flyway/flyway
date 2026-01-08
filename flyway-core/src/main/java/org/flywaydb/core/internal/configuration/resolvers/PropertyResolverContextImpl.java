@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ package org.flywaydb.core.internal.configuration.resolvers;
 
 import static org.flywaydb.core.internal.configuration.resolvers.ProvisionerConfiguration.createConfigurationWithEnvironment;
 
+import java.util.Collection;
 import java.util.Optional;
 import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.ProgressLogger;
@@ -30,7 +31,6 @@ import org.flywaydb.core.api.configuration.Configuration;
 
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
@@ -49,7 +49,10 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
     private static final Pattern RESOLVER_REGEX_PATTERN = Pattern.compile("\\${1,2}\\{[^.]+\\.[^.]+?\\}");
     private static final Pattern VERBATIM_REGEX_PATTERN = Pattern.compile("\\!\\{.*\\}");
 
-    public PropertyResolverContextImpl(String environmentName, Configuration configuration, Map<String, PropertyResolver> resolvers, Map<String, ConfigurationExtension> resolverConfigurations) {
+    public PropertyResolverContextImpl(final String environmentName,
+        final Configuration configuration,
+        final Map<String, PropertyResolver> resolvers,
+        final Map<String, ConfigurationExtension> resolverConfigurations) {
         this.environmentName = environmentName;
         this.configuration = createConfigurationCopy(configuration, environmentName);
         this.resolvers = resolvers;
@@ -82,7 +85,7 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
 
     @Override
     public String getWorkingDirectory() {
-        var workingDirectory = configuration.getWorkingDirectory();
+        final var workingDirectory = configuration.getWorkingDirectory();
         if(workingDirectory == null) {
             return System.getProperty("user.dir");
         } else {
@@ -96,7 +99,7 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
     }
 
     @Override
-    public String resolveValue(String value, ProgressLogger progress) {
+    public String resolveValue(final String value, final ProgressLogger progress) {
         if (value == null) {
             return null;
         }
@@ -119,28 +122,18 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
     }
 
     @Override
-    public List<String> resolveValues(final List<String> input, final ProgressLogger progress) {
+    public Collection<String> resolveValues(final Collection<String> input, final ProgressLogger progress) {
         if (input == null) {
             return null;
         }
         return input.stream().map(v -> resolveValue(v, progress)).toList();
     }
 
-    @Override
-    public List<String> resolveValuesOrThrow(final List<String> input, final ProgressLogger progress,
-        final String propertyName) {
-        final var result = resolveValues(input, progress);
-        if (result == null) {
-            throw new FlywayException("Configuration value " + propertyName + " not specified for environment " + environmentName, CoreErrorCode.CONFIGURATION);
-        }
-        return result;
-    }
-
-    private boolean isVerbatim(String value) {
+    private boolean isVerbatim(final String value) {
         return VERBATIM_REGEX_PATTERN.matcher(value.strip()).matches();
     }
 
-    private String getPropertyResolverReplacement(MatchResult resolverMatchResult, ProgressLogger progress) {
+    private String getPropertyResolverReplacement(final MatchResult resolverMatchResult, final ProgressLogger progress) {
         // '\' are ignored by Matcher and '$' will break it so both need escaping with '\'.
         // See https://docs.oracle.com/javase/8/docs/api/java/util/regex/Matcher.html#replaceAll-java.lang.String-
         return parsePropertyResolver(resolverMatchResult, progress)
@@ -149,21 +142,21 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
     }
 
     private String parsePropertyResolver(final MatchResult resolverMatchResult, final ProgressLogger progress) {
-        String resolverMatch = resolverMatchResult.group();
+        final String resolverMatch = resolverMatchResult.group();
 
         if (resolverMatch.startsWith("$$")) {
             return resolverMatch.substring(1);
         }
 
-        String resolverName = resolverMatch.substring(2, resolverMatch.indexOf(".")).strip();
+        final String resolverName = resolverMatch.substring(2, resolverMatch.indexOf(".")).strip();
         if (!resolvers.containsKey(resolverName)) {
             throw new FlywayException("Unknown resolver '" + resolverName + "' for environment " + environmentName, CoreErrorCode.CONFIGURATION);
         }
 
-        String resolverParam;
+        final String resolverParam;
         if (resolverMatch.contains(":")) {
             resolverParam = resolverMatch.substring(resolverMatch.indexOf(".") + 1, resolverMatch.indexOf(":")).strip();
-            String filter = resolverMatch.substring(resolverMatch.indexOf(":") + 1, resolverMatch.length() - 1).strip();
+            final String filter = resolverMatch.substring(resolverMatch.indexOf(":") + 1, resolverMatch.length() - 1).strip();
             return filter(resolvers.get(resolverName).resolve(resolverParam, this, progress), filter);
         }
 
@@ -171,13 +164,13 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
         return resolvers.get(resolverName).resolve(resolverParam, this, progress);
     }
 
-    static String filter(String str, String filter) {
+    static String filter(final String str, final String filter) {
         return str.chars().filter(c -> isAllowed((char) c, filter))
                   .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
                   .toString();
     }
 
-    private static boolean isAllowed(char c, String filter) {
+    private static boolean isAllowed(final char c, final String filter) {
         return (filter.contains("D") && Character.isDigit(c)) ||
                 (filter.contains("A") && Character.isLetter(c)) ||
                 (filter.contains("a") && Character.isLetter(c) && ASCII_ENCODER.canEncode(c)) ||

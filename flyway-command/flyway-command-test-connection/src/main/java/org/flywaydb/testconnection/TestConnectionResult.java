@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-command-test-connection
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,13 @@
  */
 package org.flywaydb.testconnection;
 
+import java.util.Collection;
 import java.util.List;
 import org.flywaydb.core.api.output.OperationResult;
 
 @SuppressWarnings("WeakerAccess")
-public record TestConnectionResult(List<String> successfulConnections) implements OperationResult {}
+public record TestConnectionResult(Collection<String> successfulConnections) implements OperationResult {
+    public TestConnectionResult(final Collection<String> successfulConnections) {
+        this.successfulConnections = List.copyOf(successfulConnections);
+    }
+}
