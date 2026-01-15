@@ -24,6 +24,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.MigrationInfo;
+import org.flywaydb.core.api.exception.FlywayValidateException;
 
 /**
  * Maven goal that triggers the migration of the configured database to the latest version.
@@ -36,9 +37,19 @@ import org.flywaydb.core.api.MigrationInfo;
 public class MigrateMojo extends AbstractFlywayMojo {
     @Override
     protected void doExecute(Flyway flyway) {
-        flyway.migrate();
+        try {
+            flyway.migrate();
+        } catch (final FlywayValidateException e) {
+            if (cleanOnValidationErrorEnabled) {
+                getLog().info("Validation failed. Cleaning database because cleanOnValidationError is enabled.");
+                flyway.clean();
+                flyway.migrate();
+            } else {
+                throw e;
+            }
+        }
 
-        MigrationInfo current = flyway.info().current();
+        final MigrationInfo current = flyway.info().current();
         if (current != null && current.getVersion() != null) {
             mavenProject.getProperties().setProperty("flyway.current", current.getVersion().toString());
         }

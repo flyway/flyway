@@ -382,15 +382,19 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public Boolean validateOnMigrate;
 
     /**
-     * Deprecated, will be removed in a future release. <br> Whether to automatically call clean or not when a
+     * Whether to automatically call clean or not when a
      * validation error occurs. (default: {@code false}) This is exclusively intended as a convenience for development.
      * even though we strongly recommend not to change migration scripts once they have been checked into SCM and run,
      * this provides a way of dealing with this case in a smooth manner. The database will be wiped clean automatically,
      * ensuring that the next migration will bring you back to the state checked into SCM.
      * <b>Warning! Do not enable in production!</b>
-     * <p>Also configurable with Gradle or System Property: ${flyway.cleanOnValidationError}</p>
+     * <p>
+     * This feature has been moved from the Flyway core into the Gradle plugin.<br>
+     * Also configurable with Gradle or System Property: ${flyway.cleanOnValidationError}
+     * </p>
      */
     public Boolean cleanOnValidationError;
+    protected boolean cleanOnValidationErrorEnabled;
 
     /**
      * Ignore migrations that match this comma-separated list of patterns when validating migrations. Each pattern is of
@@ -607,6 +611,8 @@ public abstract class AbstractFlywayTask extends DefaultTask {
                 getProject().getBuildscript().getClassLoader());
 
             final Map<String, String> config = createFlywayConfig(envVars);
+            cleanOnValidationErrorEnabled = Boolean.TRUE.equals(
+                ConfigUtils.removeBoolean(config, ConfigUtils.CLEAN_ON_VALIDATION_ERROR));
             ConfigUtils.dumpConfigurationMap(config, "Using configuration:");
 
             final Flyway flyway = Flyway.configure(classLoader).configuration(config).load();
