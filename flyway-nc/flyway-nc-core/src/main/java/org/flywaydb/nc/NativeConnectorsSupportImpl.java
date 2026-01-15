@@ -25,6 +25,7 @@ import static org.flywaydb.nc.utils.NativeConnectorsUtils.resolveExperimentalDat
 
 import java.util.Optional;
 import lombok.CustomLog;
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
 import org.flywaydb.core.internal.nc.NativeConnectorsSupport;
@@ -38,15 +39,6 @@ public class NativeConnectorsSupportImpl implements NativeConnectorsSupport {
             return false;
         }
 
-        if (useLegacyAsDryRunSet(configuration)) {
-
-            if (isNativeConnectorsTurnedOn()) {
-                LOG.warn("Dry run is not supported in Native Connectors mode, falling back to legacy databases");
-            }
-
-            return false;
-        }
-
         if (configuration.getUrl() == null) {
             return false;
         }
@@ -55,17 +47,24 @@ public class NativeConnectorsSupportImpl implements NativeConnectorsSupport {
 
         final Optional<NativeConnectorsDatabase> database = resolveExperimentalDatabasePlugin(configuration);
 
-        return database.map(experimentalDatabase -> experimentalDatabase.supportedVerbs().contains(verb) &&
+        final boolean canUseNativeConnectors =  database.map(experimentalDatabase -> experimentalDatabase.supportedVerbs().contains(verb) &&
                 (experimentalDatabase.isOnByDefault(configuration) || isNativeConnectorsTurnedOn()))
             .orElse(false);
+
+        if (canUseNativeConnectors && useLegacyAsDryRunSet(configuration)) {
+            if (database.get() instanceof NativeConnectorsNonJdbc) {
+                throw new FlywayException("Dry run is not supported for " + database.get().getDatabaseType());
+            }
+
+            LOG.warn("Dry run is not supported in Native Connectors mode, falling back to legacy databases");
+            return false;
+        }
+
+        return canUseNativeConnectors;
     }
 
     @Override
     public boolean canCreateDataSource(final Configuration configuration) {
-        if (useLegacyAsDryRunSet(configuration)) {
-            return true;
-        }
-
         if (!isNativeConnectorsTurnedOff()) {
             if (configuration.getUrl() == null) {
                 return true;

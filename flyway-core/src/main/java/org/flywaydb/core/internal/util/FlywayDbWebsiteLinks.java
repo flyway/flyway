@@ -110,6 +110,7 @@ public class FlywayDbWebsiteLinks {
         RG14("rules/RG14"),
         RG15("rules/RG15"),
         RG16("rules/RG16"),
+        RG17("rules/RG17"),
         RX001("rules/RX001"),
         RX002("rules/RX002"),
         RX003("rules/RX003"),

@@ -184,9 +184,17 @@ Creating a table without a primary key constraint can lead to performance issues
 ### Dialects supported: `all`
 
 ---
-{% include anchor.html link="RG16%}
+{% include anchor.html link="RG16"%}
 # Rule: RG16 Drop PARTITION
 ## Check for DROP PARTITION statements
 This will cause data loss unless handled carefully. This rule will identify instances of this so you can verify that it is desired behavior in this case.
 ### Groups: `all`, `redgate`
 ### Dialects supported: `MySQL`
+
+---
+{% include anchor.html link="RG17"%}
+# Rule: RG17 CREATE TABLE without MS DESCRIPTION
+## Check for CREATE TABLE without an MS DESCRIPTION added
+It is a good practice to include a description in the `MS_Description` extended property to document the purpose of a table.
+### Groups: `all`, `redgate`
+### Dialects supported: `TSQL`

@@ -19,7 +19,9 @@ The `check` command encapsulates the following operations:
  * Have a record of what the check results were for audit or reporting purposes
  * Understand and be able to communicate status and plans in a more easily shareable manner
 
-The reports from the separate operations will all be added to the same report and consecutive runs of Flyway using the same report file will concatenate the results by timestamp. 
+The reports from the separate operations will all be added to the same report and consecutive runs of Flyway using the same report file will concatenate the results by timestamp.
+
+When check is called with both -drift and -changes flags, -drift will be run before -changes for build efficiency.
 
 ## Usage examples
 

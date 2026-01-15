@@ -32,8 +32,6 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Updates;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -45,7 +43,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.function.BiFunction;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.bson.BsonDocument;
 import org.bson.Document;
@@ -65,10 +62,9 @@ import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.util.AsciiTable;
-import org.flywaydb.core.internal.util.DockerUtils;
-import org.flywaydb.core.internal.util.FileUtils;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.nc.NativeConnectorsProcessRunner;
 import org.flywaydb.nc.NativeConnectorsNonJdbc;
 import org.flywaydb.nc.executors.NonJdbcExecutorExecutionUnit;
 import org.flywaydb.nc.utils.TemporaryFileUtils;
@@ -442,62 +438,17 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
 
         commands.addAll(List.of("--file", TemporaryFileUtils.createTempFile(executionUnit, ".js")));
 
-        final var processBuilder = new ProcessBuilder(commands);
-        /* Required to stop system-stubs throwing Exception */
-        processBuilder.environment();
-
-        try {
-            LOG.debug("Executing mongosh");
-            final Process process = processBuilder.start();
-            final boolean exited = process.waitFor(5, TimeUnit.MINUTES);
-            if (!exited) {
-                throw new FlywayException("Mongosh execution timeout. Consider using smaller migrations");
-            }
-            if (outputQueryResults) {
-                final String stdOut = FileUtils.copyToString(new InputStreamReader(process.getInputStream(),
-                    StandardCharsets.UTF_8)).strip();
-                LOG.info(stdOut);
-            }
-
-            final int exitCode = process.exitValue();
-            if (exitCode != 0) {
-                final String stdErr = FileUtils.copyToString(new InputStreamReader(process.getErrorStream(),
-                    StandardCharsets.UTF_8)).strip();
-                throw new FlywayException(stdErr + " (ExitCode: " + exitCode + ")");
-            }
-        } catch (Exception e) {
-            if (e.getMessage().contains("The filename or extension is too long")) {
-                throw new FlywayException("Mongosh execution failed. Consider using smaller migrations");
-            }
-            throw new FlywayException(e);
-        }
+        final NativeConnectorsProcessRunner processRunner = new NativeConnectorsProcessRunner(commands, "Mongosh");
+        processRunner.executeMigrations(outputQueryResults, false);
     }
 
     private boolean checkMongoshInstalled(final boolean silent) {
-        List<String> commands = Arrays.asList("mongosh", "--version");
-        LOG.debug("Executing " + String.join(" ", commands));
-        final ProcessBuilder processBuilder = new ProcessBuilder(commands);
-        processBuilder.environment();
-        try {
-            processBuilder.start();
-        } catch (final Exception e) {
-            if (DockerUtils.isContainer()) {
-                if (silent) {
-                    return false;
-                }
-                throw new FlywayException(
-                    "Mongosh is not installed on this docker image. Please use the Mongo docker image on our repository: "
-                        + FlywayDbWebsiteLinks.OSS_DOCKER_REPOSITORY);
-            }
-            if (silent) {
-                return false;
-            }
-            throw new FlywayException(
-                "Mongosh is required for .js migrations and is not currently installed. Information on how to install Mongosh can be found here: "
-                    + FlywayDbWebsiteLinks.MONGOSH);
-        }
-
-        return true;
+        final List<String> commands = Arrays.asList("mongosh", "--version");
+        final NativeConnectorsProcessRunner processRunner = new NativeConnectorsProcessRunner(commands, "Mongosh");
+        final String errorMessage = "Mongosh is required for .js migrations and is not currently installed. "
+            + "Information on how to install Mongosh can be found here: "
+            + FlywayDbWebsiteLinks.MONGOSH;
+        return processRunner.checkToolInstalled(silent, errorMessage);
     }
 
     private void checkMongoshConnectivity() {
@@ -506,23 +457,8 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
         commands.add("--eval");
         commands.add("db.runCommand({ ping: 1 })");
 
-        final ProcessBuilder processBuilder = new ProcessBuilder(commands);
-        processBuilder.environment();
-
-        try {
-            final Process process = processBuilder.start();
-            final boolean exited = process.waitFor(1, TimeUnit.MINUTES);
-            if (!exited) {
-                throw new FlywayException("Mongosh connection timeout");
-            }
-
-            final int exitCode = process.exitValue();
-            if (exitCode != 0) {
-                throw new FlywayException("Mongosh failed to connect to the provided connection URL");
-            }
-        } catch (final Exception e) {
-            throw new FlywayException(e.getMessage());
-        }
+        final NativeConnectorsProcessRunner processRunner = new NativeConnectorsProcessRunner(commands, "Mongosh");
+        processRunner.checkToolConnectivity();
     }
 
     private void initializeConnectionType(final Configuration configuration, final boolean silent) {

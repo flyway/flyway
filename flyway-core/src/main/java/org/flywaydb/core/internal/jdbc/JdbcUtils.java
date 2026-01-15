@@ -30,6 +30,7 @@ import lombok.AccessLevel;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.exception.sqlExceptions.FlywaySqlUnableToConnectToDbException;
 import org.flywaydb.core.internal.strategy.BackoffStrategy;
@@ -38,6 +39,13 @@ import org.flywaydb.core.internal.util.ExceptionUtils;
 @CustomLog
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class JdbcUtils {
+
+    public static Connection getConnection(final Configuration configuration) {
+        final int connectRetries = configuration.getConnectRetries();
+        final int connectRetriesInterval = configuration.getConnectRetriesInterval();
+        return openConnection(configuration.getDataSource(), connectRetries, connectRetriesInterval);
+    }
+
     /**
      * Opens a new connection from this DataSource.
      *
