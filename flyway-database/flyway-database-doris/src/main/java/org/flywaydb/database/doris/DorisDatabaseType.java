@@ -119,4 +119,9 @@ public class DorisDatabaseType extends BaseDatabaseType {
     public String instantiateClassExtendedErrorMessage() {
         return "Failure probably due to inability to load dependencies. Please ensure you have downloaded 'https://dev.mysql.com/downloads/connector/j/' and extracted to 'flyway/drivers' folder";
     }
+
+    @Override
+    public int getPriority() {
+        return 100; // Prioritize Doris over MySQL to ensure it is matched first
+    }
 }
