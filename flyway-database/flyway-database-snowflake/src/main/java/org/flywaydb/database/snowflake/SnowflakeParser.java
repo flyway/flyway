@@ -109,16 +109,36 @@ public class SnowflakeParser extends Parser {
     private String readBetweenRecursive(PeekingReader reader, String prefix, String suffix, char delimiter) throws IOException {
         StringBuilder result = new StringBuilder();
         reader.swallow(prefix.length());
-        while (!reader.peek(suffix)) {
-            result.append(reader.readUntilExcluding(prefix, suffix));
+
+        while (true) {
             if (reader.peekIgnoreCase("END IF") || reader.peekIgnoreCase("END FOR") || reader.peekIgnoreCase("END CASE")) {
                 result.append(reader.readUntilIncluding(delimiter));
-                result.append(reader.readUntilExcluding(prefix, suffix));
+                continue;
             }
+
+            if (reader.peek(suffix)) {
+                String peekAhead = reader.peek(suffix.length() + 5);
+                if (peekAhead != null && peekAhead.length() > suffix.length()) {
+                    String afterEnd = peekAhead.substring(suffix.length()).trim().toUpperCase();
+                    if (afterEnd.startsWith("IF") || afterEnd.startsWith("FOR") || afterEnd.startsWith("CASE")) {
+                        result.append(reader.readUntilIncluding(delimiter));
+                        continue;
+                    }
+                }
+                break;
+            }
+
+            String content = reader.readUntilExcluding(prefix, suffix);
+            if (content.isEmpty()) {
+                break;
+            }
+            result.append(content);
+
             if (reader.peek(prefix)) {
                 result.append(prefix).append(readBetweenRecursive(reader, prefix, suffix, delimiter)).append(suffix);
             }
         }
+
         reader.swallow(suffix.length());
         return result.toString();
     }
