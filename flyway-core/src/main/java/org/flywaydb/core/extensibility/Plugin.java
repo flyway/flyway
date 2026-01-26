@@ -24,21 +24,22 @@ import org.flywaydb.core.api.configuration.Configuration;
 
 public interface Plugin extends Comparable<Plugin> {
     @JsonIgnore
-    default boolean isLicensed(Configuration configuration) {
+    default boolean isLicensed(final Configuration configuration) {
         return true;
     }
+
     @JsonIgnore
     default boolean isEnabled() {
         return true;
     }
 
     @JsonIgnore
-    default String getName(){
+    default String getName() {
         return this.getClass().getSimpleName();
     }
 
     @JsonIgnore
-    default String getPluginVersion(Configuration config) {
+    default String getPluginVersion(final Configuration config) {
         return null;
     }
 
@@ -50,8 +51,8 @@ public interface Plugin extends Comparable<Plugin> {
         return 0;
     }
 
-    default int compareTo(Plugin o) {
-        return o.getPriority() - getPriority();
+    default int compareTo(final Plugin o) {
+        return Integer.compare(o.getPriority(), getPriority());
     }
 
     default Plugin copy() {

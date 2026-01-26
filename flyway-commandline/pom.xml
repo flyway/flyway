@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>11.20.2</version>
+    <version>11.20.3</version>
   </parent>
   <artifactId>flyway-commandline</artifactId>
   <packaging>jar</packaging>
@@ -724,44 +724,8 @@
               <outputDirectory>${project.build.outputDirectory}/META-INF</outputDirectory>
             </configuration>
           </execution>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         </executions>
       </plugin>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     </plugins>
   </build>
   <profiles>
@@ -907,6 +871,7 @@
 
 
 
+
             </executions>
           </plugin>
           <plugin>
@@ -948,17 +913,6 @@
               <encoding>UTF-8</encoding>
             </configuration>
           </plugin>
-
-
-
-
-
-
-
-
-
-
-
         </plugins>
       </build>
     </profile>
@@ -1181,6 +1135,7 @@
                   <target>
                     <untar src="${project.build.directory}/flyway-commandline-${project.version}-linux-x64.tar.gz"
                       compression="gzip" dest="${unpackDir}"/>
+                    <chmod file="${unpackDir}/flyway-${project.version}/flyway" perm="744"/>
                   </target>
                 </configuration>
                 <goals>
@@ -1212,17 +1167,6 @@
               <encoding>UTF-8</encoding>
             </configuration>
           </plugin>
-          <!-- [master] -->
-          <plugin>
-            <artifactId>maven-failsafe-plugin</artifactId>
-            <configuration>
-              <skip>false</skip>
-              <systemProperties>
-                <target.dir>${project.build.directory}</target.dir>
-              </systemProperties>
-            </configuration>
-          </plugin>
-          <!-- [/master] -->
         </plugins>
       </build>
     </profile>
@@ -1285,6 +1229,7 @@
                     <untar src="${project.build.directory}/flyway-commandline-${project.version}.tar.gz"
                       compression="gzip" dest="${unpackDir}"/>
                     <chmod dir="${unpackDir}/flyway-${project.version}/lib/rgcompare" perm="755" includes="**/*"/>
+                    <chmod file="${unpackDir}/flyway-${project.version}/flyway" perm="744"/>
                   </target>
                 </configuration>
                 <goals>
@@ -1292,15 +1237,6 @@
                 </goals>
               </execution>
             </executions>
-          </plugin>
-          <plugin>
-            <artifactId>maven-failsafe-plugin</artifactId>
-            <configuration>
-              <skip>false</skip>
-              <systemProperties>
-                <target.dir>${project.build.directory}</target.dir>
-              </systemProperties>
-            </configuration>
           </plugin>
           <!-- [/master] -->
         </plugins>
