@@ -20,6 +20,7 @@
 package org.flywaydb.gradle.task;
 
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.exception.FlywayValidateException;
 
 public class FlywayMigrateTask extends AbstractFlywayTask {
     public FlywayMigrateTask() {
@@ -29,6 +30,15 @@ public class FlywayMigrateTask extends AbstractFlywayTask {
 
     @Override
     protected Object run(Flyway flyway) {
-        return flyway.migrate();
+        try {
+            return flyway.migrate();
+        } catch (final FlywayValidateException e) {
+            if (cleanOnValidationErrorEnabled) {
+                getLogger().info("Validation failed. Cleaning database because cleanOnValidationError is enabled.");
+                flyway.clean();
+                return flyway.migrate();
+            }
+            throw e;
+        }
     }
 }
