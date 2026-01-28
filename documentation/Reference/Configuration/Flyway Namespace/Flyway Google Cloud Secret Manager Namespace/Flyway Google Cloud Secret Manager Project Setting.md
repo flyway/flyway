@@ -60,7 +60,7 @@ gcsmConfigurationExtension.setGcsmProject("quixotic-ferret-345678");
 
 ```groovy
 flyway {
-    pluginConfiguration = [
+    gcsm = [
         gcsmProject: 'quixotic-ferret-345678'
     ]
 }
@@ -70,8 +70,8 @@ flyway {
 
 ```xml
 <configuration>
-    <pluginConfiguration>
+    <gcsm>
         <gcsmProject>quixotic-ferret-345678</gcsmProject>
-    </pluginConfiguration>
+    </gcsm>
 </configuration>
 ```

@@ -96,10 +96,7 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
 
     @Override
     public boolean isOnByDefault(final Configuration configuration) {
-        final boolean isOSS = "OSS".equals(LicenseGuard.getTierAsString(configuration));
-        initializeConnectionType(configuration, true);
-
-        return isOSS || (connectionType == ConnectionType.API) || checkMongoshInstalled(true);
+        return true;
     }
 
     @Override
@@ -109,17 +106,16 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
 
     @Override
     public void initialize(final ResolvedEnvironment environment, final Configuration configuration) {
-        logPreviewFeature(NATIVE_CONNECTORS + " for " + getDatabaseType());
-
-        initializeConnectionType(configuration, false);
+        initializeConnectionType(configuration);
 
         if (environment.getUrl().startsWith("jdbc:")) {
             LOG.info("JDBC prefix stripped from url: " + redactUrl(environment.getUrl()));
+            LOG.warn("The jdbc:mongodb:// URL prefix is deprecated and will be removed in a future release, use mongodb:// instead.");
             environment.setUrl(environment.getUrl().replaceFirst("jdbc:", ""));
         }
 
         if (connectionType == ConnectionType.EXECUTABLE) {
-            checkMongoshInstalled(false);
+            checkMongoshInstalled();
             mongoshCredential = new MongoshCredential(environment.getUrl(),
                 environment.getUser(),
                 environment.getPassword());
@@ -442,13 +438,13 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
         processRunner.executeMigrations(outputQueryResults, false);
     }
 
-    private boolean checkMongoshInstalled(final boolean silent) {
+    private void checkMongoshInstalled() {
         final List<String> commands = Arrays.asList("mongosh", "--version");
         final NativeConnectorsProcessRunner processRunner = new NativeConnectorsProcessRunner(commands, "Mongosh");
         final String errorMessage = "Mongosh is required for .js migrations and is not currently installed. "
             + "Information on how to install Mongosh can be found here: "
             + FlywayDbWebsiteLinks.MONGOSH;
-        return processRunner.checkToolInstalled(silent, errorMessage);
+        processRunner.checkToolInstalled(false, errorMessage);
     }
 
     private void checkMongoshConnectivity() {
@@ -461,24 +457,18 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
         processRunner.checkToolConnectivity();
     }
 
-    private void initializeConnectionType(final Configuration configuration, final boolean silent) {
+    private void initializeConnectionType(final Configuration configuration) {
         if (connectionType != null) {
             return;
         }
 
         if (configuration.getSqlMigrationSuffixes().length > 1) {
-            if (silent) {
-                return;
-            }
             throw new FlywayException("Multiple `sqlMigrationSuffixes` currently not supported for MongoDB: "
                 + Arrays.toString(configuration.getSqlMigrationSuffixes()));
         }
 
         final String migrationSuffix = configuration.getSqlMigrationSuffixes()[0];
         if (!".js".equals(migrationSuffix) && !".json".equals(migrationSuffix)) {
-            if (silent) {
-                return;
-            }
             throw new FlywayException(
                 "`sqlMigrationSuffixes` is not configured with an accepted MongoDB suffix ('.js' or '.json'): "
                     + migrationSuffix);

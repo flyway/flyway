@@ -26,7 +26,6 @@ import lombok.SneakyThrows;
 import org.flywaydb.core.TelemetrySpan;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.extensibility.LicenseGuard;
@@ -38,7 +37,7 @@ import org.flywaydb.core.internal.util.StringUtils;
 import java.util.List;
 
 @CustomLog
-public class ListEnginesCommandExtension implements CommandExtension {
+public class ListEnginesCommandExtension implements CommandExtension<DbSupportResult> {
     private static final String DB_SUPPORT = "list-engines";
     private static final String HEADERS_DATABASE_NAME = "Database Name";
 
@@ -54,8 +53,7 @@ public class ListEnginesCommandExtension implements CommandExtension {
 
     @Override
     @SneakyThrows
-    public OperationResult handle(String command,
-        Configuration config,
+    public DbSupportResult handle(Configuration config,
         List<String> flags) throws FlywayException {
         return TelemetrySpan.trackSpan(new EventTelemetryModel(DB_SUPPORT, getTelemetryManager(config)),
             (telemetryModel) -> listEngines(config));

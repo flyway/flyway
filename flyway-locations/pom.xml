@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>11.20.3</version>
+    <version>12.0.0</version>
   </parent>
 
   <artifactId>flyway-locations</artifactId>

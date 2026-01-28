@@ -30,7 +30,7 @@ import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.internal.license.FlywayRedgateEditionRequiredException;
 
-public class ModelCommandExtensionStub implements CommandExtension {
+public class ModelCommandExtensionStub implements CommandExtension<OperationResult> {
     private static final String FEATURE_NAME = "model";
     public static final String COMMAND = "model";
     public static final String DESCRIPTION = "Allows differences found by running the diff command to be applied to the schema model";
@@ -46,10 +46,9 @@ public class ModelCommandExtensionStub implements CommandExtension {
     }
 
     @Override
-    public OperationResult handle(final String command,
-        final Configuration config,
+    public OperationResult handle(final Configuration config,
         final List<String> flags) throws FlywayException {
-        return TelemetrySpan.trackSpan(new EventTelemetryModel(command, getTelemetryManager(config)), (telemetryModel) -> {
+        return TelemetrySpan.trackSpan(new EventTelemetryModel(COMMAND, getTelemetryManager(config)), (telemetryModel) -> {
             throw new FlywayRedgateEditionRequiredException(FEATURE_NAME);
         });
     }

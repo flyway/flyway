@@ -382,17 +382,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public Boolean validateOnMigrate;
 
     /**
-     * Deprecated, will be removed in a future release. <br> Whether to automatically call clean or not when a
-     * validation error occurs. (default: {@code false}) This is exclusively intended as a convenience for development.
-     * even though we strongly recommend not to change migration scripts once they have been checked into SCM and run,
-     * this provides a way of dealing with this case in a smooth manner. The database will be wiped clean automatically,
-     * ensuring that the next migration will bring you back to the state checked into SCM.
-     * <b>Warning! Do not enable in production!</b>
-     * <p>Also configurable with Gradle or System Property: ${flyway.cleanOnValidationError}</p>
-     */
-    public Boolean cleanOnValidationError;
-
-    /**
      * Ignore migrations that match this comma-separated list of patterns when validating migrations. Each pattern is of
      * the form <migration_type>:<migration_state> See <a
      * href="https://documentation.red-gate.com/flyway/reference/configuration/flyway-namespace/flyway-ignore-migration-patterns-setting">...</a>
@@ -756,7 +745,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
             extension.skipExecutingMigrations);
         putIfSet(conf, ConfigUtils.OUTPUT_QUERY_RESULTS, outputQueryResults, extension.outputQueryResults);
         putIfSet(conf, ConfigUtils.VALIDATE_ON_MIGRATE, validateOnMigrate, extension.validateOnMigrate);
-        putIfSet(conf, ConfigUtils.CLEAN_ON_VALIDATION_ERROR, cleanOnValidationError, extension.cleanOnValidationError);
         putIfSet(conf,
             ConfigUtils.IGNORE_MIGRATION_PATTERNS,
             StringUtils.arrayToCommaDelimitedString(ignoreMigrationPatterns),

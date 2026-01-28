@@ -19,9 +19,9 @@
  */
 package org.flywaydb.core.extensibility;
 
-import org.flywaydb.core.internal.command.clean.CleanModeConfigurationExtension.Mode;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.command.clean.CleanModel.Mode;
 
 import java.sql.SQLException;
 

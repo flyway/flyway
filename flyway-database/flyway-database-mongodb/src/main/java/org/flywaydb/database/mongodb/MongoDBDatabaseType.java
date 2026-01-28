@@ -39,6 +39,11 @@ public class MongoDBDatabaseType extends BaseDatabaseType {
     }
 
     @Override
+    public boolean isEnabled() {
+        return false;
+    }
+
+    @Override
     public int getNullType() {
         return Types.VARCHAR;
     }

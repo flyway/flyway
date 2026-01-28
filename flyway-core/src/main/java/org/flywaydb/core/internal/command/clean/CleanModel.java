@@ -22,12 +22,15 @@ package org.flywaydb.core.internal.command.clean;
 import lombok.Data;
 import lombok.Getter;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.command.clean.CleanModeConfigurationExtension.Mode;
 
 import java.util.Arrays;
 
 @Data
 public class CleanModel {
+    public enum Mode {
+        DEFAULT, SCHEMA, ALL;
+    }
+
     private SchemaModel schemas = null;
     @Getter
     private String mode = null;

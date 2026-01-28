@@ -4,15 +4,12 @@
   <parent>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>11.20.3</version>
+    <version>12.0.0</version>
   </parent>
   <artifactId>flyway-commandline</artifactId>
   <packaging>jar</packaging>
   <name>${project.artifactId}</name>
   <properties>
-
-
-
     <jre.version>25.0.1</jre.version>
   </properties>
 
@@ -661,20 +658,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>flyway-database-nc-mongodb</artifactId>
@@ -699,6 +682,14 @@
       <version>${project.version}</version>
       <scope>runtime</scope>
     </dependency>
+
+
+
+
+
+
+
+
   </dependencies>
   <build>
     <plugins>
@@ -810,19 +801,6 @@
                   </artifactItems>
                 </configuration>
               </execution>
-
-
-
-
-
-
-
-
-
-
-
-
-
             </executions>
           </plugin>
           <plugin>
@@ -855,23 +833,6 @@
                   </target>
                 </configuration>
               </execution>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
             </executions>
           </plugin>
           <plugin>
@@ -1090,24 +1051,6 @@
       </activation>
       <build>
         <plugins>
-          <!-- [master] -->
-          <plugin>
-            <artifactId>maven-dependency-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>pre-largetest-addJars</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>copy-dependencies</goal>
-                </goals>
-                <configuration>
-                  <includeArtifactIds>flyway-sample</includeArtifactIds>
-                  <outputDirectory>${unpackDir}/flyway-${project.version}/jardir</outputDirectory>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <!-- [/master] -->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
@@ -1127,22 +1070,6 @@
                   </target>
                 </configuration>
               </execution>
-              <!-- [master] -->
-              <execution>
-                <id>prepare</id>
-                <phase>pre-integration-test</phase>
-                <configuration>
-                  <target>
-                    <untar src="${project.build.directory}/flyway-commandline-${project.version}-linux-x64.tar.gz"
-                      compression="gzip" dest="${unpackDir}"/>
-                    <chmod file="${unpackDir}/flyway-${project.version}/flyway" perm="744"/>
-                  </target>
-                </configuration>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-              </execution>
-              <!-- [/master] -->
             </executions>
           </plugin>
           <plugin>
@@ -1174,24 +1101,6 @@
       <id>build-assemblies-no-jre</id>
       <build>
         <plugins>
-          <!-- [master] -->
-          <plugin>
-            <artifactId>maven-dependency-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>pre-largetest-addJars</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>copy-dependencies</goal>
-                </goals>
-                <configuration>
-                  <includeArtifactIds>flyway-sample</includeArtifactIds>
-                  <outputDirectory>${unpackDir}/flyway-${project.version}/jardir</outputDirectory>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <!-- [/master] -->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-assembly-plugin</artifactId>
@@ -1215,30 +1124,6 @@
               <encoding>UTF-8</encoding>
             </configuration>
           </plugin>
-          <!-- [master] -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <version>3.1.0</version>
-            <executions>
-              <execution>
-                <id>prepare</id>
-                <phase>pre-integration-test</phase>
-                <configuration>
-                  <target>
-                    <untar src="${project.build.directory}/flyway-commandline-${project.version}.tar.gz"
-                      compression="gzip" dest="${unpackDir}"/>
-                    <chmod dir="${unpackDir}/flyway-${project.version}/lib/rgcompare" perm="755" includes="**/*"/>
-                    <chmod file="${unpackDir}/flyway-${project.version}/flyway" perm="744"/>
-                  </target>
-                </configuration>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <!-- [/master] -->
         </plugins>
       </build>
     </profile>

@@ -24,7 +24,7 @@ import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.output.CleanResult;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.command.clean.CleanExecutor;
-import org.flywaydb.core.internal.command.clean.CleanModeConfigurationExtension.Mode;
+import org.flywaydb.core.internal.command.clean.CleanModel.Mode;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;

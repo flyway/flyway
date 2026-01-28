@@ -16,7 +16,7 @@ subtitle: Firebird
 | **URL format**                     | <code>jdbc:firebirdsql://<i>host</i>:<i>port</i>/<i>database</i></code> |
 | **Ships with Flyway Command-line** | Yes                                                                     |
 | **Maven Central coordinates**      | `org.firebirdsql.jdbc:jaybird-jdk18`                                    |
-| **Supported versions**             | `2.2` and later                                                         |
+| **Supported versions**             | `3` and later                                                         |
 | **Default Java class**             | `org.firebirdsql.jdbc.FBDriver`                                         |
 
 ## Java Usage

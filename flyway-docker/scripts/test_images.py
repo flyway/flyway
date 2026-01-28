@@ -65,6 +65,9 @@ def main(argv: List[str]):
           env_var_flag += " -e FLYWAY_NATIVE_CONNECTORS=true"
         flyway = "flyway" if "-azure" in image else ""
         for flyway_command in flyway_commands:
+            if "mongo" in image and flyway_command.startswith("check"):
+                continue
+
             planned_commands.append(
                 f'docker run --rm --network=host -v "{test_sql_path}:/flyway/sql" -v {conf_path}:/flyway/conf {env_var_flag} {image} {flyway} -environment={environment} {flyway_command}'.strip()
             )

@@ -31,7 +31,7 @@ import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.internal.license.FlywayRedgateEditionRequiredException;
 
-public class UndoCommandExtensionStub implements CommandExtension {
+public class UndoCommandExtensionStub implements CommandExtension<OperationResult> {
     public static final String COMMAND = "undo";
 
     @Override
@@ -46,7 +46,7 @@ public class UndoCommandExtensionStub implements CommandExtension {
 
     @SneakyThrows
     @Override
-    public OperationResult handle(final String command, final Configuration config, final List<String> flags) throws FlywayException {
+    public OperationResult handle(final Configuration config, final List<String> flags) throws FlywayException {
         return TelemetrySpan.trackSpan(new EventTelemetryModel(COMMAND, getTelemetryManager(config)), (telemetryModel) -> {
             throw new FlywayRedgateEditionRequiredException(COMMAND);
         });

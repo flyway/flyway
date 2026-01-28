@@ -34,7 +34,7 @@ public class CommandExtensionUtils {
             .stream()
             .filter(commandExtension -> commandExtension.handlesCommand(command))
             .findFirst()
-            .map(commandExtension -> commandExtension.handle(command, configuration, flags))
+            .map(commandExtension -> commandExtension.handle(configuration, flags))
             .orElseThrow(() -> new FlywayException("No command extension found to handle command: " + command));
     }
 }

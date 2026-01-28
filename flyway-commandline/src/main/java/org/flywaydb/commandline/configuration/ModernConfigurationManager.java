@@ -226,9 +226,6 @@ public class ModernConfigurationManager implements ConfigurationManager {
         final List<String> configuredPluginParameters = new ArrayList<>();
         for (final ConfigurationExtension configurationExtension : cfg.getPluginRegister()
             .getInstancesOf(ConfigurationExtension.class)) {
-            if (configurationExtension.getNamespace().isEmpty()) {
-                processParametersByNamespace("plugins", config, configurationExtension, configuredPluginParameters);
-            }
             processParametersByNamespace(configurationExtension.getNamespace(),
                 config,
                 configurationExtension,
@@ -367,12 +364,6 @@ public class ModernConfigurationManager implements ConfigurationManager {
 
                 if (!values.isEmpty()) {
                     for (final Map.Entry<String, Object> entry : values.entrySet()) {
-                        if ("plugins".equals(namespace)) {
-                            LOG.warn("Deprecated namespace configured: 'plugins."
-                                + entry.getKey()
-                                + "'. Please see "
-                                + FlywayDbWebsiteLinks.V10_BLOG);
-                        }
                         if (entry.getValue() instanceof Map<?, ?> && namespace.isEmpty()) {
                             final Map<String, Object> temp = (Map<String, Object>) entry.getValue();
                             configuredPluginParameters.addAll(temp.keySet());

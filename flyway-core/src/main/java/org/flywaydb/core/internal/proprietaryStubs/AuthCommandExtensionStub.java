@@ -33,7 +33,7 @@ import org.flywaydb.core.internal.license.FlywayRedgateEditionRequiredException;
 import java.util.List;
 
 @CustomLog
-public class AuthCommandExtensionStub implements CommandExtension {
+public class AuthCommandExtensionStub implements CommandExtension<OperationResult> {
     private static final String FEATURE_NAME = "Auth";
     public static final String COMMAND = FEATURE_NAME.toLowerCase();
     public static final String DESCRIPTION = "Authenticates Flyway with Redgate licensing";
@@ -49,8 +49,8 @@ public class AuthCommandExtensionStub implements CommandExtension {
     }
 
     @Override
-    public OperationResult handle(String command, Configuration config, List<String> flags) throws FlywayException {
-        return TelemetrySpan.trackSpan(new EventTelemetryModel(command, getTelemetryManager(config)), (telemetryModel) -> {
+    public OperationResult handle(Configuration config, List<String> flags) throws FlywayException {
+        return TelemetrySpan.trackSpan(new EventTelemetryModel(COMMAND, getTelemetryManager(config)), (telemetryModel) -> {
             throw new FlywayRedgateEditionRequiredException(FEATURE_NAME);
         });
     }

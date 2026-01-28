@@ -19,8 +19,6 @@
  */
 package org.flywaydb.reports.output;
 
-import static org.flywaydb.reports.utils.HtmlUtils.getFormattedTimestamp;
-
 import java.util.List;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.HtmlResult;
@@ -56,8 +54,7 @@ public class DashboardRenderer implements HtmlRenderer<DashboardResult> {
                             .append(s.getSummaryText())
                             .append("</span></div></div>");
                     }
-                    final String id2 = htmlResult.getOperation() + "-" + tabCount + "_" + getFormattedTimestamp(
-                        htmlResult);
+                    final String id2 = htmlResult.getOperation() + "-" + tabCount;
                     html.append("<button class='clickable inspectButton fancyButton' onclick=\"onTabClick(event, '")
                         .append(HtmlReportGenerator.getTabId(htmlResult, config, tabCount))
                         .append("','")

@@ -20,7 +20,7 @@
 package org.flywaydb.clean.database;
 
 import org.flywaydb.core.extensibility.CleanModePlugin;
-import org.flywaydb.core.internal.command.clean.CleanModeConfigurationExtension.Mode;
+import org.flywaydb.core.internal.command.clean.CleanModel.Mode;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.database.sqlserver.SQLServerDatabase;

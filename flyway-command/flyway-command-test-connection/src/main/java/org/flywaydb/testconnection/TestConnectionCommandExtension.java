@@ -30,7 +30,6 @@ import org.flywaydb.core.TelemetrySpan;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
-import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.extensibility.TestConnectionRunner;
@@ -39,7 +38,7 @@ import org.flywaydb.core.internal.util.Pair;
 
 @CustomLog
 @RequiredArgsConstructor
-public class TestConnectionCommandExtension implements CommandExtension {
+public class TestConnectionCommandExtension implements CommandExtension<TestConnectionResult> {
     public static final String VERB = "testConnection";
 
     private static final String TEST_CONNECTION_INLINE_ENVIRONMENT = "default";
@@ -82,8 +81,7 @@ public class TestConnectionCommandExtension implements CommandExtension {
     }
 
     @Override
-    public OperationResult handle(final String command, final Configuration config, final List<String> flags)
-        throws FlywayException {
+    public TestConnectionResult handle(final Configuration config, final List<String> flags) throws FlywayException {
 
         final FlywayTelemetryManager flywayTelemetryManager = getTelemetryManager(config);
 

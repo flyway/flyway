@@ -2,7 +2,6 @@
 subtitle: MongoDB - Native Connectors
 ---
 
-- **Status:** Preview
 - **Verified Versions:** V5,V8
 - **Maintainer:** {% include redgate-badge.html %}
 
@@ -31,3 +30,4 @@ We have to map Flyway concepts and language rooted in the relational database wo
 
 - Transactions using `.js` migrations will not work. A warning will be displayed if `executeInTransaction` is set.
 See [this blog post](https://documentation.red-gate.com/display/FD/Flyway+Native+Connectors+-+MongoDB) for more details.
+- You can't currently do a [Dry-run](<https://documentation.red-gate.com/fd/migration-command-dry-runs-275218517.html>) operation with MongoDB.

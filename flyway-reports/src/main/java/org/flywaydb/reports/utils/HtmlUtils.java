@@ -19,42 +19,38 @@
  */
 package org.flywaydb.reports.utils;
 
-import java.util.Locale;
-import org.apache.commons.text.StringEscapeUtils;
-import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.output.HtmlResult;
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.output.CompositeResult;
+import static org.flywaydb.core.internal.util.FileUtils.createDirIfNotExists;
+import static org.flywaydb.reports.html.HtmlReportGenerator.generateHtml;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.time.format.DateTimeFormatter;
+import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import lombok.CustomLog;
+import org.apache.commons.text.StringEscapeUtils;
+import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.output.HtmlResult;
 
-import static org.flywaydb.reports.html.HtmlReportGenerator.generateHtml;
-import static org.flywaydb.core.internal.util.FileUtils.createDirIfNotExists;
-
+@CustomLog
 public class HtmlUtils {
-    public static String toHtmlFile(final String filename, final CompositeResult<? extends HtmlResult> results, final Configuration config) {
+    public static String toHtmlFile(final String filename,
+        final Collection<? extends HtmlResult> results,
+        final Configuration config) {
         final String fileContents = generateHtml(results, config);
 
         final File file = new File(filename);
 
         createDirIfNotExists(file);
 
-        try (final FileWriter fileWriter = new FileWriter(file)) {
+        try (final FileWriter fileWriter = new FileWriter(file, StandardCharsets.UTF_8)) {
             fileWriter.write(fileContents);
-            return file.getCanonicalPath();
+            final var canonicalPath = file.getCanonicalPath();
+            LOG.info("A Flyway report has been generated here: " + canonicalPath);
+            return canonicalPath;
         } catch (final Exception e) {
             throw new FlywayException("Unable to write HTML to file: " + e.getMessage(), e);
         }
-
-    }
-
-    public static String getFormattedTimestamp(final HtmlResult result) {
-        if (result == null || result.getTimestamp() == null) {
-            return "--";
-        }
-        return result.getTimestamp().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.ROOT));
     }
 
     public static String htmlEncode(final String input) {

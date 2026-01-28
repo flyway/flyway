@@ -34,7 +34,7 @@ import org.flywaydb.core.internal.license.FlywayRedgateEditionRequiredException;
 import java.util.List;
 
 @CustomLog
-public class CheckCommandExtensionStub implements CommandExtension {
+public class CheckCommandExtensionStub implements CommandExtension<OperationResult> {
     public static final String COMMAND = "check";
 
     @Override
@@ -49,7 +49,7 @@ public class CheckCommandExtensionStub implements CommandExtension {
 
     @SneakyThrows
     @Override
-    public OperationResult handle(final String command, final Configuration config, final List<String> flags) throws FlywayException {
+    public OperationResult handle(final Configuration config, final List<String> flags) throws FlywayException {
         return TelemetrySpan.trackSpan(new EventTelemetryModel(COMMAND, getTelemetryManager(config)), (telemetryModel) -> {
             throw new FlywayRedgateEditionRequiredException(COMMAND);
         });

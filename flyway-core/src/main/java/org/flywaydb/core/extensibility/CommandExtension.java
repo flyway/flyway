@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * @apiNote This interface is under development and not recommended for use.
  */
-public interface CommandExtension extends PluginMetadata {
+public interface CommandExtension<T extends OperationResult> extends PluginMetadata {
     /**
      * @param command The CLI command to check is handled
      * @return Whether this extension handles the specified command
@@ -50,10 +50,9 @@ public interface CommandExtension extends PluginMetadata {
     boolean handlesParameter(String parameter);
 
     /**
-     * @param command The command to handle
-     * @param config  The configuration provided to Flyway
-     * @param flags   The CLI flags provided to Flyway
+     * @param config The configuration provided to Flyway
+     * @param flags  The CLI flags provided to Flyway
      * @return The result of this command being handled
      */
-    OperationResult handle(String command, Configuration config, List<String> flags) throws FlywayException;
+    T handle(Configuration config, List<String> flags) throws FlywayException;
 }

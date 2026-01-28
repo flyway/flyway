@@ -1,11 +1,13 @@
 ---
-subtitle: Redgate Compare Filter Format
+subtitle: PostgreSQL and MySQL Compare Filter Format
 ---
 
 ## Format
 
-Redgate Compare filter files have the .rgf extension.
-Under the hood they are structured as JSON.
+Redgate Compare filter files have the `.rgf` extension and under the hood they are structured as JSON.
+This is used to filter objects in PostgreSQL and MySQL projects.
+
+You can find a [tutorial with more concrete examples here.](https://documentation.red-gate.com/fd/tutorial-update-postgresql-and-mysql-filters-185306490.html)
 
 ### Filtering objects example
 
@@ -55,11 +57,12 @@ at the top of the list, and more specific exceptions can appear at the bottom.
 
 ### `filterBy` - (mandatory)
 
-| Property value | Description                                                                              |
-|----------------|------------------------------------------------------------------------------------------|
-| `any`          | Matches any object.                                                                      |
-| `objectType`   | Matches items that are objects e.g table, function, stored procedure etc.                |
-| `name`         | Currently only properties can be filtered by name. So `filterTarget` has to be property. |
+| Property value  | Description                                                                              |
+|-----------------|------------------------------------------------------------------------------------------|
+| `any`           | Matches any object.                                                                      |
+| `objectType`    | Matches items that are objects e.g table, function, stored procedure etc.                |
+| `name`          | Currently only properties can be filtered by name. So `filterTarget` has to be property. |
+| `fullNameExact` | Matches on the exact, case-sensitive name                                                |
 
 ### `filterTarget` - (Optional) - Defaults to object
 
@@ -71,5 +74,9 @@ at the top of the list, and more specific exceptions can appear at the bottom.
 ### `filterValue` - (mandatory)
 
 This is the value you wish to match and want the filter to act on.
+
+For a `filterBy `of `fullNameExact`, this will have to be a comma-separated list of the fully qualified name of the object separated on the periods (".") 
+
+(for example, `public.table1` becomes `["public", "table1"]`).
 
 **Note: An invalid combination of `filterBy` and `filterTarget` will cause an error.**

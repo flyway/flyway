@@ -89,28 +89,30 @@ public class DatabaseTypeRegister {
     }
 
     public static String redactJdbcUrl(final String url) {
-        return redactJdbcUrl(url, (Configuration) null);
+        return redactJdbcUrl(url, getDatabaseTypesForUrl(url, null));
     }
 
-    public static String redactJdbcUrl(final String url, final Configuration configuration) {
-        final List<DatabaseType> types = getDatabaseTypesForUrl(url, configuration);
-        return redactJdbcUrl(url, types);
-    }
-
-    public static String redactJdbcUrl(String url, final Collection<? extends DatabaseType> types) {
+    protected static String redactJdbcUrl(String url, final Collection<? extends DatabaseType> types) {
         if (types.isEmpty()) {
-            url = redactJdbcUrl(url, BaseDatabaseType.getDefaultJDBCCredentialsPattern());
+            final List<Pattern> dbPatterns = BaseDatabaseType.getDefaultJDBCCredentialsPatterns();
+            url = redactJdbcUrl(url, dbPatterns);
         } else {
             for (final DatabaseType type : types) {
                 final List<Pattern> dbPatterns = type.getJDBCCredentialsPatterns();
-                if (dbPatterns != null && !dbPatterns.isEmpty()) {
-                    for (final Pattern dbPattern : dbPatterns) {
-                        url = redactJdbcUrl(url, dbPattern);
-                    }
-                }
+                url = redactJdbcUrl(url, dbPatterns);
             }
         }
         return url;
+    }
+
+    private static String redactJdbcUrl(final String url, final List<Pattern> dbPatterns) {
+        String redactedUrl = url;
+        if (dbPatterns != null && !dbPatterns.isEmpty()) {
+            for (final Pattern dbPattern : dbPatterns) {
+                redactedUrl = redactJdbcUrl(redactedUrl, dbPattern);
+            }
+        }
+        return redactedUrl;
     }
 
     private static String redactJdbcUrl(final String url, final Pattern pattern) {

@@ -82,7 +82,6 @@ public class ConfigUtils {
     public static final String BATCH = "flyway.batch";
     public static final String CALLBACKS = "flyway.callbacks";
     public static final String CLEAN_DISABLED = "flyway.cleanDisabled";
-    public static final String CLEAN_ON_VALIDATION_ERROR = "flyway.cleanOnValidationError";
     public static final String COMMUNITY_DB_SUPPORT_ENABLED = "flyway.communityDBSupportEnabled";
     public static final String CONNECT_RETRIES = "flyway.connectRetries";
     public static final String CONNECT_RETRIES_INTERVAL = "flyway.connectRetriesInterval";
@@ -197,9 +196,6 @@ public class ConfigUtils {
         }
         if ("FLYWAY_CLEAN_DISABLED".equals(key)) {
             return CLEAN_DISABLED;
-        }
-        if ("FLYWAY_CLEAN_ON_VALIDATION_ERROR".equals(key)) {
-            return CLEAN_ON_VALIDATION_ERROR;
         }
         if ("FLYWAY_COMMUNITY_DB_SUPPORT_DISABLED".equals(key)) {
             return COMMUNITY_DB_SUPPORT_ENABLED;
@@ -860,21 +856,15 @@ public class ConfigUtils {
     }
 
     public static CleanModel getCleanModel(final Configuration conf) {
-        final ConfigurationExtension extensionNew = conf.getPluginRegister()
+        final ConfigurationExtension extension = conf.getPluginRegister()
             .getLicensedExact("SQLServerConfigurationExtension", conf);
-        final ConfigurationExtension extensionDepreciated = conf.getPluginRegister()
-            .getLicensedExact("CleanModeConfigurationExtension", conf);
-        CleanModel cleanModelNew = null;
-        CleanModel cleanModelDepreciated = null;
+        CleanModel cleanModel = null;
 
-        if (extensionNew != null) {
-            cleanModelNew = (CleanModel) ClassUtils.getFieldValue(extensionNew, "clean");
-        }
-        if (extensionDepreciated != null) {
-            cleanModelDepreciated = (CleanModel) ClassUtils.getFieldValue(extensionDepreciated, "clean");
+        if (extension != null) {
+            cleanModel = (CleanModel) ClassUtils.getFieldValue(extension, "clean");
         }
 
-        final CleanModel result = cleanModelNew != null ? cleanModelNew : cleanModelDepreciated;
+        final CleanModel result = cleanModel;
         if (result != null) {
             result.validate();
             return result;
@@ -884,15 +874,11 @@ public class ConfigUtils {
     }
 
     public static void setCleanModel(final Configuration conf, final CleanModel model) {
-        final ConfigurationExtension extensionNew = conf.getPluginRegister()
+        final ConfigurationExtension extension = conf.getPluginRegister()
             .getLicensedExact("SQLServerConfigurationExtension", conf);
-        final ConfigurationExtension extensionDepreciated = conf.getPluginRegister()
-            .getLicensedExact("CleanModeConfigurationExtension", conf);
 
-        if (extensionNew != null) {
-            ClassUtils.setFieldValue(extensionNew, "clean", model);
-        } else if (extensionDepreciated != null) {
-            ClassUtils.setFieldValue(extensionDepreciated, "clean", model);
+        if (extension != null) {
+            ClassUtils.setFieldValue(extension, "clean", model);
         }
     }
 

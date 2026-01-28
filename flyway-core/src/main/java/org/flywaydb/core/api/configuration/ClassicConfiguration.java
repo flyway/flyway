@@ -650,18 +650,6 @@ public class ClassicConfiguration implements Configuration {
     }
 
     @Override
-    public boolean isCleanOnValidationError() {
-        if (getEnvironmentOverrides().getCleanOnValidationError() != null) {
-            return getEnvironmentOverrides().getCleanOnValidationError();
-        }
-        return getModernFlyway().getCleanOnValidationError();
-    }
-
-    public void setCleanOnValidationError(final Boolean cleanOnValidationErrorProp) {
-        getModernFlyway().setCleanOnValidationError(cleanOnValidationErrorProp);
-    }
-
-    @Override
     public boolean isCleanDisabled() {
         if (getEnvironmentOverrides().getCleanDisabled() != null) {
             return getEnvironmentOverrides().getCleanDisabled();
@@ -1755,18 +1743,7 @@ public class ClassicConfiguration implements Configuration {
 
         final Collection<String> keysToRemove = new ArrayList<>();
 
-        final String deprecatedNameSpace = "plugins";
-        final Collection<Entry<String, String>> sortedEntrySet = new LinkedHashSet<>();
-        sortedEntrySet.addAll(props.entrySet()
-            .stream()
-            .filter(r -> r.getKey().contains(deprecatedNameSpace))
-            .collect(Collectors.toSet()));
-        sortedEntrySet.addAll(props.entrySet()
-            .stream()
-            .filter(r -> !sortedEntrySet.contains(r))
-            .collect(Collectors.toSet()));
-
-        for (final Map.Entry<String, String> params : sortedEntrySet) {
+        for (final Map.Entry<String, String> params : props.entrySet()) {
 
             final String text = params.getKey();
             final Matcher matcher = ANY_WORD_BETWEEN_TWO_DOTS_PATTERN.matcher(text);
@@ -1775,17 +1752,8 @@ public class ClassicConfiguration implements Configuration {
             final List<ConfigurationExtension> configExtensions = pluginRegister.getInstancesOf(ConfigurationExtension.class)
                 .stream()
                 .filter(c -> c.getNamespace().isEmpty()
-                    || rootNamespace.equals(c.getNamespace())
-                    || rootNamespace.equals(deprecatedNameSpace))
+                    || rootNamespace.equals(c.getNamespace()))
                 .toList();
-
-            configExtensions.forEach(c -> {
-                if (c.getNamespace().isEmpty()) {
-                    final String replaceNamespace = "flyway." + deprecatedNameSpace + ".";
-                    final String fixedKey = params.getKey().replace(replaceNamespace, "");
-                    parsePropertiesFromConfigExtension(configExtensionsPropertyMap, keysToRemove, params, fixedKey, c);
-                }
-            });
 
             configExtensions.forEach(c -> {
                 String replaceNamespace = "flyway.";
@@ -1930,10 +1898,6 @@ public class ClassicConfiguration implements Configuration {
         final String tablespaceProp = props.remove(ConfigUtils.TABLESPACE);
         if (tablespaceProp != null) {
             setTablespace(tablespaceProp);
-        }
-        final Boolean cleanOnValidationErrorProp = removeBoolean(props, ConfigUtils.CLEAN_ON_VALIDATION_ERROR);
-        if (cleanOnValidationErrorProp != null) {
-            setCleanOnValidationError(cleanOnValidationErrorProp);
         }
         final Boolean cleanDisabledProp = removeBoolean(props, ConfigUtils.CLEAN_DISABLED);
         if (cleanDisabledProp != null) {

@@ -21,12 +21,12 @@ package org.flywaydb.commandline.command.version;
 
 import static org.flywaydb.core.internal.util.TelemetryUtils.getTelemetryManager;
 
+import java.util.Locale;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import org.flywaydb.core.TelemetrySpan;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.extensibility.LicenseGuard;
@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @CustomLog
-public class VersionCommandExtension implements CommandExtension {
+public class VersionCommandExtension implements CommandExtension<VersionResult> {
     public static final String VERSION = "version";
     public static final List<String> FLAGS = Arrays.asList("-v", "--version");
 
@@ -64,9 +64,9 @@ public class VersionCommandExtension implements CommandExtension {
 
     @Override
     @SneakyThrows
-    public OperationResult handle(String command, Configuration config, List<String> flags) throws FlywayException {
+    public VersionResult handle(Configuration config, List<String> flags) throws FlywayException {
         return TelemetrySpan.trackSpan(new EventTelemetryModel("version", getTelemetryManager(config)), (telemetryModel) -> {
-            return version(command, config);
+            return version(VERSION.toLowerCase(Locale.ROOT), config);
         });
     }
 

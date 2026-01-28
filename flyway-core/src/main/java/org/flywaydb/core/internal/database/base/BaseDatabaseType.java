@@ -42,9 +42,6 @@ import java.sql.*;
 import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
-import org.flywaydb.core.internal.util.StringUtils;
-
-import static org.flywaydb.core.internal.database.DatabaseTypeRegister.redactJdbcUrl;
 import static org.flywaydb.core.internal.sqlscript.SqlScriptMetadata.getMetadataResource;
 
 @CustomLog
@@ -117,8 +114,8 @@ public abstract class BaseDatabaseType implements DatabaseType {
      * Gets a regex that identifies credentials in the JDBC URL, where they conform to the default URL pattern.
      * The first captured group represents the password text.
      */
-    public static Pattern getDefaultJDBCCredentialsPattern() {
-        return defaultJdbcCredentialsPattern;
+    public static List<Pattern> getDefaultJDBCCredentialsPatterns() {
+        return List.of(defaultJdbcCredentialsPattern, hostJdbcCredentialsPattern);
     }
 
     /**

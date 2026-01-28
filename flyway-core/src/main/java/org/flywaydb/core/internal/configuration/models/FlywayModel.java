@@ -61,7 +61,6 @@ public class FlywayModel extends FlywayEnvironmentModel {
         model.setSqlMigrationSeparator("__");
         model.setSqlMigrationSuffixes(Arrays.asList(".sql"));
         model.setCleanDisabled(true);
-        model.setCleanOnValidationError(false);
         model.setCommunityDBSupportEnabled(true);
         model.setLocations(new ArrayList<>(Collections.singletonList("db/migration")));
         model.setCallbackLocations(Collections.emptyList());
@@ -127,7 +126,6 @@ public class FlywayModel extends FlywayEnvironmentModel {
         result.setSqlMigrationSeparator(getSqlMigrationSeparator().merge(otherPojo.getSqlMigrationSeparator()));
         result.setSqlMigrationSuffixes(getSqlMigrationSuffixes().merge(otherPojo.getSqlMigrationSuffixes()));
         result.setCleanDisabled(getCleanDisabled().merge(otherPojo.getCleanDisabled()));
-        result.setCleanOnValidationError(getCleanOnValidationError().merge(otherPojo.getCleanOnValidationError()));
         result.setCommunityDBSupportEnabled(getCommunityDBSupportEnabled().merge(otherPojo.getCommunityDBSupportEnabled()));
         result.setLocations(getLocations().merge(otherPojo.getLocations()));
         result.setCallbackLocations(getCallbackLocations().merge(otherPojo.getCallbackLocations()));

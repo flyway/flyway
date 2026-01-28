@@ -30,16 +30,15 @@ import org.flywaydb.core.api.output.HtmlResult;
 import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.reports.json.HtmlResultDeserializer;
 
-class ReportsDeserializer extends JsonDeserializer<HtmlResult> {
+public class ReportsDeserializer extends JsonDeserializer<HtmlResult> {
     private final PluginRegister pluginRegister;
 
-    ReportsDeserializer(final PluginRegister pluginRegister) {
+    public ReportsDeserializer(final PluginRegister pluginRegister) {
         this.pluginRegister = pluginRegister;
     }
 
     @Override
-    public HtmlResult deserialize(final JsonParser p, final DeserializationContext ctxt)
-        throws IOException {
+    public HtmlResult deserialize(final JsonParser p, final DeserializationContext ctxt) throws IOException {
         final JsonNode reportElement = ctxt.readTree(p);
         if (reportElement.has("operation")) {
             final String operation = reportElement.get("operation").asText();

@@ -19,15 +19,16 @@
  */
 package org.flywaydb.core.api.output;
 
-import java.util.LinkedList;
+import java.util.Collection;
 import java.util.List;
 
-public class CompositeResult<T extends OperationResult> implements OperationResult {
-    public List<T> individualResults = new LinkedList<>();
+public record CompositeResult<T extends OperationResult>(Collection<T> individualResults) implements OperationResult {
+    public CompositeResult(final Collection<T> individualResults) {
+        this.individualResults = List.copyOf(individualResults);
+    }
 
-    public CompositeResult() {}
-
-    public CompositeResult(CompositeResult<T> result) {
-        this.individualResults = result.individualResults;
+    @Override
+    public Collection<T> individualResults() {
+        return List.copyOf(individualResults);
     }
 }

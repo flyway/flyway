@@ -31,7 +31,7 @@ import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.internal.license.FlywayRedgateEditionRequiredException;
 
-public class DeployCommandExtensionStub implements CommandExtension {
+public class DeployCommandExtensionStub implements CommandExtension<OperationResult> {
     private static final String FEATURE_NAME = "Deploy";
     public static final String COMMAND = FEATURE_NAME.toLowerCase(Locale.ROOT);
     public static final String DESCRIPTION = "Executes a deployment script against a target database";
@@ -47,10 +47,9 @@ public class DeployCommandExtensionStub implements CommandExtension {
     }
 
     @Override
-    public OperationResult handle(final String command,
-        final Configuration config,
+    public OperationResult handle(final Configuration config,
         final List<String> flags) throws FlywayException {
-        return TelemetrySpan.trackSpan(new EventTelemetryModel(command, getTelemetryManager(config)), (telemetryModel) -> {
+        return TelemetrySpan.trackSpan(new EventTelemetryModel(COMMAND, getTelemetryManager(config)), (telemetryModel) -> {
             throw new FlywayRedgateEditionRequiredException(FEATURE_NAME);
         });
     }

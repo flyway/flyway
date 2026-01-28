@@ -27,12 +27,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -41,8 +43,6 @@ import lombok.SneakyThrows;
 import org.flywaydb.commandline.configuration.CommandLineArguments;
 import org.flywaydb.commandline.configuration.ConfigurationManagerImpl;
 import org.flywaydb.commandline.logging.console.ConsoleLog.Level;
-import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.util.TelemetryUtils;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.api.FlywayException;
@@ -54,6 +54,7 @@ import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.output.CompositeResult;
 import org.flywaydb.core.api.output.ErrorOutput;
 import org.flywaydb.core.api.output.HtmlResult;
@@ -73,21 +74,22 @@ import org.flywaydb.core.internal.logging.buffered.BufferedLog;
 import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.publishing.OperationResultPublisher;
 import org.flywaydb.core.internal.publishing.PublishingConfigurationExtension;
+import org.flywaydb.core.internal.reports.ReportDetails;
 import org.flywaydb.core.internal.reports.ReportGenerationOutput;
 import org.flywaydb.core.internal.reports.ResultReportGenerator;
-import org.flywaydb.core.internal.reports.ReportDetails;
 import org.flywaydb.core.internal.util.CommandExtensionUtils;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.core.internal.util.JsonUtils;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.TelemetryUtils;
 
 public class Main {
     private static Log LOG;
     private static final PluginRegister PLUGIN_REGISTER = new PluginRegister();
     private static boolean hasPrintedLicense;
 
-    public static void main(String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception {
         final long appStart = System.currentTimeMillis();
         final long jvmStart = java.lang.management.ManagementFactory.getRuntimeMXBean().getStartTime();
         int exitCode = 0;
@@ -131,15 +133,19 @@ public class Main {
                         }
                     });
 
-                LocalDateTime executionTime = LocalDateTime.now();
-                OperationResult result = executeFlyway(flywayTelemetryManager, commandLineArguments, configuration);
+                final OperationResult result = executeFlyway(flywayTelemetryManager,
+                    commandLineArguments,
+                    configuration);
 
-                final List<ResultReportGenerator> reportGenerators = PLUGIN_REGISTER.getInstancesOf(ResultReportGenerator.class);
+                final List<ResultReportGenerator> reportGenerators = PLUGIN_REGISTER.getInstancesOf(
+                    ResultReportGenerator.class);
                 for (final ResultReportGenerator resultReportGenerator : reportGenerators) {
-                    reportGenerationOutput = resultReportGenerator.generateReport(result, configuration, executionTime);
+                    reportGenerationOutput = resultReportGenerator.generateReport(result, configuration);
                 }
 
-                if (configuration.getPluginRegister().getExact(PublishingConfigurationExtension.class).isPublishResult()) {
+                if (configuration.getPluginRegister()
+                    .getExact(PublishingConfigurationExtension.class)
+                    .isPublishResult()) {
                     publishOperationResult(configuration, result);
                     publishReport(configuration, reportGenerationOutput.reportDetails);
                 }
@@ -168,8 +174,6 @@ public class Main {
             terminate(exitCode, flywayTelemetryHandle);
         }
     }
-
-
 
     private static void printLicenseInfo(final Configuration configuration, final String operation) {
         if (!hasPrintedLicense && !"auth".equals(operation)) {
@@ -211,7 +215,8 @@ public class Main {
                 flywayTelemetryManager,
                 executionConfiguration);
         } else {
-            final CompositeResult<OperationResult> compositeResult = new CompositeResult<>();
+            final Collection<OperationResult> individualResults = new ArrayList<>(commandLineArguments.getOperations()
+                .size());
             for (final String operation : commandLineArguments.getOperations()) {
                 printLicenseInfo(configuration, operation);
                 final OperationResult operationResult = executeOperation(flyway,
@@ -219,13 +224,13 @@ public class Main {
                     commandLineArguments,
                     flywayTelemetryManager,
                     executionConfiguration);
-                compositeResult.individualResults.add(operationResult);
+                individualResults.add(operationResult);
                 if (operationResult instanceof HtmlResult
                     && ((HtmlResult) operationResult).exceptionObject instanceof FlywayMigrateException) {
                     break;
                 }
             }
-            result = compositeResult;
+            result = new CompositeResult<>(individualResults);
         }
 
         if (configuration instanceof final ClassicConfiguration classicConfiguration) {
@@ -292,7 +297,6 @@ public class Main {
         } else if ("migrate".equals(operation)) {
             try {
                 result = flyway.migrate();
-
             } catch (final FlywayMigrateException e) {
                 result = ErrorOutput.fromMigrateException(e);
                 final HtmlResult hr = (HtmlResult) result;
@@ -374,16 +378,16 @@ public class Main {
             return;
         }
 
-        final List<OperationResultPublisher> publishers = configuration.getPluginRegister().getInstancesOf(
-            OperationResultPublisher.class);
+        final List<OperationResultPublisher> publishers = configuration.getPluginRegister()
+            .getInstancesOf(OperationResultPublisher.class);
         for (final OperationResultPublisher publisher : publishers) {
             publisher.publish(configuration, result);
         }
     }
 
     private static void publishReport(final Configuration configuration, final ReportDetails reportDetails) {
-        final List<OperationResultPublisher> publishers = configuration.getPluginRegister().getInstancesOf(
-            OperationResultPublisher.class);
+        final List<OperationResultPublisher> publishers = configuration.getPluginRegister()
+            .getInstancesOf(OperationResultPublisher.class);
 
         for (final OperationResultPublisher publisher : publishers) {
             publisher.publishReport(configuration, reportDetails);
@@ -405,7 +409,7 @@ public class Main {
 
         if (commandLineArguments.isOutputFileSet()) {
             final Path path = Paths.get(commandLineArguments.getOutputFile());
-            final byte[] bytes = json.getBytes();
+            final byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
 
             try {
                 Files.write(path,
@@ -455,19 +459,29 @@ public class Main {
         LOG.info("Commands");
         final List<Pair<String, String>> usages = PLUGIN_REGISTER.getInstancesOf(CommandExtension.class)
             .stream()
-            .flatMap(e -> e.getUsage().stream().map(p -> e.inPreview() ? Pair.of(p.getLeft() + " (preview)", p.getRight()) : p))
+            .flatMap(e -> e.getUsage()
+                .stream()
+                .map(p -> e.inPreview() ? Pair.of(p.getLeft() + " (preview)", p.getRight()) : p))
             .toList();
-        final int padSize = usages.stream().max(Comparator.comparingInt(u -> u.getLeft().length())).map(u -> u.getLeft()
-            .length() + 3).orElse(11);
+        final int padSize = usages.stream()
+            .max(Comparator.comparingInt(u -> u.getLeft().length()))
+            .map(u -> u.getLeft().length() + 3)
+            .orElse(11);
         LOG.info(indent + StringUtils.rightPad("help", padSize, ' ') + "Print this usage info and exit");
 
 
 
         LOG.info(indent + StringUtils.rightPad("migrate", padSize, ' ') + "Migrates the database");
         LOG.info(indent + StringUtils.rightPad("clean", padSize, ' ') + "Drops all objects in the configured schemas");
-        LOG.info(indent + StringUtils.rightPad("info", padSize, ' ') + "Prints the information about applied, current and pending migrations");
-        LOG.info(indent + StringUtils.rightPad("validate", padSize, ' ') + "Validates the applied migrations against the ones on the classpath");
-        LOG.info(indent + StringUtils.rightPad("baseline", padSize, ' ') + "Baselines an existing database at the baselineVersion");
+        LOG.info(indent
+            + StringUtils.rightPad("info", padSize, ' ')
+            + "Prints the information about applied, current and pending migrations");
+        LOG.info(indent
+            + StringUtils.rightPad("validate", padSize, ' ')
+            + "Validates the applied migrations against the ones on the classpath");
+        LOG.info(indent
+            + StringUtils.rightPad("baseline", padSize, ' ')
+            + "Baselines an existing database at the baselineVersion");
         LOG.info(indent + StringUtils.rightPad("repair", padSize, ' ') + "Repairs the schema history table");
         for (final Pair<String, String> usage : usages) {
             final List<String> lines = Arrays.stream(usage.getRight().split("\n")).map(String::trim).toList();
@@ -484,24 +498,31 @@ public class Main {
         LOG.info(indent + "password                       Password to use to connect to the database");
 
         if (fullVersion) {
-            LOG.info(indent + "connectRetries                 Maximum number of retries when attempting to connect to the database");
-            LOG.info(indent + "initSql                        SQL statements to run to initialize a new database connection");
+            LOG.info(indent
+                + "connectRetries                 Maximum number of retries when attempting to connect to the database");
+            LOG.info(indent
+                + "initSql                        SQL statements to run to initialize a new database connection");
             LOG.info(indent + "schemas                        Comma-separated list of the schemas managed by Flyway");
             LOG.info(indent + "table                          Name of Flyway's schema history table");
             LOG.info(indent + "locations                      Classpath locations to scan recursively for migrations");
-            LOG.info(indent + "failOnMissingLocations         Whether to fail if a location specified in the flyway.locations option doesn't exist");
+            LOG.info(indent
+                + "failOnMissingLocations         Whether to fail if a location specified in the flyway.locations option doesn't exist");
             LOG.info(indent + "resolvers                      Comma-separated list of custom MigrationResolvers");
             LOG.info(indent + "skipDefaultResolvers           Skips default resolvers (jdbc, sql and Spring-jdbc)");
             LOG.info(indent + "sqlMigrationPrefix             File name prefix for versioned SQL migrations");
             LOG.info(indent + "undoSqlMigrationPrefix         [" + "teams] File name prefix for undo SQL migrations");
             LOG.info(indent + "repeatableSqlMigrationPrefix   File name prefix for repeatable SQL migrations");
             LOG.info(indent + "sqlMigrationSeparator          File name separator for SQL migrations");
-            LOG.info(indent + "sqlMigrationSuffixes           Comma-separated list of file name suffixes for SQL migrations");
+            LOG.info(indent
+                + "sqlMigrationSuffixes           Comma-separated list of file name suffixes for SQL migrations");
             LOG.info(indent + "stream                         [" + "teams] Stream SQL migrations when executing them");
             LOG.info(indent + "batch                          [" + "teams] Batch SQL statements when executing them");
-            LOG.info(indent + "mixed                          Allow mixing transactional and non-transactional statements");
+            LOG.info(indent
+                + "mixed                          Allow mixing transactional and non-transactional statements");
             LOG.info(indent + "encoding                       Encoding of SQL migrations");
-            LOG.info(indent + "detectEncoding                 [" + "teams] Whether Flyway should try to automatically detect SQL migration file encoding");
+            LOG.info(indent
+                + "detectEncoding                 ["
+                + "teams] Whether Flyway should try to automatically detect SQL migration file encoding");
             LOG.info(indent + "executeInTransaction           Whether SQL should execute within a transaction");
             LOG.info(indent + "placeholderReplacement         Whether placeholders should be replaced");
             LOG.info(indent + "placeholders                   Placeholders to replace in sql migrations");
@@ -509,29 +530,45 @@ public class Main {
             LOG.info(indent + "placeholderSuffix              Suffix of every placeholder");
             LOG.info(indent + "scriptPlaceholderPrefix        Prefix of every script placeholder");
             LOG.info(indent + "scriptPlaceholderSuffix        Suffix of every script placeholder");
-            LOG.info(indent + "lockRetryCount                 The maximum number of retries when trying to obtain a lock");
+            LOG.info(indent
+                + "lockRetryCount                 The maximum number of retries when trying to obtain a lock");
             LOG.info(indent + "jdbcProperties                 Properties to pass to the JDBC driver object");
-            LOG.info(indent + "installedBy                    Username that will be recorded in the schema history table");
+            LOG.info(indent
+                + "installedBy                    Username that will be recorded in the schema history table");
             LOG.info(indent + "target                         Target version up to which Flyway should use migrations");
-            LOG.info(indent + "cherryPick                     [" + "teams] Comma separated list of migrations that Flyway should consider when migrating");
-            LOG.info(indent + "skipExecutingMigrations        Whether Flyway should skip actually executing the contents of the migrations");
+            LOG.info(indent
+                + "cherryPick                     ["
+                + "teams] Comma separated list of migrations that Flyway should consider when migrating");
+            LOG.info(indent
+                + "skipExecutingMigrations        Whether Flyway should skip actually executing the contents of the migrations");
             LOG.info(indent + "outOfOrder                     Allows migrations to be run \"out of order\"");
-            LOG.info(indent + "callbacks                      Comma-separated list of FlywayCallback classes, or locations to scan for FlywayCallback classes");
+            LOG.info(indent
+                + "callbacks                      Comma-separated list of FlywayCallback classes, or locations to scan for FlywayCallback classes");
             LOG.info(indent + "skipDefaultCallbacks           Skips default callbacks (sql)");
             LOG.info(indent + "validateOnMigrate              Validate when running migrate");
-            LOG.info(indent + "validateMigrationNaming        Validate file names of SQL migrations (including callbacks)");
-            LOG.info(indent + "ignoreMigrationPatterns        Patterns of migrations and states to ignore during validate");
+            LOG.info(indent
+                + "validateMigrationNaming        Validate file names of SQL migrations (including callbacks)");
+            LOG.info(indent
+                + "ignoreMigrationPatterns        Patterns of migrations and states to ignore during validate");
             LOG.info(indent + "cleanDisabled                  Whether to disable clean");
             LOG.info(indent + "baselineVersion                Version to tag schema with when executing baseline");
             LOG.info(indent + "baselineDescription            Description to tag schema with when executing baseline");
-            LOG.info(indent + "baselineOnMigrate              Baseline on migrate against uninitialized non-empty schema");
+            LOG.info(indent
+                + "baselineOnMigrate              Baseline on migrate against uninitialized non-empty schema");
             LOG.info(indent + "configFiles                    Comma-separated list of config files to use");
             LOG.info(indent + "configFileEncoding             Encoding to use when loading the config files");
-            LOG.info(indent + "jarDirs                        Comma-separated list of dirs for Jdbc drivers & Java migrations");
-            LOG.info(indent + "createSchemas                  Whether Flyway should attempt to create the schemas specified in the schemas property");
-            LOG.info(indent + "dryRunOutput                   [" + "teams] File where to output the SQL statements of a migration dry run");
-            LOG.info(indent + "errorOverrides                 [" + "teams] Rules to override specific SQL states and errors codes");
-            LOG.info(indent + "color                          Whether to colorize output. Values: always, never, or auto (default)");
+            LOG.info(indent
+                + "jarDirs                        Comma-separated list of dirs for Jdbc drivers & Java migrations");
+            LOG.info(indent
+                + "createSchemas                  Whether Flyway should attempt to create the schemas specified in the schemas property");
+            LOG.info(indent
+                + "dryRunOutput                   ["
+                + "teams] File where to output the SQL statements of a migration dry run");
+            LOG.info(indent
+                + "errorOverrides                 ["
+                + "teams] Rules to override specific SQL states and errors codes");
+            LOG.info(indent
+                + "color                          Whether to colorize output. Values: always, never, or auto (default)");
             LOG.info(indent + "outputFile                     Send output to the specified file alongside the console");
             LOG.info(indent + "outputType                     Serialise the output in the given format, Values: json");
         } else {

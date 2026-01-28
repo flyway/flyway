@@ -60,7 +60,7 @@ gcsmConfigurationExtension.setGcsmSecrets("secret1", "secret2");
 
 ```groovy
 flyway {
-    pluginConfiguration = [
+    gcsm = [
         gcsmSecrets: ['secret1', 'secret2']
     ]
 }
@@ -70,8 +70,8 @@ flyway {
 
 ```xml
 <configuration>
-    <pluginConfiguration>
+    <gcsm>
         <gcsmSecrets>secret1,secret2</gcsmSecrets>
-    </pluginConfiguration>
+    </gcsm>
 </configuration>
 ```

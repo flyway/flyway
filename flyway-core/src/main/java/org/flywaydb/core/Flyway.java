@@ -521,9 +521,6 @@ public class Flyway {
                                       final Schema defaultSchema, final Schema[] schemas, final CallbackExecutor<Event> callbackExecutor, final ValidatePattern[] ignorePatterns) {
         final ValidateResult validateResult = new DbValidate(database, schemaHistory, defaultSchema, migrationResolver, configuration, callbackExecutor, ignorePatterns).validate();
 
-        if (configuration.isCleanOnValidationError()) {
-            throw new FlywayException("cleanOnValidationError has been removed");
-        }
         return validateResult;
     }
 

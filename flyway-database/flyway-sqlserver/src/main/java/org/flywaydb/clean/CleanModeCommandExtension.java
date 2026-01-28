@@ -28,7 +28,6 @@ import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.CleanResult;
 import org.flywaydb.core.api.output.CommandResultFactory;
-import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
@@ -42,12 +41,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 
-import static org.flywaydb.core.internal.command.clean.CleanModeConfigurationExtension.Mode.ALL;
-import static org.flywaydb.core.internal.command.clean.CleanModeConfigurationExtension.Mode.SCHEMA;
+import static org.flywaydb.core.internal.command.clean.CleanModel.Mode.ALL;
+import static org.flywaydb.core.internal.command.clean.CleanModel.Mode.SCHEMA;
 import static org.flywaydb.core.internal.util.TelemetryUtils.getTelemetryManager;
 
 @ExtensionMethod({ CleanModeSupportedDatabases.class, Arrays.class })
-public class CleanModeCommandExtension implements CommandExtension {
+public class CleanModeCommandExtension implements CommandExtension<CleanResult> {
     private static final String CLEAN_SCHEMAS = "clean-schemas";
     private static final String CLEAN_ALL = "clean-all";
     private static final List<String> SUPPORTED_COMMANDS = Arrays.asList(CLEAN_SCHEMAS, CLEAN_ALL);
@@ -63,8 +62,7 @@ public class CleanModeCommandExtension implements CommandExtension {
     }
 
     @Override
-    public OperationResult handle(String command,
-        Configuration config,
+    public CleanResult handle(Configuration config,
         List<String> flags) throws FlywayException {
         final FlywayTelemetryManager flywayTelemetryManager = getTelemetryManager(config);
         return TelemetrySpan.trackSpan(new EventTelemetryModel("cleanmode", flywayTelemetryManager),

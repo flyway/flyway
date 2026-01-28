@@ -19,13 +19,22 @@
  */
 package org.flywaydb.reports.output;
 
+import java.time.LocalDateTime;
 import lombok.Getter;
-import lombok.Setter;
 import org.flywaydb.core.api.output.HtmlResult;
 
 @Getter
-@Setter
 public class HoldingResult extends HtmlResult {
-    private String tabTitle;
-    private String bodyText;
+    private final String tabTitle;
+    private final String bodyText;
+
+    public HoldingResult(final String operation,
+        final String tabTitle,
+        final String bodyText,
+        final Exception exception) {
+        super(LocalDateTime.now(), operation);
+        this.tabTitle = tabTitle;
+        this.bodyText = bodyText;
+        setException(exception);
+    }
 }

@@ -271,7 +271,7 @@ public class CommandLineArguments {
     }
 
     private boolean isHandledByExtension(final String arg) {
-        for (final CommandExtension extension : pluginRegister.getInstancesOf(CommandExtension.class)) {
+        for (final CommandExtension<?> extension : pluginRegister.getInstancesOf(CommandExtension.class)) {
             if (extension.handlesCommand(arg) || extension.handlesParameter(arg)) {
                 return true;
             }
