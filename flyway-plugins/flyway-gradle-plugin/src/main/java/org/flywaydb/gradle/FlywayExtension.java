@@ -53,7 +53,7 @@ public class FlywayExtension {
      * (default: 0)
      * <p>Also configurable with Gradle or System Property: ${flyway.connectRetries}</p>
      */
-    public int connectRetries;
+    public Integer connectRetries;
 
     /**
      * The maximum time between retries when attempting to connect to the database in seconds. This will cap the interval
@@ -61,7 +61,7 @@ public class FlywayExtension {
      * (default: 120)
      * <p>Also configurable with Gradle or System Property: ${flyway.connectRetriesInterval}</p>
      */
-    public int connectRetriesInterval;
+    public Integer connectRetriesInterval;
 
     /**
      * The SQL statements to run to initialize a new database connection immediately after opening it. (default: {@code null})
