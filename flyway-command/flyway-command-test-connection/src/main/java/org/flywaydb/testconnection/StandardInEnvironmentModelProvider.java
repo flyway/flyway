@@ -19,8 +19,8 @@
  */
 package org.flywaydb.testconnection;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
@@ -35,9 +35,12 @@ class StandardInEnvironmentModelProvider {
     EnvironmentModel getModel() {
         try (final var scanner = new Scanner(stdIn, StandardCharsets.UTF_8)) {
             final var request = scanner.nextLine();
-            return new JsonMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .readerFor(EnvironmentModel.class)
-                .readValue(request);
+            return JsonMapper
+                    .builder()
+                    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                    .build()
+                    .readerFor(EnvironmentModel.class)
+                    .readValue(request);
         } catch (final Exception e) {
             throw new FlywayException("Error reading environment from standard in", e);
         }

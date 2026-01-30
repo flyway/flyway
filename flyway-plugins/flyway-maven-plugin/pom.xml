@@ -33,7 +33,7 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <groupId>tools.jackson.dataformat</groupId>
       <artifactId>jackson-dataformat-toml</artifactId>
     </dependency>
     <dependency>

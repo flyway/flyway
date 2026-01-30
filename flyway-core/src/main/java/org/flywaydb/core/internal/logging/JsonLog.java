@@ -19,12 +19,9 @@
  */
 package org.flywaydb.core.internal.logging;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import java.util.Collection;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 import lombok.SneakyThrows;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
@@ -36,13 +33,14 @@ public class JsonLog implements Log {
 
     private JsonMapper getJsonMapper() {
         if (mapper == null) {
-            mapper = JsonUtils.getJsonMapper();
-            mapper.disable(com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT);
+            mapper = JsonUtils.getJsonMapper()
+                    .rebuild()
+                    .disable(SerializationFeature.INDENT_OUTPUT).build();
         }
         return mapper;
     }
 
-    private void write(String message, LogLevel level) throws JsonProcessingException {
+    private void write(String message, LogLevel level) throws JacksonException {
         String[] lines = message.split("\n");
         for (String line : lines) {
             System.err.println(getJsonMapper().writeValueAsString(new JsonLogModel(level, line)));

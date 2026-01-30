@@ -230,12 +230,11 @@
       <useTransitiveFiltering>true</useTransitiveFiltering>
       <includes>
         <include>org.apache.commons:commons-text</include>
-        <include>com.fasterxml.jackson.core:jackson-core</include>
+        <include>tools.jackson.core:jackson-core</include>
         <include>com.fasterxml.jackson.core:jackson-annotations</include>
-        <include>com.fasterxml.jackson.core:jackson-databind</include>
-        <include>com.fasterxml.jackson.dataformat:jackson-dataformat-toml</include>
-        <include>com.fasterxml.jackson.dataformat:jackson-dataformat-xml</include>
-        <include>com.fasterxml.jackson.datatype:jackson-datatype-jsr310</include>
+        <include>tools.jackson.core:jackson-databind</include>
+        <include>tools.jackson.dataformat:jackson-dataformat-toml</include>
+        <include>tools.jackson.dataformat:jackson-dataformat-xml</include>
         <include>org.slf4j:slf4j-nop</include>
         <include>com.nimbusds:nimbus-jose-jwt</include>
         <include>com.nimbusds:oauth2-oidc-sdk</include>

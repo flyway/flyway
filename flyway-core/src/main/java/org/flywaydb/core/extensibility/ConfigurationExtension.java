@@ -20,7 +20,7 @@
 package org.flywaydb.core.extensibility;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.flywaydb.core.api.FlywayException;
 
