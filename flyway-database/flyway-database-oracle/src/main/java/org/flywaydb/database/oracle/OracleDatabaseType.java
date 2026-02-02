@@ -271,13 +271,15 @@ public class OracleDatabaseType extends BaseDatabaseType {
         
         // Using System.setProperty("java.util.logging.config.file", {filePath}) here has no effect.
         // Because the JVM initializes the logging configuration early during startup.
-        String loggingPropertiesFile = Paths.get(ClassUtils.getInstallDir(this.getClass()), "assets/logging.properties").toString();
-        if (new File(loggingPropertiesFile).exists()) {
-            try (FileInputStream fis = new FileInputStream(loggingPropertiesFile)) {
-                LOG.debug("Initializing Java logging with custom properties file");
-                LogManager.getLogManager().readConfiguration(fis);
-            } catch (Exception ignored) {
-            }
+        if (ClassUtils.getLocationOnDisk(this.getClass()) != null) {
+            String loggingPropertiesFile = Paths.get(ClassUtils.getInstallDir(this.getClass()), "assets/logging.properties").toString();
+                if (new File(loggingPropertiesFile).exists()) {
+                    try (FileInputStream fis = new FileInputStream(loggingPropertiesFile)) {
+                        LOG.debug("Initializing Java logging with custom properties file");
+                        LogManager.getLogManager().readConfiguration(fis);
+                    } catch (Exception ignored) {
+                }
+            }            
         }
 
         String oracleHome = System.getenv(ORACLE_HOME);
