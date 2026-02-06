@@ -19,9 +19,9 @@
  */
 package org.flywaydb.reports;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -160,10 +160,11 @@ public class OperationResultReportGenerator implements ResultReportGenerator {
             return Collections.emptyList();
         }
 
-        final JsonMapper mapper = JsonUtils.getJsonMapper();
-
         final ReportsDeserializer reportsDeserializer = new ReportsDeserializer(pluginRegister);
-        mapper.registerModule(new SimpleModule().addDeserializer(OperationResult.class, reportsDeserializer));
+        final JsonMapper mapper = JsonUtils.getJsonMapper()
+                .rebuild()
+                .addModule(new SimpleModule().addDeserializer(OperationResult.class, reportsDeserializer))
+                .build();
 
         final CompositeResult<T> existingObject;
         try {

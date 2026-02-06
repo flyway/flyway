@@ -19,11 +19,11 @@
  */
 package org.flywaydb.core.internal.configuration;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.dataformat.toml.TomlStreamReadException;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.dataformat.toml.TomlStreamReadException;
 import java.util.Map.Entry;
 import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
@@ -96,7 +96,7 @@ public class TomlUtils {
 
         //noinspection unchecked
         simpleModule.addDeserializer((Class<List<String>>) type.getRawClass(), new ListDeserializer());
-        objectMapper.registerModule(simpleModule);
+        objectMapper = objectMapper.rebuild().addModule(simpleModule).build();
         try {
             return objectMapper.convertValue(properties, ConfigurationModel.class);
         } catch (IllegalArgumentException e) {
@@ -133,9 +133,11 @@ public class TomlUtils {
         try {
             final String configText = FileUtils.readFileAsString(configFile);
             final ConfigurationModel tomlConfig = ObjectMapperFactory.getObjectMapper(configFile.toString())
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .readerFor(ConfigurationModel.class)
-                .readValue(configText);
+                    .rebuild()
+                    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                    .build()
+                    .readerFor(ConfigurationModel.class)
+                    .readValue(configText);
             ConfigUtils.dumpConfigurationModel(tomlConfig, "Loading config file: " + configFile.getAbsolutePath());
             return tomlConfig;
         } catch (final TomlStreamReadException tomlread) {
@@ -160,8 +162,7 @@ public class TomlUtils {
     }
 
     private static String getErrorCause(final String errorMessage) {
-        final StringBuilder message = new StringBuilder()
-            .append(" caused by: ");
+        final StringBuilder message = new StringBuilder(" caused by: ");
         return switch (errorMessage) {
             case "Duplicate key", "Unknown token" -> message.append(errorMessage).toString();
             case "Table redefined" -> message.append("Duplicate table").toString();

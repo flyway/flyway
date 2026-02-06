@@ -19,7 +19,7 @@
  */
 package org.flywaydb.core.internal.configuration.resolvers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;

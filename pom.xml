@@ -147,7 +147,7 @@
     <version.ignite>2.13.0</version.ignite>
     <version.informix>4.50.3</version.informix>
     <version.jansi>1.18</version.jansi>
-    <version.jackson>2.19.1</version.jackson>
+    <version.jackson>3.0.4</version.jackson>
     <version.jaxb>2.3.1</version.jaxb>
     <version.jaybird>3.0.10</version.jaybird>
     <version.jboss>3.2.15.Final</version.jboss>
@@ -213,28 +213,23 @@
         <optional>true</optional>
       </dependency>
       <dependency>
-        <groupId>com.fasterxml.jackson.dataformat</groupId>
+        <groupId>tools.jackson.dataformat</groupId>
         <artifactId>jackson-dataformat-toml</artifactId>
         <version>${version.jackson}</version>
       </dependency>
       <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
+        <groupId>tools.jackson.core</groupId>
         <artifactId>jackson-annotations</artifactId>
         <version>${version.jackson}</version>
       </dependency>
       <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
+        <groupId>tools.jackson.core</groupId>
         <artifactId>jackson-core</artifactId>
         <version>${version.jackson}</version>
       </dependency>
       <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
+        <groupId>tools.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
-        <version>${version.jackson}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.datatype</groupId>
-        <artifactId>jackson-datatype-jsr310</artifactId>
         <version>${version.jackson}</version>
       </dependency>
       <dependency>

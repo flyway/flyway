@@ -19,7 +19,7 @@
  */
 package org.flywaydb.core;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.json.JsonMapper;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 

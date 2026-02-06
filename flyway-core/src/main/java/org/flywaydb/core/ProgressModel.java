@@ -19,14 +19,14 @@
  */
 package org.flywaydb.core;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 @Data
 public class ProgressModel {
     private String operation;
     private int step = 1;
-    @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer totalSteps;
     private String message;
     private String tag = "progress";
