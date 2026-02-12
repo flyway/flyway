@@ -30,8 +30,8 @@ public class ObjectMapperFactory {
     public static ObjectMapper getObjectMapper(String file) {
         String extension = getFileExtension(file);
         return switch (extension.toLowerCase()) {
-            case ".json" -> new JsonMapper();
-            case ".toml" -> new TomlMapper();
+            case ".json" -> JsonMapper.builder().build();
+            case ".toml" -> TomlMapper.builder().build();
             default -> throw new FlywayException("No mapper found for '" + extension + "' extension");
         };
     }

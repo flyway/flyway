@@ -21,7 +21,7 @@ package org.flywaydb.commandline;
 
 import static lombok.AccessLevel.PACKAGE;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import java.net.URI;
@@ -94,7 +94,7 @@ class MavenVersionChecker {
     }
 
     private MavenMetadata getMavenMetadata()
-        throws URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
+        throws URISyntaxException, ExecutionException, InterruptedException, JacksonException {
         final var url = new URI(flywayUrl);
 
         final var client = HttpClient.newBuilder().connectTimeout(Duration.ofMillis(CONNECT_TIMEOUT_MS)).build();
@@ -107,7 +107,9 @@ class MavenVersionChecker {
             .orTimeout(REQUEST_TIMEOUT_MS, TimeUnit.MILLISECONDS)
             .get();
 
-        final var xmlMapper = new XmlMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        final var xmlMapper = XmlMapper.builder()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .build();
         return xmlMapper.readValue(response.body(), MavenMetadata.class);
     }
 

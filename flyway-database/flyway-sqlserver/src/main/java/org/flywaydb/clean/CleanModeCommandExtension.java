@@ -41,8 +41,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 
-import static org.flywaydb.core.internal.command.clean.CleanModel.Mode.ALL;
-import static org.flywaydb.core.internal.command.clean.CleanModel.Mode.SCHEMA;
+import static org.flywaydb.core.internal.command.clean.CleanModeConfigurationExtension.Mode.ALL;
+import static org.flywaydb.core.internal.command.clean.CleanModeConfigurationExtension.Mode.SCHEMA;
 import static org.flywaydb.core.internal.util.TelemetryUtils.getTelemetryManager;
 
 @ExtensionMethod({ CleanModeSupportedDatabases.class, Arrays.class })

@@ -19,7 +19,7 @@
  */
 package org.flywaydb.core.internal.logging;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.util.Collection;
 import lombok.AllArgsConstructor;
@@ -42,7 +42,7 @@ public class JsonLog implements Log {
         return mapper;
     }
 
-    private void write(String message, LogLevel level) throws JsonProcessingException {
+    private void write(String message, LogLevel level) throws JacksonException {
         String[] lines = message.split("\n");
         for (String line : lines) {
             System.err.println(getJsonMapper().writeValueAsString(new JsonLogModel(level, line)));

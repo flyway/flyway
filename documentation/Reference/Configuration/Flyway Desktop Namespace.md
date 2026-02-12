@@ -6,10 +6,11 @@ This namespace contains the configurations specific to Flyway Desktop.
 
 ## Settings
 
-| Setting                                                                                      | Tier        | Type   | Description                               |
-|----------------------------------------------------------------------------------------------|-------------|--------|-------------------------------------------|
-| [`development`](<Configuration/Flyway Desktop Namespace/Flyway Desktop Development Setting>) | Community*  | String | The name of your development environment. |
-| [`shadow`](<Configuration/Flyway Desktop Namespace/Flyway Desktop Shadow Setting>)           | Community** | String | The name of your shadow environment.      |
+| Setting                                                                                                              | Tier        | Type   | Description                                                                        |
+|----------------------------------------------------------------------------------------------------------------------|-------------|--------|------------------------------------------------------------------------------------|
+| [`showDeploymentDecision`](<Configuration/Flyway Desktop Namespace/Flyway Desktop Show Deployment Decision Setting>) | Community*  | String | Whether or not to display the deployment method choice UI on the deployment pages. |
+| [`development`](<Configuration/Flyway Desktop Namespace/Flyway Desktop Development Setting>)                         | Community*  | String | The name of your development environment.                                          |
+| [`shadow`](<Configuration/Flyway Desktop Namespace/Flyway Desktop Shadow Setting>)                                   | Community** | String | The name of your shadow environment.                                               |
 
 ## Namespaces
 

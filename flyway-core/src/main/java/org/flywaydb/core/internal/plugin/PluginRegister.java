@@ -128,7 +128,6 @@ public class PluginRegister {
                 .stream()
                 .filter(p -> p.isLicensed(configuration))
                 .filter(p -> p.getClass().getSimpleName().equals(className))
-                .sorted()
                 .findFirst()
                 .orElse(null);
     }
@@ -137,7 +136,6 @@ public class PluginRegister {
         return (T) getPlugins()
             .stream()
             .filter(p -> p.getClass().getSimpleName().equals(className))
-            .sorted()
             .findFirst()
             .orElse(null);
     }

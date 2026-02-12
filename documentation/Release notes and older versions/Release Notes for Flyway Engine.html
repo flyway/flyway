@@ -8,6 +8,43 @@
 </div>
 <div class="col-md-9">
   <div class="release">
+        <h2 id="12.0.1">Flyway 12.0.1 (2026-02-12)</h2>
+
+        <h3>New features</h3>
+        <ul>
+            <li>check -changes now honours target parameter for setting a target version</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Added alias for azureAdInteractive resolver to entraId</li>
+            <li>Redgate Clone documentation marked as deprecated and Flyway Desktop sections removed</li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>Oracle now uses synonyms on new schema and snapshot history tables to enable them to be called unquoted</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fixed issue where configuration parameters would not be listed when running --help on check with a flag specified</li>
+            <li>Fixed issue where drift resolution filter generation would fail when drift found involving objects with no schema</li>
+            <li>Fix static data ordering when on Windows and using a string primary key</li>
+        </ul>
+
+        <h3>Library upgrades</h3>
+        <ul>
+            <li>Upgraded pandas from 2.2.3 to 3.0.0</li>
+            <li>Upgraded PyGithub from 2.6.1 to 2.8.1</li>
+            <li>Upgraded numpy from 2.1.3 to 2.4.2</li>
+            <li>Upgraded matplotlib from 3.9.3 to 3.10.8</li>
+            <li>Bump Oauth2-oidc-sdk to 11.32</li>
+        </ul>
+
+  </div>
+
+  <div class="release">
         <h2 id="12.0.0">Flyway 12.0.0 (2026-01-28)</h2>
 
         <h3>Breaking changes</h3>
@@ -21,6 +58,7 @@
             <li>MongoDB support via JDBC has been removed. MongoDB is now supported only in Native Connectors mode</li>
             <li>Support for SQLFluff versions prior to '1.3' has been removed</li>
         </ul>
+        You can find out more at <a href="https://documentation.red-gate.com/fd/flyway-v12-updating-from-v11-329777771.html">Flyway V12 - updating from V11</a>
 
         <h3>Database compatibility</h3>
         <ul>
@@ -4532,7 +4570,7 @@
 
         <h3>New features</h3>
         <ul>
-            <li>Introduce <a href="/documentation/tutorials/stateScripts">State Scripts</a> - a single, cumulative script that represents the state of your database after many migrations have been applied.</li>
+            <li>Introduce <a href="https://documentation.red-gate.com/fd/tutorial-generate-a-baseline-script-138346995.html">State Scripts (also known as "Baseline Migrations")</a> - a single, cumulative script that represents the state of your database after many migrations have been applied.</li>
         </ul>
 
         <p>

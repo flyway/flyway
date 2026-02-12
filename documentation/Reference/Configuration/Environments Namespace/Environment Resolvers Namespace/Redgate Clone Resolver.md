@@ -6,6 +6,10 @@ subtitle: Redgate Clone Resolver
 
 {% include enterprise.html %}
 
+{% include deprecation.html %}
+
+**Note:** Redgate Clone has been removed from Flyway Desktop and is deprecated in Flyway Engine. This feature will be removed in a future version.
+
 This [property resolver](https://documentation.red-gate.com/flyway/flyway-concepts/environments/resolvers) allows for connecting to databases generated using [Redgate Clone](https://www.red-gate.com/products/redgate-clone/?_ga=2.146246964.1042910986.1704804078-728513631.1704372124).
 This is usually used as a provisioner, as detailed [here](Configuration/Environments Namespace/Environment Provisioner Setting/Redgate Clone Provisioner).
 
@@ -30,10 +34,6 @@ Note that currently for SQL Server the database name needs to be set explicitly 
 | [`operationTimeout`](<Configuration/Environments Namespace/Environment Resolvers Namespace/Redgate Clone Resolver/Redgate Clone Resolver Operation Timeout Setting>)            | No       | String | The amount of time to wait for Redgate Clone operations to complete. |
  
 ## Usage
-
-### Flyway Desktop
-
-This can be set from the connection dialog for databases types supported by Redgate Clone.
 
 ### Command-line
 

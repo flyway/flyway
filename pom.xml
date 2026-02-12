@@ -20,7 +20,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.flywaydb</groupId>
   <artifactId>flyway-parent</artifactId>
-  <version>12.0.0</version>
+  <version>12.0.1</version>
   <packaging>pom</packaging>
   <name>${project.artifactId}</name>
   <description>Flyway: Database Migrations Made Easy.</description>
@@ -445,12 +445,6 @@
         <optional>true</optional>
       </dependency>
       <dependency>
-        <groupId>mysql</groupId>
-        <artifactId>mysql-connector-java</artifactId>
-        <version>${version.mysql}</version>
-        <optional>true</optional>
-      </dependency>
-      <dependency>
         <groupId>net.java.dev.jna</groupId>
         <artifactId>jna</artifactId>
         <version>${version.jna}</version>
@@ -530,6 +524,12 @@
         <artifactId>mongodb-driver-sync</artifactId>
         <version>${version.mongodb}</version>
       </dependency>
+
+
+
+
+
+
 
 
 
@@ -753,7 +753,7 @@
       <dependency>
         <groupId>com.nimbusds</groupId>
         <artifactId>oauth2-oidc-sdk</artifactId>
-        <version>10.7.1</version>
+        <version>11.32</version>
       </dependency>
       <dependency>
         <groupId>org.eclipse.jetty</groupId>

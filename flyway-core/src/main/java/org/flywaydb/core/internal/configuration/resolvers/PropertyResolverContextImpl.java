@@ -149,7 +149,15 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
         }
 
         final String resolverName = resolverMatch.substring(2, resolverMatch.indexOf(".")).strip();
-        if (!resolvers.containsKey(resolverName)) {
+
+        // Find resolver case-insensitively
+        final PropertyResolver resolver = resolvers.entrySet().stream()
+            .filter(entry -> entry.getKey().equalsIgnoreCase(resolverName))
+            .map(Map.Entry::getValue)
+            .findFirst()
+            .orElse(null);
+
+        if (resolver == null) {
             throw new FlywayException("Unknown resolver '" + resolverName + "' for environment " + environmentName, CoreErrorCode.CONFIGURATION);
         }
 
@@ -157,11 +165,11 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
         if (resolverMatch.contains(":")) {
             resolverParam = resolverMatch.substring(resolverMatch.indexOf(".") + 1, resolverMatch.indexOf(":")).strip();
             final String filter = resolverMatch.substring(resolverMatch.indexOf(":") + 1, resolverMatch.length() - 1).strip();
-            return filter(resolvers.get(resolverName).resolve(resolverParam, this, progress), filter);
+            return filter(resolver.resolve(resolverParam, this, progress), filter);
         }
 
         resolverParam = resolverMatch.substring(resolverMatch.indexOf(".") + 1, resolverMatch.length() - 1).strip();
-        return resolvers.get(resolverName).resolve(resolverParam, this, progress);
+        return resolver.resolve(resolverParam, this, progress);
     }
 
     static String filter(final String str, final String filter) {

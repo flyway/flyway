@@ -79,6 +79,11 @@ public class NullFlywayTelemetryManager implements FlywayTelemetryManager {
     }
 
     @Override
+    public void notifyOrganizationIdChanged(String hashedOrgUuid) {
+
+    }
+
+    @Override
     public FlywayTelemetryProperties getProperties() {
         return new FlywayTelemetryProperties(null, null, null, null);
     }

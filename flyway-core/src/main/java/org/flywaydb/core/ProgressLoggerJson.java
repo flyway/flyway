@@ -26,7 +26,7 @@ import lombok.SneakyThrows;
 @CustomLog
 public class ProgressLoggerJson implements ProgressLogger {
     private final ProgressModel progressModel = new ProgressModel();
-    private final JsonMapper jsonMapper = new JsonMapper();
+    private final JsonMapper jsonMapper = JsonMapper.builder().build();
 
     public ProgressLogger subTask(String operationName) {
         return new ProgressLoggerJson(this.progressModel.getOperation() + "." + operationName);

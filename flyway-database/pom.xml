@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>12.0.0</version>
+    <version>12.0.1</version>
   </parent>
 
   <artifactId>flyway-database</artifactId>
@@ -20,7 +20,6 @@
     <module>flyway-database-informix</module>
     <module>flyway-database-postgresql</module>
     <module>flyway-database-oracle</module>
-    <module>flyway-database-mongodb</module>
     <module>flyway-database-redshift</module>
     <module>flyway-database-saphana</module>
     <module>flyway-database-snowflake</module>

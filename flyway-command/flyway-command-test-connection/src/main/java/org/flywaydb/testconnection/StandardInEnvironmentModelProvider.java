@@ -35,7 +35,9 @@ class StandardInEnvironmentModelProvider {
     EnvironmentModel getModel() {
         try (final var scanner = new Scanner(stdIn, StandardCharsets.UTF_8)) {
             final var request = scanner.nextLine();
-            return new JsonMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            return JsonMapper.builder()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .build()
                 .readerFor(EnvironmentModel.class)
                 .readValue(request);
         } catch (final Exception e) {

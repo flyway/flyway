@@ -4,6 +4,10 @@ subtitle: environments.*.resolvers.gcsm.project
 
 {% include enterprise.html %}
 
+{% include deprecation.html %}
+
+**Note:** Redgate Clone has been removed from Flyway Desktop and is deprecated in Flyway Engine. This feature will be removed in a future version.
+
 ## Description
 
 The data container to use for the database clone.
@@ -17,10 +21,6 @@ String
 <i>none</i>
 
 ## Usage
-
-### Flyway Desktop
-
-This can be set from the connection dialog for databases types supported by Redgate Clone.
 
 ### Command-line
 

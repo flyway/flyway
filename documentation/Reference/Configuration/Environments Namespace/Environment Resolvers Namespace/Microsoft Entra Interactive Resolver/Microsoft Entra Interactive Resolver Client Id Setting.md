@@ -25,12 +25,12 @@ This can be set from the connection dialog for SQL Server projects.
 ### Command-line
 
 ```bash
-./flyway info -environments.development.resolvers.azureAdInteractive.clientId='{some GUID}'
+./flyway info -environments.development.resolvers.entraId.clientId='{some GUID}'
 ```
 
 ### TOML Configuration File
 
 ```toml
-[environments.development.resolvers.azureAdInteractive]
+[environments.development.resolvers.entraId]
 clientId = "{some GUID}"
 ```

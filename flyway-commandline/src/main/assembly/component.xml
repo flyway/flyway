@@ -207,14 +207,6 @@
 
 
 
-
-
-
-
-
-
-
-
   </fileSets>
   <dependencySets>
     <dependencySet>
@@ -239,6 +231,8 @@
         <include>org.slf4j:slf4j-nop</include>
         <include>com.nimbusds:nimbus-jose-jwt</include>
         <include>com.nimbusds:oauth2-oidc-sdk</include>
+        <include>net.minidev:json-smart</include>
+        <include>net.minidev:accessors-smart</include>
         <include>org.eclipse.jetty:jetty-server</include>
         <include>net.java.dev.jna:jna</include>
         <include>net.java.dev.jna:jna-platform</include>
@@ -352,7 +346,6 @@
 
 
 
-
         <include>org.flywaydb:flyway-database-ignite</include>
         <include>org.flywaydb:flyway-database-tidb</include>
         <include>org.flywaydb:flyway-database-yugabytedb</include>
@@ -378,6 +371,7 @@
         <include>org.flywaydb:flyway-experimental-sqlite</include>
         <include>org.flywaydb:flyway-nc-callbacks</include>
         <include>org.flywaydb:flyway-database-nc-couchbase</include>
+        <include>org.flywaydb:flyway-database-nc-mongodb</include>
         <include>org.flywaydb:flyway-command-test-connection</include>
       </includes>
     </dependencySet>
@@ -407,18 +401,17 @@
       </excludes>
     </dependencySet>
     <dependencySet>
-      <outputDirectory>drivers/mongo</outputDirectory>
-      <useTransitiveFiltering>true</useTransitiveFiltering>
-      <includes>
-        <include>org.mongodb:mongodb-driver-sync</include>
-        <include>org.flywaydb:flyway-database-nc-mongodb</include>
-      </includes>
-    </dependencySet>
-    <dependencySet>
       <outputDirectory>drivers/couchbase</outputDirectory>
       <useTransitiveFiltering>true</useTransitiveFiltering>
       <includes>
         <include>com.couchbase.client:java-client</include>
+      </includes>
+    </dependencySet>
+    <dependencySet>
+      <outputDirectory>drivers/mongo</outputDirectory>
+      <useTransitiveFiltering>true</useTransitiveFiltering>
+      <includes>
+        <include>org.mongodb:mongodb-driver-sync</include>
       </includes>
     </dependencySet>
     <dependencySet>

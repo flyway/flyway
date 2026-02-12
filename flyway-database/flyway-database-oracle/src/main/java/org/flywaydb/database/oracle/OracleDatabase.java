@@ -85,7 +85,8 @@ public class OracleDatabase extends Database<OracleConnection> {
                 "    CONSTRAINT \"" + table.getName() + "_pk\" PRIMARY KEY (\"installed_rank\")\n" +
                 ")" + tablespace + ";\n" +
                 (baseline ? getBaselineStatement(table) + ";\n" : "") +
-                "CREATE INDEX \"" + table.getSchema().getName() + "\".\"" + table.getName() + "_s_idx\" ON " + table + " (\"success\") " + tablespace + ";\n";
+                "CREATE INDEX \"" + table.getSchema().getName() + "\".\"" + table.getName() + "_s_idx\" ON " + table + " (\"success\") " + tablespace + ";\n" +
+                "CREATE SYNONYM " + table.getSchema() + "." + table.getName() + " for " + table + ";\n";
     }
 
     @Override

@@ -1,6 +1,6 @@
 /*-
  * ========================LICENSE_START=================================
- * flyway-database-mongodb
+ * flyway-core
  * ========================================================================
  * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
@@ -17,14 +17,29 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.database.mongodb;
+package org.flywaydb.core.internal.command.clean;
 
-import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.parser.Parser;
-import org.flywaydb.core.internal.parser.ParsingContext;
+import lombok.Getter;
+import lombok.Setter;
+import org.flywaydb.core.extensibility.ConfigurationExtension;
 
-public class MongoDBParser extends Parser {
-    protected MongoDBParser(Configuration configuration, ParsingContext parsingContext) {
-        super(configuration, parsingContext, 3);
+@Getter
+@Setter
+public class CleanModeConfigurationExtension implements ConfigurationExtension {
+    public enum Mode {
+        DEFAULT, SCHEMA, ALL;
+    }
+
+    @Deprecated
+    CleanModel clean;
+
+    @Override
+    public String getNamespace() {
+        return "plugins";
+    }
+
+    @Override
+    public String getConfigurationParameterFromEnvironmentVariable(String environmentVariable) {
+        return null;
     }
 }

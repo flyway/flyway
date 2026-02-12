@@ -45,5 +45,7 @@ public interface FlywayTelemetryManager extends Plugin {
 
     void notifyUserIdChanged(final String hashedUserId);
 
+    void notifyOrganizationIdChanged(final String hashedOrgUuid);
+
     FlywayTelemetryProperties getProperties();
 }

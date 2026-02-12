@@ -51,10 +51,10 @@ public class SQLServerConfigurationExtension implements ConfigurationExtension {
     @Override
     public String getConfigurationParameterFromEnvironmentVariable(String environmentVariable) {
         return switch (environmentVariable) {
-            case "FLYWAY_SQL_SERVER_KERBEROS_LOGIN_FILE" ->
+            case "FLYWAY_PLUGINS_SQL_SERVER_KERBEROS_LOGIN_FILE", "FLYWAY_SQL_SERVER_KERBEROS_LOGIN_FILE" ->
                 KERBEROS_LOGIN_FILE;
-            case "FLYWAY_SQL_SERVER_CLEAN_MODE" -> CLEAN_MODE;
-            case "FLYWAY_SQL_SERVER_CLEAN_SCHEMAS_EXCLUDE" ->
+            case "FLYWAY_PLUGINS_CLEAN_MODE", "FLYWAY_SQL_SERVER_CLEAN_MODE" -> CLEAN_MODE;
+            case "FLYWAY_PLUGINS_CLEAN_SCHEMAS_EXCLUDE", "FLYWAY_SQL_SERVER_CLEAN_SCHEMAS_EXCLUDE" ->
                 CLEAN_SCHEMAS_EXCLUDE;
             default -> null;
         };

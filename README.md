@@ -38,7 +38,7 @@ Flyway is brought to you by [Redgate](https://www.red-gate.com/) with the help o
 Please visit our [contribution page](https://flyway.github.io/flyway/) to find out how you can contribute in various ways to the project.
 
 ## License
-Copyright © [Red Gate Software Ltd](http://www.red-gate.com) 2010-2025
+Copyright © [Red Gate Software Ltd](http://www.red-gate.com) 2010-2026
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

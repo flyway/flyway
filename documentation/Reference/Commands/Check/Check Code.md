@@ -18,27 +18,22 @@ flyway check -code
 
 ### Optional
 
-| Parameter                                                                                                        | Namespace | Description                                                                                                      |
-|------------------------------------------------------------------------------------------------------------------|-----------|------------------------------------------------------------------------------------------------------------------|
-| [`rulesLocation`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Rules Location Setting>)   | check     | Where Flyway looks for rules.                                                                                    |
-| [`rulesConfig`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Rules Config Setting>)       | check     | Where to locate the SQLFluff configuration file.                                                                 |
-| [`rulesDialect`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Rules Dialect Setting>)     | check     | Specifies the SQL dialect for analysis.                                                                          |
-| [`scope`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Scope Setting>)                      | check     | Specifies the scope of migration files to include in code analysis                                        |
-| [`majorRules`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Major Rules Setting>)         | check     | **Deprecated.** List of rules considered to be major.                                                                            |
-| [`majorTolerance`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Major Tolerance Setting>) | check     | **Deprecated.** The number of major rules violations to be tolerated before throwing an error.                                   |
-| [`minorRules`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Minor Rules Setting>)         | check     | **Deprecated.** List of rules considered to be minor.                                                                            |
-| [`minorTolerance`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Minor Tolerance Setting>) | check     | **Deprecated.** The number of minor rules violations to be tolerated before throwing an error.                                   |
-| [`regexEnabled`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Regex Enabled Setting>) | check     | Enable or disable the Regex Engine for code analysis.                                                            |  
-| [`sqlfluffEnabled`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check SQLFluff Enabled Setting>) | check     | Enable or disable the `SQLFluff` Engine for code analysis.                                                       |
-| [`code.failOnError`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Code Fail On Error Setting>) | check     | Whether to fail based on the violation severity level.                                                      |  
-| [`reportFilename`](<Configuration/Flyway Namespace/Flyway Report Filename Setting>)                              | (root)    | The output path of the generated report.                                                                         |
-| [`workingDirectory`](<Command-line Parameters/Working Directory Parameter>)                                       | (root)    | The directory to consider the current working directory. All relative paths will be considered relative to this. |
-| [{environment parameters}](<Configuration/Environments Namespace>)                                               | (root)    | Environment configuration for the source and/or target environments.                                             |
+| Parameter                                                                                                             | Namespace | Description                                                                                                      |
+|-----------------------------------------------------------------------------------------------------------------------|-----------|------------------------------------------------------------------------------------------------------------------|
+| [`rulesLocation`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Rules Location Setting>)        | check     | Where Flyway looks for rules.                                                                                    |
+| [`rulesConfig`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Rules Config Setting>)            | check     | Where to locate the SQLFluff configuration file.                                                                 |
+| [`rulesDialect`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Rules Dialect Setting>)          | check     | Specifies the SQL dialect for analysis.                                                                          |
+| [`scope`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Scope Setting>)                         | check     | Specifies the scope of migration files to include in code analysis                                               |
+| [`regexEnabled`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Regex Enabled Setting>)          | check     | Enable or disable the Regex Engine for code analysis.                                                            |
+| [`sqlfluffEnabled`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check SQLFluff Enabled Setting>)    | check     | Enable or disable the `SQLFluff` Engine for code analysis.                                                       |
+| [`code.failOnError`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Code Fail On Error Setting>) | check     | Whether to fail based on the violation severity level.                                                           |
+| [`reportFilename`](<Configuration/Flyway Namespace/Flyway Report Filename Setting>)                                   | (root)    | The output path of the generated report.                                                                         |
+| [`workingDirectory`](<Command-line Parameters/Working Directory Parameter>)                                           | (root)    | The directory to consider the current working directory. All relative paths will be considered relative to this. |
+| [{environment parameters}](<Configuration/Environments Namespace>)                                                    | (root)    | Environment configuration for the source and/or target environments.                                             |
 
 Universal commandline parameters are listed [here](<Command-line Parameters>).
 
 _Note_:
-- _The following parameters are now deprecated - `majorRules/majorTolerance/minorRules/minorTolerance`. Consider using `failOnError` instead._
 - _Static code analysis will not interrupt the execution of subsequent Flyway verb operations if they are chained. This means that even if `failOnError` is enabled, Flyway will continue processing the remaining verb operations.
   For this reason, it is recommended to run subsequent Flyway verbs separately._
 
@@ -46,31 +41,26 @@ _Note_:
 
 ```json
 {
-  "htmlReport": "report.html",
-  "jsonReport": "report.json",
-  "individualResults": [
-    {
-      message: null,
-      stackTrace: null,
-      results: [
-        {
-          filepath: "C:\\flywayProject\migrations\V001__AddTable.sql",
-          violations: [
-            "line_no:": 5,
-            "line_pos": 10,
-            "description": "violation description",
-            "code": "violation code"
-          ]
-        },
-      ],
-      timestamp: "2022-07-22T08-08-33Z",
-      database: "testdb",
-      operation: "code",
-      flywayVersion: undefined,
-      warnings: undefined,
-    }
-  ]
- }
+  "individualResults" : [ {
+    "timestamp" : "2026-02-03T15:35:14.170951075",
+    "operation" : "code",
+    "exception" : null,
+    "licenseFailed" : false,
+    "results" : [ {
+      "filepath" : "/projects/flyway/sql/V1__no_where.sql",
+      "violations" : [ {
+        "line_no" : 1,
+        "line_pos" : 1,
+        "line_no_end" : 1,
+        "line_pos_end" : 18,
+        "description" : "Ensure delete statements have a condition attached.",
+        "code" : "RG06",
+        "warning" : false,
+        "help" : "https://help.red-gate.com/help/flyway-cli12/help_0.aspx?topic=rules/RG06"
+      } ]
+    } ]
+  } ]
+}
 ```
 
 ## Error codes

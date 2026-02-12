@@ -25,7 +25,7 @@ If the database does not yet exist, then it will be provisioned. This could be t
 Common use cases of provisioning are:
 
 * Spinning up a test database, for example to test the deployment of migrations
-* Restoring a development database from a clone or snapshot of production
+* Restoring a development database from a snapshot of production
 * Spinning up a development database with appropriate state on a git branch switch
 
 Note that not all provisioner types will support provisioning. The [clean provisioner](Configuration/Environment Provisioner Setting/Clean Provisioner) is a method for re-provisioning only.
@@ -57,12 +57,12 @@ Note that Flyway Desktop implicitly sets the Shadow Database to use the  `clean`
 ### Command-line
 
 ```powershell
-./flyway -environments.sample.provisioner=clone info
+./flyway -environments.sample.provisioner=clean info
 ```
 
 ### TOML Configuration File
 
 ```toml
 [environments.development]
-provisioner = "clone"
+provisioner = "clean"
 ```

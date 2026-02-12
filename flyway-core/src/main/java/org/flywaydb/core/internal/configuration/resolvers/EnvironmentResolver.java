@@ -153,12 +153,12 @@ public class EnvironmentResolver {
     }
 
     private Class<? extends Plugin> getResolverClassFromKey(final PluginRegister pluginRegister, final String key) {
-        Plugin plugin = pluginRegister.getInstancesOf(EnvironmentProvisioner.class).stream().filter(p -> p.getName()
-            .equalsIgnoreCase(key)).findFirst().orElse(null);
+        Plugin plugin = pluginRegister.getInstancesOf(EnvironmentProvisioner.class).stream()
+            .filter(p -> matchesNameOrAlias(p, key)).findFirst().orElse(null);
 
         if (plugin == null) {
-            plugin = pluginRegister.getInstancesOf(PropertyResolver.class).stream().filter(p -> p.getName()
-                .equalsIgnoreCase(key)).findFirst().orElse(null);
+            plugin = pluginRegister.getInstancesOf(PropertyResolver.class).stream()
+                .filter(p -> matchesNameOrAlias(p, key)).findFirst().orElse(null);
         }
 
         if (plugin != null) {
@@ -166,6 +166,20 @@ public class EnvironmentResolver {
         }
 
         throw new FlywayException("Unable to find resolver: " + key);
+    }
+
+    private boolean matchesNameOrAlias(Plugin plugin, String key) {
+        if (plugin.getName().equalsIgnoreCase(key)) {
+            return true;
+        }
+
+        if (plugin instanceof PropertyResolver) {
+            PropertyResolver resolver = (PropertyResolver) plugin;
+            return resolver.getAliases().stream()
+                .anyMatch(alias -> alias.equalsIgnoreCase(key));
+        }
+
+        return false;
     }
 
     private Class<?> getResolverConfigClassFromKey(final PluginRegister pluginRegister, final String key) {

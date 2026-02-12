@@ -300,11 +300,6 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:com.github.jnr:jnr-x86asm:MIT
 <license-texts/MIT-0.txt>
 -------------------------------------
 -------------------------------------
-com.github.kornilova203:mongo-jdbc-driver 1.19
--------------------------------------
-<license-texts/jetbrains-apache.txt>
--------------------------------------
--------------------------------------
 com.github.spotbugs:spotbugs-annotations 4.7.3
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.github.spotbugs:spotbugs-annotations:LGPL-2.1

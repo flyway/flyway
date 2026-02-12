@@ -311,9 +311,8 @@ public class ClassicConfiguration implements Configuration {
         final ProvisionerMode provisionerMode,
         final ProgressLogger progress) {
         if (environmentResolver == null) {
-            environmentResolver = new EnvironmentResolver(pluginRegister.getInstancesOf(PropertyResolver.class)
-                .stream()
-                .collect(Collectors.toMap(PropertyResolver::getName, x -> x)),
+            environmentResolver = new EnvironmentResolver(
+                createResolverMapWithAliases(pluginRegister.getInstancesOf(PropertyResolver.class)),
                 pluginRegister.getInstancesOf(EnvironmentProvisioner.class)
                     .stream()
                     .collect(Collectors.toMap(EnvironmentProvisioner::getName, x -> x)));
@@ -341,6 +340,20 @@ public class ClassicConfiguration implements Configuration {
             progress == null ? new ProgressLoggerEmpty() : progress);
         resolvedEnvironments.put(envName, resolved);
         return resolved;
+    }
+
+    private Map<String, PropertyResolver> createResolverMapWithAliases(
+            List<PropertyResolver> resolvers) {
+        Map<String, PropertyResolver> map = new HashMap<>();
+        for (PropertyResolver resolver : resolvers) {
+            // Register by primary name
+            map.put(resolver.getName(), resolver);
+            // Register by all aliases
+            for (String alias : resolver.getAliases()) {
+                map.put(alias, resolver);
+            }
+        }
+        return map;
     }
 
     private FlywayModel getModernFlyway() {
@@ -1743,7 +1756,18 @@ public class ClassicConfiguration implements Configuration {
 
         final Collection<String> keysToRemove = new ArrayList<>();
 
-        for (final Map.Entry<String, String> params : props.entrySet()) {
+        final String deprecatedNameSpace = "plugins";
+        final Collection<Entry<String, String>> sortedEntrySet = new LinkedHashSet<>();
+        sortedEntrySet.addAll(props.entrySet()
+            .stream()
+            .filter(r -> r.getKey().contains(deprecatedNameSpace))
+            .collect(Collectors.toSet()));
+        sortedEntrySet.addAll(props.entrySet()
+            .stream()
+            .filter(r -> !sortedEntrySet.contains(r))
+            .collect(Collectors.toSet()));
+
+        for (final Map.Entry<String, String> params : sortedEntrySet) {
 
             final String text = params.getKey();
             final Matcher matcher = ANY_WORD_BETWEEN_TWO_DOTS_PATTERN.matcher(text);
@@ -1752,8 +1776,17 @@ public class ClassicConfiguration implements Configuration {
             final List<ConfigurationExtension> configExtensions = pluginRegister.getInstancesOf(ConfigurationExtension.class)
                 .stream()
                 .filter(c -> c.getNamespace().isEmpty()
-                    || rootNamespace.equals(c.getNamespace()))
+                    || rootNamespace.equals(c.getNamespace())
+                    || rootNamespace.equals(deprecatedNameSpace))
                 .toList();
+
+            configExtensions.forEach(c -> {
+                if (c.getNamespace().isEmpty()) {
+                    final String replaceNamespace = "flyway." + deprecatedNameSpace + ".";
+                    final String fixedKey = params.getKey().replace(replaceNamespace, "");
+                    parsePropertiesFromConfigExtension(configExtensionsPropertyMap, keysToRemove, params, fixedKey, c);
+                }
+            });
 
             configExtensions.forEach(c -> {
                 String replaceNamespace = "flyway.";

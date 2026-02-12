@@ -30,7 +30,7 @@ import org.flywaydb.core.api.output.CleanResult;
 import org.flywaydb.core.api.output.CommandResultFactory;
 import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
-import org.flywaydb.core.internal.command.clean.CleanModel.Mode;
+import org.flywaydb.core.internal.command.clean.CleanModeConfigurationExtension.Mode;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;

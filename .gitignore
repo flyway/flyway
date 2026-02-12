@@ -48,3 +48,5 @@ flyway-comparison/flyway-comparison-engines/flyway-comparison/
 out/**
 
 **/*.egg-info/
+
+.worktrees/

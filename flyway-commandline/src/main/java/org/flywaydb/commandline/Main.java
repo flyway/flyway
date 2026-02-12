@@ -23,7 +23,7 @@ import static org.flywaydb.commandline.ThreadUtils.terminate;
 import static org.flywaydb.commandline.logging.LoggingUtils.getLogCreator;
 import static org.flywaydb.commandline.logging.LoggingUtils.initLogging;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
@@ -246,7 +246,7 @@ public class Main {
 
     private static void printError(final CommandLineArguments commandLineArguments,
         final Exception e,
-        final OperationResult errorResult) throws JsonProcessingException {
+        final OperationResult errorResult) throws JacksonException {
         if (commandLineArguments.shouldOutputJson()) {
             printJson(commandLineArguments, errorResult, null);
         } else {
@@ -404,7 +404,7 @@ public class Main {
 
     private static void printJson(final CommandLineArguments commandLineArguments,
         final OperationResult object,
-        final ReportDetails reportDetails) throws JsonProcessingException {
+        final ReportDetails reportDetails) throws JacksonException {
         final String json = convertObjectToJsonString(object, reportDetails);
 
         if (commandLineArguments.isOutputFileSet()) {
@@ -426,7 +426,7 @@ public class Main {
     }
 
     private static String convertObjectToJsonString(final Object object, final ReportDetails reportDetails)
-        throws JsonProcessingException {
+        throws JacksonException {
         final JsonMapper mapper = JsonUtils.getJsonMapper();
         final ObjectNode objectNode = mapper.valueToTree(object);
 
