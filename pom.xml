@@ -125,7 +125,7 @@
     <version.antlr>4.13.2</version.antlr>
     <version.appinsights>3.4.7</version.appinsights>
     <version.aws-java-sdk>2.32.22</version.aws-java-sdk> <!-- TODO: revert back to range once nexus is better -->
-    <version.aws-secretsmanager>2.0.2</version.aws-secretsmanager>
+    <version.aws-secretsmanager>2.0.4</version.aws-secretsmanager>
     <version.azure-identity>1.15.4</version.azure-identity>
     <version.bcpkix-jdk18on>1.80</version.bcpkix-jdk18on>
     <version.byte-buddy-agent>1.17.6</version.byte-buddy-agent>
