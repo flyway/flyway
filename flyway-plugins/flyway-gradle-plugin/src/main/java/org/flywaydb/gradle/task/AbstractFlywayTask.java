@@ -567,7 +567,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      *
      * @return @{code true} to fail (default: {@code false})
      */
-    public boolean failOnMissingLocations;
+    public Boolean failOnMissingLocations;
 
     /**
      * The configuration for plugins You will need to configure this with the key and value specific to your plugin
