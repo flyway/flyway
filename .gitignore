@@ -50,3 +50,7 @@ out/**
 **/*.egg-info/
 
 .worktrees/
+.claude/settings.local.json
+
+# Release notes CSV (temporary file, should not be committed)
+release-notes.csv

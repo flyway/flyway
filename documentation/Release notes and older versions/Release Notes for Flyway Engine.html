@@ -8,6 +8,27 @@
 </div>
 <div class="col-md-9">
   <div class="release">
+        <h2 id="12.0.2">Flyway 12.0.2 (2026-02-20)</h2>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Add flag `-check.generateReport` to control whether check should write the result to a file</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>flyway check now honours environment-specific cleanDisabled override when no provisioner set for the build database</li>
+            <li>running snapshot against an Oracle database without specifying schemas will now use the default schema if set</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Auth can now be output as JSON when `outputType=json` is set</li>
+        </ul>
+
+  </div>
+
+  <div class="release">
         <h2 id="12.0.1">Flyway 12.0.1 (2026-02-12)</h2>
 
         <h3>New features</h3>
@@ -35,10 +56,6 @@
 
         <h3>Library upgrades</h3>
         <ul>
-            <li>Upgraded pandas from 2.2.3 to 3.0.0</li>
-            <li>Upgraded PyGithub from 2.6.1 to 2.8.1</li>
-            <li>Upgraded numpy from 2.1.3 to 2.4.2</li>
-            <li>Upgraded matplotlib from 3.9.3 to 3.10.8</li>
             <li>Bump Oauth2-oidc-sdk to 11.32</li>
         </ul>
 

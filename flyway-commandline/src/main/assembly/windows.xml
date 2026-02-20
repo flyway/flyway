@@ -56,7 +56,7 @@
             <fileMode>644</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../flyway-rulesengine-sqlfluff/target/sqlfluff/</directory>
+            <directory>../flyway-rulesengine-sqlfluff/target/sqlfluff-windows/</directory>
             <outputDirectory>lib/sqlfluff</outputDirectory>
             <includes>
                 <include>*.exe</include>

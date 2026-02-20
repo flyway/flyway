@@ -1,3 +1,2 @@
-lxml
-pytest
-
+lxml==6.0.2
+pytest==9.0.2

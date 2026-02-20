@@ -42,7 +42,7 @@ public class VersionUtils {
         return isHigherThan(x, y) || isEquivalentTo(x, y);
     }
 
-    public static boolean currentVersionIsHigherThanOrEquivalentTo(final Version target) {
-        return VersionUtils.isHigherThanOrEquivalentTo(Version.parse(VersionPrinter.getVersion()), target);
+    public static boolean currentVersionIsHigherThanOrEquivalentTo(final Version current, final Version target) {
+        return isHigherThanOrEquivalentTo(current, target);
     }
 }

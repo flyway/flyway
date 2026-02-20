@@ -19,7 +19,8 @@ The `check` command encapsulates the following operations:
  * Have a record of what the check results were for audit or reporting purposes
  * Understand and be able to communicate status and plans in a more easily shareable manner
 
-The reports from the separate operations will all be added to the same report and consecutive runs of Flyway using the same report file will concatenate the results by timestamp.
+The reports from the separate operations will all be added to the same report file (under corresponding tabs for the html report), whether they are in the same command invocation or spread across multiple invocations.
+If the same operation is run again, then the entry for that report type will be replaced within the report file, so there is only ever one entry for each report type. So if you run `check -drift` twice in a row, the second report entry will overwrite the first.
 
 When check is called with both -drift and -changes flags, -drift will be run before -changes for build efficiency.
 
@@ -29,6 +30,11 @@ When check is called with both -drift and -changes flags, -drift will be run bef
 
 ```bash
 flyway check -changes -drift -buildEnvironment="build" -environment="production"
+```
+
+```bash
+flyway check -drift -environment="production"
+flyway check -changes -buildEnvironment="build" -environment="production"
 ```
 
 

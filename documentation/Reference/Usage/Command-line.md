@@ -29,6 +29,11 @@ Access Flyway Pipelines at [Welcome to Flyway (red-gate.com)](https://flyway.red
 <a class="note" href="{{site.enterpriseUrl}}/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-macosx-x64.tar.gz.md5">md5</a>
 <a class="note" href="{{site.enterpriseUrl}}/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-macosx-x64.tar.gz.sha1">sha1</a>
 
+<a style="text-decoration: none; background: rgb(204,0,0); padding: 6px 40px; border-radius: 10px; color: white; font-weight: bold;" href="{{site.enterpriseUrl}}/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-macosx-arm64.tar.gz">flyway-commandline-{{site.flywayVersion}}-macosx-arm64.tar.gz</a>
+
+<a class="note" href="{{site.enterpriseUrl}}/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-macosx-arm64.tar.gz.md5">md5</a>
+<a class="note" href="{{site.enterpriseUrl}}/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-macosx-arm64.tar.gz.sha1">sha1</a>
+
 ### Linux
 
 Download, extract and install by adding to `PATH` (requires `sudo` permissions):

@@ -19,15 +19,18 @@
  */
 package org.flywaydb.core.internal.configuration.models;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.List;
 import java.util.Map;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.With;
 import org.flywaydb.core.internal.configuration.resolvers.ProvisionerMode;
 
 @Getter
 @Setter
+@With
+@AllArgsConstructor
 public class ResolvedEnvironment {
     private String url;
     private String user;
@@ -41,6 +44,8 @@ public class ResolvedEnvironment {
     private Map<String, String> jdbcProperties = Map.of();
     private ProvisionerMode provisionerMode;
     private String nativeUrl; //TODO - not implemented, placeholder only.
+
+    public ResolvedEnvironment() {}
 
     public EnvironmentModel toEnvironmentModel() {
         EnvironmentModel result = new EnvironmentModel();

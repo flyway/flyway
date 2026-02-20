@@ -161,13 +161,15 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
                                        ObjectType.STORED_PROCEDURE, ObjectType.CLR_STORED_PROCEDURE, ObjectType.USER_TABLE,
                                        ObjectType.SYNONYM, ObjectType.SEQUENCE_OBJECT, ObjectType.FOREIGN_KEY, ObjectType.VIEW).isEmpty();
         if (empty) {
-            int objectCount = jdbcTemplate.queryForInt("SELECT count(*) FROM " +
-                                                               "( " +
-                                                               "SELECT t.name FROM sys.types t INNER JOIN sys.schemas s ON t.schema_id = s.schema_id " +
-                                                               "WHERE t.is_user_defined = 1 AND s.name = ? " +
-                                                               "Union " +
-                                                               "SELECT name FROM sys.assemblies WHERE is_user_defined=1" +
-                                                               ") R", name);
+            String typesAndAssembliesQuery = "SELECT count(*) FROM " +
+                                             "( " +
+                                             "SELECT t.name FROM sys.types t INNER JOIN sys.schemas s ON t.schema_id = s.schema_id " +
+                                             "WHERE t.is_user_defined = 1 AND s.name = ? " +
+                                             (database.supportsAssemblies()
+                                                     ? "Union SELECT name FROM sys.assemblies WHERE is_user_defined=1"
+                                                     : "") +
+                                             ") R";
+            int objectCount = jdbcTemplate.queryForInt(typesAndAssembliesQuery, name);
             empty = objectCount == 0;
         }
         return empty;

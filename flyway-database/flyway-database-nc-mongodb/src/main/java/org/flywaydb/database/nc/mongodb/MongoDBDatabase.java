@@ -19,8 +19,8 @@
  */
 package org.flywaydb.database.nc.mongodb;
 
-import static org.flywaydb.core.internal.logging.PreviewFeatureWarning.NATIVE_CONNECTORS;
-import static org.flywaydb.core.internal.logging.PreviewFeatureWarning.logPreviewFeature;
+import static org.flywaydb.core.internal.util.DeprecationUtils.DeprecatedFeatures.MONGODB_URL;
+import static org.flywaydb.core.internal.util.DeprecationUtils.printDeprecationNotice;
 import static org.flywaydb.core.internal.util.UrlUtils.extractQueryParams;
 
 import com.mongodb.ConnectionString;
@@ -62,6 +62,7 @@ import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.util.AsciiTable;
+import org.flywaydb.core.internal.util.DeprecationUtils.DeprecatedFeatures;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.nc.NativeConnectorsProcessRunner;
@@ -110,7 +111,7 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
 
         if (environment.getUrl().startsWith("jdbc:")) {
             LOG.info("JDBC prefix stripped from url: " + redactUrl(environment.getUrl()));
-            LOG.warn("The jdbc:mongodb:// URL prefix is deprecated and will be removed in a future release, use mongodb:// instead.");
+            printDeprecationNotice(MONGODB_URL);
             environment.setUrl(environment.getUrl().replaceFirst("jdbc:", ""));
         }
 

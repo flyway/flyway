@@ -27,10 +27,8 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -45,6 +43,7 @@ import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.configuration.models.FlywayModel;
 import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.reports.ReportDetails;
+import org.flywaydb.core.internal.reports.ReportGenerationConfiguration;
 import org.flywaydb.core.internal.reports.ReportGenerationOutput;
 import org.flywaydb.core.internal.reports.ResultReportGenerator;
 import org.flywaydb.core.internal.util.FileUtils;
@@ -61,7 +60,6 @@ public class OperationResultReportGenerator implements ResultReportGenerator {
     private static final String HTM_REPORT_EXTENSION = ".htm";
 
     private static final Pattern REPORT_FILE_PATTERN = Pattern.compile("\\.html?$");
-    private static final Set<String> ALWAYS_REPORT_OPERATIONS = Set.of("changes", "drift", "dryrun", "code");
 
     @Override
     public ReportGenerationOutput generateReport(final OperationResult operationResult,
@@ -73,8 +71,7 @@ public class OperationResultReportGenerator implements ResultReportGenerator {
             .map(HtmlResult.class::cast)
             .toList();
         final Collection<HtmlResult> filteredResults = flattenedResults.stream()
-            .filter(result -> configuration.isReportEnabled() || ALWAYS_REPORT_OPERATIONS.contains(result.getOperation()
-                .toLowerCase(Locale.ROOT)))
+            .filter(result -> shouldGenerateReport(result.getOperation(), configuration))
             .toList();
 
         if (!filteredResults.isEmpty()) {
@@ -86,6 +83,16 @@ public class OperationResultReportGenerator implements ResultReportGenerator {
         }
 
         return new ReportGenerationOutput(reportDetails, aggregateException);
+    }
+
+    private boolean shouldGenerateReport(final String operation, final Configuration configuration) {
+        return configuration.getPluginRegister()
+            .getInstancesOf(ReportGenerationConfiguration.class)
+            .stream()
+            .filter(config -> config.getReportType().equalsIgnoreCase(operation))
+            .findFirst()
+            .map(ReportGenerationConfiguration::isGenerateReport)
+            .orElse(configuration.isReportEnabled());
     }
 
     private ReportDetails writeReport(final Configuration configuration,

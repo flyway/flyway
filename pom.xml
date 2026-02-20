@@ -20,7 +20,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.flywaydb</groupId>
   <artifactId>flyway-parent</artifactId>
-  <version>12.0.1</version>
+  <version>12.0.2</version>
   <packaging>pom</packaging>
   <name>${project.artifactId}</name>
   <description>Flyway: Database Migrations Made Easy.</description>
@@ -189,7 +189,7 @@
     <version.spanner>2.34.1</version.spanner>
     <version.springjdbc>5.3.19</version.springjdbc>
     <version.sqlite>3.50.3.0</version.sqlite>
-    <version.testcontainers>1.15.3</version.testcontainers>
+    <version.testcontainers>1.21.4</version.testcontainers>
   </properties>
 
   <dependencyManagement>
@@ -937,22 +937,6 @@
           </gpgArguments>
         </configuration>
       </plugin>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

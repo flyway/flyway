@@ -51,6 +51,14 @@
             </includes>
             <fileMode>755</fileMode>
         </fileSet>
+        <fileSet>
+          <directory>../flyway-rulesengine-sqlfluff/target/sqlfluff-macos-arm64/</directory>
+          <outputDirectory>lib/sqlfluff</outputDirectory>
+          <includes>
+            <include>flyway_sqlfluff_runner</include>
+          </includes>
+          <fileMode>755</fileMode>
+        </fileSet>
         <!-- [/redgate] -->
     </fileSets>
 </assembly>

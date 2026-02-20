@@ -52,7 +52,7 @@
             <fileMode>755</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../flyway-rulesengine-sqlfluff/target/sqlfluff/</directory>
+            <directory>../flyway-rulesengine-sqlfluff/target/sqlfluff-linux/</directory>
             <outputDirectory>lib/sqlfluff</outputDirectory>
             <includes>
                 <include>flyway_sqlfluff_runner</include>
