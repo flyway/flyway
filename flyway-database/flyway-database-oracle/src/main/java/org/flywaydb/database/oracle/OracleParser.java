@@ -51,6 +51,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 public class OracleParser extends Parser {
 
@@ -113,6 +114,9 @@ public class OracleParser extends Parser {
 
     private static final StatementType PLSQL_WRAPPED_STATEMENT = new StatementType();
     private int initialWrappedBlockDepth = -1;
+
+    // for PACKAGE BODY tracking
+    private String currentPackageName;
 
     private static Pattern toRegex(String... commands) {
         return Pattern.compile(toRegexPattern(commands));
@@ -350,6 +354,15 @@ public class OracleParser extends Parser {
         }
 
         if (PLSQL_PACKAGE_BODY_REGEX.matcher(simplifiedStatement).matches()) {
+            // Store package name (strip optional schema prefix) for END <name> detection
+            Matcher m = PLSQL_PACKAGE_BODY_REGEX.matcher(simplifiedStatement);
+            if (m.find()) {
+                currentPackageName = m.group(4).trim();
+                int dot = currentPackageName.indexOf('.');
+                if (dot >= 0) {
+                    currentPackageName = currentPackageName.substring(dot + 1);
+                }
+            }
             return PLSQL_PACKAGE_BODY_STATEMENT;
         }
 
@@ -490,6 +503,21 @@ public class OracleParser extends Parser {
         int parensDepth = keyword.getParensDepth();
 
         if (lastTokenIs(tokens, parensDepth, "GOTO")) {
+            // Handle END <packageName> inside PACKAGE BODY safely
+            if (context.getStatementType() == PLSQL_PACKAGE_BODY_STATEMENT && "END".equals(keywordText) && currentPackageName != null) {
+                try {
+                    String peek = reader.peek(currentPackageName.length() + 1);
+                    if (peek != null && peek.matches("\\s+" + Pattern.quote(currentPackageName) + "(\\s*;|\\s+/)?")) {
+                        if (context.getBlockDepth() > 0) {
+                            context.decreaseBlockDepth();
+                        }
+                        currentPackageName = null;
+                        return;
+                    }
+                } catch (IOException ignore) {
+                    // Continue with generic logic on peek failure
+                }
+            }
             return;
         }
 
@@ -533,7 +561,9 @@ public class OracleParser extends Parser {
         ) {
             context.increaseBlockDepth(keywordText);
         } else if ("END".equals(keywordText)) {
-            context.decreaseBlockDepth();
+            if (context.getBlockDepth() > 0) {
+                context.decreaseBlockDepth();
+            }
         }
 
         // Package bodies can have an unbalanced BEGIN without END in the initialisation section. This allows us
