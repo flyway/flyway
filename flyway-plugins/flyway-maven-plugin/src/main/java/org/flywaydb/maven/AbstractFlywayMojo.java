@@ -642,7 +642,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * <p>Also configurable with Maven or System Property: ${flyway.serverId}</p>
      */
     @Parameter(property = CONFIG_SERVER_ID)
-    private final String serverId = "flyway-db";
+    private String serverId = "flyway-db";
 
     /**
      * The link to the settings.xml
