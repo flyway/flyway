@@ -469,8 +469,8 @@ public abstract class Parser {
         if (isAlternativeStringLiteral(peek)) {
             return handleAlternativeStringLiteral(reader, context, pos, line, col);
         }
-        if (c == '\'') {
-            return handleStringLiteral(reader, context, pos, line, col);
+        if (c == '\'' || c == '`') {
+            return handleStringLiteral(reader, context, pos, line, col, c);
         }
         if (c == '(') {
             context.increaseParensDepth();
@@ -654,9 +654,9 @@ public abstract class Parser {
         return new Token(TokenType.COMMENT, pos, line, col, text.toString(), text.toString(), context.getParensDepth());
     }
 
-    protected Token handleStringLiteral(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
+    protected Token handleStringLiteral(PeekingReader reader, ParserContext context, int pos, int line, int col, char escChar) throws IOException {
         reader.swallow();
-        reader.swallowUntilIncludingWithEscape('\'', true);
+        reader.swallowUntilIncludingWithEscape(escChar, true);
         return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
     }
 
