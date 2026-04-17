@@ -62,7 +62,7 @@ daprConfigurationExtension.setDaprSecrets("secret1", "secret2");
 
 ```groovy
 flyway {
-    pluginConfiguration = [
+    dapr = [
         daprSecrets: ['secret1', 'secret2']
     ]
 }
@@ -72,8 +72,8 @@ flyway {
 
 ```xml
 <configuration>
-    <pluginConfiguration>
+    <dapr>
         <daprSecrets>secret1,secret2</daprSecrets>
-    </pluginConfiguration>
+    </dapr>
 </configuration>
 ```

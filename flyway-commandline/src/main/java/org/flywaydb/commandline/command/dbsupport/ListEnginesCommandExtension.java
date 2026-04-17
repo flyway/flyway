@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-commandline
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
  */
 package org.flywaydb.commandline.command.dbsupport;
 
+import static org.flywaydb.core.internal.database.DatabaseTypeRegister.getDatabaseTypes;
 import static org.flywaydb.core.internal.util.TelemetryUtils.getTelemetryManager;
 
 import lombok.CustomLog;
@@ -26,11 +27,10 @@ import lombok.SneakyThrows;
 import org.flywaydb.core.TelemetrySpan;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.extensibility.LicenseGuard;
-import org.flywaydb.core.internal.database.DatabaseType;
+import org.flywaydb.core.internal.database.GeneralDatabaseType;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -38,7 +38,7 @@ import org.flywaydb.core.internal.util.StringUtils;
 import java.util.List;
 
 @CustomLog
-public class ListEnginesCommandExtension implements CommandExtension {
+public class ListEnginesCommandExtension implements CommandExtension<DbSupportResult> {
     private static final String DB_SUPPORT = "list-engines";
     private static final String HEADERS_DATABASE_NAME = "Database Name";
 
@@ -54,15 +54,13 @@ public class ListEnginesCommandExtension implements CommandExtension {
 
     @Override
     @SneakyThrows
-    public OperationResult handle(String command,
-        Configuration config,
-        List<String> flags) throws FlywayException {
+    public DbSupportResult handle(Configuration config, List<String> flags) throws FlywayException {
         return TelemetrySpan.trackSpan(new EventTelemetryModel(DB_SUPPORT, getTelemetryManager(config)),
             (telemetryModel) -> listEngines(config));
     }
 
     private DbSupportResult listEngines(final Configuration config) {
-        List<DbInfoResult> databaseInfos = getEngines(config);
+        List<DbInfoResult> databaseInfos = getEngines();
 
         if (!databaseInfos.isEmpty()) {
 
@@ -93,14 +91,8 @@ public class ListEnginesCommandExtension implements CommandExtension {
 
     /**
      * Get the currently supported database engines.
-     *
-     * @param config The Flyway configuration.
      */
-    public List<DbInfoResult> getEngines(Configuration config) {
-        return config.getPluginRegister()
-            .getInstancesOf(DatabaseType.class)
-            .stream()
-            .map(p -> new DbInfoResult(p.getName()))
-            .toList();
+    public List<DbInfoResult> getEngines() {
+        return getDatabaseTypes().stream().map(GeneralDatabaseType::getName).distinct().map(DbInfoResult::new).toList();
     }
 }

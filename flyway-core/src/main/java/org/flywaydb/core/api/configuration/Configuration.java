@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
 import org.flywaydb.core.internal.configuration.models.DataSourceModel;
 import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
 import org.flywaydb.core.internal.configuration.resolvers.ProvisionerMode;
-import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.plugin.PluginRegister;
 
 import javax.sql.DataSource;
@@ -459,18 +458,6 @@ public interface Configuration {
     boolean isValidateOnMigrate();
 
     /**
-     * Whether to automatically call clean or not when a validation error occurs.
-     * This is exclusively intended as a convenience for development. even though we
-     * strongly recommend not to change migration scripts once they have been checked into SCM and run, this provides a
-     * way of dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that
-     * the next migration will bring you back to the state checked into SCM.
-     * <b>Warning! Do not enable in production!</b>
-     *
-     * @return {@code true} if clean should be called. {@code false} if not. (default: {@code false})
-     */
-    boolean isCleanOnValidationError();
-
-    /**
      * Whether to disable clean.
      * This is especially useful for production environments where running clean can be a career limiting move.
      *
@@ -652,12 +639,6 @@ public interface Configuration {
      * The JDBC driver of the configuration
      */
     String getDriver();
-
-    /**
-     * Get the Database type determined by the URL or Datasource
-     * If there are multiple matching DatabaseTypes for the URL, the first candidate will be returned.
-     */
-    DatabaseType getDatabaseType();
 
     /**
      *  Gets the connection environments that have already been resolved from this configuration

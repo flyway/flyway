@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-reports
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,30 +19,28 @@
  */
 package org.flywaydb.reports.utils;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
-import java.io.IOException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.JsonNode;
 import java.util.List;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.output.HtmlResult;
 import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.reports.json.HtmlResultDeserializer;
 
-class ReportsDeserializer extends JsonDeserializer<HtmlResult> {
+public class ReportsDeserializer extends ValueDeserializer<HtmlResult> {
     private final PluginRegister pluginRegister;
 
-    ReportsDeserializer(final PluginRegister pluginRegister) {
+    public ReportsDeserializer(final PluginRegister pluginRegister) {
         this.pluginRegister = pluginRegister;
     }
 
     @Override
-    public HtmlResult deserialize(final JsonParser p, final DeserializationContext ctxt)
-        throws IOException {
+    public HtmlResult deserialize(final JsonParser p, final DeserializationContext ctxt) {
         final JsonNode reportElement = ctxt.readTree(p);
         if (reportElement.has("operation")) {
-            final String operation = reportElement.get("operation").asText();
+            final String operation = reportElement.get("operation").asString();
             @SuppressWarnings("unchecked") final List<HtmlResultDeserializer<HtmlResult>> deserializers = pluginRegister.getInstancesOf(
                 HtmlResultDeserializer.class).stream().map(x -> (HtmlResultDeserializer<HtmlResult>) x).toList();
             final HtmlResultDeserializer<HtmlResult> matchedDeserializer = deserializers.stream()

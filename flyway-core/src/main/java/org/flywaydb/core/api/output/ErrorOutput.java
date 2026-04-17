@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ package org.flywaydb.core.api.output;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+import lombok.CustomLog;
 import org.flywaydb.core.api.output.errors.ErrorOutputItem;
 import org.flywaydb.core.api.output.errors.ExceptionToErrorObjectConverter;
 import org.flywaydb.core.api.output.errors.FaultToErrorObjectConverter;
@@ -28,18 +30,18 @@ import org.flywaydb.core.api.output.errors.FlywayExceptionToErrorObjectConverter
 import org.flywaydb.core.api.output.errors.FlywayMigrateExceptionToErrorObjectConverter;
 import org.flywaydb.core.api.output.errors.FlywaySqlExceptionToErrorObjectConverter;
 import org.flywaydb.core.internal.exception.FlywayMigrateException;
+import org.flywaydb.core.internal.plugin.PluginRegister;
 
+@CustomLog
 public record ErrorOutput(ErrorOutputItem error) implements OperationResult {
-    private static final Collection<ExceptionToErrorObjectConverter<? extends Exception, ? extends ErrorOutputItem>> ERROR_OBJECT_CONVERTERS = List.of(
+    private static final Collection<ExceptionToErrorObjectConverter<? extends Exception, ? extends ErrorOutputItem>> CORE_ERROR_OBJECT_CONVERTERS = List.of(
         new FlywayMigrateExceptionToErrorObjectConverter(),
         new FlywaySqlExceptionToErrorObjectConverter(),
         new FlywayExceptionToErrorObjectConverter());
 
     public static ErrorOutput fromException(final Exception exception) {
-        final ExceptionToErrorObjectConverter<? extends Exception, ? extends ErrorOutputItem> converter = ERROR_OBJECT_CONVERTERS.stream()
-            .filter(x -> x.getSupportedExceptionType().isInstance(exception))
-            .findFirst()
-            .orElse(new FaultToErrorObjectConverter());
+        final ExceptionToErrorObjectConverter<? extends Exception, ? extends ErrorOutputItem> converter = findPluginErrorOutputConverter(
+            exception).orElse(useCoreErrorOutputConverter(exception));
 
         return new ErrorOutput(convertException(converter, exception));
     }
@@ -54,6 +56,27 @@ public record ErrorOutput(ErrorOutputItem error) implements OperationResult {
         } else {
             return fromException(exception);
         }
+    }
+
+    private static Optional<ExceptionToErrorObjectConverter<?, ?>> findPluginErrorOutputConverter(final Exception exception) {
+        try {
+            return new PluginRegister().getInstancesOf(ExceptionToErrorObjectConverter.class)
+                .stream()
+                .filter(x -> x.getSupportedExceptionType().isInstance(exception))
+                .findFirst()
+                .map(x -> (ExceptionToErrorObjectConverter<?, ?>) x);
+        } catch (final Exception e) {
+            LOG.error("Error retrieving plugin error converters", e);
+            return Optional.empty();
+        }
+    }
+
+    private static ExceptionToErrorObjectConverter<? extends Exception, ? extends ErrorOutputItem> useCoreErrorOutputConverter(
+        final Exception exception) {
+        return CORE_ERROR_OBJECT_CONVERTERS.stream()
+            .filter(x -> x.getSupportedExceptionType().isInstance(exception))
+            .findFirst()
+            .orElse(new FaultToErrorObjectConverter());
     }
 
     private static <E extends Exception, T extends ErrorOutputItem> T convertException(final ExceptionToErrorObjectConverter<E, T> converter,

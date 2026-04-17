@@ -2,7 +2,7 @@
 subtitle: Oracle - Native Connectors
 ---
 
-- **Status:** Preview
+- **Status:** {% include preview.html %}
 - **Verified Versions:** 11.1, 21
 - **Maintainer:** {% include redgate-badge.html %}
 - **Edition:** Redgate
@@ -27,8 +27,11 @@ All Oracle editions are supported, including XE.
 
 ## Using Flyway with Oracle Native Connectors
 
-Flyway's Native Connector support requires `SQLcl` to be installed and available on the path for Flyway to invoke. `JDBC` is still used to query the database for some Flyway operations, and 
-`SQLcl` will be used for executing migrations.
+Flyway's Native Connector support requires:
+- Setting environment variable "FLYWAY_NATIVE_CONNECTORS=true"
+- Oracle's `SQLcl` to be installed and a path environment variable pointing to the `SQLcl` bin directory 
+
+`JDBC` is still used to query the database for some Flyway operations, and `SQLcl` will be used for executing migrations.
 
 ### Site Profiles (`glogin.sql`) & User Profiles (`login.sql`)
 

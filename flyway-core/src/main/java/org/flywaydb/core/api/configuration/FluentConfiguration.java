@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -273,21 +273,6 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration validateOnMigrate(boolean validateOnMigrate) {
         config.setValidateOnMigrate(validateOnMigrate);
-        return this;
-    }
-
-    /**
-     * Whether to automatically call clean or not when a validation error occurs.
-     * This is exclusively intended as a convenience for development. even though we strongly recommend not to change
-     * migration scripts once they have been checked into SCM and run, this provides a way of dealing with this case in
-     * a smooth manner. The database will be wiped clean automatically, ensuring that the next migration will bring you
-     * back to the state checked into SCM.
-     * <b>Warning! Do not enable in production!</b>
-     *
-     * @param cleanOnValidationError {@code true} if clean should be called. {@code false} if not. (default: {@code false})
-     */
-    public FluentConfiguration cleanOnValidationError(boolean cleanOnValidationError) {
-        config.setCleanOnValidationError(cleanOnValidationError);
         return this;
     }
 

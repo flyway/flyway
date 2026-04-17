@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-database-oracle
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,11 +29,13 @@ public class OracleConfigurationExtension implements ConfigurationExtension {
     private static final String ORACLE_SQLPLUS_WARN = "flyway.oracle.sqlplusWarn";
     private static final String ORACLE_KERBEROS_CACHE_FILE = "flyway.oracle.kerberosCacheFile";
     private static final String ORACLE_WALLET_LOCATION = "flyway.oracle.walletLocation";
+    private static final String ORACLE_CHECKSUM_INCLUDE_REFERENCED_SCRIPTS = "flyway.oracle.checksumIncludeReferencedScripts";
 
     private Boolean sqlplus = false;
     private Boolean sqlplusWarn = false;
     private String kerberosCacheFile;
     private String walletLocation;
+    private Boolean checksumIncludeReferencedScripts = true;
 
 
     @Override
@@ -52,6 +54,8 @@ public class OracleConfigurationExtension implements ConfigurationExtension {
                 return ORACLE_SQLPLUS_WARN;
             case "FLYWAY_ORACLE_WALLET_LOCATION":
                 return ORACLE_WALLET_LOCATION;
+            case "FLYWAY_ORACLE_CHECKSUM_INCLUDE_REFERENCED_SCRIPTS":
+                return ORACLE_CHECKSUM_INCLUDE_REFERENCED_SCRIPTS;
             default:
                 return null;
         }

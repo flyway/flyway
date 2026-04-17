@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.extensibility.Plugin;
 import org.flywaydb.core.internal.license.FlywayPermit;
-import org.flywaydb.core.internal.nc.MetaData;
 
 public interface FlywayTelemetryManager extends Plugin {
 
@@ -42,7 +41,11 @@ public interface FlywayTelemetryManager extends Plugin {
 
     void notifyDatabaseChanged(final String engine, final String version, final String hosting);
 
-    void notifyExperimentalMetadataChanged(final MetaData metadata);
+    void notifyExperimentalModeChanged(final boolean experimentalMode);
+
+    void notifyUserIdChanged(final String hashedUserId);
+
+    void notifyOrganizationIdChanged(final String hashedOrgUuid);
 
     FlywayTelemetryProperties getProperties();
 }

@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-commandline
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,16 +21,16 @@ package org.flywaydb.commandline.command.version;
 
 import static org.flywaydb.core.internal.util.TelemetryUtils.getTelemetryManager;
 
+import java.util.Locale;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import org.flywaydb.core.TelemetrySpan;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.extensibility.LicenseGuard;
-import org.flywaydb.core.extensibility.Plugin;
+import org.flywaydb.core.extensibility.VersionReportable;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @CustomLog
-public class VersionCommandExtension implements CommandExtension {
+public class VersionCommandExtension implements CommandExtension<VersionResult> {
     public static final String VERSION = "version";
     public static final List<String> FLAGS = Arrays.asList("-v", "--version");
 
@@ -58,15 +58,20 @@ public class VersionCommandExtension implements CommandExtension {
     }
 
     @Override
+    public boolean requiresFlywayInstance() {
+        return false;
+    }
+
+    @Override
     public boolean handlesParameter(String parameter) {
         return false;
     }
 
     @Override
     @SneakyThrows
-    public OperationResult handle(String command, Configuration config, List<String> flags) throws FlywayException {
+    public VersionResult handle(Configuration config, List<String> flags) throws FlywayException {
         return TelemetrySpan.trackSpan(new EventTelemetryModel("version", getTelemetryManager(config)), (telemetryModel) -> {
-            return version(command, config);
+            return version(VERSION.toLowerCase(Locale.ROOT), config);
         });
     }
 
@@ -74,9 +79,9 @@ public class VersionCommandExtension implements CommandExtension {
         LOG.debug("Java " + System.getProperty("java.version") + " (" + System.getProperty("java.vendor") + ")");
         LOG.debug(System.getProperty("os.name") + " " + System.getProperty("os.version") + " " + System.getProperty("os.arch") + "\n");
 
-        List<Plugin> allPlugins = config.getPluginRegister().getInstancesOf(Plugin.class);
+        List<VersionReportable> versionedPlugins = config.getPluginRegister().getInstancesOf(VersionReportable.class);
 
-        List<PluginVersionResult> pluginVersions = allPlugins.stream()
+        List<PluginVersionResult> pluginVersions = versionedPlugins.stream()
             .map(p -> new PluginVersionResult(p.getName(), p.getPluginVersion(config), p.isLicensed(config)))
             .filter(p -> StringUtils.hasText(p.version))
             .collect(Collectors.toList());

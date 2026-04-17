@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -206,5 +206,10 @@ public class ParserSqlScript implements SqlScript {
     @Override
     public int compareTo(SqlScript o) {
         return resource.getRelativePath().compareTo(o.getResource().getRelativePath());
+    }
+
+    @Override
+    public boolean includeReferencedScriptsInChecksum() {
+        return parser.includeReferencedScriptsInChecksum();
     }
 }

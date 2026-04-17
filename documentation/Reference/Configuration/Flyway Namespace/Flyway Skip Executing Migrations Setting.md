@@ -30,27 +30,8 @@ This can be configured as an advanced parameter in operations on the Migrations 
 
 ### Command-line
 
-```powershell
-. Namespace/Flyway Cherry Pick) to skip specific migrations.
-
-## Type
-
-Boolean
-
-## Default
-
-`false`
-
-## Usage
-
-### Flyway Desktop
-
-This can be configured as an advanced parameter in operations on the Migrations page.
-
-### Command-line
-
-```powershell
-. flyway -skipExecutingMigrations="true" migrate
+```bash
+./flyway -skipExecutingMigrations="true" migrate
 ```
 
 ### TOML Configuration File

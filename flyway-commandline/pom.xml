@@ -4,16 +4,13 @@
   <parent>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>11.17.0</version>
+    <version>12.4.0</version>
   </parent>
   <artifactId>flyway-commandline</artifactId>
   <packaging>jar</packaging>
   <name>${project.artifactId}</name>
   <properties>
-
-
-
-    <jre.version>21.0.5</jre.version>
+    <jre.version>25.0.1</jre.version>
   </properties>
 
   <dependencies>
@@ -214,231 +211,6 @@
       <version>${project.version}</version>
       <scope>runtime</scope>
     </dependency>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     <dependency>
       <groupId>com.ing.data</groupId>
       <artifactId>cassandra-jdbc-wrapper</artifactId>
@@ -545,7 +317,7 @@
     <dependency>
       <groupId>org.mongodb</groupId>
       <artifactId>mongodb-driver-sync</artifactId>
-      <version>5.1.2</version>
+      <version>5.6.1</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -590,18 +362,18 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
+      <groupId>tools.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
       <version>${version.jackson}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <groupId>tools.jackson.dataformat</groupId>
       <artifactId>jackson-dataformat-xml</artifactId>
       <version>${version.jackson}</version>
     </dependency>
     <dependency>
-      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <groupId>tools.jackson.dataformat</groupId>
       <artifactId>jackson-dataformat-toml</artifactId>
       <version>${version.jackson}</version>
     </dependency>
@@ -653,34 +425,12 @@
       <version>${project.version}</version>
       <scope>runtime</scope>
     </dependency>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>flyway-verb-testConnection</artifactId>
+      <version>${project.version}</version>
+      <scope>runtime</scope>
+    </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>flyway-database-nc-mongodb</artifactId>
@@ -703,6 +453,12 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>flyway-nc-callbacks</artifactId>
       <version>${project.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>flyway-database-nc-sqlite</artifactId>
+      <version>${project.parent.version}</version>
       <scope>runtime</scope>
     </dependency>
   </dependencies>
@@ -730,84 +486,11 @@
               <outputDirectory>${project.build.outputDirectory}/META-INF</outputDirectory>
             </configuration>
           </execution>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         </executions>
       </plugin>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     </plugins>
   </build>
   <profiles>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     <profile>
       <id>build-assemblies</id>
       <activation>
@@ -815,6 +498,28 @@
       </activation>
       <build>
         <plugins>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-dependency-plugin</artifactId>
@@ -846,19 +551,6 @@
                   </artifactItems>
                 </configuration>
               </execution>
-
-
-
-
-
-
-
-
-
-
-
-
-
             </executions>
           </plugin>
           <plugin>
@@ -874,39 +566,23 @@
                 </goals>
                 <configuration>
                   <target>
-                    <unzip src="${basedir}/src/main/assembly/OpenJDK21U-jre_x64_windows_hotspot_${jre.version}_11.zip"
+                    <unzip src="${basedir}/src/main/assembly/jre/OpenJDK25U-jre_x64_windows_hotspot_${jre.version}_8.zip"
                       dest="${project.build.directory}/dependency/jre-windows-x64"/>
                     <untar compression="gzip"
-                      src="${basedir}/src/main/assembly/OpenJDK21U-jre_x64_linux_hotspot_${jre.version}_11.tar.gz"
+                      src="${basedir}/src/main/assembly/jre/OpenJDK25U-jre_x64_linux_hotspot_${jre.version}_8.tar.gz"
                       dest="${project.build.directory}/dependency/jre-linux-x64"/>
                     <untar compression="gzip"
-                      src="${basedir}/src/main/assembly/OpenJDK21U-jre_x64_alpine-linux_hotspot_${jre.version}_11.tar.gz"
+                      src="${basedir}/src/main/assembly/jre/OpenJDK25U-jre_x64_alpine-linux_hotspot_${jre.version}_8.tar.gz"
                       dest="${project.build.directory}/dependency/jre-linux-alpine-x64"/>
                     <untar compression="gzip"
-                      src="${basedir}/src/main/assembly/OpenJDK21U-jre_x64_mac_hotspot_${jre.version}_11.tar.gz"
+                      src="${basedir}/src/main/assembly/jre/OpenJDK25U-jre_x64_mac_hotspot_${jre.version}_8.tar.gz"
                       dest="${project.build.directory}/dependency/jre-macos-x64"/>
                     <untar compression="gzip"
-                      src="${basedir}/src/main/assembly/OpenJDK21U-jre_aarch64_mac_hotspot_${jre.version}_11.tar.gz"
+                      src="${basedir}/src/main/assembly/jre/OpenJDK25U-jre_aarch64_mac_hotspot_${jre.version}_8.tar.gz"
                       dest="${project.build.directory}/dependency/jre-macos-arm64"/>
                   </target>
                 </configuration>
               </execution>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
             </executions>
           </plugin>
           <plugin>
@@ -948,212 +624,74 @@
               <encoding>UTF-8</encoding>
             </configuration>
           </plugin>
-
-
-
-
-
-
-
-
-
-
-
         </plugins>
       </build>
     </profile>
-
     <profile>
-        <id>build-assemblies-windows</id>
-        <activation>
-            <property>
-                <name>github.os</name>
-                <value>windows-latest</value>
-            </property>
-        </activation>
-        <build>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-antrun-plugin</artifactId>
-                    <version>3.1.0</version>
-                    <executions>
-                        <execution>
-                            <id>unpack-jres</id>
-                            <phase>package</phase>
-                            <goals>
-                                <goal>run</goal>
-                            </goals>
-                            <configuration>
-                                <target>
-                                    <unzip src="${basedir}/src/main/assembly/OpenJDK21U-jre_x64_windows_hotspot_${jre.version}_11.zip" dest="${project.build.directory}/dependency/jre-windows-x64"/>
-                                </target>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-assembly-plugin</artifactId>
-                    <version>3.5.0</version>
-                    <executions>
-                        <execution>
-                            <id>jre-assemblies</id>
-                            <phase>package</phase>
-                            <goals>
-                                <goal>single</goal>
-                            </goals>
-                            <configuration>
-                                <descriptors>
-                                    <descriptor>src/main/assembly/windows.xml</descriptor>
-                                </descriptors>
-                            </configuration>
-                        </execution>
-                    </executions>
-                    <configuration>
-                        <encoding>UTF-8</encoding>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </build>
-    </profile>
-    <profile>
-        <id>build-assemblies-mac</id>
-        <activation>
-            <property>
-                <name>github.os</name>
-                <value>macOS-latest</value>
-            </property>
-        </activation>
-        <build>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-antrun-plugin</artifactId>
-                    <version>3.1.0</version>
-                    <executions>
-                        <execution>
-                            <id>unpack-jres</id>
-                            <phase>package</phase>
-                            <goals>
-                                <goal>run</goal>
-                            </goals>
-                            <configuration>
-                                <target>
-                                    <untar compression="gzip" src="${basedir}/src/main/assembly/OpenJDK21U-jre_x64_mac_hotspot_${jre.version}_11.tar.gz" dest="${project.build.directory}/dependency/jre-macos-x64"/></target>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-assembly-plugin</artifactId>
-                    <version>3.5.0</version>
-                    <executions>
-                        <execution>
-                            <id>jre-assemblies</id>
-                            <phase>package</phase>
-                            <goals>
-                                <goal>single</goal>
-                            </goals>
-                            <configuration>
-                                <descriptors>
-                                    <descriptor>src/main/assembly/macos.xml</descriptor>
-                                </descriptors>
-                            </configuration>
-                        </execution>
-                    </executions>
-                    <configuration>
-                        <encoding>UTF-8</encoding>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </build>
-    </profile>
-    <profile>
-        <id>build-assemblies-mac-arm64</id>
-        <activation>
-            <property>
-                <name>github.os</name>
-                <value>macOS-latest</value>
-            </property>
-        </activation>
-        <build>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-antrun-plugin</artifactId>
-                    <version>3.1.0</version>
-                    <executions>
-                        <execution>
-                            <id>unpack-jres</id>
-                            <phase>package</phase>
-                            <goals>
-                                <goal>run</goal>
-                            </goals>
-                            <configuration>
-                                <target>
-                                    <untar compression="gzip" src="${basedir}/src/main/assembly/OpenJDK21U-jre_aarch64_mac_hotspot_${jre.version}_11.tar.gz" dest="${project.build.directory}/dependency/jre-macos-arm64"/>
-                                </target>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-assembly-plugin</artifactId>
-                    <version>3.5.0</version>
-                    <executions>
-                        <execution>
-                            <id>jre-assemblies</id>
-                            <phase>package</phase>
-                            <goals>
-                                <goal>single</goal>
-                            </goals>
-                            <configuration>
-                                <descriptors>
-                                    <descriptor>src/main/assembly/macos-arm64.xml</descriptor>
-                                </descriptors>
-                            </configuration>
-                        </execution>
-                    </executions>
-                    <configuration>
-                        <encoding>UTF-8</encoding>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </build>
-    </profile>
-
-
-    <profile>
-      <id>build-assemblies-linux</id>
+      <id>build-assemblies-windows</id>
       <activation>
         <property>
           <name>github.os</name>
-          <value>ubuntu-latest</value>
+          <value>windows-latest</value>
         </property>
       </activation>
       <build>
         <plugins>
-          <!-- [master] -->
           <plugin>
-            <artifactId>maven-dependency-plugin</artifactId>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>3.1.0</version>
             <executions>
               <execution>
-                <id>pre-largetest-addJars</id>
-                <phase>pre-integration-test</phase>
+                <id>unpack-jres</id>
+                <phase>package</phase>
                 <goals>
-                  <goal>copy-dependencies</goal>
+                  <goal>run</goal>
                 </goals>
                 <configuration>
-                  <includeArtifactIds>flyway-sample</includeArtifactIds>
-                  <outputDirectory>${unpackDir}/flyway-${project.version}/jardir</outputDirectory>
+                  <target>
+                    <unzip src="${basedir}/src/main/assembly/jre/OpenJDK25U-jre_x64_windows_hotspot_${jre.version}_8.zip"
+                      dest="${project.build.directory}/dependency/jre-windows-x64"/>
+                  </target>
                 </configuration>
               </execution>
             </executions>
           </plugin>
-          <!-- [/master] -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <version>3.5.0</version>
+            <executions>
+              <execution>
+                <id>jre-assemblies</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>single</goal>
+                </goals>
+                <configuration>
+                  <descriptors>
+                    <descriptor>src/main/assembly/windows.xml</descriptor>
+                  </descriptors>
+                </configuration>
+              </execution>
+            </executions>
+            <configuration>
+              <encoding>UTF-8</encoding>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>build-assemblies-mac</id>
+      <activation>
+        <property>
+          <name>github.os</name>
+          <value>macOS-latest</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
@@ -1168,26 +706,123 @@
                 <configuration>
                   <target>
                     <untar compression="gzip"
-                      src="${basedir}/src/main/assembly/OpenJDK21U-jre_x64_linux_hotspot_${jre.version}_11.tar.gz"
+                      src="${basedir}/src/main/assembly/jre/OpenJDK25U-jre_x64_mac_hotspot_${jre.version}_8.tar.gz"
+                      dest="${project.build.directory}/dependency/jre-macos-x64"/>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <version>3.5.0</version>
+            <executions>
+              <execution>
+                <id>jre-assemblies</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>single</goal>
+                </goals>
+                <configuration>
+                  <descriptors>
+                    <descriptor>src/main/assembly/macos.xml</descriptor>
+                  </descriptors>
+                </configuration>
+              </execution>
+            </executions>
+            <configuration>
+              <encoding>UTF-8</encoding>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>build-assemblies-mac-arm64</id>
+      <activation>
+        <property>
+          <name>github.os</name>
+          <value>macOS-latest</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>3.1.0</version>
+            <executions>
+              <execution>
+                <id>unpack-jres</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <untar compression="gzip"
+                      src="${basedir}/src/main/assembly/jre/OpenJDK25U-jre_aarch64_mac_hotspot_${jre.version}_8.tar.gz"
+                      dest="${project.build.directory}/dependency/jre-macos-arm64"/>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <version>3.5.0</version>
+            <executions>
+              <execution>
+                <id>jre-assemblies</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>single</goal>
+                </goals>
+                <configuration>
+                  <descriptors>
+                    <descriptor>src/main/assembly/macos-arm64.xml</descriptor>
+                  </descriptors>
+                </configuration>
+              </execution>
+            </executions>
+            <configuration>
+              <encoding>UTF-8</encoding>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>build-assemblies-linux</id>
+      <activation>
+        <property>
+          <name>github.os</name>
+          <value>ubuntu-latest</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>3.1.0</version>
+            <executions>
+              <execution>
+                <id>unpack-jres</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <untar compression="gzip"
+                      src="${basedir}/src/main/assembly/jre/OpenJDK25U-jre_x64_linux_hotspot_${jre.version}_8.tar.gz"
                       dest="${project.build.directory}/dependency/jre-linux-x64"/>
                   </target>
                 </configuration>
               </execution>
-              <!-- [master] -->
-              <execution>
-                <id>prepare</id>
-                <phase>pre-integration-test</phase>
-                <configuration>
-                  <target>
-                    <untar src="${project.build.directory}/flyway-commandline-${project.version}-linux-x64.tar.gz"
-                      compression="gzip" dest="${unpackDir}"/>
-                  </target>
-                </configuration>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-              </execution>
-              <!-- [/master] -->
             </executions>
           </plugin>
           <plugin>
@@ -1212,17 +847,6 @@
               <encoding>UTF-8</encoding>
             </configuration>
           </plugin>
-          <!-- [master] -->
-          <plugin>
-            <artifactId>maven-failsafe-plugin</artifactId>
-            <configuration>
-              <skip>false</skip>
-              <systemProperties>
-                <target.dir>${project.build.directory}</target.dir>
-              </systemProperties>
-            </configuration>
-          </plugin>
-          <!-- [/master] -->
         </plugins>
       </build>
     </profile>
@@ -1230,24 +854,6 @@
       <id>build-assemblies-no-jre</id>
       <build>
         <plugins>
-          <!-- [master] -->
-          <plugin>
-            <artifactId>maven-dependency-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>pre-largetest-addJars</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>copy-dependencies</goal>
-                </goals>
-                <configuration>
-                  <includeArtifactIds>flyway-sample</includeArtifactIds>
-                  <outputDirectory>${unpackDir}/flyway-${project.version}/jardir</outputDirectory>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <!-- [/master] -->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-assembly-plugin</artifactId>
@@ -1271,41 +877,8 @@
               <encoding>UTF-8</encoding>
             </configuration>
           </plugin>
-          <!-- [master] -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <version>3.1.0</version>
-            <executions>
-              <execution>
-                <id>prepare</id>
-                <phase>pre-integration-test</phase>
-                <configuration>
-                  <target>
-                    <untar src="${project.build.directory}/flyway-commandline-${project.version}.tar.gz"
-                      compression="gzip" dest="${unpackDir}"/>
-                    <chmod dir="${unpackDir}/flyway-${project.version}/lib/rgcompare" perm="755" includes="**/*"/>
-                  </target>
-                </configuration>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <artifactId>maven-failsafe-plugin</artifactId>
-            <configuration>
-              <skip>false</skip>
-              <systemProperties>
-                <target.dir>${project.build.directory}</target.dir>
-              </systemProperties>
-            </configuration>
-          </plugin>
-          <!-- [/master] -->
         </plugins>
       </build>
     </profile>
-
   </profiles>
 </project>

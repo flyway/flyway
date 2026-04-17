@@ -8,7 +8,7 @@ get_artifacts:
 build:
 	python ./scripts/build_images.py $(EDITION) $(VERSION) $(TEST_MODE) $(if $(DRY_RUN),--dry-run,)
 test:
-	python ./scripts/test_images.py $(EDITION) $(VERSION) $(TEST_MODE) $(if $(ENV_PASS),--env-pass $(ENV_PASS),) $(if $(DRY_RUN),--dry-run,)
+	python ./scripts/test_images.py $(EDITION) $(VERSION) $(TEST_MODE) $(foreach V,$(ENV_PASS), --env-pass $(V)) $(if $(DRY_RUN),--dry-run,)
 scan:
 	python ./scripts/scan_images.py $(EDITION) $(VERSION) $(TEST_MODE) $(SNYK_PATH) $(if $(DRY_RUN),--dry-run,)
 release:

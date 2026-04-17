@@ -36,11 +36,11 @@ fi
 CP="$CLASSPATH:$INSTALLDIR/lib/*:$INSTALLDIR/lib/aad/*:$INSTALLDIR/lib/plugins/*:$INSTALLDIR/lib/oracle_wallet/*:$INSTALLDIR/lib/flyway/*:$INSTALLDIR/lib/netty/*:$INSTALLDIR/lib/opentelemetry/*:$INSTALLDIR/drivers/*:$INSTALLDIR/drivers/aws/*:$INSTALLDIR/drivers/gcp/*:$INSTALLDIR/drivers/cassandra/*:$INSTALLDIR/drivers/couchbase/*:$INSTALLDIR/drivers/mongo/*"
 
 
-EXTRA_ARGS=
+NATIVE_ACCESS="--enable-native-access=ALL-UNNAMED"
 if $linux; then
-  EXTRA_ARGS=-Djava.security.egd=file:/dev/../dev/urandom
+  EXTRA_ARGS=($NATIVE_ACCESS, -Djava.security.egd=file:/dev/../dev/urandom)
 else
-  EXTRA_ARGS=-Djava.library.path="$INSTALLDIR/native"
+  EXTRA_ARGS=($NATIVE_ACCESS, "-Djava.library.path=$INSTALLDIR/native")
 fi
 
 if `command -v cygpath > /dev/null`; then CP=`cygpath -pw "$CP"`; fi

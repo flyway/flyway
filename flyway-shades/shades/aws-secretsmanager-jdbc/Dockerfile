@@ -1,7 +1,7 @@
 # Multi-stage build for aws-secretsmanager-jdbc shaded driver
 # Stage 1: Clone source repository
 ARG AWS_SECRETSMANAGER_JDBC_REPO=https://github.com/aws/aws-secretsmanager-jdbc.git
-ARG AWS_SECRETSMANAGER_JDBC_VERSION=2.0.3
+ARG AWS_SECRETSMANAGER_JDBC_VERSION=2.0.4
 FROM alpine/git:latest AS clone
 ARG AWS_SECRETSMANAGER_JDBC_REPO
 ARG AWS_SECRETSMANAGER_JDBC_VERSION

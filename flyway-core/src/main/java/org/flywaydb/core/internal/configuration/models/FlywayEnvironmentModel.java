@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,6 @@ public class FlywayEnvironmentModel {
     private String sqlMigrationSeparator;
     private List<String> sqlMigrationSuffixes;
     private Boolean cleanDisabled;
-    private Boolean cleanOnValidationError;
     private Boolean communityDBSupportEnabled;
     private List<String> locations;
     private List<String> callbackLocations;
@@ -116,7 +115,6 @@ public class FlywayEnvironmentModel {
         result.sqlMigrationSeparator = sqlMigrationSeparator.merge(otherPojo.sqlMigrationSeparator);
         result.sqlMigrationSuffixes = sqlMigrationSuffixes.merge(otherPojo.sqlMigrationSuffixes);
         result.cleanDisabled = cleanDisabled.merge(otherPojo.cleanDisabled);
-        result.cleanOnValidationError = cleanOnValidationError.merge(otherPojo.cleanOnValidationError);
         result.communityDBSupportEnabled = communityDBSupportEnabled.merge(otherPojo.communityDBSupportEnabled);
         result.locations = locations.merge(otherPojo.locations);
         result.callbackLocations = callbackLocations.merge(otherPojo.callbackLocations);

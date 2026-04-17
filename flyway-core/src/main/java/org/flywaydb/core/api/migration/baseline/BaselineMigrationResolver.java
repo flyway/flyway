@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,15 +89,18 @@ public class BaselineMigrationResolver implements MigrationResolver {
 
             List<LoadableResource> resources = new ArrayList<>();
             resources.add(resource);
-            SortedSet<LoadableResource> referencedResources = new TreeSet<>();
-            for (SqlScript referencedSqlScript : sqlScript.getReferencedSqlScripts()) {
-                referencedResources.add(referencedSqlScript.getResource());
+
+            if (sqlScript.includeReferencedScriptsInChecksum()) {
+                SortedSet<LoadableResource> referencedResources = new TreeSet<>();
+                for (SqlScript referencedSqlScript : sqlScript.getReferencedSqlScripts()) {
+                    referencedResources.add(referencedSqlScript.getResource());
+                }
+                if (!referencedResources.isEmpty()) {
+                    LOG.debug("Calculating checksum for '" + filename + "' using the following referenced scripts: " +
+                        referencedResources.stream().map(Resource::getFilename).collect(Collectors.joining(",")));
+                }
+                resources.addAll(referencedResources);
             }
-            if (!referencedResources.isEmpty()) {
-                LOG.debug("Calculating checksum for '" + filename + "' using the following referenced scripts: " +
-                                  referencedResources.stream().map(Resource::getFilename).collect(Collectors.joining(",")));
-            }
-            resources.addAll(referencedResources);
 
             Integer checksum = getChecksumForLoadableResource(resources);
 

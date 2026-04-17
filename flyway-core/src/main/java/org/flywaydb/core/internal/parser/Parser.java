@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -453,6 +453,10 @@ public abstract class Parser {
 
     public boolean supportsReferencedSqlScripts() {
         return false;
+    }
+
+    public boolean includeReferencedScriptsInChecksum() {
+        return true;
     }
 
     private Token readToken(PeekingReader reader, PositionTracker tracker, ParserContext context) throws IOException {

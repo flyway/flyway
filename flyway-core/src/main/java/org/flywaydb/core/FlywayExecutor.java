@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import static org.flywaydb.core.api.callback.Event.AFTER_CONNECT;
 import static org.flywaydb.core.api.callback.Event.CREATE_SCHEMA;
 import static org.flywaydb.core.internal.database.DatabaseTypeRegister.redactJdbcUrl;
 import static org.flywaydb.core.internal.util.DataUnits.MEGABYTE;
+import static org.flywaydb.core.internal.util.DeprecationUtils.printDeprecationNotice;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -68,6 +69,7 @@ import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
 import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
 import org.flywaydb.core.internal.strategy.RetryStrategy;
+import org.flywaydb.core.internal.util.DeprecationUtils.DeprecatedFeatures;
 import org.flywaydb.core.internal.util.FileUtils;
 import org.flywaydb.core.internal.util.IOUtils;
 import org.flywaydb.core.internal.util.Pair;
@@ -369,8 +371,7 @@ public class FlywayExecutor {
         }
 
         if (effectiveCallbacks.stream().anyMatch(x -> x.supports(CREATE_SCHEMA, null))) {
-            LOG.warn(
-                "'createSchema' callback is deprecated and will be removed in a later release. Please use 'beforeCreateSchema' callback instead.");
+            printDeprecationNotice(DeprecatedFeatures.CREATE_SCHEMA);
         }
 
         @SuppressWarnings("unchecked") final var internalCallbacks = configuration.getPluginRegister()

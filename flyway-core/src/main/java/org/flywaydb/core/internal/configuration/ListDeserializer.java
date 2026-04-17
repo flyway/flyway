@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,19 +19,18 @@
  */
 package org.flywaydb.core.internal.configuration;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import tools.jackson.databind.ValueDeserializer;
 
-public class ListDeserializer extends JsonDeserializer<List<String>> {
+public class ListDeserializer extends ValueDeserializer<List<String>> {
 
     @Override
-    public List<String> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public List<String> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
         return Arrays.stream(jsonParser.getValueAsString().split(",")).collect(Collectors.toList());
     }
 }

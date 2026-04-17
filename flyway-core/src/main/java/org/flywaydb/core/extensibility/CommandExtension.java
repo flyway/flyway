@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * @apiNote This interface is under development and not recommended for use.
  */
-public interface CommandExtension extends PluginMetadata {
+public interface CommandExtension<T extends OperationResult> extends PluginMetadata {
     /**
      * @param command The CLI command to check is handled
      * @return Whether this extension handles the specified command
@@ -44,16 +44,23 @@ public interface CommandExtension extends PluginMetadata {
     }
 
     /**
+     * @return Whether this extension requires a Flyway instance to run
+     */
+    default boolean requiresFlywayInstance() {
+        return true;
+    }
+
+    /**
      * @param parameter The parameter to check is handled
      * @return Whether this extension handles the specified parameter
      */
     boolean handlesParameter(String parameter);
 
     /**
-     * @param command The command to handle
-     * @param config  The configuration provided to Flyway
-     * @param flags   The CLI flags provided to Flyway
+     * @param config The configuration provided to Flyway
+     * @param flags  The CLI flags provided to Flyway
      * @return The result of this command being handled
      */
-    OperationResult handle(String command, Configuration config, List<String> flags) throws FlywayException;
+    T handle(Configuration config, List<String> flags) throws FlywayException;
+
 }

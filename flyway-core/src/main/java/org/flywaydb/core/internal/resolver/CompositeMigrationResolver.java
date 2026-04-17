@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,10 @@
  */
 package org.flywaydb.core.internal.resolver;
 
+import java.util.Comparator;
 import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.api.CoreErrorCode;
+import org.flywaydb.core.api.CoreMigrationType;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.callback.Event;
@@ -36,9 +38,6 @@ import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
 import org.flywaydb.core.internal.resolver.script.ScriptMigrationResolver;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
 import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
-
-
-
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -80,28 +79,30 @@ public class CompositeMigrationResolver implements MigrationResolver {
         migrationResolvers.addAll(Arrays.asList(customMigrationResolvers));
     }
 
-    static void checkForIncompatibilities(List<ResolvedMigration> migrations) {
-        ResolvedMigrationComparator resolvedMigrationComparator = new ResolvedMigrationComparator();
+    static void checkForIncompatibilities(final List<? extends ResolvedMigration> migrations) {
+        final Comparator<ResolvedMigration> resolvedMigrationComparator = new ResolvedMigrationComparator();
 
         // check for more than one migration with same version
         for (int i = 0; i < migrations.size() - 1; i++) {
-            ResolvedMigration current = migrations.get(i);
-            ResolvedMigration next = migrations.get(i + 1);
+            final ResolvedMigration current = migrations.get(i);
+            final ResolvedMigration next = migrations.get(i + 1);
+            final String currentScriptPath = current.getType().name().contains("JDBC") ? current.getScript() : current.getPhysicalLocation();
+            final String nextScriptPath = next.getType().name().contains("JDBC") ? next.getScript() : next.getPhysicalLocation();
 
             if (current.canCompareWith(next) && next.canCompareWith(current) && resolvedMigrationComparator.compare(current, next) == 0) {
                 if (current.getVersion() != null) {
                     throw new FlywayException(String.format("Found more than one migration with version %s\nOffenders:\n-> %s (%s)\n-> %s (%s)",
                                                             current.getVersion(),
-                                                            current.getPhysicalLocation(),
+                                                            currentScriptPath,
                                                             current.getType(),
-                                                            next.getPhysicalLocation(),
+                                                            nextScriptPath,
                                                             next.getType()), CoreErrorCode.DUPLICATE_VERSIONED_MIGRATION);
                 }
                 throw new FlywayException(String.format("Found more than one repeatable migration with description %s\nOffenders:\n-> %s (%s)\n-> %s (%s)",
                                                         current.getDescription(),
-                                                        current.getPhysicalLocation(),
+                                                        currentScriptPath,
                                                         current.getType(),
-                                                        next.getPhysicalLocation(),
+                                                        nextScriptPath,
                                                         next.getType()), CoreErrorCode.DUPLICATE_REPEATABLE_MIGRATION);
             }
         }

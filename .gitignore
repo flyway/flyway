@@ -18,6 +18,9 @@ __pycache__
 venv
 .venv
 
+# Per-developer dev container overrides (BASE_IMAGE, DEVCONTAINER_IMAGE, M2_CACHE)
+.devcontainer/.env
+
 documentation/.jekyll-metadata
 documentation/_site
 documentation/_vale_config/styles/Microsoft
@@ -29,6 +32,7 @@ documentation/_vale_config/styles/proselint
 !**/.idea/codeStyles/
 !**/.idea/codeStyles/*
 
+flyway-commandline/src/main/assembly/jre/*
 flyway-core-test/spooledContents.sql
 flyway-core-test/spool.sql
 flyway-cli-sample/jars/
@@ -46,3 +50,13 @@ flyway-comparison/flyway-comparison-engines/**/resources/obj/
 flyway-comparison/flyway-comparison-engines/flyway-comparison/
 
 out/**
+
+**/*.egg-info/
+
+.worktrees/
+.claude/settings.local.json
+.loop-state.md
+.workflow-state.md
+
+# Workflow state (local tracking file, not for VCS)
+.workflow-state.md

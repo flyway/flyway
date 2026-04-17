@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-database-nc-mongodb
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
  */
 package org.flywaydb.database.nc.mongodb;
 
-import static org.flywaydb.core.internal.logging.PreviewFeatureWarning.NATIVE_CONNECTORS;
-import static org.flywaydb.core.internal.logging.PreviewFeatureWarning.logPreviewFeature;
+import static org.flywaydb.core.internal.util.DeprecationUtils.DeprecatedFeatures.MONGODB_URL;
+import static org.flywaydb.core.internal.util.DeprecationUtils.printDeprecationNotice;
 import static org.flywaydb.core.internal.util.UrlUtils.extractQueryParams;
 
 import com.mongodb.ConnectionString;
@@ -32,8 +32,6 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Updates;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -45,7 +43,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.function.BiFunction;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.bson.BsonDocument;
 import org.bson.Document;
@@ -65,10 +62,10 @@ import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.util.AsciiTable;
-import org.flywaydb.core.internal.util.DockerUtils;
-import org.flywaydb.core.internal.util.FileUtils;
+import org.flywaydb.core.internal.util.DeprecationUtils.DeprecatedFeatures;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.nc.NativeConnectorsProcessRunner;
 import org.flywaydb.nc.NativeConnectorsNonJdbc;
 import org.flywaydb.nc.executors.NonJdbcExecutorExecutionUnit;
 import org.flywaydb.nc.utils.TemporaryFileUtils;
@@ -95,15 +92,12 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
 
     @Override
     public List<String> supportedVerbs() {
-        return List.of("info", "validate", "migrate", "clean", "undo", "baseline", "repair");
+        return List.of("info", "validate", "migrate", "clean", "undo", "baseline", "repair", "testConnection");
     }
 
     @Override
     public boolean isOnByDefault(final Configuration configuration) {
-        final boolean isOSS = "OSS".equals(LicenseGuard.getTierAsString(configuration));
-        initializeConnectionType(configuration, true);
-
-        return isOSS || (connectionType == ConnectionType.API) || checkMongoshInstalled(true);
+        return true;
     }
 
     @Override
@@ -113,20 +107,20 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
 
     @Override
     public void initialize(final ResolvedEnvironment environment, final Configuration configuration) {
-        logPreviewFeature(NATIVE_CONNECTORS + " for " + getDatabaseType());
-
-        initializeConnectionType(configuration, false);
+        initializeConnectionType(configuration);
 
         if (environment.getUrl().startsWith("jdbc:")) {
             LOG.info("JDBC prefix stripped from url: " + redactUrl(environment.getUrl()));
+            printDeprecationNotice(MONGODB_URL);
             environment.setUrl(environment.getUrl().replaceFirst("jdbc:", ""));
         }
 
         if (connectionType == ConnectionType.EXECUTABLE) {
-            checkMongoshInstalled(false);
+            checkMongoshInstalled();
             mongoshCredential = new MongoshCredential(environment.getUrl(),
                 environment.getUser(),
                 environment.getPassword());
+            checkMongoshConnectivity();
         }
 
         connectionString = new ConnectionString(configuration.getUrl());
@@ -160,6 +154,7 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
                 .credential(credential)
                 .build());
         }
+        isClosed = false;
         final String databaseName = getDefaultSchema(configuration);
 
         mongoDatabase = mongoClient.getDatabase(databaseName);
@@ -300,13 +295,11 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
     }
 
     @Override
-    public void close() throws Exception {
-
-    }
-
-    @Override
-    public boolean isClosed() {
-        return false;
+    public void close() {
+        if (mongoClient != null) {
+            mongoClient.close();
+            super.close();
+        }
     }
 
     @Override
@@ -438,91 +431,45 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
     }
 
     private void doExecuteWithMongosh(final String executionUnit, final boolean outputQueryResults) {
-        final List<String> commands = new ArrayList<>(List.of("mongosh", mongoshCredential.url()));
-        if (mongoshCredential.username() != null) {
-            commands.addAll(List.of("--username", mongoshCredential.username()));
-        }
-        if (mongoshCredential.password() != null) {
-            commands.addAll(List.of("--password", mongoshCredential.password()));
-        }
+        final List<String> commands = getMongoshConnectCommands();
+
         commands.addAll(List.of("--file", TemporaryFileUtils.createTempFile(executionUnit, ".js")));
 
-        final var processBuilder = new ProcessBuilder(commands);
-        /* Required to stop system-stubs throwing Exception */
-        processBuilder.environment();
-
-        try {
-            LOG.debug("Executing mongosh");
-            final Process process = processBuilder.start();
-            final boolean exited = process.waitFor(5, TimeUnit.MINUTES);
-            if (!exited) {
-                throw new FlywayException("Mongosh execution timeout. Consider using smaller migrations");
-            }
-            if (outputQueryResults) {
-                final String stdOut = FileUtils.copyToString(new InputStreamReader(process.getInputStream(),
-                    StandardCharsets.UTF_8)).strip();
-                LOG.info(stdOut);
-            }
-
-            final int exitCode = process.exitValue();
-            if (exitCode != 0) {
-                final String stdErr = FileUtils.copyToString(new InputStreamReader(process.getErrorStream(),
-                    StandardCharsets.UTF_8)).strip();
-                throw new FlywayException(stdErr + " (ExitCode: " + exitCode + ")");
-            }
-        } catch (Exception e) {
-            if (e.getMessage().contains("The filename or extension is too long")) {
-                throw new FlywayException("Mongosh execution failed. Consider using smaller migrations");
-            }
-            throw new FlywayException(e);
-        }
+        final NativeConnectorsProcessRunner processRunner = new NativeConnectorsProcessRunner(commands, "Mongosh");
+        processRunner.executeMigrations(outputQueryResults, false);
     }
 
-    private boolean checkMongoshInstalled(final boolean silent) {
-        List<String> commands = Arrays.asList("mongosh", "--version");
-        LOG.debug("Executing " + String.join(" ", commands));
-        final ProcessBuilder processBuilder = new ProcessBuilder(commands);
-        processBuilder.environment();
-        try {
-            processBuilder.start();
-        } catch (final Exception e) {
-            if (DockerUtils.isContainer()) {
-                if (silent) {
-                    return false;
-                }
-                throw new FlywayException(
-                    "Mongosh is not installed on this docker image. Please use the Mongo docker image on our repository: "
-                        + FlywayDbWebsiteLinks.OSS_DOCKER_REPOSITORY);
-            }
-            if (silent) {
-                return false;
-            }
-            throw new FlywayException(
-                "Mongosh is required for .js migrations and is not currently installed. Information on how to install Mongosh can be found here: "
-                    + FlywayDbWebsiteLinks.MONGOSH);
-        }
-
-        return true;
+    private void checkMongoshInstalled() {
+        final List<String> commands = Arrays.asList("mongosh", "--version");
+        final NativeConnectorsProcessRunner processRunner = new NativeConnectorsProcessRunner(commands, "Mongosh");
+        final String errorMessage = "Mongosh is required for .js migrations and is not currently installed. "
+            + "Information on how to install Mongosh can be found here: "
+            + FlywayDbWebsiteLinks.MONGOSH;
+        processRunner.checkToolInstalled(false, errorMessage);
     }
 
-    private void initializeConnectionType(final Configuration configuration, final boolean silent) {
+    private void checkMongoshConnectivity() {
+        final List<String> commands = getMongoshConnectCommands();
+
+        commands.add("--eval");
+        commands.add("db.runCommand({ ping: 1 })");
+
+        final NativeConnectorsProcessRunner processRunner = new NativeConnectorsProcessRunner(commands, "Mongosh");
+        processRunner.checkToolConnectivity();
+    }
+
+    private void initializeConnectionType(final Configuration configuration) {
         if (connectionType != null) {
             return;
         }
 
         if (configuration.getSqlMigrationSuffixes().length > 1) {
-            if (silent) {
-                return;
-            }
             throw new FlywayException("Multiple `sqlMigrationSuffixes` currently not supported for MongoDB: "
                 + Arrays.toString(configuration.getSqlMigrationSuffixes()));
         }
 
         final String migrationSuffix = configuration.getSqlMigrationSuffixes()[0];
         if (!".js".equals(migrationSuffix) && !".json".equals(migrationSuffix)) {
-            if (silent) {
-                return;
-            }
             throw new FlywayException(
                 "`sqlMigrationSuffixes` is not configured with an accepted MongoDB suffix ('.js' or '.json'): "
                     + migrationSuffix);
@@ -535,5 +482,16 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
         final List<Document> writeErrors = result.getList("writeErrors", Document.class);
         final String errMsg = writeErrors.get(0).getString("errmsg");
         throw new FlywayException(errMsg);
+    }
+
+    private List<String> getMongoshConnectCommands() {
+        List<String> commands = new ArrayList<>(List.of("mongosh", mongoshCredential.url()));
+        if (mongoshCredential.username() != null) {
+            commands.addAll(List.of("--username", mongoshCredential.username()));
+        }
+        if (mongoshCredential.password() != null) {
+            commands.addAll(List.of("--password", mongoshCredential.password()));
+        }
+        return commands;
     }
 }

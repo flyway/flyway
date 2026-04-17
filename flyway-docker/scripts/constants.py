@@ -30,4 +30,9 @@ FINAL_LAYERS: List[FinalLayer] = [
         dockerfile="./dockerfiles/mongo/Dockerfile",
         applies=lambda image_tag, edition, variant: True,  # applies to all built images
     ),
+    FinalLayer(
+        name="oracle",
+        dockerfile="./dockerfiles/oracle/Dockerfile",
+        applies=lambda image_tag, edition, variant: variant.name == "base" and edition == "redgate",  # applies to redgate base only
+    ),
 ]

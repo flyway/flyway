@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.extensibility.LicenseGuard;
 import org.flywaydb.core.extensibility.Tier;
 import org.flywaydb.core.extensibility.VerbExtension;
+import org.flywaydb.core.internal.Topic;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.command.*;
 import org.flywaydb.core.internal.command.clean.DbClean;
@@ -58,13 +59,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-
-
-
-
-
-
 
 
 /**
@@ -185,13 +179,6 @@ public class Flyway {
 
             try {
                 return flywayExecutor.execute((migrationResolver, schemaHistory, database, defaultSchema, schemas, callbackExecutor, statementInterceptor) -> {
-
-
-
-
-
-
-
                     if (configuration.isValidateOnMigrate()) {
                         final Collection<ValidatePattern> ignorePatterns = new ArrayList<>(Arrays.asList(configuration.getIgnoreMigrationPatterns()));
                         ignorePatterns.add(ValidatePattern.fromPattern("*:pending"));
@@ -219,16 +206,14 @@ public class Flyway {
                         }
 
                         if (nonEmptySchemas.isEmpty() && configuration.isBaselineOnMigrate()) {
-                            LOG.info("All configured schemas are empty; baseline operation skipped. "
-                                + "A baseline or migration script with a lower version than the baseline version may execute if available. Check the Schemas parameter if this is not intended.");
+                            LOG.info("All configured schemas are empty; a baseline marker will not be added to Flyway's schema history table. "
+                                + "A baseline or migration script with a lower version than the baseline version may execute if available. Check the Schemas parameter if this is not intended. See " + FlywayDbWebsiteLinks.getRedirectLinkFromTopic(
+                                Topic.BASELINE_ON_MIGRATE) + " for more info");
                         }
 
                         if (!nonEmptySchemas.isEmpty() && !configuration.isSkipExecutingMigrations()) {
                             if (configuration.isBaselineOnMigrate()) {
                                 doBaseline(schemaHistory, callbackExecutor, database);
-
-
-
                             } else {
                                 // Second check for MySQL which is sometimes flaky otherwise
                                 if (!schemaHistory.exists()) {
@@ -309,10 +294,6 @@ public class Flyway {
             try {
                 return flywayExecutor.execute((migrationResolver, schemaHistory, database, defaultSchema, schemas, callbackExecutor, statementInterceptor) -> {
                     final CleanResult cleanResult = doClean(database, schemaHistory, defaultSchema, schemas, callbackExecutor);
-
-
-
-
 
                     callbackExecutor.onOperationFinishEvent(Event.AFTER_CLEAN_OPERATION_FINISH, cleanResult);
 
@@ -417,10 +398,6 @@ public class Flyway {
 
                     final BaselineResult baselineResult = doBaseline(schemaHistory, callbackExecutor, database);
 
-
-
-
-
                     callbackExecutor.onOperationFinishEvent(Event.AFTER_BASELINE_OPERATION_FINISH, baselineResult);
 
                     return baselineResult;
@@ -460,10 +437,6 @@ public class Flyway {
             try {
                 return flywayExecutor.execute((migrationResolver, schemaHistory, database, defaultSchema, schemas, callbackExecutor, statementInterceptor) -> {
                     final RepairResult repairResult = new DbRepair(database, migrationResolver, schemaHistory, callbackExecutor, configuration).repair();
-
-
-
-
 
                     callbackExecutor.onOperationFinishEvent(Event.AFTER_REPAIR_OPERATION_FINISH, repairResult);
 
@@ -521,9 +494,6 @@ public class Flyway {
                                       final Schema defaultSchema, final Schema[] schemas, final CallbackExecutor<Event> callbackExecutor, final ValidatePattern[] ignorePatterns) {
         final ValidateResult validateResult = new DbValidate(database, schemaHistory, defaultSchema, migrationResolver, configuration, callbackExecutor, ignorePatterns).validate();
 
-        if (configuration.isCleanOnValidationError()) {
-            throw new FlywayException("cleanOnValidationError has been removed");
-        }
         return validateResult;
     }
 

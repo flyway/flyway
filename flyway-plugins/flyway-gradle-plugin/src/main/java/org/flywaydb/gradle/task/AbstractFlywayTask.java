@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-gradle-plugin
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,14 +23,9 @@ import static org.flywaydb.core.internal.configuration.ConfigUtils.FLYWAY_PLUGIN
 import static org.flywaydb.core.internal.configuration.ConfigUtils.putIfSet;
 
 import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -46,12 +41,11 @@ import org.flywaydb.core.internal.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.gradle.FlywayExtension;
 import org.gradle.api.DefaultTask;
-import org.gradle.api.artifacts.ResolvedArtifact;
-import org.gradle.api.artifacts.ResolvedConfiguration;
+import org.gradle.api.Project;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
-import org.gradle.api.tasks.SourceSetOutput;
 import org.gradle.api.tasks.TaskAction;
 
 /**
@@ -79,6 +73,15 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     protected FlywayExtension extension;
 
     /**
+     * Values captured at configuration time for configuration cache compatibility.
+     */
+    private final String gradleVersion;
+    private final boolean javaProject;
+    private final Map<String, String> flywayProjectProperties;
+    private final String projectDirPath;
+    private final FileCollection extraClasspath;
+
+    /**
      * The fully qualified classname of the JDBC driver to use to connect to the database.
      */
     public String driver;
@@ -104,14 +107,14 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * The interval between retries doubles with each subsequent attempt. (default: 0)
      * <p>Also configurable with Gradle or System Property: ${flyway.connectRetries}</p>
      */
-    public int connectRetries;
+    public Integer connectRetries;
 
     /**
      * The maximum time between retries when attempting to connect to the database in seconds. This will cap the
      * interval between connect retry to the value provided. (default: 120)
      * <p>Also configurable with Gradle or System Property: ${flyway.connectRetriesInterval}</p>
      */
-    public int connectRetriesInterval;
+    public Integer connectRetriesInterval;
 
     /**
      * The SQL statements to run to initialize a new database connection immediately after opening it. (default:
@@ -382,17 +385,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public Boolean validateOnMigrate;
 
     /**
-     * Deprecated, will be removed in a future release. <br> Whether to automatically call clean or not when a
-     * validation error occurs. (default: {@code false}) This is exclusively intended as a convenience for development.
-     * even though we strongly recommend not to change migration scripts once they have been checked into SCM and run,
-     * this provides a way of dealing with this case in a smooth manner. The database will be wiped clean automatically,
-     * ensuring that the next migration will bring you back to the state checked into SCM.
-     * <b>Warning! Do not enable in production!</b>
-     * <p>Also configurable with Gradle or System Property: ${flyway.cleanOnValidationError}</p>
-     */
-    public Boolean cleanOnValidationError;
-
-    /**
      * Ignore migrations that match this comma-separated list of patterns when validating migrations. Each pattern is of
      * the form <migration_type>:<migration_state> See <a
      * href="https://documentation.red-gate.com/flyway/reference/configuration/flyway-namespace/flyway-ignore-migration-patterns-setting">...</a>
@@ -578,7 +570,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      *
      * @return @{code true} to fail (default: {@code false})
      */
-    public boolean failOnMissingLocations;
+    public Boolean failOnMissingLocations;
 
     /**
      * The configuration for plugins You will need to configure this with the key and value specific to your plugin
@@ -588,24 +580,55 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     protected AbstractFlywayTask() {
         super();
         setGroup("Flyway");
-        extension = (FlywayExtension) getProject().getExtensions().getByName("flyway");
+        final Project project = getProject();
+        extension = (FlywayExtension) project.getExtensions().getByName("flyway");
+
+        this.gradleVersion = project.getGradle().getGradleVersion();
+        this.javaProject = project.getPluginManager().hasPlugin("java");
+        this.projectDirPath = project.getProjectDir().getAbsolutePath();
+
+        this.flywayProjectProperties = new HashMap<>();
+        for (final Map.Entry<String, ?> entry : project.getProperties().entrySet()) {
+            if (entry.getKey().startsWith("flyway.") && entry.getValue() != null) {
+                flywayProjectProperties.put(entry.getKey(), entry.getValue().toString());
+            }
+        }
+
+        final ConfigurableFileCollection classpathFiles = project.getObjects().fileCollection();
+
+        if (javaProject) {
+            final SourceSetContainer sourceSets = project.getExtensions().getByType(SourceSetContainer.class);
+            for (final SourceSet sourceSet : sourceSets) {
+                classpathFiles.from(sourceSet.getOutput().getClassesDirs());
+                classpathFiles.from(sourceSet.getOutput().getResourcesDir());
+            }
+        }
+
+        classpathFiles.from(project.provider(() -> {
+            final Map<String, String> envVars = ConfigUtils.environmentVariablesToPropertyMap();
+            final String[] configs = determineConfigurations(envVars);
+            final List<FileCollection> result = new ArrayList<>();
+            for (final String config : configs) {
+                result.add(project.getConfigurations().getByName(config));
+            }
+            return result;
+        }));
+
+        this.extraClasspath = classpathFiles;
     }
 
     @TaskAction
     public Object runTask() {
         try {
-            final Map<String, String> envVars = ConfigUtils.environmentVariablesToPropertyMap();
-
             final Set<URL> extraURLs = new HashSet<>();
-            if (isJavaProject()) {
-                addClassesAndResourcesDirs(extraURLs);
+            for (final File file : extraClasspath.getFiles()) {
+                extraURLs.add(file.toURI().toURL());
             }
 
-            addConfigurationArtifacts(determineConfigurations(envVars), extraURLs);
-
             final ClassLoader classLoader = new URLClassLoader(extraURLs.toArray(URL[]::new),
-                getProject().getBuildscript().getClassLoader());
+                getClass().getClassLoader());
 
+            final Map<String, String> envVars = ConfigUtils.environmentVariablesToPropertyMap();
             final Map<String, String> config = createFlywayConfig(envVars);
             ConfigUtils.dumpConfigurationMap(config, "Using configuration:");
 
@@ -615,53 +638,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
             return result;
         } catch (final Exception e) {
             throw new FlywayException(collectMessages(e, "Error occurred while executing " + getName()), e);
-        }
-    }
-
-    private void addClassesAndResourcesDirs(final Collection<? super URL> extraURLs)
-        throws MalformedURLException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        final SourceSetContainer sourceSets = getProject().getExtensions().getByType(SourceSetContainer.class);
-
-        for (final SourceSet sourceSet : sourceSets) {
-            try {
-                final FileCollection classesDirs = sourceSet.getOutput().getClassesDirs();
-                for (final File directory : classesDirs.getFiles()) {
-                    final URL classesUrl = directory.toURI().toURL();
-                    getLogger().debug("Adding directory to Classpath: " + classesUrl);
-                    extraURLs.add(classesUrl);
-                }
-            } catch (final NoSuchMethodError ex) {
-                getLogger().debug("Falling back to legacy getClassesDir method");
-
-                // try legacy gradle 3.0 method instead
-                @SuppressWarnings("JavaReflectionMemberAccess") final Method getClassesDir = SourceSetOutput.class.getMethod(
-                    "getClassesDir");
-
-                final File classesDir = (File) getClassesDir.invoke(sourceSet.getOutput());
-                final URL classesUrl = classesDir.toURI().toURL();
-
-                getLogger().debug("Adding directory to Classpath: " + classesUrl);
-                extraURLs.add(classesUrl);
-            }
-
-            final URL resourcesUrl = sourceSet.getOutput().getResourcesDir().toURI().toURL();
-            getLogger().debug("Adding directory to Classpath: " + resourcesUrl);
-            extraURLs.add(resourcesUrl);
-        }
-    }
-
-    private void addConfigurationArtifacts(final String[] configurations, final Collection<? super URL> urls)
-        throws IOException {
-        for (final String configuration : configurations) {
-            getLogger().debug("Adding configuration to classpath: " + configuration);
-            final ResolvedConfiguration resolvedConfiguration = getProject().getConfigurations()
-                .getByName(configuration)
-                .getResolvedConfiguration();
-            for (final ResolvedArtifact artifact : resolvedConfiguration.getResolvedArtifacts()) {
-                final URL artifactUrl = artifact.getFile().toURI().toURL();
-                getLogger().debug("Adding artifact to classpath: " + artifactUrl);
-                urls.add(artifactUrl);
-            }
         }
     }
 
@@ -679,8 +655,8 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         if (extension.configurations != null) {
             return extension.configurations;
         }
-        if (isJavaProject()) {
-            if (getProject().getGradle().getGradleVersion().startsWith("3")) {
+        if (javaProject) {
+            if (gradleVersion.startsWith("3")) {
                 return DEFAULT_CONFIGURATIONS_GRADLE3;
             }
             return DEFAULT_CONFIGURATIONS_GRADLE45;
@@ -756,7 +732,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
             extension.skipExecutingMigrations);
         putIfSet(conf, ConfigUtils.OUTPUT_QUERY_RESULTS, outputQueryResults, extension.outputQueryResults);
         putIfSet(conf, ConfigUtils.VALIDATE_ON_MIGRATE, validateOnMigrate, extension.validateOnMigrate);
-        putIfSet(conf, ConfigUtils.CLEAN_ON_VALIDATION_ERROR, cleanOnValidationError, extension.cleanOnValidationError);
         putIfSet(conf,
             ConfigUtils.IGNORE_MIGRATION_PATTERNS,
             StringUtils.arrayToCommaDelimitedString(ignoreMigrationPatterns),
@@ -822,7 +797,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
 
         conf.putAll(getPluginConfiguration(pluginConfiguration, extension.pluginConfiguration));
 
-        addConfigFromProperties(conf, getProject().getProperties());
+        addConfigFromProperties(conf, flywayProjectProperties);
         addConfigFromProperties(conf, loadConfigurationFromConfigFiles(getWorkingDirectory(), envVars));
         addConfigFromProperties(conf, envVars);
         addConfigFromProperties(conf, System.getProperties());
@@ -919,7 +894,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
             return new File(workingDirectory);
         }
 
-        return new File(getProject().getProjectDir().getAbsolutePath());
+        return new File(projectDirPath);
     }
 
     /**
@@ -1005,9 +980,9 @@ public abstract class AbstractFlywayTask extends DefaultTask {
             return configFiles;
         }
 
-        if (getProject().getProperties().containsKey(ConfigUtils.CONFIG_FILES)) {
-            for (final String file : StringUtils.tokenizeToStringArray(String.valueOf(getProject().getProperties()
-                .get(ConfigUtils.CONFIG_FILES)), ",")) {
+        if (flywayProjectProperties.containsKey(ConfigUtils.CONFIG_FILES)) {
+            for (final String file : StringUtils.tokenizeToStringArray(
+                flywayProjectProperties.get(ConfigUtils.CONFIG_FILES), ",")) {
                 configFiles.add(toFile(workingDirectory, file));
             }
             return configFiles;
@@ -1089,9 +1064,5 @@ public abstract class AbstractFlywayTask extends DefaultTask {
             return collectMessages(throwable.getCause(), message);
         }
         return message;
-    }
-
-    private boolean isJavaProject() {
-        return getProject().getPluginManager().hasPlugin("java");
     }
 }

@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-mysql
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -131,12 +131,16 @@ public class MySQLParser extends Parser {
 
         int parensDepth = keyword.getParensDepth();
 
-        if ("BEGIN".equalsIgnoreCase(keywordText) && context.getStatementType() == STORED_PROGRAM_STATEMENT) {
-            // BEGIN ... END is the usual way to define a nested block
-            context.increaseBlockDepth("");
+        // Only apply keyword-specific block depth changes for actual keywords, not for
+        // backtick-quoted identifiers that happen to share a name with a keyword (e.g. `case`, `begin`).
+        if (keyword.getType() == TokenType.KEYWORD) {
+            if ("BEGIN".equalsIgnoreCase(keywordText) && context.getStatementType() == STORED_PROGRAM_STATEMENT) {
+                // BEGIN ... END is the usual way to define a nested block
+                context.increaseBlockDepth("");
+            }
         }
 
-        if ("CASE".equalsIgnoreCase(keywordText)) {
+        if (keyword.getType() == TokenType.KEYWORD && "CASE".equalsIgnoreCase(keywordText)) {
             // CASE is treated specially compared to IF or LOOP since it can either be
             // a statement or an expression. CASE statements are terminated with END CASE,
             // while CASE expressions are only terminated with END.

@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-commandline
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,9 @@ package org.flywaydb.commandline;
 
 import static lombok.AccessLevel.PACKAGE;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.dataformat.xml.XmlMapper;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -94,7 +94,7 @@ class MavenVersionChecker {
     }
 
     private MavenMetadata getMavenMetadata()
-        throws URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
+        throws URISyntaxException, ExecutionException, InterruptedException, JacksonException {
         final var url = new URI(flywayUrl);
 
         final var client = HttpClient.newBuilder().connectTimeout(Duration.ofMillis(CONNECT_TIMEOUT_MS)).build();
@@ -107,7 +107,9 @@ class MavenVersionChecker {
             .orTimeout(REQUEST_TIMEOUT_MS, TimeUnit.MILLISECONDS)
             .get();
 
-        final var xmlMapper = new XmlMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        final var xmlMapper = XmlMapper.builder()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .build();
         return xmlMapper.readValue(response.body(), MavenMetadata.class);
     }
 

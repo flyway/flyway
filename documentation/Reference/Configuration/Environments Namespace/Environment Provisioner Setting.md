@@ -25,17 +25,19 @@ If the database does not yet exist, then it will be provisioned. This could be t
 Common use cases of provisioning are:
 
 * Spinning up a test database, for example to test the deployment of migrations
-* Restoring a development database from a clone or snapshot of production
+* Restoring a development database from a snapshot of production
 * Spinning up a development database with appropriate state on a git branch switch
 
 Note that not all provisioner types will support provisioning. The [clean provisioner](Configuration/Environment Provisioner Setting/Clean Provisioner) is a method for re-provisioning only.
 
 ### Re-provisioning
 
-Re-provisioning consists of resetting a database to a known state. This could be cleaning it and leaving it empty or resetting it to a populated state, such as a snapshot of production.
+Re-provisioning resets a database as if it were newly provisioned. This is a destructive operation, which could involve cleaning it and leaving it empty or resetting it to a populated state. Re-provisioning can only be performed on environments that specify a provisioner which supports it. For example, an environment using the `none` provisioner (the default value if a provisioner is not set) will raise an error if a re-provision is attempted.
 
-Re-provisioning is currently only triggered programmatically or via Flyway Desktop. In Flyway Desktop it is triggered for the [shadow database](https://documentation.red-gate.com/display/FD/Shadow+and+build+environments) whenever the state is stale and needs to be reset.
+Re-provisioning is typically triggered by Flyway Desktop or on environments specified as a `-buildEnvironment` to commands such as [Diff](<Commands/Diff>) or [Check](<Commands/Check>). In Flyway Desktop it is triggered for the [shadow database](https://documentation.red-gate.com/display/FD/Shadow+and+build+environments) whenever the state is stale and needs to be reset.
 In this context, if it is used to reset to a baseline state, then it avoids the need for generating and executing a baseline migration script, which can be tricky with databases which have cross-database dependencies, or are very large.
+
+Re-provisioning may be manually requested by using the [`provisionMode`](<Configuration/Flyway Namespace/Flyway Provision Mode Setting>) parameter on the command line.
 
 ## Type
 
@@ -55,12 +57,12 @@ Note that Flyway Desktop implicitly sets the Shadow Database to use the  `clean`
 ### Command-line
 
 ```powershell
-./flyway -environments.sample.provisioner=clone info
+./flyway -environments.sample.provisioner=clean info
 ```
 
 ### TOML Configuration File
 
 ```toml
 [environments.development]
-provisioner = "clone"
+provisioner = "clean"
 ```

@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-maven-plugin
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -298,19 +298,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      */
     @Parameter
     private String[] sqlMigrationSuffixes;
-
-    /**
-     * Deprecated, will be removed in a future release. <br> Whether to automatically call clean or not when a
-     * validation error occurs. (default: {@code false})
-     * <p>This is exclusively intended as a convenience for development. even though we strongly recommend not to
-     * change migration scripts once they have been checked into SCM and run, this provides a way of dealing with this
-     * case in a smooth manner. The database will be wiped clean automatically, ensuring that the next migration will
-     * bring you back to the state checked into SCM.</p>
-     * <p><b>Warning! Do not enable in production!</b></p>
-     * <p>Also configurable with Maven or System Property: ${flyway.cleanOnValidationError}</p>
-     */
-    @Parameter(property = ConfigUtils.CLEAN_ON_VALIDATION_ERROR)
-    private Boolean cleanOnValidationError;
 
     /**
      * Whether to disable clean. (default: {@code false}) This is especially useful for production environments where
@@ -655,7 +642,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * <p>Also configurable with Maven or System Property: ${flyway.serverId}</p>
      */
     @Parameter(property = CONFIG_SERVER_ID)
-    private final String serverId = "flyway-db";
+    private String serverId = "flyway-db";
 
     /**
      * The link to the settings.xml
@@ -788,7 +775,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.MIXED, mixed);
             putIfSet(conf, ConfigUtils.GROUP, group);
             putIfSet(conf, ConfigUtils.INSTALLED_BY, installedBy);
-            putIfSet(conf, ConfigUtils.CLEAN_ON_VALIDATION_ERROR, cleanOnValidationError);
             putIfSet(conf, ConfigUtils.CLEAN_DISABLED, cleanDisabled);
             putIfSet(conf, ConfigUtils.OUT_OF_ORDER, outOfOrder);
             putIfSet(conf, ConfigUtils.SKIP_EXECUTING_MIGRATIONS, skipExecutingMigrations);

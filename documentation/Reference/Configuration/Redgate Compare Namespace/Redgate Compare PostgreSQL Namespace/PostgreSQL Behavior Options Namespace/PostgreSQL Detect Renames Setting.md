@@ -23,15 +23,19 @@ String
 
 ## Usage
 
-This setting can't be configured other than in a TOML configuration file.
-
 ### Flyway Desktop
 
 This can't currently be set from Flyway Desktop, although it will be honoured.
+
+### Command-line
+
+```powershell
+./flyway diff -redgateCompare.postgresql.options.behavior.detectRenames=off
+```
 
 ### TOML Configuration File
 
 ```toml
 [redgateCompare.postgresql.options.behavior]
-detectRenames = "identical-only"
+detectRenames = "off"
 ```

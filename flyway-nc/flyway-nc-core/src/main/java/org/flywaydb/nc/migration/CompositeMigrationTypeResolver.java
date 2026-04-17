@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-nc-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,9 @@ package org.flywaydb.nc.migration;
 import java.util.List;
 import java.util.Objects;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.nc.MigrationTypeResolver;
 import org.flywaydb.core.extensibility.MigrationType;
+import org.flywaydb.core.internal.exception.FlywayUnknownMigrationTypeException;
+import org.flywaydb.core.internal.nc.MigrationTypeResolver;
 
 public class CompositeMigrationTypeResolver implements MigrationTypeResolver {
     @Override
@@ -51,6 +52,6 @@ public class CompositeMigrationTypeResolver implements MigrationTypeResolver {
             })
             .filter(Objects::nonNull)
             .findFirst()
-            .orElse(null);
+            .orElseThrow(() -> new FlywayUnknownMigrationTypeException(name));
     }
 }

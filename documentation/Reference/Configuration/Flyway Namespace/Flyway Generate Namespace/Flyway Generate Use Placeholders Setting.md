@@ -26,7 +26,17 @@ CREATE TABLE ${schema}.foo (
 );
 ```
 
-Please note - this is doing a text pattern match for the string `"dbo"` and replacing it with the string `"${schema}"`, this is what `-placeholders.schema=dbo` defines. It isn't aware of SQL syntax or your database !
+Please note - this is doing a text pattern match for the string `"dbo"` and replacing it with the string `"${schema}"`, this is what `-placeholders.schema=dbo` defines. It isn't aware of SQL syntax or your database!
+
+### TOML usage
+The same example can be configured in TOML:
+```toml
+[flyway.generate]
+usePlaceholders = true
+
+[flyway.placeholders]
+schema = "dbo"
+```
 
 ### Evaluation order
 Placeholders are evaluated in order of longest value first. This means that if you have these placeholders:

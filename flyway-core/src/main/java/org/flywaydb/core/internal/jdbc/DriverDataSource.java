@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,7 +114,11 @@ public class DriverDataSource implements DataSource {
                             Map<String, String> additionalProperties) throws FlywayException {
         this.url = detectFallbackUrl(url);
 
-        List<DatabaseType> typesAcceptingUrl = DatabaseTypeRegister.getDatabaseTypesForUrl(url, configuration);
+        List<DatabaseType> typesAcceptingUrl = DatabaseTypeRegister.getDatabaseTypesForUrl(url, configuration)
+            .stream()
+            .filter(DatabaseType.class::isInstance)
+            .map(DatabaseType.class::cast)
+            .toList();
 
         if (typesAcceptingUrl.isEmpty()) {
             throw new FlywayException("No Flyway database plugin found to handle " + DatabaseTypeRegister.redactJdbcUrl(url)

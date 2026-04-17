@@ -86,7 +86,7 @@ $ flyway diff "-diff.source=development" "-diff.target=schemaModel"
 Flyway Enterprise Edition {{ site.flywayVersion }} by Redgate
 Licensed to red-gate.com (license ID 1174ed6b-b10e-41bd-9a1b-285ddc3239c7)
 
-See release notes here: https://rd.gt/416ObMi
+See release notes here: {% include release-notes-url.html %}
 diff artifact generated: C:\Users\Flyway\AppData\Local\Temp\flyway.artifact.diff
 +-----------------------------+--------+-----------------------+----------------+---------------------------------------+
 | Id                          | Change | Object Type           | Schema         | Name                                  |
@@ -114,7 +114,7 @@ $ flyway model
 Flyway Enterprise Edition {{ site.flywayVersion }} by Redgate
 Licensed to red-gate.com (license ID 1174ed6b-b10e-41bd-9a1b-285ddc3239c7)
 
-See release notes here: https://rd.gt/416ObMi
+See release notes here: {% include release-notes-url.html %}
 Saved to schema model
  File updated: C:\Users\Flyway\FlywayProjects\SqlServerProject\schema-model\Database Triggers\ddlDatabaseTriggerLog.sql
  File updated: C:\Users\Flyway\FlywayProjects\SqlServerProject\schema-model\Extended Properties\MS_Description.sql
@@ -138,7 +138,7 @@ $ flyway diff "-diff.source=prod" "-diff.target=migrations" "-diff.buildEnvironm
 Flyway Enterprise Edition {{ site.flywayVersion }} by Redgate
 Licensed to red-gate.com (license ID 1174ed6b-b10e-41bd-9a1b-285ddc3239c7)
 
-See release notes here: https://rd.gt/416ObMi
+See release notes here: {% include release-notes-url.html %}
 Successfully validated 0 migrations (execution time 00:00.009s)
 WARNING: No migrations found. Are your locations set up correctly?
 diff artifact generated: C:\Users\Flyway\AppData\Local\Temp\flyway.artifact.diff
@@ -169,7 +169,7 @@ $ flyway generate "-generate.types=baseline" "-generate.description=Baseline"
 Flyway Enterprise Edition {{ site.flywayVersion }} by Redgate
 Licensed to red-gate.com (license ID 1174ed6b-b10e-41bd-9a1b-285ddc3239c7)
 
-See release notes here: https://rd.gt/416ObMi
+See release notes here: {% include release-notes-url.html %}
 Using diff artifact: C:\Users\Flyway\AppData\Local\Temp\flyway.artifact.diff
 Generating baseline migration: C:\Users\Flyway\FlywayProjects\SqlServerProject\migrations\B001_20241209164727__Baseline.sql
 Generated: C:\Users\Flyway\FlywayProjects\SqlServerProject\migrations\B001_20241209164727__Baseline.sql
@@ -185,7 +185,7 @@ $ flyway diff "-diff.source=prod" "-diff.target=migrations" "-diff.buildEnvironm
 Flyway Enterprise Edition {{ site.flywayVersion }} by Redgate
 Licensed to red-gate.com (license ID 1174ed6b-b10e-41bd-9a1b-285ddc3239c7)
 
-See release notes here: https://rd.gt/416ObMi
+See release notes here: {% include release-notes-url.html %}
 ...
 Successfully applied 1 migration to schema [dbo], now at version v001.20241209164727 (execution time 00:02.648s)
 diff artifact generated: C:\Users\Flyway\AppData\Local\Temp\flyway.artifact.diff
@@ -219,7 +219,7 @@ $ flyway diff model "-diff.source=development" "-diff.target=schemaModel"
 Flyway Enterprise Edition {{ site.flywayVersion }} by Redgate
 Licensed to red-gate.com (license ID 1174ed6b-b10e-41bd-9a1b-285ddc3239c7)
 
-See release notes here: https://rd.gt/416ObMi
+See release notes here: {% include release-notes-url.html %}
 diff artifact generated: C:\Users\Flyway\AppData\Local\Temp\flyway.artifact.diff
 +-----------------------------+--------+-------------+--------+----------+
 | Id                          | Change | Object Type | Schema | Name     |
@@ -248,7 +248,7 @@ $ flyway diff generate "-diff.source=schemaModel" "-diff.target=migrations" "-di
 Flyway Enterprise Edition {{ site.flywayVersion }} by Redgate
 Licensed to red-gate.com (license ID 1174ed6b-b10e-41bd-9a1b-285ddc3239c7)
 
-See release notes here: https://rd.gt/416ObMi
+See release notes here: {% include release-notes-url.html %}
 Successfully applied 1 migration to schema [dbo], now at version v001.20241209164727 (execution time 00:02.820s)
 diff artifact generated: C:\Users\Flyway\AppData\Local\Temp\flyway.artifact.diff
 +-----------------------------+--------+-------------+--------+----------+
@@ -274,7 +274,7 @@ $ flyway diff "-diff.source=schemaModel" "-diff.target=migrations" "-diff.buildE
 Flyway Enterprise Edition {{ site.flywayVersion }} by Redgate
 Licensed to red-gate.com (license ID 1174ed6b-b10e-41bd-9a1b-285ddc3239c7)
 
-See release notes here: https://rd.gt/416ObMi
+See release notes here: {% include release-notes-url.html %}
 Successfully validated 3 migrations (execution time 00:00.016s)
 Current version of schema [dbo]: 001.20241209164727
 Migrating schema [dbo] to version "002.20241210110201 - NewTableAdded"
@@ -303,7 +303,7 @@ $ flyway diff "-diff.source=development" "-diff.target=schemaModel"
 Flyway Enterprise Edition {{ site.flywayVersion }} by Redgate
 Licensed to red-gate.com (license ID 1174ed6b-b10e-41bd-9a1b-285ddc3239c7)
 
-See release notes here: https://rd.gt/416ObMi
+See release notes here: {% include release-notes-url.html %}
 diff artifact generated: C:\Users\Flyway\AppData\Local\Temp\flyway.artifact.diff
 +-----------------------------+--------+-------------+--------+------------+
 | Id                          | Change | Object Type | Schema | Name       |
@@ -318,7 +318,7 @@ $ flyway model "-model.changes=rlWm41EHCIp8krJRqZ.PTVIx2fs,QvJIORGzbAAz3irDJbEKB
 Flyway Enterprise Edition {{ site.flywayVersion }} by Redgate
 Licensed to red-gate.com (license ID 1174ed6b-b10e-41bd-9a1b-285ddc3239c7)
 
-See release notes here: https://rd.gt/416ObMi
+See release notes here: {% include release-notes-url.html %}
 Saved to schema model
  File updated: C:\Users\Flyway\FlywayProjects\SqlServerProject\schema-model\Tables\dbo.TestTable1.sql
  File updated: C:\Users\Flyway\FlywayProjects\SqlServerProject\schema-model\Tables\dbo.TestTable2.sql
@@ -334,7 +334,7 @@ Flyway Enterprise Edition {{ site.flywayVersion }} by Redgate
 Licensed to red-gate.com (license ID 1174ed6b-b10e-41bd-9a1b-285ddc3239c7)
 Flyway permit on disk is outdated and can't be refreshed automatically because there is no refresh token on disk. Please rerun auth
 
-See release notes here: https://rd.gt/416ObMi
+See release notes here: {% include release-notes-url.html %}
 Successfully validated 3 migrations (execution time 00:00.022s)
 diff artifact generated: C:\Users\Flyway\AppData\Local\Temp\flyway.artifact.diff
 +-----------------------------+--------+-------------+--------+------------+
@@ -349,7 +349,7 @@ $ echo "rlWm41EHCIp8krJRqZ.PTVIx2fs" | flyway generate "-generate.changes=-" "-g
 Flyway Enterprise Edition {{ site.flywayVersion }} by Redgate
 Licensed to red-gate.com (license ID 1174ed6b-b10e-41bd-9a1b-285ddc3239c7)
 
-See release notes here: https://rd.gt/416ObMi
+See release notes here: {% include release-notes-url.html %}
 Using diff artifact: C:\Users\Flyway\AppData\Local\Temp\flyway.artifact.diff
 Generating undo migration: C:\Users\Flyway\FlywayProjects\SqlServerProject\migrations\U003_20241210113916__TestTable1.sql
 Generating versioned migration: C:\Users\Flyway\FlywayProjects\SqlServerProject\migrations\V003_20241210113916__TestTable1.sql
@@ -367,7 +367,7 @@ $ flyway diffText "-diffText.changes=n6OaP76s3hsLYT8jwdpnl5.WaJ8"
 Flyway Enterprise Edition {{ site.flywayVersion }} by Redgate
 Licensed to red-gate.com (license ID 1174ed6b-b10e-41bd-9a1b-285ddc3239c7)
 
-See release notes here: https://rd.gt/416ObMi
+See release notes here: {% include release-notes-url.html %}
 --- none
 +++ Table/dbo.TestTable3
 CREATE TABLE [dbo].[TestTable3]
@@ -391,7 +391,7 @@ flyway migrate -baselineOnMigrate=true -environment=prod
 Flyway Enterprise Edition {{ site.flywayVersion }} by Redgate
 Licensed to red-gate.com (license ID 1174ed6b-b10e-41bd-9a1b-285ddc3239c7)
 
-See release notes here: https://rd.gt/416ObMi
+See release notes here: {% include release-notes-url.html %}
 
 Flyway Pipelines are not active for this project. Learn more here: https://flyway.red-gate.com
 Schema history table [Prod2].[dbo].[flyway_schema_history] does not exist yet

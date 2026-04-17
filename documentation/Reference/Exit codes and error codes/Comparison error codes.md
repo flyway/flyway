@@ -87,3 +87,10 @@ These include:
 
 - **Caused by:** Generic error while attempting to generate a snapshot.
 - **Solution:** See error message for more information on the issue and how to resolve.
+
+### `COMPARISON_DATABASE_NOT_SUPPORTED`
+
+- **Caused by:** The database type is not supported by any available comparison engine. This occurs when running
+  commands that rely on comparison technology (e.g., `diff`, `check changes`, `check drift`, `snapshot`) against a
+  database type for which no comparison capability is available.
+- **Solution:** Use a supported database type. Supported databases include SQL Server, Oracle, PostgreSQL, and MySQL.

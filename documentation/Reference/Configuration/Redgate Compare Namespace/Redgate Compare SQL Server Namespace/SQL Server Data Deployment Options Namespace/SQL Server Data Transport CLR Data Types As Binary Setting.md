@@ -19,11 +19,15 @@ Boolean
 
 ## Usage
 
-This setting can't be configured other than in a TOML configuration file.
-
 ### Flyway Desktop
 
 This can be set from the data comparison options settings in SQL Server projects.
+
+### Command-line
+
+```powershell
+./flyway diff -redgateCompare.sqlserver.data.options.deployment.transportClrDataTypesAsBinary=true
+```
 
 ### TOML Configuration File
 

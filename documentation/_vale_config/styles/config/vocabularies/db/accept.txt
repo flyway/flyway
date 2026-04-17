@@ -31,6 +31,7 @@ Postgres
 PSQL
 
 # SQL Server
+Babelfish
 Entra
 filegroups?
 tSQLt

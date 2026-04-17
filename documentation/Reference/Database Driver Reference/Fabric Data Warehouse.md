@@ -1,7 +1,7 @@
 ---
 subtitle: Fabric Data Warehouse
 ---
-- **Status:** Preview
+- **Status:** {% include preview.html %}
 - **Verified Versions:** Latest
 - **Maintainer:** {% include redgate-badge.html %}
 

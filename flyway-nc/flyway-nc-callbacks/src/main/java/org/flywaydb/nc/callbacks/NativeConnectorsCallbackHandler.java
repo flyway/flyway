@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-nc-callbacks
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 package org.flywaydb.nc.callbacks;
 
 import static org.flywaydb.core.internal.util.FileUtils.getParentDir;
+import static org.flywaydb.core.internal.util.TelemetryUtils.getTelemetryManager;
 import static org.flywaydb.nc.utils.ErrorUtils.calculateErrorMessage;
 
 import java.nio.file.Paths;
@@ -76,7 +77,7 @@ public class NativeConnectorsCallbackHandler implements CallbackHandler {
         LOG.info("Callback executed: " + callback.getEvent().name() + " from " + callback.getPhysicalLocation());
 
         try (final EventTelemetryModel telemetryModel = new EventTelemetryModel(callback.getEvent().getId(),
-            NativeConnectorsUtils.getFlywayTelemetryManager(configuration))) {
+            getTelemetryManager(configuration))) {
             executionUnits.forEach(executionUnit -> {
 
                                 try {

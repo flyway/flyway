@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-reports
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,170 +19,163 @@
  */
 package org.flywaydb.reports.html;
 
-import java.util.Collection;
-import java.util.Locale;
-import java.util.Objects;
-import lombok.CustomLog;
-import lombok.experimental.ExtensionMethod;
-import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.reports.output.DashboardResult;
-import org.flywaydb.reports.output.HoldingResult;
-import org.flywaydb.core.api.output.HtmlResult;
-import org.flywaydb.core.api.output.CompositeResult;
-import org.flywaydb.reports.api.extensibility.HtmlRenderer;
-import org.flywaydb.reports.api.extensibility.HtmlReportSummary;
-import org.flywaydb.core.extensibility.LicenseGuard;
-import org.flywaydb.core.extensibility.Tier;
-import org.flywaydb.core.internal.util.FileUtils;
+import static org.flywaydb.core.internal.util.ClassUtils.getInstallDir;
+import static org.flywaydb.core.internal.util.FlywayDbWebsiteLinks.CHANGES_REPORT_LEARN_MORE;
+import static org.flywaydb.core.internal.util.FlywayDbWebsiteLinks.CODE_ANALYSIS_LEARN_MORE;
+import static org.flywaydb.core.internal.util.FlywayDbWebsiteLinks.DRIFT_REPORT_LEARN_MORE;
+import static org.flywaydb.core.internal.util.FlywayDbWebsiteLinks.DRY_RUN_REPORT_LEARN_MORE;
+import static org.flywaydb.core.internal.util.FlywayDbWebsiteLinks.GIVE_FEEDBACK;
+import static org.flywaydb.core.internal.util.FlywayDbWebsiteLinks.UPGRADE_TO_REDGATE_FLYWAY;
+import static org.flywaydb.core.internal.util.FlywayDbWebsiteLinks.INFO_REPORT_LEARN_MORE;
+import static org.flywaydb.core.internal.util.FlywayDbWebsiteLinks.MIGRATION_REPORT_LEARN_MORE;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.chrono.ChronoLocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import static org.flywaydb.core.internal.util.ClassUtils.getInstallDir;
-import static org.flywaydb.reports.utils.HtmlUtils.getFormattedTimestamp;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Stream;
+import lombok.CustomLog;
+import lombok.experimental.ExtensionMethod;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.output.HtmlResult;
+import org.flywaydb.core.extensibility.LicenseGuard;
+import org.flywaydb.core.extensibility.Tier;
+import org.flywaydb.core.internal.util.CollectionsUtils;
+import org.flywaydb.core.internal.util.FileUtils;
+import org.flywaydb.reports.api.extensibility.HtmlRenderer;
+import org.flywaydb.reports.api.extensibility.HtmlReportSummary;
+import org.flywaydb.reports.output.DashboardResult;
+import org.flywaydb.reports.output.HoldingResult;
 
 @CustomLog
 @ExtensionMethod(Tier.class)
 public class HtmlReportGenerator {
-    private static final List<HoldingTabMetadata> HOLDING_TAB_METADATA = Arrays.asList(
-            new HoldingTabMetadata("changes", "ENTERPRISE"),
-            new HoldingTabMetadata("drift", "ENTERPRISE"),
-            new HoldingTabMetadata("migrate", "OSS"),
-            new HoldingTabMetadata("dryrun", "TEAMS", "ENTERPRISE"),
-            new HoldingTabMetadata("code", "OSS")
-                                                                                      );
+    private static final List<HoldingTabMetadata> HOLDING_TAB_METADATA = Arrays.asList(new HoldingTabMetadata("changes",
+            "ENTERPRISE"),
+        new HoldingTabMetadata("drift", "ENTERPRISE"),
+        new HoldingTabMetadata("migrate", "OSS"),
+        new HoldingTabMetadata("dryrun", "TEAMS", "ENTERPRISE"),
+        new HoldingTabMetadata("code", "OSS"));
     private static final String INSTALL_DIR = getInstallDir(HtmlReportGenerator.class);
 
-    public static String generateHtml(final CompositeResult<? extends HtmlResult> result, final Configuration config) {
-        final Map<LocalDateTime, List<HtmlResult>> groupedResults = result.individualResults.stream().collect(Collectors.groupingBy(HtmlResult::getTimestamp));
-        final List<LocalDateTime> timestamps = new ArrayList<>(groupedResults.keySet());
+    public static String generateHtml(final Collection<? extends HtmlResult> results, final Configuration config) {
+        final DashboardResult dashboardResult = new DashboardResult(results);
 
-        final StringBuilder content = new StringBuilder(getBeginning(timestamps));
-        for (final LocalDateTime timestamp : timestamps) {
-            final List<HtmlResult> groupedResult = groupedResults.get(timestamp);
+        final Collection<HtmlResult> allResultsToDisplay = Stream.of(Stream.<HtmlResult>of(dashboardResult),
+                results.stream().map(HtmlResult.class::cast),
+                getHoldingResults(results, config).stream())
+            .flatMap(Function.identity())
+            .filter(x -> !x.isLicenseFailed())
+            .toList();
 
-            final DashboardResult dashboardResult = new DashboardResult();
-            dashboardResult.setOperation("dashboard");
-            dashboardResult.setResults(groupedResult);
-            dashboardResult.setTimestamp(timestamp);
+        final LocalDateTime lastUpdatedTimestamp = allResultsToDisplay.stream()
+            .map(HtmlResult::getTimestamp)
+            .max(Comparator.comparing(Function.identity()))
+            .orElse(LocalDateTime.now());
+        final StringBuilder content = new StringBuilder(getBeginning(lastUpdatedTimestamp));
 
-            groupedResult.add(0, dashboardResult);
+        content.append("<div>\n");
+        content.append(getTabs(allResultsToDisplay, config));
 
-            groupedResult.addAll(getHoldingResults(groupedResult, timestamp, config));
-
-            final Collection<HtmlResult> htmlResults = new ArrayList<>();
-
-            for (final HtmlResult htmlResult : groupedResult) {
-                if (!htmlResult.isLicenseFailed()) {
-                    htmlResults.add(htmlResult);
-                }
-            }
-
-            final String formattedTimestamp = timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.ROOT));
-            content.append(getPage(formattedTimestamp, htmlResults, config));
+        int tabCount = 0;
+        for (final HtmlResult htmlResult : allResultsToDisplay) {
+            content.append(renderTab(htmlResult, config, tabCount));
+            tabCount++;
         }
 
-        return content.append(getEnd()).toString();
+        return content.append("</div>\n").append(getEnd()).toString();
     }
 
-    private static Collection<HoldingResult> getHoldingResults(final Collection<? extends HtmlResult> groupedResult,
-        final LocalDateTime timestamp,
+    private static Collection<HtmlResult> getHoldingResults(final Collection<? extends HtmlResult> groupedResult,
         final Configuration config) {
         final String currentTier = LicenseGuard.getTierAsString(config);
 
-        final Collection<HoldingResult> holdingResults = new ArrayList<>();
+        final Collection<HtmlResult> holdingResults = new ArrayList<>();
         for (final HoldingTabMetadata holdingTabMetadata : HOLDING_TAB_METADATA) {
             final String holdingTab = holdingTabMetadata.name();
             if (groupedResult.stream().noneMatch(t -> holdingTab.equals(t.getOperation()) && !t.isLicenseFailed())) {
                 String htmlFile = FileUtils.readAsStringFallbackToResource(INSTALL_DIR,
                     "assets/report/holdingTabs/" + holdingTab + ".html");
-                final HoldingResult holdingResult = new HoldingResult();
+                final String tabTitle = FileUtils.readAsStringFallbackToResource(INSTALL_DIR,
+                    "assets/report/holdingTabs/" + holdingTab + ".txt").trim();
+
+                Optional<Exception> maybeException = Optional.empty();
                 if (!Objects.equals(holdingTabMetadata.supportedEditions().get(0), "OSS")
                     && !holdingTabMetadata.supportedEditions().contains(currentTier)) {
                     htmlFile = FileUtils.readAsStringFallbackToResource(INSTALL_DIR,
                         "assets/report/upgradeTabs/" + holdingTab + ".html");
-                    groupedResult.stream()
+                    maybeException = groupedResult.stream()
                         .filter(t -> t.getOperation().equals(holdingTab))
                         .findFirst()
-                        .ifPresent(x -> holdingResult.setException(x.exceptionObject));
+                        .map(x -> x.exceptionObject);
                 }
-                final String tabTitle = FileUtils.readAsStringFallbackToResource(INSTALL_DIR,
-                    "assets/report/holdingTabs/" + holdingTab + ".txt");
-                holdingResult.setTimestamp(timestamp);
-                holdingResult.setTabTitle(tabTitle.trim());
-                holdingResult.setBodyText(htmlFile);
-                holdingResult.setOperation(holdingTab);
-                holdingResults.add(holdingResult);
+
+                holdingResults.add(new HoldingResult(holdingTab, tabTitle, substituteLinks(htmlFile), maybeException.orElse(null)));
             }
         }
 
         return holdingResults;
     }
 
-    private static String getBeginning(final List<LocalDateTime> timestamps) {
-        return "<!doctype html>\n" +
-                "<html lang=\"en\">\n" +
-                "<head><meta charset=\"utf-8\">\n" +
-                "<style>\n" +
-                getCodeStyle() +
-                "</style>\n</head>\n" +
-                "<body>\n" +
-                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/AddFilled.svg") +
-                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/Calendar.svg") +
-                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/CheckFilled.svg") +
-                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/ClockOutlined.svg") +
-                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/Database.svg") +
-                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/DeleteFilled.svg") +
-                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/Document.svg") +
-                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/EditFilled.svg") +
-                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/ErrorFilled.svg") +
-                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/FeedbackOutlined.svg") +
-                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/flyway-upgrade-icon.svg") +
-                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/InfoOutlined.svg") +
-                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/PipelineFilled.svg") +
-                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/ScriptOutlined.svg") +
-                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/upgrade.svg") +
-                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/WarningFilled.svg") +
-                " <div class=\"container\">" +
-                "  <div class=\"header\">" +
-                "    <div class=\"flywayLogo headerElement\"></div>\n" +
-                "    <div class=\"headerElement leftPaddedElement\">Flyway Reports</div>" +
-                //"    <div class=\"headerElement redgateBanner\">" +
-                "      <div class=\"redgateText\"><a class='unstyledLink' href='https://www.redgate.com'>redgate</a></div>" +
-                //"    </div>" +
-                "  </div>\n" +
-                "  <div class=\"content\">\n" +
-                getDropdown(timestamps);
+    private static String substituteLinks(final String html) {
+        return html
+            .replace("{{DRY_RUN_REPORT_LEARN_MORE}}", DRY_RUN_REPORT_LEARN_MORE)
+            .replace("{{CHANGES_REPORT_LEARN_MORE}}", CHANGES_REPORT_LEARN_MORE)
+            .replace("{{DRIFT_REPORT_LEARN_MORE}}", DRIFT_REPORT_LEARN_MORE)
+            .replace("{{INFO_REPORT_LEARN_MORE}}", INFO_REPORT_LEARN_MORE)
+            .replace("{{MIGRATION_REPORT_LEARN_MORE}}", MIGRATION_REPORT_LEARN_MORE)
+            .replace("{{CODE_ANALYSIS_LEARN_MORE}}", CODE_ANALYSIS_LEARN_MORE)
+            .replace("{{GIVE_FEEDBACK}}", GIVE_FEEDBACK)
+            .replace("{{UPGRADE_TO_REDGATE_FLYWAY}}", UPGRADE_TO_REDGATE_FLYWAY);
     }
 
-    private static String getDropdown(final List<LocalDateTime> timestamps) {
-        Collections.sort(timestamps);
+    private static String getBeginning(final ChronoLocalDateTime<LocalDate> lastUpdatedTimestamp) {
+        return "<!doctype html>\n"
+            + "<html lang=\"en\">\n"
+            + "<head><meta charset=\"utf-8\">\n"
+            + "<style>\n"
+            + getCodeStyle()
+            + "</style>\n</head>\n"
+            + "<body>\n"
+            + FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/AddFilled.svg")
+            + FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/Calendar.svg")
+            + FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/CheckFilled.svg")
+            + FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/ClockOutlined.svg")
+            + FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/Database.svg")
+            + FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/DeleteFilled.svg")
+            + FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/Document.svg")
+            + FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/EditFilled.svg")
+            + FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/ErrorFilled.svg")
+            + FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/FeedbackOutlined.svg")
+            + FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/flyway-upgrade-icon.svg")
+            + FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/InfoOutlined.svg")
+            + FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/PipelineFilled.svg")
+            + FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/ScriptOutlined.svg")
+            + FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/upgrade.svg")
+            + FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/WarningFilled.svg")
+            + " <div class=\"container\">"
+            + "  <div class=\"header\">"
+            + "    <div class=\"flywayLogo headerElement\"></div>\n"
+            + "    <div class=\"headerElement leftPaddedElement\">Flyway Reports</div>"
+            + "      <div class=\"redgateText\"><a class='unstyledLink' href='https://www.redgate.com'>redgate</a></div>"
+            + "  </div>\n"
+            + "  <div class=\"content\">\n"
+            + renderLastUpdatedTimestamp(lastUpdatedTimestamp);
+    }
 
-        final StringBuilder options = new StringBuilder();
-        for (int i = 0; i < timestamps.size(); i++) {
-            final String timestamp = timestamps.get(i).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.ROOT));
-
-            options.append("<option value=\"").append(timestamp).append("\"");
-
-            if (i == timestamps.size() - 1) {
-                options.append(" selected=\"true\"");
-            }
-
-            options.append(">").append(timestamp).append("</option>\n");
-        }
-
-        return "<div class=\"dropdown\">\n" +
-                "<label for=\"dropdown\">Report generated:</label>\n" +
-                "<select onchange=\"onTimestampClick(event, this.value)\" id=\"dropdown\">\n" +
-                options +
-                "</select>\n" +
-                "</div>\n";
+    private static String renderLastUpdatedTimestamp(final ChronoLocalDateTime<LocalDate> lastUpdatedTimestamp) {
+        final String formattedTimestamp = lastUpdatedTimestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss",
+            Locale.ROOT));
+        return "<div>Last updated: " + formattedTimestamp + "</div>\n";
     }
 
     public static HtmlRenderer<HtmlResult> getRenderer(final HtmlResult htmlResult, final Configuration config) {
@@ -201,31 +194,13 @@ public class HtmlReportGenerator {
         return result;
     }
 
-    private static String getPage(final String timestamp, final Iterable<? extends HtmlResult> results, final Configuration config) {
-        final StringBuilder content = new StringBuilder();
-
-        content.append("<div class=\"page ").append(timestamp).append("\">\n");
-        content.append(getTabs(results, config));
-
-        int tabCount = 0;
-        for (final HtmlResult result : results) {
-            content.append(renderTab(result, config, tabCount));
-            tabCount++;
-        }
-
-        return content.append("</div>\n").toString();
-    }
-
     private static String getTabs(final Iterable<? extends HtmlResult> result, final Configuration config) {
         final StringBuilder tabs = new StringBuilder();
         int tabCount = 0;
         for (final HtmlResult htmlResult : result) {
-            final String id2 = htmlResult.getOperation() + "-" + tabCount + "_" + getFormattedTimestamp(htmlResult);
-            final StringBuilder button = new StringBuilder("<button class=\"tab\" onclick=\"onTabClick(event, '")
-                .append(getTabId(htmlResult, config, tabCount))
-                .append("','")
-                .append(id2)
-                .append("')\"");
+            final String id2 = htmlResult.getOperation() + "-" + tabCount;
+            final StringBuilder button = new StringBuilder("<button class=\"tab\" onclick=\"onTabClick(event, '").append(
+                getTabId(htmlResult, config, tabCount)).append("','").append(id2).append("')\"");
             button.append(" id=\"").append(id2).append("\">");
             String tabTitle = "";
             final HtmlRenderer<HtmlResult> correctRenderer = getRenderer(htmlResult, config);
@@ -240,13 +215,14 @@ public class HtmlReportGenerator {
 
     private static String renderTab(final HtmlResult result, final Configuration config, final int tabCount) {
         final HtmlRenderer<HtmlResult> renderer = getRenderer(result, config);
-        return getTabOpening(result, config, tabCount) + renderTabSummary(result, config) + renderer.render(result, config) + getTabEnding(result);
+        return getTabOpening(result, config, tabCount) + renderTabSummary(result, config) + renderer.render(result,
+            config) + getTabEnding(result);
     }
 
     private static String renderTabSummary(final HtmlResult result, final Configuration config) {
         final HtmlRenderer<HtmlResult> renderer = getRenderer(result, config);
         final List<HtmlReportSummary> summaries = renderer.getHtmlSummary(result, config);
-        if (summaries == null) {
+        if (!CollectionsUtils.hasItems(summaries)) {
             return "";
         }
         final StringBuilder html = new StringBuilder("<div class='summaryHeader'>");
@@ -272,21 +248,23 @@ public class HtmlReportGenerator {
     private static String getTabEnding(final HtmlResult result) {
         String htmlResult = "";
         if (result.getException() != null) {
-            htmlResult += "<div class=\"error\">\n" +
-                    "<pre class=\"exception\">Flyway Exception: " + result.getException() + "</pre>\n" +
-                    "</div>\n";
+            htmlResult += "<div class=\"error\">\n"
+                + "<pre class=\"exception\">Flyway Exception: "
+                + result.getException()
+                + "</pre>\n"
+                + "</div>\n";
         }
         return htmlResult + "</div>\n";
     }
 
     public static String getTabId(final HtmlResult result, final Configuration config, final int tabCount) {
         final HtmlRenderer<HtmlResult> correctRenderer = getRenderer(result, config);
-        return (correctRenderer.tabTitle(result, config) + "_" + tabCount + "_" + getFormattedTimestamp(result)).replace(" ", "");
+        return (correctRenderer.tabTitle(result, config) + "_" + tabCount);
     }
 
     private static String getEnd() {
         String html = "</div>\n";
-        html += FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/footer.html");
+        html += substituteLinks(FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/footer.html"));
         html += "</div></body>\n" + getScript() + "</html>\n";
 
         return html;

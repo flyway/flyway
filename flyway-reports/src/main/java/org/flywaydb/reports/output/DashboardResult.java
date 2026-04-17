@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-reports
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,20 @@
  */
 package org.flywaydb.reports.output;
 
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
 import org.flywaydb.core.api.output.HtmlResult;
 
 @Getter
 @Setter
 public class DashboardResult extends HtmlResult {
-    private List<HtmlResult> results;
+    private Collection<HtmlResult> results;
+
+    public DashboardResult(final Collection<? extends HtmlResult> results) {
+        super(LocalDateTime.now(), "dashboard");
+        this.results = List.copyOf(results);
+    }
 }

@@ -3,7 +3,7 @@ subtitle: Aurora PostgreSQL
 ---
 
 
-- **Verified Versions:** 9.6, 14.x
+- **Verified Versions:** 9.6, 14.x, 17.4
 - **Maintainer:** {% include redgate-badge.html %}
 
 ## Supported Versions and Support Levels

@@ -43,9 +43,6 @@ offlinePermitPath = "path_to_offline_permit"
 FLYWAY_OFFLINE_PERMIT_PATH=path_to_offline_permit
 ```
 
-Note: _Some legacy Flyway documentation refers to the environment variable `REDGATE_LICENSING_PERMIT_PATH`, which serves the same purpose as this.
-That variable is now deprecated and may be removed in future releases. If you are setting this up now then you should use the new environment variable instead to avoid future problems._
-
 
 ### Maven
 

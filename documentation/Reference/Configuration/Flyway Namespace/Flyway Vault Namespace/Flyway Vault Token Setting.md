@@ -58,7 +58,7 @@ vaultConfigurationExtension.setVaultToken("s.abcdefghijklmnopqrstuvwx");
 
 ```groovy
 flyway {
-    pluginConfiguration = [
+    vault = [
       vaultToken: 's.abcdefghijklmnopqrstuvwx'
     ]
 }
@@ -68,8 +68,8 @@ flyway {
 
 ```xml
 <configuration>
-    <pluginConfiguration>
+    <vault>
         <vaultToken>s.abcdefghijklmnopqrstuvwx</vaultToken>
-    </pluginConfiguration>
+    </vault>
 </configuration>
 ```

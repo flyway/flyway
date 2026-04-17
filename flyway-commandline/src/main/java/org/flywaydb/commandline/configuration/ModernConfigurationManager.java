@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-commandline
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,13 +27,16 @@ import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeJ
 import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeLocationsBasedOnWorkingDirectory;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeLocationsInEnvironmentsBasedOnWorkingDirectory;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.warnForUnknownEnvParameters;
+import static org.flywaydb.core.internal.configuration.models.UnknownParameterModel.resolveUnknownParameter;
 import static org.flywaydb.core.internal.util.ExceptionUtils.getFlywayExceptionMessage;
 import static org.flywaydb.core.internal.util.ExceptionUtils.getRootCause;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import org.flywaydb.core.api.CoreErrorCode;
+import org.flywaydb.core.internal.configuration.models.UnknownParameterModel.Reason;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -59,6 +62,7 @@ import org.flywaydb.core.internal.configuration.TomlUtils;
 import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
 import org.flywaydb.core.internal.configuration.models.EnvironmentModel;
 import org.flywaydb.core.internal.configuration.models.FlywayEnvironmentModel;
+import org.flywaydb.core.internal.configuration.models.UnknownParameterModel;
 import org.flywaydb.core.internal.license.FlywayRedgateEditionRequiredException;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
@@ -195,7 +199,7 @@ public class ModernConfigurationManager implements ConfigurationManager {
 
         cfg.setWorkingDirectory(workingDirectory);
 
-        configurePlugins(config, cfg);
+        configurePlugins(config, cfg, commandLineArguments.shouldIgnoreUnrecognizedParameters());
 
         loadJarDirsAndAddToClasspath(installDirectory, cfg);
 
@@ -222,13 +226,10 @@ public class ModernConfigurationManager implements ConfigurationManager {
         }
     }
 
-    private void configurePlugins(final ConfigurationModel config, final Configuration cfg) {
+    private void configurePlugins(final ConfigurationModel config, final Configuration cfg, final boolean ignoreUnrecognizedParameters) {
         final List<String> configuredPluginParameters = new ArrayList<>();
         for (final ConfigurationExtension configurationExtension : cfg.getPluginRegister()
             .getInstancesOf(ConfigurationExtension.class)) {
-            if (configurationExtension.getNamespace().isEmpty()) {
-                processParametersByNamespace("plugins", config, configurationExtension, configuredPluginParameters);
-            }
             processParametersByNamespace(configurationExtension.getNamespace(),
                 config,
                 configurationExtension,
@@ -249,7 +250,7 @@ public class ModernConfigurationManager implements ConfigurationManager {
         }
         try {
             checkUnknownParamsInFlywayNamespace(config.getEnvironments()
-                    .get(cfg.getCurrentEnvironmentName())
+                    .getOrDefault(cfg.getCurrentEnvironmentName(), new EnvironmentModel())
                     .getFlyway(),
                 Collections.emptyList(),
                 rootConfigurationsIsEmpty,
@@ -258,7 +259,7 @@ public class ModernConfigurationManager implements ConfigurationManager {
             configurationExceptions.add(e);
         }
 
-        if (!configurationExceptions.isEmpty()) {
+        if (!configurationExceptions.isEmpty() && !ignoreUnrecognizedParameters) {
             combineConfigurationExceptions(configurationExceptions);
         }
     }
@@ -367,12 +368,6 @@ public class ModernConfigurationManager implements ConfigurationManager {
 
                 if (!values.isEmpty()) {
                     for (final Map.Entry<String, Object> entry : values.entrySet()) {
-                        if ("plugins".equals(namespace)) {
-                            LOG.warn("Deprecated namespace configured: 'plugins."
-                                + entry.getKey()
-                                + "'. Please see "
-                                + FlywayDbWebsiteLinks.V10_BLOG);
-                        }
                         if (entry.getValue() instanceof Map<?, ?> && namespace.isEmpty()) {
                             final Map<String, Object> temp = (Map<String, Object>) entry.getValue();
                             configuredPluginParameters.addAll(temp.keySet());
@@ -381,7 +376,7 @@ public class ModernConfigurationManager implements ConfigurationManager {
                         }
                     }
                 }
-            } catch (final IllegalArgumentException e) {
+            } catch (final Exception e) {
                 if (getRootCause(e) instanceof final FlywayRedgateEditionRequiredException cause) {
                     throw cause;
                 }
@@ -399,7 +394,7 @@ public class ModernConfigurationManager implements ConfigurationManager {
         }
     }
 
-    private static String getFullFieldNameFromException(final String namespace, final IllegalArgumentException e) {
+    private static String getFullFieldNameFromException(final String namespace, final Exception e) {
         final var matcher = ANY_WORD_BETWEEN_TWO_QUOTES_PATTERN.matcher(e.getMessage());
         final var fullFieldName = new StringBuilder();
         if (!namespace.isEmpty()) {
@@ -429,7 +424,7 @@ public class ModernConfigurationManager implements ConfigurationManager {
             configuredPluginParameters);
 
         if (!missingParams.isEmpty()) {
-            throwMissingParameters(flyway, missingParams, rootConfigurationsIsEmpty, prefix);
+            generateMissingParametersException(flyway, missingParams, rootConfigurationsIsEmpty, prefix);
         }
     }
 
@@ -465,53 +460,16 @@ public class ModernConfigurationManager implements ConfigurationManager {
         return pluginParametersWhichShouldHaveBeenConfigured;
     }
 
-    private static void throwMissingParameters(final FlywayEnvironmentModel model,
-        final Map<String, ? extends List<String>> missingParams,
-        final boolean rootConfigurationsIsEmpty,
-        final String prefix) {
-
-        if (rootConfigurationsIsEmpty) {
-
-        final StringBuilder exceptionMessage = new StringBuilder();
-        if (missingParams.containsKey(FLYWAY_NAMESPACE)) {
-            final Map<String, List<String>> possibleConfiguration = missingParams.get(FLYWAY_NAMESPACE)
-                .stream()
-                .collect(Collectors.toMap(p -> p, p -> ConfigUtils.getPossibleFlywayConfigurations(p, model, prefix)));
-            for (final Map.Entry<String, List<String>> entry : possibleConfiguration.entrySet()) {
-                exceptionMessage.append("\t").append("Parameter: ").append(prefix).append(entry.getKey()).append("\n");
-                if (!entry.getValue().isEmpty()) {
-                    exceptionMessage.append("\t\t").append("Possible values:").append("\n");
-                    entry.getValue().forEach(v -> exceptionMessage.append("\t\t").append("- ").append(v).append("\n"));
-                }
-            }
-        }
-        missingParams.entrySet()
-            .stream()
-            .filter(e -> !e.getKey().equals(FLYWAY_NAMESPACE))
-            .forEach(e -> e.getValue()
-                .forEach(p -> exceptionMessage.append("\t")
-                    .append("Parameter:")
-                    .append(prefix)
-                    .append(e.getKey())
-                    .append(".")
-                    .append(p)
-                    .append("\n")));
-
-        exceptionMessage.deleteCharAt(exceptionMessage.length() - 1);
-        throw new FlywayException(exceptionMessage.toString());
-
-        }
-
-    }
-
-    private static void combineConfigurationExceptions(final Iterable<? extends FlywayException> configurationExceptions) {
-        final StringBuilder exceptionMessage = new StringBuilder("Failed to configure parameters:").append(
-            System.lineSeparator());
+    private static void combineConfigurationExceptions(final Collection<? extends FlywayException> configurationExceptions) {
+        final StringBuilder exceptionMessage = new StringBuilder("Failed to configure parameters:").append(System.lineSeparator());
         configurationExceptions.forEach(e -> exceptionMessage.append(e.getMessage()).append(System.lineSeparator()));
-        exceptionMessage.append("Confirm the parameters are spelled correctly")
-            .append(System.lineSeparator())
-            .append("You may also need to update Flyway to the latest version");
-        final FlywayException flywayException = new FlywayException(exceptionMessage.toString());
+
+        CoreErrorCode errorCode = configurationExceptions.stream()
+            .allMatch(ex -> ex.getErrorCode() == CoreErrorCode.CONFIGURATION_RECOVERABLE)
+            ? CoreErrorCode.CONFIGURATION_RECOVERABLE
+            : CoreErrorCode.CONFIGURATION;
+
+        final FlywayException flywayException = new FlywayException(exceptionMessage.toString(), errorCode);
         configurationExceptions.forEach(flywayException::addSuppressed);
         throw flywayException;
     }
@@ -520,9 +478,37 @@ public class ModernConfigurationManager implements ConfigurationManager {
         final ObjectMapper mapper = JsonMapper.builder().enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS).build();
 
         if (suppressError) {
-            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            return mapper.rebuild().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).build();
         }
 
         return mapper;
+    }
+
+    private static void generateMissingParametersException(final FlywayEnvironmentModel model,
+        final Map<String, ? extends List<String>> missingParams,
+        final boolean rootConfigurationsIsEmpty,
+        final String prefix) {
+
+        if (rootConfigurationsIsEmpty) {
+
+        final StringBuilder exceptionMessage = new StringBuilder();
+        CoreErrorCode errorCode = CoreErrorCode.CONFIGURATION_RECOVERABLE;
+        for (Map.Entry<String, ? extends List<String>> entry : missingParams.entrySet()) {
+            String namespace = entry.getKey();
+            List<String> unknownParams = entry.getValue();
+            for (String param : unknownParams) {
+                UnknownParameterModel unknownParameterModel = resolveUnknownParameter(model, namespace, param, prefix);
+                if (unknownParameterModel.reason() == Reason.UNKNOWN) {
+                    errorCode = CoreErrorCode.CONFIGURATION;
+                }
+                exceptionMessage.append(unknownParameterModel).append("\n");
+            }
+        }
+
+        exceptionMessage.deleteCharAt(exceptionMessage.length() - 1);
+        throw new FlywayException(exceptionMessage.toString(), errorCode);
+
+        }
+
     }
 }

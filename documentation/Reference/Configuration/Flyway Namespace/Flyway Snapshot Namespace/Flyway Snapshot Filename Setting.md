@@ -28,6 +28,13 @@ keywords when looking up snapshots.
 
 <i>none - this is a required parameter for the `snapshot` command</i>
 
+Note that when a snapshot is created as part of a deployment, using 
+[`deploy.saveSnapshot`](<Configuration/Flyway Namespace/Flyway Deploy Namespace/Flyway Deploy Save Snapshot Setting>), 
+[`migrate.saveSnapshot`](<Configuration/Flyway Namespace/Flyway Migrate Namespace/Flyway Migrate Save Snapshot Setting>),
+or [`undo.saveSnapshot`](<Configuration/Flyway Namespace/Flyway Undo Namespace/Flyway Undo Save Snapshot Setting>), the
+default will be to store it in the snapshot history table with an automatically generated name, but this behavior can be
+overridden using this setting.
+
 ## Usage
 
 ### Flyway Desktop

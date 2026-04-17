@@ -2,7 +2,7 @@
 subtitle: Couchbase
 ---
 
-- **Status:** Preview
+- **Status:** {% include preview.html %}
 - **Verified Versions:** V7.6.6-N1QL
 - **Maintainer:** {% include redgate-badge.html %}
 

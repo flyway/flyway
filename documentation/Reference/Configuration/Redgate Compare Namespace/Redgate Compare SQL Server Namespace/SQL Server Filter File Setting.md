@@ -18,11 +18,15 @@ String
 
 ## Usage
 
-This setting can't be configured other than in a TOML configuration file.
-
 ### Flyway Desktop
 
 This can't currently be configured from Flyway Desktop, although it will be honoured.
+
+### Command-line
+
+```powershell
+./flyway diff -redgateCompare.sqlserver.filterFile=Custom.scpf
+```
 
 ### TOML Configuration File
 

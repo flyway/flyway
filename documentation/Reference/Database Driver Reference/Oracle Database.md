@@ -2,7 +2,7 @@
 subtitle: Oracle
 ---
 
-- **Verified Versions:** 18.4, 23
+- **Verified Versions:** 18.4, 26ai
 - **Maintainer:** {% include redgate-badge.html %}
 
 All editions are supported, including XE.
@@ -18,7 +18,7 @@ All editions are supported, including XE.
 | **URL format**                     | `jdbc:oracle:thin:@//host:port/service` <br> `jdbc:oracle:thin:@tns_entry` * |
 | **Ships with Flyway Command-line** | Yes                                                                          |
 | **Maven Central coordinates**      | `com.oracle.database.jdbc:ojdbc11`                                           |
-| **Supported versions**             | Oracle Database versions - 23ai, 21c, 19c, 18c, and 12.2                     |
+| **Supported versions**             | Oracle Database versions - 26ai, 23ai, 21c, 19c, 18c, and 12.2               |
 | **Default Java class**             | `oracle.jdbc.OracleDriver`                                                   |
 
 \* `TNS_ADMIN` environment variable must point to the directory of where `tnsnames.ora` resides

@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@
 package org.flywaydb.core.internal.plugin;
 
 import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.CustomLog;
 import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -34,7 +36,8 @@ import java.util.stream.Collectors;
 @CustomLog
 @NoArgsConstructor
 public class PluginRegister {
-    private final List<Plugin> REGISTERED_PLUGINS = new ArrayList<>();
+    private final List<ServiceLoader.Provider<Plugin>> REGISTERED_PROVIDERS = new ArrayList<>();
+    private final Map<ServiceLoader.Provider<Plugin>, Plugin> INSTANTIATED_PLUGINS = new ConcurrentHashMap<>();
     private final ClassLoader CLASS_LOADER = this.getClass().getClassLoader();
     private boolean hasRegisteredPlugins;
 
@@ -95,25 +98,28 @@ public class PluginRegister {
     }
 
     public <T extends Plugin> T getExact(final Class<T> clazz) {
-        return (T) getPlugins()
+        return (T) getMatchingProviders(clazz)
                 .stream()
-                .filter(p -> p.getClass().getCanonicalName().equals(clazz.getCanonicalName()))
+                .map(this::instantiate)
+                .filter(p -> p != null && p.getClass().getCanonicalName().equals(clazz.getCanonicalName()))
                 .findFirst()
                 .orElse(null);
     }
 
     public <T extends Plugin> List<T> getInstancesOf(final Class<T> clazz) {
-        return (List<T>) getPlugins()
+        return (List<T>) getMatchingProviders(clazz)
                 .stream()
-                .filter(clazz::isInstance)
+                .map(this::instantiate)
+                .filter(p -> p != null && clazz.isInstance(p))
                 .sorted()
                 .collect(Collectors.toList());
     }
 
     public <T extends Plugin> List<T> getLicensedInstancesOf(final Class<T> clazz, final Configuration configuration) {
-        return (List<T>) getPlugins()
+        return (List<T>) getMatchingProviders(clazz)
                 .stream()
-                .filter(clazz::isInstance)
+                .map(this::instantiate)
+                .filter(p -> p != null && clazz.isInstance(p))
                 .filter(p -> p.isLicensed(configuration))
                 .sorted()
                 .collect(Collectors.toList());
@@ -124,58 +130,83 @@ public class PluginRegister {
     }
 
     public <T extends Plugin> T getLicensedExact(final String className, final Configuration configuration) {
-        return (T) getPlugins()
+        return (T) getProviders()
                 .stream()
-                .filter(p -> p.isLicensed(configuration))
-                .filter(p -> p.getClass().getSimpleName().equals(className))
-                .sorted()
+                .filter(p -> p.type().getSimpleName().equals(className))
+                .map(this::instantiate)
+                .filter(p -> p != null && p.isLicensed(configuration))
                 .findFirst()
                 .orElse(null);
     }
 
     public <T extends Plugin> T getExact(final String className) {
-        return (T) getPlugins()
+        return (T) getProviders()
             .stream()
-            .filter(p -> p.getClass().getSimpleName().equals(className))
-            .sorted()
+            .filter(p -> p.type().getSimpleName().equals(className))
+            .map(this::instantiate)
+            .filter(p -> p != null)
             .findFirst()
             .orElse(null);
     }
 
     public <T extends Plugin> T getInstanceOf(final Class<T> clazz) {
-        return (T) getPlugins()
+        return (T) getMatchingProviders(clazz)
             .stream()
-            .filter(clazz::isInstance)
+            .map(this::instantiate)
+            .filter(p -> p != null && clazz.isInstance(p))
             .sorted()
             .findFirst()
             .orElse(null);
     }
 
-    private List<Plugin> getPlugins() {
+    private Plugin instantiate(final ServiceLoader.Provider<Plugin> provider) {
+        return INSTANTIATED_PLUGINS.computeIfAbsent(provider, p -> {
+            final Plugin plugin = p.get();
+            if (plugin.isEnabled()) {
+                return plugin;
+            }
+            return null;
+        });
+    }
+
+    private List<ServiceLoader.Provider<Plugin>> getProviders() {
         registerPlugins();
-        return Collections.unmodifiableList(REGISTERED_PLUGINS);
+        return Collections.unmodifiableList(REGISTERED_PROVIDERS);
+    }
+
+    private <T extends Plugin> List<ServiceLoader.Provider<Plugin>> getMatchingProviders(final Class<T> clazz) {
+        return getProviders()
+            .stream()
+            .filter(p -> clazz.isAssignableFrom(p.type()))
+            .collect(Collectors.toList());
     }
 
     void registerPlugins() {
-        synchronized (REGISTERED_PLUGINS) {
+        synchronized (REGISTERED_PROVIDERS) {
             if (hasRegisteredPlugins) {
                 return;
             }
 
-            for (final Plugin plugin : ServiceLoader.load(Plugin.class, CLASS_LOADER)) {
-                if (plugin.isEnabled()) {
-                    REGISTERED_PLUGINS.add(plugin);
-                }
-            }
+            ServiceLoader.load(Plugin.class, CLASS_LOADER)
+                .stream()
+                .forEach(REGISTERED_PROVIDERS::add);
 
             hasRegisteredPlugins = true;
         }
     }
 
-    public PluginRegister getCopy(){
+    public PluginRegister getCopy() {
         final PluginRegister copy = new PluginRegister();
-        copy.REGISTERED_PLUGINS.clear();
-        copy.REGISTERED_PLUGINS.addAll(getPlugins().stream().map(Plugin::copy).toList());
+        copy.REGISTERED_PROVIDERS.clear();
+        copy.REGISTERED_PROVIDERS.addAll(getProviders());
+        // Copy already-instantiated plugins. Plugins not yet instantiated will be
+        // created fresh from providers when first accessed on the copy, ensuring
+        // independent state between PluginRegister instances.
+        for (final var entry : INSTANTIATED_PLUGINS.entrySet()) {
+            if (entry.getValue() != null) {
+                copy.INSTANTIATED_PLUGINS.put(entry.getKey(), entry.getValue().copy());
+            }
+        }
         copy.hasRegisteredPlugins = true;
         return copy;
     }

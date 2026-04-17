@@ -40,6 +40,24 @@ This includes Teams & Enterprise features subject to license.
     </tr>
 </table>
 
+To use Teams & Enterprise features, you will need the following plugin also
+
+<table class="table">
+    <tr>
+        <td>
+            <pre class="prettyprint">&lt;build&gt;
+    ...
+    &lt;plugin&gt;
+        &lt;groupId&gt;com.redgate.flyway&lt;/groupId&gt;
+        &lt;artifactId&gt;flyway-redgate-licensing&lt;/artifactId&gt;
+        &lt;version&gt;{{ site.flywayVersion }}&lt;/version&gt;
+    &lt;/plugin&gt;
+    ...
+&lt;/build&gt;</pre>
+        </td>
+    </tr>
+</table>
+
 Please note, the `groupId` changed at Flyway V10.0.0 from `org.flywaydb.enterprise` to `com.redgate.flyway` and published as a convenience in both locations up till Flyway V10.22.0
 
 For older versions see [Accessing Older Versions of Flyway Engine](https://documentation.red-gate.com/flyway/release-notes-and-older-versions/accessing-older-versions-of-flyway-engine)

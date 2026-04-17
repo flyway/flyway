@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
+import org.flywaydb.core.internal.exception.FlywayUnknownMigrationTypeException;
 import org.flywaydb.core.internal.jdbc.ExecutionTemplateFactory;
 import org.flywaydb.core.internal.jdbc.JdbcNullTypes;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
@@ -256,7 +257,7 @@ class JdbcTableSchemaHistory extends SchemaHistory {
                 return configuration.getPluginRegister().getInstancesOf(AppliedMigration.class).stream()
                                     .filter(am -> am.handlesType(type))
                                     .findFirst()
-                                    .orElse(new BaseAppliedMigration())
+                                    .orElseThrow(() -> new FlywayUnknownMigrationTypeException(type))
                                     .create(installedRank, version, description, type, script, checksum, installedOn, installedBy, executionTime, success);
             }, maxCachedInstalledRank));
         } catch (SQLException e) {

@@ -45,3 +45,9 @@ buildscript {
     }
 }
 ```
+
+## Limitations
+
+- Due to a change in the Java 16+ runtime which Flyway depends upon, a formatting error will occur in the Databricks JDBC driver unless you define the handling of such, that can be done by either:
+  - appending `EnableArrow=0` to your JDBC connection string
+  - adding `--add-opens java.base/java.lang=ALL-UNNAMED`. This can be done via the [command line or environment variables](Usage/Command-Line)

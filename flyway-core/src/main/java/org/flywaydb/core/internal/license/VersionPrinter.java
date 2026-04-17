@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,21 @@ public class VersionPrinter {
 
     @Getter
     private static final String version = readVersion();
+
+    @Getter
+    private static final int majorVersion = parseVersion(0);
+
+    @Getter
+    private static final int minorVersion = parseVersion(1);
+
+    private static int parseVersion(final int index) {
+        try {
+            final String[] parts = version.split("\\.");
+            return Integer.parseInt(parts[index]);
+        } catch (final Exception e) {
+            throw new FlywayException("Unable to parse Flyway version", e);
+        }
+    }
 
     private static String readVersion() {
         try {

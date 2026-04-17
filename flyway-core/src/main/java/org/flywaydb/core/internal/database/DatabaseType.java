@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,14 +41,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-public interface DatabaseType extends Plugin {
-    /**
-     * @return The human-readable name for this database type.
-     */
-    String getName();
-
-    List<String> getSupportedEngines();
-
+public interface DatabaseType extends GeneralDatabaseType {
     /**
      * @return The JDBC type used to represent {@code null} in prepared statements.
      */

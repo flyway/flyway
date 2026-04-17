@@ -2,7 +2,7 @@
 subtitle: Snowflake
 ---
 
-- **Verified Versions:** 3.50, 9.19
+- **Verified Versions:** 10.8
 - **Maintainer:** {% include redgate-badge.html %}
 
 ## Supported Versions and Support Levels
@@ -13,13 +13,13 @@ subtitle: Snowflake
 
 | Item                               | Details                                                                                                                                 |
 |------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
-| **URL format**                     | <code>jdbc:snowflake://<i>account</i>.snowflakecomputing.com/?db=<i>database</i>&warehouse=<i>warehouse</i>&role=<i>role</i></code><br>(optionally <code>&schema=<i>schema</i></code> to specify current schema) |
+| **URL format**                     | <code>jdbc:snowflake://<i>account</i>.snowflakecomputing.com/?db=<i>database</i>&warehouse=<i>warehouse</i>&role=<i>role</i><i>&JDBC_QUERY_RESULT_FORMAT=JSON</i></code><br>(optionally <code>&schema=<i>schema</i></code> to specify current schema) |
 | **Ships with Flyway Command-line** | Yes                                                                                                                                     |
 | **Maven Central coordinates**      | `net.snowflake:snowflake-jdbc`                                                                                                          |
-| **Supported versions**             | `3.6.23` and later                                                                                                                      |
-| **Default Java class**             | `net.snowflake.client.jdbc.SnowflakeDriver`                                                                                             |
+| **Supported versions**             | `4.0.2` and later                                                                                                                       |
+| **Default Java class**             | `net.snowflake.client.api.driver.SnowflakeDriver`                                                                                       |
 
-
+**Note:** The default schema is `PUBLIC` - if it does not exist or you want to use a different schema ensure you [set it in Flyway](<Configuration/Flyway Namespace/Flyway Default Schema Setting>)
 ## Java Usage
 Snowflake support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
 Snowflake is found within the `flyway-database-snowflake` plugin module.
@@ -95,7 +95,7 @@ Snowflake JDBC supports key-based authentication. To use this, you will need to:
 - assign the public key to the relevant Snowflake user account using <code>ALTER USER</code> - for complete
 instructions on these steps, refer to [Snowflake's documentation](https://docs.snowflake.com/developer-guide/jdbc/jdbc-configure#using-key-pair-authentication-and-key-rotation)
 - If you are using an encrypted key pair then you may need to set a JVM flag for the [Snowflake JDBC driver to be able to decrypt it](https://docs.snowflake.com/en/developer-guide/jdbc/jdbc-configure#key-decryption-errors):
-  - For example  in linux you would do it this way `export JAVA_OPTS='-Dnet.snowflake.jdbc.enableBouncyCastle=true'`
+  - For example  in linux you would do it this way `export JAVA_OPTS='-Dnet.snowflake.jdbc.useBundledBouncyCastleForPrivateKeyDecryption=true'`
 
 
 Finally, amend your JDBC connection string with the extra parameters to enable key-based auth and to refer to the
@@ -106,6 +106,6 @@ location of the private key:
 ## Limitations
 
 - Parallel migrations as described [here](Usage/Frequently Asked Questions#parallel) are unavailable in Snowflake. You can track the status of this feature in our GitHub issues [here](https://github.com/flyway/flyway/issues/3305).
-- Users using Java 16 or above, which includes the JRE shipped within Java Command Line, will need to add the following JVM argument to JAVA_ARGS `--add-opens java.base/java.lang=ALL-UNNAMED`. This can be done via the [command line or environment variables](Usage/Command-Line) This is due to a change in the Java 16 runtime which causes an error within the Snowflake JDBC driver.
-
-Alternatively, you can instruct the JDBC driver to do this instead of altering the environment by appending `&JDBC_QUERY_RESULT_FORMAT=JSON` to your JDBC connection string
+- Due to a change in the Java 16+ runtime which Flyway depends upon, a formatting error will occur in the Snowflake JDBC driver unless you define the handling of such, that can be done by either:
+  - appending `&JDBC_QUERY_RESULT_FORMAT=JSON` to your JDBC connection string
+  - adding `--add-opens java.base/java.lang=ALL-UNNAMED`. This can be done via the [command line or environment variables](Usage/Command-Line)

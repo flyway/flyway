@@ -60,7 +60,7 @@ vaultConfigurationExtension.setVaultUrl("http://localhost:8200/v1/");
 
 ```groovy
 flyway {
-    pluginConfiguration = [
+    vault = [
       vaultUrl: 'http://localhost:8200/v1/'
     ]
 }
@@ -70,8 +70,8 @@ flyway {
 
 ```xml
 <configuration>
-    <pluginConfiguration>
+    <vault>
         <vaultUrl>http://localhost:8200/v1/</vaultUrl>
-    </pluginConfiguration>
+    </vault>
 </configuration>
 ```

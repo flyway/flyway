@@ -3,6 +3,10 @@ subtitle: flyway.pipeline_id
 redirect_from: Configuration/pipeline_id/
 ---
 
+{% include redgate.html %}
+
+{% include preview.html %}
+
 ## Description
 
 An id for identifying your pipeline in Flyway Pipelines. Used to tell Flyway which pipeline in Flyway Pipelines to send data to.

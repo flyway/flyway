@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,20 @@ import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.extensibility.CommandExtension;
 
 public class CommandExtensionUtils {
+    public static boolean isCommandExtension(final Configuration configuration, final String command) {
+        return configuration.getPluginRegister()
+            .getInstancesOf(CommandExtension.class)
+            .stream()
+            .anyMatch(ext -> ext.handlesCommand(command));
+    }
+
+    public static boolean isLightweightCommandExtension(final Configuration configuration, final String command) {
+        return configuration.getPluginRegister()
+            .getInstancesOf(CommandExtension.class)
+            .stream()
+            .anyMatch(ext -> ext.handlesCommand(command) && !ext.requiresFlywayInstance());
+    }
+
     public static OperationResult runCommandExtension(final Configuration configuration,
         final String command,
         final List<String> flags) {
@@ -34,7 +48,7 @@ public class CommandExtensionUtils {
             .stream()
             .filter(commandExtension -> commandExtension.handlesCommand(command))
             .findFirst()
-            .map(commandExtension -> commandExtension.handle(command, configuration, flags))
+            .map(commandExtension -> commandExtension.handle(configuration, flags))
             .orElseThrow(() -> new FlywayException("No command extension found to handle command: " + command));
     }
 }

@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.output.BaselineResult;
 import org.flywaydb.core.api.output.CommandResultFactory;
 import org.flywaydb.core.extensibility.AppliedMigration;
+import org.flywaydb.core.internal.Topic;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
@@ -106,8 +107,8 @@ public class DbBaseline {
                         throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " with ("
                                                           + baselineVersion + "," + baselineDescription
                                                           + ") as it has already been baselined with ("
-                                                          + baselineMarker.getVersion() + "," + baselineMarker.getDescription() + ")\n" +
-                                                          "Need to reset your baseline? Learn more: " + FlywayDbWebsiteLinks.RESET_THE_BASELINE_MIGRATION);
+                                                          + baselineMarker.getVersion() + "," + baselineMarker.getDescription() + ")\n" + "Need to reset your baseline? Learn more: "
+                                                          + FlywayDbWebsiteLinks.getRedirectLinkFromTopic(Topic.REBASELINING));
                     }
                 } else {
                     if (schemaHistory.hasSchemasMarker() && baselineVersion.equals(MigrationVersion.fromVersion("0"))) {
@@ -116,7 +117,7 @@ public class DbBaseline {
 
                     if (schemaHistory.hasNonSyntheticAppliedMigrations()) {
                         throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " as it already contains migrations\n" +
-                                                          "Need to reset your baseline? Learn more: " + FlywayDbWebsiteLinks.RESET_THE_BASELINE_MIGRATION);
+                                                          "Need to reset your baseline? Learn more: " + FlywayDbWebsiteLinks.getRedirectLinkFromTopic(Topic.REBASELINING));
                     }
 
                     if (schemaHistory.allAppliedMigrations().isEmpty()) {
@@ -126,7 +127,7 @@ public class DbBaseline {
 
                     throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " as it already contains migrations.\n" +
                                                       "Delete the schema history table, and run baseline again.\n" +
-                                                      "Need to reset your baseline? Learn more: " + FlywayDbWebsiteLinks.RESET_THE_BASELINE_MIGRATION);
+                                                      "Need to reset your baseline? Learn more: " + FlywayDbWebsiteLinks.getRedirectLinkFromTopic(Topic.REBASELINING));
                 }
             }
         } catch (FlywayException e) {

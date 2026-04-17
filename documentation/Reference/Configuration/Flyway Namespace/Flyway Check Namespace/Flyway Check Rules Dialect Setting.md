@@ -10,7 +10,7 @@ subtitle: flyway.check.rulesDialect
 
 You can configure this parameter to specify the SQL dialect for analysis, overriding Flyway's automatic dialect detection based on the JDBC connection string. This is useful when you want to enforce specific dialect rules regardless of the database type Flyway is configured to use.
 
-See [Code Analysis](https://documentation.red-gate.com/flyway/flyway-concepts/code-analysis) for more information.
+See [Code Review](https://documentation.red-gate.com/flyway/flyway-concepts/code-analysis) for more information.
 
 ## Type
 

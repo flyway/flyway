@@ -4,6 +4,10 @@ subtitle: Redgate Clone Provisioner
 
 - **Status:** Preview
 
+{% include deprecation.html %}
+
+**Note:** Redgate Clone has been removed from Flyway Desktop and is deprecated in Flyway Engine. This feature will be removed in a future version.
+
 This [provisioner](https://documentation.red-gate.com/flyway/flyway-concepts/environments/provisioning) allows for the provisioning and re-provisioning of databases using [Redgate Clone](https://www.red-gate.com/products/redgate-clone/?_ga=2.146246964.1042910986.1704804078-728513631.1704372124).
 
 Common use cases of the Redgate Clone provisioner are:

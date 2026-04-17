@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-database-nc-couchbase
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,7 +91,7 @@ public class CouchbaseDatabase extends NativeConnectorsNonJdbc {
 
     @Override
     public List<String> supportedVerbs() {
-        return List.of("info", "migrate", "clean", "undo", "baseline", "validate", "repair");
+        return List.of("info", "migrate", "clean", "undo", "baseline", "validate", "repair", "testConnection");
     }
 
     @Override
@@ -111,6 +111,7 @@ public class CouchbaseDatabase extends NativeConnectorsNonJdbc {
 
         cluster = Cluster.connect(environment.getUrl(),
             ClusterOptions.clusterOptions(environment.getUser(), environment.getPassword()).environment(env));
+        isClosed = false;
 
         initializeBucketAndScope(getDefaultSchema(configuration));
     }
@@ -313,6 +314,9 @@ public class CouchbaseDatabase extends NativeConnectorsNonJdbc {
                 if (!DEFAULT_SCOPE.equals(scope)) {
                     String fullScope = String.format("`%s`.`%s`", bucket, scope);
                     cluster.query("CREATE SCOPE " + fullScope, QueryOptions.queryOptions().scanConsistency(REQUEST_PLUS));
+
+                    // Allow time for scope to become visible
+                    Thread.sleep(300);
                 }
 
             } catch (Exception e) {
@@ -443,14 +447,10 @@ public class CouchbaseDatabase extends NativeConnectorsNonJdbc {
     }
 
     @Override
-    public boolean isClosed() {
-        return false;
-    }
-
-    @Override
-    public void close() throws Exception {
+    public void close() {
         if (cluster != null) {
             cluster.close();
+            super.close();
         }
     }
 

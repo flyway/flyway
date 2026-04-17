@@ -6,7 +6,7 @@ subtitle: flyway.check.sqlfluffEnabled
 
 ## Description
 
-You can configure this feature flag to enable or disable the `SQLFluff` Engine for code analysis
+You can configure this feature flag to enable or disable the `SQLFluff` Engine for code review
 
 ## Type
 
@@ -37,7 +37,7 @@ sqlfluffEnabled = false
 flyway.check.sqlfluffEnabled=false
 ```
 
-### Packaged `SQLFluff` Engine
+### Redgate Bundle `SQLFluff` Engine
 
 {% include enterprise.html %}
 

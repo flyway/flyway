@@ -64,7 +64,7 @@ vaultConfigurationExtension.setVaultSecrets("kv/data/flyway/flywayConfig1", "kv/
 
 ```groovy
 flyway {
-    pluginConfiguration = [
+    vault = [
       vaultSecrets: ['kv/data/flyway/flywayConfig1', 'kv/flyway/flywayConfig2']
     ]
 }
@@ -74,8 +74,8 @@ flyway {
 
 ```xml
 <configuration>
-    <pluginConfiguration>
+    <vault>
       <vaultSecrets>kv/data/flyway/flywayConfig1,kv/flyway/flywayConfig2</vaultSecrets>
-    </pluginConfiguration>
+    </vault>
 </configuration>
 ```

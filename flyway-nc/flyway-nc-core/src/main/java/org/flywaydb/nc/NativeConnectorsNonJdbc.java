@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-nc-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.flywaydb.core.internal.nc.AbstractNativeConnectorsDatabase;
 import org.flywaydb.nc.executors.NonJdbcExecutorExecutionUnit;
 
 public abstract class NativeConnectorsNonJdbc extends AbstractNativeConnectorsDatabase<NonJdbcExecutorExecutionUnit> {
+    protected boolean isClosed;
 
     /**
      * By default, databases that use Batch to implement Transactions cannot support Batch, as it would cause a conflict.
@@ -43,5 +44,15 @@ public abstract class NativeConnectorsNonJdbc extends AbstractNativeConnectorsDa
     @Override
     public void doExecuteBatch() {
 
+    }
+
+    @Override
+    public boolean isClosed() {
+        return isClosed;
+    }
+
+    @Override
+    public void close() {
+        isClosed = true;
     }
 }

@@ -25,9 +25,9 @@ This can be set from the connection dialog.
 url = "jdbc:sqlserver://mfa-testing.database.windows.net:1433;databaseName=MyDatabase"
 
 [environments.development.jdbcProperties]
-accessToken = "${azureAdInteractive.token}"
+accessToken = "${entraId.token}"
 
-[environments.development.resolvers.azureAdInteractive]
+[environments.development.resolvers.entraId]
 tenantId = "{some GUID}"
 clientId = "{some other GUID}"
 ```

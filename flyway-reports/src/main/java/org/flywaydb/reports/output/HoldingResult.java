@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-reports
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,22 @@
  */
 package org.flywaydb.reports.output;
 
+import java.time.LocalDateTime;
 import lombok.Getter;
-import lombok.Setter;
 import org.flywaydb.core.api.output.HtmlResult;
 
 @Getter
-@Setter
 public class HoldingResult extends HtmlResult {
-    private String tabTitle;
-    private String bodyText;
+    private final String tabTitle;
+    private final String bodyText;
+
+    public HoldingResult(final String operation,
+        final String tabTitle,
+        final String bodyText,
+        final Exception exception) {
+        super(LocalDateTime.now(), operation);
+        this.tabTitle = tabTitle;
+        this.bodyText = bodyText;
+        setException(exception);
+    }
 }

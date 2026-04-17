@@ -11,12 +11,12 @@ Our reference documentation can be found at https://documentation.red-gate.com/f
 
 Contributing
 ------------
-Here is the info on how you can contribute in various ways to the project: https://documentation.red-gate.com/fd/contribute-184127449.html
+Here is the info on how you can contribute in various ways to the project: https://flyway.github.io/flyway/
 
 
 License
 -------
-Copyright © Red Gate Software Ltd 2010-2025
+Copyright © Red Gate Software Ltd 2010-2026
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ import org.flywaydb.core.internal.license.FlywayRedgateEditionRequiredException;
 import java.util.List;
 
 @CustomLog
-public class AuthCommandExtensionStub implements CommandExtension {
+public class AuthCommandExtensionStub implements CommandExtension<OperationResult> {
     private static final String FEATURE_NAME = "Auth";
     public static final String COMMAND = FEATURE_NAME.toLowerCase();
     public static final String DESCRIPTION = "Authenticates Flyway with Redgate licensing";
@@ -44,13 +44,18 @@ public class AuthCommandExtensionStub implements CommandExtension {
     }
 
     @Override
+    public boolean requiresFlywayInstance() {
+        return false;
+    }
+
+    @Override
     public boolean handlesParameter(String parameter) {
         return false;
     }
 
     @Override
-    public OperationResult handle(String command, Configuration config, List<String> flags) throws FlywayException {
-        return TelemetrySpan.trackSpan(new EventTelemetryModel(command, getTelemetryManager(config)), (telemetryModel) -> {
+    public OperationResult handle(Configuration config, List<String> flags) throws FlywayException {
+        return TelemetrySpan.trackSpan(new EventTelemetryModel(COMMAND, getTelemetryManager(config)), (telemetryModel) -> {
             throw new FlywayRedgateEditionRequiredException(FEATURE_NAME);
         });
     }

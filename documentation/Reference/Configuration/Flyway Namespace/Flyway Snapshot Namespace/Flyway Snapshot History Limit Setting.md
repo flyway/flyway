@@ -12,7 +12,7 @@ For more information on the concept of the snapshot history table, see [Snapshot
 
 ## Default
 
-`1`
+`5`
 
 ## Usage
 
@@ -23,20 +23,20 @@ This can't be added to a configuration file via Flyway Desktop.
 ### Command-line
 
 ```powershell
-./flyway snapshot -historyLimit=5
+./flyway snapshot -historyLimit=10
 ```
 
 ### TOML Configuration File
 
 ```toml
 [flyway.snapshot]
-historyLimit = 5
+historyLimit = 10
 ```
 
 ### Configuration File
 
 ```properties
-flyway.snapshot.historyLimit=5
+flyway.snapshot.historyLimit=10
 ```
 
 ### Environment Variable

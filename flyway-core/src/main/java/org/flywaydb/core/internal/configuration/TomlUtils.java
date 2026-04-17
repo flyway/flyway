@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,12 @@
  */
 package org.flywaydb.core.internal.configuration;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.dataformat.toml.TomlStreamReadException;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.cfg.MapperBuilder;
+import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.dataformat.toml.TomlStreamReadException;
 import java.util.Map.Entry;
 import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
@@ -96,9 +97,9 @@ public class TomlUtils {
 
         //noinspection unchecked
         simpleModule.addDeserializer((Class<List<String>>) type.getRawClass(), new ListDeserializer());
-        objectMapper.registerModule(simpleModule);
         try {
-            return objectMapper.convertValue(properties, ConfigurationModel.class);
+            return objectMapper.rebuild().addModule(simpleModule).build()
+                .convertValue(properties, ConfigurationModel.class);
         } catch (IllegalArgumentException e) {
             throw new FlywayException("Unable to parse command line params.");
         }
@@ -133,7 +134,9 @@ public class TomlUtils {
         try {
             final String configText = FileUtils.readFileAsString(configFile);
             final ConfigurationModel tomlConfig = ObjectMapperFactory.getObjectMapper(configFile.toString())
+                .rebuild()
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .build()
                 .readerFor(ConfigurationModel.class)
                 .readValue(configText);
             ConfigUtils.dumpConfigurationModel(tomlConfig, "Loading config file: " + configFile.getAbsolutePath());

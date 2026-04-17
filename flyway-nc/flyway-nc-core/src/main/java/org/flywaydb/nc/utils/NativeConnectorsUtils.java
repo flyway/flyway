@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-nc-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,16 +29,16 @@ import org.flywaydb.core.internal.nc.MetaData;
 public class NativeConnectorsUtils {
     public static void logExperimentalDataTelemetry(final FlywayTelemetryManager flywayTelemetryManager, final MetaData metaData) {
         if (flywayTelemetryManager != null) {
-            flywayTelemetryManager.notifyExperimentalMetadataChanged(metaData);
+            flywayTelemetryManager.notifyDatabaseChanged(metaData.databaseType(),
+                metaData.version().toString(),
+                null);
+
+            flywayTelemetryManager.notifyExperimentalModeChanged(true);
         }
     }
 
     public static Optional<NativeConnectorsDatabase> resolveExperimentalDatabasePlugin(final Configuration configuration) {
         return new NativeConnectorsDatabasePluginResolverImpl(configuration.getPluginRegister())
             .resolve(configuration);
-    }
-
-    public static FlywayTelemetryManager getFlywayTelemetryManager(final Configuration configuration) {
-        return configuration.getPluginRegister().getInstanceOf(FlywayTelemetryManager.class);
     }
 }

@@ -35,7 +35,7 @@ Let's run `flyway version` to verify that:
 
 Flyway Enterprise Edition {{ site.flywayVersion }} by Redgate
 
-See release notes here: (https://rd.gt/416ObMi)
+See release notes here: ({% include release-notes-url.html %})
 </pre>
 
 That's all there is to it! Using PATs, we have successfully authorized Flyway to use Enterprise Edition without

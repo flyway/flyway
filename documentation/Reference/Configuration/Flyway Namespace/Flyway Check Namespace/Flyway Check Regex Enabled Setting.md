@@ -8,7 +8,7 @@ subtitle: flyway.check.regexEnabled
 
 ## Description
 
-You can configure this feature flag to enable or disable the Regex Engine for code analysis
+You can configure this feature flag to enable or disable the Regex Engine for code review
 
 ## Type
 

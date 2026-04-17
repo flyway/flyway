@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ import org.flywaydb.core.internal.license.FlywayRedgateEditionRequiredException;
 import java.util.List;
 
 @CustomLog
-public class CheckCommandExtensionStub implements CommandExtension {
+public class CheckCommandExtensionStub implements CommandExtension<OperationResult> {
     public static final String COMMAND = "check";
 
     @Override
@@ -49,7 +49,7 @@ public class CheckCommandExtensionStub implements CommandExtension {
 
     @SneakyThrows
     @Override
-    public OperationResult handle(final String command, final Configuration config, final List<String> flags) throws FlywayException {
+    public OperationResult handle(final Configuration config, final List<String> flags) throws FlywayException {
         return TelemetrySpan.trackSpan(new EventTelemetryModel(COMMAND, getTelemetryManager(config)), (telemetryModel) -> {
             throw new FlywayRedgateEditionRequiredException(COMMAND);
         });

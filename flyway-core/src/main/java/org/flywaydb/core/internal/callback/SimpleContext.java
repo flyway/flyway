@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import org.flywaydb.core.api.callback.Warning;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.internal.database.base.Connection;
+import org.flywaydb.core.internal.database.base.Database;
 
 import java.util.List;
 
@@ -41,6 +42,8 @@ public class SimpleContext implements Context {
     private final MigrationInfo migrationInfo;
     private final Statement statement;
     private final OperationResult operationResult;
+    @Getter
+    private final Database database;
 
     public SimpleContext(Configuration configuration) {
         this.configuration = configuration;
@@ -48,6 +51,7 @@ public class SimpleContext implements Context {
         this.migrationInfo = null;
         this.statement = null;
         this.operationResult = null;
+        this.database = null;
     }
 
     public SimpleContext(Configuration configuration, Connection connection, MigrationInfo migrationInfo, OperationResult operationResult) {
@@ -56,6 +60,16 @@ public class SimpleContext implements Context {
         this.migrationInfo = migrationInfo;
         this.statement = null;
         this.operationResult = operationResult;
+        this.database = null;
+    }
+
+    public SimpleContext(Configuration configuration, Connection connection, MigrationInfo migrationInfo, OperationResult operationResult, Database database) {
+        this.configuration = configuration;
+        this.connection = connection;
+        this.migrationInfo = migrationInfo;
+        this.statement = null;
+        this.operationResult = operationResult;
+        this.database = database;
     }
 
     public SimpleContext(Configuration configuration, Connection connection, MigrationInfo migrationInfo,
@@ -65,6 +79,7 @@ public class SimpleContext implements Context {
         this.migrationInfo = migrationInfo;
         this.statement = new SimpleStatement(sql, warnings, errors);
         this.operationResult = null;
+        this.database = null;
     }
 
     @Override

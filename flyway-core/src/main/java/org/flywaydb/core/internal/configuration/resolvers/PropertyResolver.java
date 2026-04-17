@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,21 @@ package org.flywaydb.core.internal.configuration.resolvers;
 import org.flywaydb.core.ProgressLogger;
 import org.flywaydb.core.extensibility.Plugin;
 
+import java.util.List;
+
 public interface PropertyResolver extends Plugin {
     String getName();
     String resolve(String key, PropertyResolverContext context, ProgressLogger progress);
     Class getConfigClass();
+
+    /**
+     * Returns a list of alternative names (aliases) for this resolver.
+     * These aliases can be used interchangeably with the primary name
+     * in configuration files and resolver references.
+     *
+     * @return List of alias names, or empty list if no aliases. Never null.
+     */
+    default List<String> getAliases() {
+        return List.of();
+    }
 }

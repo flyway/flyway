@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-database-snowflake
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,11 +57,23 @@ public class SnowflakeConnection extends Connection<SnowflakeDatabase> {
     @Override
     protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
         String schemaName = jdbcTemplate.queryForString("SELECT CURRENT_SCHEMA()");
-        return (schemaName != null) ? schemaName : "PUBLIC";
+        if (schemaName != null) {
+            return schemaName;
+        }
+        return getSchema("PUBLIC").exists() ? "PUBLIC" : null;
+    }
+
+    @Override
+    protected Schema doGetCurrentSchema() throws SQLException {
+        String schemaName = getCurrentSchemaNameOrSearchPath();
+        return schemaName != null ? getSchema(schemaName) : null;
     }
 
     @Override
     public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
+        if (schema == null || schema.isEmpty()) {
+            return;
+        }
         jdbcTemplate.execute("USE SCHEMA " + database.doQuote(schema));
     }
 

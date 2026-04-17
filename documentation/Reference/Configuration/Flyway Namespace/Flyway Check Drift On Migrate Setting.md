@@ -5,6 +5,8 @@ redirect_from: Configuration/checkDriftOnMigrate/
 
 {% include redgate.html %}
 
+{% include preview.html %}
+
 ## Description
 
 Enables automatic drift checks on migrate. Requires an online authentication method to be configured.
@@ -41,10 +43,10 @@ This can't be configured via Flyway Desktop, although it will be honoured.
 
 ```toml
 [flyway]
-email="foo.bar@red-gate.com"
-token="1234ABCD"
-publishResult=true
-checkDriftOnMigrate=true
+email = "foo.bar@red-gate.com"
+token = "1234ABCD"
+publishResult = true
+checkDriftOnMigrate = true
 ```
 
 ### Environment Variable

@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-database-snowflake
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,7 +80,7 @@ public class SnowflakeDatabase extends Database<SnowflakeConnection> {
 
         ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("3", Tier.PREMIUM, configuration);
 
-        checkDatabaseVersionUntested(9);
+        checkDatabaseVersionUntested(10);
     }
 
     @Override

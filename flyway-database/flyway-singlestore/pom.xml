@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>11.17.0</version>
+    <version>12.4.0</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
@@ -26,10 +26,6 @@
     <dependency>
       <groupId>com.singlestore</groupId>
       <artifactId>singlestore-jdbc-client</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.datatype</groupId>
-      <artifactId>jackson-datatype-jsr310</artifactId>
     </dependency>
   </dependencies>
 

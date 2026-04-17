@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ public enum CoreErrorCode implements ErrorCode {
     JDBC_DRIVER,
     DB_CONNECTION,
     CONFIGURATION,
+    CONFIGURATION_RECOVERABLE,
     DUPLICATE_VERSIONED_MIGRATION,
     DUPLICATE_REPEATABLE_MIGRATION,
     DUPLICATE_UNDO_MIGRATION,

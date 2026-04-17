@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.license.AuthMethod;
 import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
 import org.flywaydb.core.internal.license.FlywayPermit;
 
@@ -34,6 +35,7 @@ import org.flywaydb.core.internal.license.FlywayPermit;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
 @CustomLog
 @ExtensionMethod(Tier.class)
@@ -61,9 +63,7 @@ public class LicenseGuard {
 
 
 
-
-
-     private static final FlywayPermit OSS_PERMIT = new FlywayPermit("Anonymous", null, null, false, false, false);
+         private static final FlywayPermit OSS_PERMIT = new FlywayPermit("Anonymous", null, null, false, false, null);
 
 
     public static void guard(Configuration configuration, List<Tier> editions, String featureName) {

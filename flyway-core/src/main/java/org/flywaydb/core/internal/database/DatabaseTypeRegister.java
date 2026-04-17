@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ package org.flywaydb.core.internal.database;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -33,43 +34,34 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.BaseDatabaseType;
 import org.flywaydb.core.internal.database.base.CommunityDatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
+import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
 import org.flywaydb.core.internal.plugin.PluginRegister;
-import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
 @CustomLog
 public class DatabaseTypeRegister {
+    private static final PluginRegister pluginRegister = new PluginRegister();
 
-    private static final List<DatabaseType> SORTED_DATABASE_TYPES = new PluginRegister().getInstancesOf(DatabaseType.class)
+    // Order DatabaseType before native connector types, then by plugin priority (highest first)
+    private static final List<GeneralDatabaseType> SORTED_DATABASE_TYPES = pluginRegister.getInstancesOf(GeneralDatabaseType.class)
         .stream()
-        .sorted()
+        .sorted(Comparator.comparing((GeneralDatabaseType t) -> !(t instanceof DatabaseType))
+            .thenComparing(Comparator.naturalOrder()))
         .toList();
 
-    public static List<DatabaseType> getDatabaseTypes() {
+    public static List<GeneralDatabaseType> getDatabaseTypes() {
         return new ArrayList<>(SORTED_DATABASE_TYPES);
     }
 
-    public static DatabaseType getDatabaseTypeForUrl(final String url, final Configuration configuration) {
-        final ArrayList<DatabaseType> typesAcceptingUrl = new ArrayList<>(getDatabaseTypesForUrl(url, configuration));
-
-        if (typesAcceptingUrl.isEmpty()) {
-            throw new FlywayException("No Flyway database plugin found to handle " + redactJdbcUrl(url, typesAcceptingUrl)
-                + ". See " + FlywayDbWebsiteLinks.DATABASE_TROUBLESHOOTING + " for troubleshooting");
-        } else {
-            typesAcceptingUrl.sort(Comparator.comparing(DatabaseType::getPriority));
-            return typesAcceptingUrl.get(0);
-        }
-    }
-
-    public static List<DatabaseType> getDatabaseTypesForUrl(final String url, final Configuration configuration) {
-        final List<DatabaseType> typesAcceptingUrl = SORTED_DATABASE_TYPES.stream().filter(type -> configuration == null
+    public static List<GeneralDatabaseType> getDatabaseTypesForUrl(final String url, final Configuration configuration) {
+        final List<GeneralDatabaseType> typesAcceptingUrl = SORTED_DATABASE_TYPES.stream().filter(type -> configuration == null
             || configuration.isCommunityDBSupportEnabled()
-            || !(type instanceof CommunityDatabaseType)).filter(type -> type.handlesJDBCUrl(url)).toList();
+            || !(type instanceof CommunityDatabaseType)).filter(type -> acceptsUrl(type, url)).toList();
 
         if (typesAcceptingUrl.size() > 1) {
-            final String typeNames = String.join(",", typesAcceptingUrl.stream().map(DatabaseType::getName).toList());
+            final String typeNames = String.join(",", typesAcceptingUrl.stream().map(GeneralDatabaseType::getName).toList());
 
             LOG.debug("Multiple databases found that handle url '"
-                + redactJdbcUrl(url, typesAcceptingUrl)
+                + redactJdbcUrlWithKnownTypes(url, typesAcceptingUrl)
                 + "': "
                 + typeNames);
         }
@@ -77,40 +69,31 @@ public class DatabaseTypeRegister {
         return typesAcceptingUrl;
     }
 
-    public static DatabaseType getDatabaseTypeForEngineName(final String engineName,
-        final Configuration configuration) {
-        return SORTED_DATABASE_TYPES.stream().filter(type -> configuration == null
-            || configuration.isCommunityDBSupportEnabled()
-            || !(type instanceof CommunityDatabaseType)).filter(type -> type.getSupportedEngines()
-            .stream()
-            .anyMatch(engineName::equalsIgnoreCase)).findFirst().orElseThrow(() -> new FlywayException(
-            "No Flyway database plugin found to handle " + engineName + " engine"
-                + ". See " + FlywayDbWebsiteLinks.DATABASE_TROUBLESHOOTING + " for troubleshooting"));
-    }
-
     public static String redactJdbcUrl(final String url) {
-        return redactJdbcUrl(url, (Configuration) null);
+        return redactJdbcUrlWithKnownTypes(url, getDatabaseTypesForUrl(url, null));
     }
 
-    public static String redactJdbcUrl(final String url, final Configuration configuration) {
-        final List<DatabaseType> types = getDatabaseTypesForUrl(url, configuration);
-        return redactJdbcUrl(url, types);
-    }
-
-    public static String redactJdbcUrl(String url, final Collection<? extends DatabaseType> types) {
+    public static String redactJdbcUrlWithKnownTypes(String url, final Collection<? extends GeneralDatabaseType> types) {
         if (types.isEmpty()) {
-            url = redactJdbcUrl(url, BaseDatabaseType.getDefaultJDBCCredentialsPattern());
+            final List<Pattern> dbPatterns = BaseDatabaseType.getDefaultJDBCCredentialsPatterns();
+            url = redactJdbcUrl(url, dbPatterns);
         } else {
-            for (final DatabaseType type : types) {
-                final List<Pattern> dbPatterns = type.getJDBCCredentialsPatterns();
-                if (dbPatterns != null && !dbPatterns.isEmpty()) {
-                    for (final Pattern dbPattern : dbPatterns) {
-                        url = redactJdbcUrl(url, dbPattern);
-                    }
-                }
+            for (final GeneralDatabaseType type : types) {
+                final List<Pattern> dbPatterns = getUrlRedactionPatterns(type);
+                url = redactJdbcUrl(url, dbPatterns);
             }
         }
         return url;
+    }
+
+    private static String redactJdbcUrl(final String url, final List<Pattern> dbPatterns) {
+        String redactedUrl = url;
+        if (dbPatterns != null && !dbPatterns.isEmpty()) {
+            for (final Pattern dbPattern : dbPatterns) {
+                redactedUrl = redactJdbcUrl(redactedUrl, dbPattern);
+            }
+        }
+        return redactedUrl;
     }
 
     private static String redactJdbcUrl(final String url, final Pattern pattern) {
@@ -130,16 +113,40 @@ public class DatabaseTypeRegister {
 
     public static DatabaseType getDatabaseTypeForConnection(final Connection connection,
         final Configuration configuration) {
+        final List<DatabaseType> sortedDatabaseTypesLegacyOnly = pluginRegister.getInstancesOf(DatabaseType.class)
+            .stream()
+            .sorted()
+            .toList();
         final DatabaseMetaData databaseMetaData = JdbcUtils.getDatabaseMetaData(connection);
         final String databaseProductName = JdbcUtils.getDatabaseProductName(databaseMetaData);
         final String databaseProductVersion = JdbcUtils.getDatabaseProductVersion(databaseMetaData);
 
-        return SORTED_DATABASE_TYPES.stream().filter(type -> configuration == null
+        return sortedDatabaseTypesLegacyOnly.stream().filter(type -> configuration == null
             || configuration.isCommunityDBSupportEnabled()
             || !(type instanceof CommunityDatabaseType)).filter(type -> type.handlesDatabaseProductNameAndVersion(
             databaseProductName,
             databaseProductVersion,
             connection)).findFirst().orElseThrow(() -> new FlywayException("Unsupported Database: "
             + databaseProductName));
+    }
+
+    private static boolean acceptsUrl(final GeneralDatabaseType type, final String url) {
+        if (type instanceof DatabaseType databaseType) {
+            return databaseType.handlesJDBCUrl(url);
+        }
+        if (type instanceof NativeConnectorsDatabase nativeConnectorsDatabase) {
+            return nativeConnectorsDatabase.supportsUrl(url).isSupported();
+        }
+        return false;
+    }
+
+    private static List<Pattern> getUrlRedactionPatterns(final GeneralDatabaseType type) {
+        if (type instanceof DatabaseType databaseType) {
+            return databaseType.getJDBCCredentialsPatterns();
+        }
+        if (type instanceof NativeConnectorsDatabase nativeDatabase) {
+            return Arrays.asList(nativeDatabase.getUrlRedactionPatterns());
+        }
+        return List.of();
     }
 }

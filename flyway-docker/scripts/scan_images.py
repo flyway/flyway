@@ -34,7 +34,7 @@ def main(argv: List[str]):
 
   planned_commands: List[str] = []
   for i, image in enumerate(images):
-    planned_commands.append(f"npx snyk container test {image} --severity-threshold=high --policy-path={snyk_path}")
+    planned_commands.append(f"npx snyk container test {image} --severity-threshold=high --fail-on=upgradable --policy-path={snyk_path}")
 
   if args.dry_run:
     print("Dry run: the following test commands would execute (order preserved):")

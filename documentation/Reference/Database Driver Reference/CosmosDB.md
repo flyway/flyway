@@ -3,7 +3,6 @@ subtitle: CosmosDB - Native Connectors
 ---
 
 
-- **Status:** Preview
 - **Flyway configuration:** Native Connectors only
 - **Verified Versions:** 7.0
 - **Maintainer:** {% include redgate-badge.html %}
@@ -22,7 +21,6 @@ subtitle: CosmosDB - Native Connectors
 | **Maven Central coordinates**      | n/a                                                                                                                                                |
 
 ## Using Flyway with MongoDB Native Connectors
-- Whilst this is in preview, you will need to set the environment variable `FLYWAY_NATIVE_CONNECTORS=true` on Redgate editions of Flyway.
 - If you are using javascript migrations then you'll need [`mongosh`](https://www.mongodb.com/docs/mongodb-shell/install/) to be installed.
 - There is a [tutorial available here](/tutorials/tutorial---using-native-connectors-to-connect-to-mongodb).
 

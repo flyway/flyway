@@ -3,6 +3,10 @@ subtitle: flyway.publish_result
 redirect_from: Configuration/publish_result/
 ---
 
+{% include redgate.html %}
+
+{% include preview.html %}
+
 ## Description
 
 Whether to publish the result of your Flyway run to Flyway Pipelines.

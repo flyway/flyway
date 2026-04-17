@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,14 @@
  */
 package org.flywaydb.core;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.json.JsonMapper;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 
 @CustomLog
 public class ProgressLoggerJson implements ProgressLogger {
     private final ProgressModel progressModel = new ProgressModel();
-    private final JsonMapper jsonMapper = new JsonMapper();
+    private final JsonMapper jsonMapper = JsonMapper.builder().build();
 
     public ProgressLogger subTask(String operationName) {
         return new ProgressLoggerJson(this.progressModel.getOperation() + "." + operationName);

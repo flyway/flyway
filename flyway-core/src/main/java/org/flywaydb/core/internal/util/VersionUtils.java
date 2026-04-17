@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ public class VersionUtils {
         return isHigherThan(x, y) || isEquivalentTo(x, y);
     }
 
-    public static boolean currentVersionIsHigherThanOrEquivalentTo(final Version target) {
-        return VersionUtils.isHigherThanOrEquivalentTo(Version.parse(VersionPrinter.getVersion()), target);
+    public static boolean currentVersionIsHigherThanOrEquivalentTo(final Version current, final Version target) {
+        return isHigherThanOrEquivalentTo(current, target);
     }
 }

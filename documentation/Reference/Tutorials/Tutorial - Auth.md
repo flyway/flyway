@@ -29,7 +29,7 @@ We can verify that our newly saved permit has taken effect by running `flyway in
 
 Flyway ENTERPRISE Edition {{ site.flywayVersion }} by Redgate
 
-See release notes here: https://rd.gt/416ObMi
+See release notes here: {% include release-notes-url.html %}
 Database: jdbc:h2:mem:db (H2 2.2)
 Schema history table "PUBLIC"."flyway_schema_history" does not exist yet
 Schema version: << Empty Schema >>

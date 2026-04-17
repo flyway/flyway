@@ -94,7 +94,7 @@ This is a quick and easy way to verify that things are working as you expect
 #### Testing Flyway with source code
 This is more complex but allows you to set breakpoints and debug more easily.
 
-Get your environment setup for [developing flyway](documentation/setup)
+Get your environment setup for [developing flyway](setup)
 
 Copy the file `/flyway-commandline/src/main/assembly/flyway.toml.example` to an accessible location on your machine and rename it to `flyway.toml`. 
 This location will be a temporary 'scratch' area for testing. Use this copy to set up the following properties:

@@ -2,7 +2,7 @@
   ========================LICENSE_START=================================
   flyway-commandline
   ========================================================================
-  Copyright (C) 2010 - 2025 Red Gate Software Ltd
+  Copyright (C) 2010 - 2026 Red Gate Software Ltd
   ========================================================================
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -21,22 +21,19 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/component/1.1.2 http://maven.apache.org/xsd/component-1.1.2.xsd">
   <fileSets>
-
     <fileSet>
       <directory>src/main/assembly</directory>
-      <outputDirectory></outputDirectory>
+      <outputDirectory/>
       <includes>
         <include>flyway.cmd</include>
-
         <include>README.txt</include>
-
       </includes>
       <fileMode>644</fileMode>
       <filtered>true</filtered>
     </fileSet>
     <fileSet>
       <directory>src/main/assembly</directory>
-      <outputDirectory></outputDirectory>
+      <outputDirectory/>
       <includes>
         <include>flyway</include>
       </includes>
@@ -44,46 +41,6 @@
       <lineEnding>unix</lineEnding>
       <filtered>true</filtered>
     </fileSet>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     <fileSet>
       <directory>src/main/assembly</directory>
       <outputDirectory>drivers</outputDirectory>
@@ -110,12 +67,25 @@
       <filtered>true</filtered>
     </fileSet>
     <fileSet>
-
+      <directory>../.github/scripts/licenses/src/licenses/license-texts</directory>
+      <outputDirectory>licenses/license-texts</outputDirectory>
+      <includes>
+        <include>*.txt</include>
+      </includes>
+      <fileMode>644</fileMode>
+      <filtered>true</filtered>
+    </fileSet>
+    <fileSet>
+      <directory>../.github/scripts/licenses/src/licenses/license-texts/cached</directory>
+      <outputDirectory>licenses/license-texts</outputDirectory>
+      <includes>
+        <include>*.txt</include>
+      </includes>
+      <fileMode>644</fileMode>
+      <filtered>true</filtered>
+    </fileSet>
+    <fileSet>
       <directory>src/main/assembly</directory>
-
-
-
-
       <outputDirectory>licenses</outputDirectory>
       <includes>
         <include>LICENSE.md</include>
@@ -125,7 +95,7 @@
     </fileSet>
     <fileSet>
       <directory>../..</directory>
-      <outputDirectory></outputDirectory>
+      <outputDirectory/>
       <includes>
         <include>RELEASE-NOTE.txt</include>
       </includes>
@@ -154,48 +124,6 @@
         <include>*.jar</include>
       </includes>
     </fileSet>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   </fileSets>
   <dependencySets>
     <dependencySet>
@@ -211,24 +139,27 @@
       <useTransitiveFiltering>true</useTransitiveFiltering>
       <includes>
         <include>org.apache.commons:commons-text</include>
+        <include>tools.jackson.core:jackson-core</include>
         <include>com.fasterxml.jackson.core:jackson-core</include>
         <include>com.fasterxml.jackson.core:jackson-annotations</include>
+        <include>tools.jackson.core:jackson-databind</include>
         <include>com.fasterxml.jackson.core:jackson-databind</include>
+        <include>tools.jackson.dataformat:jackson-dataformat-toml</include>
         <include>com.fasterxml.jackson.dataformat:jackson-dataformat-toml</include>
+        <include>tools.jackson.dataformat:jackson-dataformat-xml</include>
         <include>com.fasterxml.jackson.dataformat:jackson-dataformat-xml</include>
         <include>com.fasterxml.jackson.datatype:jackson-datatype-jsr310</include>
         <include>org.slf4j:slf4j-nop</include>
         <include>com.nimbusds:nimbus-jose-jwt</include>
         <include>com.nimbusds:oauth2-oidc-sdk</include>
+        <include>net.minidev:json-smart</include>
+        <include>net.minidev:accessors-smart</include>
         <include>org.eclipse.jetty:jetty-server</include>
         <include>net.java.dev.jna:jna</include>
         <include>net.java.dev.jna:jna-platform</include>
         <include>com.microsoft.azure:msal4j-persistence-extension</include>
-
-
-
-
-
+        <include>org.codehaus.woodstox:stax2-api</include>
+        <include>com.fasterxml.woodstox:woodstox-core</include>
       </includes>
     </dependencySet>
     <dependencySet>
@@ -290,49 +221,6 @@
         <include>org.flywaydb:flyway-firebird</include>
         <include>org.flywaydb:flyway-database-cassandra</include>
         <include>org.flywaydb:flyway-reports</include>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         <include>org.flywaydb:flyway-database-ignite</include>
         <include>org.flywaydb:flyway-database-tidb</include>
         <include>org.flywaydb:flyway-database-yugabytedb</include>
@@ -354,9 +242,11 @@
         <include>org.flywaydb:flyway-verb-clean</include>
         <include>org.flywaydb:flyway-verb-baseline</include>
         <include>org.flywaydb:flyway-verb-repair</include>
-        <include>org.flywaydb:flyway-experimental-sqlite</include>
+        <include>org.flywaydb:flyway-verb-testConnection</include>
+        <include>org.flywaydb:flyway-database-nc-sqlite</include>
         <include>org.flywaydb:flyway-nc-callbacks</include>
         <include>org.flywaydb:flyway-database-nc-couchbase</include>
+        <include>org.flywaydb:flyway-database-nc-mongodb</include>
         <include>org.flywaydb:flyway-command-test-connection</include>
       </includes>
     </dependencySet>
@@ -367,11 +257,6 @@
         <include>com.google.cloud:google-cloud-spanner-jdbc</include>
         <include>com.google.api:gax</include>
       </includes>
-
-
-
-
-
     </dependencySet>
     <dependencySet>
       <outputDirectory>drivers/cassandra</outputDirectory>
@@ -383,21 +268,22 @@
         <exclude>org.reactivestreams</exclude>
         <exclude>io.netty:netty-*</exclude>
         <exclude>com.fasterxml.jackson.core:jackson-core</exclude>
+        <exclude>com.fasterxml.jackson.core:jackson-databind</exclude>
+        <exclude>com.fasterxml.jackson.datatype:jackson-datatype-jsr310</exclude>
       </excludes>
-    </dependencySet>
-    <dependencySet>
-      <outputDirectory>drivers/mongo</outputDirectory>
-      <useTransitiveFiltering>true</useTransitiveFiltering>
-      <includes>
-        <include>org.mongodb:mongodb-driver-sync</include>
-        <include>org.flywaydb:flyway-database-nc-mongodb</include>
-      </includes>
     </dependencySet>
     <dependencySet>
       <outputDirectory>drivers/couchbase</outputDirectory>
       <useTransitiveFiltering>true</useTransitiveFiltering>
       <includes>
         <include>com.couchbase.client:java-client</include>
+      </includes>
+    </dependencySet>
+    <dependencySet>
+      <outputDirectory>drivers/mongo</outputDirectory>
+      <useTransitiveFiltering>true</useTransitiveFiltering>
+      <includes>
+        <include>org.mongodb:mongodb-driver-sync</include>
       </includes>
     </dependencySet>
     <dependencySet>
@@ -415,9 +301,9 @@
         <exclude>software.amazon.awssdk:s3</exclude>
         <exclude>org.slf4j:slf4j-nop</exclude>
         <exclude>org.apache.commons:commons-text</exclude>
-        <exclude>com.fasterxml.jackson.dataformat:jackson-dataformat-xml</exclude>
-        <exclude>com.fasterxml.jackson.dataformat:jackson-dataformat-toml</exclude>
-        <exclude>com.fasterxml.jackson.core:jackson-databind</exclude>
+        <exclude>tools.jackson.dataformat:jackson-dataformat-xml</exclude>
+        <exclude>tools.jackson.dataformat:jackson-dataformat-toml</exclude>
+        <exclude>tools.jackson.core:jackson-databind</exclude>
         <exclude>com.microsoft.azure:msal4j</exclude>
         <exclude>com.azure:azure-identity</exclude>
         <exclude>com.ing.data:cassandra-jdbc-wrapper</exclude>
@@ -425,13 +311,6 @@
         <exclude>net.java.dev.jna</exclude>
         <exclude>org.mongodb:mongodb-driver-sync</exclude>
         <exclude>com.couchbase.client:java-client</exclude>
-
-
-
-
-
-
-
       </excludes>
     </dependencySet>
   </dependencySets>

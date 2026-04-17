@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,9 @@ import java.util.Locale;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @ExtensionMethod(StringUtils.class)
 public class FileUtils {
+    private static final String ORGANIZATION_ID_FILE = "organization_id";
+    private static final String USER_ID_FILE = "feature_usage_data";
+
     public static String getFilename(String path) {
         if (StringUtils.hasText(path)) {
             return path.substring(path.replace("/", "\\").lastIndexOf("\\") + 1);
@@ -152,6 +155,14 @@ public class FileUtils {
         return readAsString(path, StandardCharsets.UTF_8);
     }
 
+    public static String readAsExactString(final Path path) {
+        try {
+            return Files.readString(path.toAbsolutePath(), StandardCharsets.UTF_8);
+        } catch (final IOException e) {
+            throw new FlywayException("Unable to read " + path.toAbsolutePath() + " from disk", e);
+        }
+    }
+
     public static String readResourceAsString(String path) {
         return readResourceAsString(FileUtils.class.getClassLoader(), path);
     }
@@ -209,61 +220,67 @@ public class FileUtils {
         }
     }
 
-    public static String readUserIdFromFileIfNoneWriteDefault() {
-        String userId = null;
+    private static String readIdFromFileIfNoneWriteDefault(String filename, boolean generateDefault) {
+        String id = null;
 
-        File redgateAppData;
-        if (isWindows()) {
-            redgateAppData = new File(System.getenv("APPDATA"), "Redgate");
-        } else {
-            redgateAppData = new File(System.getProperty("user.home"), ".config/Redgate");
+        File redgateAppData = getAppDataLocation();
+
+        File idFile = new File(redgateAppData, filename);
+        if (idFile.exists()) {
+            id = FileUtils.readAsString(idFile.toPath());
         }
 
-        File userIdFile = new File(redgateAppData, "feature_usage_data");
-        if (userIdFile.exists()) {
-            userId = FileUtils.readAsString(userIdFile.toPath());
-        }
-
-        if(!userId.hasText()) {
-            userId = UUID.randomUUID().toString();
+        if(!id.hasText() && generateDefault) {
+            id = UUID.randomUUID().toString();
 
             if(!redgateAppData.exists()) {
                 redgateAppData.mkdirs();
             }
 
-            try(FileWriter fileWriter = new FileWriter(userIdFile)) {
-                fileWriter.write(userId);
+            try(FileWriter fileWriter = new FileWriter(idFile)) {
+                fileWriter.write(id);
             } catch (IOException ignore) {}
         }
 
-        return userId;
+        return id;
     }
 
-    public static void writeUserIdToFile(String userId) {
-        if(!userId.hasText()) {
+    private static void writeIdToFile(String id, String filename) {
+        if(!id.hasText()) {
             return;
         }
 
-        File redgateAppData;
-        if (isWindows()) {
-            redgateAppData = new File(System.getenv("APPDATA"), "Redgate");
-        } else {
-            redgateAppData = new File(System.getProperty("user.home"), ".config/Redgate");
-        }
+        File redgateAppData = getAppDataLocation();
 
-        File userIdFile = new File(redgateAppData, "feature_usage_data");
+        File idFile = new File(redgateAppData, filename);
 
-        if (userIdFile.exists()) {
-            userIdFile.delete();
+        if (idFile.exists()) {
+            idFile.delete();
         }
 
         if (!redgateAppData.exists()) {
             redgateAppData.mkdirs();
         }
 
-        try (FileWriter fileWriter = new FileWriter(userIdFile)) {
-            fileWriter.write(userId);
+        try (FileWriter fileWriter = new FileWriter(idFile)) {
+            fileWriter.write(id);
         } catch (IOException ignore) {}
+    }
+
+    public static String readUserIdFromFileIfNoneWriteDefault() {
+        return readIdFromFileIfNoneWriteDefault(USER_ID_FILE, true);
+    }
+
+    public static void writeUserIdToFile(String userId) {
+        writeIdToFile(userId, USER_ID_FILE);
+    }
+
+    public static String readOrganizationIdFromFile() {
+        return readIdFromFileIfNoneWriteDefault(ORGANIZATION_ID_FILE, false);
+    }
+
+    public static void writeOrganizationIdToFile(String organizationId) {
+        writeIdToFile(organizationId, ORGANIZATION_ID_FILE);
     }
 
     private static boolean isWindows() {

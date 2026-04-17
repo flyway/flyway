@@ -151,7 +151,8 @@ def get_all_tags(test_mode, edition, version):
     tags = [Tag(edition=edition, version=version, variant=v) for v in variants]
 
   # Add mongo variant (using base variant with mongo qualifier)
+  base_variant = next(v for v in VARIANTS if v.name == "base")
   base_tag = next(t for t in tags if t.variant.name == "base")
-  final_layer_tags = [get_layer_image_tag(base_tag, layer) for layer in FINAL_LAYERS]
-  tags.append(*final_layer_tags)
+  final_layer_tags = [get_layer_image_tag(base_tag, layer) for layer in FINAL_LAYERS if layer.applies(base_tag.as_docker_tag(), edition, base_variant)]
+  tags += final_layer_tags
   return tags

@@ -15,7 +15,7 @@ Be aware that this is will be the only place Flyway looks for rules so if you wa
 
 __Note:__ Flyway will only look in the default or specified locations for rules and won't traverse sub-folders.
 
-See [Code Analysis](https://documentation.red-gate.com/flyway/flyway-concepts/code-analysis) for more information.
+See [Code Review](https://documentation.red-gate.com/flyway/flyway-concepts/code-analysis) for more information.
 
 ## Type
 

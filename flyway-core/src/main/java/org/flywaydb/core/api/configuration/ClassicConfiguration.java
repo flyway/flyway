@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-core
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ package org.flywaydb.core.api.configuration;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.removeBoolean;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.removeInteger;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -30,8 +30,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.nio.charset.Charset;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -85,8 +83,6 @@ import org.flywaydb.core.internal.configuration.resolvers.EnvironmentProvisioner
 import org.flywaydb.core.internal.configuration.resolvers.EnvironmentResolver;
 import org.flywaydb.core.internal.configuration.resolvers.PropertyResolver;
 import org.flywaydb.core.internal.configuration.resolvers.ProvisionerMode;
-import org.flywaydb.core.internal.database.DatabaseType;
-import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
 import org.flywaydb.core.internal.nc.NativeConnectorsModeUtils;
@@ -291,12 +287,16 @@ public class ClassicConfiguration implements Configuration {
         final ProvisionerMode provisionerMode = StringUtils.hasText(envProvisionMode) ? ProvisionerMode.fromString(
             envProvisionMode) : ProvisionerMode.Provision;
         final ResolvedEnvironment resolved = getResolvedEnvironment(envName, provisionerMode, progress);
-        if (resolved == null) {
+
+        if (resolved != null) {
+            return resolved;
+        } else if ("-".equals(envName)) {
+            return new ResolvedEnvironment();
+        } else {
             throw new FlywayException("Environment '"
                 + envName
                 + "' not found. Check that this environment exists in your configuration.");
         }
-        return resolved;
     }
 
     public ResolvedEnvironment getResolvedEnvironment(final String envName) {
@@ -307,9 +307,8 @@ public class ClassicConfiguration implements Configuration {
         final ProvisionerMode provisionerMode,
         final ProgressLogger progress) {
         if (environmentResolver == null) {
-            environmentResolver = new EnvironmentResolver(pluginRegister.getInstancesOf(PropertyResolver.class)
-                .stream()
-                .collect(Collectors.toMap(PropertyResolver::getName, x -> x)),
+            environmentResolver = new EnvironmentResolver(
+                createResolverMapWithAliases(pluginRegister.getInstancesOf(PropertyResolver.class)),
                 pluginRegister.getInstancesOf(EnvironmentProvisioner.class)
                     .stream()
                     .collect(Collectors.toMap(EnvironmentProvisioner::getName, x -> x)));
@@ -337,6 +336,20 @@ public class ClassicConfiguration implements Configuration {
             progress == null ? new ProgressLoggerEmpty() : progress);
         resolvedEnvironments.put(envName, resolved);
         return resolved;
+    }
+
+    private Map<String, PropertyResolver> createResolverMapWithAliases(
+            List<PropertyResolver> resolvers) {
+        Map<String, PropertyResolver> map = new HashMap<>();
+        for (PropertyResolver resolver : resolvers) {
+            // Register by primary name
+            map.put(resolver.getName(), resolver);
+            // Register by all aliases
+            for (String alias : resolver.getAliases()) {
+                map.put(alias, resolver);
+            }
+        }
+        return map;
     }
 
     private FlywayModel getModernFlyway() {
@@ -643,18 +656,6 @@ public class ClassicConfiguration implements Configuration {
 
     public void setValidateOnMigrate(final Boolean validateOnMigrateProp) {
         getModernFlyway().setValidateOnMigrate(validateOnMigrateProp);
-    }
-
-    @Override
-    public boolean isCleanOnValidationError() {
-        if (getEnvironmentOverrides().getCleanOnValidationError() != null) {
-            return getEnvironmentOverrides().getCleanOnValidationError();
-        }
-        return getModernFlyway().getCleanOnValidationError();
-    }
-
-    public void setCleanOnValidationError(final Boolean cleanOnValidationErrorProp) {
-        getModernFlyway().setCleanOnValidationError(cleanOnValidationErrorProp);
     }
 
     @Override
@@ -1538,30 +1539,6 @@ public class ClassicConfiguration implements Configuration {
         licenseGuardJdbcUrl(url);
     }
 
-    public DatabaseType getDatabaseType() {
-        final String url = getUrl();
-        final DataSourceModel model = dataSources.getOrDefault(getCurrentEnvironmentName(), null);
-
-        if (StringUtils.hasText(url)) {
-            return DatabaseTypeRegister.getDatabaseTypeForUrl(url, this);
-        } else if (model != null) {
-            if (model.getDatabaseType() != null) {
-                return model.getDatabaseType();
-            }
-            if (model.getDataSource() != null) {
-                try (final Connection connection = model.getDataSource().getConnection()) {
-                    final DatabaseType databaseType = DatabaseTypeRegister.getDatabaseTypeForConnection(connection,
-                        this);
-                    model.setDatabaseType(databaseType);
-                    return databaseType;
-                } catch (final SQLException ignored) {
-                }
-            }
-        }
-
-        return null;
-    }
-
     /**
      * Sets the version to tag an existing schema with when executing baseline.
      *
@@ -1694,8 +1671,6 @@ public class ClassicConfiguration implements Configuration {
 
         setResolvers(configuration.getResolvers().clone());
 
-        getModernFlyway().setMigrationResolvers(null);
-
         resolvedEnvironments.clear();
         resolvedEnvironments.putAll(configuration.getCachedResolvedEnvironments());
         dataSources.clear();
@@ -1751,18 +1726,7 @@ public class ClassicConfiguration implements Configuration {
 
         final Collection<String> keysToRemove = new ArrayList<>();
 
-        final String deprecatedNameSpace = "plugins";
-        final Collection<Entry<String, String>> sortedEntrySet = new LinkedHashSet<>();
-        sortedEntrySet.addAll(props.entrySet()
-            .stream()
-            .filter(r -> r.getKey().contains(deprecatedNameSpace))
-            .collect(Collectors.toSet()));
-        sortedEntrySet.addAll(props.entrySet()
-            .stream()
-            .filter(r -> !sortedEntrySet.contains(r))
-            .collect(Collectors.toSet()));
-
-        for (final Map.Entry<String, String> params : sortedEntrySet) {
+        for (final Map.Entry<String, String> params : props.entrySet()) {
 
             final String text = params.getKey();
             final Matcher matcher = ANY_WORD_BETWEEN_TWO_DOTS_PATTERN.matcher(text);
@@ -1771,17 +1735,8 @@ public class ClassicConfiguration implements Configuration {
             final List<ConfigurationExtension> configExtensions = pluginRegister.getInstancesOf(ConfigurationExtension.class)
                 .stream()
                 .filter(c -> c.getNamespace().isEmpty()
-                    || rootNamespace.equals(c.getNamespace())
-                    || rootNamespace.equals(deprecatedNameSpace))
+                    || rootNamespace.equals(c.getNamespace()))
                 .toList();
-
-            configExtensions.forEach(c -> {
-                if (c.getNamespace().isEmpty()) {
-                    final String replaceNamespace = "flyway." + deprecatedNameSpace + ".";
-                    final String fixedKey = params.getKey().replace(replaceNamespace, "");
-                    parsePropertiesFromConfigExtension(configExtensionsPropertyMap, keysToRemove, params, fixedKey, c);
-                }
-            });
 
             configExtensions.forEach(c -> {
                 String replaceNamespace = "flyway.";
@@ -1926,10 +1881,6 @@ public class ClassicConfiguration implements Configuration {
         final String tablespaceProp = props.remove(ConfigUtils.TABLESPACE);
         if (tablespaceProp != null) {
             setTablespace(tablespaceProp);
-        }
-        final Boolean cleanOnValidationErrorProp = removeBoolean(props, ConfigUtils.CLEAN_ON_VALIDATION_ERROR);
-        if (cleanOnValidationErrorProp != null) {
-            setCleanOnValidationError(cleanOnValidationErrorProp);
         }
         final Boolean cleanDisabledProp = removeBoolean(props, ConfigUtils.CLEAN_DISABLED);
         if (cleanDisabledProp != null) {
@@ -2116,7 +2067,7 @@ public class ClassicConfiguration implements Configuration {
         if (!StringUtils.hasText(envName)) {
             envName = "default";
         }
-        if (!modernConfig.getEnvironments().containsKey(envName)) {
+        if (!modernConfig.getEnvironments().containsKey(envName) && !"-".equals(envName)) {
             throw new FlywayException("Environment '"
                 + envName
                 + "' not found. Check that this environment exists in your configuration.");
@@ -2126,7 +2077,7 @@ public class ClassicConfiguration implements Configuration {
     }
 
     private EnvironmentModel getCurrentUnresolvedEnvironment() {
-        return modernConfig.getEnvironments().get(getCurrentEnvironmentName());
+        return modernConfig.getEnvironments().getOrDefault(getCurrentEnvironmentName(), new EnvironmentModel());
     }
 
     private void licenseGuardJdbcUrl(final String url) {

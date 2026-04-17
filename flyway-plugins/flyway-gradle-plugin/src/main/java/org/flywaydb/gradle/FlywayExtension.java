@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * flyway-gradle-plugin
  * ========================================================================
- * Copyright (C) 2010 - 2025 Red Gate Software Ltd
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ public class FlywayExtension {
      * (default: 0)
      * <p>Also configurable with Gradle or System Property: ${flyway.connectRetries}</p>
      */
-    public int connectRetries;
+    public Integer connectRetries;
 
     /**
      * The maximum time between retries when attempting to connect to the database in seconds. This will cap the interval
@@ -61,7 +61,7 @@ public class FlywayExtension {
      * (default: 120)
      * <p>Also configurable with Gradle or System Property: ${flyway.connectRetriesInterval}</p>
      */
-    public int connectRetriesInterval;
+    public Integer connectRetriesInterval;
 
     /**
      * The SQL statements to run to initialize a new database connection immediately after opening it. (default: {@code null})
@@ -338,18 +338,6 @@ public class FlywayExtension {
      * Whether to automatically call validate or not when running migrate. (default: true)
      */
     public Boolean validateOnMigrate;
-
-    /**
-     * Deprecated, will be removed in a future release. <br>
-     * Whether to automatically call clean or not when a validation error occurs. (default: {@code false})<br>
-     * This is exclusively intended as a convenience for development. even though we
-     * strongly recommend not to change migration scripts once they have been checked into SCM and run, this provides a
-     * way of dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that
-     * the next migration will bring you back to the state checked into SCM.
-     * <b>Warning! Do not enable in production!</b>
-     * <p>Also configurable with Gradle or System Property: ${flyway.cleanOnValidationError}</p>
-     */
-    public Boolean cleanOnValidationError;
 
     /**
      * Ignore migrations that match this comma-separated list of patterns when validating migrations.
