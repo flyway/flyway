@@ -44,6 +44,7 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskAction;
@@ -80,6 +81,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     private final Map<String, String> flywayProjectProperties;
     private final String projectDirPath;
     private final FileCollection extraClasspath;
+    private final Provider<Map<String, String>> flywayEnvVars;
 
     /**
      * The fully qualified classname of the JDBC driver to use to connect to the database.
@@ -594,6 +596,9 @@ public abstract class AbstractFlywayTask extends DefaultTask {
             }
         }
 
+        this.flywayEnvVars = project.getProviders().of(FlywayEnvVarsValueSource.class,
+            spec -> {});
+
         final ConfigurableFileCollection classpathFiles = project.getObjects().fileCollection();
 
         if (javaProject) {
@@ -605,7 +610,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         }
 
         classpathFiles.from(project.provider(() -> {
-            final Map<String, String> envVars = ConfigUtils.environmentVariablesToPropertyMap();
+            final Map<String, String> envVars = ConfigUtils.environmentVariablesToPropertyMap(flywayEnvVars.get());
             final String[] configs = determineConfigurations(envVars);
             final List<FileCollection> result = new ArrayList<>();
             for (final String config : configs) {
@@ -628,7 +633,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
             final ClassLoader classLoader = new URLClassLoader(extraURLs.toArray(URL[]::new),
                 getClass().getClassLoader());
 
-            final Map<String, String> envVars = ConfigUtils.environmentVariablesToPropertyMap();
+            final Map<String, String> envVars = ConfigUtils.environmentVariablesToPropertyMap(flywayEnvVars.get());
             final Map<String, String> config = createFlywayConfig(envVars);
             ConfigUtils.dumpConfigurationMap(config, "Using configuration:");
 
