@@ -490,6 +490,9 @@ public class OracleParser extends Parser {
     // These words increase the block depth - unless preceded by END (in which case the END will decrease the block depth)
     private static final List<String> CONTROL_FLOW_KEYWORDS = Arrays.asList("IF", "LOOP", "CASE");
 
+    private static final Pattern CREATE_IF_NOT_EXISTS = Pattern.compile(
+            ".*CREATE\\s([^\\s]+\\s){0,2}IF\\sNOT\\sEXISTS");
+
     @Override
     protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) {
         TokenType tokenType = keyword.getType();
@@ -539,7 +542,8 @@ public class OracleParser extends Parser {
                         doTokensMatchPattern(tokens, keyword, PLSQL_TYPE_BODY_REGEX)))
         ) {
             context.increaseBlockDepth(keywordText);
-        } else if ("END".equals(keywordText)) {
+        } else if ("END".equals(keywordText)
+                || doTokensMatchPattern(tokens, keyword, CREATE_IF_NOT_EXISTS)) {
             context.decreaseBlockDepth();
         }
 
