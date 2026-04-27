@@ -492,6 +492,8 @@ public class OracleParser extends Parser {
 
     private static final Pattern CREATE_IF_NOT_EXISTS = Pattern.compile(
             ".*CREATE\\s([^\\s]+\\s){0,2}IF\\sNOT\\sEXISTS");
+    private static final Pattern DROP_IF_EXISTS = Pattern.compile(
+            ".*DROP\\s([^\\s]+\\s){0,2}IF\\sEXISTS");
 
     @Override
     protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) {
@@ -543,7 +545,8 @@ public class OracleParser extends Parser {
         ) {
             context.increaseBlockDepth(keywordText);
         } else if ("END".equals(keywordText)
-                || doTokensMatchPattern(tokens, keyword, CREATE_IF_NOT_EXISTS)) {
+                || doTokensMatchPattern(tokens, keyword, CREATE_IF_NOT_EXISTS)
+                || doTokensMatchPattern(tokens, keyword, DROP_IF_EXISTS)) {
             context.decreaseBlockDepth();
         }
 
