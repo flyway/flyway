@@ -165,9 +165,13 @@ public class ConfigUtils {
      * @return The properties corresponding to the environment variables.
      */
     public static Map<String, String> environmentVariablesToPropertyMap() {
+        return environmentVariablesToPropertyMap(System.getenv());
+    }
+
+    public static Map<String, String> environmentVariablesToPropertyMap(Map<String, String> envVars) {
         final Map<String, String> result = new HashMap<>();
 
-        for (final Map.Entry<String, String> entry : System.getenv().entrySet()) {
+        for (final Map.Entry<String, String> entry : envVars.entrySet()) {
             final String convertedKey = convertKey(entry.getKey());
             if (convertedKey != null) {
                 // Known environment variable
