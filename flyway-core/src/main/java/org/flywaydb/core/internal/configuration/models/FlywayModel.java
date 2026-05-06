@@ -58,6 +58,7 @@ public class FlywayModel extends FlywayEnvironmentModel {
         model.setScriptPlaceholderSuffix("__");
         model.setSqlMigrationPrefix("V");
         model.setRepeatableSqlMigrationPrefix("R");
+        model.setUndoSqlMigrationPrefix("U");
         model.setSqlMigrationSeparator("__");
         model.setSqlMigrationSuffixes(Arrays.asList(".sql"));
         model.setCleanDisabled(true);

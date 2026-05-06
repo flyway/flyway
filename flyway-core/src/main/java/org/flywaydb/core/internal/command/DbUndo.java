@@ -1,3 +1,22 @@
+/*-
+ * ========================LICENSE_START=================================
+ * flyway-core
+ * ========================================================================
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
+ * ========================================================================
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * =========================LICENSE_END==================================
+ */
 package org.flywaydb.core.internal.command;
 
 import lombok.CustomLog;
@@ -51,6 +70,16 @@ public class DbUndo {
         this.connectionUserObjects = database.getMigrationConnection();
     }
 
+    /**
+     * Undoes the single most-recently applied versioned migration by executing its corresponding undo script.
+     * <p>
+     * This method undoes <strong>one migration per call</strong>. To roll back multiple versions, invoke undo
+     * repeatedly — checking schema state between calls — until {@code migrationsUndone == 0} or the desired
+     * target version is reached. There is no built-in atomic rollback to an arbitrary prior version.
+     * <p>
+     * A result with {@code migrationsUndone == 0} and {@code success == true} means no versioned migrations
+     * were found to undo (schema is already at baseline or empty).
+     */
     public UndoResult undo() throws FlywayException {
         callbackExecutor.onMigrateOrUndoEvent(Event.BEFORE_UNDO);
 
@@ -75,6 +104,10 @@ public class DbUndo {
     }
 
     private void doUndo(UndoResult result) {
+        // Uses MigrationVersion.LATEST (not configuration.getTarget()) so that undo always targets the
+        // current applied version regardless of the configured forward-migration target. outOfOrder=false
+        // and getIgnoreAllPattern() are intentional: undo must find the current tip cleanly without
+        // being confused by out-of-order or validation failures that are irrelevant for the undo path.
         MigrationInfoServiceImpl infoService = new MigrationInfoServiceImpl(
                 migrationResolver, schemaHistory, database, configuration,
                 MigrationVersion.LATEST, false, ValidatePatternUtils.getIgnoreAllPattern(), null);
@@ -90,6 +123,9 @@ public class DbUndo {
         }
 
         MigrationVersion targetVersion = target.getVersion();
+        LOG.info("Undoing one migration: schema " + schema + " is currently at version "
+                + targetVersion + " - " + target.getDescription());
+
         MigrationInfoImpl undoMigration = Arrays.stream(infoService.undo())
                 .filter(m -> m.getState() == MigrationState.AVAILABLE
                         && m.getVersion() != null
@@ -100,24 +136,9 @@ public class DbUndo {
         if (undoMigration == null) {
             throw new FlywayException(
                     "No undo script found for version " + targetVersion + " (" + target.getDescription() + ")."
-                    + " Create U" + targetVersion.getVersion() + "__"
+                    + " Create " + configuration.getUndoSqlMigrationPrefix() + targetVersion.getVersion() + "__"
                     + target.getDescription().replace(" ", "_") + ".sql");
         }
-
-        LOG.info("Undoing migration of schema " + schema + " to version \""
-                + targetVersion + " - " + target.getDescription() + "\"");
-
-        Context executionContext = new Context() {
-            @Override
-            public Configuration getConfiguration() {
-                return configuration;
-            }
-
-            @Override
-            public java.sql.Connection getConnection() {
-                return connectionUserObjects.getJdbcConnection();
-            }
-        };
 
         connectionUserObjects.restoreOriginalState();
         connectionUserObjects.changeCurrentSchemaTo(schema);
@@ -127,6 +148,7 @@ public class DbUndo {
         stopWatch.start();
 
         try {
+            Context executionContext = buildExecutionContext();
             if (executeInTransaction) {
                 ExecutionTemplateFactory.createExecutionTemplate(
                         connectionUserObjects.getJdbcConnection(), database).execute(() -> {
@@ -138,6 +160,7 @@ public class DbUndo {
             }
 
             stopWatch.stop();
+            // Cast is consistent with DbMigrate; truncates at ~24 days which is acceptable for migration durations.
             int executionTime = (int) stopWatch.getTotalTimeMillis();
 
             schemaHistory.addAppliedMigration(
@@ -191,5 +214,19 @@ public class DbUndo {
                     false);
             throw new FlywayException("Unable to undo migration to version " + targetVersion, e);
         }
+    }
+
+    private Context buildExecutionContext() {
+        return new Context() {
+            @Override
+            public Configuration getConfiguration() {
+                return configuration;
+            }
+
+            @Override
+            public java.sql.Connection getConnection() {
+                return connectionUserObjects.getJdbcConnection();
+            }
+        };
     }
 }

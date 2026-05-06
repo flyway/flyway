@@ -1107,6 +1107,17 @@ public class ClassicConfiguration implements Configuration {
     }
 
     @Override
+    public String getUndoSqlMigrationPrefix() {
+        return getEnvironmentOverrides().getUndoSqlMigrationPrefix() != null
+            ? getEnvironmentOverrides().getUndoSqlMigrationPrefix()
+            : getModernFlyway().getUndoSqlMigrationPrefix();
+    }
+
+    public void setUndoSqlMigrationPrefix(final String undoSqlMigrationPrefix) {
+        getModernFlyway().setUndoSqlMigrationPrefix(undoSqlMigrationPrefix);
+    }
+
+    @Override
     public String getSqlMigrationSeparator() {
         return getEnvironmentOverrides().getSqlMigrationSeparator() != null
             ? getEnvironmentOverrides().getSqlMigrationSeparator()
@@ -1847,6 +1858,10 @@ public class ClassicConfiguration implements Configuration {
         final String repeatableSqlMigrationPrefixProp = props.remove(ConfigUtils.REPEATABLE_SQL_MIGRATION_PREFIX);
         if (repeatableSqlMigrationPrefixProp != null) {
             setRepeatableSqlMigrationPrefix(repeatableSqlMigrationPrefixProp);
+        }
+        final String undoSqlMigrationPrefixProp = props.remove(ConfigUtils.UNDO_SQL_MIGRATION_PREFIX);
+        if (undoSqlMigrationPrefixProp != null) {
+            setUndoSqlMigrationPrefix(undoSqlMigrationPrefixProp);
         }
         final String sqlMigrationSeparatorProp = props.remove(ConfigUtils.SQL_MIGRATION_SEPARATOR);
         if (sqlMigrationSeparatorProp != null) {

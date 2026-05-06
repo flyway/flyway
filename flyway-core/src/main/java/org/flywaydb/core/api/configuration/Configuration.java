@@ -198,6 +198,17 @@ public interface Configuration {
     String getRepeatableSqlMigrationPrefix();
 
     /**
+     * Retrieves the file name prefix for undo SQL migrations.
+     * Undo SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
+     * which using the defaults translates to U1__My_description.sql
+     *
+     * @return The file name prefix for undo sql migrations. (default: U)
+     */
+    default String getUndoSqlMigrationPrefix() {
+        return "U";
+    }
+
+    /**
      * Retrieves the file name separator for sql migrations.
      * SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
      * which using the defaults translates to V1_1__My_description.sql

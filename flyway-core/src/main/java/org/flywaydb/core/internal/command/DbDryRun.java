@@ -1,6 +1,26 @@
+/*-
+ * ========================LICENSE_START=================================
+ * flyway-core
+ * ========================================================================
+ * Copyright (C) 2010 - 2026 Red Gate Software Ltd
+ * ========================================================================
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * =========================LICENSE_END==================================
+ */
 package org.flywaydb.core.internal.command;
 
 import lombok.CustomLog;
+import org.flywaydb.core.api.CoreMigrationType;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationVersion;
@@ -24,7 +44,10 @@ import java.util.Set;
 @CustomLog
 public class DbDryRun {
 
-    private static final Set<String> SQL_TYPES = Set.of("SQL", "UNDO_SCRIPT", "SCRIPT");
+    // UNDO_SCRIPT is excluded intentionally: undo scripts are never pending in a forward-migration dry run.
+    private static final Set<String> SQL_TYPES = Set.of(
+            CoreMigrationType.SQL.toString(),
+            CoreMigrationType.SCRIPT.toString());
 
     private final Database database;
     private final SchemaHistory schemaHistory;
@@ -47,6 +70,9 @@ public class DbDryRun {
                 database.getCatalog(),
                 String.join(", ", configuration.getSchemas()));
 
+        // Dry run is intentionally not schema-locked: it is a read-only preview and does not modify schema
+        // history. A concurrent migration could apply between the info-service snapshot and the result being
+        // returned, but that is acceptable — the caller should treat this output as advisory, not definitive.
         MigrationInfoServiceImpl infoService = new MigrationInfoServiceImpl(
                 migrationResolver, schemaHistory, database, configuration,
                 configuration.getTarget(), configuration.isOutOfOrder(),
@@ -81,7 +107,6 @@ public class DbDryRun {
             result.pendingMigrations.add(new DryRunOutput(version, description, type, filepath, sqlContent));
         }
 
-        result.migrationCount = result.pendingMigrations.size();
         return result;
     }
 
@@ -89,8 +114,15 @@ public class DbDryRun {
         if (!SQL_TYPES.contains(type) || filepath.isEmpty()) {
             return null;
         }
+        Path path = Path.of(filepath);
+        if (!path.isAbsolute()) {
+            // Classpath-embedded resources (e.g. "classpath:db/migration/V1__Init.sql") do not resolve to
+            // a filesystem path. Skip rather than throwing an opaque IOException.
+            LOG.debug("Skipping SQL content read for non-filesystem path: " + filepath);
+            return null;
+        }
         try {
-            return Files.readString(Path.of(filepath));
+            return Files.readString(path);
         } catch (IOException e) {
             LOG.warn("Could not read SQL content from " + filepath + ": " + e.getMessage());
             return null;
