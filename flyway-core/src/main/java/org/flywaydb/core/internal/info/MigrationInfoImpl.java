@@ -158,6 +158,10 @@ public class MigrationInfoImpl implements MigrationInfo {
 
 
 
+            if (resolvedMigration.getType().isUndo()) {
+                return MigrationState.AVAILABLE;
+            }
+
             if (shouldNotExecuteMigration) {
                 return MigrationState.IGNORED;
             }

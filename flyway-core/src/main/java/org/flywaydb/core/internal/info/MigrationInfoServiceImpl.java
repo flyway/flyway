@@ -183,6 +183,10 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         for (AppliedMigration appliedMigration : appliedMigrations) {
             appliedMigration.updateAttributes(appliedVersionedMigrations);
 
+            if (appliedMigration.getType().isUndo()) {
+                continue;
+            }
+
             MigrationVersion version = appliedMigration.getVersion();
             if (version == null) {
                 continue;

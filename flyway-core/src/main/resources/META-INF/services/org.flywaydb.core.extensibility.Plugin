@@ -27,3 +27,7 @@ org.flywaydb.core.internal.scanner.classpath.ClasspathLocationHandlerImpl
 org.flywaydb.core.internal.scanner.filesystem.FilesystemLocationHandler
 org.flywaydb.core.internal.NullFlywayTelemetryManager
 org.flywaydb.core.internal.jdbc.ErrorOverrideInitializerStub
+org.flywaydb.core.internal.resource.UndoResourceTypeProvider
+org.flywaydb.core.internal.resolver.sql.UndoSqlMigrationResolver
+org.flywaydb.core.internal.command.UndoCommandExtension
+org.flywaydb.core.internal.command.DryRunCommandExtension
