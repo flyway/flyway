@@ -1132,6 +1132,17 @@
                 <exclude>**/*_BOM.sql</exclude>
                 <exclude>**/assets/report/**</exclude>
                 <exclude>**/afterMigrate__fix_invalid_objects.sql</exclude>
+                <!-- Payroc-authored files: no Red Gate copyright -->
+                <exclude>**/internal/command/DbDryRun.java</exclude>
+                <exclude>**/internal/command/DbUndo.java</exclude>
+                <exclude>**/internal/command/DryRunCommandExtension.java</exclude>
+                <exclude>**/internal/command/UndoCommandExtension.java</exclude>
+                <exclude>**/api/output/DryRunOutput.java</exclude>
+                <exclude>**/api/output/DryRunResult.java</exclude>
+                <exclude>**/api/output/UndoOutput.java</exclude>
+                <exclude>**/api/output/UndoResult.java</exclude>
+                <exclude>**/internal/resolver/sql/UndoSqlMigrationResolver.java</exclude>
+                <exclude>**/internal/resource/UndoResourceTypeProvider.java</exclude>
               </excludes>
             </configuration>
           </plugin>
