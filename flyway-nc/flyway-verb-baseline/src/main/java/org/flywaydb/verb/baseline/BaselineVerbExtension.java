@@ -55,7 +55,7 @@ public class BaselineVerbExtension extends CachingVerbExtension {
     public OperationResult executeVerb(final Configuration configuration) {
         final PreparationContext context = PreparationContext.get(configuration, cached);
         final NativeConnectorsDatabase database = context.getDatabase();
-        final CallbackManager callbackManager = new CallbackManager(configuration, context.getCallbackResources());
+        final CallbackManager callbackManager = new CallbackManager(configuration, context.getCallbackResources(), Event::fromId);
 
         final BaselineResult baselineResult = new BaselineResult(VersionPrinter.getVersion(),
             database.getDatabaseMetaData().databaseName());

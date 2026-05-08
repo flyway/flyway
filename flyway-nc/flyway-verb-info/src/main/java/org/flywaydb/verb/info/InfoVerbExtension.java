@@ -51,7 +51,7 @@ public class InfoVerbExtension implements VerbExtension {
         final PreparationContext context = PreparationContext.get(configuration, false);
 
         final NativeConnectorsDatabase<?> database = context.getDatabase();
-        final CallbackManager callbackManager = new CallbackManager(configuration, context.getCallbackResources());
+        final CallbackManager callbackManager = new CallbackManager(configuration, context.getCallbackResources(), Event::fromId);
 
         callbackManager.handleEvent(Event.BEFORE_INFO, database, configuration, context.getParsingContext());
 

@@ -26,14 +26,14 @@ import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
 
 public class ExecutableExecutor implements Executor<NonJdbcExecutorExecutionUnit, NativeConnectorsDatabase> {
     @Override
-    public void execute(final NativeConnectorsDatabase experimentalDatabase,
+    public void execute(final NativeConnectorsDatabase database,
         final NonJdbcExecutorExecutionUnit executionUnit,
         final Configuration configuration) {
-        experimentalDatabase.doExecute(executionUnit, configuration.isOutputQueryResults());
+        database.doExecute(executionUnit, configuration.isOutputQueryResults());
     }
 
     @Override
-    public void finishExecution(final NativeConnectorsDatabase experimentalDatabase, final Configuration configuration) {
+    public void finishExecution(final NativeConnectorsDatabase database, final Configuration configuration) {
 
     }
 

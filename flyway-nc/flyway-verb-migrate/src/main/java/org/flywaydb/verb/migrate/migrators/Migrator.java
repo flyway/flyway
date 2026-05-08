@@ -37,13 +37,13 @@ public abstract class Migrator <DB extends NativeConnectorsDatabase> {
 
     public abstract List<MigrationExecutionGroup> createGroups(final MigrationInfo[] allPendingMigrations,
         final Configuration configuration,
-        final DB experimentalDatabase,
+        final DB database,
         final MigrateResult migrateResult,
         final ParsingContext parsingContext);
 
     public abstract int doExecutionGroup(final Configuration configuration,
         final MigrationExecutionGroup executionGroup,
-        final DB experimentalDatabase,
+        final DB database,
         final MigrateResult migrateResult,
         final ParsingContext parsingContext,
         final int installedRank,
@@ -54,7 +54,7 @@ public abstract class Migrator <DB extends NativeConnectorsDatabase> {
         final MigrationInfo migrationInfo,
         final int totalTimeMillis,
         final int installedRank,
-        final DB experimentalDatabase,
+        final DB database,
         final String installedBy,
         final boolean success) {
         final SchemaHistoryItemBuilder schemaHistoryItem = SchemaHistoryItem.builder()
@@ -69,6 +69,6 @@ public abstract class Migrator <DB extends NativeConnectorsDatabase> {
         if (migrationInfo.isVersioned()) {
             schemaHistoryItem.version(migrationInfo.getVersion().getVersion());
         }
-        experimentalDatabase.appendSchemaHistoryItem(schemaHistoryItem.build(), tableName);
+        database.appendSchemaHistoryItem(schemaHistoryItem.build(), tableName);
     }
 }

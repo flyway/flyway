@@ -17,7 +17,7 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.authentication.mysql;
+package org.flywaydb.database.mysql.authentication;
 
 import lombok.CustomLog;
 import org.flywaydb.core.internal.authentication.ExternalAuthFileReader;

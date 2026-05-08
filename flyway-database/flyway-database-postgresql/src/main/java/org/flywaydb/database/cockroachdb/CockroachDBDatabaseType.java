@@ -21,7 +21,7 @@ package org.flywaydb.database.cockroachdb;
 
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.authentication.postgres.PgpassFileReader;
+import org.flywaydb.database.postgresql.authentication.PgpassFileReader;
 
 import org.flywaydb.core.internal.database.DatabaseExecutionStrategy;
 import org.flywaydb.core.internal.database.DefaultExecutionStrategy;

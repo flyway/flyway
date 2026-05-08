@@ -67,8 +67,8 @@ public class VerbUtils {
     }
 
     public static SchemaHistoryModel getSchemaHistoryModel(final Configuration configuration,
-        final NativeConnectorsDatabase experimentalDatabase) {
-        return experimentalDatabase.getSchemaHistoryModel(configuration.getTable());
+        final NativeConnectorsDatabase database) {
+        return database.getSchemaHistoryModel(configuration.getTable());
     }
 
     public static NativeConnectorsDatabase getNativeConnectorsDatabase(final Configuration configuration) throws SQLException {

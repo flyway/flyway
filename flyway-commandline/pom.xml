@@ -4,13 +4,13 @@
   <parent>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>12.5.0</version>
+    <version>12.6.0</version>
   </parent>
   <artifactId>flyway-commandline</artifactId>
   <packaging>jar</packaging>
   <name>${project.artifactId}</name>
   <properties>
-    <jre.version>25.0.2+10</jre.version>
+    <jre.version>25.0.3+9</jre.version>
   </properties>
 
   <dependencies>
@@ -270,7 +270,7 @@
     <dependency>
       <groupId>com.databricks</groupId>
       <artifactId>databricks-jdbc</artifactId>
-      <version>3.0.1</version>
+      <version>3.3.3</version>
       <scope>runtime</scope>
     </dependency>
     <!-- #2136: JNA is required for MariaDB with unix sockets -->
@@ -541,7 +541,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-dependency-plugin</artifactId>
-            <version>3.5.0</version>
             <executions>
               <execution>
                 <id>download-mssql-jdbc_auth</id>
@@ -574,7 +573,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
-            <version>3.1.0</version>
             <executions>
               <execution>
                 <id>unpack-jres</id>
@@ -606,7 +604,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-assembly-plugin</artifactId>
-            <version>3.5.0</version>
             <executions>
               <execution>
                 <id>nojre-assembly</id>
@@ -658,7 +655,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
-            <version>3.1.0</version>
             <executions>
               <execution>
                 <id>unpack-jres</id>
@@ -678,7 +674,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-assembly-plugin</artifactId>
-            <version>3.5.0</version>
             <executions>
               <execution>
                 <id>jre-assemblies</id>
@@ -713,7 +708,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
-            <version>3.1.0</version>
             <executions>
               <execution>
                 <id>unpack-jres</id>
@@ -734,7 +728,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-assembly-plugin</artifactId>
-            <version>3.5.0</version>
             <executions>
               <execution>
                 <id>jre-assemblies</id>
@@ -769,7 +762,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
-            <version>3.1.0</version>
             <executions>
               <execution>
                 <id>unpack-jres</id>
@@ -790,7 +782,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-assembly-plugin</artifactId>
-            <version>3.5.0</version>
             <executions>
               <execution>
                 <id>jre-assemblies</id>
@@ -825,7 +816,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
-            <version>3.1.0</version>
             <executions>
               <execution>
                 <id>unpack-jres</id>
@@ -846,7 +836,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-assembly-plugin</artifactId>
-            <version>3.5.0</version>
             <executions>
               <execution>
                 <id>jre-assemblies</id>
@@ -875,7 +864,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-assembly-plugin</artifactId>
-            <version>3.5.0</version>
             <executions>
               <execution>
                 <id>nojre-assembly</id>

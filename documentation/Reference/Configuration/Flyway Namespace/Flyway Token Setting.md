@@ -6,7 +6,7 @@ redirect_from: Configuration/token/
 ## Description
 
 A personal access token (PAT) to be used in conjunction with the [`email`](<Configuration/Flyway Namespace/Flyway Email Setting>)
-configuration parameter. This is used to license Flyway to access Teams or Enterprise features.
+configuration parameter. This is used to license Flyway to access Enterprise features.
 
 You should treat the token like a password and it should **not** be stored directly in your code repository. Use of a secrets manager or environment variable are much safer solutions.
 

@@ -181,7 +181,7 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:com.couchbase.client:java-client
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.databricks:databricks-jdbc 3.0.1
+com.databricks:databricks-jdbc 3.3.3
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.databricks:databricks-jdbc:Apache-2.0
 
@@ -1097,175 +1097,175 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:io.grpc:grpc-xds:Apache-2.0
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-buffer 4.2.12.Final
+io.netty:netty-buffer 4.2.13.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-buffer:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-codec 4.2.12.Final
+io.netty:netty-codec 4.2.13.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-codec:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-codec-base 4.2.12.Final
+io.netty:netty-codec-base 4.2.13.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-codec-base:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-codec-compression 4.2.12.Final
+io.netty:netty-codec-compression 4.2.13.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-codec-compression:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-codec-dns 4.2.12.Final
+io.netty:netty-codec-dns 4.2.13.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-codec-dns:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-codec-http 4.2.12.Final
+io.netty:netty-codec-http 4.2.13.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-codec-http:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-codec-http2 4.2.12.Final
+io.netty:netty-codec-http2 4.2.13.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-codec-http2:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-codec-marshalling 4.2.12.Final
+io.netty:netty-codec-marshalling 4.2.13.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-codec-marshalling:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-codec-protobuf 4.2.12.Final
+io.netty:netty-codec-protobuf 4.2.13.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-codec-protobuf:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-codec-socks 4.2.12.Final
+io.netty:netty-codec-socks 4.2.13.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-codec-socks:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-common 4.2.12.Final
+io.netty:netty-common 4.2.13.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-common:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-handler 4.2.12.Final
+io.netty:netty-handler 4.2.13.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-handler:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-handler-proxy 4.2.12.Final
+io.netty:netty-handler-proxy 4.2.13.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-handler-proxy:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-resolver 4.2.12.Final
+io.netty:netty-resolver 4.2.13.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-resolver:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-resolver-dns 4.2.12.Final
+io.netty:netty-resolver-dns 4.2.13.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-resolver-dns:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-resolver-dns-classes-macos 4.2.12.Final
+io.netty:netty-resolver-dns-classes-macos 4.2.13.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-resolver-dns-classes-macos:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-resolver-dns-native-macos 4.2.12.Final
+io.netty:netty-resolver-dns-native-macos 4.2.13.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-resolver-dns-native-macos:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-tcnative-boringssl-static 2.0.75.Final
+io.netty:netty-tcnative-boringssl-static 2.0.77.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-tcnative-boringssl-static:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-tcnative-classes 2.0.75.Final
+io.netty:netty-tcnative-classes 2.0.77.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-tcnative-classes:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-transport 4.2.12.Final
+io.netty:netty-transport 4.2.13.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-transport:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-transport-classes-epoll 4.2.12.Final
+io.netty:netty-transport-classes-epoll 4.2.13.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-transport-classes-epoll:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-transport-classes-kqueue 4.2.12.Final
+io.netty:netty-transport-classes-kqueue 4.2.13.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-transport-classes-kqueue:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-transport-native-epoll 4.2.12.Final
+io.netty:netty-transport-native-epoll 4.2.13.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-transport-native-epoll:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-transport-native-kqueue 4.2.12.Final
+io.netty:netty-transport-native-kqueue 4.2.13.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-transport-native-kqueue:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-transport-native-unix-common 4.2.12.Final
+io.netty:netty-transport-native-unix-common 4.2.13.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-transport-native-unix-common:Apache-2.0
 
@@ -2334,7 +2334,7 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:org.ow2.asm:asm-util:BSD-3-Claus
 <license-texts/BSD-3-Clause-0.txt>
 -------------------------------------
 -------------------------------------
-org.postgresql:postgresql 42.7.2
+org.postgresql:postgresql 42.7.11
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.postgresql:postgresql:BSD-2-Clause
 

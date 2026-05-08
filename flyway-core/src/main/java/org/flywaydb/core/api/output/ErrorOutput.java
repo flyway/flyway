@@ -29,6 +29,7 @@ import org.flywaydb.core.api.output.errors.FaultToErrorObjectConverter;
 import org.flywaydb.core.api.output.errors.FlywayExceptionToErrorObjectConverter;
 import org.flywaydb.core.api.output.errors.FlywayMigrateExceptionToErrorObjectConverter;
 import org.flywaydb.core.api.output.errors.FlywaySqlExceptionToErrorObjectConverter;
+import org.flywaydb.core.api.output.errors.ObsoleteConfigurationParametersExceptionToErrorObjectConverter;
 import org.flywaydb.core.internal.exception.FlywayMigrateException;
 import org.flywaydb.core.internal.plugin.PluginRegister;
 
@@ -37,6 +38,7 @@ public record ErrorOutput(ErrorOutputItem error) implements OperationResult {
     private static final Collection<ExceptionToErrorObjectConverter<? extends Exception, ? extends ErrorOutputItem>> CORE_ERROR_OBJECT_CONVERTERS = List.of(
         new FlywayMigrateExceptionToErrorObjectConverter(),
         new FlywaySqlExceptionToErrorObjectConverter(),
+        new ObsoleteConfigurationParametersExceptionToErrorObjectConverter(),
         new FlywayExceptionToErrorObjectConverter());
 
     public static ErrorOutput fromException(final Exception exception) {

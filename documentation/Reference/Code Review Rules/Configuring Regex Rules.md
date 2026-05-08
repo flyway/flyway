@@ -7,9 +7,8 @@ Defining and configuring rules with a regular expression is a relatively simple 
 
 Rules are defined as text files with various fields defined in each file using  [TOML](https://toml.io/en/) format. It is limited in capability as a regex is a text pattern matching process, it has no awareness of the structure and semantics of the code being analyzed. As such it is best for simple patterns and checks.
 
-Flyway ships with a set of default rules in the `rules/` folder of the Flyway installation. In order to turn this into a project policy we recommend putting a copy of these rules under version control for your project and directing Flyway where to find these. You can use the [`rulesLocation`](<configuration/flyway namespace/flyway check namespace/flyway check rules location setting>) parameter to direct Flyway.
-
-If you want to add more rules it is a matter of creating new files following the same structure outlined below.
+- You can use the [`rulesLocation`](<configuration/flyway namespace/flyway check namespace/flyway check rules location setting>) parameter to direct Flyway.
+- If you want to add rules it is a matter of creating new files following the structure outlined below.
 
 ## Configuration
 For purposes of setting policy, all you need to do is change the `severity` file in each rule.

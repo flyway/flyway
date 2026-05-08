@@ -56,7 +56,7 @@ public class ApiMigrator extends Migrator<NativeConnectorsNonJdbc> {
     @Override
     public List<MigrationExecutionGroup> createGroups(final MigrationInfo[] allPendingMigrations,
         final Configuration configuration,
-        final NativeConnectorsNonJdbc experimentalDatabase,
+        final NativeConnectorsNonJdbc database,
         final MigrateResult migrateResult,
         final ParsingContext parsingContext) {
         final List<MigrationInfo> currentGroup = Arrays.asList(allPendingMigrations);
@@ -81,7 +81,7 @@ public class ApiMigrator extends Migrator<NativeConnectorsNonJdbc> {
                     throw new FlywayMigrateException(migrationInfo,
                         "Detected both transactional and non-transactional migrations within the same migration group"
                             + " (even though mixed is false). First offending migration: "
-                            + experimentalDatabase.doQuote((migrationInfo.isVersioned() ? migrationInfo.getVersion()
+                            + database.doQuote((migrationInfo.isVersioned() ? migrationInfo.getVersion()
                             .getVersion() : "") + (StringUtils.hasLength(migrationInfo.getDescription()) ? " "
                             + migrationInfo.getDescription() : ""))
                             + (shouldExecuteMigrationInTransaction ? "" : " [non-transactional]"),
@@ -101,7 +101,7 @@ public class ApiMigrator extends Migrator<NativeConnectorsNonJdbc> {
     @Override
     public int doExecutionGroup(final Configuration configuration,
         final MigrationExecutionGroup executionGroup,
-        final NativeConnectorsNonJdbc experimentalDatabase,
+        final NativeConnectorsNonJdbc database,
         final MigrateResult migrateResult,
         final ParsingContext parsingContext,
         final int installedRank,
@@ -110,15 +110,14 @@ public class ApiMigrator extends Migrator<NativeConnectorsNonJdbc> {
         int rank = installedRank;
         final boolean executeInTransaction = executionGroup.shouldExecuteInTransaction();
         if (executeInTransaction) {
-            experimentalDatabase.startTransaction();
+            database.startTransaction();
         }
 
         Iterator<MigrationInfo> it = executionGroup.migrations().iterator();
         while (it.hasNext()) {
             MigrationInfo migrationInfo = it.next();
             boolean isLast = !it.hasNext();
-            doIndividualMigration(migrationInfo,
-                experimentalDatabase,
+            doIndividualMigration(migrationInfo, database,
                 configuration,
                 migrateResult,
                 rank,
@@ -130,13 +129,13 @@ public class ApiMigrator extends Migrator<NativeConnectorsNonJdbc> {
             rank++;
         }
         if (executeInTransaction) {
-            experimentalDatabase.commitTransaction();
+            database.commitTransaction();
         }
         return rank;
     }
 
     private void doIndividualMigration(final MigrationInfo migrationInfo,
-        final NativeConnectorsNonJdbc experimentalDatabase,
+        final NativeConnectorsNonJdbc database,
         final Configuration configuration,
         final MigrateResult migrateResult,
         final int installedRank,
@@ -152,11 +151,11 @@ public class ApiMigrator extends Migrator<NativeConnectorsNonJdbc> {
             && configuration.isOutOfOrder();
         final String migrationText = toMigrationText(migrationInfo,
             executeInTransaction,
-            experimentalDatabase,
+            database,
             outOfOrder);
-        final Executor<NonJdbcExecutorExecutionUnit, NativeConnectorsNonJdbc> executor = ExecutorFactory.getExecutor(experimentalDatabase,
+        final Executor<NonJdbcExecutorExecutionUnit, NativeConnectorsNonJdbc> executor = ExecutorFactory.getExecutor(database,
             configuration);
-        final Reader<NonJdbcExecutorExecutionUnit> reader = ReaderFactory.getReader(experimentalDatabase, configuration);
+        final Reader<NonJdbcExecutorExecutionUnit> reader = ReaderFactory.getReader(database, configuration);
 
         try {
             if (configuration.isSkipExecutingMigrations()) {
@@ -167,7 +166,7 @@ public class ApiMigrator extends Migrator<NativeConnectorsNonJdbc> {
                 progress.log("Starting migration of " + migrationInfo.getScript() + " ...");
                 final Event beforeEach = migrationInfo.getType().isUndo() ? Event.BEFORE_EACH_UNDO : Event.BEFORE_EACH_MIGRATE;
                 callbackManager.handleEvent(beforeEach,
-                    experimentalDatabase,
+                    database,
                     configuration,
                     parsingContext);
                 if (!migrationInfo.getType().isUndo()) {
@@ -179,7 +178,7 @@ public class ApiMigrator extends Migrator<NativeConnectorsNonJdbc> {
 
                 if (migrationInfo instanceof final LoadableMigrationInfo loadableMigrationInfo) {
                     reader.read(configuration,
-                        experimentalDatabase,
+                        database,
                         parsingContext,
                         loadableMigrationInfo.getLoadableResource(),
                         null).forEach(unit -> {
@@ -188,16 +187,16 @@ public class ApiMigrator extends Migrator<NativeConnectorsNonJdbc> {
                                 unit.getContextPath(),
                                 unit.getEncoding(),
                                 executeInTransaction);
-                            executor.execute(experimentalDatabase, nonJdbcExecutorExecutionUnit, configuration);
+                            executor.execute(database, nonJdbcExecutorExecutionUnit, configuration);
                         });
                     if(isLast) {
-                        executor.finishExecution(experimentalDatabase, configuration);
+                        executor.finishExecution(database, configuration);
                     }
                 }
 
                 final Event afterEach = migrationInfo.getType().isUndo() ? Event.AFTER_EACH_UNDO : Event.AFTER_EACH_MIGRATE;
                 callbackManager.handleEvent(afterEach,
-                    experimentalDatabase,
+                    database,
                     configuration,
                     parsingContext);
             }
@@ -205,7 +204,7 @@ public class ApiMigrator extends Migrator<NativeConnectorsNonJdbc> {
             watch.stop();
             final int totalTimeMillis = (int) watch.getTotalTimeMillis();
             handleMigrationError(e,
-                experimentalDatabase,
+                database,
                 migrationInfo,
                 migrateResult, installedRank, executeInTransaction,
                 totalTimeMillis,
@@ -228,20 +227,20 @@ public class ApiMigrator extends Migrator<NativeConnectorsNonJdbc> {
             migrationInfo,
             totalTimeMillis,
             installedRank,
-            experimentalDatabase,
-            experimentalDatabase.getInstalledBy(configuration),
+            database,
+            database.getInstalledBy(configuration),
             true);
     }
 
     private void handleMigrationError(final Exception e,
-        final NativeConnectorsNonJdbc experimentalDatabase,
+        final NativeConnectorsNonJdbc database,
         final MigrationInfo migrationInfo,
         final MigrateResult migrateResult, final int installedRank, final boolean executeInTransaction,
         final int totalTimeMillis, final Configuration configuration, final ParsingContext context,
         final CallbackManager callbackManager) {
         final String migrationText = toMigrationText(migrationInfo,
             executeInTransaction,
-            experimentalDatabase,
+            database,
             configuration.isOutOfOrder());
         final String failedMsg;
         if (!migrationInfo.getType().isUndo()) {
@@ -250,7 +249,7 @@ public class ApiMigrator extends Migrator<NativeConnectorsNonJdbc> {
             failedMsg = "Undo of migration of " + migrationText + " failed!";
         }
 
-        if (executeInTransaction && experimentalDatabase.transactionAsBatch()) {
+        if (executeInTransaction && database.transactionAsBatch()) {
             LOG.warn("When running transactions in bulk, the reported failed migration may be incorrect. "
                 + "Flyway always flags the last migration in the bulk as failed");
         }
@@ -259,7 +258,7 @@ public class ApiMigrator extends Migrator<NativeConnectorsNonJdbc> {
         migrateResult.setSuccess(false);
 
         if (executeInTransaction) {
-            experimentalDatabase.rollbackTransaction();
+            database.rollbackTransaction();
             LOG.error(failedMsg + " Changes successfully rolled back.");
         } else {
             LOG.error(failedMsg + " Please restore backups and roll back database and code!");
@@ -267,14 +266,14 @@ public class ApiMigrator extends Migrator<NativeConnectorsNonJdbc> {
                 migrationInfo,
                 totalTimeMillis,
                 installedRank,
-                experimentalDatabase,
+                database,
                 configuration.getInstalledBy(),
                 false);
         }
 
         final Event afterEach = migrationInfo.getType().isUndo() ? Event.AFTER_EACH_UNDO_ERROR : Event.AFTER_EACH_MIGRATE_ERROR;
         callbackManager.handleEvent(afterEach,
-            experimentalDatabase,
+            database,
             configuration,
             context);
 

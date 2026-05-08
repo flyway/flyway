@@ -24,12 +24,12 @@ import org.flywaydb.core.extensibility.Plugin;
 
 public interface Executor<T,  DB extends NativeConnectorsDatabase> extends Plugin {
 
-    void execute(DB experimentalDatabase, T executionUnit, Configuration configuration);
+    void execute(DB database, T executionUnit, Configuration configuration);
 
     boolean canExecute(ConnectionType connectionType);
 
     void appendErrorMessage(T executionUnit, StringBuilder messageBuilder, boolean isDebugEnabled);
 
-    void finishExecution(DB experimentalDatabase, Configuration configuration);
+    void finishExecution(DB database, Configuration configuration);
 }
 

@@ -23,6 +23,7 @@ import static org.flywaydb.core.internal.database.base.DatabaseConstants.DATABAS
 import static org.flywaydb.core.internal.database.base.DatabaseConstants.DATABASE_HOSTING_RDS_URL_IDENTIFIER;
 import static org.flywaydb.core.internal.util.FlywayDbWebsiteLinks.COMMUNITY_SUPPORT;
 
+import java.util.Locale;
 import lombok.CustomLog;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.Tier;
@@ -67,6 +68,7 @@ public class OracleDatabase extends Database<OracleConnection> {
 
     @Override
     public String getRawCreateScript(Table table, boolean baseline) {
+        final boolean synonymRequired = !table.getName().equals(table.getName().toUpperCase(Locale.ROOT));
         String tablespace = configuration.getTablespace() == null
                 ? ""
                 : " TABLESPACE \"" + configuration.getTablespace() + "\"";
@@ -86,7 +88,7 @@ public class OracleDatabase extends Database<OracleConnection> {
                 ")" + tablespace + ";\n" +
                 (baseline ? getBaselineStatement(table) + ";\n" : "") +
                 "CREATE INDEX \"" + table.getSchema().getName() + "\".\"" + table.getName() + "_s_idx\" ON " + table + " (\"success\") " + tablespace + ";\n" +
-                "CREATE SYNONYM " + table.getSchema() + "." + table.getName() + " for " + table + ";\n";
+                (synonymRequired ? "CREATE SYNONYM " + table.getSchema() + "." + table.getName() + " for " + table + ";\n" : "");
     }
 
     @Override

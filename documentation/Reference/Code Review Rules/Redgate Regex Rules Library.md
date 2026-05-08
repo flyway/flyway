@@ -3,6 +3,11 @@ subtitle: Redgate Regex Rules Library
 ---
 {% include enterprise.html %}
 
+
+These rules **were removed** from Flyway v12 and [replaced with SQLFluff rules](https://documentation.red-gate.com/flyway/flyway-blog/replacing-redgate-regex-rules-with-sqlfluff-rules). This page remains as a reference if you haven't yet upgraded to Flyway v12.
+
+The engine supporting Regex rules still exists as a customer extension point and you can find out how to create them [here](<Code Review Rules/Configuring Regex Rules>)
+
 {% include anchor.html link="RX001"%}
 # Rule: RX001 DROP TABLE 
 Dropping a table is likely to result in the loss of data so should be investigated before continuing.

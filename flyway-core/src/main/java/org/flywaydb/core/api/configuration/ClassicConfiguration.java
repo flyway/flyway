@@ -36,11 +36,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
@@ -84,15 +82,13 @@ import org.flywaydb.core.internal.configuration.resolvers.EnvironmentResolver;
 import org.flywaydb.core.internal.configuration.resolvers.PropertyResolver;
 import org.flywaydb.core.internal.configuration.resolvers.ProvisionerMode;
 import org.flywaydb.core.internal.jdbc.DriverDataSource;
-import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
 import org.flywaydb.core.internal.nc.NativeConnectorsModeUtils;
 import org.flywaydb.core.internal.plugin.PluginRegister;
-import org.flywaydb.core.internal.proprietaryInterfaces.CherryPickConfiguration;
+import org.flywaydb.core.internal.proprietaryStubs.CherryPickConfigurationExtensionStub;
 import org.flywaydb.core.internal.scanner.ClasspathClassScanner;
 import org.flywaydb.core.internal.scanner.ReadWriteLocationHandler;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.ExceptionUtils;
-import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.MergeUtils;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -1311,7 +1307,7 @@ public class ClassicConfiguration implements Configuration {
 
     @Override
     public MigrationPattern[] getCherryPick() {
-        final var patternsStub = pluginRegister.getInstanceOf(CherryPickConfiguration.class);
+        final var patternsStub = pluginRegister.getInstanceOf(CherryPickConfigurationExtensionStub.class);
         if (patternsStub == null) {
             LOG.debug("CherryPickConfigurationExtension not found");
             return null;

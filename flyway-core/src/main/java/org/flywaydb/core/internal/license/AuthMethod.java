@@ -19,9 +19,18 @@
  */
 package org.flywaydb.core.internal.license;
 
+import lombok.Getter;
+
+@Getter
 public enum AuthMethod {
-    NONE,
-    LICENSE_KEY,
-    ONLINE_AUTH,
-    OFFLINE_PERMIT
+    NONE(""),
+    LICENSE_KEY("Legacy License Key"),
+    ONLINE_AUTH("Online Authentication"),
+    OFFLINE_PERMIT("Offline Permit");
+
+    private final String displayName;
+
+    AuthMethod(final String displayName) {
+        this.displayName = displayName;
+    }
 }

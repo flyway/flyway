@@ -41,31 +41,31 @@ public class HybridMigrator extends Migrator<NativeConnectorsHybrid>{
     @Override
     public List<MigrationExecutionGroup> createGroups(final MigrationInfo[] allPendingMigrations,
         final Configuration configuration,
-        final NativeConnectorsHybrid experimentalDatabase,
+        final NativeConnectorsHybrid database,
         final MigrateResult migrateResult,
         final ParsingContext parsingContext) {
-        final Migrator migrator = getMigrator(experimentalDatabase);
+        final Migrator migrator = getMigrator(database);
         return migrator.createGroups(allPendingMigrations, configuration,
             migrator instanceof JdbcMigrator
-                ? experimentalDatabase.toNativeConnectorsJdbc()
-                : experimentalDatabase,
+                ? database.toNativeConnectorsJdbc()
+                : database,
             migrateResult, parsingContext);
     }
 
     @Override
     public int doExecutionGroup(final Configuration configuration,
         final MigrationExecutionGroup executionGroup,
-        final NativeConnectorsHybrid experimentalDatabase,
+        final NativeConnectorsHybrid database,
         final MigrateResult migrateResult,
         final ParsingContext parsingContext,
         final int installedRank,
         final CallbackManager callbackManager,
         final ProgressLogger progress) {
-        final Migrator migrator = getMigrator(experimentalDatabase);
+        final Migrator migrator = getMigrator(database);
         return migrator.doExecutionGroup(configuration, executionGroup,
             migrator instanceof JdbcMigrator
-                ? experimentalDatabase.toNativeConnectorsJdbc()
-                : experimentalDatabase,
+                ? database.toNativeConnectorsJdbc()
+                : database,
             migrateResult, parsingContext, installedRank, callbackManager, progress);
     }
 }

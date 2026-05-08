@@ -119,6 +119,10 @@ public class FlywayPermit implements Serializable {
                 + " by Redgate");
         }
 
+        if (authMethod != null && authMethod != AuthMethod.NONE) {
+            LOG.info("Licensed via: " + authMethod.getDisplayName());
+        }
+
         if (contractExpiry != null) {
             if ("Online User".equals(this.owner)) {
                 if (this.contractExpiry.getTime() == Long.MAX_VALUE) {

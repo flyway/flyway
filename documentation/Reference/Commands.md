@@ -10,7 +10,7 @@ Flyway provides a comprehensive set of commands to manage database migrations an
 | Command | Tier | Description |
 |---------|------|-------------|
 | [**Init**](<Commands/Init>) | Community | Initializes a new Flyway project with default configuration and folder structure |
-| [**Auth**](<Commands/Auth>) | Teams | Initiates license acquisition flow for Flyway Teams and Enterprise editions |
+| [**Auth**](<Commands/Auth>) | Enterprise | Initiates license acquisition flow for Flyway Enterprise editions |
 
 ## Migration Management
 *Core commands for applying and managing [database migrations](https://documentation.red-gate.com/fd/migrations-271585107.html)*

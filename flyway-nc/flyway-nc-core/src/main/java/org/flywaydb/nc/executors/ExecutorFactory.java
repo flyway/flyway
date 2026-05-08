@@ -26,9 +26,9 @@ import org.flywaydb.core.internal.nc.Executor;
 import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
 
 public class ExecutorFactory {
-    public static <T, DB extends NativeConnectorsDatabase> Executor<T, DB> getExecutor(final DB experimentalDatabase,
+    public static <T, DB extends NativeConnectorsDatabase> Executor<T, DB> getExecutor(final DB database,
         final Configuration configuration) {
-        final ConnectionType connectionType = experimentalDatabase.getDatabaseMetaData().connectionType();
+        final ConnectionType connectionType = database.getDatabaseMetaData().connectionType();
         return configuration.getPluginRegister()
             .getLicensedInstancesOf(Executor.class, configuration)
             .stream()

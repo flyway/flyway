@@ -207,7 +207,8 @@ public class CommandLineArguments {
     }
 
     private static String getTopNamespaceFromArg(final String arg) {
-        return arg.substring(1, arg.contains(".") && arg.indexOf(".") < arg.indexOf("=") ? arg.indexOf(".") : arg.indexOf("="));
+        return arg.substring(1,
+            arg.contains(".") && arg.indexOf(".") < arg.indexOf("=") ? arg.indexOf(".") : arg.indexOf("="));
     }
 
     private static boolean isConfigurationArg(final String arg) {
@@ -462,9 +463,32 @@ public class CommandLineArguments {
     }
 
     public Map<String, String> getConfiguration(final boolean isModernConfig) {
-        //scoped configuration processing.
-        boolean processingValid = true;
-        String validNamespace = "";
+        final String[] processedArgs = scopeParameters(args);
+
+        final List<String> rootNamespaces = Optional.ofNullable(pluginRegister)
+            .map(p -> p.getInstancesOf(ConfigurationExtension.class)
+                .stream()
+                .filter(c -> c.getNamespace().startsWith("\\"))
+                .map(c -> c.getNamespace().substring(1))
+                .toList())
+            .orElse(Collections.emptyList());
+
+        return Arrays.stream(processedArgs)
+            .filter(CommandLineArguments::isConfigurationArg)
+            .filter(arg -> !arg.startsWith("-" + CONFIG_FILES + "="))
+            .filter(arg -> !arg.startsWith("-" + CONFIG_FILE_ENCODING + "="))
+            .filter(arg -> !arg.startsWith("-environments."))
+            .filter(f -> !isConfigurationOptionCommandlineOnly(getConfigurationOptionNameFromArg(f)))
+            .collect(Collectors.toMap(p -> (Arrays.stream((EnvironmentModel.class).getDeclaredFields())
+                .anyMatch(x -> x.getName().equals(getConfigurationOptionNameFromArg(p))) && isModernConfig ?
+                "environments."
+                    + ClassicConfiguration.TEMP_ENVIRONMENT_NAME
+                    + "." : rootNamespaces.contains(getTopNamespaceFromArg(p)) ? "" : "flyway.")
+                + getConfigurationOptionNameFromArg(p), CommandLineArguments::parseConfigurationOptionValueFromArg));
+    }
+
+    private static String[] scopeParameters(final String[] args) {
+        String currentCommand = "";
         String currentFlag = "";
         final String[] processedArgs = new String[args.length];
         for (int i = 0; i < args.length; i++) {
@@ -472,61 +496,38 @@ public class CommandLineArguments {
             processedArgs[i] = arg;
 
             if (!arg.startsWith("-")) {
-                //it's a verb, lets set the namespace to this.
-                validNamespace = arg;
+                currentCommand = arg;
                 currentFlag = "";
             } else {
-                if (validNamespace.isEmpty()) {
+                if (currentCommand.isEmpty()) {
                     continue;
                 }
 
                 if (arg.contains("=")) {
-                    //it's a param, lets scope it.
-                    final String paramName = arg.substring(1, arg.contains("=") ? arg.indexOf("=") : arg.length());
-                    final String paramValue = arg.substring(arg.indexOf("=") + 1);
-                    if (paramName.contains(".") && !paramName.startsWith("environments.")) {
-                        //there's a `.` in this param name so likely namespaced so lets break out of the scoping and process as normal.
-                        processingValid = false;
-                        break;
-                    } else {
-                        final var paramsInNamespace = getParametersByNamespace(validNamespace);
-                        if (paramsInNamespace.contains(paramName)) {
-                            final String replacedParamName = "-" + validNamespace + "." + paramName;
-                            processedArgs[i] = replacedParamName + "=" + paramValue;
-                        } else if (!currentFlag.isEmpty() && paramsInNamespace.contains(currentFlag + "." + paramName)) {
-                            final String replacedParamName = "-"
-                                + validNamespace
-                                + "."
-                                + currentFlag
-                                + "."
-                                + paramName;
-                            processedArgs[i] = replacedParamName + "=" + paramValue;
-                        }
-                    }
+                    processedArgs[i] = scopeParameter(arg, currentCommand, currentFlag);
                 } else {
                     currentFlag = arg.substring(1);
                 }
             }
         }
+        return processedArgs;
+    }
 
-        final List<String> rootNamespaces = Optional.ofNullable(pluginRegister).map(p -> p.getInstancesOf(ConfigurationExtension.class)
-            .stream()
-            .filter(c -> c.getNamespace().startsWith("\\"))
-            .map(c -> c.getNamespace().substring(1))
-            .toList()).orElse(Collections.emptyList());
+    private static String scopeParameter(final String arg,
+        final String currentCommand,
+        final String currentFlag) {
+        final String paramName = arg.substring(1, arg.contains("=") ? arg.indexOf("=") : arg.length());
+        final String paramValue = arg.substring(arg.indexOf("=") + 1);
+        final var paramsInNamespace = getParametersByNamespace(currentCommand);
+        if (paramsInNamespace.contains(paramName)) {
+            final String replacedParamName = "-" + currentCommand + "." + paramName;
+            return replacedParamName + "=" + paramValue;
+        } else if (!currentFlag.isEmpty() && paramsInNamespace.contains(currentFlag + "." + paramName)) {
+            final String replacedParamName = "-" + currentCommand + "." + currentFlag + "." + paramName;
+            return replacedParamName + "=" + paramValue;
+        }
 
-        return Arrays.stream(processingValid ? processedArgs : args)
-            .filter(CommandLineArguments::isConfigurationArg)
-            .filter(arg -> !arg.startsWith("-" + CONFIG_FILES + "="))
-            .filter(arg -> !arg.startsWith("-" + CONFIG_FILE_ENCODING + "="))
-            .filter(arg -> !arg.startsWith("-environments."))
-            .filter(f -> !isConfigurationOptionCommandlineOnly(getConfigurationOptionNameFromArg(f)))
-            .collect(Collectors.toMap(p -> (Arrays.stream((EnvironmentModel.class).getDeclaredFields())
-                    .anyMatch(x -> x.getName().equals(getConfigurationOptionNameFromArg(p))) && isModernConfig ?
-                    "environments."
-                        + ClassicConfiguration.TEMP_ENVIRONMENT_NAME
-                        + "." : rootNamespaces.contains(getTopNamespaceFromArg(p)) ? "" : "flyway.") + getConfigurationOptionNameFromArg(p),
-                CommandLineArguments::parseConfigurationOptionValueFromArg));
+        return arg;
     }
 
     public Map<String, Map<String, String>> getEnvironmentConfiguration() {

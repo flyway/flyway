@@ -64,15 +64,15 @@ public class JdbcMigrator extends Migrator<NativeConnectorsJdbc> {
     @Override
     public List<MigrationExecutionGroup> createGroups(final MigrationInfo[] allPendingMigrations,
         final Configuration configuration,
-        final NativeConnectorsJdbc experimentalDatabase,
+        final NativeConnectorsJdbc database,
         final MigrateResult migrateResult,
         final ParsingContext parsingContext) {
-        if (experimentalDatabase.getDatabaseMetaData().connectionType() != ConnectionType.JDBC) {
+        if (database.getDatabaseMetaData().connectionType() != ConnectionType.JDBC) {
             return List.of(new MigrationExecutionGroup(List.of(allPendingMigrations), true));
         }
         final List<MigrationInfo> currentGroup = Arrays.asList(allPendingMigrations);
         final List<Pair<MigrationInfo, Boolean>> migrationTransactionPairs = currentGroup.stream()
-            .map(x -> Pair.of(x, shouldExecuteInTransaction(x, configuration, experimentalDatabase, parsingContext)))
+            .map(x -> Pair.of(x, shouldExecuteInTransaction(x, configuration, database, parsingContext)))
             .toList();
         if (!configuration.isGroup()) {
             return migrationTransactionPairs.stream()
@@ -92,7 +92,7 @@ public class JdbcMigrator extends Migrator<NativeConnectorsJdbc> {
                     throw new FlywayMigrateException(migrationInfo,
                         "Detected both transactional and non-transactional migrations within the same migration group"
                             + " (even though mixed is false). First offending migration: "
-                            + experimentalDatabase.doQuote((migrationInfo.isVersioned() ? migrationInfo.getVersion()
+                            + database.doQuote((migrationInfo.isVersioned() ? migrationInfo.getVersion()
                             .getVersion() : "") + (StringUtils.hasLength(migrationInfo.getDescription()) ? " "
                             + migrationInfo.getDescription() : ""))
                             + (shouldExecuteMigrationInTransaction ? "" : " [non-transactional]"),
@@ -107,16 +107,16 @@ public class JdbcMigrator extends Migrator<NativeConnectorsJdbc> {
                 .toList();
         }
 
-        if (experimentalDatabase.hasNonTransactionalStatements()) {
+        if (database.hasNonTransactionalStatements()) {
             final List<Pair<MigrationInfo, Boolean>> migrationContainsNonTransactionalStatements = currentGroup.stream()
                 .map(x -> Pair.of(x,
-                    containsNonTransactionalStatements(configuration, experimentalDatabase, x, parsingContext)))
+                    containsNonTransactionalStatements(configuration, database, x, parsingContext)))
                 .toList();
             for (final Pair<MigrationInfo, Boolean> pair : migrationContainsNonTransactionalStatements) {
                 final MigrationInfo migrationInfo = pair.getLeft();
                 if (migrationInfo instanceof final LoadableMigrationInfo loadableMigrationInfo) {
                     final boolean containsNonTransactionalStatements = containsNonTransactionalStatements(configuration,
-                        experimentalDatabase,
+                        database,
                         loadableMigrationInfo,
                         parsingContext);
                     if (containsNonTransactionalStatements) {
@@ -128,7 +128,7 @@ public class JdbcMigrator extends Migrator<NativeConnectorsJdbc> {
                         throw new FlywayMigrateException(migrationInfo,
                             "Detected both transactional and non-transactional migrations within the same migration group"
                                 + " (even though mixed is false). First offending migration: "
-                                + experimentalDatabase.doQuote((migrationInfo.isVersioned() ? migrationInfo.getVersion()
+                                + database.doQuote((migrationInfo.isVersioned() ? migrationInfo.getVersion()
                                 .getVersion() : "") + (StringUtils.hasLength(migrationInfo.getDescription()) ? " "
                                 + migrationInfo.getDescription() : ""))
                                 + (" [non-transactional]"),
@@ -145,7 +145,7 @@ public class JdbcMigrator extends Migrator<NativeConnectorsJdbc> {
     @Override
     public int doExecutionGroup(final Configuration configuration,
         final MigrationExecutionGroup executionGroup,
-        final NativeConnectorsJdbc experimentalDatabase,
+        final NativeConnectorsJdbc database,
         final MigrateResult migrateResult,
         final ParsingContext parsingContext,
         final int installedRank,
@@ -155,14 +155,13 @@ public class JdbcMigrator extends Migrator<NativeConnectorsJdbc> {
         int rank = installedRank;
         final boolean executeInTransaction = executionGroup.shouldExecuteInTransaction();
         if (executeInTransaction) {
-            experimentalDatabase.startTransaction();
+            database.startTransaction();
         }
         for (final MigrationInfo migrationInfo : executionGroup.migrations()) {
             if (!configuration.isMixed() && configuration.isExecuteInTransaction()) {
-                validateMixedStatements(configuration, experimentalDatabase, migrationInfo, parsingContext);
+                validateMixedStatements(configuration, database, migrationInfo, parsingContext);
             }
-            doIndividualMigration(migrationInfo,
-                experimentalDatabase,
+            doIndividualMigration(migrationInfo, database,
                 configuration,
                 migrateResult,
                 parsingContext,
@@ -173,13 +172,13 @@ public class JdbcMigrator extends Migrator<NativeConnectorsJdbc> {
             rank++;
         }
         if (executeInTransaction) {
-            experimentalDatabase.commitTransaction();
+            database.commitTransaction();
         }
         return rank;
     }
 
     private void doIndividualMigration(final MigrationInfo migrationInfo,
-        final NativeConnectorsJdbc experimentalDatabase,
+        final NativeConnectorsJdbc database,
         final Configuration configuration,
         final MigrateResult migrateResult,
         final ParsingContext parsingContext,
@@ -195,10 +194,10 @@ public class JdbcMigrator extends Migrator<NativeConnectorsJdbc> {
             && configuration.isOutOfOrder();
         final String migrationText = toMigrationText(migrationInfo,
             executeInTransaction,
-            experimentalDatabase,
+            database,
             outOfOrder);
-        final Executor<SqlStatement, NativeConnectorsJdbc> executor = ExecutorFactory.getExecutor(experimentalDatabase, configuration);
-        final Reader<SqlStatement> reader = ReaderFactory.getReader(experimentalDatabase, configuration);
+        final Executor<SqlStatement, NativeConnectorsJdbc> executor = ExecutorFactory.getExecutor(database, configuration);
+        final Reader<SqlStatement> reader = ReaderFactory.getReader(database, configuration);
 
         try {
             if (configuration.isSkipExecutingMigrations()) {
@@ -209,7 +208,7 @@ public class JdbcMigrator extends Migrator<NativeConnectorsJdbc> {
                 progress.log("Starting migration of " + migrationInfo.getScript() + " ...");
                 final Event beforeEach = migrationInfo.getType().isUndo() ? Event.BEFORE_EACH_UNDO : Event.BEFORE_EACH_MIGRATE;
                 callbackManager.handleEvent(beforeEach,
-                    experimentalDatabase,
+                    database,
                     configuration,
                     parsingContext);
                 if (!migrationInfo.getType().isUndo()) {
@@ -221,21 +220,21 @@ public class JdbcMigrator extends Migrator<NativeConnectorsJdbc> {
 
                 if (migrationInfo instanceof final LoadableMigrationInfo loadableMigrationInfo) {
                     final Stream<SqlStatement> executionUnits = reader.read(configuration,
-                        experimentalDatabase,
+                        database,
                         parsingContext,
                         loadableMigrationInfo.getLoadableResource(),
                         loadableMigrationInfo.getSqlScriptMetadata());
 
                     executionUnits.forEach(x -> {
                         sqlStatement.set(x);
-                        executor.execute(experimentalDatabase, x, configuration);
+                        executor.execute(database, x, configuration);
                     });
-                    executor.finishExecution(experimentalDatabase, configuration);
+                    executor.finishExecution(database, configuration);
                 }
 
                 final Event afterEach = migrationInfo.getType().isUndo() ? Event.AFTER_EACH_UNDO : Event.AFTER_EACH_MIGRATE;
                 callbackManager.handleEvent(afterEach,
-                    experimentalDatabase,
+                    database,
                     configuration,
                     parsingContext);
             }
@@ -243,7 +242,7 @@ public class JdbcMigrator extends Migrator<NativeConnectorsJdbc> {
             watch.stop();
             final int totalTimeMillis = (int) watch.getTotalTimeMillis();
             handleMigrationError(e,
-                experimentalDatabase,
+                database,
                 migrationInfo,
                 executor,
                 sqlStatement.get(),
@@ -268,17 +267,17 @@ public class JdbcMigrator extends Migrator<NativeConnectorsJdbc> {
             migrationInfo,
             totalTimeMillis,
             installedRank,
-            experimentalDatabase,
-            experimentalDatabase.getInstalledBy(configuration),
+            database,
+            database.getInstalledBy(configuration),
             true);
     }
 
     private boolean containsNonTransactionalStatements(final Configuration configuration,
-        final NativeConnectorsJdbc experimentalDatabase,
+        final NativeConnectorsJdbc database,
         final MigrationInfo migrationInfo,
         final ParsingContext parsingContext) {
         if (migrationInfo instanceof final LoadableMigrationInfo loadableMigrationInfo) {
-            try (final SqlStatementIterator sqlStatementIterator = getSqlStatementIterator(experimentalDatabase,
+            try (final SqlStatementIterator sqlStatementIterator = getSqlStatementIterator(database,
                 configuration,
                 loadableMigrationInfo,
                 parsingContext)) {
@@ -295,7 +294,7 @@ public class JdbcMigrator extends Migrator<NativeConnectorsJdbc> {
 
     private boolean shouldExecuteInTransaction(final MigrationInfo migrationInfo,
         final Configuration configuration,
-        final NativeConnectorsJdbc experimentalDatabase,
+        final NativeConnectorsJdbc database,
         final ParsingContext parsingContext) {
         if (migrationInfo instanceof final LoadableMigrationInfo loadableMigrationInfo) {
             if (loadableMigrationInfo.getSqlScriptMetadata() != null
@@ -304,22 +303,22 @@ public class JdbcMigrator extends Migrator<NativeConnectorsJdbc> {
             }
         }
         return configuration.isExecuteInTransaction() && !containsNonTransactionalStatements(configuration,
-            experimentalDatabase,
+            database,
             migrationInfo,
             parsingContext);
     }
 
-    private SqlStatementIterator getSqlStatementIterator(final NativeConnectorsJdbc experimentalDatabase,
+    private SqlStatementIterator getSqlStatementIterator(final NativeConnectorsJdbc database,
         final Configuration configuration,
         final LoadableMigrationInfo loadableMigrationInfo,
         final ParsingContext parsingContext) {
-        final Parser parser = (Parser) experimentalDatabase.getParser().apply(configuration, parsingContext);
+        final Parser parser = (Parser) database.getParser().apply(configuration, parsingContext);
         final SqlScriptMetadata metadata = loadableMigrationInfo.getSqlScriptMetadata();
         return parser.parse(loadableMigrationInfo.getLoadableResource(), metadata);
     }
 
     private void handleMigrationError(final FlywayException e,
-        final NativeConnectorsJdbc experimentalDatabase,
+        final NativeConnectorsJdbc database,
         final MigrationInfo migrationInfo,
         final Executor<SqlStatement, NativeConnectorsJdbc> executor,
         final SqlStatement sqlStatement,
@@ -333,7 +332,7 @@ public class JdbcMigrator extends Migrator<NativeConnectorsJdbc> {
 
         final String migrationText = toMigrationText(migrationInfo,
             executeInTransaction,
-            experimentalDatabase,
+            database,
             configuration.isOutOfOrder());
         final String failedMsg;
         if (!migrationInfo.getType().isUndo()) {
@@ -347,14 +346,14 @@ public class JdbcMigrator extends Migrator<NativeConnectorsJdbc> {
 
         final Event afterEach = migrationInfo.getType().isUndo() ? Event.AFTER_EACH_UNDO_ERROR : Event.AFTER_EACH_MIGRATE_ERROR;
         callbackManager.handleEvent(afterEach,
-            experimentalDatabase,
+            database,
             configuration,
             context);
 
         if (executeInTransaction) {
-            experimentalDatabase.rollbackTransaction();
+            database.rollbackTransaction();
         }
-        if (experimentalDatabase.supportsTransactions() && executeInTransaction) {
+        if (database.supportsTransactions() && executeInTransaction) {
             LOG.error(failedMsg + " Changes successfully rolled back.");
         } else {
             LOG.error(failedMsg + " Please restore backups and roll back database and code!");
@@ -362,8 +361,8 @@ public class JdbcMigrator extends Migrator<NativeConnectorsJdbc> {
                 migrationInfo,
                 totalTimeMillis,
                 installedRank,
-                experimentalDatabase,
-                experimentalDatabase.getInstalledBy(configuration),
+                database,
+                database.getInstalledBy(configuration),
                 false);
         }
 
@@ -408,11 +407,11 @@ public class JdbcMigrator extends Migrator<NativeConnectorsJdbc> {
     }
 
     private void validateMixedStatements(final Configuration configuration,
-        final NativeConnectorsJdbc experimentalDatabase,
+        final NativeConnectorsJdbc database,
         final MigrationInfo migrationInfo,
         final ParsingContext parsingContext) {
         if (migrationInfo instanceof final LoadableMigrationInfo loadableMigrationInfo) {
-            try (final SqlStatementIterator sqlStatementIterator = getSqlStatementIterator(experimentalDatabase,
+            try (final SqlStatementIterator sqlStatementIterator = getSqlStatementIterator(database,
                 configuration,
                 loadableMigrationInfo,
                 parsingContext)) {

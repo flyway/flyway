@@ -131,7 +131,7 @@ public class MigrateVerbExtension implements VerbExtension {
             }
         }
 
-        final CallbackManager callbackManager = new CallbackManager(configuration, context.getCallbackResources());
+        final CallbackManager callbackManager = new CallbackManager(configuration, context.getCallbackResources(), Event::fromId);
 
         database.createSchemaHistoryTableIfNotExists(configuration);
 
@@ -289,8 +289,8 @@ public class MigrateVerbExtension implements VerbExtension {
     private void logSummary(final int migrationSuccessCount,
         final long executionTime,
         final String targetVersion,
-        final NativeConnectorsDatabase experimentalDatabase) {
-        final String schemaName = experimentalDatabase.doQuote(experimentalDatabase.getCurrentSchema());
+        final NativeConnectorsDatabase database) {
+        final String schemaName = database.doQuote(database.getCurrentSchema());
         if (migrationSuccessCount == 0) {
             LOG.info("Schema " + schemaName + " is up to date. No migration necessary.");
             return;

@@ -28,7 +28,7 @@ Common use cases of provisioning are:
 * Restoring a development database from a snapshot of production
 * Spinning up a development database with appropriate state on a git branch switch
 
-Note that not all provisioner types will support provisioning. The [clean provisioner](Configuration/Environment Provisioner Setting/Clean Provisioner) is a method for re-provisioning only.
+Note that not all provisioner types will support provisioning. The [clean provisioner](Configuration/Environments Namespace/Environment Provisioner Setting/Clean Provisioner) is a method for re-provisioning only.
 
 ### Re-provisioning
 

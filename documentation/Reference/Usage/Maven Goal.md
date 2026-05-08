@@ -40,7 +40,7 @@ This includes Teams & Enterprise features subject to license.
     </tr>
 </table>
 
-To use Teams & Enterprise features, you will need the following plugin also
+To use Teams & Enterprise features, you will need the following dependencies to the Maven Plugin
 
 <table class="table">
     <tr>
@@ -48,9 +48,17 @@ To use Teams & Enterprise features, you will need the following plugin also
             <pre class="prettyprint">&lt;build&gt;
     ...
     &lt;plugin&gt;
-        &lt;groupId&gt;com.redgate.flyway&lt;/groupId&gt;
-        &lt;artifactId&gt;flyway-redgate-licensing&lt;/artifactId&gt;
+        &lt;groupId&gt;<strong>com.redgate.flyway</strong>&lt;/groupId&gt;
+        &lt;artifactId&gt;flyway-maven-plugin&lt;/artifactId&gt;
         &lt;version&gt;{{ site.flywayVersion }}&lt;/version&gt;
+        ...
+        &lt;dependencies&gt;
+            &lt;dependency&gt;
+                &lt;groupId&gt;<strong>com.redgate.flyway</strong>&lt;/groupId&gt;
+                &lt;artifactId&gt;flyway-redgate-licensing&lt;/artifactId&gt;
+                &lt;version&gt;{{ site.flywayVersion }}&lt;/version&gt;
+            &lt;/dependency&gt;
+        &lt;/dependencies&gt;
     &lt;/plugin&gt;
     ...
 &lt;/build&gt;</pre>

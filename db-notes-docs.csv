@@ -1,0 +1,43 @@
+product,version,release_date,category,note
+flyway-main,12.6.0,2026-05-08,Bug fixes,Only create synonyms for Oracle SHTs when the name includes lower case characters (Issue 4230)
+flyway-main,12.6.0,2026-05-08,Changes,`Auth` command now defers to existing license providers instead of redundantly re-authenticating. License output now reports the acquisition method.
+flyway-main,12.6.0,2026-05-08,Changes,"configuration errors caused solely by obsolete parameters now throw ObsoleteConfigurationParametersException, exposing the obsolete parameters as structured data"
+flyway-main,12.6.0,2026-05-08,Changes,Gradle plugin is now compatible with Gradle's configuration cache for environment variable and system property inputs (Issue 4229)
+flyway-main,12.6.0,2026-05-08,Changes,obsolete parameter exception payload now includes a `reason` field explaining why each parameter is obsolete
+flyway-main,12.6.0,2026-05-08,Changes,simplified namespace short-circuiting (aka scoped namespacing) so that mixing scoped and unscoped namespaces is allowed
+flyway-main,12.6.0,2026-05-08,Database compatibility,Add support for `DROP ... IF EXISTS` and `CREATE ... IF NOT EXISTS` for Oracle parser (Issue 4232)
+flyway-main,12.6.0,2026-05-08,Internal dependency,"{""name"": ""RgCompare"", ""version"": ""1.56.2.3819""}"
+flyway-main,12.6.0,2026-05-08,Internal dependency,"{""name"": ""RgCompare"", ""version"": ""1.56.2.3824""}"
+flyway-main,12.6.0,2026-05-08,Internal dependency,"{""name"": ""RgCompare"", ""version"": ""1.56.2.3827""}"
+flyway-main,12.6.0,2026-05-08,Internal dependency,"{""name"": ""RgCompare"", ""version"": ""1.56.2.3839""}"
+flyway-main,12.6.0,2026-05-08,Internal dependency,"{""name"": ""RgCompare"", ""version"": ""1.57.0.3840""}"
+flyway-main,12.6.0,2026-05-08,Internal dependency,"{""name"": ""RgCompare"", ""version"": ""1.57.0.3846""}"
+flyway-main,12.6.0,2026-05-08,Internal dependency,"{""name"": ""RgCompare"", ""version"": ""1.57.0.3863""}"
+flyway-main,12.6.0,2026-05-08,Internal dependency,"{""name"": ""RgCompare"", ""version"": ""1.58.0.3897""}"
+flyway-main,12.6.0,2026-05-08,Internal dependency,"{""name"": ""RgCompare"", ""version"": ""1.58.0.3916""}"
+flyway-main,12.6.0,2026-05-08,Internal dependency,"{""name"": ""RgCompare"", ""version"": ""1.58.0.3932""}"
+flyway-main,12.6.0,2026-05-08,Internal dependency,"{""name"": ""RgCompare"", ""version"": ""1.58.0.3951""}"
+flyway-main,12.6.0,2026-05-08,Internal dependency,"{""name"": ""RgCompare"", ""version"": ""1.58.0.3958""}"
+flyway-main,12.6.0,2026-05-08,Internal dependency,"{""name"": ""RgCompare"", ""version"": ""1.58.0.3966""}"
+flyway-main,12.6.0,2026-05-08,Internal dependency,Upgraded RgCompare.Cli from 1.55.1.3732 to 1.56.1.3802
+flyway-main,12.6.0,2026-05-08,Internal dependency,Upgraded RgCompare.Cli from 1.56.1.3792 to 1.56.1.3818
+flyway-main,12.6.0,2026-05-08,Library upgrades,Bumped aws-secretsmanager-jdbc from 2.0.4 to 2.1.0
+flyway-main,12.6.0,2026-05-08,Library upgrades,Upgraded adoptium/temurin25-binaries from 25.0.2+10 to 25.0.3+9
+flyway-main,12.6.0,2026-05-08,Library upgrades,Upgraded com.google.jimfs:jimfs from 1.3.0 to 1.3.1
+flyway-main,12.6.0,2026-05-08,Library upgrades,Upgraded org.apache.maven.plugins:maven-antrun-plugin from 1.7 to 1.8
+flyway-main,12.6.0,2026-05-08,Library upgrades,Upgraded org.apache.maven.plugins:maven-compiler-plugin from 2.3.2 to 2.5.1
+flyway-main,12.6.0,2026-05-08,Library upgrades,Upgraded org.apache.maven.plugins:maven-compiler-plugin from 2.5.1 to 3.15.0
+flyway-main,12.6.0,2026-05-08,Library upgrades,Upgraded org.apache.maven.plugins:maven-deploy-plugin from 3.0.0-M1 to 3.1.4
+flyway-main,12.6.0,2026-05-08,Library upgrades,Upgraded org.apache.maven.plugins:maven-failsafe-plugin from 3.1.0 to 3.5.5
+flyway-main,12.6.0,2026-05-08,Library upgrades,Upgraded org.apache.maven.plugins:maven-install-plugin from 3.0.0-M1 to 3.1.4
+flyway-main,12.6.0,2026-05-08,Library upgrades,Upgraded org.apache.maven.plugins:maven-jar-plugin from 3.0.2 to 3.5.0
+flyway-main,12.6.0,2026-05-08,Library upgrades,Upgraded org.apache.maven.plugins:maven-resources-plugin from 2.5 to 2.7
+flyway-main,12.6.0,2026-05-08,Library upgrades,Upgraded org.apache.maven.plugins:maven-resources-plugin from 2.7 to 3.5.0
+flyway-main,12.6.0,2026-05-08,Library upgrades,Upgraded org.apache.maven.plugins:maven-surefire-plugin from 3.1.0 to 3.5.5
+flyway-main,12.6.0,2026-05-08,Library upgrades,Upgraded org.apache.maven.wagon:wagon-http from 2.12 to 3.5.3
+flyway-main,12.6.0,2026-05-08,Library upgrades,Upgraded org.codehaus.mojo:versions-maven-plugin from 2.7 to 2.21.0
+flyway-main,12.6.0,2026-05-08,Library upgrades,Upgraded org.junit.jupiter:junit-jupiter from 6.0.1 to 6.0.3
+flyway-main,12.6.0,2026-05-08,Library upgrades,Upgraded org.junit.platform:junit-platform-launcher from 6.0.1 to 6.0.3
+flyway-main,12.6.0,2026-05-08,Library upgrades,Upgraded org.mockito:mockito-core from 5.18.0 to 5.23.0
+flyway-main,12.6.0,2026-05-08,Library upgrades,Upgraded org.mockito:mockito-junit-jupiter from 5.18.0 to 5.23.0
+flyway-main,12.6.0,2026-05-08,New features,Flyway now supports Native Connectors mode for the Deploy command

@@ -21,8 +21,9 @@ package org.flywaydb.nc.callbacks;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
 import lombok.CustomLog;
-import org.flywaydb.core.api.callback.Event;
+import org.flywaydb.core.api.callback.CallbackEvent;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResourceMetadata;
 import org.flywaydb.core.internal.nc.CallbackHandler;
@@ -33,7 +34,9 @@ import org.flywaydb.core.internal.parser.ParsingContext;
 public class CallbackManager {
     private final List<? extends CallbackHandler> callbackHandlers;
 
-    public CallbackManager(final Configuration configuration, final Collection<LoadableResourceMetadata> resources) {
+    public CallbackManager(final Configuration configuration,
+        final Collection<LoadableResourceMetadata> resources,
+        final Function<String, ? extends CallbackEvent<?>> eventResolver) {
         callbackHandlers = configuration.getPluginRegister().getInstancesOf(CallbackHandler.class);
 
         if (callbackHandlers.isEmpty()){
@@ -42,11 +45,11 @@ public class CallbackManager {
         }
 
         if (!configuration.isSkipDefaultCallbacks()) {
-            callbackHandlers.forEach(x -> x.registerCallbacks(resources));
+            callbackHandlers.forEach(x -> x.registerCallbacks(resources, eventResolver));
         }
     }
 
-    public void handleEvent(final Event event,
+    public void handleEvent(final CallbackEvent<?> event,
         final NativeConnectorsDatabase database,
         final Configuration configuration,
         final ParsingContext parsingContext) {

@@ -95,16 +95,16 @@ public class SchemasVerbExtension extends CachingVerbExtension {
         return missingSchemas;
     }
 
-    private void createSchemaMarker(final NativeConnectorsDatabase experimentalDatabase,
+    private void createSchemaMarker(final NativeConnectorsDatabase database,
         final Configuration configuration,
         final int installedRank,
         final Collection<String> missingSchemas) {
-        experimentalDatabase.appendSchemaHistoryItem(SchemaHistoryItem.builder()
+        database.appendSchemaHistoryItem(SchemaHistoryItem.builder()
             .description("<< Flyway Schema Creation >>")
             .installedRank(installedRank)
             .type("SCHEMA")
-            .script(experimentalDatabase.doQuote(String.join("\",\"", missingSchemas)))
-            .installedBy(experimentalDatabase.getInstalledBy(configuration))
+            .script(database.doQuote(String.join("\",\"", missingSchemas)))
+            .installedBy(database.getInstalledBy(configuration))
             .executionTime(0)
             .success(true)
             .build(), configuration.getTable());

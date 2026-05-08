@@ -182,7 +182,7 @@ The short form of these commands is also supported.
 ### Site Profiles (`glogin.sql`) & User Profiles (`login.sql`)
 
 This feature allows you to set up your SQL\*Plus environment to use the same settings with each session. It allows you to execute statements before every script run, and is typically used to configure
-the session in a consistent manner by calling SQL*Plus commands such as `SET FEEDBACK` and `SET DEFINE`.
+the session in a consistent manner by calling SQL*Plus commands such as `SET FEEDBACK` and `SET DEFINE`; these statements will be factored into script checksum calculations. As a result, introducing changes will require use of flyway [repair](<commands/repair>) to recalculate the script checksums.
 
 Flyway will look for `login.sql` in all the valid migration locations, and load it if present. `glogin.sql` will be loaded from `$ORACLE_HOME/sqlplus/admin/glogin.sql` in UNIX, and `ORACLE_HOME\sqlplus\admin\glogin.sql` otherwise.
 

@@ -25,14 +25,12 @@ import static org.flywaydb.core.internal.util.UrlUtils.isSecretManagerUrl;
 import java.util.List;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.extensibility.Tier;
-import org.flywaydb.core.internal.authentication.postgres.PgpassFileReader;
+import org.flywaydb.database.postgresql.authentication.PgpassFileReader;
 
 import org.flywaydb.core.internal.database.base.BaseDatabaseType;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
-import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.util.StringUtils;

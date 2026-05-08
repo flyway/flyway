@@ -27,11 +27,12 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import lombok.CustomLog;
 import lombok.Value;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.callback.Event;
+import org.flywaydb.core.api.callback.CallbackEvent;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResourceMetadata;
 import org.flywaydb.core.internal.nc.CallbackHandler;
@@ -39,11 +40,8 @@ import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.nc.utils.ErrorUtils;
-import org.flywaydb.nc.utils.NativeConnectorsUtils;
-import org.flywaydb.nc.executors.NonJdbcExecutorExecutionUnit;
 import org.flywaydb.core.internal.nc.Executor;
 import org.flywaydb.nc.executors.ExecutorFactory;
-import org.flywaydb.nc.executors.JdbcExecutor;
 import org.flywaydb.core.internal.nc.Reader;
 import org.flywaydb.nc.readers.ReaderFactory;
 
@@ -52,7 +50,7 @@ public class NativeConnectorsCallbackHandler implements CallbackHandler {
     private final Collection<Callback> callbacks = new ArrayList<>();
 
     @Override
-    public void handleEvent(final Event event,
+    public void handleEvent(final CallbackEvent<?> event,
         final NativeConnectorsDatabase database,
         final Configuration configuration,
         final ParsingContext parsingContext) {
@@ -74,7 +72,7 @@ public class NativeConnectorsCallbackHandler implements CallbackHandler {
 
         final Executor executor = ExecutorFactory.getExecutor(database, configuration);
 
-        LOG.info("Callback executed: " + callback.getEvent().name() + " from " + callback.getPhysicalLocation());
+        LOG.info("Callback executed: " + callback.getEvent().getId() + " from " + callback.getPhysicalLocation());
 
         try (final EventTelemetryModel telemetryModel = new EventTelemetryModel(callback.getEvent().getId(),
             getTelemetryManager(configuration))) {
@@ -103,17 +101,18 @@ public class NativeConnectorsCallbackHandler implements CallbackHandler {
     }
 
     @Override
-    public void registerCallbacks(final Collection<LoadableResourceMetadata> resources) {
+    public void registerCallbacks(final Collection<LoadableResourceMetadata> resources,
+        final Function<String, ? extends CallbackEvent<?>> eventResolver) {
         callbacks.clear();
         resources.stream().map(resource -> {
-            Event event = Event.fromId(resource.prefix());
+            final var event = eventResolver.apply(resource.prefix());
             if (event != null) {
                 if (resource.sqlScriptMetadata() != null && !resource.sqlScriptMetadata().shouldExecute()) {
-                    LOG.debug("Callback " + event.name() + " registration skipped as shouldExecute is false");
+                    LOG.debug("Callback " + event.getId() + " registration skipped as shouldExecute is false");
                     return null;
                 }
 
-                LOG.debug("Callback registered: " + event.name() + " from " + resource.loadableResource()
+                LOG.debug("Callback registered: " + event.getId() + " from " + resource.loadableResource()
                     .getAbsolutePath());
                 return new Callback(resource, event);
             }
@@ -125,7 +124,7 @@ public class NativeConnectorsCallbackHandler implements CallbackHandler {
 @Value
 class Callback {
     LoadableResourceMetadata loadableResourceMetadata;
-    Event event;
+    CallbackEvent<?> event;
 
     public String getFileName() {
         return loadableResourceMetadata.loadableResource().getFilename();
@@ -135,7 +134,7 @@ class Callback {
         return loadableResourceMetadata.loadableResource().getAbsolutePath();
     }
 
-    boolean supports(final Event event) {
+    boolean supports(final CallbackEvent<?> event) {
         return this.event.equals(event);
     }
 }

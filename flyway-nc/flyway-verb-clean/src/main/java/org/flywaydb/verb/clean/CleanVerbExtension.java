@@ -60,7 +60,7 @@ public class CleanVerbExtension implements VerbExtension {
 
         final NativeConnectorsDatabase database = context.getDatabase();
 
-        final CallbackManager callbackManager = new CallbackManager(configuration, context.getCallbackResources());
+        final CallbackManager callbackManager = new CallbackManager(configuration, context.getCallbackResources(), Event::fromId);
 
         callbackManager.handleEvent(Event.BEFORE_CLEAN, database, configuration, context.getParsingContext());
 

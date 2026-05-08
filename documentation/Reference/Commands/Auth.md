@@ -41,8 +41,7 @@ honor these as authorizations and logout will not remove them.
 | Parameter               | Edition   | Description                                                                                       |
 |-------------------------|-----------|---------------------------------------------------------------------------------------------------|
 | `-IAgreeToTheEula`      | Community | (Mandatory) By using this option you consent to the [Redgate EULA](https://www.red-gate.com/eula) |
-| `-logout`               | Community | Logs a user out of their authorized session of Flyway                                             |
-| `-startTeamsTrial`      | Community | Starts a Teams trial                                                                              |
+| `-logout`               | Community | Logs a user out of their authorized session of Flyway                                             | |
 | `-startEnterpriseTrial` | Community | Starts an Enterprise trial                                                                        |
 
 ## Error codes

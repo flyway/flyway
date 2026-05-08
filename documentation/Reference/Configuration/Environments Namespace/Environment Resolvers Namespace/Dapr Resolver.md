@@ -28,7 +28,7 @@ This can't be set in a config file via Flyway Desktop, although it will be honou
 -environments.development.url='jdbc:postgresql:${dapr.dbhost}/${dapr.dbname}' \
 -environments.development.user='${dapr.username}' \
 -environments.development.password='${dapr.password}' \
--environments.development.resolvers.dapr.url="http://localhost:3500/v1.0/secrets/my-secrets-store"
+-environments.development.resolvers.dapr.url='http://localhost:3500/v1.0/secrets/my-secrets-store'
 ```
 
 ### TOML Configuration File

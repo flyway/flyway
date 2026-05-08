@@ -32,28 +32,28 @@ import org.flywaydb.nc.NativeConnectorsJdbc;
 public class JdbcExecutor implements Executor<SqlStatement, NativeConnectorsJdbc> {
 
     @Override
-    public void execute(final NativeConnectorsJdbc experimentalDatabase,
+    public void execute(final NativeConnectorsJdbc database,
         final SqlStatement executionUnit,
         final Configuration configuration) {
         if (configuration.isBatch()) {
             if (executionUnit.isBatchable()) {
-                experimentalDatabase.addToBatch(executionUnit.getSql());
-                if (experimentalDatabase.getBatchSize() >= 100) {
-                    experimentalDatabase.doExecuteBatch();
+                database.addToBatch(executionUnit.getSql());
+                if (database.getBatchSize() >= 100) {
+                    database.doExecuteBatch();
                 }
             } else {
-                experimentalDatabase.doExecuteBatch();
-                experimentalDatabase.doExecute(executionUnit.getSql(), configuration.isOutputQueryResults());
+                database.doExecuteBatch();
+                database.doExecute(executionUnit.getSql(), configuration.isOutputQueryResults());
             }
         } else {
-            experimentalDatabase.doExecute(executionUnit.getSql(), configuration.isOutputQueryResults());
+            database.doExecute(executionUnit.getSql(), configuration.isOutputQueryResults());
         }
     }
 
     @Override
-    public void finishExecution(final NativeConnectorsJdbc experimentalDatabase, final Configuration configuration) {
+    public void finishExecution(final NativeConnectorsJdbc database, final Configuration configuration) {
         if (configuration.isBatch()) {
-            experimentalDatabase.doExecuteBatch();
+            database.doExecuteBatch();
         }
     }
 

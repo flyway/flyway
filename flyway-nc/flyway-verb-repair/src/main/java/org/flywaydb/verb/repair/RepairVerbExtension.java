@@ -61,7 +61,7 @@ public class RepairVerbExtension implements VerbExtension {
         final PreparationContext context = PreparationContext.get(configuration, false);
 
         final NativeConnectorsDatabase database = context.getDatabase();
-        final CallbackManager callbackManager = new CallbackManager(configuration, context.getCallbackResources());
+        final CallbackManager callbackManager = new CallbackManager(configuration, context.getCallbackResources(), Event::fromId);
 
         final RepairResult repairResult = new RepairResult(VersionPrinter.getVersion(),
             database.getDatabaseMetaData().databaseName());

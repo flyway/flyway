@@ -88,6 +88,11 @@ public class OracleParser extends Parser {
     private static final Pattern PLSQL_WRAPPED_REGEX = Pattern.compile(
         "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\s(FUNCTION|PROCEDURE|TYPE)(\\s\\S*)?\\sWRAPPED(\\s\\S*)*");
 
+    private static final Pattern CREATE_IF_NOT_EXISTS = Pattern.compile(
+        ".*CREATE\\s(\\S+\\s){0,2}IF\\sNOT\\sEXISTS");
+    private static final Pattern DROP_IF_EXISTS = Pattern.compile(
+        ".*DROP\\s(\\S+\\s){0,2}IF\\sEXISTS");
+
     private static final StatementType PLSQL_WRAPPED_STATEMENT = new StatementType();
     private int initialWrappedBlockDepth = -1;
 
@@ -281,7 +286,9 @@ public class OracleParser extends Parser {
                 || doTokensMatchPattern(tokens, keyword, PLSQL_PACKAGE_DEFINITION_REGEX)
                 || doTokensMatchPattern(tokens, keyword, PLSQL_TYPE_BODY_REGEX)))) {
             context.increaseBlockDepth(keywordText);
-        } else if ("END".equals(keywordText)) {
+        } else if ("END".equals(keywordText)
+            || doTokensMatchPattern(tokens, keyword, CREATE_IF_NOT_EXISTS)
+            || doTokensMatchPattern(tokens, keyword, DROP_IF_EXISTS)) {
             context.decreaseBlockDepth();
         }
 

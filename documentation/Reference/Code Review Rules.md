@@ -20,7 +20,5 @@ Once you are satisfied that your code review rules are correctly configured you 
 # Redgate Rules 
 {% include enterprise.html %}
 
-Redgate has added a set of rules that are of interest to customers with a larger and more complex database infrastructure. 
+Redgate has [added a set of SQLFluff rules](<Code Review Rules/Redgate SQLFluff Rules Library>) that are of interest to customers with a larger and more complex database infrastructure. 
 
-- [Redgate Regex Rules Library](<Code Review Rules/Redgate Regex Rules Library>)
-- [Redgate SQLFluff Rules Library](<Code Review Rules/Redgate SQLFluff Rules Library>)

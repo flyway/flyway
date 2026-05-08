@@ -28,30 +28,30 @@ import org.flywaydb.nc.NativeConnectorsNonJdbc;
 public class ApiExecutor implements Executor<NonJdbcExecutorExecutionUnit, NativeConnectorsNonJdbc> {
 
     @Override
-    public void execute(final NativeConnectorsNonJdbc experimentalDatabase,
+    public void execute(final NativeConnectorsNonJdbc database,
         final NonJdbcExecutorExecutionUnit executionUnit,
         final Configuration configuration) {
         
-        if (configuration.isBatch() && !experimentalDatabase.supportsBatch()) {
-            throw new FlywayException("The Batch feature is not supported for " + experimentalDatabase.getDatabaseType());
+        if (configuration.isBatch() && !database.supportsBatch()) {
+            throw new FlywayException("The Batch feature is not supported for " + database.getDatabaseType());
         }
 
         if (configuration.isBatch() ||
-            (experimentalDatabase.transactionAsBatch() && executionUnit.isExecuteInTransaction())) {
-            experimentalDatabase.addToBatch(executionUnit);
+            (database.transactionAsBatch() && executionUnit.isExecuteInTransaction())) {
+            database.addToBatch(executionUnit);
         } else {
             // There may be previously added scripts pending execution; flush them out.
-            if (experimentalDatabase.transactionAsBatch()) {
-                experimentalDatabase.doExecuteBatch();
+            if (database.transactionAsBatch()) {
+                database.doExecuteBatch();
             }
-            experimentalDatabase.doExecute(executionUnit, configuration.isOutputQueryResults());
+            database.doExecute(executionUnit, configuration.isOutputQueryResults());
         }
     }
 
     @Override
-    public void finishExecution(final NativeConnectorsNonJdbc experimentalDatabase, final Configuration configuration) {
-        if (configuration.isBatch() || experimentalDatabase.transactionAsBatch()) {
-            experimentalDatabase.doExecuteBatch();
+    public void finishExecution(final NativeConnectorsNonJdbc database, final Configuration configuration) {
+        if (configuration.isBatch() || database.transactionAsBatch()) {
+            database.doExecuteBatch();
         }
     }
 

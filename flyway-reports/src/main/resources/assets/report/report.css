@@ -8,7 +8,22 @@ pre {
 }
 
 code {
+  --before-ml: 6px;
+  --before-mr: 10px;
+  --before-width: 5ch;
+  --before-total: calc(var(--before-width) + var(--before-ml) + var(--before-mr));
+  --wrap-offset: 3px;
+
   counter-increment: line;
+  display: block;
+  padding-left: calc(var(--before-total) + var(--wrap-offset));
+  text-indent: calc(-1 * (var(--before-total) + var(--wrap-offset)));
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.narrowCode > code {
+  --wrap-offset: -8px;
 }
 
 .header {
@@ -65,9 +80,12 @@ code {
 
 code:before {
   content: counter(line);
+  display: inline-block;
+  width: var(--before-width);
+  margin-left: var(--before-ml);
+  margin-right: var(--before-mr);
+  text-align: right;
   color: #808080;
-  margin-right: 10px;
-  margin-left: 5px;
   font-size: 14px;
   -webkit-user-select: none;
 }
@@ -122,6 +140,7 @@ code:before {
 
 summary {
   display: inline;
+  cursor: pointer;
   list-style-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGZpbGw9Im5vbmUiIHZpZXdCb3g9IjAgMCAyNCAyNCIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZT0iY3VycmVudENvbG9yIiBjbGFzcz0idy02IGgtNiI+DQogIDxwYXRoIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgZD0iTTguMjUgNC41bDcuNSA3LjUtNy41IDcuNSIgLz4NCjwvc3ZnPg0K);
 }
 
@@ -347,6 +366,7 @@ table > thead > tr > th {
   height: 42px;
   width: 100%;
   display: flex;
+  align-items: center;
   margin-right: 10px;
   margin-bottom: 10px;
   font-size: 13px;
@@ -378,9 +398,13 @@ table > thead > tr > th {
 
 .summaryIcon {
   font-family: "redgateIcons";
-  padding: 13px;
+  padding: 0 13px;
   max-width: 50px;
-  margin-right: -30px;
+}
+
+.summaryIcon svg {
+  width: 22px;
+  height: 22px;
 }
 
 .summaryDivContent {

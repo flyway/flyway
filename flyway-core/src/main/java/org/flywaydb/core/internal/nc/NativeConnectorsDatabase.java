@@ -36,7 +36,7 @@ import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
 
 /**
- * Interface to define new experimental database plugins.
+ * Interface to define Native Connectors database plugins.
  */
 public sealed interface NativeConnectorsDatabase<T> extends GeneralDatabaseType, AutoCloseable permits
                                                                                   AbstractNativeConnectorsDatabase,
@@ -98,7 +98,6 @@ public sealed interface NativeConnectorsDatabase<T> extends GeneralDatabaseType,
     /**
      * Creates a schema history table against the configured database.
      * The implementation details will be determined per database but will adhere to a Flyway standard.
-     * @param tableName The name of the schema history table to create.
      */
     void createSchemaHistoryTable(Configuration configuration);
 

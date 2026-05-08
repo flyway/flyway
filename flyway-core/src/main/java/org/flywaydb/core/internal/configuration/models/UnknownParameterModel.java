@@ -20,15 +20,15 @@
 package org.flywaydb.core.internal.configuration.models;
 
 import static org.flywaydb.core.internal.configuration.ConfigUtils.getPossibleFlywayConfigurations;
-import static org.flywaydb.core.internal.configuration.models.UnknownParameterModel.Reason.REMOVED;
-import static org.flywaydb.core.internal.configuration.models.UnknownParameterModel.Reason.REPLACED;
-import static org.flywaydb.core.internal.configuration.models.UnknownParameterModel.Reason.UNKNOWN;
+import static org.flywaydb.core.internal.configuration.models.UnknownParameterModel.Kind.REMOVED;
+import static org.flywaydb.core.internal.configuration.models.UnknownParameterModel.Kind.REPLACED;
+import static org.flywaydb.core.internal.configuration.models.UnknownParameterModel.Kind.UNKNOWN;
 
 import java.util.List;
 import java.util.Map;
 import org.flywaydb.core.internal.util.StringUtils;
 
-public record UnknownParameterModel(String rawKey, Reason reason, Source source, List<String> possibleValues, String replacement) {
+public record UnknownParameterModel(String rawKey, Kind kind, Source source, List<String> possibleValues, String replacement, String reason) {
     private static final String CLEAN_ON_VALIDATION_ERROR = "flyway.cleanOnValidationError";
     private static final String CHECK_MINOR_TOLERANCE = "check.minorTolerance";
     private static final String CHECK_MAJOR_TOLERANCE = "check.majorTolerance";
@@ -43,19 +43,25 @@ public record UnknownParameterModel(String rawKey, Reason reason, Source source,
     private static final String PLUGINS_GCSM = "plugins.gcsm";
     private static final String FLYWAY_GCSM = "flyway.gcsm";
 
-    private static final Map<String, String> MOVED_OR_REMOVED_PARAMS = Map.ofEntries(
-        Map.entry(PLUGINS_CLEAN, SQLSERVER_CLEAN),
-        Map.entry(PLUGINS_VAULT, FLYWAY_VAULT),
-        Map.entry(PLUGINS_DAPR, FLYWAY_DAPR),
-        Map.entry(PLUGINS_GCSM, FLYWAY_GCSM),
-        Map.entry(CLEAN_ON_VALIDATION_ERROR, ""),
-        Map.entry(CHECK_MAJOR_TOLERANCE, ""),
-        Map.entry(CHECK_MINOR_TOLERANCE, ""),
-        Map.entry(CHECK_MINOR_RULES, ""),
-        Map.entry(CHECK_MAJOR_RULES, "")
+    private static final String PLUGINS_NAMESPACE_REASON = "The 'flyway.plugins' namespace was deprecated in Flyway V11.";
+    private static final String CHECK_RULES_REASON = "Code analysis rules are now configured in your SQLFluff configuration.";
+    private static final String CLEAN_ON_VALIDATION_ERROR_REASON = "Removed in Flyway V12. Refer to the V12 update guide for alternatives.";
+
+    private record ObsoleteEntry(String replacement, String reason) {}
+
+    private static final Map<String, ObsoleteEntry> MOVED_OR_REMOVED_PARAMS = Map.ofEntries(
+        Map.entry(PLUGINS_CLEAN, new ObsoleteEntry(SQLSERVER_CLEAN, PLUGINS_NAMESPACE_REASON)),
+        Map.entry(PLUGINS_VAULT, new ObsoleteEntry(FLYWAY_VAULT, PLUGINS_NAMESPACE_REASON)),
+        Map.entry(PLUGINS_DAPR, new ObsoleteEntry(FLYWAY_DAPR, PLUGINS_NAMESPACE_REASON)),
+        Map.entry(PLUGINS_GCSM, new ObsoleteEntry(FLYWAY_GCSM, PLUGINS_NAMESPACE_REASON)),
+        Map.entry(CLEAN_ON_VALIDATION_ERROR, new ObsoleteEntry("", CLEAN_ON_VALIDATION_ERROR_REASON)),
+        Map.entry(CHECK_MAJOR_TOLERANCE, new ObsoleteEntry("", CHECK_RULES_REASON)),
+        Map.entry(CHECK_MINOR_TOLERANCE, new ObsoleteEntry("", CHECK_RULES_REASON)),
+        Map.entry(CHECK_MINOR_RULES, new ObsoleteEntry("", CHECK_RULES_REASON)),
+        Map.entry(CHECK_MAJOR_RULES, new ObsoleteEntry("", CHECK_RULES_REASON))
         );
 
-    public enum Reason {
+    public enum Kind {
         REPLACED,
         REMOVED,
         UNKNOWN
@@ -73,25 +79,25 @@ public record UnknownParameterModel(String rawKey, Reason reason, Source source,
         final String configKey = namespace + "." + key;
 
         if (MOVED_OR_REMOVED_PARAMS.containsKey(configKey)) {
-            final String replacement = MOVED_OR_REMOVED_PARAMS.get(configKey);
-            if (StringUtils.hasText(replacement)) {
-                return new UnknownParameterModel(rawKey, REPLACED, null, null, replacement);
+            final ObsoleteEntry entry = MOVED_OR_REMOVED_PARAMS.get(configKey);
+            if (StringUtils.hasText(entry.replacement())) {
+                return new UnknownParameterModel(rawKey, REPLACED, null, null, entry.replacement(), entry.reason());
             }
 
-            return new UnknownParameterModel(rawKey, REMOVED, null, null, replacement);
+            return new UnknownParameterModel(rawKey, REMOVED, null, null, null, entry.reason());
         } else {
             final List<String> possibleConfigurations = getPossibleFlywayConfigurations(key, model, prefix);
             if (!possibleConfigurations.isEmpty()) {
-                return new UnknownParameterModel(rawKey, UNKNOWN, null, possibleConfigurations, null);
+                return new UnknownParameterModel(rawKey, UNKNOWN, null, possibleConfigurations, null, null);
             }
 
-            return new UnknownParameterModel(rawKey, UNKNOWN, null, null, null);
+            return new UnknownParameterModel(rawKey, UNKNOWN, null, null, null, null);
         }
     }
 
     @Override
     public String toString() {
-        return switch (reason) {
+        return switch (kind) {
             case REPLACED -> "\tDeprecated: '" + rawKey + "' has been replaced by '" + replacement + "'.";
             case REMOVED -> "\tRemoved: '" + rawKey + "' has been removed and is no longer supported.";
             case UNKNOWN -> {

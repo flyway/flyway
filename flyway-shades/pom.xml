@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>12.5.0</version>
+    <version>12.6.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -15,7 +15,7 @@
   <properties>
     <shade.image.name>aws-sm-jdbc-shade</shade.image.name>
     <aws.secretsmanager.jdbc.repo>https://github.com/aws/aws-secretsmanager-jdbc.git</aws.secretsmanager.jdbc.repo>
-    <aws.secretsmanager.jdbc.version>2.0.4</aws.secretsmanager.jdbc.version>
+    <aws.secretsmanager.jdbc.version>2.1.0</aws.secretsmanager.jdbc.version>
   </properties>
 
   <profiles>

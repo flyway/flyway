@@ -32,7 +32,9 @@ import static org.flywaydb.core.internal.util.ExceptionUtils.getFlywayExceptionM
 import static org.flywaydb.core.internal.util.ExceptionUtils.getRootCause;
 
 import org.flywaydb.core.api.CoreErrorCode;
-import org.flywaydb.core.internal.configuration.models.UnknownParameterModel.Reason;
+import org.flywaydb.core.api.configuration.ObsoleteParameter;
+import org.flywaydb.core.api.exception.ObsoleteConfigurationParametersException;
+import org.flywaydb.core.internal.configuration.models.UnknownParameterModel.Kind;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
@@ -464,14 +466,22 @@ public class ModernConfigurationManager implements ConfigurationManager {
         final StringBuilder exceptionMessage = new StringBuilder("Failed to configure parameters:").append(System.lineSeparator());
         configurationExceptions.forEach(e -> exceptionMessage.append(e.getMessage()).append(System.lineSeparator()));
 
-        CoreErrorCode errorCode = configurationExceptions.stream()
-            .allMatch(ex -> ex.getErrorCode() == CoreErrorCode.CONFIGURATION_RECOVERABLE)
-            ? CoreErrorCode.CONFIGURATION_RECOVERABLE
-            : CoreErrorCode.CONFIGURATION;
+        final boolean allRecoverable = configurationExceptions.stream()
+            .allMatch(ex -> ex.getErrorCode() == CoreErrorCode.CONFIGURATION_RECOVERABLE);
 
-        final FlywayException flywayException = new FlywayException(exceptionMessage.toString(), errorCode);
+        final FlywayException flywayException = allRecoverable
+            ? new ObsoleteConfigurationParametersException(exceptionMessage.toString(), mergeObsoleteParameters(configurationExceptions))
+            : new FlywayException(exceptionMessage.toString(), CoreErrorCode.CONFIGURATION);
         configurationExceptions.forEach(flywayException::addSuppressed);
         throw flywayException;
+    }
+
+    private static List<ObsoleteParameter> mergeObsoleteParameters(final Collection<? extends FlywayException> configurationExceptions) {
+        return configurationExceptions.stream()
+            .filter(ObsoleteConfigurationParametersException.class::isInstance)
+            .map(ObsoleteConfigurationParametersException.class::cast)
+            .flatMap(ex -> ex.getObsoleteParameters().stream())
+            .collect(Collectors.toList());
     }
 
     private ObjectMapper getObjectMapper(final boolean suppressError) {
@@ -493,22 +503,42 @@ public class ModernConfigurationManager implements ConfigurationManager {
 
         final StringBuilder exceptionMessage = new StringBuilder();
         CoreErrorCode errorCode = CoreErrorCode.CONFIGURATION_RECOVERABLE;
-        for (Map.Entry<String, ? extends List<String>> entry : missingParams.entrySet()) {
-            String namespace = entry.getKey();
-            List<String> unknownParams = entry.getValue();
-            for (String param : unknownParams) {
-                UnknownParameterModel unknownParameterModel = resolveUnknownParameter(model, namespace, param, prefix);
-                if (unknownParameterModel.reason() == Reason.UNKNOWN) {
+        final List<ObsoleteParameter> obsoleteParameters = new ArrayList<>();
+        for (final Map.Entry<String, ? extends List<String>> entry : missingParams.entrySet()) {
+            final String namespace = entry.getKey();
+            final List<String> unknownParams = entry.getValue();
+            for (final String param : unknownParams) {
+                final UnknownParameterModel unknownParameterModel = resolveUnknownParameter(model, namespace, param, prefix);
+                if (unknownParameterModel.kind() == Kind.UNKNOWN) {
                     errorCode = CoreErrorCode.CONFIGURATION;
+                } else {
+                    obsoleteParameters.add(convertObsoleteParameter(unknownParameterModel));
                 }
                 exceptionMessage.append(unknownParameterModel).append("\n");
             }
         }
 
         exceptionMessage.deleteCharAt(exceptionMessage.length() - 1);
+        if (errorCode == CoreErrorCode.CONFIGURATION_RECOVERABLE) {
+            throw new ObsoleteConfigurationParametersException(exceptionMessage.toString(), obsoleteParameters);
+        }
         throw new FlywayException(exceptionMessage.toString(), errorCode);
 
         }
 
+    }
+
+    private static ObsoleteParameter convertObsoleteParameter(final UnknownParameterModel unknownParameterModel) {
+        return switch (unknownParameterModel.kind()) {
+            case REPLACED -> new ObsoleteParameter(unknownParameterModel.rawKey(),
+                ObsoleteParameter.Kind.REPLACED,
+                unknownParameterModel.replacement(),
+                unknownParameterModel.reason());
+            case REMOVED -> new ObsoleteParameter(unknownParameterModel.rawKey(),
+                ObsoleteParameter.Kind.REMOVED,
+                null,
+                unknownParameterModel.reason());
+            case UNKNOWN -> throw new IllegalStateException("UNKNOWN parameters should not be converted to ObsoleteParameter");
+        };
     }
 }

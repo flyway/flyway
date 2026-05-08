@@ -27,13 +27,13 @@ This can't be set in a config file via Flyway Desktop, although it will be honou
 ```bash
 ./flyway info \
 -environment='development' \
--environments.development.url="jdbc:postgresql://localhost/postgres" \
--environments.development.user="postgres" \
--environments.development.password="${vault.flyway/password}" \
--environments.development.resolvers.vault.url="http://localhost:8200/v1" \
--environments.development.resolvers.vault.token="abc.1234567890" \
--environments.development.resolvers.vault.engineName="secret" \
--environments.development.resolvers.vault.engineVersion="v2"
+-environments.development.url='jdbc:postgresql://localhost/postgres' \
+-environments.development.user='postgres' \
+-environments.development.password='${vault.flyway/password}' \
+-environments.development.resolvers.vault.url='http://localhost:8200/v1' \
+-environments.development.resolvers.vault.token='abc.1234567890' \
+-environments.development.resolvers.vault.engineName='secret' \
+-environments.development.resolvers.vault.engineVersion='v2'
 ```
 
 ### TOML Configuration File

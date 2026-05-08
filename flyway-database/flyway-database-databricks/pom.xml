@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>12.5.0</version>
+    <version>12.6.0</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
 
@@ -26,7 +26,7 @@
     <dependency>
       <groupId>com.databricks</groupId>
       <artifactId>databricks-jdbc</artifactId>
-      <version>3.0.1</version>
+      <version>3.3.3</version>
       <optional>true</optional>
     </dependency>
   </dependencies>

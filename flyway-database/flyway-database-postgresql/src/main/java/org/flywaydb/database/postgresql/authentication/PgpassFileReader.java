@@ -1,6 +1,6 @@
 /*-
  * ========================LICENSE_START=================================
- * flyway-core
+ * flyway-database-postgresql
  * ========================================================================
  * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
@@ -17,7 +17,7 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.core.internal.authentication.postgres;
+package org.flywaydb.database.postgresql.authentication;
 
 import lombok.CustomLog;
 import org.flywaydb.core.internal.authentication.ExternalAuthFileReader;

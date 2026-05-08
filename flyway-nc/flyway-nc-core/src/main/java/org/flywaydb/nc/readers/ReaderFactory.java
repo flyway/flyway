@@ -26,9 +26,9 @@ import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
 import org.flywaydb.core.internal.nc.Reader;
 
 public class ReaderFactory {
-    public static <T> Reader<T> getReader(final NativeConnectorsDatabase experimentalDatabase,
+    public static <T> Reader<T> getReader(final NativeConnectorsDatabase database,
         final Configuration configuration) {
-        final ConnectionType connectionType = experimentalDatabase.getDatabaseMetaData().connectionType();
+        final ConnectionType connectionType = database.getDatabaseMetaData().connectionType();
         return configuration.getPluginRegister()
             .getLicensedInstancesOf(Reader.class, configuration)
             .stream()

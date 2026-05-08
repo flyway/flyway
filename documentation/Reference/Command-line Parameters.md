@@ -49,9 +49,9 @@ The following settings can be overridden for all commands:
 
 The following deprecated settings can be overridden for all commands:
 
-| Setting                                                                     | Tier  | Type   | Description              |
-|-----------------------------------------------------------------------------|-------|--------|--------------------------|
-| [`licenseKey`](<Configuration/Flyway Namespace/Flyway License Key Setting>) | Teams | String | Your Flyway license key. |
+| Setting                                                                     | Tier       | Type   | Description              |
+|-----------------------------------------------------------------------------|------------|--------|--------------------------|
+| [`licenseKey`](<Configuration/Flyway Namespace/Flyway License Key Setting>) | Enterprise | String | Your Flyway license key. |
 
 ## Configuration from Standard Input
 

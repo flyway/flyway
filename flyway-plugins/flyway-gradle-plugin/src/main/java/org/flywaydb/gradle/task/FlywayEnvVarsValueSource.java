@@ -1,6 +1,6 @@
 /*-
  * ========================LICENSE_START=================================
- * flyway-core
+ * flyway-gradle-plugin
  * ========================================================================
  * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
@@ -17,13 +17,22 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.core.internal.proprietaryInterfaces;
+package org.flywaydb.gradle.task;
 
-import org.flywaydb.core.api.MigrationPattern;
-import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.extensibility.Plugin;
+import java.util.Map;
+import java.util.stream.Collectors;
+import org.gradle.api.provider.ValueSource;
+import org.gradle.api.provider.ValueSourceParameters;
 
-public interface CherryPickConfiguration extends Plugin {
+public abstract class FlywayEnvVarsValueSource
+    implements ValueSource<Map<String, String>, ValueSourceParameters.None> {
 
-    MigrationPattern[] getMigrationPatterns(final Configuration config);
+    private static final String FLYWAY_ENV_PREFIX = "FLYWAY_";
+
+    @Override
+    public Map<String, String> obtain() {
+        return System.getenv().entrySet().stream()
+            .filter(entry -> entry.getKey().startsWith(FLYWAY_ENV_PREFIX))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
 }

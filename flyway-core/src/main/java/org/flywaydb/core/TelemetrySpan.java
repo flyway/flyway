@@ -20,7 +20,7 @@
 package org.flywaydb.core;
 
 import java.util.function.Function;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.flywaydb.core.extensibility.EventTelemetryModel;

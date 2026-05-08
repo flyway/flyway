@@ -88,7 +88,7 @@ public final class PreparationContext implements Plugin {
             if (configuration.getInitSql() != null) {
                 throw new FlywayException("InitSql is not supported in Native Connectors. Please use the afterConnect callback instead");
             }
-            final CallbackManager callbackManager = new CallbackManager(configuration, callbackResources);
+            final CallbackManager callbackManager = new CallbackManager(configuration, callbackResources, Event::fromId);
             callbackManager.handleEvent(Event.AFTER_CONNECT, database, configuration, parsingContext);
 
             final CompletableFuture<SchemaHistoryModel> schemaHistoryModelFuture = CompletableFuture.supplyAsync(() -> VerbUtils.getSchemaHistoryModel(

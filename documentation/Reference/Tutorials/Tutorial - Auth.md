@@ -2,11 +2,11 @@
 subtitle: 'Tutorial: Auth'
 ---
 
-This brief tutorial will teach you how to authorize Flyway to use Teams or Enterprise Edition using the `auth` command.
+This brief tutorial will teach you how to authorize Flyway to use Enterprise Edition using the `auth` command.
 
 ## Introduction
 
-Flyway allows users to authorize for Flyway Teams or Enterprise Edition using a command rather than manually specifying a license key in a configuration file.
+Flyway allows users to authorize for Flyway Enterprise Edition using a command rather than manually specifying a license key in a configuration file.
 
 ## Example: Authorizing Flyway
 

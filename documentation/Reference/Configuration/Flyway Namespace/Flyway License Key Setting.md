@@ -11,10 +11,8 @@ For an overview of ways to license Flyway see [Flyway Licensing](https://documen
 
 ## Description
 
-Your Flyway license key (`FL01...`) when using Flyway Teams. This should be 516 alpha numeric characters, beginning with
+Your Flyway license key (`FL01...`) when using Flyway Enterprise. This should be 516 alpha numeric characters, beginning with
 `FL`.
-
-Not yet a Flyway Teams Edition customer? Request your [Flyway trial license](https://www.red-gate.com/products/flyway/teams/trial/) to try out Flyway Teams Edition features free for 28 days.
 
 ## Type
 
@@ -32,7 +30,7 @@ This is not supported by Flyway Desktop.
 
 ### Command line & Docker
 
-There is a single Flyway command line download for all editions. Therefore, you only need to provide your license key in your configuration, and Flyway Teams will start automatically. This also works for the Flyway Docker image.
+There is a single Flyway command line download for all editions. Therefore, you only need to provide your license key in your configuration, and Flyway Enterprise will start automatically. This also works for the Flyway Docker image.
 
 ### Maven Plugin
 
