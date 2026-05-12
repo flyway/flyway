@@ -67,7 +67,7 @@
       <filtered>true</filtered>
     </fileSet>
     <fileSet>
-      <directory>../.github/scripts/licenses/src/licenses/license-texts</directory>
+      <directory>src/main/assembly/license-texts</directory>
       <outputDirectory>licenses/license-texts</outputDirectory>
       <includes>
         <include>*.txt</include>
@@ -76,7 +76,7 @@
       <filtered>true</filtered>
     </fileSet>
     <fileSet>
-      <directory>../.github/scripts/licenses/src/licenses/license-texts/cached</directory>
+      <directory>src/main/assembly/license-texts/cached</directory>
       <outputDirectory>licenses/license-texts</outputDirectory>
       <includes>
         <include>*.txt</include>

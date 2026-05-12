@@ -3,7 +3,7 @@ subtitle: Databricks
 ---
 
 - **Verified Versions:** N/A
-- **Maintainer:** Red Gate
+- **Maintainer:** {% include redgate-badge.html %}
 
 ## Supported Versions and Support Levels
 

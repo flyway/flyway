@@ -65,11 +65,9 @@ public class EnvironmentResolver {
             resolverConfigs);
 
         final ResolvedEnvironment result = new ResolvedEnvironment();
-        result.setDriver(environment.getDriver());
         result.setConnectRetries(environment.getConnectRetries());
         result.setConnectRetriesInterval(environment.getConnectRetriesInterval());
         result.setInitSql(environment.getInitSql());
-        result.setSchemas(environment.getSchemas());
 
         progress.pushSteps(2);
         final ProgressLogger provisionProgress = progress.subTask("provision");
@@ -96,6 +94,10 @@ public class EnvironmentResolver {
         result.setPassword(context.resolveValue(environment.getPassword(), resolveProgress));
         result.setUser(context.resolveValue(environment.getUser(), resolveProgress));
         result.setUrl(context.resolveValue(environment.getUrl(), resolveProgress));
+        result.setDriver(context.resolveValue(environment.getDriver(), resolveProgress));
+        result.setSchemas(environment.getSchemas() != null
+            ? environment.getSchemas().stream().map(s -> context.resolveValue(s, resolveProgress)).toList()
+            : null);
         result.setProvisionerMode(mode);
 
         if (mode == ProvisionerMode.Provision) {

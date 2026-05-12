@@ -2796,7 +2796,7 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.eventstream:even
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-sqlfluff 3.5.0
+sqlfluff 4.1.0
 -------------------------------------
 <license-texts/sqlfluff-mit.txt>
 -------------------------------------

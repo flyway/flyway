@@ -1,0 +1,3 @@
+Source: https://github.com/stleary/JSON-java/blob/master/LICENSE
+
+Public Domain.

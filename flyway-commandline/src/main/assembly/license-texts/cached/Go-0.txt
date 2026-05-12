@@ -1,0 +1,52 @@
+1
+Copyright 2009 The Go Authors.
+2
+3
+Redistribution and use in source and binary forms, with or without
+4
+modification, are permitted provided that the following conditions are
+5
+met:
+6
+7
+* Redistributions of source code must retain the above copyright
+8
+notice, this list of conditions and the following disclaimer.
+9
+* Redistributions in binary form must reproduce the above
+10
+copyright notice, this list of conditions and the following disclaimer
+11
+in the documentation and/or other materials provided with the
+12
+distribution.
+13
+* Neither the name of Google LLC nor the names of its
+14
+contributors may be used to endorse or promote products derived from
+15
+this software without specific prior written permission.
+16
+17
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+18
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+19
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+20
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+21
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+22
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+23
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+24
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+25
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+26
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+27
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+28
