@@ -1,0 +1,12 @@
+{
+  "name": "flyway-dev",
+  "image": "maven:3.9-eclipse-temurin-17",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+  "workspaceFolder": "/workspace",
+  "postCreateCommand": "mvn dependency:go-offline -pl flyway-core --also-make -q 2>/dev/null || true",
+  "customizations": {
+    "vscode": {
+      "extensions": ["vscjava.vscode-java-pack"]
+    }
+  }
+}

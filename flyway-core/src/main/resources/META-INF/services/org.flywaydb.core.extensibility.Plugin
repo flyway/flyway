@@ -7,7 +7,6 @@ org.flywaydb.core.internal.configuration.resolvers.EnvironmentVariableResolver
 org.flywaydb.core.internal.configuration.resolvers.EnvironmentProvisionerNone
 org.flywaydb.core.internal.configuration.resolvers.PlaceholderPropertyResolver
 org.flywaydb.core.internal.proprietaryStubs.CheckCommandExtensionStub
-org.flywaydb.core.internal.proprietaryStubs.UndoCommandExtensionStub
 org.flywaydb.core.api.migration.baseline.BaselineAppliedMigration
 org.flywaydb.core.api.migration.baseline.BaselineMigrationConfigurationExtension
 org.flywaydb.core.api.migration.baseline.BaselineMigrationResolver
@@ -28,3 +27,7 @@ org.flywaydb.core.internal.scanner.classpath.ClasspathLocationHandlerImpl
 org.flywaydb.core.internal.scanner.filesystem.FilesystemLocationHandler
 org.flywaydb.core.internal.NullFlywayTelemetryManager
 org.flywaydb.core.internal.jdbc.ErrorOverrideInitializerStub
+org.flywaydb.core.internal.resource.UndoResourceTypeProvider
+org.flywaydb.core.internal.resolver.sql.UndoSqlMigrationResolver
+org.flywaydb.core.internal.command.UndoCommandExtension
+org.flywaydb.core.internal.command.DryRunCommandExtension

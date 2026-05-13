@@ -28,10 +28,13 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.extensibility.AppliedMigration;
 import org.flywaydb.core.extensibility.MigrationType;
+import org.flywaydb.core.internal.info.AppliedMigrationAttributes;
 import org.flywaydb.core.internal.info.MigrationInfoContext;
+import org.flywaydb.core.internal.util.Pair;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 @AllArgsConstructor
@@ -139,6 +142,23 @@ public class BaseAppliedMigration implements AppliedMigration {
                                    int executionTime,
                                    boolean success) {
         return new BaseAppliedMigration(installedRank, version, description, type, script, checksum, installedOn, installedBy, executionTime, success);
+    }
+
+    @Override
+    public void updateAttributes(List<Pair<AppliedMigration, AppliedMigrationAttributes>> appliedMigrations) {
+        if (getType() == CoreMigrationType.UNDO_SCRIPT && isSuccess() && getVersion() != null) {
+            for (int i = appliedMigrations.size() - 1; i >= 0; i--) {
+                Pair<AppliedMigration, AppliedMigrationAttributes> av = appliedMigrations.get(i);
+                if (!av.getLeft().getType().isSynthetic()
+                        && !av.getLeft().getType().isUndo()
+                        && getVersion().equals(av.getLeft().getVersion())
+                        && av.getLeft().isSuccess()
+                        && !av.getRight().undone) {
+                    av.getRight().undone = true;
+                    return;
+                }
+            }
+        }
     }
 
     private boolean isMigrationNotInList(MigrationPattern[] cherryPick, MigrationVersion version, String description) {

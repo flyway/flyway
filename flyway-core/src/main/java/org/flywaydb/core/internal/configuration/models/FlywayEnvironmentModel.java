@@ -52,6 +52,7 @@ public class FlywayEnvironmentModel {
     private String sqlMigrationPrefix;
     private Boolean executeInTransaction;
     private String repeatableSqlMigrationPrefix;
+    private String undoSqlMigrationPrefix;
     private String sqlMigrationSeparator;
     private List<String> sqlMigrationSuffixes;
     private Boolean cleanDisabled;
@@ -112,6 +113,7 @@ public class FlywayEnvironmentModel {
         result.sqlMigrationPrefix = sqlMigrationPrefix.merge(otherPojo.sqlMigrationPrefix);
         result.executeInTransaction = executeInTransaction.merge(otherPojo.executeInTransaction);
         result.repeatableSqlMigrationPrefix = repeatableSqlMigrationPrefix.merge(otherPojo.repeatableSqlMigrationPrefix);
+        result.undoSqlMigrationPrefix = undoSqlMigrationPrefix.merge(otherPojo.undoSqlMigrationPrefix);
         result.sqlMigrationSeparator = sqlMigrationSeparator.merge(otherPojo.sqlMigrationSeparator);
         result.sqlMigrationSuffixes = sqlMigrationSuffixes.merge(otherPojo.sqlMigrationSuffixes);
         result.cleanDisabled = cleanDisabled.merge(otherPojo.cleanDisabled);
