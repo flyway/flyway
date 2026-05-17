@@ -241,6 +241,24 @@
         <artifactId>jackson-databind</artifactId>
         <version>${version.jackson}</version>
       </dependency>
+      <!-- Force safe plexus-utils version to remediate CVE Directory Traversal (SNYK-JAVA-ORGCODEHAUSPLEXUS-15766699) -->
+      <dependency>
+        <groupId>org.codehaus.plexus</groupId>
+        <artifactId>plexus-utils</artifactId>
+        <version>4.0.3</version>
+      </dependency>
+      <!-- Force safe httpcore5-h2 version to remediate DoS (SNYK-JAVA-ORGAPACHEHTTPCOMPONENTSCORE5-15857052) -->
+      <dependency>
+        <groupId>org.apache.httpcomponents.core5</groupId>
+        <artifactId>httpcore5-h2</artifactId>
+        <version>5.3.5</version>
+      </dependency>
+      <!-- Force safe org.json version to remediate DoS/Resources CVEs (SNYK-JAVA-ORGJSON-*) -->
+      <dependency>
+        <groupId>org.json</groupId>
+        <artifactId>json</artifactId>
+        <version>20231013</version>
+      </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
