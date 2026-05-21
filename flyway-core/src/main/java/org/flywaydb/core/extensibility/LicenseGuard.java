@@ -19,6 +19,7 @@
  */
 package org.flywaydb.core.extensibility;
 
+import java.util.Collections;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -160,6 +161,18 @@ public class LicenseGuard {
 
 
          return OSS_PERMIT;
+
+    }
+
+    public static List<String> consumeDeferredWarnings(Configuration configuration) {
+
+
+
+
+
+
+
+         return Collections.emptyList();
 
     }
 

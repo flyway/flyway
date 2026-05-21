@@ -7,7 +7,7 @@ redirect_from: Configuration/licenseKey/
 
 __This parameter is deprecated and will be removed in a future release.__
 
-For an overview of ways to license Flyway see [Flyway Licensing](https://documentation.red-gate.com/flyway/getting-started-with-flyway/system-requirements/licensing)
+For an overview of ways to license Flyway see [Flyway Licensing](https://documentation.red-gate.com/fd/licensing-164167730.html)
 
 ## Description
 

@@ -146,14 +146,6 @@ public class FlywayPermit implements Serializable {
             }
         }
 
-        if (this.tier == Tier.COMMUNITY && PERMIT_FILE.exists()) {
-            LOG.info(
-                "No Flyway license detected for this user, using Community Edition. If you expected a Teams or Enterprise license then please ensure your user account is allocated a Flyway license in Redgate portal.\n"
-                    + "Alternatively, you can run auth -logout to remove your unlicensed permit on disk.\n"
-                    + "For more information see "
-                    + LICENSING_ACTIVATING_CLI);
-        }
-
         if (trial) {
             LOG.warn("You are using a limited Flyway trial license, valid until "
                 + DateUtils.toDateString(this.contractExpiry)

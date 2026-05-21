@@ -19,14 +19,13 @@
  */
 package org.flywaydb.core.api.configuration;
 
+import static org.flywaydb.core.internal.configuration.ConfigUtils.isOSS;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.removeBoolean;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.removeInteger;
 
+import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
 import tools.jackson.databind.ObjectMapper;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.nio.charset.Charset;
@@ -55,14 +54,12 @@ import org.flywaydb.core.ProgressLoggerEmpty;
 import org.flywaydb.core.ProgressLoggerJson;
 import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.api.CoreErrorCode;
-import org.flywaydb.core.api.CoreLocationPrefix;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.MigrationPattern;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.callback.Callback;
-import org.flywaydb.core.api.locations.LocationParser;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.api.resolver.MigrationResolver;
@@ -85,8 +82,8 @@ import org.flywaydb.core.internal.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.nc.NativeConnectorsModeUtils;
 import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.proprietaryStubs.CherryPickConfigurationExtensionStub;
+import org.flywaydb.core.internal.proprietaryStubs.DryRunConfigurationExtensionStub;
 import org.flywaydb.core.internal.scanner.ClasspathClassScanner;
-import org.flywaydb.core.internal.scanner.ReadWriteLocationHandler;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.Locations;
@@ -120,7 +117,6 @@ public class ClassicConfiguration implements Configuration {
     private ClassProvider<JavaMigration> javaMigrationClassProvider;
     private JavaMigration[] javaMigrations = {};
     private MigrationResolver[] resolvers = {};
-    private OutputStream dryRunOutput;
     @Setter
     private PluginRegister pluginRegister = new PluginRegister();
 
@@ -769,31 +765,12 @@ public class ClassicConfiguration implements Configuration {
 
     @Override
     public OutputStream getDryRunOutput() {
+        final String dryRunOutputFileName = getEnvironmentOverrides().getDryRunOutput() != null
+            ? getEnvironmentOverrides().getDryRunOutput()
+            : getModernFlyway().getDryRunOutput();
 
-        if (this.dryRunOutput == null) {
-
-            final String dryRunOutputFileName = getEnvironmentOverrides().getDryRunOutput() != null
-                ? getEnvironmentOverrides().getDryRunOutput()
-                : getModernFlyway().getDryRunOutput();
-
-            if (!StringUtils.hasText(dryRunOutputFileName)) {
-                return null;
-            }
-
-
-
-
-
-
-
-
-
-
-
-
-        }
-
-        return this.dryRunOutput;
+        return pluginRegister.getInstanceOf(DryRunConfigurationExtensionStub.class)
+            .getOrResolveOutputStream(dryRunOutputFileName, this);
     }
 
     /**
@@ -804,12 +781,11 @@ public class ClassicConfiguration implements Configuration {
      * @param dryRunOutput The output file or {@code null} to execute the SQL statements directly against the database.
      */
     public void setDryRunOutput(final OutputStream dryRunOutput) {
-
-        throw new org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException(LicenseGuard.getTier(this), "dryRunOutput");
-
-
-
-
+        if (isOSS()) {
+            throw new FlywayEditionUpgradeRequiredException(null, "dryRunOutput");
+        }
+        pluginRegister.getInstanceOf(DryRunConfigurationExtensionStub.class)
+            .setOutputStream(dryRunOutput);
     }
 
     @Override
@@ -1347,55 +1323,7 @@ public class ClassicConfiguration implements Configuration {
      * @param dryRunOutput The output file or {@code null} to execute the SQL statements directly against the database.
      */
     public void setDryRunOutputAsFile(final File dryRunOutput) {
-
-        throw new org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException(LicenseGuard.getTier(this), "dryRunOutput");
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        setDryRunOutputAsFileName(dryRunOutput == null ? null : dryRunOutput.getAbsolutePath());
     }
 
     /**
@@ -1411,12 +1339,11 @@ public class ClassicConfiguration implements Configuration {
      *                             against the database.
      */
     public void setDryRunOutputAsFileName(final String dryRunOutputFileName) {
-
-        throw new org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException(LicenseGuard.getTier(this), "dryRunOutput");
-
-
-
-
+        if (isOSS()) {
+            throw new FlywayEditionUpgradeRequiredException(null, "dryRunOutput");
+        }
+        pluginRegister.getInstanceOf(DryRunConfigurationExtensionStub.class).setOutputStream(null);
+        getModernFlyway().setDryRunOutput(dryRunOutputFileName);
     }
 
     /**
@@ -1674,9 +1601,8 @@ public class ClassicConfiguration implements Configuration {
         dataSources.clear();
         dataSources.putAll(configuration.getCachedDataSources());
         pluginRegister = configuration.getPluginRegister().getCopy();
-
-
-
+        pluginRegister.getInstanceOf(DryRunConfigurationExtensionStub.class)
+            .setOutputStream(configuration.getDryRunOutput());
 
         configureFromConfigurationProviders(this);
     }

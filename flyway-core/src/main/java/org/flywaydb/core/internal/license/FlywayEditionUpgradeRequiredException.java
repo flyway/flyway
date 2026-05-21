@@ -26,13 +26,14 @@ public class FlywayEditionUpgradeRequiredException extends FlywayLicensingExcept
     public FlywayEditionUpgradeRequiredException(final Tier current, final String feature) {
         super("Upgrade required: " + feature + " is not supported by " +
             (current == null ? "OSS" : current.getDisplayName())
-            + "."
+            + ".\n"
             + (current != null
-            ? " If you would like to start a free Enterprise trial, please run auth -startEnterpriseTrial -IAgreeToTheEula."
-            + " If you believe you should be logged in, run auth -IAgreeToTheEula or ensure licensing is set correctly."
-            : " Download Redgate Edition for free: "
+            ? "If you would like to start a free Enterprise trial, please run auth -startEnterpriseTrial -IAgreeToTheEula.\n"
+            + "Check the licensing documentation for information on how to license Flyway: "
+            + FlywayDbWebsiteLinks.LICENSING_ACTIVATING_CLI
+            : "Download Redgate Edition for free: "
                 + FlywayDbWebsiteLinks.REDGATE_EDITION_DOWNLOAD
-                + "."
-                + " Once you have installed Redgate Edition, you can start a free Enterprise trial by running auth -startEnterpriseTrial -IAgreeToTheEula."));
+                + ".\n"
+                + "Once you have installed Redgate Edition, you can start a free Enterprise trial by running auth -startEnterpriseTrial -IAgreeToTheEula."));
     }
 }

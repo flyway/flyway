@@ -6,13 +6,13 @@ subtitle: Auth
 
 `auth` initiates an online license acquisition flow.
 
-For an overview of ways to license Flyway see [Flyway Licensing](https://documentation.red-gate.com/flyway/getting-started-with-flyway/system-requirements/licensing).
+For an overview of ways to license Flyway see [Flyway Licensing](https://documentation.red-gate.com/fd/licensing-164167730.html).
 
 If `auth` is run on a machine that is connected to the internet with an accessible browser, Flyway will launch a web browser prompting the user to log in with their Redgate account
 username and password. 
 
-- `auth` needs to be able to launch a web browser and so doesn't work on WSL or when interacting with Flyway over SSH. For these cases it is recommended to use a [non-interactive mechanism](https://documentation.red-gate.com/flyway/getting-started-with-flyway/system-requirements/licensing) to license Flyway.
-- If you need an offline licensing mechanism please look at [License Permits](https://documentation.red-gate.com/flyway/getting-started-with-flyway/system-requirements/licensing/license-permits).
+- `auth` needs to be able to launch a web browser and so doesn't work on WSL or when interacting with Flyway over SSH. For these cases it is recommended to use a [non-interactive mechanism](https://documentation.red-gate.com/fd/licensing-164167730.html) to license Flyway.
+- If you need an offline licensing mechanism please look at [License Permits](https://documentation.red-gate.com/fd/licensing-164167730.html).
 
 ### App Data Folder Locations
 Flyway stores permits in a central location rather than it's installation location.

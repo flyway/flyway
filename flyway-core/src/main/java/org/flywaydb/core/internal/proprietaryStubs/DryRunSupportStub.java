@@ -19,33 +19,19 @@
  */
 package org.flywaydb.core.internal.proprietaryStubs;
 
-import org.flywaydb.core.api.MigrationPattern;
+import java.io.OutputStream;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.extensibility.ConfigurationExtension;
+import org.flywaydb.core.extensibility.DryRunSupport;
 
-public class CherryPickConfigurationExtensionStub implements ConfigurationExtension {
-
-    public MigrationPattern[] getMigrationPatterns(final Configuration config) {
-        return null;
-    }
+public class DryRunSupportStub implements DryRunSupport {
 
     @Override
-    public String getNamespace() {
-        return "";
-    }
-
-    @Override
-    public String getConfigurationParameterFromEnvironmentVariable(final String environmentVariable) {
+    public OutputStream resolveOutputStream(final String fileName, final Configuration configuration) {
         return null;
     }
 
     @Override
     public int getPriority() {
         return -100;
-    }
-
-    @Override
-    public boolean isStub() {
-        return true;
     }
 }

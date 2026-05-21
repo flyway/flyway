@@ -23,6 +23,9 @@ org.flywaydb.core.internal.proprietaryStubs.PrepareCommandExtensionStub
 org.flywaydb.core.internal.proprietaryStubs.PATTokenConfigurationExtensionStub
 org.flywaydb.core.internal.proprietaryStubs.OfflinePermitConfigurationExtensionStub
 org.flywaydb.core.internal.proprietaryStubs.CherryPickConfigurationExtensionStub
+org.flywaydb.core.internal.proprietaryStubs.CherryPickSupportStub
+org.flywaydb.core.internal.proprietaryStubs.DryRunSupportStub
+org.flywaydb.core.internal.proprietaryStubs.DryRunConfigurationExtensionStub
 org.flywaydb.core.internal.publishing.PublishingConfigurationExtension
 org.flywaydb.core.internal.scanner.classpath.ClasspathLocationHandlerImpl
 org.flywaydb.core.internal.scanner.filesystem.FilesystemLocationHandler

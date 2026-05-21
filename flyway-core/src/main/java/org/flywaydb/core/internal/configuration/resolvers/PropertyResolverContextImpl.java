@@ -59,6 +59,15 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
         this.resolverConfigurations = Optional.ofNullable(resolverConfigurations).orElseGet(Map::of);
     }
 
+    public PropertyResolverContextImpl(
+        final Configuration configuration,
+        final Map<String, PropertyResolver> resolvers) {
+        this.environmentName = null;
+        this.configuration = configuration;
+        this.resolvers = resolvers;
+        this.resolverConfigurations = Map.of();
+    }
+
     @Override
     public ConfigurationExtension getResolverConfiguration(final String resolverName) {
         return resolverConfigurations.get(resolverName);
@@ -68,9 +77,9 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
     public ConfigurationExtension getResolverConfigurationOrThrow(final String resolverName) {
         return Optional.ofNullable(getResolverConfiguration(resolverName))
             .orElseThrow(() -> new FlywayException("Required configuration not defined for resolver/provisioner \""
-                + resolverName
-                + "\" for environment "
-                + environmentName, CoreErrorCode.CONFIGURATION));
+                + resolverName + "\""
+                + (environmentName != null ? " for environment " + environmentName : ""),
+                CoreErrorCode.CONFIGURATION));
     }
 
     @Override
@@ -158,7 +167,9 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
             .orElse(null);
 
         if (resolver == null) {
-            throw new FlywayException("Unknown resolver '" + resolverName + "' for environment " + environmentName, CoreErrorCode.CONFIGURATION);
+            throw new FlywayException("Unknown resolver '" + resolverName + "'"
+                + (environmentName != null ? " for environment " + environmentName : ""),
+                CoreErrorCode.CONFIGURATION);
         }
 
         final String resolverParam;

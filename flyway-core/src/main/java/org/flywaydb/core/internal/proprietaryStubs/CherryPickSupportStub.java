@@ -19,33 +19,41 @@
  */
 package org.flywaydb.core.internal.proprietaryStubs;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.OptionalInt;
+import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationPattern;
+import org.flywaydb.core.api.MigrationState;
+import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.extensibility.ConfigurationExtension;
+import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.extensibility.AppliedMigration;
+import org.flywaydb.core.extensibility.CherryPickSupport;
 
-public class CherryPickConfigurationExtensionStub implements ConfigurationExtension {
+public class CherryPickSupportStub implements CherryPickSupport {
 
-    public MigrationPattern[] getMigrationPatterns(final Configuration config) {
+    @Override
+    public MigrationState getStateOverride(MigrationPattern[] patterns, MigrationVersion version, String description) {
         return null;
     }
 
     @Override
-    public String getNamespace() {
-        return "";
+    public boolean shouldSkipValidation(MigrationPattern[] patterns, MigrationVersion version, String description) {
+        return false;
     }
 
     @Override
-    public String getConfigurationParameterFromEnvironmentVariable(final String environmentVariable) {
-        return null;
+    public OptionalInt compareByPickOrder(MigrationPattern[] patterns, MigrationInfo a, MigrationInfo b) {
+        return OptionalInt.empty();
+    }
+
+    @Override
+    public void validatePatterns(MigrationPattern[] patterns, Collection<ResolvedMigration> resolved, List<? extends AppliedMigration> applied, Configuration config) {
     }
 
     @Override
     public int getPriority() {
         return -100;
-    }
-
-    @Override
-    public boolean isStub() {
-        return true;
     }
 }

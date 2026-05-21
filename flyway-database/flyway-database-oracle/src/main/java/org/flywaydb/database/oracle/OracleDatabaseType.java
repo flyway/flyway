@@ -37,6 +37,7 @@ import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.base.BaseDatabaseType;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
+import org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
@@ -44,7 +45,6 @@ import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
-import org.flywaydb.core.internal.sqlscript.SqlScriptExecutor;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
 import org.flywaydb.core.internal.util.ClassUtils;
 import java.util.logging.LogManager;
@@ -59,6 +59,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
+
 
 
 @CustomLog
@@ -142,15 +143,18 @@ public class OracleDatabaseType extends BaseDatabaseType {
 
         final DatabaseType thisRef = this;
 
-        return new SqlScriptExecutorFactory() {
-            @Override
-            public SqlScriptExecutor createSqlScriptExecutor(Connection connection, boolean undo, boolean batch, boolean outputQueryResults) {
-                if (!supportsBatch) {
-                    batch = false;
-                }
-
-                return new OracleSqlScriptExecutor(new JdbcTemplate(connection, thisRef), callbackExecutor, undo, batch, outputQueryResults, statementInterceptor);
+        return (connection, undo, batch, outputQueryResults) -> {
+            if (!supportsBatch) {
+                batch = false;
             }
+
+
+
+
+
+
+             return new DefaultSqlScriptExecutor(new JdbcTemplate(connection, thisRef), callbackExecutor, undo, batch, outputQueryResults, statementInterceptor);
+
         };
     }
 

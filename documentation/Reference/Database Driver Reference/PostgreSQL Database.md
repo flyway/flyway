@@ -118,29 +118,12 @@ INSERT INTO ${tableName} (name) VALUES ('Mr. T');</pre>
 
 ## Authentication
 
-Flyway supports the following PostgreSQL authentication methods:
+PostgreSQL supports username/password authentication (including via JDBC URL), SCRAM, and pgpass credential retrieval.
 
-- URL authentication 
-- SCRAM
-- pgpass
+SCRAM authentication encryption is supported transparently using the current JDBC driver. Note that `.jre6` and `.jre7` versions of the driver for older JREs do not support it.
 
-### URL authentication
-
-The user and password can be provided in the JDBC URL, in the form
-
-`jdbc:postgresql://<host>:<port>/<database>?user=myUsername&password=myPassword&<key1>=<value1>&<key2>=<value2>...`
-
-In this case, they do not need to be passed separately in configuration and the Flyway commandline will not prompt for them.
-
-### SCRAM
-
-SCRAM authentication encryption is supported transparently using the current driver (42.2.14) - note that 
-`.jre6` and `.jre7` versions of the driver for older JREs do not support it. 
-
-### pgpass
-{% include teams.html %}
-
-Authentication can be done with a pgpass file to retrieve the password for a connection, in which case it does not need to be supplied in configuration. If the path to a pgpass file is set in the environment variable `PGPASSFILE`, it will be read from here. If not, then in Windows the file will be read from the location `%APPDATA%\postgresql\pgpass.conf`, otherwise it is read from`~/.pgpass`. You can read more about pgpass files and their structure [here](https://www.postgresql.org/docs/9.6/libpq-pgpass.html).
+For how to use authentication methods, see [Connecting to environments](https://documentation.red-gate.com/flyway/database-development-using-flyway/connecting-to-environments#Connectingtoenvironments-Authentication).
+For credential storage and retrieval, see [Storing and retrieving credentials](https://documentation.red-gate.com/flyway/database-development-using-flyway/storing-and-retrieving-credentials#Storingandretrievingcredentials-Database-specificcredentialretrieval).
 
 ## Lock Types
 

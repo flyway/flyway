@@ -17,35 +17,25 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.core.internal.proprietaryStubs;
+package org.flywaydb.core.extensibility;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.OptionalInt;
+import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationPattern;
+import org.flywaydb.core.api.MigrationState;
+import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.extensibility.ConfigurationExtension;
+import org.flywaydb.core.api.resolver.ResolvedMigration;
 
-public class CherryPickConfigurationExtensionStub implements ConfigurationExtension {
+public interface CherryPickSupport extends Plugin {
 
-    public MigrationPattern[] getMigrationPatterns(final Configuration config) {
-        return null;
-    }
+    MigrationState getStateOverride(MigrationPattern[] patterns, MigrationVersion version, String description);
 
-    @Override
-    public String getNamespace() {
-        return "";
-    }
+    boolean shouldSkipValidation(MigrationPattern[] patterns, MigrationVersion version, String description);
 
-    @Override
-    public String getConfigurationParameterFromEnvironmentVariable(final String environmentVariable) {
-        return null;
-    }
+    OptionalInt compareByPickOrder(MigrationPattern[] patterns, MigrationInfo a, MigrationInfo b);
 
-    @Override
-    public int getPriority() {
-        return -100;
-    }
-
-    @Override
-    public boolean isStub() {
-        return true;
-    }
+    void validatePatterns(MigrationPattern[] patterns, Collection<ResolvedMigration> resolved, List<? extends AppliedMigration> applied, Configuration config);
 }

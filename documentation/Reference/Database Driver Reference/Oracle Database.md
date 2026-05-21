@@ -14,7 +14,7 @@ All editions are supported, including XE.
 ## Driver
 
 | Item                               | Details                                                                      |
-| ---------------------------------- |------------------------------------------------------------------------------|
+|------------------------------------|------------------------------------------------------------------------------|
 | **URL format**                     | `jdbc:oracle:thin:@//host:port/service` <br> `jdbc:oracle:thin:@tns_entry` * |
 | **Ships with Flyway Command-line** | Yes                                                                          |
 | **Maven Central coordinates**      | `com.oracle.database.jdbc:ojdbc11`                                           |
@@ -209,44 +209,16 @@ For more information, see the [SQL\*Plus documentation](https://docs.oracle.com/
 
 ## Authentication
 
-### JDBC
+Oracle supports several methods of authentication, including username/password (which can be embedded in the JDBC URL), Oracle Wallet, Kerberos, and proxy authentication.
 
-Oracle supports user and password being provided in the JDBC URL, in the form
+For how to use authentication methods, see [Connecting to environments](https://documentation.red-gate.com/flyway/database-development-using-flyway/connecting-to-environments#Connectingtoenvironments-Authentication).
+For credential storage and retrieval, see [Storing and retrieving credentials](https://documentation.red-gate.com/flyway/database-development-using-flyway/storing-and-retrieving-credentials#Storingandretrievingcredentials-Database-specificcredentialretrieval).
+
+Oracle also supports user and password being provided directly in the JDBC URL:
 
 `jdbc:oracle:thin:<user>/<password>@//<host>:<port>/<database>`
 
-In this case, they do not need to be passed separately in configuration and the Flyway commandline will not prompt for them.
-
-### Oracle Wallet
-
-{% include teams.html %}
-
-Flyway can connect to your databases using credentials in your Oracle Wallet.
-
-First you need to ensure you have set the environment variable `TNS_ADMIN` to point to the location containing your `tnsnames.ora` file. Then you will need to configure the [`flyway.oracle.walletLocation`](<Configuration/Flyway Namespace/Flyway Oracle Namespace/Flyway Oracle Wallet Location Setting>) parameter to point to the location of your Oracle wallet. Lastly your URL should be provided as specified in `tnsnames.ora` i.e. if it is using an alias then connect with the `jdbc:oracle:thin:@db_alias` syntax.
-
-With that configuration you will be able to connect to your database without providing any credentials in config.
-
-### Kerberos
-
-{% include teams.html %}
-
-You can authenticate using Kerberos by specifying the location of the local Kerberos configuration file (which contains
-details such as the locations of Kerberos Key Distribution Centers), and optionally the local credential cache, to
-Flyway. For example, in `flyway.conf`:
-
-```properties
-flyway.oracle.kerberosConfigFile=/etc/krb5.conf
-flyway.oracle.kerberosCacheFile=/tmp/krb5cc_123
-```
-
-### Proxy Authentication
-
-{% include teams.html %}
-
-Flyway allows you to proxy through other users during migrations. You can read about how to enable proxy authentication for users [here](https://docs.oracle.com/cd/E11882_01/java.112/e16548/proxya.htm#JJDBC28352).
-
-To configure Flyway to use a proxy connection, you need to add to [`jdbcProperties`](<Configuration/Environments Namespace/Environment JDBC Properties Namespace>) a key `PROXY_USER_NAME` whose value is the name of the user you are trying to proxy as. For example, if you connect as user `A` to Flyway (i.e. `flyway.user=A`) and you want to proxy as user `B` for migrations, you need to add `flyway.jdbcProperties.PROXY_USER_NAME=B`.
+In this case, they do not need to be passed separately in configuration and the Flyway command-line will not prompt for them.
 
 ## Limitations
 

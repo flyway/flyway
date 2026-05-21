@@ -188,6 +188,9 @@ public class Main {
             } catch (final FlywayExpiredLicenseKeyException e) {
                 LOG.error(e.getMessage());
             }
+            for (final String warning : LicenseGuard.consumeDeferredWarnings(configuration)) {
+                LOG.warn(warning);
+            }
             hasPrintedLicense = true;
         }
     }
@@ -211,6 +214,7 @@ public class Main {
         // Command extensions don't need a full Flyway instance — they use configuration directly
         if (isSingleCommandExtension) {
             final String operation = commandLineArguments.getOperations().get(0);
+            LogFactory.setConfiguration(configuration);
             printLicenseInfo(configuration, operation);
             return CommandExtensionUtils.runCommandExtension(configuration, operation, commandLineArguments.getFlags());
         }

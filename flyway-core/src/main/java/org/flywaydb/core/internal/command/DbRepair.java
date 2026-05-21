@@ -103,7 +103,7 @@ public class DbRepair {
         this.configuration = configuration;
 
         this.migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, schemaHistory, database, configuration,
-                                                                 MigrationVersion.LATEST, true, ValidatePatternUtils.getIgnoreAllPattern(), configuration.getCherryPick());
+                                                                 MigrationVersion.LATEST, true, ValidatePatternUtils.getIgnoreAllPattern());
 
         this.repairResult = CommandResultFactory.createRepairResult(database.getCatalog());
     }

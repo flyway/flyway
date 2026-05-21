@@ -47,11 +47,7 @@ public class OracleParser extends Parser {
     /**
      * Delimiter of PL/SQL blocks and statements.
      */
-    private static final Delimiter PLSQL_DELIMITER = new Delimiter("/", true
-
-
-
-    );
+    private static final Delimiter PLSQL_DELIMITER = new Delimiter("/", true, null);
 
     //                                                 accessible   by    (        keyword<space>optionalidentifier                      )
     private static final String ACCESSIBLE_BY_REGEX = "ACCESSIBLE\\sBY\\s\\(?(((FUNCTION|PROCEDURE|PACKAGE|TRIGGER|TYPE)\\s)?[^\\s]\\s?+)*\\)?";

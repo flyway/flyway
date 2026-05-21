@@ -2,11 +2,8 @@
 subtitle: Environment Variable
 ---
 
-For parameters in the [environment namespace](Configuration/Environments Namespace) it is possible to inject variables into the TOML using the environment variable resolver.
-
-This expects an entry of the form `${env.VARIABLE_NAME}`.
-
-_Note: Flyway parameters outside of the environment namespace have their own configuration - see the 'Environment Variable' section of the parameter of interest_
+The environment variable resolver allows you to inject environment variables into your TOML configuration using the syntax `${env.VARIABLE_NAME}`. 
+This works consistently across all Flyway namespace parameters and environment properties in TOML configuration.
 
 ## Usage
 
@@ -19,5 +16,15 @@ This can't be set in a config file via Flyway Desktop, although it will be honou
 ```toml
 [environments.mydevdb]
 user = "${env.DATABASE_USERNAME}"
+password = "${env.DATABASE_PASSWORD}"
+
+[flyway]
+installedBy = "${env.CI_PIPELINE_NAME}"
+defaultSchema = "${env.TARGET_SCHEMA}"
+locations = ["${env.MIGRATION_DIR}"]
+
+[flyway]
+email = "${env.FLYWAY_EMAIL}"
+token = "${env.FLYWAY_TOKEN}"
 ```
 

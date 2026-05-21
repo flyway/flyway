@@ -193,11 +193,7 @@ public abstract class Parser {
                                                           " col " + statementCol + ": " + sql);
                     }
 
-                    context.setDelimiter(new Delimiter(token.getText(), false
-
-
-
-                    ));
+                    context.setDelimiter(new Delimiter(token.getText(), false, null));
                     tokens.clear();
                     recorder.start();
                     statementLine = tracker.getLine();

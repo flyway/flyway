@@ -30,7 +30,7 @@ import org.flywaydb.core.internal.util.AbbreviationUtils;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Objects;
-import java.util.stream.IntStream;
+import java.util.OptionalInt;
 
 public class MigrationInfoImpl implements MigrationInfo {
     private final ResolvedMigration resolvedMigration;
@@ -122,23 +122,6 @@ public class MigrationInfoImpl implements MigrationInfo {
         return null;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Override
     public MigrationState getState() {
         if (undone) {
@@ -150,13 +133,10 @@ public class MigrationInfoImpl implements MigrationInfo {
         }
 
         if (appliedMigration == null) {
-
-
-
-
-
-
-
+            MigrationState cherryPickState = context.cherryPickSupport.getStateOverride(context.cherryPick, resolvedMigration.getVersion(), resolvedMigration.getDescription());
+            if (cherryPickState != null) {
+                return cherryPickState;
+            }
 
             if (shouldNotExecuteMigration) {
                 return MigrationState.IGNORED;
@@ -239,11 +219,9 @@ public class MigrationInfoImpl implements MigrationInfo {
             return new ErrorDetails(CoreErrorCode.FAILED_VERSIONED_MIGRATION, errorMessage);
         }
 
-
-
-
-
-
+        if (context.cherryPickSupport.shouldSkipValidation(context.cherryPick, getVersion(), getDescription())) {
+            return null;
+        }
 
         if (resolvedMigration == null
                 && !appliedMigration.getType().isSynthetic()
@@ -345,21 +323,12 @@ public class MigrationInfoImpl implements MigrationInfo {
         return resolvedMigration != null && resolvedMigration.getExecutor().canExecuteInTransaction();
     }
 
-
-
-
-
-
-
-
-
     @Override
     public int compareTo(MigrationInfo o) {
-
-
-
-
-
+        OptionalInt cherryPickComparison = context.cherryPickSupport.compareByPickOrder(context.cherryPick, this, o);
+        if (cherryPickComparison.isPresent()) {
+            return cherryPickComparison.getAsInt();
+        }
 
         if ((getInstalledRank() != null) && (o.getInstalledRank() != null)) {
             return getInstalledRank().compareTo(o.getInstalledRank());

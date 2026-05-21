@@ -12,7 +12,7 @@ subtitle: MySQL
 ## Drivers
 
 | -                                  | MySQL                                                                       | MariaDB                                |
-| ---------------------------------- | --------------------------------------------------------------------------- | -------------------------------------- |
+|------------------------------------|-----------------------------------------------------------------------------|----------------------------------------|
 | **URL format**                     | `jdbc:mysql://host:port/database`                                           | `jdbc:mysql://host:port/database`      |
 | **SSL support**                    | Yes - add `?useSsl=true`                                                    | Yes - add `?useSsl=true`               |
 | **Ships with Flyway Command-line** | No <br>[Connector/J Download](https://dev.mysql.com/downloads/connector/j/) | Yes                                    |
@@ -112,9 +112,10 @@ INSERT INTO ${tableName} (name) VALUES ('Mr. T');
 
 ## Authentication
 
-Flyway supports the following MySQL authentication methods:
+MySQL supports username/password authentication and credential retrieval from MySQL option files.
 
-- MySQL Option Files
+For how to use authentication methods, see [Connecting to environments](https://documentation.red-gate.com/flyway/database-development-using-flyway/connecting-to-environments#Connectingtoenvironments-Authentication).
+For credential storage and retrieval, see [Storing and retrieving credentials](https://documentation.red-gate.com/flyway/database-development-using-flyway/storing-and-retrieving-credentials#Storingandretrievingcredentials-Database-specificcredentialretrieval).
 
 ### Option Files
 {% include teams.html %}
@@ -122,7 +123,7 @@ Flyway supports the following MySQL authentication methods:
 A username and password can be retrieved from MySQL option files for authentication, in which case they do not need to be supplied in configuration. The following table lists which option files are searched for per operating system, in order.
 
 | Windows                                      | Other                |
-| -------------------------------------------- | -------------------- |
+|----------------------------------------------|----------------------|
 | `%WINDIR%\my.ini`, `%WINDIR%\my.cnf`         | `/etc/my.cnf`        |
 | `C:\my.ini`, `C:\my.cnf`                     | `/etc/mysql/my.cnf`  |
 | `%MYSQL_HOME%\my.ini`, `%MYSQL_HOME%\my.cnf` | `$MYSQL_HOME/my.cnf` |
@@ -130,6 +131,7 @@ A username and password can be retrieved from MySQL option files for authenticat
 | N/A                                          | `~/.mylogin.cnf`     |
 
 You can read more about MySQL option files [here](https://dev.mysql.com/doc/refman/8.0/en/option-files.html).
+
 
 ## Limitations
 

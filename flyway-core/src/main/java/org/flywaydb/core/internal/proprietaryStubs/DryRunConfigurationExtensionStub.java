@@ -19,14 +19,22 @@
  */
 package org.flywaydb.core.internal.proprietaryStubs;
 
-import org.flywaydb.core.api.MigrationPattern;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.OutputStream;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.ConfigurationExtension;
 
-public class CherryPickConfigurationExtensionStub implements ConfigurationExtension {
+public class DryRunConfigurationExtensionStub implements ConfigurationExtension {
 
-    public MigrationPattern[] getMigrationPatterns(final Configuration config) {
-        return null;
+    @JsonIgnore
+    protected OutputStream cachedOutputStream;
+
+    public OutputStream getOrResolveOutputStream(final String fileName, final Configuration configuration) {
+        return cachedOutputStream;
+    }
+
+    public void setOutputStream(final OutputStream outputStream) {
+        cachedOutputStream = outputStream;
     }
 
     @Override

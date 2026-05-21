@@ -16,7 +16,7 @@ All Oracle editions are supported, including XE.
 ## Driver
 
 | Item                               | Details                                                                      |
-| ---------------------------------- | ---------------------------------------------------------------------------- |
+|------------------------------------|------------------------------------------------------------------------------|
 | **URL format**                     | `jdbc:oracle:thin:@//host:port/service` <br> `jdbc:oracle:thin:@tns_entry` * |
 | **Ships with Flyway Command-line** | Yes                                                                          |
 | **Maven Central coordinates**      | `com.oracle.database.jdbc:ojdbc11`                                           |
@@ -50,23 +50,16 @@ Flyway [placeholders](<Configuration/Flyway Namespace/Flyway Placeholders Namesp
 
 ## Authentication
 
-### JDBC
+Oracle supports several methods of authentication, including username/password (which can be embedded in the JDBC URL), Oracle Wallet, and Kerberos.
 
-Oracle supports user and password being provided in the JDBC URL, in the form
+For how to use authentication methods, see [Connecting to environments](https://documentation.red-gate.com/flyway/database-development-using-flyway/connecting-to-environments#Connectingtoenvironments-Authentication).
+For credential storage and retrieval, see [Storing and retrieving credentials](https://documentation.red-gate.com/flyway/database-development-using-flyway/storing-and-retrieving-credentials#Storingandretrievingcredentials-Database-specificcredentialretrieval).
+
+Oracle also supports user and password being provided directly in the JDBC URL:
 
 `jdbc:oracle:thin:<user>/<password>@//<host>:<port>/<database>`
 
 In this case, they do not need to be passed separately in configuration.
-
-### Oracle Wallet
-
-{% include teams.html %}
-
-Flyway can connect to your databases using credentials in your Oracle Wallet.
-
-First you need to ensure you have set the environment variable `TNS_ADMIN` to point to the location containing your `tnsnames.ora` file. Then you will need to configure the [`flyway.oracle.walletLocation`](<Configuration/Flyway Namespace/Flyway Oracle Namespace/Flyway Oracle Wallet Location Setting>) parameter to point to the location of your Oracle wallet. Lastly your URL should be provided as specified in `tnsnames.ora` i.e. if it is using an alias then connect with the `jdbc:oracle:thin:@db_alias` syntax.
-
-With that configuration you will be able to connect to your database without providing any credentials in config.
 
 ## Limitations
 

@@ -106,8 +106,7 @@ public class DbValidate {
                     MigrationInfoServiceImpl migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, schemaHistory, database, configuration,
                                                                                                  configuration.getTarget(),
                                                                                                  configuration.isOutOfOrder(),
-                                                                                                 ignorePatterns,
-                                                                                                 configuration.getCherryPick());
+                                                                                                 ignorePatterns);
 
                     migrationInfoService.refresh();
 

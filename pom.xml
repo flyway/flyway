@@ -20,7 +20,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.flywaydb</groupId>
   <artifactId>flyway-parent</artifactId>
-  <version>12.6.1</version>
+  <version>12.6.2</version>
   <packaging>pom</packaging>
   <name>${project.artifactId}</name>
   <description>Flyway: Database Migrations Made Easy.</description>
@@ -131,13 +131,15 @@
     <version.bcpkix-jdk18on>1.84</version.bcpkix-jdk18on>
     <version.build-helper-maven-plugin>3.6.1</version.build-helper-maven-plugin>
     <version.byte-buddy-agent>1.17.6</version.byte-buddy-agent>
-    <version.cassandra>4.16.3</version.cassandra>
+    <version.cassandra-jdbc>4.16.3</version.cassandra-jdbc>
+    <version.cassandra-nc>4.19.2</version.cassandra-nc>
     <version.commonslogging>1.2</version.commonslogging>
     <version.commonstext>1.10.0</version.commonstext>
     <version.commonslang3>3.18.0</version.commonslang3>
     <version.couchbase>3.11.2</version.couchbase>
-    <version.db2>11.5.0.0</version.db2>
-    <version.derby>10.16.1.1</version.derby>
+    <version.databricks>3.3.3</version.databricks>
+    <version.db2>11.5.5.0</version.db2>
+    <version.derby>10.17.1.0</version.derby>
     <version.equinox>3.15.200</version.equinox>
     <version.equinoxcommon>3.10.600</version.equinoxcommon>
     <version.gcs>2.60.0</version.gcs>
@@ -162,9 +164,10 @@
     <version.junit>6.0.3</version.junit>
     <version.java-diff-utils>4.12</version.java-diff-utils>
     <version.system-stubs>2.1.8</version.system-stubs>
+    <version.legacy-jackson>2.21.2</version.legacy-jackson>
     <version.license-maven-plugin>2.4.0</version.license-maven-plugin>
-    <version.log4net2>2.17.1</version.log4net2>
-    <version.logback>1.2.3</version.logback>
+    <version.log4net2>2.25.4</version.log4net2>
+    <version.logback>1.2.13</version.logback>
     <version.lombok>1.18.44</version.lombok>
     <version.lombok-maven-plugin>1.18.20.0</version.lombok-maven-plugin>
     <version.mariadb>2.7.13</version.mariadb>
@@ -178,14 +181,14 @@
     <version.mssql-jdbc>${version.mssql}.jre11</version.mssql-jdbc>
     <version.mssql-jdbc_auth.x86>${version.mssql}.x86</version.mssql-jdbc_auth.x86>
     <version.mssql-jdbc_auth.x64>${version.mssql}.x64</version.mssql-jdbc_auth.x64>
-    <version.mysql>8.0.24</version.mysql>
+    <version.mysql>8.0.28</version.mysql>
     <version.netty>4.2.13.Final</version.netty>
     <version.oracle>21.18.0.0</version.oracle>
     <version.osgi>4.3.1</version.osgi>
     <version.p6spy>3.9.1</version.p6spy>
     <version.postgresql>42.7.11</version.postgresql>
     <version.reactor-netty>1.2.8</version.reactor-netty>
-    <version.redshift>2.1.0.32</version.redshift>
+    <version.redshift>2.2.5</version.redshift>
     <version.sap>2.6.30</version.sap>
     <version.singlestore>1.2.8</version.singlestore>
     <version.slf4j>1.7.30</version.slf4j>
@@ -222,6 +225,11 @@
         <version>${version.jackson}</version>
       </dependency>
       <dependency>
+        <groupId>tools.jackson.dataformat</groupId>
+        <artifactId>jackson-dataformat-xml</artifactId>
+        <version>${version.jackson}</version>
+      </dependency>
+      <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-annotations</artifactId>
         <version>2.21</version>
@@ -229,7 +237,7 @@
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-core</artifactId>
-        <version>2.21.2</version>
+        <version>${version.legacy-jackson}</version>
       </dependency>
       <dependency>
         <groupId>tools.jackson.core</groupId>
@@ -244,7 +252,7 @@
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
-        <version>2.21.1</version>
+        <version>${version.legacy-jackson}</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
@@ -489,7 +497,7 @@
       <dependency>
         <groupId>com.ing.data</groupId>
         <artifactId>cassandra-jdbc-wrapper</artifactId>
-        <version>${version.cassandra}</version>
+        <version>${version.cassandra-jdbc}</version>
         <optional>true</optional>
         <exclusions>
           <exclusion>
@@ -542,6 +550,23 @@
         <artifactId>mongodb-driver-sync</artifactId>
         <version>${version.mongodb}</version>
       </dependency>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -782,6 +807,12 @@
         <artifactId>osdt_core</artifactId>
         <version>${version.oracle}</version>
       </dependency>
+      <dependency>
+        <groupId>com.databricks</groupId>
+        <artifactId>databricks-jdbc</artifactId>
+        <version>${version.databricks}</version>
+      </dependency>
+
     </dependencies>
   </dependencyManagement>
 
@@ -864,7 +895,7 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>exec-maven-plugin</artifactId>
-          <version>1.6.0</version>
+          <version>3.6.3</version>
         </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>

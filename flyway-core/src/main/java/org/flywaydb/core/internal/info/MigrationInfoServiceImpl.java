@@ -29,12 +29,9 @@ import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.api.MigrationFilter;
 import org.flywaydb.core.extensibility.AppliedMigration;
-import org.flywaydb.core.extensibility.LicenseGuard;
 import org.flywaydb.core.extensibility.MigrationType;
-import org.flywaydb.core.extensibility.Tier;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
-import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
 import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.Pair;
@@ -49,7 +46,6 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
     private final MigrationVersion target;
     private final boolean outOfOrder;
     private final ValidatePattern[] ignorePatterns;
-    private final MigrationPattern[] cherryPick;
     /**
      * The migrations infos calculated at the last refresh.
      */
@@ -65,10 +61,9 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      * @param configuration The current configuration.
      * @param target The target version up to which to retrieve the info.
      * @param outOfOrder Allows migrations to be run "out of order".
-     * @param cherryPick The migrations to consider when migration.
      */
     public MigrationInfoServiceImpl(CompositeMigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database, final Configuration configuration,
-                                    MigrationVersion target, boolean outOfOrder, ValidatePattern[] ignorePatterns, MigrationPattern[] cherryPick) {
+                                    MigrationVersion target, boolean outOfOrder, ValidatePattern[] ignorePatterns) {
         this.migrationResolver = migrationResolver;
         this.configuration = configuration;
         this.database = database;
@@ -76,7 +71,6 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         this.target = target;
         this.outOfOrder = outOfOrder;
         this.ignorePatterns = ignorePatterns;
-        this.cherryPick = cherryPick;
     }
 
     /**
@@ -86,18 +80,15 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         Collection<ResolvedMigration> resolvedMigrations = migrationResolver.resolveMigrations(configuration);
         List<AppliedMigration> appliedMigrations = schemaHistory.allAppliedMigrations();
 
-        MigrationInfoContext context = new MigrationInfoContext();
+        MigrationInfoContext context = new MigrationInfoContext(configuration);
         context.target = target;
         context.outOfOrder = outOfOrder;
         context.ignorePatterns = ignorePatterns;
-        context.cherryPick = cherryPick;
 
         Map<Pair<MigrationVersion, MigrationType>, ResolvedMigration> resolvedVersioned = getResolvedVersionedMigrations(resolvedMigrations, context);
         Map<String, ResolvedMigration> resolvedRepeatable = new TreeMap<>(getResolvedRepeatableMigrations(resolvedMigrations));
 
-
-
-
+        context.cherryPickSupport.validatePatterns(context.cherryPick, resolvedMigrations, appliedMigrations, configuration);
 
         List<Pair<AppliedMigration, AppliedMigrationAttributes>> appliedVersioned = new ArrayList<>(getAppliedVersionedMigrations(appliedMigrations, context));
         List<Pair<AppliedMigration, AppliedMigrationAttributes>> appliedRepeatable = new ArrayList<>(getAppliedRepeatableMigrations(appliedMigrations));
@@ -217,37 +208,6 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         }
         return appliedRepeatableMigrations;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     private void validateTarget(MigrationVersion target, List<MigrationInfoImpl> migrationInfos) {
         boolean targetFound = false;

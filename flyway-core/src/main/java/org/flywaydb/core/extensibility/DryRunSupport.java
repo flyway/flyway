@@ -1,6 +1,6 @@
 /*-
  * ========================LICENSE_START=================================
- * flyway-database-oracle
+ * flyway-core
  * ========================================================================
  * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
@@ -17,50 +17,13 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.database.oracle;
+package org.flywaydb.core.extensibility;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.flywaydb.core.api.callback.Error;
-import org.flywaydb.core.api.callback.Warning;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.extensibility.Plugin;
 
-import org.flywaydb.core.internal.jdbc.Result;
-import org.flywaydb.core.internal.jdbc.Results;
+import java.io.OutputStream;
 
-/**
- * Oracle-specific results and side-effects.
- */
-@NoArgsConstructor
-@Getter
-@Setter
-public class OracleResults extends Results {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+public interface DryRunSupport extends Plugin {
+    OutputStream resolveOutputStream(final String fileName, final Configuration configuration);
 }

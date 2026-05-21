@@ -3,7 +3,7 @@ subtitle: Redshift
 ---
 
 - **Verified DB Versions:** N/A
-- **Verified Client Version:** Flyway v11.3.4 & driver v2.1.0.32
+- **Verified Client Version:** Flyway v12.6.1 & driver v2.2.5
 - **Maintainer:** {% include redgate-badge.html %}
 
 ## Supported Versions and Support Levels
@@ -16,7 +16,7 @@ subtitle: Redshift
 |------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **URL format**                     | <code>jdbc:redshift://<i>host</i>:<i>port</i>/<i>database</i></code>                                                                                      |
 | **Ships with Flyway Command-line** | No                                                                                                                                                        |
-| **Download**                       | [Download the Amazon Redshift JDBC driver, version 2.1](https://docs.aws.amazon.com/redshift/latest/mgmt/jdbc20-download-driver.html) |
+| **Download**                       | [Download the Amazon Redshift JDBC driver](https://docs.aws.amazon.com/redshift/latest/mgmt/jdbc20-download-driver.html) |
 | **Supported versions**             | `2.1.0.32` and later                                                                                                                                      |
 | **Default Java class**             | `com.amazon.redshift.jdbc42.Driver`                                                                                                                       |
 

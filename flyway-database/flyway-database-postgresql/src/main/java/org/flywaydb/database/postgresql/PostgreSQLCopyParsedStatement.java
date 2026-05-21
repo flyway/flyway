@@ -43,11 +43,7 @@ public class PostgreSQLCopyParsedStatement extends ParsedSqlStatement {
     /**
      * Delimiter of COPY statements.
      */
-    private static final Delimiter COPY_DELIMITER = new Delimiter("\\.", true
-
-
-
-    );
+    private static final Delimiter COPY_DELIMITER = new Delimiter("\\.", true, null);
 
     private final String copyData;
 

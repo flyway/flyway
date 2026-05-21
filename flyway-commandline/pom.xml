@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>12.6.1</version>
+    <version>12.6.2</version>
   </parent>
   <artifactId>flyway-commandline</artifactId>
   <packaging>jar</packaging>
@@ -270,7 +270,6 @@
     <dependency>
       <groupId>com.databricks</groupId>
       <artifactId>databricks-jdbc</artifactId>
-      <version>3.3.3</version>
       <scope>runtime</scope>
     </dependency>
     <!-- #2136: JNA is required for MariaDB with unix sockets -->
@@ -317,7 +316,6 @@
     <dependency>
       <groupId>org.mongodb</groupId>
       <artifactId>mongodb-driver-sync</artifactId>
-      <version>5.6.1</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -363,18 +361,15 @@
     <dependency>
       <groupId>tools.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>${version.jackson}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>tools.jackson.dataformat</groupId>
       <artifactId>jackson-dataformat-xml</artifactId>
-      <version>${version.jackson}</version>
     </dependency>
     <dependency>
       <groupId>tools.jackson.dataformat</groupId>
       <artifactId>jackson-dataformat-toml</artifactId>
-      <version>${version.jackson}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>

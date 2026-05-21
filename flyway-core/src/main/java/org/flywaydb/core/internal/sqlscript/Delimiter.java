@@ -25,16 +25,8 @@ import lombok.Getter;
  * Represents a sql statement delimiter.
  */
 public class Delimiter {
-    public static final Delimiter SEMICOLON = new Delimiter(";", false
-
-
-
-    );
-    public static final Delimiter GO = new Delimiter("GO", true
-
-
-
-    );
+    public static final Delimiter SEMICOLON = new Delimiter(";", false, null);
+    public static final Delimiter GO = new Delimiter("GO", true, null);
 
     /**
      * The actual delimiter string.
@@ -49,12 +41,15 @@ public class Delimiter {
      */
     private final boolean aloneOnLine;
 
+    /**
+     * The escape string for the delimiter, if any.
+     * -- GETTER --
+     *
+     * @return The escape string for the delimiter, if any.
 
-
-
-
-
-
+     */
+    @Getter
+    private final String escape;
 
     /**
      * Creates a new delimiter.
@@ -62,16 +57,10 @@ public class Delimiter {
      * @param delimiter The actual delimiter string.
      * @param aloneOnLine Whether the delimiter sits alone on a new line or not.
      */
-    public Delimiter(String delimiter, boolean aloneOnLine
-
-
-
-                    ) {
+    public Delimiter(String delimiter, boolean aloneOnLine, String escape) {
         this.delimiter = delimiter;
         this.aloneOnLine = aloneOnLine;
-
-
-
+        this.escape = escape;
     }
 
     /**
@@ -79,18 +68,6 @@ public class Delimiter {
      */
     public boolean shouldBeAloneOnLine() {
         return aloneOnLine;
-    }
-
-    /**
-     * @return The escape string for the delimiter, if any.
-     */
-    public String getEscape() {
-        String returnValue = null;
-
-
-
-
-        return returnValue;
     }
 
     @Override

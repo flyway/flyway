@@ -19,11 +19,12 @@
  */
 package org.flywaydb.database.cockroachdb;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.DatabaseType;
-import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
@@ -52,7 +53,7 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
     @Override
     public void ensureSupported(Configuration configuration) {
         ensureDatabaseIsRecentEnough("1.1");
-        recommendFlywayUpgradeIfNecessary("22.1");
+        recommendFlywayUpgradeIfNecessary("26.1");
     }
 
     @Override
@@ -74,14 +75,18 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
     }
 
     private MigrationVersion rawDetermineVersion(DatabaseType databaseType) {
-        String version;
+        final String version;
         try {
             // Use rawMainJdbcConnection to avoid infinite recursion.
-            JdbcTemplate template = new JdbcTemplate(rawMainJdbcConnection, databaseType);
-            version = template.queryForString("SELECT value FROM crdb_internal.node_build_info where field='Version'");
-            if (version == null) {
-                version = template.queryForString("SELECT value FROM crdb_internal.node_build_info where field='Tag'");
+            final JdbcTemplate template = new JdbcTemplate(rawMainJdbcConnection, databaseType);
+            final String versionString = template.queryForString("SELECT version()");
+            final Pattern versionPattern = Pattern.compile("v\\S+");
+            final Matcher matcher = versionPattern.matcher(versionString);
+            if (!matcher.find()) {
+                throw new FlywayException("Unable to determine CockroachDB version");
             }
+            version = matcher.group();
+
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine CockroachDB version", e);
         }

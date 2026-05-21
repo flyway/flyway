@@ -22,7 +22,6 @@ package org.flywaydb.core.internal.schemahistory;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.CoreMigrationType;
-import org.flywaydb.core.api.MigrationPattern;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
@@ -141,17 +140,6 @@ public class BaseAppliedMigration implements AppliedMigration {
         return new BaseAppliedMigration(installedRank, version, description, type, script, checksum, installedOn, installedBy, executionTime, success);
     }
 
-    private boolean isMigrationNotInList(MigrationPattern[] cherryPick, MigrationVersion version, String description) {
-        boolean inMigrationList = false;
-        for (MigrationPattern migration : cherryPick) {
-            if (migration.matches(version, description)) {
-                inMigrationList = true;
-                break;
-            }
-        }
-        return !inMigrationList;
-    }
-
     @Override
     public MigrationState getState(MigrationInfoContext context, boolean outOfOrder, ResolvedMigration resolvedMigration) {
         if (CoreMigrationType.DELETE == getType()) {
@@ -167,13 +155,10 @@ public class BaseAppliedMigration implements AppliedMigration {
             return missingState;
         }
 
-
-
-
-
-
-
-
+        MigrationState cherryPickState = context.cherryPickSupport.getStateOverride(context.cherryPick, version, description);
+        if (cherryPickState != null) {
+            return cherryPickState;
+        }
 
         if (!isSuccess()) {
             return MigrationState.FAILED;
@@ -210,13 +195,10 @@ public class BaseAppliedMigration implements AppliedMigration {
 
     protected MigrationState getMissingState(MigrationInfoContext context, ResolvedMigration resolvedMigration) {
         if (resolvedMigration == null && isRepeatableLatest(context)) {
-
-
-
-
-
-
-
+            MigrationState missingCherryPickState = context.cherryPickSupport.getStateOverride(context.cherryPick, version, description);
+            if (missingCherryPickState != null) {
+                return missingCherryPickState;
+            }
 
             if (CoreMigrationType.SCHEMA == getType()) {
                 return MigrationState.SUCCESS;

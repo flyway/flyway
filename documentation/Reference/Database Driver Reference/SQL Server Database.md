@@ -17,7 +17,7 @@ subtitle: SQL Server
 | **SSL support**                    | [Yes](https://docs.microsoft.com/en-us/sql/connect/jdbc/connecting-with-ssl-encryption?view=sql-server-ver15) \- add `;encrypt=true` |
 | **Ships with Flyway Command-line** | Yes                                                                                                                                  |
 | **Maven Central coordinates**      | `com.microsoft.sqlserver:mssql-jdbc`                                                                                                 |
-| **Supported versions**             | `10.0` and later                                                                                                                      |
+| **Supported versions**             | `10.0` and later                                                                                                                     |
 | **Default Java class**             | `com.microsoft.sqlserver.jdbc.SQLServerDriver`                                                                                       |
 
 ## Configuration
@@ -143,102 +143,12 @@ INSERT INTO ${tableName} (name) VALUES ('Mr. T');
 
 ## Authentication
 
-For Flyway Desktop, please see [using SQL Server with Flyway Desktop](https://documentation.red-gate.com/flyway/getting-started-with-flyway/system-requirements/flyway-desktop-requirements/flyway-desktop-using-sql-server).
-SQL Server supports several methods of authentication. These include:
+SQL Server supports several methods of authentication, including SQL Server Authentication, Windows Integrated Authentication, Microsoft Entra ID, and Kerberos.
 
-- SQL Server Authentication
-- Windows Authentication
-- Microsoft Entra
-- Kerberos {% include teams.html %}
+For how to use authentication methods, see [Connecting to environments](https://documentation.red-gate.com/flyway/database-development-using-flyway/connecting-to-environments#Connectingtoenvironments-Authentication).
+For credential storage and retrieval, see [Storing and retrieving credentials](https://documentation.red-gate.com/flyway/database-development-using-flyway/storing-and-retrieving-credentials#Storingandretrievingcredentials-Database-specificcredentialretrieval).
 
-SQL Server Authentication works 'out-of-the-box' with Flyway, whereas the others require extra manual setup.
-
-The instructions provided here are adapted from
-the [Microsoft JDBC Driver for SQL Server documentation](https://docs.microsoft.com/en-us/sql/connect/jdbc/microsoft-jdbc-driver-for-sql-server?view=sql-server-ver15). Refer to
-this when troubleshooting authentication problems.
-
-**Note:** These instructions may be incomplete. Flyway depends on Microsoft's JDBC drivers, which in turn have many environmental dependencies to enable different authentication
-types. You may have to perform your own research to get the JDBC driver working for the different authentication types.
-
-### SQL Server Authentication
-
-This uses a straightforward username and password to authenticate. Provide these with the `user` and `password` configuration options.
-
-### Windows Authentication
-
-[Windows Authentication, also known as Integrated Security](https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/sql/authentication-in-sql-server), is enabled by amending
-your JDBC connection string to set `integratedSecurity=true`.
-
-Syntax:<br/> `jdbc:sqlserver://<host>:<port>;databaseName=<dbname>;integratedSecurity=true`.
-
-Example:<br/> `jdbc:sqlserver://server01:1234;databaseName=AdventureWorks;integratedSecurity=true`.
-
-### Microsoft Entra
-
-#### Installing Dependencies
-
-You must add Microsoft's [MSAL4J library](https://mvnrepository.com/artifact/com.microsoft.azure/msal4j) to your classpath. For instance, as a Maven or Gradle dependency.
-For Microsoft Entra MSI, Azure Identity is also required to be added to your classpath.
-
-For command-line users, MSAL4J and Azure Identity are already included, so no extra installation is required.
-
-#### Connecting
-
-There are several types of Microsoft Entra authentication:
-
-- Microsoft Entra with MFA
-- Microsoft Entra Integrated
-- Microsoft Entra MSI
-- Microsoft Entra with Password
-- Microsoft Entra Service Principal
-- Access Tokens
-
-To use the various authentication types, amend your JDBC URL to set the `authentication` parameter:
-
-- For Microsoft Entra Integrated set `authentication=ActiveDirectoryIntegrated`
-    - e.g: <code>jdbc:sqlserver://<i>host</i>:<i>port</i>;databaseName=<i>database</i>;authentication=ActiveDirectoryIntegrated</code>
-- For Microsoft Entra MSI set `authentication=ActiveDirectoryMSI`
-    - e.g: <code>jdbc:sqlserver://<i>host</i>:<i>port</i>;databaseName=<i>database</i>;authentication=ActiveDirectoryMSI</code>
-- For Microsoft Entra With Password set `authentication=ActiveDirectoryPassword`
-    - e.g: <code>jdbc:sqlserver://<i>host</i>:<i>port</i>;databaseName=<i>database</i>;authentication=ActiveDirectoryPassword</code>
-    - You must also supply a username and password with Flyway's `user` and `password` configuration options
-- For Microsoft Entra Interactive set `authentication=ActiveDirectoryInteractive`
-    - e.g: <code>jdbc:sqlserver://<i>host</i>:<i>port</i>;databaseName=<i>database</i>;authentication=ActiveDirectoryInteractive</code>
-    - This will begin an interactive process which expects user input (e.g. a dialogue box), so it's not recommended in automated environments
-- For Microsoft Entra Service Principal set `authentication=ActiveDirectoryServicePrincipal `
-    - e.g: <code>jdbc:sqlserver://<i>host</i>:<i>port</i>;databaseName=<i>database</i>;authentication=ActiveDirectoryServicePrincipal</code>
-
-[The Microsoft documentation has more details about how these work with JDBC URLs](https://docs.microsoft.com/en-us/sql/connect/jdbc/connecting-using-azure-active-directory-authentication?view=sql-server-ver15)
-.
-
-#### Azure access tokens
-
-Another way to authenticate using Microsoft Entra is through access tokens. As of the time of writing, the access token property on Microsoft's JDBC driver can't be
-supplied through the URL. You should use Flyway's `jdbcProperties` configuration property instead.
-
-E.g, in a `flyway.toml` file:
-
-```
-[environments.default]
-jdbcProperties.accessToken="my-access-token"
-```
-
-This is equivalent to
-the [process of setting `accessToken` as described on this Microsoft documentation page](https://docs.microsoft.com/en-us/sql/connect/jdbc/connecting-using-azure-active-directory-authentication?view=sql-server-ver15#connecting-using-access-token)
-.
-
-### Kerberos
-
-{% include teams.html %}
-
-Kerberos authentication can also be used to connect Flyway to your database.
-
-To set this up, you will need to pass the path to your Kerberos configuration file to the parameter [`kerberosConfigFile`](<Configuration/Flyway Namespace/Flyway Kerberos Config File Setting>)and the path to your login module configuration file to the parameter [`sqlserver.kerberos.login.file`](<Configuration/Flyway Namespace/Flyway SQL Server Namespace/Flyway SQL Server Kerberos Login File Setting>).
-
-You may also need to add `;authenticationScheme=JavaKerberos` to your JDBC URL.
-
-For more information on Kerberos authentication with SQL Server, you can read the official
-documentation [here](https://docs.microsoft.com/en-us/sql/connect/jdbc/using-kerberos-integrated-authentication-to-connect-to-sql-server?view=sql-server-ver15).
+**Note:** Flyway depends on Microsoft's JDBC drivers, which have many environmental dependencies to enable different authentication types. Refer to the [Microsoft JDBC Driver for SQL Server documentation](https://docs.microsoft.com/en-us/sql/connect/jdbc/microsoft-jdbc-driver-for-sql-server?view=sql-server-ver15) when troubleshooting authentication problems.
 
 ## Connecting to a Named Instance
 

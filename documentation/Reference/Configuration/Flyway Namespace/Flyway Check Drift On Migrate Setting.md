@@ -10,7 +10,7 @@ redirect_from: Configuration/checkDriftOnMigrate/
 ## Description
 
 Enables automatic drift checks on migrate. Requires an online authentication method to be configured.
-See [Flyway Licensing](https://documentation.red-gate.com/flyway/getting-started-with-flyway/system-requirements/licensing) for more details.
+See [Flyway Licensing](https://documentation.red-gate.com/fd/licensing-164167730.html) for more details.
 Also requires [`publishResult`](<Configuration/Flyway Namespace/Flyway Publish Result Setting>) to be set.
 
 On migrate, a snapshot of your database schema is uploaded to [Flyway Pipelines](https://flyway.red-gate.com/).

@@ -2,7 +2,7 @@
 subtitle: CockroachDB
 ---
 
-- **Verified Versions:** v21.2, v25.2
+- **Verified Versions:** v21.2, v26.1
 - **Maintainer:** {% include redgate-badge.html %}
 
 ## Supported Versions and Support Levels

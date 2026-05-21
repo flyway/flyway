@@ -41,6 +41,7 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import java.io.File;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -59,6 +60,7 @@ import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.ConfigurationExtension;
+import org.flywaydb.core.ProgressLoggerEmpty;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.configuration.TomlUtils;
 import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
@@ -66,6 +68,9 @@ import org.flywaydb.core.internal.configuration.models.EnvironmentModel;
 import org.flywaydb.core.internal.configuration.models.FlywayEnvironmentModel;
 import org.flywaydb.core.internal.configuration.models.UnknownParameterModel;
 import org.flywaydb.core.internal.license.FlywayRedgateEditionRequiredException;
+import org.flywaydb.core.internal.configuration.resolvers.PropertyResolver;
+import org.flywaydb.core.internal.configuration.resolvers.PropertyResolverContext;
+import org.flywaydb.core.internal.configuration.resolvers.PropertyResolverContextImpl;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.core.internal.util.Locations;
@@ -188,18 +193,14 @@ public class ModernConfigurationManager implements ConfigurationManager {
 
         warnForUnknownEnvParameters(config.getEnvironments());
 
-        if (workingDirectory != null) {
-            makeRelativeLocationsBasedOnWorkingDirectory(workingDirectory, config.getFlyway().getLocations());
-            makeRelativeLocationsBasedOnWorkingDirectory(workingDirectory, config.getFlyway().getCallbackLocations());
-            makeRelativeLocationsInEnvironmentsBasedOnWorkingDirectory(workingDirectory, config.getEnvironments());
-            makeRelativeJarDirsBasedOnWorkingDirectory(workingDirectory, config.getFlyway().getJarDirs());
-            makeRelativeJarDirsInEnvironmentsBasedOnWorkingDirectory(workingDirectory, config.getEnvironments());
-        }
-
         ConfigUtils.dumpConfigurationModel(config, "Using configuration:");
         final ClassicConfiguration cfg = new ClassicConfiguration(config);
 
         cfg.setWorkingDirectory(workingDirectory);
+
+        resolveConfigValues(config, cfg);
+
+        makeRelativePathsBasedOnWorkingDirectory(workingDirectory, config);
 
         configurePlugins(config, cfg, commandLineArguments.shouldIgnoreUnrecognizedParameters());
 
@@ -225,6 +226,69 @@ public class ModernConfigurationManager implements ConfigurationManager {
             throw new FlywayException(String.format("Invalid resolver configuration for environment %s: %s",
                 environment,
                 resolverEntry.getKey()));
+        }
+    }
+
+    private static void resolveConfigValues(final ConfigurationModel config, final Configuration cfg) {
+        final Map<String, PropertyResolver> resolvers = new HashMap<>();
+        for (final PropertyResolver resolver : cfg.getPluginRegister().getInstancesOf(PropertyResolver.class)) {
+            resolvers.put(resolver.getName(), resolver);
+            for (final String alias : resolver.getAliases()) {
+                resolvers.put(alias, resolver);
+            }
+        }
+
+        final PropertyResolverContext context = new PropertyResolverContextImpl(cfg, resolvers);
+        resolveStringValues(config.getFlyway().getPluginConfigurations(), context);
+        resolveFlywayModelFields(config.getFlyway(), context);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void resolveStringValues(final Map<String, Object> map, final PropertyResolverContext context) {
+        for (final Map.Entry<String, Object> entry : map.entrySet()) {
+            if (entry.getValue() instanceof String value) {
+                entry.setValue(context.resolveValue(value, new ProgressLoggerEmpty()));
+            } else if (entry.getValue() instanceof Map) {
+                resolveStringValues((Map<String, Object>) entry.getValue(), context);
+            } else if (entry.getValue() instanceof List<?> list) {
+                entry.setValue(list.stream()
+                    .map(item -> item instanceof String s
+                        ? (Object) context.resolveValue(s, new ProgressLoggerEmpty())
+                        : item)
+                    .toList());
+            }
+        }
+    }
+
+    private static void resolveFlywayModelFields(final Object model, final PropertyResolverContext context) {
+        for (Class<?> clazz = model.getClass(); clazz != null && clazz != Object.class; clazz = clazz.getSuperclass()) {
+            for (final Field field : clazz.getDeclaredFields()) {
+                if (Modifier.isStatic(field.getModifiers())
+                    || field.getName().equals("pluginConfigurations")
+                    || field.getName().equals("propertyResolvers")) {
+                    continue;
+                }
+                field.setAccessible(true);
+                try {
+                    final Object value = field.get(model);
+                    if (value instanceof String s) {
+                        field.set(model, context.resolveValue(s, new ProgressLoggerEmpty()));
+                    } else if (value instanceof List<?> list) {
+                        field.set(model, new ArrayList<>(list.stream()
+                            .map(item -> item instanceof String str
+                                ? (Object) context.resolveValue(str, new ProgressLoggerEmpty())
+                                : item)
+                            .toList()));
+                    } else if (value instanceof Map<?, ?> map) {
+                        final Map<String, Object> resolved = new HashMap<>();
+                        map.forEach((k, v) -> resolved.put(String.valueOf(k),
+                            v instanceof String str ? context.resolveValue(str, new ProgressLoggerEmpty()) : v));
+                        field.set(model, resolved);
+                    }
+                } catch (IllegalAccessException e) {
+                    // unreachable with setAccessible(true)
+                }
+            }
         }
     }
 
@@ -263,6 +327,17 @@ public class ModernConfigurationManager implements ConfigurationManager {
 
         if (!configurationExceptions.isEmpty() && !ignoreUnrecognizedParameters) {
             combineConfigurationExceptions(configurationExceptions);
+        }
+    }
+
+    private static void makeRelativePathsBasedOnWorkingDirectory(final String workingDirectory,
+        final ConfigurationModel config) {
+        if (workingDirectory != null) {
+            makeRelativeLocationsBasedOnWorkingDirectory(workingDirectory, config.getFlyway().getLocations());
+            makeRelativeLocationsBasedOnWorkingDirectory(workingDirectory, config.getFlyway().getCallbackLocations());
+            makeRelativeLocationsInEnvironmentsBasedOnWorkingDirectory(workingDirectory, config.getEnvironments());
+            makeRelativeJarDirsBasedOnWorkingDirectory(workingDirectory, config.getFlyway().getJarDirs());
+            makeRelativeJarDirsInEnvironmentsBasedOnWorkingDirectory(workingDirectory, config.getEnvironments());
         }
     }
 

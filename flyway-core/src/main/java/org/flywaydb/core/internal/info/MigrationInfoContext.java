@@ -21,7 +21,9 @@ package org.flywaydb.core.internal.info;
 
 import org.flywaydb.core.api.MigrationPattern;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.pattern.ValidatePattern;
+import org.flywaydb.core.extensibility.CherryPickSupport;
 import org.flywaydb.core.internal.util.ValidatePatternUtils;
 
 import java.util.HashMap;
@@ -32,12 +34,18 @@ public class MigrationInfoContext {
     public ValidatePattern[] ignorePatterns = new ValidatePattern[0];
     public MigrationVersion target;
     public MigrationPattern[] cherryPick;
+    public CherryPickSupport cherryPickSupport;
     public MigrationVersion schema;
     public MigrationVersion pendingBaseline;
     public MigrationVersion appliedBaseline;
     public MigrationVersion lastResolved = MigrationVersion.EMPTY;
     public MigrationVersion lastApplied = MigrationVersion.EMPTY;
     public Map<String, Integer> latestRepeatableRuns = new HashMap<>();
+
+    public MigrationInfoContext(Configuration configuration) {
+        this.cherryPick = configuration.getCherryPick();
+        this.cherryPickSupport = configuration.getPluginRegister().getInstanceOf(CherryPickSupport.class);
+    }
 
     public boolean isPendingIgnored() {
         return ValidatePatternUtils.isPendingIgnored(ignorePatterns);

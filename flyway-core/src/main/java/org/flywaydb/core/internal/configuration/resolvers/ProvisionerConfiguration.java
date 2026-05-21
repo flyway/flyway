@@ -19,6 +19,8 @@
  */
 package org.flywaydb.core.internal.configuration.resolvers;
 
+import static org.flywaydb.core.internal.configuration.ConfigUtils.isRedgate;
+
 import java.util.Map;
 import org.flywaydb.core.api.CoreErrorCode;
 import org.flywaydb.core.api.FlywayException;
@@ -63,9 +65,9 @@ public class ProvisionerConfiguration {
         newConfiguration.setCallbacks(configuration.getCallbacks());
         newConfiguration.setPluginRegister(configuration.getPluginRegister().getCopy());
         newConfiguration.setWorkingDirectory(configuration.getWorkingDirectory());
-
-
-
+        if (isRedgate()) {
+            newConfiguration.setDryRunOutput(configuration.getDryRunOutput());
+        }
 
         return newConfiguration;
     }

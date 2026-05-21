@@ -56,6 +56,7 @@ import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.extensibility.ConfigurationExtension;
+import org.flywaydb.core.extensibility.LicenseGuard;
 import org.flywaydb.core.internal.command.clean.CleanModel;
 import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
 import org.flywaydb.core.internal.configuration.models.EnvironmentModel;
@@ -1034,9 +1035,17 @@ public class ConfigUtils {
     public static void warnForUnknownEnvParameters(final Map<String, ? extends EnvironmentModel> environments) {
         environments.forEach((envName, envModel) -> {
             if (!envModel.getUnknownConfigurations().isEmpty()) {
-                LOG.debug("Unknown parameters configured in Environment " + envName + ": " + String.join(",",
+                LOG.warn("Unknown parameters configured in Environment " + envName + ": " + String.join(", ",
                     envModel.getUnknownConfigurations().keySet()));
             }
         });
+    }
+
+    public static boolean isRedgate() {
+        return LicenseGuard.getPermit(null).getTier() != null;
+    }
+
+    public static boolean isOSS() {
+        return !isRedgate();
     }
 }
