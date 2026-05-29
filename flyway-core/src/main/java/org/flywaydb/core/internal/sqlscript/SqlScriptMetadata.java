@@ -23,10 +23,7 @@ import lombok.CustomLog;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResource;
-import org.flywaydb.core.extensibility.LicenseGuard;
-import org.flywaydb.core.extensibility.Tier;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
-import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.PlaceholderReplacingReader;
 
@@ -62,18 +59,12 @@ public class SqlScriptMetadata {
         this.shouldExecute = true;
         this.shouldExecuteExpression = null;
 
+        if (metadata.containsKey(SHOULD_EXECUTE)) {
+            this.shouldExecuteExpression = unmappedMetadata.getOrDefault(SHOULD_EXECUTE, null);
+            this.shouldExecute = this.shouldExecuteExpression == null || evaluateExpression(metadata.get(SHOULD_EXECUTE), config);
+            metadata.remove(SHOULD_EXECUTE);
+        } 
 
-
-
-
-
-
-
-        {
-            if (metadata.containsKey(SHOULD_EXECUTE)) {
-                throw new FlywayEditionUpgradeRequiredException(LicenseGuard.getTier(config), "shouldExecute");
-            }
-        }
         ConfigUtils.checkConfigurationForUnrecognisedProperties(metadata, null);
     }
 

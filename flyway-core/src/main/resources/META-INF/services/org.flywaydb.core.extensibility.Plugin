@@ -25,9 +25,12 @@ org.flywaydb.core.internal.proprietaryStubs.OfflinePermitConfigurationExtensionS
 org.flywaydb.core.internal.proprietaryStubs.CherryPickConfigurationExtensionStub
 org.flywaydb.core.internal.proprietaryStubs.CherryPickSupportStub
 org.flywaydb.core.internal.proprietaryStubs.DryRunSupportStub
+org.flywaydb.core.internal.proprietaryStubs.AwsSecretsManagerSupportStub
 org.flywaydb.core.internal.proprietaryStubs.DryRunConfigurationExtensionStub
 org.flywaydb.core.internal.publishing.PublishingConfigurationExtension
 org.flywaydb.core.internal.scanner.classpath.ClasspathLocationHandlerImpl
 org.flywaydb.core.internal.scanner.filesystem.FilesystemLocationHandler
 org.flywaydb.core.internal.NullFlywayTelemetryManager
-org.flywaydb.core.internal.jdbc.ErrorOverrideInitializerStub
+org.flywaydb.core.internal.proprietaryStubs.ShouldExecuteEvaluatorStub
+org.flywaydb.core.internal.proprietaryStubs.ErrorOverrideInitializerStub
+org.flywaydb.core.internal.proprietaryStubs.ErrorOverridesSupportStub

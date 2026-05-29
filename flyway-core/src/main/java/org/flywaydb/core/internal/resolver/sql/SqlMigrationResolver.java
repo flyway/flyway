@@ -120,19 +120,17 @@ public class SqlMigrationResolver implements MigrationResolver {
             List<LoadableResource> resources = new ArrayList<>();
             resources.add(resource);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+            if (sqlScript.includeReferencedScriptsInChecksum()) {
+                SortedSet<LoadableResource> referencedResources = new TreeSet<>();
+                for (SqlScript referencedSqlScript : sqlScript.getReferencedSqlScripts()) {
+                    referencedResources.add(referencedSqlScript.getResource());
+                }
+                if (!referencedResources.isEmpty()) {
+                    LOG.debug("Calculating checksum for '" + filename + "' using the following referenced scripts: " +
+                                      referencedResources.stream().map(Resource::getFilename).collect(Collectors.joining(",")));
+                }
+                resources.addAll(referencedResources);
+            }
 
             Integer checksum = getChecksumForLoadableResource(repeatable, resources, resourceName, sqlScript.placeholderReplacement());
             Integer equivalentChecksum = getEquivalentChecksumForLoadableResource(repeatable, resources);

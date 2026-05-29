@@ -94,13 +94,11 @@ public class ParserSqlScript implements SqlScript {
                                     + (sqlStatement.canExecuteInTransaction() ? "" : " [non-transactional]"));
                 }
 
-
-
-
-
-
-
-
+                SqlScript referencedSqlScript = sqlStatement.getReferencedSqlScript();
+                if (referencedSqlScript != null) {
+                    referencedSqlScripts.add(referencedSqlScript);
+                    referencedSqlScripts.addAll(referencedSqlScript.getReferencedSqlScripts());
+                }
 
                 LOG.debug("Found statement at line " + sqlStatement.getLineNumber() + ": " + sqlStatement.getSql()
                                   + (sqlStatement.canExecuteInTransaction() ? "" : " [non-transactional]"));

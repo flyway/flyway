@@ -7,6 +7,7 @@ clobs
 (?i)Dapr
 [Dd]atagrip
 Dockerfiles?
+docstring
 [Dd]ropwizard
 fulltext
 flyway[.-]
@@ -31,6 +32,7 @@ LF
 [Mm]aven
 -maven
 maven-
+metaclass
 [Nn]amespaces?
 [Nn]amespacing
 nchar
@@ -43,6 +45,7 @@ OSGi
 [Rr]edgate
 redgate.html
 repeatables
+(?i)stderr
 (?i)stdin
 (?i)stdout
 (?i)SQL

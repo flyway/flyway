@@ -17,12 +17,13 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.core.internal.jdbc;
+package org.flywaydb.core.internal.proprietaryStubs;
 
 import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.extensibility.ErrorOverrideInitializer;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.callback.NoopCallback;
 import org.flywaydb.core.internal.callback.NoopCallbackExecutor;

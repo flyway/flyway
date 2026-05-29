@@ -47,14 +47,14 @@ import org.flywaydb.core.internal.callback.InternalCallback;
 import org.flywaydb.core.internal.callback.NoopCallback;
 import org.flywaydb.core.internal.callback.NoopCallbackExecutor;
 import org.flywaydb.core.internal.callback.SqlScriptCallbackFactory;
-
+import org.flywaydb.core.internal.callback.PreConnectCallbackExecutor;
 import org.flywaydb.core.internal.clazz.NoopClassProvider;
 import org.flywaydb.core.internal.configuration.ConfigurationValidator;
 import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.base.CommunityDatabaseType;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
-import org.flywaydb.core.internal.jdbc.ErrorOverrideInitializer;
+import org.flywaydb.core.extensibility.ErrorOverrideInitializer;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import org.flywaydb.core.internal.parser.ParsingContext;
@@ -140,13 +140,11 @@ public class FlywayExecutor {
         final ClassProvider<JavaMigration> classProvider = resourceProviderClassProviderPair.getRight();
         final ParsingContext parsingContext = new ParsingContext();
 
-
-
-
-
-
-
-
+        final PreConnectCallbackExecutor preConnectCallbackExecutor = new PreConnectCallbackExecutor(resourceProvider,
+            configuration,
+            parsingContext,
+            statementInterceptor);
+        preConnectCallbackExecutor.executeCallbacks();
 
         final DatabaseType databaseType = jdbcConnectionFactory.getDatabaseType();
         final SqlScriptFactory sqlScriptFactory = databaseType.createSqlScriptFactory(configuration, parsingContext);

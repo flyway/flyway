@@ -276,7 +276,7 @@ The Info command may be internally triggered by Flyway._
         <td>Before automatically creating non-existent schemas</td>
     </tr>
     <tr id="beforeConnect">
-        <td>beforeConnect {% include redgate.html %}</td>
+        <td>beforeConnect</td>
         <td>Before Flyway connects to the database</td>
     </tr>
     <tr id="afterConnect">

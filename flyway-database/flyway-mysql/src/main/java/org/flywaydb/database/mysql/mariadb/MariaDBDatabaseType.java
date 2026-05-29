@@ -61,11 +61,6 @@ public class MariaDBDatabaseType extends BaseDatabaseType {
 
     @Override
     public String getDriverClass(String url, ClassLoader classLoader) {
-
-
-
-
-
         if (url.startsWith("jdbc:p6spy:mariadb:")) {
             return "com.p6spy.engine.spy.P6SpyDriver";
         }

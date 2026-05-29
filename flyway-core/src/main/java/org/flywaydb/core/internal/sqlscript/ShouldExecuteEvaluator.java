@@ -19,6 +19,7 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.Plugin;
 
 public interface ShouldExecuteEvaluator extends Plugin  {
@@ -32,5 +33,5 @@ public interface ShouldExecuteEvaluator extends Plugin  {
      * @param expression The string containing the boolean expression.
      * @return The boolean value the expression evaluates to.
      */
-    boolean evaluateExpression(final String expression);
+    boolean evaluateExpression(final String expression, final Configuration config);
 }

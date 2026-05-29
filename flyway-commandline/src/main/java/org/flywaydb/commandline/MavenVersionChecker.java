@@ -20,6 +20,7 @@
 package org.flywaydb.commandline;
 
 import static lombok.AccessLevel.PACKAGE;
+import static org.flywaydb.core.internal.configuration.ConfigUtils.isRedgate;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DeserializationFeature;
@@ -70,12 +71,9 @@ class MavenVersionChecker {
     private static final int CONNECT_TIMEOUT_MS = 1000;
     private static final int REQUEST_TIMEOUT_MS = 8000;
     private static final String FLYWAY_URL =
-
-             "https://repo1.maven.org/maven2/org/flywaydb/flyway-core/maven-metadata.xml";
-
-
-
-
+            isRedgate()
+                ? "https://download.red-gate.com/maven/release/com/redgate/flyway/flyway-core/maven-metadata.xml"
+                : "https://repo1.maven.org/maven2/org/flywaydb/flyway-core/maven-metadata.xml";
 
     String checkForVersionUpdates() {
         try {

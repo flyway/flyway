@@ -17,7 +17,7 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.reports.output;
+package org.flywaydb.reports.html;
 
 import java.time.LocalDateTime;
 import lombok.Getter;

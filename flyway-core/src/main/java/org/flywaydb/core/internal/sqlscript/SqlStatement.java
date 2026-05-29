@@ -57,12 +57,10 @@ public interface SqlStatement {
     boolean isBatchable();
 
 
-
-
-
-
-
-
+    /**
+     * @return The external SQL script referenced by this statement. {@code null} if none.
+     */
+    SqlScript getReferencedSqlScript();
 
     /**
      * Executes this statement against the database.

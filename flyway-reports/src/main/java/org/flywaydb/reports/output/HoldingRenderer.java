@@ -21,6 +21,7 @@ package org.flywaydb.reports.output;
 
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.reports.api.extensibility.HtmlRenderer;
+import org.flywaydb.reports.html.HoldingResult;
 
 public class HoldingRenderer implements HtmlRenderer<HoldingResult> {
     @Override

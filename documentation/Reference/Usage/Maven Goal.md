@@ -5,6 +5,8 @@ redirect_from: /documentation/maven/
 
 The Flyway Maven plugin supports **Maven 3.x** running on **Java 17**.
 
+**Note:** Flyway v13 will require Java 21.
+
 ## Installation
 
 ### Flyway Community Edition

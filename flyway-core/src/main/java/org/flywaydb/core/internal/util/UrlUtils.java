@@ -19,6 +19,10 @@
  */
 package org.flywaydb.core.internal.util;
 
+import static org.flywaydb.core.extensibility.AwsSecretsManagerSupport.JDBC_SECRETS_MANAGER;
+import static org.flywaydb.core.extensibility.AwsSecretsManagerSupport.JDBC_SECRETS_MANAGER_PREFIX;
+import static org.flywaydb.core.internal.configuration.ConfigUtils.isOSS;
+
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -32,7 +36,6 @@ import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
-import org.flywaydb.core.extensibility.Tier;
 import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
 
 /**
@@ -74,14 +77,19 @@ public class UrlUtils {
        return decodeURL(url.replace("+", "%2b"));
     }
 
+    public static void guardJdbcSecretsManagerURL(final String url) {
+        if (url.startsWith(JDBC_SECRETS_MANAGER_PREFIX) && isOSS()) {
+            throw new FlywayEditionUpgradeRequiredException(null, JDBC_SECRETS_MANAGER);
+        }
+    }
+
     public static boolean isSecretManagerUrl(final String url, final String databaseType) {
-        if (url.startsWith("jdbc-secretsmanager:" + databaseType + ":")) {
+        if (url.startsWith(JDBC_SECRETS_MANAGER_PREFIX + databaseType + ":")) {
+            if (isOSS()) {
+                throw new FlywayEditionUpgradeRequiredException(null, JDBC_SECRETS_MANAGER);
+            }
 
-
-
-
-            throw new FlywayEditionUpgradeRequiredException((Tier) null, "jdbc-secretsmanager");
-
+            return true;
         }
         return false;
     }

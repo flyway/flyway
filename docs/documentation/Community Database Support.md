@@ -18,6 +18,8 @@ Flyway supports migrations for a large number of database platforms in a unified
 *   A JDBC driver for your database.
 *   A Java IDE that builds with Java 17 or higher.
 
+**Note:** Java 21 will be required starting in Flyway v13.
+
 **Note for contributors:** Flyway will not typically package database drivers for community databases in the CLI bundle so we will need to know where end-users can download the preferred JDBC driver for your database.
 
 ## Getting started

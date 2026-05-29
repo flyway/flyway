@@ -54,11 +54,6 @@ public class DB2DatabaseType extends BaseDatabaseType {
 
     @Override
     public String getDriverClass(String url, ClassLoader classLoader) {
-
-
-
-
-
         if (url.startsWith("jdbc:p6spy:db2:")) {
             return "com.p6spy.engine.spy.P6SpyDriver";
         }

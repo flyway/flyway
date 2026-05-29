@@ -258,13 +258,11 @@ public class JdbcTemplate {
     }
 
     public void extractErrors(final Results results, final SQLException e) {
-
-
-
-
-
-
-
+        SQLException sqle = e;
+        while (sqle != null) {
+            results.addError(new ErrorImpl(sqle.getErrorCode(), sqle.getSQLState(), sqle.getMessage()));
+            sqle = sqle.getNextException();
+        }
         results.setException(e);
     }
 

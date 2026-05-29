@@ -35,6 +35,7 @@ import org.flywaydb.core.internal.configuration.models.EnvironmentModel;
 import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.mcp.McpCommandExtension;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -269,6 +270,20 @@ public class CommandLineArguments {
                 + colorArgumentValue
                 + "' is an invalid value for the -color option. Use 'always', 'never', or 'auto'.");
         }
+
+        final List<String> operations = getOperations();
+        if (operations.contains(McpCommandExtension.MCP_VERB)) {
+            if (operations.size() > 1) {
+                throw new FlywayException("The '"
+                    + McpCommandExtension.MCP_VERB
+                    + "' command cannot be used with any other commands.");
+            }
+            if (!outputTypeValue.isEmpty()) {
+                throw new FlywayException("The '"
+                    + McpCommandExtension.MCP_VERB
+                    + "' command does not support the -outputType option.");
+            }
+        }
     }
 
     private boolean isHandledByExtension(final String arg) {
@@ -277,6 +292,7 @@ public class CommandLineArguments {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -359,12 +375,12 @@ public class CommandLineArguments {
         return fileLocations == null
             ? new ArrayList<>()
             : Arrays.stream(fileLocations)
-                .filter(loadToml ? f -> f.endsWith(".toml") : f -> !f.endsWith(".toml"))
-                .map(File::new)
-                .map(file -> !file.isAbsolute() && workingDirectory != null
-                    ? new File(workingDirectory, file.getPath())
-                    : file)
-                .collect(Collectors.toList());
+              .filter(loadToml ? f -> f.endsWith(".toml") : f -> !f.endsWith(".toml"))
+              .map(File::new)
+              .map(file -> !file.isAbsolute() && workingDirectory != null
+                           ? new File(workingDirectory, file.getPath())
+                  : file)
+              .collect(Collectors.toList());
     }
 
     public String getOutputFile() {
@@ -465,13 +481,11 @@ public class CommandLineArguments {
     public Map<String, String> getConfiguration(final boolean isModernConfig) {
         final String[] processedArgs = scopeParameters(args);
 
-        final List<String> rootNamespaces = Optional.ofNullable(pluginRegister)
-            .map(p -> p.getInstancesOf(ConfigurationExtension.class)
-                .stream()
-                .filter(c -> c.getNamespace().startsWith("\\"))
-                .map(c -> c.getNamespace().substring(1))
-                .toList())
-            .orElse(Collections.emptyList());
+        final List<String> rootNamespaces = pluginRegister.getInstancesOf(ConfigurationExtension.class)
+            .stream()
+            .filter(c -> c.getNamespace().startsWith("\\"))
+            .map(c -> c.getNamespace().substring(1))
+            .toList();
 
         return Arrays.stream(processedArgs)
             .filter(CommandLineArguments::isConfigurationArg)
@@ -482,8 +496,8 @@ public class CommandLineArguments {
             .collect(Collectors.toMap(p -> (Arrays.stream((EnvironmentModel.class).getDeclaredFields())
                 .anyMatch(x -> x.getName().equals(getConfigurationOptionNameFromArg(p))) && isModernConfig ?
                 "environments."
-                    + ClassicConfiguration.TEMP_ENVIRONMENT_NAME
-                    + "." : rootNamespaces.contains(getTopNamespaceFromArg(p)) ? "" : "flyway.")
+                + ClassicConfiguration.TEMP_ENVIRONMENT_NAME
+                + "." : rootNamespaces.contains(getTopNamespaceFromArg(p)) ? "" : "flyway.")
                 + getConfigurationOptionNameFromArg(p), CommandLineArguments::parseConfigurationOptionValueFromArg));
     }
 
@@ -513,9 +527,7 @@ public class CommandLineArguments {
         return processedArgs;
     }
 
-    private static String scopeParameter(final String arg,
-        final String currentCommand,
-        final String currentFlag) {
+    private static String scopeParameter(final String arg, final String currentCommand, final String currentFlag) {
         final String paramName = arg.substring(1, arg.contains("=") ? arg.indexOf("=") : arg.length());
         final String paramValue = arg.substring(arg.indexOf("=") + 1);
         final var paramsInNamespace = getParametersByNamespace(currentCommand);

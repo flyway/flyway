@@ -25,6 +25,7 @@ import org.flywaydb.core.api.output.HtmlResult;
 import org.flywaydb.core.internal.util.CollectionsUtils;
 import org.flywaydb.reports.api.extensibility.HtmlRenderer;
 import org.flywaydb.reports.api.extensibility.HtmlReportSummary;
+import org.flywaydb.reports.html.DashboardResult;
 import org.flywaydb.reports.html.HtmlReportGenerator;
 
 public class DashboardRenderer implements HtmlRenderer<DashboardResult> {

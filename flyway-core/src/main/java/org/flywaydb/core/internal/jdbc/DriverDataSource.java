@@ -27,6 +27,7 @@ import lombok.Setter;
 import org.flywaydb.core.api.CoreErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.extensibility.AwsSecretsManagerSupport;
 import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.util.ClassUtils;
@@ -125,8 +126,16 @@ public class DriverDataSource implements DataSource {
                 + ". See " + FlywayDbWebsiteLinks.DATABASE_TROUBLESHOOTING + " for troubleshooting");
         }
 
+        String secretManagerDriverClass = null;
+        if (configuration != null) {
+            secretManagerDriverClass = configuration.getPluginRegister()
+                .getInstanceOf(AwsSecretsManagerSupport.class)
+                .getSecretManagerDriverClass(url, configuration);
+        }
+
         for (DatabaseType type: typesAcceptingUrl) {
-            String mainDriverClass = StringUtils.hasLength(driverClass) ? driverClass : type.getDriverClass(url, classLoader);
+            String mainDriverClass = StringUtils.hasLength(driverClass) ? driverClass :
+                (secretManagerDriverClass != null ? secretManagerDriverClass : type.getDriverClass(url, classLoader));
             type.setEarlyConnectionProps();
 
             try {

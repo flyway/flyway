@@ -1,6 +1,6 @@
 /*-
  * ========================LICENSE_START=================================
- * flyway-core
+ * flyway-command-mcp
  * ========================================================================
  * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
@@ -17,20 +17,25 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.core.internal.jdbc;
+package org.flywaydb.mcp;
 
-import org.flywaydb.core.FlywayTelemetryManager;
-import org.flywaydb.core.api.callback.Callback;
-import org.flywaydb.core.api.callback.Event;
-import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.extensibility.Plugin;
-import org.flywaydb.core.internal.callback.CallbackExecutor;
-import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.database.base.Schema;
+import lombok.Getter;
+import lombok.Setter;
+import org.flywaydb.core.extensibility.ConfigurationExtension;
 
-public interface ErrorOverrideInitializer extends Plugin {
+@Getter
+@Setter
+@SuppressWarnings("unused")
+public abstract class McpConfigurationExtensionBase implements ConfigurationExtension {
+    private int maxLogs = 100;
 
-    void setCallback(String[] errorOverrides);
-    Callback getCallback();
-    CallbackExecutor<Event> getCallbackExecutor(Configuration configuration, Database database, Schema schema, FlywayTelemetryManager flywayTelemetryManager);
+    @Override
+    public String getNamespace() {
+        return "mcp";
+    }
+
+    @Override
+    public String getConfigurationParameterFromEnvironmentVariable(final String environmentVariable) {
+        return "";
+    }
 }

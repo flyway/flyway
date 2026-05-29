@@ -64,11 +64,6 @@ public class SQLServerDatabaseType extends BaseDatabaseType {
 
     @Override
     public String getDriverClass(String url, ClassLoader classLoader) {
-
-
-
-
-
         if (url.startsWith("jdbc:p6spy:sqlserver:") || (supportsJTDS() && url.startsWith("jdbc:p6spy:jtds:"))) {
             return "com.p6spy.engine.spy.P6SpyDriver";
         }

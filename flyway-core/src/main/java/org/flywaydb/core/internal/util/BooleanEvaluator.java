@@ -34,7 +34,7 @@ public class BooleanEvaluator {
      */
     public static boolean evaluateExpression(final String expression, final Configuration configuration) {
         final ShouldExecuteEvaluator plugin = configuration.getPluginRegister()
-            .getLicensedInstanceOf(ShouldExecuteEvaluator.class, configuration);
-        return plugin == null || plugin.evaluateExpression(expression);
+            .getInstanceOf(ShouldExecuteEvaluator.class);
+        return plugin.evaluateExpression(expression, configuration);
     }
 }

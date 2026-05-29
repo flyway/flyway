@@ -6,6 +6,8 @@ redirect_from: /documentation/gradle/
 The Flyway Gradle plugin supports **Gradle 7.6.x*** and **Gradle 8.x**
 running on **Java 17**.
 
+**Note:** Flyway v13 will require Java 21.
+
 *Older versions fail due to some dependencies having multi-release jars with Java 19 code. 
 This is a known [Gradle issue](https://github.com/gradle/gradle/issues/24390). 
 

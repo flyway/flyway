@@ -41,21 +41,17 @@ public class ChecksumCalculator {
     public static int calculate(LoadableResource... loadableResources) {
         int checksum;
 
-
-
-
+        if (loadableResources.length == 1) {
             checksum = calculateChecksumForResource(loadableResources[0]);
+        } else {
+            final CRC32 crc32 = new CRC32();
+            for (LoadableResource resource : loadableResources) {
+                //noinspection Since15
+                crc32.update(intToByteArray(calculateChecksumForResource(resource)));
+            }
 
-
-
-
-
-
-
-
-
-
-
+            checksum = (int) crc32.getValue();
+        }
 
         return checksum;
     }
@@ -86,14 +82,12 @@ public class ChecksumCalculator {
         return (int) crc32.getValue();
     }
 
-
-
-
-
-
-
-
-
-
-
+    private static byte[] intToByteArray(int i) {
+        return new byte[] {
+                (byte) ((i >> 24) & 0xFF),
+                (byte) ((i >> 16) & 0xFF),
+                (byte) ((i >> 8) & 0xFF),
+                (byte) (i & 0xFF)
+        };
+    }
 }

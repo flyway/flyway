@@ -14,6 +14,8 @@ be migrated to a state the rest of the code can work with.
 - `Java JDK 17+`
 - Flyway is built with language level 17.
 
+**Note:** Starting with Flyway v13, Java 21 will be required.
+
 ## Download
 
 ### Redgate Edition

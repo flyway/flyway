@@ -76,11 +76,6 @@ public class MySQLDatabaseType extends BaseDatabaseType {
 
     @Override
     public String getDriverClass(String url, ClassLoader classLoader) {
-
-
-
-
-
         if (url.startsWith("jdbc:p6spy:mysql:") || url.startsWith("jdbc:p6spy:google:")) {
             return "com.p6spy.engine.spy.P6SpyDriver";
         }

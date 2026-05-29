@@ -28,6 +28,8 @@ import org.flywaydb.core.api.logging.LogCreator;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.logging.JsonLogCreator;
 import org.flywaydb.core.internal.logging.multi.MultiLogCreator;
+import org.flywaydb.mcp.McpCommandExtension;
+import org.flywaydb.mcp.McpServerLogCreator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +38,10 @@ import java.util.List;
 public class LoggingUtils {
 
     public static LogCreator getLogCreator(CommandLineArguments commandLineArguments) {
+        if (commandLineArguments.hasOperation(McpCommandExtension.MCP_VERB)) {
+            return new McpServerLogCreator();
+        }
+
         // JSON output uses a different mechanism, so we do not create any loggers
         if (commandLineArguments.shouldOutputJson()) {
             return new JsonLogCreator();

@@ -1,6 +1,6 @@
 /*-
  * ========================LICENSE_START=================================
- * flyway-reports
+ * flyway-command-mcp
  * ========================================================================
  * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
@@ -17,22 +17,16 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.reports.output;
+package org.flywaydb.mcp;
 
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
-import org.flywaydb.core.api.output.HtmlResult;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.extensibility.Plugin;
 
-@Getter
-@Setter
-public class DashboardResult extends HtmlResult {
-    private Collection<HtmlResult> results;
-
-    public DashboardResult(final Collection<? extends HtmlResult> results) {
-        super(LocalDateTime.now(), "dashboard");
-        this.results = List.copyOf(results);
-    }
+/**
+ * Provides a way to load flyway configuration for use with tools within an MCP server. This is an experimental API and
+ * may be removed or changed in future versions.
+ */
+@SuppressWarnings({ "SameReturnValue", "unused" })
+public interface McpConfigurationLoader extends Plugin {
+    Configuration loadConfiguration(final String projectRoot);
 }

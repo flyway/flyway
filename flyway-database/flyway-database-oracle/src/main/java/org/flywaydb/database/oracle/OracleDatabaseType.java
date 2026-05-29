@@ -50,8 +50,6 @@ import org.flywaydb.core.internal.util.ClassUtils;
 import java.util.logging.LogManager;
 
 import java.sql.Connection;
-import java.sql.Driver;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Arrays;
@@ -92,12 +90,6 @@ public class OracleDatabaseType extends BaseDatabaseType {
 
     @Override
     public String getDriverClass(String url, ClassLoader classLoader) {
-
-
-
-
-
-
         if (url.startsWith("jdbc:p6spy:oracle:")) {
             return "com.p6spy.engine.spy.P6SpyDriver";
         }
@@ -252,18 +244,6 @@ public class OracleDatabaseType extends BaseDatabaseType {
         }
 
         return super.alterConnectionAsNeeded(connection, configuration);
-    }
-
-    /**
-     * Workaround until this issue gets fixed: https://github.com/aws/aws-secretsmanager-jdbc/issues/44
-     */
-    private void registerOracleDriver() {
-        try {
-            Class<Driver> driver = (Class<Driver>) getClass().getClassLoader().loadClass("oracle.jdbc.OracleDriver");
-            DriverManager.registerDriver(driver.getDeclaredConstructor().newInstance());
-        } catch (Exception e) {
-            throw new FlywayException("Unable to register Oracle driver. AWS Secrets Manager may not work", e);
-        }
     }
 
     @Override

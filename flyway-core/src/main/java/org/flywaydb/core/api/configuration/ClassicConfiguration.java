@@ -22,6 +22,7 @@ package org.flywaydb.core.api.configuration;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.isOSS;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.removeBoolean;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.removeInteger;
+import static org.flywaydb.core.internal.util.UrlUtils.guardJdbcSecretsManagerURL;
 
 import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
 import tools.jackson.databind.ObjectMapper;
@@ -36,7 +37,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -478,7 +478,7 @@ public class ClassicConfiguration implements Configuration {
         getCurrentUnresolvedEnvironment().setUrl(url);
         requestResolvedEnvironmentRefresh(getCurrentEnvironmentName());
 
-        licenseGuardJdbcUrl(url);
+        guardJdbcSecretsManagerURL(url);
     }
 
     @Override
@@ -755,12 +755,11 @@ public class ClassicConfiguration implements Configuration {
      * @param errorOverrides The ErrorOverrides or an empty array if none are defined. (default: none)
      */
     public void setErrorOverrides(final String... errorOverrides) {
+        if (isOSS()) {
+            throw new FlywayEditionUpgradeRequiredException(LicenseGuard.getTier(this), "errorOverrides");
+        }
 
-        throw new org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException(LicenseGuard.getTier(this), "errorOverrides");
-
-
-
-
+        getModernFlyway().setErrorOverrides(Arrays.stream(errorOverrides).collect(Collectors.toList()));
     }
 
     @Override
@@ -842,12 +841,11 @@ public class ClassicConfiguration implements Configuration {
      * <i>Flyway Teams only</i>
      */
     public void setKerberosConfigFile(final String kerberosConfigFile) {
+        if (isOSS()) {
+            throw new FlywayEditionUpgradeRequiredException(LicenseGuard.getTier(this), "kerberosConfigFile");
+        }
 
-        throw new org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException(LicenseGuard.getTier(this), "kerberosConfigFile");
-
-
-
-
+        getModernFlyway().setKerberosConfigFile(kerberosConfigFile);
     }
 
     @Override
@@ -1461,7 +1459,7 @@ public class ClassicConfiguration implements Configuration {
                     this,
                     getCurrentUnresolvedEnvironment().getJdbcProperties()), true));
         }
-        licenseGuardJdbcUrl(url);
+        guardJdbcSecretsManagerURL(url);
     }
 
     /**
@@ -2009,15 +2007,6 @@ public class ClassicConfiguration implements Configuration {
 
     private EnvironmentModel getCurrentUnresolvedEnvironment() {
         return modernConfig.getEnvironments().getOrDefault(getCurrentEnvironmentName(), new EnvironmentModel());
-    }
-
-    private void licenseGuardJdbcUrl(final String url) {
-        if (!url.toLowerCase(Locale.ROOT).startsWith("jdbc-secretsmanager:")) {
-            return;
-        }
-
-
-
     }
 
     private void determineKeysToRemoveAndRemoveFromProps(final Map<String, Map<String, Object>> configExtensionsPropertyMap,

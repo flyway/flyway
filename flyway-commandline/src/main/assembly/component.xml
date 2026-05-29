@@ -248,6 +248,7 @@
         <include>org.flywaydb:flyway-database-nc-mongodb</include>
         <include>org.flywaydb:flyway-database-nc-cassandra</include>
         <include>org.flywaydb:flyway-command-test-connection</include>
+        <include>org.flywaydb:flyway-command-mcp</include>
       </includes>
     </dependencySet>
     <dependencySet>

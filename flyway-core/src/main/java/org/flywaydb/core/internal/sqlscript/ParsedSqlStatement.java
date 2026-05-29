@@ -76,12 +76,10 @@ public class ParsedSqlStatement implements SqlStatement {
         return canExecuteInTransaction;
     }
 
-
-
-
-
-
-
+    @Override
+    public SqlScript getReferencedSqlScript() {
+        return null;
+    }
 
     @Override
     public Results execute(JdbcTemplate jdbcTemplate, SqlScriptExecutor sqlScriptExecutor, Configuration config) {

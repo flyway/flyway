@@ -35,6 +35,7 @@ import org.flywaydb.core.internal.plugin.PluginRegister;
 
 @CustomLog
 public record ErrorOutput(ErrorOutputItem error) implements OperationResult {
+    private static final PluginRegister PLUGIN_REGISTER = new PluginRegister();
     private static final Collection<ExceptionToErrorObjectConverter<? extends Exception, ? extends ErrorOutputItem>> CORE_ERROR_OBJECT_CONVERTERS = List.of(
         new FlywayMigrateExceptionToErrorObjectConverter(),
         new FlywaySqlExceptionToErrorObjectConverter(),
@@ -62,7 +63,7 @@ public record ErrorOutput(ErrorOutputItem error) implements OperationResult {
 
     private static Optional<ExceptionToErrorObjectConverter<?, ?>> findPluginErrorOutputConverter(final Exception exception) {
         try {
-            return new PluginRegister().getInstancesOf(ExceptionToErrorObjectConverter.class)
+            return PLUGIN_REGISTER.getInstancesOf(ExceptionToErrorObjectConverter.class)
                 .stream()
                 .filter(x -> x.getSupportedExceptionType().isInstance(exception))
                 .findFirst()

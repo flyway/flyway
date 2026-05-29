@@ -53,8 +53,6 @@ import org.flywaydb.core.internal.util.CollectionsUtils;
 import org.flywaydb.core.internal.util.FileUtils;
 import org.flywaydb.reports.api.extensibility.HtmlRenderer;
 import org.flywaydb.reports.api.extensibility.HtmlReportSummary;
-import org.flywaydb.reports.output.DashboardResult;
-import org.flywaydb.reports.output.HoldingResult;
 
 @CustomLog
 @ExtensionMethod(Tier.class)

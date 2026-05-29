@@ -19,27 +19,32 @@
  */
 package org.flywaydb.core.internal.plugin;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import lombok.CustomLog;
-import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.Plugin;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ServiceLoader;
-import java.util.stream.Collectors;
-
 @SuppressWarnings("unchecked")
 @CustomLog
-@NoArgsConstructor
 public class PluginRegister {
+    private static final ConcurrentHashMap<ClassLoader, List<ServiceLoader.Provider<Plugin>>> PROVIDER_CACHE = new ConcurrentHashMap<>();
+
     private final List<ServiceLoader.Provider<Plugin>> REGISTERED_PROVIDERS = new ArrayList<>();
     private final Map<ServiceLoader.Provider<Plugin>, Plugin> INSTANTIATED_PLUGINS = new ConcurrentHashMap<>();
     private final ClassLoader CLASS_LOADER = this.getClass().getClassLoader();
     private boolean hasRegisteredPlugins;
+
+    public PluginRegister() {}
+
+    private PluginRegister(final boolean skipRegistration) {
+        hasRegisteredPlugins = skipRegistration;
+    }
 
     /**
      * @deprecated Use {@link #getExact(Class)} instead.
@@ -159,6 +164,10 @@ public class PluginRegister {
             .orElse(null);
     }
 
+    List<ServiceLoader.Provider<Plugin>> getRegisteredProviders() {
+        return getProviders();
+    }
+
     private Plugin instantiate(final ServiceLoader.Provider<Plugin> provider) {
         return INSTANTIATED_PLUGINS.computeIfAbsent(provider, p -> {
             final Plugin plugin = p.get();
@@ -187,27 +196,22 @@ public class PluginRegister {
                 return;
             }
 
-            ServiceLoader.load(Plugin.class, CLASS_LOADER)
-                .stream()
-                .forEach(REGISTERED_PROVIDERS::add);
+            final List<ServiceLoader.Provider<Plugin>> cached = PROVIDER_CACHE.computeIfAbsent(CLASS_LOADER,
+                cl -> ServiceLoader.load(Plugin.class, cl).stream().collect(Collectors.toList()));
+            REGISTERED_PROVIDERS.addAll(cached);
 
             hasRegisteredPlugins = true;
         }
     }
 
     public PluginRegister getCopy() {
-        final PluginRegister copy = new PluginRegister();
-        copy.REGISTERED_PROVIDERS.clear();
+        final PluginRegister copy = new PluginRegister(true);
         copy.REGISTERED_PROVIDERS.addAll(getProviders());
-        // Copy already-instantiated plugins. Plugins not yet instantiated will be
-        // created fresh from providers when first accessed on the copy, ensuring
-        // independent state between PluginRegister instances.
         for (final var entry : INSTANTIATED_PLUGINS.entrySet()) {
             if (entry.getValue() != null) {
                 copy.INSTANTIATED_PLUGINS.put(entry.getKey(), entry.getValue().copy());
             }
         }
-        copy.hasRegisteredPlugins = true;
         return copy;
     }
 }

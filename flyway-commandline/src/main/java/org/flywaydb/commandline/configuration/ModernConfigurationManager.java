@@ -22,6 +22,7 @@ package org.flywaydb.commandline.configuration;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.DEFAULT_CLI_JARS_LOCATION;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.DEFAULT_CLI_SQL_LOCATION;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.dumpEnvironmentModel;
+import static org.flywaydb.core.internal.configuration.ConfigUtils.isOSS;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeJarDirsBasedOnWorkingDirectory;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeJarDirsInEnvironmentsBasedOnWorkingDirectory;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeLocationsBasedOnWorkingDirectory;
@@ -72,7 +73,6 @@ import org.flywaydb.core.internal.configuration.resolvers.PropertyResolver;
 import org.flywaydb.core.internal.configuration.resolvers.PropertyResolverContext;
 import org.flywaydb.core.internal.configuration.resolvers.PropertyResolverContextImpl;
 import org.flywaydb.core.internal.util.ClassUtils;
-import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.MergeUtils;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -207,6 +207,40 @@ public class ModernConfigurationManager implements ConfigurationManager {
         loadJarDirsAndAddToClasspath(installDirectory, cfg);
 
         setDefaultSqlLocation(installDirectory, cfg);
+
+        return cfg;
+    }
+
+    /**
+     * This is an experimental API and may be removed or changed in future versions.
+     *
+     * @param tomlFiles        list of configuration files to load
+     * @param workingDirectory working directory to resolve relative paths in the configuration against
+     * @return the loaded configuration
+     */
+    public Configuration getMcpActionConfiguration(final List<File> tomlFiles, final String workingDirectory) {
+        final ConfigurationModel config = TomlUtils.loadConfigurationFiles(tomlFiles);
+
+        // Override properties which are not supported in MCP server tool configuration
+        config.getFlyway().setOutputProgress(false);
+        config.getFlyway().setOutputLogsInJson(false);
+        config.getFlyway().setOutputType("json");
+        config.getFlyway().setJarDirs(null);
+        config.getFlyway().setLoggers(null);
+        config.getEnvironments().forEach((key, model) -> {
+            model.getFlyway().setJarDirs(null);
+            model.getFlyway().setLoggers(null);
+        });
+
+        makeRelativeLocationsBasedOnWorkingDirectory(workingDirectory, config.getFlyway().getLocations());
+        makeRelativeLocationsBasedOnWorkingDirectory(workingDirectory, config.getFlyway().getCallbackLocations());
+        makeRelativeLocationsInEnvironmentsBasedOnWorkingDirectory(workingDirectory, config.getEnvironments());
+
+        ConfigUtils.dumpConfigurationModel(config, "Using configuration:");
+        final ClassicConfiguration cfg = new ClassicConfiguration(config);
+        cfg.setWorkingDirectory(workingDirectory);
+        configurePlugins(config, cfg, false);
+        setDefaultSqlLocation(workingDirectory, cfg);
 
         return cfg;
     }
@@ -574,7 +608,9 @@ public class ModernConfigurationManager implements ConfigurationManager {
         final boolean rootConfigurationsIsEmpty,
         final String prefix) {
 
-        if (rootConfigurationsIsEmpty) {
+        if (isOSS() && !rootConfigurationsIsEmpty) {
+            return;
+        }
 
         final StringBuilder exceptionMessage = new StringBuilder();
         CoreErrorCode errorCode = CoreErrorCode.CONFIGURATION_RECOVERABLE;
@@ -598,9 +634,6 @@ public class ModernConfigurationManager implements ConfigurationManager {
             throw new ObsoleteConfigurationParametersException(exceptionMessage.toString(), obsoleteParameters);
         }
         throw new FlywayException(exceptionMessage.toString(), errorCode);
-
-        }
-
     }
 
     private static ObsoleteParameter convertObsoleteParameter(final UnknownParameterModel unknownParameterModel) {
