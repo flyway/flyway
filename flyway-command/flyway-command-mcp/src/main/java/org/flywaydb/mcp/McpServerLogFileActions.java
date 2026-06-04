@@ -21,40 +21,91 @@ package org.flywaydb.mcp;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.math.BigInteger;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 
+/**
+ * Provides actions for managing log files for use with the mcp server log implementation. This is an experimental API
+ * and may be removed or changed in future versions.
+ */
 @RequiredArgsConstructor
 class McpServerLogFileActions {
+    private static final int MAX_RETRIES = 5;
     private final Log log;
-    private final DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss_n", Locale.ROOT)
+    private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss", Locale.ROOT)
         .withZone(ZoneOffset.UTC);
-    private final Pattern logPattern = Pattern.compile("flyway-mcp \\d{4}_\\d{2}_\\d{2}_\\d{2}_\\d{2}_\\d{2}_\\d+\\.log");
+    private final Pattern pattern = Pattern.compile(
+        "flyway-mcp (\\d{4}_\\d{2}_\\d{2}_\\d{2}_\\d{2}_\\d{2})_(\\d+)\\.log");
 
-    OutputStream startNewLog() {
-        try {
-            final Path path = getLogPath();
-            Files.createDirectories(path.getParent());
-            return Files.newOutputStream(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
-        } catch (final FileAlreadyExistsException ignored) {
+    Optional<LogFileIdentifier> parseIdentifier(final Path path) {
+        final Matcher matcher = pattern.matcher(path.getFileName().toString());
+        if (matcher.matches()) {
             try {
-                return Files.newOutputStream(getLogPath(), StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
-            } catch (final IOException e) {
-                log.error("Failed to create MCP log file on retry", e);
-                throw new FlywayException("Failed to create MCP log file on retry", e);
+                final Instant instant = Instant.from(timeFormatter.parse(matcher.group(1)));
+                return Optional.of(new LogFileIdentifier(path, instant, new BigInteger(matcher.group(2))));
+            } catch (final DateTimeParseException ignored) {
             }
+        }
+        return Optional.empty();
+    }
+
+    List<LogFileIdentifier> getAllLogs() {
+        final Path dir = getLogFileDirectory();
+        if (!Files.isDirectory(dir)) {
+            return List.of();
+        }
+
+        try (final Stream<Path> stream = Files.find(dir, 1, (p, a) -> a.isRegularFile())) {
+            return stream.flatMap(x -> parseIdentifier(x).stream()).toList();
+        } catch (final IOException e) {
+            throw new FlywayException("Failed to list MCP log files", e);
+        }
+    }
+
+    OutputStream startNewLog(final Clock clock) {
+        try {
+            final Path dir = getLogFileDirectory();
+            Files.createDirectories(dir);
+
+            for (int retry = 0; retry < MAX_RETRIES; retry++) {
+                final Instant now = Instant.now(clock).truncatedTo(ChronoUnit.SECONDS);
+                final BigInteger number = getAllLogs().stream()
+                    .filter(x -> x.instant().equals(now))
+                    .reduce(BigInteger.ZERO, (a, b) -> a.max(b.number()), BigInteger::max);
+                final Path path = dir.resolve("flyway-mcp "
+                    + timeFormatter.format(now)
+                    + "_"
+                    + number.add(BigInteger.ONE)
+                    + ".log");
+
+                try {
+                    return Files.newOutputStream(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
+                } catch (final FileAlreadyExistsException ignored) {
+                    log.debug("Failed to create MCP log file on retry " + (1 + retry) + " / " + MAX_RETRIES);
+                }
+            }
+
+            throw new FlywayException("Failed to create MCP log file after " + MAX_RETRIES + " retries");
         } catch (final IOException e) {
             log.error("Failed to create MCP log file", e);
             throw new FlywayException("Failed to create MCP log file", e);
@@ -67,32 +118,16 @@ class McpServerLogFileActions {
             return;
         }
         try {
-            final Path dir = getLogFileDirectory();
-            if (!Files.isDirectory(dir)) {
-                return;
-            }
-
-            try (final Stream<Path> stream = Files.list(dir)) {
-                stream.filter(Files::isRegularFile)
-                    .filter(p -> logPattern.matcher(p.getFileName().toString()).matches())
-                    .sorted(Comparator.comparing(Path::getFileName).reversed())
-                    .skip(maxLogs)
-                    .forEach(p -> {
-                        try {
-                            Files.deleteIfExists(p);
-                        } catch (final IOException e) {
-                            log.warn("Failed to delete old MCP log file " + p + ": " + e.getMessage());
-                        }
-                    });
-            }
+            getAllLogs().stream().sorted(Comparator.reverseOrder()).skip(maxLogs).forEach(x -> {
+                try {
+                    Files.deleteIfExists(x.path());
+                } catch (final IOException e) {
+                    log.warn("Failed to delete old MCP log file " + x.path() + ": " + e.getMessage());
+                }
+            });
         } catch (final Exception e) {
             log.warn("Failed to prune old MCP log files: " + e.getMessage());
         }
-    }
-
-    private Path getLogPath() {
-        final String filename = "flyway-mcp " + format.format(Instant.now()) + ".log";
-        return getLogFileDirectory().resolve(filename);
     }
 
     private Path getLogFileDirectory() {
@@ -100,5 +135,22 @@ class McpServerLogFileActions {
         return isWindows
             ? Path.of(System.getenv("LocalAppData"), "Red Gate", "Logs", "Flyway")
             : Path.of(System.getProperty("user.home"), ".local", "share", "Red Gate", "Logs", "Flyway");
+    }
+
+    record LogFileIdentifier(Path path, Instant instant, BigInteger number) implements Comparable<LogFileIdentifier> {
+        @Override
+        public int compareTo(final @NonNull McpServerLogFileActions.LogFileIdentifier o) {
+            final int instantComparison = instant.compareTo(o.instant);
+            if (instantComparison != 0) {
+                return instantComparison;
+            }
+
+            final int numberComparison = number.compareTo(o.number);
+            if (numberComparison != 0) {
+                return numberComparison;
+            }
+
+            return path.compareTo(o.path);
+        }
     }
 }

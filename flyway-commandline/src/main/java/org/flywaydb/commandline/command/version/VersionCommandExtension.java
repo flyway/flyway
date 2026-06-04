@@ -21,6 +21,7 @@ package org.flywaydb.commandline.command.version;
 
 import static org.flywaydb.core.internal.util.TelemetryUtils.getTelemetryManager;
 
+import java.util.Date;
 import java.util.Locale;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
@@ -32,6 +33,7 @@ import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.extensibility.LicenseGuard;
 import org.flywaydb.core.extensibility.VersionReportable;
 import org.flywaydb.core.internal.license.VersionPrinter;
+import org.flywaydb.core.internal.util.DateUtils;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -51,7 +53,7 @@ public class VersionCommandExtension implements CommandExtension<VersionResult> 
     }
 
     public String getCommandForFlag(String flag) {
-        if (FLAGS.contains(flag.toLowerCase())) {
+        if (FLAGS.contains(flag.toLowerCase(Locale.ROOT))) {
             return VERSION;
         }
         return CommandExtension.super.getCommandForFlag(flag);
@@ -70,14 +72,14 @@ public class VersionCommandExtension implements CommandExtension<VersionResult> 
     @Override
     @SneakyThrows
     public VersionResult handle(Configuration config, List<String> flags) throws FlywayException {
-        return TelemetrySpan.trackSpan(new EventTelemetryModel("version", getTelemetryManager(config)), (telemetryModel) -> {
-            return version(VERSION.toLowerCase(Locale.ROOT), config);
-        });
+        return TelemetrySpan.trackSpan(new EventTelemetryModel("version", getTelemetryManager(config)),
+            (telemetryModel) -> version(VERSION.toLowerCase(Locale.ROOT), config));
     }
 
     private static VersionResult version(final String command, final Configuration config) {
         LOG.debug("Java " + System.getProperty("java.version") + " (" + System.getProperty("java.vendor") + ")");
-        LOG.debug(System.getProperty("os.name") + " " + System.getProperty("os.version") + " " + System.getProperty("os.arch") + "\n");
+        LOG.debug(System.getProperty("os.name") + " " + System.getProperty("os.version") + " " + System.getProperty(
+            "os.arch") + "\n");
 
         List<VersionReportable> versionedPlugins = config.getPluginRegister().getInstancesOf(VersionReportable.class);
 
@@ -91,21 +93,32 @@ public class VersionCommandExtension implements CommandExtension<VersionResult> 
             int nameLength = pluginVersions.stream().map(p -> p.name.length()).max(Integer::compare).get() + 2;
             int versionLength = pluginVersions.stream().map(p -> p.version.length()).max(Integer::compare).get() + 2;
 
-            LOG.info(StringUtils.rightPad("Plugin Name", nameLength, ' ') + " | " + StringUtils.rightPad("Version", versionLength, ' '));
+            LOG.info(StringUtils.rightPad("Plugin Name", nameLength, ' ') + " | " + StringUtils.rightPad("Version",
+                versionLength,
+                ' '));
 
-            LOG.info(StringUtils.rightPad(StringUtils.leftPad("", nameLength, '-'), nameLength, ' ') + " | " +
-                StringUtils.rightPad(StringUtils.leftPad("", versionLength, '-'), versionLength, ' '));
+            LOG.info(StringUtils.rightPad(StringUtils.leftPad("", nameLength, '-'), nameLength, ' ')
+                + " | "
+                + StringUtils.rightPad(StringUtils.leftPad("", versionLength, '-'), versionLength, ' '));
 
             for (PluginVersionResult p : pluginVersions) {
-                LOG.info(StringUtils.rightPad(p.name, nameLength, ' ') + " | " + StringUtils.rightPad(p.version, versionLength, ' '));
+                LOG.info(StringUtils.rightPad(p.name, nameLength, ' ') + " | " + StringUtils.rightPad(p.version,
+                    versionLength,
+                    ' '));
             }
         }
 
-        return new VersionResult(VersionPrinter.getVersion(), command, LicenseGuard.getTier(config), pluginVersions);
+        Date permitExpiry = LicenseGuard.getPermit(config).getPermitExpiry();
+        return new VersionResult(VersionPrinter.getVersion(),
+            command,
+            LicenseGuard.getTier(config),
+            pluginVersions,
+            permitExpiry == null ? null : DateUtils.toDateString(permitExpiry));
     }
 
     @Override
     public List<Pair<String, String>> getUsage() {
-        return Collections.singletonList(Pair.of(VERSION + ", " + String.join(", ", FLAGS), "Print the Flyway version and edition"));
+        return Collections.singletonList(Pair.of(VERSION + ", " + String.join(", ", FLAGS),
+            "Print the Flyway version and edition"));
     }
 }

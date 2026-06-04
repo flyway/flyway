@@ -123,14 +123,17 @@ public class FlywayPermit implements Serializable {
             LOG.info("Licensed via: " + authMethod.getDisplayName());
         }
 
-        if (contractExpiry != null) {
+        final Date expiry = this.authMethod == AuthMethod.OFFLINE_PERMIT ? this.permitExpiry : this.contractExpiry;
+        if (expiry != null) {
             if ("Online User".equals(this.owner)) {
-                if (this.contractExpiry.getTime() == Long.MAX_VALUE) {
+                if (expiry.getTime() == Long.MAX_VALUE) {
                     LOG.debug("License has no expiry date");
                 } else {
                     logLicensedUntilIfWithinWindow();
                 }
-            } else if (!"Anonymous".equals(this.owner)) {
+            } else if ("Anonymous".equals(this.owner)) {
+                logPermitExpiryIfWithinWindow(expiry);
+            } else {
                 LOG.info("Licensed to " + this.owner);
                 logLicensedUntilIfWithinWindow();
             }
@@ -165,6 +168,13 @@ public class FlywayPermit implements Serializable {
         if (DateUtils.getRemainingDays(this.contractExpiry) <= DAYS_TO_DISPLAY_LICENSED_UNTIL) {
             LOG.info("Licensed until " + DateUtils.toDateString(this.contractExpiry) + " (" + StringUtils.getDaysString(
                 DateUtils.getRemainingDays(this.contractExpiry)) + " remaining)");
+        }
+    }
+
+    private void logPermitExpiryIfWithinWindow(final Date expiry) {
+        if (DateUtils.getRemainingDays(expiry) <= DAYS_TO_DISPLAY_LICENSED_UNTIL) {
+            LOG.info("Permit Expires " + DateUtils.toDateString(expiry) + " (" + StringUtils.getDaysString(
+                DateUtils.getRemainingDays(expiry)) + " remaining)");
         }
     }
 

@@ -1,6 +1,6 @@
 /*-
  * ========================LICENSE_START=================================
- * flyway-commandline
+ * flyway-core
  * ========================================================================
  * Copyright (C) 2010 - 2026 Red Gate Software Ltd
  * ========================================================================
@@ -17,19 +17,20 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.commandline.command.version;
-
-import lombok.AllArgsConstructor;
-import org.flywaydb.core.api.output.OperationResult;
-import org.flywaydb.core.extensibility.Tier;
+package org.flywaydb.core.extensibility;
 
 import java.util.List;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.license.FlywayPermit;
 
-@AllArgsConstructor
-public class VersionResult implements OperationResult {
-    public String version;
-    public String command;
-    public Tier edition;
-    public List<PluginVersionResult> pluginVersions;
-    public String permitExpiry;
+public interface LicenseSupport extends Plugin {
+
+    FlywayPermit getPermit(Configuration configuration, boolean fromCache);
+
+    List<String> consumeDeferredWarnings(Configuration configuration);
+
+    void submitPur(Configuration configuration, String eventType, Database database);
+
+    boolean isRedgateEdition();
 }

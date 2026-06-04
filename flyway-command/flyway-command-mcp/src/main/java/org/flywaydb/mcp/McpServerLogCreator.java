@@ -21,6 +21,7 @@ package org.flywaydb.mcp;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.time.Clock;
 import java.util.List;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
@@ -43,7 +44,7 @@ public class McpServerLogCreator implements LogCreator {
 
     private static synchronized OutputStream getFileStream(final Log log) {
         if (fileStream == null) {
-            fileStream = new McpServerLogFileActions(log).startNewLog();
+            fileStream = new McpServerLogFileActions(log).startNewLog(Clock.systemDefaultZone());
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 try {
                     fileStream.close();

@@ -8,6 +8,32 @@
 </div>
 <div class="col-md-9">
   <div class="release">
+        <h2 id="12.8.0">Flyway 12.8.0 (2026-06-04)</h2>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Flyway now warns when an offline permit is due to expire within the next 30 days</li>
+            <li>Improved progress reporting for PostgreSQL, MySQL and SQLite</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Oracle EXEC statements preceded by a comment now parse correctly</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>API users now must include a flyway `Licensing` module dependency to be recognized as Redgate edition</li>
+        </ul>
+
+        <h3>Internal dependency</h3>
+        <ul>
+            <li>Upgraded RgCompare to 1.58.3.4416</li>
+        </ul>
+
+  </div>
+
+  <div class="release">
         <h2 id="12.7.0">Flyway 12.7.0 (2026-05-29)</h2>
 
         <h3>New features</h3>

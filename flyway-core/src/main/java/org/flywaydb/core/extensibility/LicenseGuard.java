@@ -19,54 +19,19 @@
  */
 package org.flywaydb.core.extensibility;
 
-import java.util.Collections;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.license.AuthMethod;
 import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
 import org.flywaydb.core.internal.license.FlywayPermit;
 
-
-
-
-
-
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
-import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
 @CustomLog
 @ExtensionMethod(Tier.class)
 public class LicenseGuard {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-         private static final FlywayPermit OSS_PERMIT = new FlywayPermit("Anonymous", null, null, false, false, null);
-
-
     public static void guard(Configuration configuration, List<Tier> editions, String featureName) {
         FlywayPermit flywayPermit = getPermit(configuration);
         if ((flywayPermit.getPermitExpiry() != null && flywayPermit.getPermitExpiry().before(new Date())) ||
@@ -103,17 +68,9 @@ public class LicenseGuard {
         return false;
     }
 
-
-
-
-
-
-
-
-
-
-
-
+    public static void submitPur(Configuration configuration, String eventType, Database database) {
+        configuration.getPluginRegister().getInstanceOf(LicenseSupport.class).submitPur(configuration, eventType, database);
+    }
 
     public static FlywayPermit getPermit(Configuration configuration) {
         return getPermit(configuration, true);
@@ -132,61 +89,10 @@ public class LicenseGuard {
     }
 
     private static FlywayPermit getPermit(Configuration configuration, boolean fromCache) {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-         return OSS_PERMIT;
-
+        return configuration.getPluginRegister().getInstanceOf(LicenseSupport.class).getPermit(configuration, fromCache);
     }
 
     public static List<String> consumeDeferredWarnings(Configuration configuration) {
-
-
-
-
-
-
-
-         return Collections.emptyList();
-
-    }
-
-    public static void dropCache() {
-
-
-
-
-
-
-
-
-
-
-
+        return configuration.getPluginRegister().getInstanceOf(LicenseSupport.class).consumeDeferredWarnings(configuration);
     }
 }

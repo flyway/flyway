@@ -26,7 +26,7 @@ import org.flywaydb.core.extensibility.Plugin;
  * Provides a way to load flyway configuration for use with tools within an MCP server. This is an experimental API and
  * may be removed or changed in future versions.
  */
-@SuppressWarnings({ "SameReturnValue", "unused" })
+@SuppressWarnings("unused")
 public interface McpConfigurationLoader extends Plugin {
     Configuration loadConfiguration(final String projectRoot);
 }

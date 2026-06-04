@@ -56,7 +56,7 @@ import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.extensibility.ConfigurationExtension;
-import org.flywaydb.core.extensibility.LicenseGuard;
+import org.flywaydb.core.extensibility.LicenseSupport;
 import org.flywaydb.core.internal.command.clean.CleanModel;
 import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
 import org.flywaydb.core.internal.configuration.models.EnvironmentModel;
@@ -72,6 +72,8 @@ import org.flywaydb.core.internal.util.StringUtils;
 @CustomLog
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ConfigUtils {
+    private static final PluginRegister STATIC_PLUGIN_REGISTER = new PluginRegister();
+
     public static final String DEFAULT_CLI_SQL_LOCATION = "sql";
     public static final String DEFAULT_CLI_JARS_LOCATION = "jars";
     public static final String CONFIG_FILE_NAME = "flyway.conf";
@@ -1042,7 +1044,8 @@ public class ConfigUtils {
     }
 
     public static boolean isRedgate() {
-        return LicenseGuard.getPermit(null).getTier() != null;
+        LicenseSupport licenseSupport = STATIC_PLUGIN_REGISTER.getInstanceOf(LicenseSupport.class);
+        return licenseSupport != null && licenseSupport.isRedgateEdition();
     }
 
     public static boolean isOSS() {

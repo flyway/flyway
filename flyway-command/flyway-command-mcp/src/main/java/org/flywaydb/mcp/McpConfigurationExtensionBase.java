@@ -23,6 +23,10 @@ import lombok.Getter;
 import lombok.Setter;
 import org.flywaydb.core.extensibility.ConfigurationExtension;
 
+/**
+ * Base class for MCP configuration extensions. This is an experimental API and may be removed or changed in future
+ * versions.
+ */
 @Getter
 @Setter
 @SuppressWarnings("unused")

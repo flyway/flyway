@@ -32,6 +32,10 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.util.JsonUtils;
 import tools.jackson.databind.json.JsonMapper;
 
+/**
+ * Provides a log implementation that writes json-lines logs. This is an experimental API and may be removed or changed
+ * in future versions.
+ */
 @RequiredArgsConstructor
 public class McpServerFileLog implements Log {
     private final OutputStream stream;
