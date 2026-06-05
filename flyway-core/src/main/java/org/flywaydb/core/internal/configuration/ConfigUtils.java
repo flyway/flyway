@@ -400,7 +400,9 @@ public class ConfigUtils {
         for (final ConfigurationExtension configurationExtension : PLUGIN_REGISTER.getInstancesOf(ConfigurationExtension.class)) {
             final String configurationParameter = configurationExtension.getConfigurationParameterFromEnvironmentVariable(
                 key);
-            if (configurationParameter != null) {
+            // A blank result means "I do not own this variable". Treating it as a match would let a single
+            // extension claim every unmatched FLYWAY_ variable and collapse them onto one property key.
+            if (StringUtils.hasText(configurationParameter)) {
                 return configurationParameter;
             }
         }

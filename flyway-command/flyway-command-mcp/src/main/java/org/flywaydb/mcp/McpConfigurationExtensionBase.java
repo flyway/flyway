@@ -40,6 +40,6 @@ public abstract class McpConfigurationExtensionBase implements ConfigurationExte
 
     @Override
     public String getConfigurationParameterFromEnvironmentVariable(final String environmentVariable) {
-        return "";
+        return null;
     }
 }
