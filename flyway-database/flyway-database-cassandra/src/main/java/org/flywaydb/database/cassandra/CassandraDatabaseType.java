@@ -35,6 +35,7 @@ import java.sql.Connection;
 import java.sql.Types;
 
 public class CassandraDatabaseType extends BaseDatabaseType {
+    private static boolean deprecationLogged;
 
     @Override
     public String getName() {
@@ -63,7 +64,10 @@ public class CassandraDatabaseType extends BaseDatabaseType {
     @Override
     public boolean handlesDatabaseProductNameAndVersion(String databaseProductName, String databaseProductVersion, Connection connection) {
         if (databaseProductName.startsWith("Cassandra")) {
-            printDeprecationNotice(CASSANDRA_JDBC);
+            if (!deprecationLogged) {
+                printDeprecationNotice(CASSANDRA_JDBC);
+                deprecationLogged = true;
+            }
             return true;
         }
         return false;

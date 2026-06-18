@@ -24,10 +24,7 @@ import static org.flywaydb.core.internal.util.FlywayDbWebsiteLinks.LICENSING_ACT
 import java.io.File;
 import lombok.CustomLog;
 import lombok.Getter;
-import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.extensibility.Tier;
-
-
 import org.flywaydb.core.internal.util.DateUtils;
 import org.flywaydb.core.internal.util.FileUtils;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -41,66 +38,31 @@ public class FlywayPermit implements Serializable {
     private final String owner;
     private final Date permitExpiry;
     private final Date contractExpiry;
-    private Tier tier;
+    private final Tier tier;
     private final boolean trial;
     private final boolean redgateEmployee;
     private final AuthMethod authMethod;
-    private final long DAYS_TO_DISPLAY_LICENSED_UNTIL = 30;
+    private static final long DAYS_TO_DISPLAY_LICENSED_UNTIL = 30;
     static final long PERMIT_FILE_OUTDATED_TIME = 24 * 60 * 60 * 1000;
     private static final File FLYWAY_APP_DATA_FOLDER = FileUtils.getAppDataFlywayCLILocation();
     private static final File PERMIT_FILE = new File(FLYWAY_APP_DATA_FOLDER, "permit");
     private static final File REFRESH_TOKEN_FILE = new File(FLYWAY_APP_DATA_FOLDER, "refresh_token");
 
+    public FlywayPermit() {
+        this("Anonymous", null, null, null, false, false, AuthMethod.NONE);
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    public FlywayPermit(final String owner,
+    protected FlywayPermit(final String owner,
         final Date permitExpiry,
         final Date contractExpiry,
+        final Tier tier,
         final boolean trial,
         final boolean redgateEmployee,
         final AuthMethod authMethod) {
         this.owner = owner;
         this.permitExpiry = permitExpiry;
         this.contractExpiry = contractExpiry;
+        this.tier = tier;
         this.trial = trial;
         this.redgateEmployee = redgateEmployee;
         this.authMethod = authMethod;

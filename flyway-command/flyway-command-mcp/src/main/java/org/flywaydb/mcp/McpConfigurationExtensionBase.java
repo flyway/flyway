@@ -37,9 +37,4 @@ public abstract class McpConfigurationExtensionBase implements ConfigurationExte
     public String getNamespace() {
         return "mcp";
     }
-
-    @Override
-    public String getConfigurationParameterFromEnvironmentVariable(final String environmentVariable) {
-        return null;
-    }
 }

@@ -27,7 +27,7 @@ import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.license.FlywayPermit;
 
 public class LicenseSupportStub implements LicenseSupport {
-    private static final FlywayPermit OSS_PERMIT = new FlywayPermit("Anonymous", null, null, false, false, null);
+    private static final FlywayPermit OSS_PERMIT = new FlywayPermit();
 
     @Override
     public FlywayPermit getPermit(Configuration configuration, boolean fromCache) {

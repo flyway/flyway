@@ -19,6 +19,8 @@
  */
 package org.flywaydb.core.api;
 
+import lombok.Getter;
+
 public enum CoreErrorCode implements ErrorCode {
     // general error codes
     FAULT,
@@ -49,4 +51,7 @@ public enum CoreErrorCode implements ErrorCode {
     DESCRIPTION_MISMATCH,
     ENVIRONMENT_RESOLVE,
     ENVIRONMENT_PROVISION;
+
+    @Getter
+    private final int exitCode = 1;
 }

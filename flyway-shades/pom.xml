@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>12.8.1</version>
+    <version>12.9.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -48,6 +48,10 @@
                     <argument>AWS_SECRETSMANAGER_JDBC_VERSION=${aws.secretsmanager.jdbc.version}</argument>
                     <argument>--build-arg</argument>
                     <argument>AWS_SECRETSMANAGER_JDBC_REPO=${aws.secretsmanager.jdbc.repo}</argument>
+                    <argument>--build-arg</argument>
+                    <argument>AWS_SDK_VERSION=${version.aws-java-sdk}</argument>
+                    <argument>--build-arg</argument>
+                    <argument>LEGACY_JACKSON_VERSION=${version.legacy-jackson}</argument>
                     <argument>${maven.multiModuleProjectDirectory}/flyway-shades/shades</argument>
                   </arguments>
                 </configuration>

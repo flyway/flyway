@@ -123,7 +123,8 @@ public class Main {
                 }
 
                 final boolean isSingleCommandExtension = commandLineArguments.getOperations().size() == 1
-                    && CommandExtensionUtils.isLightweightCommandExtension(configuration, commandLineArguments.getOperations().get(0));
+                    && CommandExtensionUtils.isLightweightCommandExtension(configuration,
+                    commandLineArguments.getOperations().get(0));
 
                 final CompletableFuture<String> updateCheckFuture = commandLineArguments.skipCheckForUpdate()
                     || "json".equalsIgnoreCase(configuration.getModernConfig().getFlyway().getOutputType())
@@ -143,7 +144,8 @@ public class Main {
                     final List<ResultReportGenerator> reportGenerators = PLUGIN_REGISTER.getInstancesOf(
                         ResultReportGenerator.class);
                     for (final ResultReportGenerator resultReportGenerator : reportGenerators) {
-                        final ReportGenerationOutput output = resultReportGenerator.generateReport(result, configuration);
+                        final ReportGenerationOutput output = resultReportGenerator.generateReport(result,
+                            configuration);
                         reportGenerationOutput = ReportGenerationOutputMerger.merge(reportGenerationOutput, output);
                     }
 
@@ -171,7 +173,7 @@ public class Main {
             } catch (final Exception e) {
                 final OperationResult errorOutput = ErrorOutput.toOperationResult(e);
                 printError(commandLineArguments, e, errorOutput);
-                exitCode = 1;
+                exitCode = e instanceof final FlywayException fe ? fe.getErrorCode().getExitCode() : 1;
             } finally {
                 flushLog(commandLineArguments);
             }

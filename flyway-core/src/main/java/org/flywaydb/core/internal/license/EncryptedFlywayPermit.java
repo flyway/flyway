@@ -17,38 +17,11 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.core.internal.proprietaryStubs;
+package org.flywaydb.core.internal.license;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.io.OutputStream;
-import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.extensibility.ConfigurationExtension;
+import javax.crypto.SealedObject;
 
-public class DryRunConfigurationExtensionStub implements ConfigurationExtension {
-
-    @JsonIgnore
-    protected OutputStream cachedOutputStream;
-
-    public OutputStream getOrResolveOutputStream(final String fileName, final Configuration configuration) {
-        return cachedOutputStream;
-    }
-
-    public void setOutputStream(final OutputStream outputStream) {
-        cachedOutputStream = outputStream;
-    }
-
-    @Override
-    public String getNamespace() {
-        return "";
-    }
-
-    @Override
-    public int getPriority() {
-        return -100;
-    }
-
-    @Override
-    public boolean isStub() {
-        return true;
-    }
+public interface EncryptedFlywayPermit {
+    SealedObject getEncryptedObject();
+    FlywayPermit decrypt();
 }

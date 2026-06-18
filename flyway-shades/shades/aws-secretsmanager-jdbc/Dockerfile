@@ -2,6 +2,9 @@
 # Stage 1: Clone source repository
 ARG AWS_SECRETSMANAGER_JDBC_REPO=https://github.com/aws/aws-secretsmanager-jdbc.git
 ARG AWS_SECRETSMANAGER_JDBC_VERSION=2.0.4
+# Required build-args, sourced from the root pom (no defaults, so they can't silently stick at an old value)
+ARG AWS_SDK_VERSION
+ARG LEGACY_JACKSON_VERSION
 FROM alpine/git:latest AS clone
 ARG AWS_SECRETSMANAGER_JDBC_REPO
 ARG AWS_SECRETSMANAGER_JDBC_VERSION
@@ -10,13 +13,19 @@ RUN git clone --depth 1 --branch "$AWS_SECRETSMANAGER_JDBC_VERSION" "$AWS_SECRET
 
 # Stage 2: Merge partial POM using Python + lxml
 FROM python:3.12-alpine AS merge
+ARG AWS_SDK_VERSION
+ARG LEGACY_JACKSON_VERSION
 WORKDIR /merge
 RUN apk add --no-cache bash
 # Copy merge script and partial POM (build context root expected at flyway-shades/shades)
 COPY merge_pom.py /merge/merge_pom.py
 COPY aws-secretsmanager-jdbc/partial_pom.xml /merge/partial_pom.xml
 COPY --from=clone /work/repo /merge/repo
-RUN pip install --no-cache-dir lxml \
+# Substitute the versions (sourced from the root pom's version.aws-java-sdk / version.legacy-jackson) before merging
+RUN if [ -z "${AWS_SDK_VERSION}" ]; then echo "ERROR: AWS_SDK_VERSION build-arg is required" >&2; exit 1; fi \
+ && if [ -z "${LEGACY_JACKSON_VERSION}" ]; then echo "ERROR: LEGACY_JACKSON_VERSION build-arg is required" >&2; exit 1; fi \
+ && sed -i "s/@AWS_SDK_VERSION@/${AWS_SDK_VERSION}/g; s/@LEGACY_JACKSON_VERSION@/${LEGACY_JACKSON_VERSION}/g" /merge/partial_pom.xml \
+ && pip install --no-cache-dir lxml \
  && python /merge/merge_pom.py /merge/partial_pom.xml /merge/repo/pom.xml
 
 # Stage 3: Build shaded jar with Maven

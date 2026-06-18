@@ -19,5 +19,12 @@
  */
 package org.flywaydb.core.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public interface ErrorCode {
+
+    @JsonIgnore
+    default int getExitCode() {
+        return 1;
+    }
 }

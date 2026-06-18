@@ -35,11 +35,6 @@ public class CherryPickConfigurationExtensionStub implements ConfigurationExtens
     }
 
     @Override
-    public String getConfigurationParameterFromEnvironmentVariable(final String environmentVariable) {
-        return null;
-    }
-
-    @Override
     public int getPriority() {
         return -100;
     }

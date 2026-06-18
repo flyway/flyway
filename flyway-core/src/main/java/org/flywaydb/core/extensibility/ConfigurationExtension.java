@@ -21,7 +21,6 @@ package org.flywaydb.core.extensibility;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import tools.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
 import org.flywaydb.core.api.FlywayException;
 
 import java.util.Map;
@@ -33,7 +32,9 @@ public interface ConfigurationExtension extends Plugin {
     default void extractParametersFromConfiguration(Map<String, String> configuration) {
         // Do nothing
     }
-    String getConfigurationParameterFromEnvironmentVariable(String environmentVariable);
+    default String getConfigurationParameterFromEnvironmentVariable(String environmentVariable) {
+        return null;
+    }
 
     @Override
     default Plugin copy() {

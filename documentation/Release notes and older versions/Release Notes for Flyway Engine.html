@@ -8,6 +8,27 @@
 </div>
 <div class="col-md-9">
   <div class="release">
+        <h2 id="12.9.0">Flyway 12.9.0 (2026-06-18)</h2>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Added a check.driftResolutionFolder setting to configure the folder in which drift resolution scripts are generated when drift is detected</li>
+            <li>Flyway CLI now exits with a distinct exit code derived from the error code when a FlywayException is thrown</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>check drift, changes and dryrun commands now report phase-level progress when outputProgress is enabled</li>
+        </ul>
+
+        <h3>Internal dependency</h3>
+        <ul>
+            <li>Upgraded RgCompare to 1.58.4.4526</li>
+        </ul>
+
+  </div>
+
+  <div class="release">
         <h2 id="12.8.1">Flyway 12.8.1 (2026-06-05)</h2>
 
         <h3>Bug fixes</h3>
@@ -24,6 +45,11 @@
 
   <div class="release">
         <h2 id="12.8.0">Flyway 12.8.0 (2026-06-04)</h2>
+
+        <h3>Known Issues</h3>
+        <ul>
+          <li>There is an issue in the resolution of some FLYWAY_ environmental variables. We suggest you use `12.8.1` or later</li>
+        </ul>
 
         <h3>Changes</h3>
         <ul>

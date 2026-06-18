@@ -9,10 +9,6 @@ subtitle: flyway.kerberosConfigFile
 The path to the your Kerberos configuration file (e.g. `krb5.ini`) for use in Kerberos authentication.
 If this is a relative path, it will be resolved relative to your [working directory](<Command-line Parameters/Working Directory Parameter>).
 
-Note that Kerberos authentication is not currently supported for operations involving Redgate Comparison technology:
-
-* commands such as `diff`, `check`, `prepare`, `snapshot`
-* schema model and migration generation operations in Flyway Desktop
 
 _Note: This parameter does [not apply to Native Connectors](https://documentation.red-gate.com/display/FD/Flyway+Native+Connectors+-+MongoDB)._
 

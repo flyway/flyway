@@ -471,7 +471,8 @@ public class CommandLineArguments {
     }
 
     public boolean skipCheckForUpdate() {
-        return isFlagSet(args, SKIP_CHECK_FOR_UPDATE_FLAG);
+        return isFlagSet(args, SKIP_CHECK_FOR_UPDATE_FLAG) || hasOperation(McpCommandExtension.MCP_VERB);
+
     }
 
     public Color getColor() {
