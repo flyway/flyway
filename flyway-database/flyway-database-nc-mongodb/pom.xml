@@ -40,10 +40,12 @@
       <version>${project.parent.version}</version>
       <scope>compile</scope>
     </dependency>
-
-
-
-
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>${version.junit}</version>
+      <scope>test</scope>
+    </dependency>
 
 
 
@@ -57,6 +59,10 @@
       </resource>
     </resources>
     <plugins>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.5.6</version>
+      </plugin>
       <plugin>
         <artifactId>maven-resources-plugin</artifactId>
         <executions>
