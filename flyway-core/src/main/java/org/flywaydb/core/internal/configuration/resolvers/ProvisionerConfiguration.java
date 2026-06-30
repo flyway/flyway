@@ -21,7 +21,7 @@ package org.flywaydb.core.internal.configuration.resolvers;
 
 import static org.flywaydb.core.internal.configuration.ConfigUtils.isRedgate;
 
-import java.util.Map;
+import java.util.HashMap;
 import org.flywaydb.core.api.CoreErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.ClassicConfiguration;
@@ -59,7 +59,9 @@ public class ProvisionerConfiguration {
         // environment in order to clone it. As such, we have to clone the underlying configuration model instead.
         final var newConfigurationModel = ConfigurationModel.clone(configuration.getModernConfig());
         final var newConfiguration = new ClassicConfiguration(newConfigurationModel);
-        newConfiguration.setAllEnvironments(Map.of(environmentName, environmentModel));
+        final var environments = new HashMap<>(configuration.getModernConfig().getEnvironments());
+        environments.put(environmentName, environmentModel);
+        newConfiguration.setAllEnvironments(environments);
         newConfiguration.setEnvironment(environmentName);
         newConfiguration.setProvisionMode(ProvisionerMode.Skip);
         newConfiguration.setCallbacks(configuration.getCallbacks());

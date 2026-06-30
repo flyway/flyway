@@ -20,13 +20,12 @@
 package org.flywaydb.core.extensibility;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.flywaydb.core.internal.configuration.HelpText;
 import org.flywaydb.core.internal.util.Pair;
-import org.flywaydb.core.internal.util.StringUtils;
 
 public interface PluginMetadata extends Plugin {
     /**
@@ -37,95 +36,41 @@ public interface PluginMetadata extends Plugin {
     }
 
     default String getHelpText(List<String> subCommands) {
-        StringBuilder result = new StringBuilder();
-
-        String indent = "    ";
-        String description = getDescription();
+        final String description = getDescription();
         List<ConfigurationParameter> configurationParameters = getConfigurationParameters();
         List<ConfigurationParameter> flags = getFlags();
 
-        List<String> filteredSubCommands = subCommands.stream()
+        final List<String> filteredSubCommands = subCommands.stream()
             .filter(getAllowedSubCommands()::contains)
-            .collect(Collectors.toList());
+            .toList();
 
         if (configurationParameters != null && !filteredSubCommands.isEmpty()) {
             configurationParameters = configurationParameters.stream()
                 .filter(x -> x.parentSubCommands.stream().anyMatch(filteredSubCommands::contains))
-                .collect(Collectors.toList());
+                .toList();
         }
 
         if (flags != null && !filteredSubCommands.isEmpty()) {
             flags = flags.stream()
                 .filter(f -> filteredSubCommands.contains(f.name))
-                .collect(Collectors.toList());
+                .toList();
         }
 
-        List<String> examples = getExamples(filteredSubCommands);
-        String documentationLink = getDocumentationLink();
+        final List<String> examples = getExamples(filteredSubCommands);
+
+
+        final HelpText helpText = new HelpText();
+        helpText.setParameters(configurationParameters);
+        helpText.setFlags(flags);
+        helpText.setDescription(description);
+        helpText.setExamples(examples);
+        helpText.setDocumentationLink(getDocumentationLink());
 
         if (inPreview()) {
-            result.append("(In preview)\n\n");
+            helpText.setAdditionalInfo("(In preview)");
         }
 
-        if (description != null) {
-            result.append("Description:\n");
-            Arrays.stream(description.split("\n")).map(String::trim).forEach(line -> result.append(indent)
-                .append(line)
-                .append("\n"));
-            result.append("\n");
-        }
-
-        int padSize = 0;
-        if (configurationParameters != null) {
-            padSize = configurationParameters.stream().map(p -> p.name + (p.required ? " [REQUIRED]" : "")).mapToInt(
-                String::length).max().orElse(0) + 2;
-        }
-        if (flags != null) {
-            padSize = Math.max(padSize, flags.stream().map(p -> p.name + (p.required ? " [REQUIRED]" : "")).mapToInt(
-                String::length).max().orElse(0) + 2);
-        }
-
-        if (configurationParameters != null) {
-            result.append("Configuration parameters: (Format: -key=value)\n");
-            for (ConfigurationParameter p : configurationParameters) {
-                final String parameterName = p.name.startsWith("flyway.")
-                    ? p.name.substring("flyway.".length())
-                    : p.name;
-                final String fullParameter = parameterName + (p.required ? " [REQUIRED]" : "");
-                result.append(indent).append(StringUtils.rightPad(fullParameter, padSize, ' '));
-
-                final String descriptionPadding = " ".repeat(indent.length() + padSize);
-                final List<String> descriptionLines = Arrays.stream(p.description.split("\n")).toList();
-
-                result.append(descriptionLines.get(0)).append("\n");
-                for (int i = 1; i < descriptionLines.size(); i++) {
-                    result.append(descriptionPadding).append(descriptionLines.get(i)).append("\n");
-                }
-            }
-            result.append("\n");
-        }
-
-        if (flags != null) {
-            result.append("Flags:\n");
-            for (ConfigurationParameter p : flags) {
-                final String flagName = p.name + (p.required ? " [REQUIRED]" : "");
-                result.append(indent).append(StringUtils.rightPad(flagName, padSize, ' ')).append(p.description).append(
-                    "\n");
-            }
-            result.append("\n");
-        }
-
-        if (!examples.isEmpty()) {
-            result.append("Example:\n")
-                .append(examples.stream().map(e -> indent + e).collect(Collectors.joining("\n")))
-                .append("\n\n");
-        }
-
-        if (documentationLink != null) {
-            result.append("Online documentation: ").append(documentationLink).append("\n");
-        }
-
-        return result.toString();
+        return helpText.getText();
     }
 
     /**

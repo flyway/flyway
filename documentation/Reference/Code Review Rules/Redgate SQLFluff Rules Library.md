@@ -14,6 +14,15 @@ These rules are under development so expect the list to grow.
 
 You should be aware that [SQLFluff already comes with a variety of rules](https://docs.sqlfluff.com/en/stable/rules.html) 
 
+**Note:**
+The pre-built packaged version of SQLFluff requires GLIBC 2.35 or later on Linux. The following distributions meet this requirement:
+
+- Ubuntu 22.04+
+- Debian 12+
+- RHEL / Rocky / Alma 9.1+
+
+On older distributions, SQLFluff will fail to start with the error: version 'GLIBC_2.35' not found.
+
 ## Using the `redgate` Group
 
 All Redgate-provided rules belong to the `redgate` group.

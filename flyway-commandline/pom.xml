@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>12.9.0</version>
+    <version>12.10.0</version>
   </parent>
   <artifactId>flyway-commandline</artifactId>
   <packaging>jar</packaging>
@@ -129,31 +129,31 @@
     <dependency>
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-database-ignite</artifactId>
-      <version>10.24.0</version>
+      <version>10.25.15</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-database-tidb</artifactId>
-      <version>10.24.0</version>
+      <version>10.25.15</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-database-yugabytedb</artifactId>
-      <version>10.24.0</version>
+      <version>10.25.15</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-database-clickhouse</artifactId>
-      <version>10.24.0</version>
+      <version>10.25.15</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-database-oceanbase</artifactId>
-      <version>10.24.0</version>
+      <version>10.25.15</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -165,37 +165,37 @@
     <dependency>
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-database-db2zos</artifactId>
-      <version>10.24.0</version>
+      <version>10.25.15</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-database-duckdb</artifactId>
-      <version>10.24.0</version>
+      <version>10.25.15</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-database-timeplus</artifactId>
-      <version>10.24.0</version>
+      <version>10.25.15</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-database-cubrid</artifactId>
-      <version>10.24.0</version>
+      <version>10.25.15</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-database-questdb</artifactId>
-      <version>10.24.0</version>
+      <version>10.25.15</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-database-iris</artifactId>
-      <version>10.24.0</version>
+      <version>10.25.15</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>

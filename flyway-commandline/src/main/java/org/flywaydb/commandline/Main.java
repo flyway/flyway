@@ -23,6 +23,8 @@ import static org.flywaydb.commandline.ThreadUtils.terminate;
 import static org.flywaydb.commandline.logging.LoggingUtils.getLogCreator;
 import static org.flywaydb.commandline.logging.LoggingUtils.initLogging;
 
+import org.flywaydb.core.extensibility.ConfigurationParameter;
+import org.flywaydb.core.internal.configuration.HelpText;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.ObjectNode;
@@ -470,134 +472,100 @@ public class Main {
     }
 
     private static void printUsage(final Boolean fullVersion) {
-        final String indent = "    ";
-
-        LOG.info("Usage");
-        LOG.info(indent + "flyway [options] [command]");
-        LOG.info(indent + "flyway help [command]");
-        LOG.info("");
+        final HelpText help = new HelpText();
+        final List<String> usage = List.of("flyway [options] [command]", "flyway help [command]");
+        help.setUsage(usage);
 
         if (fullVersion) {
-            LOG.info("By default, the configuration will be read from conf/flyway.toml file.");
-            LOG.info("Options passed from the command-line override the configuration.");
-            LOG.info("");
+            final String additionalInfo = "By default, the configuration will be read from conf/flyway.toml file.\n"
+                + "Options passed from the command-line override the configuration.";
+            help.setAdditionalInfo(additionalInfo);
         }
 
-        LOG.info("Commands");
-        final List<Pair<String, String>> usages = PLUGIN_REGISTER.getInstancesOf(CommandExtension.class)
+        final List<Pair<String, String>> commands = new ArrayList<>(PLUGIN_REGISTER.getInstancesOf(CommandExtension.class)
             .stream()
             .flatMap(e -> e.getUsage()
                 .stream()
                 .map(p -> e.inPreview() ? Pair.of(p.getLeft() + " (preview)", p.getRight()) : p))
-            .toList();
-        final int padSize = usages.stream()
-            .max(Comparator.comparingInt(u -> u.getLeft().length()))
-            .map(u -> u.getLeft().length() + 3)
-            .orElse(11);
-        LOG.info(indent + StringUtils.rightPad("help", padSize, ' ') + "Print this usage info and exit");
-        for (final Pair<String, String> usage : usages) {
-            final List<String> lines = Arrays.stream(usage.getRight().split("\n")).map(String::trim).toList();
-            LOG.info(indent + StringUtils.rightPad(usage.getLeft(), padSize, ' ') + lines.get(0));
-            for (int i = 1; i < lines.size(); i++) {
-                LOG.info(indent + " ".repeat(padSize) + lines.get(i));
-            }
-        }
-        LOG.info("");
-        LOG.info("Configuration parameters (Format: -key=value)");
-        LOG.info(indent + "driver                         Fully qualified classname of the JDBC driver");
-        LOG.info(indent + "url                            Jdbc url to use to connect to the database");
-        LOG.info(indent + "user                           User to use to connect to the database");
-        LOG.info(indent + "password                       Password to use to connect to the database");
+            .toList());
+        commands.add(Pair.of("help", "Print this usage info and exit"));
 
+        help.setCommands(commands);
+
+        final List<ConfigurationParameter> parameters = new ArrayList<>(List.of(
+            new ConfigurationParameter("driver", "Fully qualified classname of the JDBC driver", false),
+            new ConfigurationParameter("url", "Jdbc url to use to connect to the database", false),
+            new ConfigurationParameter("user", "User to use to connect to the database", false),
+            new ConfigurationParameter("password", "Password to use to connect to the database", false)));
         if (fullVersion) {
-            LOG.info(indent
-                + "connectRetries                 Maximum number of retries when attempting to connect to the database");
-            LOG.info(indent
-                + "initSql                        SQL statements to run to initialize a new database connection");
-            LOG.info(indent + "schemas                        Comma-separated list of the schemas managed by Flyway");
-            LOG.info(indent + "table                          Name of Flyway's schema history table");
-            LOG.info(indent + "locations                      Classpath locations to scan recursively for migrations");
-            LOG.info(indent
-                + "failOnMissingLocations         Whether to fail if a location specified in the flyway.locations option doesn't exist");
-            LOG.info(indent + "resolvers                      Comma-separated list of custom MigrationResolvers");
-            LOG.info(indent + "skipDefaultResolvers           Skips default resolvers (jdbc, sql and Spring-jdbc)");
-            LOG.info(indent + "sqlMigrationPrefix             File name prefix for versioned SQL migrations");
-            LOG.info(indent + "undoSqlMigrationPrefix         [" + "teams] File name prefix for undo SQL migrations");
-            LOG.info(indent + "repeatableSqlMigrationPrefix   File name prefix for repeatable SQL migrations");
-            LOG.info(indent + "sqlMigrationSeparator          File name separator for SQL migrations");
-            LOG.info(indent
-                + "sqlMigrationSuffixes           Comma-separated list of file name suffixes for SQL migrations");
-            LOG.info(indent + "stream                         [" + "teams] Stream SQL migrations when executing them");
-            LOG.info(indent + "batch                          [" + "teams] Batch SQL statements when executing them");
-            LOG.info(indent
-                + "mixed                          Allow mixing transactional and non-transactional statements");
-            LOG.info(indent + "encoding                       Encoding of SQL migrations");
-            LOG.info(indent
-                + "detectEncoding                 ["
-                + "teams] Whether Flyway should try to automatically detect SQL migration file encoding");
-            LOG.info(indent + "executeInTransaction           Whether SQL should execute within a transaction");
-            LOG.info(indent + "placeholderReplacement         Whether placeholders should be replaced");
-            LOG.info(indent + "placeholders                   Placeholders to replace in sql migrations");
-            LOG.info(indent + "placeholderPrefix              Prefix of every placeholder");
-            LOG.info(indent + "placeholderSuffix              Suffix of every placeholder");
-            LOG.info(indent + "scriptPlaceholderPrefix        Prefix of every script placeholder");
-            LOG.info(indent + "scriptPlaceholderSuffix        Suffix of every script placeholder");
-            LOG.info(indent
-                + "lockRetryCount                 The maximum number of retries when trying to obtain a lock");
-            LOG.info(indent + "jdbcProperties                 Properties to pass to the JDBC driver object");
-            LOG.info(indent
-                + "installedBy                    Username that will be recorded in the schema history table");
-            LOG.info(indent + "target                         Target version up to which Flyway should use migrations");
-            LOG.info(indent
-                + "cherryPick                     ["
-                + "teams] Comma separated list of migrations that Flyway should consider when migrating");
-            LOG.info(indent
-                + "skipExecutingMigrations        Whether Flyway should skip actually executing the contents of the migrations");
-            LOG.info(indent + "outOfOrder                     Allows migrations to be run \"out of order\"");
-            LOG.info(indent
-                + "callbacks                      Comma-separated list of FlywayCallback classes, or locations to scan for FlywayCallback classes");
-            LOG.info(indent + "skipDefaultCallbacks           Skips default callbacks (sql)");
-            LOG.info(indent + "validateOnMigrate              Validate when running migrate");
-            LOG.info(indent
-                + "validateMigrationNaming        Validate file names of SQL migrations (including callbacks)");
-            LOG.info(indent
-                + "ignoreMigrationPatterns        Patterns of migrations and states to ignore during validate");
-            LOG.info(indent + "cleanDisabled                  Whether to disable clean");
-            LOG.info(indent + "baselineVersion                Version to tag schema with when executing baseline");
-            LOG.info(indent + "baselineDescription            Description to tag schema with when executing baseline");
-            LOG.info(indent
-                + "baselineOnMigrate              Baseline on migrate against uninitialized non-empty schema");
-            LOG.info(indent + "configFiles                    Comma-separated list of config files to use");
-            LOG.info(indent + "configFileEncoding             Encoding to use when loading the config files");
-            LOG.info(indent
-                + "jarDirs                        Comma-separated list of dirs for Jdbc drivers & Java migrations");
-            LOG.info(indent
-                + "createSchemas                  Whether Flyway should attempt to create the schemas specified in the schemas property");
-            LOG.info(indent
-                + "dryRunOutput                   ["
-                + "teams] File where to output the SQL statements of a migration dry run");
-            LOG.info(indent
-                + "errorOverrides                 ["
-                + "teams] Rules to override specific SQL states and errors codes");
-            LOG.info(indent
-                + "color                          Whether to colorize output. Values: always, never, or auto (default)");
-            LOG.info(indent + "outputFile                     Send output to the specified file alongside the console");
-            LOG.info(indent + "outputType                     Serialise the output in the given format, Values: json");
+            parameters.addAll(List.of(
+                new ConfigurationParameter("connectRetries", "Maximum number of retries when attempting to connect to the database", false),
+                new ConfigurationParameter("initSql", "SQL statements to run to initialize a new database connection", false),
+                new ConfigurationParameter("schemas", "Comma-separated list of the schemas managed by Flyway", false),
+                new ConfigurationParameter("table", "Name of Flyway's schema history table", false),
+                new ConfigurationParameter("locations", "Classpath locations to scan recursively for migrations", false),
+                new ConfigurationParameter("failOnMissingLocations", "Whether to fail if a location specified in the flyway.locations option doesn't exist", false),
+                new ConfigurationParameter("resolvers", "Comma-separated list of custom MigrationResolvers", false),
+                new ConfigurationParameter("skipDefaultResolvers", "Skips default resolvers (jdbc, sql and Spring-jdbc)", false),
+                new ConfigurationParameter("sqlMigrationPrefix", "File name prefix for versioned SQL migrations", false),
+                new ConfigurationParameter("undoSqlMigrationPrefix", "[teams] File name prefix for undo SQL migrations", false),
+                new ConfigurationParameter("repeatableSqlMigrationPrefix", "File name prefix for repeatable SQL migrations", false),
+                new ConfigurationParameter("sqlMigrationSeparator", "File name separator for SQL migrations", false),
+                new ConfigurationParameter("sqlMigrationSuffixes", "Comma-separated list of file name suffixes for SQL migrations", false),
+                new ConfigurationParameter("stream", "[teams] Stream SQL migrations when executing them", false),
+                new ConfigurationParameter("batch", "[teams] Batch SQL statements when executing them", false),
+                new ConfigurationParameter("mixed", "Allow mixing transactional and non-transactional statements", false),
+                new ConfigurationParameter("encoding", "Encoding of SQL migrations", false),
+                new ConfigurationParameter("detectEncoding", "[teams] Whether Flyway should try to automatically detect SQL migration file encoding", false),
+                new ConfigurationParameter("executeInTransaction", "Whether SQL should execute within a transaction", false),
+                new ConfigurationParameter("placeholderReplacement", "Whether placeholders should be replaced", false),
+                new ConfigurationParameter("placeholders", "Placeholders to replace in sql migrations", false),
+                new ConfigurationParameter("placeholderPrefix", "Prefix of every placeholder", false),
+                new ConfigurationParameter("placeholderSuffix", "Suffix of every placeholder", false),
+                new ConfigurationParameter("scriptPlaceholderPrefix", "Prefix of every script placeholder", false),
+                new ConfigurationParameter("scriptPlaceholderSuffix", "Suffix of every script placeholder", false),
+                new ConfigurationParameter("lockRetryCount", "The maximum number of retries when trying to obtain a lock", false),
+                new ConfigurationParameter("jdbcProperties", "Properties to pass to the JDBC driver object", false),
+                new ConfigurationParameter("installedBy", "Username that will be recorded in the schema history table", false),
+                new ConfigurationParameter("target", "Target version up to which Flyway should use migrations", false),
+                new ConfigurationParameter("cherryPick", "[teams] Comma separated list of migrations that Flyway should consider when migrating", false),
+                new ConfigurationParameter("skipExecutingMigrations", "Whether Flyway should skip actually executing the contents of the migrations", false),
+                new ConfigurationParameter("outOfOrder", "Allows migrations to be run \"out of order\"", false),
+                new ConfigurationParameter("callbacks", "Comma-separated list of FlywayCallback classes, or locations to scan for FlywayCallback classes", false),
+                new ConfigurationParameter("skipDefaultCallbacks", "Skips default callbacks (sql)", false),
+                new ConfigurationParameter("validateOnMigrate", "Validate when running migrate", false),
+                new ConfigurationParameter("validateMigrationNaming", "Validate file names of SQL migrations (including callbacks)", false),
+                new ConfigurationParameter("ignoreMigrationPatterns", "Patterns of migrations and states to ignore during validate", false),
+                new ConfigurationParameter("cleanDisabled", "Whether to disable clean", false),
+                new ConfigurationParameter("baselineVersion", "Version to tag schema with when executing baseline", false),
+                new ConfigurationParameter("baselineDescription", "Description to tag schema with when executing baseline", false),
+                new ConfigurationParameter("baselineOnMigrate", "Baseline on migrate against uninitialized non-empty schema", false),
+                new ConfigurationParameter("configFiles", "Comma-separated list of config files to use", false),
+                new ConfigurationParameter("configFileEncoding", "Encoding to use when loading the config files", false),
+                new ConfigurationParameter("jarDirs", "Comma-separated list of dirs for Jdbc drivers & Java migrations", false),
+                new ConfigurationParameter("createSchemas", "Whether Flyway should attempt to create the schemas specified in the schemas property", false),
+                new ConfigurationParameter("dryRunOutput", "[teams] File where to output the SQL statements of a migration dry run", false),
+                new ConfigurationParameter("errorOverrides", "[teams] Rules to override specific SQL states and errors codes", false),
+                new ConfigurationParameter("color", "Whether to colorize output. Values: always, never, or auto (default)", false),
+                new ConfigurationParameter("outputFile", "Send output to the specified file alongside the console", false),
+                new ConfigurationParameter("outputType", "Serialise the output in the given format, Values: json", false)));
         } else {
-            LOG.info(indent + "(To see all configuration options please run flyway --help)");
+            parameters.add(new ConfigurationParameter("(To see all configuration options please run flyway --help)", null, false));
         }
+        help.setParameters(parameters);
 
-        LOG.info("");
-        LOG.info("Flags");
-        LOG.info(indent + "-X                Print debug output");
-        LOG.info(indent + "-q                Suppress all output, except for errors and warnings");
-        LOG.info(indent + "--help, -h, -?    Print this usage info and exit");
-        LOG.info("");
-        LOG.info("Flyway Usage Example");
-        LOG.info(indent + "flyway -user=myuser -password=s3cr3t -url=jdbc:h2:mem -placeholders.abc=def migrate");
-        LOG.info(indent + "flyway help check");
-        LOG.info("");
-        LOG.info("More info at " + FlywayDbWebsiteLinks.USAGE_COMMANDLINE);
+        final List<ConfigurationParameter> flags = List.of(
+            new ConfigurationParameter("-X", "Print debug output", false),
+            new ConfigurationParameter("-q", "Suppress all output, except for errors and warnings", false),
+            new ConfigurationParameter("--help, -h, -?", "Print this usage info and exit", false));
+        help.setFlags(flags);
+
+        final List<String> examples = List.of("flyway -user=myuser -password=s3cr3t -url=jdbc:h2:mem -placeholders.abc=def migrate",
+            "flyway help check");
+        help.setExamples(examples);
+        help.setDocumentationLink(FlywayDbWebsiteLinks.USAGE_COMMANDLINE);
+
+        LOG.info(help.getText());
     }
 
     private static boolean printHelp(final CommandLineArguments commandLineArguments) {

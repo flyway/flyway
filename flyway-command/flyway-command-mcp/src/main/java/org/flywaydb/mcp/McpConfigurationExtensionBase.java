@@ -31,7 +31,8 @@ import org.flywaydb.core.extensibility.ConfigurationExtension;
 @Setter
 @SuppressWarnings("unused")
 public abstract class McpConfigurationExtensionBase implements ConfigurationExtension {
-    private int maxLogs = 100;
+    public static final int DEFAULT_MAX_LOGS = 100;
+    private int maxLogs = DEFAULT_MAX_LOGS;
 
     @Override
     public String getNamespace() {

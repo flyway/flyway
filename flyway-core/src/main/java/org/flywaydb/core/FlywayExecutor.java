@@ -27,12 +27,15 @@ import static org.flywaydb.core.internal.util.DeprecationUtils.DeprecatedFeature
 import static org.flywaydb.core.internal.util.DeprecationUtils.printDeprecationNotice;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import lombok.CustomLog;
 import org.flywaydb.core.api.ClassProvider;
+import org.flywaydb.core.api.CoreLocationPrefix;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.callback.Event;
@@ -207,7 +210,7 @@ public class FlywayExecutor {
             database.ensureSupported(configuration);
 
             final ResourceProvider callbackResourceProvider = configuration.getCallbackLocations().length > 0
-                ? createScanner(configuration.getCallbackLocations())
+                ? createScanner(filterOutNonExistentCallbackLocations(configuration.getCallbackLocations()))
                 : resourceProvider;
             final CallbackExecutor<Event> callbackExecutor = new DefaultCallbackExecutor<>(configuration,
                 database,
@@ -320,6 +323,19 @@ public class FlywayExecutor {
 
     private Scanner<JavaMigration> createScanner(final Location[] locations) {
         return new Scanner<>(JavaMigration.class, configuration, locations);
+    }
+
+    private static Location[] filterOutNonExistentCallbackLocations(final Location[] callbackLocations) {
+        return Arrays.stream(callbackLocations)
+            .filter(location -> {
+                if (CoreLocationPrefix.isFileSystem(location)
+                    && !Files.exists(Path.of(location.getRootPath()))) {
+                    LOG.info("Skipping callback location " + location.getRootPath() + " as it does not exist");
+                    return false;
+                }
+                return true;
+            })
+            .toArray(Location[]::new);
     }
 
     private List<GenericCallback<Event>> prepareCallbacks(final Database database,

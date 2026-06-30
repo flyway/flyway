@@ -22,14 +22,19 @@ package org.flywaydb.nc.preparation;
 import static org.flywaydb.core.internal.util.TelemetryUtils.getTelemetryManager;
 import static org.flywaydb.nc.utils.NativeConnectorsUtils.logNativeConnectorsDataTelemetry;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import lombok.CustomLog;
 import lombok.Getter;
+import org.flywaydb.core.api.CoreLocationPrefix;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -41,6 +46,7 @@ import org.flywaydb.core.extensibility.Plugin;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.nc.utils.VerbUtils;
 
+@CustomLog
 @Getter
 public final class PreparationContext implements Plugin {
 
@@ -75,10 +81,11 @@ public final class PreparationContext implements Plugin {
             resources = (Collection<LoadableResourceMetadata>) getFromFuture(resourcesFuture);
 
             if (configuration.getCallbackLocations().length > 0) {
+                final Location[] callbackLocations = filterOutNonExistentCallbackLocations(configuration.getCallbackLocations());
                 final Future<Collection<LoadableResourceMetadata>> callbackResourcesFuture = CompletableFuture.supplyAsync(() -> VerbUtils.scanForResources(
                     configuration,
                     parsingContext,
-                    configuration.getCallbackLocations()));
+                    callbackLocations));
 
                 callbackResources = (Collection<LoadableResourceMetadata>) getFromFuture(callbackResourcesFuture);
             } else {
@@ -148,6 +155,19 @@ public final class PreparationContext implements Plugin {
         }
 
         return preparationContext;
+    }
+
+    private static Location[] filterOutNonExistentCallbackLocations(final Location[] callbackLocations) {
+        return Arrays.stream(callbackLocations)
+            .filter(location -> {
+                if (CoreLocationPrefix.FILESYSTEM_PREFIX.equals(location.getPrefix())
+                    && !Files.exists(Path.of(location.getRootPath()))) {
+                    LOG.info("Skipping callback location " + location.getRootPath() + " as it does not exist");
+                    return false;
+                }
+                return true;
+            })
+            .toArray(Location[]::new);
     }
 
     private Object getFromFuture(final Future<?> future) {

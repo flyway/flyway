@@ -191,9 +191,7 @@ public class DbMigrate {
             migrateResult.initialSchemaVersion = schemaVersionToOutput.getVersion();
 
             if (configuration.isOutOfOrder()) {
-                String outOfOrderWarning = "outOfOrder mode is active. Migration of schema " + schema + " may not be reproducible.";
-                LOG.warn(outOfOrderWarning);
-                migrateResult.addWarning(outOfOrderWarning);
+                LOG.info("outOfOrder mode is active. Migration of schema " + schema + " may not be reproducible.");
             }
         }
 

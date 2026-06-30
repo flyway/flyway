@@ -249,20 +249,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
         ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("8.0", Tier.PREMIUM, configuration);
 
-
-
-
-
-
-
-
-
-
-
-
-
         recommendFlywayUpgradeIfNecessary("9.4");
-
     }
 
     @Override

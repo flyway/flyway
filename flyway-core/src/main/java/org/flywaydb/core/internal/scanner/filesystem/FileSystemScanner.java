@@ -33,6 +33,7 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.filesystem.FileSystemResource;
 import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
+import org.flywaydb.core.internal.util.StringUtils;
 
 @CustomLog
 public class FileSystemScanner {
@@ -66,15 +67,18 @@ public class FileSystemScanner {
         final DirectoryValidationResult validationResult = getDirectoryValidationResult(dir);
 
         if (validationResult != DirectoryValidationResult.VALID) {
+            final String workingDirectoryHint = getWorkingDirectoryHint(dir);
+
             if (throwOnMissingLocations) {
                 throw new FlywayException("Failed to find filesystem location: "
                     + path
                     + " ("
                     + validationResult
-                    + ")");
+                    + ")"
+                    + workingDirectoryHint);
             }
 
-            LOG.error("Skipping filesystem location: " + path + " (" + validationResult + ")");
+            LOG.error("Skipping filesystem location: " + path + " (" + validationResult + ")" + workingDirectoryHint);
             return Collections.emptyList();
         }
 
@@ -117,6 +121,23 @@ public class FileSystemScanner {
 
     private static Boolean matchesAnyWildcardRestrictions(final Location location, final String path) {
         return Optional.ofNullable(location.getPathRegex()).map(x -> x.matcher(path).matches()).orElse(true);
+    }
+
+    private String getWorkingDirectoryHint(final File dir) {
+        if (dir.isAbsolute()) {
+            return "";
+        }
+
+        final String configuredWorkingDirectory = config.getWorkingDirectory();
+        final String workingDirectory = StringUtils.hasText(configuredWorkingDirectory)
+            ? configuredWorkingDirectory
+            : System.getProperty("user.dir");
+
+        return " Resolved to '"
+            + dir.getAbsolutePath()
+            + "'. If this is not where your migrations are, check that your working directory is set correctly (working directory: '"
+            + workingDirectory
+            + "').";
     }
 
     private DirectoryValidationResult getDirectoryValidationResult(final File directory) {

@@ -79,7 +79,6 @@ public class FlywayDbWebsiteLinks {
     public static final String MONGOSH = helpUrl(Topic.MONGOSH);
     public static final String OSS_DOCKER_REPOSITORY = helpUrl(Topic.OSS_DOCKER_REPOSITORY);
 
-    public static final String NATIVE_CONNECTORS_MONGODB = helpUrl(Topic.NATIVE_CONNECTORS_MONGODB);
     public static String FEEDBACK_SURVEY_LINK = "";
     public static final String FEEDBACK_SURVEY_LINK_ENTERPRISE = helpUrl(Topic.FEEDBACK_SURVEY_ENTERPRISE);
     public static final String FEEDBACK_SURVEY_LINK_COMMUNITY = helpUrl(Topic.FEEDBACK_SURVEY_COMMUNITY);

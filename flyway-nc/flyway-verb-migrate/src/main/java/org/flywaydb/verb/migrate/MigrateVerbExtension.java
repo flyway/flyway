@@ -165,10 +165,8 @@ public class MigrateVerbExtension implements VerbExtension {
         secondValidate(migrationInfoService, configuration, database.doQuote(database.getCurrentSchema()));
 
         if (configuration.isOutOfOrder()) {
-            final String outOfOrderWarning = "outOfOrder mode is active. Migration of schema " + database.doQuote(
-                database.getCurrentSchema()) + " may not be reproducible.";
-            LOG.warn(outOfOrderWarning);
-            migrateResult.addWarning(outOfOrderWarning);
+            LOG.info("outOfOrder mode is active. Migration of schema " + database.doQuote(
+                database.getCurrentSchema()) + " may not be reproducible.");
         } else {
             allPendingMigrations = removeOutOfOrderPendingMigrations(allPendingMigrations);
         }

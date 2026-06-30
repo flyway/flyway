@@ -22,6 +22,7 @@ package org.flywaydb.commandline.command.dbsupport;
 import static org.flywaydb.core.internal.database.DatabaseTypeRegister.getDatabaseTypes;
 import static org.flywaydb.core.internal.util.TelemetryUtils.getTelemetryManager;
 
+import java.util.List;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import org.flywaydb.core.TelemetrySpan;
@@ -35,32 +36,35 @@ import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StringUtils;
 
-import java.util.List;
-
 @CustomLog
 public class ListEnginesCommandExtension implements CommandExtension<DbSupportResult> {
     private static final String DB_SUPPORT = "list-engines";
     private static final String HEADERS_DATABASE_NAME = "Database Name";
 
     @Override
-    public boolean handlesCommand(String command) {
+    public boolean handlesCommand(final String command) {
         return command.equals(DB_SUPPORT);
     }
 
     @Override
-    public boolean handlesParameter(String parameter) {
+    public boolean handlesParameter(final String parameter) {
+        return false;
+    }
+
+    @Override
+    public boolean requiresFlywayInstance() {
         return false;
     }
 
     @Override
     @SneakyThrows
-    public DbSupportResult handle(Configuration config, List<String> flags) throws FlywayException {
+    public DbSupportResult handle(final Configuration config, final List<String> flags) throws FlywayException {
         return TelemetrySpan.trackSpan(new EventTelemetryModel(DB_SUPPORT, getTelemetryManager(config)),
             (telemetryModel) -> listEngines(config));
     }
 
     private DbSupportResult listEngines(final Configuration config) {
-        List<DbInfoResult> databaseInfos = getEngines();
+        final List<DbInfoResult> databaseInfos = getEngines();
 
         if (!databaseInfos.isEmpty()) {
 
@@ -73,7 +77,7 @@ public class ListEnginesCommandExtension implements CommandExtension<DbSupportRe
             LOG.info(StringUtils.rightPad(HEADERS_DATABASE_NAME, nameLength, ' '));
             LOG.info(StringUtils.rightPad(StringUtils.leftPad("", nameLength, '-'), nameLength, ' '));
 
-            for (DbInfoResult p : databaseInfos) {
+            for (final DbInfoResult p : databaseInfos) {
                 LOG.info(StringUtils.rightPad(p.name(), nameLength, ' '));
             }
         }
@@ -92,7 +96,7 @@ public class ListEnginesCommandExtension implements CommandExtension<DbSupportRe
     /**
      * Get the currently supported database engines.
      */
-    public List<DbInfoResult> getEngines() {
+    private List<DbInfoResult> getEngines() {
         return getDatabaseTypes().stream().map(GeneralDatabaseType::getName).distinct().map(DbInfoResult::new).toList();
     }
 }

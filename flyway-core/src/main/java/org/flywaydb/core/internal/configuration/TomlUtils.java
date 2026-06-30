@@ -19,10 +19,13 @@
  */
 package org.flywaydb.core.internal.configuration;
 
+import tools.jackson.core.JacksonException.Reference;
+import tools.jackson.core.JsonToken;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.cfg.MapperBuilder;
+import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.dataformat.toml.TomlStreamReadException;
 import java.util.Map.Entry;
@@ -141,6 +144,12 @@ public class TomlUtils {
                 .readValue(configText);
             ConfigUtils.dumpConfigurationModel(tomlConfig, "Loading config file: " + configFile.getAbsolutePath());
             return tomlConfig;
+        } catch (final MismatchedInputException exception) {
+            final String path = exception.getPath().stream().map(Reference::getPropertyName).collect(Collectors.joining("."));
+            final String message = "Error parsing config file due to a mismatched data type, caused by `" + path + "` namespace. Update this from " + JsonToken.valueDescFor(exception.getCurrentToken()) + " to `" + exception.getTargetType().getSimpleName() + "` to fix the parsing error "
+                + "\n\tin " + configFile.getAbsolutePath();
+            //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
+            throw new FlywayException(message);
         } catch (final TomlStreamReadException tomlread) {
             final String line = FileUtils.readLine(configFile, tomlread.getLocation().getLineNr());
             final StringBuilder highlight = new StringBuilder(line);

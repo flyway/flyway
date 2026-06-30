@@ -69,7 +69,7 @@ public class CassandraDatabase extends NativeConnectorsNonJdbc {
 
     @Override
     public boolean isOnByDefault(final Configuration configuration) {
-        return false;
+        return true;
     }
 
     @Override

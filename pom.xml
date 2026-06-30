@@ -20,7 +20,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.flywaydb</groupId>
   <artifactId>flyway-parent</artifactId>
-  <version>12.9.0</version>
+  <version>12.10.0</version>
   <packaging>pom</packaging>
   <name>${project.artifactId}</name>
   <description>Flyway: Database Migrations Made Easy.</description>
@@ -125,7 +125,7 @@
     <version.ant>1.10.13</version.ant>
     <version.antlr>4.13.2</version.antlr>
     <version.appinsights>3.4.7</version.appinsights>
-    <version.aws-java-sdk>2.44.2</version.aws-java-sdk> <!-- TODO: revert back to range once nexus is better -->
+    <version.aws-java-sdk>2.44.14</version.aws-java-sdk> <!-- TODO: revert back to range once nexus is better -->
     <version.aws-secretsmanager>2.1.0</version.aws-secretsmanager>
     <version.azure-identity>1.15.4</version.azure-identity>
     <version.azure-keyvault-secrets>4.9.2</version.azure-keyvault-secrets>
@@ -153,7 +153,7 @@
     <version.ignite>2.17.0</version.ignite>
     <version.informix>4.50.3</version.informix>
     <version.jansi>1.18</version.jansi>
-    <version.jackson>3.1.1</version.jackson>
+    <version.jackson>3.1.4</version.jackson>
     <version.jaxb>2.3.1</version.jaxb>
     <version.jaybird>3.0.10</version.jaybird>
     <version.jboss>3.2.15.Final</version.jboss>
@@ -165,7 +165,7 @@
     <version.junit>6.1.0</version.junit>
     <version.java-diff-utils>4.12</version.java-diff-utils>
     <version.system-stubs>2.1.8</version.system-stubs>
-    <version.legacy-jackson>2.21.2</version.legacy-jackson>
+    <version.legacy-jackson>2.22.0</version.legacy-jackson>
     <version.license-maven-plugin>2.4.0</version.license-maven-plugin>
     <version.log4net2>2.25.4</version.log4net2>
     <version.logback>1.2.13</version.logback>
@@ -895,6 +895,10 @@
         <plugin>
           <artifactId>maven-dependency-plugin</artifactId>
           <version>3.10.0</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-antrun-plugin</artifactId>
+          <version>3.1.0</version>
         </plugin>
         <plugin>
           <artifactId>maven-plugin-plugin</artifactId>

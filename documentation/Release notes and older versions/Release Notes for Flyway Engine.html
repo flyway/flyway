@@ -8,6 +8,48 @@
 </div>
 <div class="col-md-9">
   <div class="release">
+        <h2 id="12.10.0">Flyway 12.10.0 (2026-06-30)</h2>
+
+        <h3>New features</h3>
+        <ul>
+            <li>smart docker provisioner keepAlive reuses the build database container across Flyway commands</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>filesystem location 'not found' messages now report the effective working directory and prompt you to check it, since running Flyway from the wrong working directory (without -workingDirectory) is a common cause</li>
+            <li>Native Connectors mode is now enabled by default for Cassandra</li>
+            <li>outOfOrder mode is now reported at info level instead of as a warning</li>
+            <li>The preview `docker` environment provisioner has been renamed to `docker-compose`. Existing `docker` provisioner configurations that use a compose file continue to work via automatic forwarding.</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>A missing callback location (including the default `filesystem:callbacks`) is now skipped instead of being logged as an error or failing the command</li>
+            <li>drift resolution script generation failures no longer fail the check drift command; drift is still reported and any scripts that can be generated are still written</li>
+            <li>Fixed drift resolution failing to generate scripts when the drift included object types whose names contain spaces (e.g. user-defined types)</li>
+            <li>The smart docker provisioner now starts Postgres and MySQL build containers with valid credentials and a usable default schema, so provisioning and migrating against them succeeds</li>
+        </ul>
+
+        <h3>Performance improvements</h3>
+        <ul>
+            <li>skip building an unused Flyway instance for configuration-only commands (e.g. constructMigrationName, parseMigrationName, comparison-capabilities), reducing their startup latency</li>
+        </ul>
+
+        <h3>Library upgrades</h3>
+        <ul>
+            <li>Upgraded com.fasterxml.jackson.core:jackson-databind from 2.21.2 to 2.22.0</li>
+            <li>Upgraded tools.jackson.core:jackson-databind from 3.1.1 to 3.1.4</li>
+        </ul>
+
+        <h3>Internal dependency</h3>
+        <ul>
+            <li>Upgraded RgCompare to 1.58.5.4666</li>
+        </ul>
+
+  </div>
+
+  <div class="release">
         <h2 id="12.9.0">Flyway 12.9.0 (2026-06-18)</h2>
 
         <h3>New features</h3>

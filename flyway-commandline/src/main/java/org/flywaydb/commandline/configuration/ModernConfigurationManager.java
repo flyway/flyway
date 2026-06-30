@@ -226,10 +226,10 @@ public class ModernConfigurationManager implements ConfigurationManager {
         config.getFlyway().setOutputLogsInJson(false);
         config.getFlyway().setOutputType("json");
         config.getFlyway().setJarDirs(null);
-        config.getFlyway().setLoggers(null);
+        config.getFlyway().setLoggers(List.of());
         config.getEnvironments().forEach((key, model) -> {
             model.getFlyway().setJarDirs(null);
-            model.getFlyway().setLoggers(null);
+            model.getFlyway().setLoggers(List.of());
         });
 
         makeRelativeLocationsBasedOnWorkingDirectory(workingDirectory, config.getFlyway().getLocations());

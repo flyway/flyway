@@ -54,7 +54,6 @@ public enum Topic {
     ORACLE_DATABASE("reference/database-driver-reference/oracle-database"),
     LICENSING_ACTIVATING_CLI("getting-started-with-flyway/system-requirements/licensing"),
     OFFLINE_LICENSE_PERMITS("getting-started-with-flyway/system-requirements/licensing/license-permits"),
-    NATIVE_CONNECTORS_MONGODB("reference/database-driver-reference/mongodb-native-connectors"),
 
     // Non-documentation links (product pages, external sites, surveys, blogs)
     TRY_TEAMS_EDITION("try-teams-edition"),

@@ -5,12 +5,28 @@ subtitle: redgateCompare.oracle.options.behavior.objectExistenceChecks
 
 ## Description
 
-Adds existence checks to scripts to improve their ability to be re-run multiple times without encountering “already exists” errors.
+Adds existence checks to scripts to improve their ability to be re-run multiple times without encountering 'already exists' errors.
 
-When this option is active the script will include an existence check before attempting to create an object.
+When this option is active the script will include an existence check before attempting to create or drop an object.
 
-Creation statements for the following objects are supported:
+The following objects are supported:
+- Functions
 - Indexes
+- Jobs
+- Materialized views
+- Materialized view logs
+- Packages
+- Procedures
+- Queues
+- Queue tables
+- Schedules
+- Sequences
+- Synonyms
+- Tables
+- Table columns
+- Triggers
+- Types
+- Views
 
 ## Type
 
