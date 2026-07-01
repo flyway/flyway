@@ -78,6 +78,7 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
     private ClientSession clientSession;
     private Boolean doesSchemaHistoryTableExist;
     private ConnectionString connectionString;
+    private List<String> shellCommand = List.of("mongosh");
 
     @Override
     public DatabaseSupport supportsUrl(final String url) {
@@ -111,8 +112,15 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
         }
 
         if (connectionType == ConnectionType.EXECUTABLE) {
+            final MongoDBConfigurationExtension configurationExtension =
+                configuration.getPluginRegister().getExact(MongoDBConfigurationExtension.class);
+            shellCommand = resolveShellCommand(configurationExtension);
+            final String shellUrl = configurationExtension != null
+                && StringUtils.hasText(configurationExtension.getShellUrl())
+                ? configurationExtension.getShellUrl()
+                : environment.getUrl();
             checkMongoshInstalled();
-            mongoshCredential = new MongoshCredential(environment.getUrl(),
+            mongoshCredential = new MongoshCredential(shellUrl,
                 environment.getUser(),
                 environment.getPassword());
             checkMongoshConnectivity();
@@ -435,7 +443,8 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
     }
 
     private void checkMongoshInstalled() {
-        final List<String> commands = Arrays.asList("mongosh", "--version");
+        final List<String> commands = new ArrayList<>(shellCommand);
+        commands.add("--version");
         final NativeConnectorsProcessRunner processRunner = new NativeConnectorsProcessRunner(commands, "Mongosh");
         final String errorMessage = "Mongosh is required for .js migrations and is not currently installed. "
             + "Information on how to install Mongosh can be found here: "
@@ -480,7 +489,13 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
     }
 
     private List<String> getMongoshConnectCommands() {
-        List<String> commands = new ArrayList<>(List.of("mongosh", mongoshCredential.url()));
+        return buildMongoshConnectCommands(shellCommand, mongoshCredential);
+    }
+
+    static List<String> buildMongoshConnectCommands(final List<String> shellCommand,
+        final MongoshCredential mongoshCredential) {
+        final List<String> commands = new ArrayList<>(shellCommand);
+        commands.add(mongoshCredential.url());
         if (mongoshCredential.username() != null) {
             commands.addAll(List.of("--username", mongoshCredential.username()));
         }
@@ -488,5 +503,14 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
             commands.addAll(List.of("--password", mongoshCredential.password()));
         }
         return commands;
+    }
+
+    private static List<String> resolveShellCommand(final MongoDBConfigurationExtension configurationExtension) {
+        if (configurationExtension == null
+            || configurationExtension.getShellCommand() == null
+            || configurationExtension.getShellCommand().isEmpty()) {
+            return List.of("mongosh");
+        }
+        return configurationExtension.getShellCommand();
     }
 }

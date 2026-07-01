@@ -1,1 +1,2 @@
 org.flywaydb.database.nc.mongodb.MongoDBDatabase
+org.flywaydb.database.nc.mongodb.MongoDBConfigurationExtension
