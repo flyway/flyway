@@ -19,6 +19,8 @@
  */
 package org.flywaydb.reports.output;
 
+import static org.flywaydb.reports.utils.HtmlUtils.htmlEncode;
+
 import org.flywaydb.core.api.FlywayException;
 
 import java.util.ArrayList;
@@ -51,7 +53,7 @@ public class HtmlTableRenderer {
         html.append("    <thead>\n");
         html.append("       <tr>\n");
         for (final String field : fields) {
-            html.append("       <th>").append(field).append("</th>\n");
+            html.append("       <th>").append(htmlEncode(field)).append("</th>\n");
         }
         html.append("       </tr>\n");
         html.append("       </thead>\n");
@@ -64,7 +66,7 @@ public class HtmlTableRenderer {
                 html.append("    <tr>\n");
 
                 for (final String field : row) {
-                    html.append("      <td>").append(field).append("</td>\n");
+                    html.append("      <td>").append(htmlEncode(field)).append("</td>\n");
                 }
 
                 html.append("    </tr>\n");
