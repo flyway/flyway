@@ -388,15 +388,19 @@ public abstract class Database<C extends Connection> implements Closeable {
     protected String getBaselineStatement(Table table) {
         return String.format(getInsertStatement(table).replace("?", "%s"),
                              1,
-                             "'" + configuration.getBaselineVersion() + "'",
-                             "'" + AbbreviationUtils.abbreviateDescription(configuration.getBaselineDescription()) + "'",
+                             quoteLiteral(configuration.getBaselineVersion()),
+                             quoteLiteral(AbbreviationUtils.abbreviateDescription(configuration.getBaselineDescription())),
                              "'" + CoreMigrationType.BASELINE + "'",
-                             "'" + AbbreviationUtils.abbreviateScript(configuration.getBaselineDescription()) + "'",
+                             quoteLiteral(AbbreviationUtils.abbreviateScript(configuration.getBaselineDescription())),
                              "NULL",
-                             "'" + getInstalledBy() + "'",
+                             quoteLiteral(getInstalledBy()),
                              0,
                              getBooleanTrue()
                             );
+    }
+
+    private static String quoteLiteral(Object value) {
+        return "'" + String.valueOf(value).replace("'", "''") + "'";
     }
 
     public String getSelectStatement(Table table) {
