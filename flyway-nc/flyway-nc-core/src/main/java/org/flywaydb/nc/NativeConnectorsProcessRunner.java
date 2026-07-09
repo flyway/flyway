@@ -79,7 +79,7 @@ public class NativeConnectorsProcessRunner {
 
     private File createTempLogFile(final String filename) {
         try {
-            final File tempFile = File.createTempFile(filename, ".log");
+            final File tempFile = Files.createTempFile(filename, ".log").toFile();
             tempFile.deleteOnExit();
 
             return tempFile;

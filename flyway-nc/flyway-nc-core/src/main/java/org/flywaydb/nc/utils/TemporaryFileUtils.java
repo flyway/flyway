@@ -20,8 +20,8 @@
 package org.flywaydb.nc.utils;
 
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import org.flywaydb.core.api.FlywayException;
 
 public class TemporaryFileUtils {
@@ -32,14 +32,14 @@ public class TemporaryFileUtils {
 
     public static String createTempFile(final String sqlContent, final String suffix) {
         try {
-            final File tempFile = File.createTempFile("temp_sql_", suffix);
-            tempFile.deleteOnExit();
+            final Path tempFile = Files.createTempFile("temp_sql_", suffix);
+            tempFile.toFile().deleteOnExit();
 
-            try (final BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
+            try (final BufferedWriter writer = Files.newBufferedWriter(tempFile)) {
                 writer.write(sqlContent);
             }
 
-            return tempFile.getAbsolutePath();
+            return tempFile.toAbsolutePath().toString();
         } catch (final Exception e) {
             throw new FlywayException("Failed to write SQL file due to: " + e.getMessage(), e);
         }
