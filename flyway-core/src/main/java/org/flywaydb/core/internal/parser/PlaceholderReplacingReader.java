@@ -47,24 +47,24 @@ public class PlaceholderReplacingReader extends FilterReader {
     private static class CaseInsensitiveMap extends HashMap<String, String> {
 
         @Override
-        public void putAll(Map<? extends String, ? extends String> m) {
-            for (Map.Entry<? extends String, ? extends String> e : m.entrySet()) {
+        public void putAll(final Map<? extends String, ? extends String> m) {
+            for (final Map.Entry<? extends String, ? extends String> e : m.entrySet()) {
                 put(e.getKey(), e.getValue());
             }
         }
 
         @Override
-        public String put(String key, String value) {
+        public String put(final String key, final String value) {
             return super.put(key.toLowerCase(), value);
         }
 
         @Override
-        public String get(Object key) {
+        public String get(final Object key) {
             return super.get(key.toString().toLowerCase());
         }
 
         @Override
-        public boolean containsKey(Object key) {
+        public boolean containsKey(final Object key) {
             return super.containsKey(key.toString().toLowerCase());
         }
     }
@@ -81,55 +81,59 @@ public class PlaceholderReplacingReader extends FilterReader {
         this.placeholders.putAll(placeholders);
     }
 
-    public static PlaceholderReplacingReader create(Configuration configuration, ParsingContext parsingContext, Reader reader) {
-        Map<String, String> placeholders = new HashMap<>();
-        Map<String, String> configurationPlaceholders = configuration.getPlaceholders();
-        Map<String, String> parsingContextPlaceholders = parsingContext.getPlaceholders();
+    public static PlaceholderReplacingReader create(final Configuration configuration,
+        final ParsingContext parsingContext,
+        final Reader reader) {
+        final Map<String, String> placeholders = new HashMap<>();
+        final Map<String, String> configurationPlaceholders = configuration.getPlaceholders();
+        final Map<String, String> parsingContextPlaceholders = parsingContext.getPlaceholders();
 
         placeholders.putAll(configurationPlaceholders);
         placeholders.putAll(parsingContextPlaceholders);
 
-        return new PlaceholderReplacingReader(
-            configuration.getPlaceholderPrefix(),
+        return new PlaceholderReplacingReader(configuration.getPlaceholderPrefix(),
             configuration.getPlaceholderSuffix(),
             configuration.getPlaceholderSeparator(),
             placeholders,
             reader);
     }
-        public static PlaceholderReplacingReader create(Configuration configuration, ParsingContext parsingContext, LoadableMigrationInfo info) {
-            Map<String, String> placeholders = new HashMap<>();
-            Map<String, String> configurationPlaceholders = configuration.getPlaceholders();
-            Map<String, String> parsingContextPlaceholders = parsingContext.getPlaceholders();
 
-            final boolean placeholderReplacement = info.isPlaceholderReplacement() == null
-                ? configuration.isPlaceholderReplacement()
-                : info.isPlaceholderReplacement();
-            if (placeholderReplacement) {
-                placeholders.putAll(configurationPlaceholders);
-                placeholders.putAll(parsingContextPlaceholders);
-            }
-                return new PlaceholderReplacingReader(
-                    configuration.getPlaceholderPrefix(),
-                    configuration.getPlaceholderSuffix(),
-                    configuration.getPlaceholderSeparator(),
-                    placeholders,
-                    info.getLoadableResource().read());
-            }
+    public static PlaceholderReplacingReader create(final Configuration configuration,
+        final ParsingContext parsingContext,
+        final LoadableMigrationInfo info) {
+        final Map<String, String> placeholders = new HashMap<>();
+        final Map<String, String> configurationPlaceholders = configuration.getPlaceholders();
+        final Map<String, String> parsingContextPlaceholders = parsingContext.getPlaceholders();
 
-    public static PlaceholderReplacingReader createForScriptMigration(Configuration configuration, ParsingContext parsingContext, Reader reader) {
-        Map<String, String> placeholders = new HashMap<>();
-        Map<String, String> configurationPlaceholders = configuration.getPlaceholders();
-        Map<String, String> parsingContextPlaceholders = parsingContext.getPlaceholders();
+        final boolean placeholderReplacement = info.isPlaceholderReplacement() == null
+            ? configuration.isPlaceholderReplacement()
+            : info.isPlaceholderReplacement();
+        if (placeholderReplacement) {
+            placeholders.putAll(configurationPlaceholders);
+            placeholders.putAll(parsingContextPlaceholders);
+        }
+        return new PlaceholderReplacingReader(configuration.getPlaceholderPrefix(),
+            configuration.getPlaceholderSuffix(),
+            configuration.getPlaceholderSeparator(),
+            placeholders,
+            info.getLoadableResource().read());
+    }
+
+    public static PlaceholderReplacingReader createForScriptMigration(final Configuration configuration,
+        final ParsingContext parsingContext,
+        final Reader reader) {
+        final Map<String, String> placeholders = new HashMap<>();
+        final Map<String, String> configurationPlaceholders = configuration.getPlaceholders();
+        final Map<String, String> parsingContextPlaceholders = parsingContext.getPlaceholders();
 
         placeholders.putAll(configurationPlaceholders);
         placeholders.putAll(parsingContextPlaceholders);
 
-        return new PlaceholderReplacingReader(
-                configuration.getScriptPlaceholderPrefix(),
-                configuration.getScriptPlaceholderSuffix(),
-                "_",
-                placeholders,
-                reader);
+        return new PlaceholderReplacingReader(configuration.getScriptPlaceholderPrefix(),
+            configuration.getScriptPlaceholderSuffix(),
+            "_",
+            placeholders,
+            reader);
     }
 
     @Override
@@ -138,7 +142,7 @@ public class PlaceholderReplacingReader extends FilterReader {
 
             // if we have a previous read, then consume it
             if (buffer.length() > 0) {
-                char c = buffer.charAt(0);
+                final char c = buffer.charAt(0);
                 buffer.deleteCharAt(0);
                 return c;
             }
@@ -158,7 +162,7 @@ public class PlaceholderReplacingReader extends FilterReader {
             if (!endsWith(buffer, prefix)) {
                 // if it contain data, return the first character of it
                 if (buffer.length() > 0) {
-                    char c = buffer.charAt(0);
+                    final char c = buffer.charAt(0);
                     buffer.deleteCharAt(0);
                     return c;
                 }
@@ -169,9 +173,9 @@ public class PlaceholderReplacingReader extends FilterReader {
             buffer.delete(0, buffer.length());
 
             // begin reading ahead until we get to the suffix
-            StringBuilder placeholderBuilder = new StringBuilder();
+            final StringBuilder placeholderBuilder = new StringBuilder();
             do {
-                int r1 = super.read();
+                final int r1 = super.read();
                 if (r1 == -1) {
                     break;
                 } else {
@@ -185,18 +189,18 @@ public class PlaceholderReplacingReader extends FilterReader {
             }
 
             // look up the placeholder string
-            String placeholder = placeholderBuilder.toString();
+            final String placeholder = placeholderBuilder.toString();
             if (!placeholders.containsKey(placeholder)) {
-                String canonicalPlaceholder = prefix + placeholder + suffix;
+                final String canonicalPlaceholder = prefix + placeholder + suffix;
 
                 if (placeholder.startsWith("flyway" + separator)) {
                     throw new FlywayException("Failed to populate value for default placeholder: "
-                                                      + canonicalPlaceholder);
+                        + canonicalPlaceholder);
                 }
 
                 throw new FlywayException("No value provided for placeholder: "
-                                                  + canonicalPlaceholder
-                                                  + ".  Check your configuration!");
+                    + canonicalPlaceholder
+                    + ".  Check your configuration!");
             }
 
             // set the current placeholder replacement
@@ -209,7 +213,7 @@ public class PlaceholderReplacingReader extends FilterReader {
             }
         }
 
-        int result = replacement.charAt(replacementPos);
+        final int result = replacement.charAt(replacementPos);
         replacementPos++;
         if (replacementPos >= replacement.length()) {
             replacement = null;
@@ -219,10 +223,10 @@ public class PlaceholderReplacingReader extends FilterReader {
     }
 
     @Override
-    public int read(char[] cbuf, int off, int len) throws IOException {
+    public int read(final char[] cbuf, final int off, final int len) throws IOException {
         int count = 0;
         for (int i = 0; i < len; i++) {
-            int r = read();
+            final int r = read();
             if (r == -1) {
                 return count == 0 ? -1 : count;
             }
@@ -233,7 +237,7 @@ public class PlaceholderReplacingReader extends FilterReader {
     }
 
     @Override
-    public void mark(int readAheadLimit) throws IOException {
+    public void mark(final int readAheadLimit) throws IOException {
         markBuffer = buffer.toString();
         markReplacement = replacement;
         markReplacementPos = replacementPos;
@@ -249,7 +253,7 @@ public class PlaceholderReplacingReader extends FilterReader {
         replacementPos = markReplacementPos;
     }
 
-    private boolean endsWith(StringBuilder result, String str) {
+    private boolean endsWith(final StringBuilder result, final String str) {
         if (result.length() < str.length()) {
             return false;
         }

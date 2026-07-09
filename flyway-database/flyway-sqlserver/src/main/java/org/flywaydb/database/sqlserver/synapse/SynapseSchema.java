@@ -37,22 +37,25 @@ public class SynapseSchema extends SQLServerSchema {
      * Creates a new Synapse schema.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database The database-specific support.
+     * @param database     The database-specific support.
      * @param databaseName The database name.
-     * @param name The name of the schema.
+     * @param name         The name of the schema.
      */
-    SynapseSchema(JdbcTemplate jdbcTemplate, SQLServerDatabase database, String databaseName, String name) {
+    SynapseSchema(final JdbcTemplate jdbcTemplate,
+        final SQLServerDatabase database,
+        final String databaseName,
+        final String name) {
         super(jdbcTemplate, database, databaseName, name);
     }
 
     @Override
     protected SynapseTable[] doAllTables() throws SQLException {
-        List<String> tableNames = new ArrayList<>();
-        for (DBObject table : queryDBObjects(ObjectType.USER_TABLE)) {
+        final List<String> tableNames = new ArrayList<>();
+        for (final DBObject table : queryDBObjects(ObjectType.USER_TABLE)) {
             tableNames.add(table.name);
         }
 
-        SynapseTable[] tables = new SynapseTable[tableNames.size()];
+        final SynapseTable[] tables = new SynapseTable[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new SynapseTable(jdbcTemplate, database, databaseName, this, tableNames.get(i));
         }
@@ -60,7 +63,7 @@ public class SynapseSchema extends SQLServerSchema {
     }
 
     @Override
-    public Table getTable(String tableName) {
+    public Table getTable(final String tableName) {
         return new SynapseTable(jdbcTemplate, database, databaseName, this, tableName);
     }
 }

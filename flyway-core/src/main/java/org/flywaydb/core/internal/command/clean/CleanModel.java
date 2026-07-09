@@ -28,17 +28,18 @@ import java.util.Arrays;
 @Data
 public class CleanModel {
     public enum Mode {
-        DEFAULT, SCHEMA, ALL;
+        DEFAULT,
+        SCHEMA,
+        ALL;
     }
 
     private SchemaModel schemas = null;
     @Getter
     private String mode = null;
 
-
-    public void validate(){
+    public void validate() {
         try {
-            if(this.mode != null) {
+            if (this.mode != null) {
                 Mode.valueOf(this.mode);
             }
         } catch (IllegalArgumentException e) {
@@ -46,7 +47,7 @@ public class CleanModel {
         }
     }
 
-    public void setMode(String mode) {
+    public void setMode(final String mode) {
         this.mode = mode != null ? mode.toUpperCase() : null;
     }
 

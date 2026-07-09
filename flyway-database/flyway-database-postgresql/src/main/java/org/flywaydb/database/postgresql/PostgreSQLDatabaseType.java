@@ -62,15 +62,13 @@ public class PostgreSQLDatabaseType extends BaseDatabaseType {
     }
 
     @Override
-    public boolean handlesJDBCUrl(String url) {
-        return isSecretManagerUrl(url, "postgresql")
-            || url.startsWith("jdbc:postgresql:")
-            || url.startsWith("jdbc:p6spy:postgresql:")
-            || isAwsWrapperUrl(url, "postgresql");
+    public boolean handlesJDBCUrl(final String url) {
+        return isSecretManagerUrl(url, "postgresql") || url.startsWith("jdbc:postgresql:") || url.startsWith(
+            "jdbc:p6spy:postgresql:") || isAwsWrapperUrl(url, "postgresql");
     }
 
     @Override
-    public String getDriverClass(String url, ClassLoader classLoader) {
+    public String getDriverClass(final String url, final ClassLoader classLoader) {
         if (url.startsWith("jdbc:p6spy:postgresql:")) {
             return "com.p6spy.engine.spy.P6SpyDriver";
         }
@@ -81,22 +79,28 @@ public class PostgreSQLDatabaseType extends BaseDatabaseType {
     }
 
     @Override
-    public boolean handlesDatabaseProductNameAndVersion(String databaseProductName, String databaseProductVersion, Connection connection) {
+    public boolean handlesDatabaseProductNameAndVersion(final String databaseProductName,
+        final String databaseProductVersion,
+        final Connection connection) {
         return databaseProductName.startsWith("PostgreSQL");
     }
 
     @Override
-    public Database createDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+    public Database createDatabase(final Configuration configuration,
+        final JdbcConnectionFactory jdbcConnectionFactory,
+        final StatementInterceptor statementInterceptor) {
         return new PostgreSQLDatabase(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
     @Override
-    public Parser createParser(Configuration configuration, ResourceProvider resourceProvider, ParsingContext parsingContext) {
+    public Parser createParser(final Configuration configuration,
+        final ResourceProvider resourceProvider,
+        final ParsingContext parsingContext) {
         return new PostgreSQLParser(configuration, parsingContext);
     }
 
     @Override
-    public void setDefaultConnectionProps(String url, Properties props, ClassLoader classLoader) {
+    public void setDefaultConnectionProps(final String url, final Properties props, final ClassLoader classLoader) {
         props.put("applicationName", BaseDatabaseType.APPLICATION_NAME);
     }
 
@@ -120,16 +124,18 @@ public class PostgreSQLDatabaseType extends BaseDatabaseType {
 
 
 
-    @Override
-    public Properties getExternalAuthProperties(String url, String username) {
-        PgpassFileReader pgpassFileReader = new PgpassFileReader();
 
-        if (pgpassFileReader.getPgpassFilePath() != null) {
-            LOG.info(org.flywaydb.core.internal.license.FlywayUpgradeMessage.generate(
-                    "pgpass file '" + pgpassFileReader.getPgpassFilePath() + "'",
-                    "use this for database authentication"));
-        }
-        return super.getExternalAuthProperties(url, username);
+
+    @Override
+    public Properties getExternalAuthProperties(final String url, final String username) {
+        final PgpassFileReader pgpassFileReader = new PgpassFileReader();
+
+                if (pgpassFileReader.getPgpassFilePath() != null) {
+                    LOG.info(org.flywaydb.core.internal.license.FlywayUpgradeMessage.generate(
+                            "pgpass file '" + pgpassFileReader.getPgpassFilePath() + "'",
+                            "use this for database authentication"));
+                }
+                return super.getExternalAuthProperties(url, username);
 
 
 

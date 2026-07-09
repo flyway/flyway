@@ -96,24 +96,24 @@ public interface AppliedMigration extends Plugin {
      * @return a new instance of this type of applied migration from the given arguments.
      */
     AppliedMigration create(int installedRank,
-                            MigrationVersion version,
-                            String description,
-                            String type,
-                            String script,
-                            Integer checksum,
-                            Date installedOn,
-                            String installedBy,
-                            int executionTime,
-                            boolean success);
+        MigrationVersion version,
+        String description,
+        String type,
+        String script,
+        Integer checksum,
+        Date installedOn,
+        String installedBy,
+        int executionTime,
+        boolean success);
 
     MigrationState getState(MigrationInfoContext context, boolean outOfOrder, ResolvedMigration resolvedMigration);
 
     /**
      * Updates the attributes in the given list of migrations based on the information in this migration
      */
-    default void updateAttributes(List<Pair<AppliedMigration, AppliedMigrationAttributes>> appliedMigrations) { }
+    default void updateAttributes(final List<Pair<AppliedMigration, AppliedMigrationAttributes>> appliedMigrations) {}
 
-    default int compareTo(AppliedMigration o) {
+    default int compareTo(final AppliedMigration o) {
         return getInstalledRank() - o.getInstalledRank();
     }
 }

@@ -33,12 +33,13 @@ public class PostgreSQLConfigurationExtension implements ConfigurationExtension 
         return transactional == null || transactional.getLock() == null || transactional.getLock();
     }
 
-    public void setTransactionalLock(boolean transactionalLock) {
+    public void setTransactionalLock(final boolean transactionalLock) {
         transactional = new TransactionalModel();
         transactional.setLock(transactionalLock);
     }
+
     @Override
-    public String getConfigurationParameterFromEnvironmentVariable(String environmentVariable) {
+    public String getConfigurationParameterFromEnvironmentVariable(final String environmentVariable) {
         if ("FLYWAY_POSTGRESQL_TRANSACTIONAL_LOCK".equals(environmentVariable)) {
             return TRANSACTIONAL_LOCK;
         }

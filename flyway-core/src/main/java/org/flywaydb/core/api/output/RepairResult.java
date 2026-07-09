@@ -30,7 +30,7 @@ public class RepairResult extends OperationResultBase {
     public List<RepairOutput> migrationsDeleted;
     public List<RepairOutput> migrationsAligned;
 
-    public RepairResult(String flywayVersion, String database) {
+    public RepairResult(final String flywayVersion, final String database) {
         this.flywayVersion = flywayVersion;
         this.database = database;
         this.repairActions = new ArrayList<>();
@@ -40,7 +40,7 @@ public class RepairResult extends OperationResultBase {
         this.operation = "repair";
     }
 
-    public void setRepairActions(DbRepair.CompletedRepairActions completedRepairActions) {
+    public void setRepairActions(final DbRepair.CompletedRepairActions completedRepairActions) {
         if (completedRepairActions.removedFailedMigrations) {
             repairActions.add(completedRepairActions.removedMessage());
         }

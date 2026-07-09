@@ -57,6 +57,11 @@ public class OperationResultReportGenerator implements ResultReportGenerator {
     private static final String DEFAULT_REPORT_FILENAME = FlywayModel.DEFAULT_REPORT_FILENAME;
 
     @Override
+    public boolean isEnabled() {
+        return !"true".equalsIgnoreCase(System.getenv("FLYWAY_NEW_REPORTS"));
+    }
+
+    @Override
     public ReportGenerationOutput generateReport(final OperationResult operationResult,
         final Configuration configuration) {
         ReportDetails reportDetails = new ReportDetails();

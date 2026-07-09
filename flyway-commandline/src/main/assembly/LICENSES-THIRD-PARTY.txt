@@ -13,14 +13,14 @@ Source: https://app.snyk.io/vuln/snyk:lic:nuget:apache.arrow:(Apache-2.0_OR_BSD-
 <license-texts/Apache-2.0_OR_BSD-2-Clause_OR_MIT_OR_Protobuf-0.txt>
 -------------------------------------
 -------------------------------------
-AWSSDK.Core 4.0.0.14
+AWSSDK.Core 4.0.3.28
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:nuget:awssdk.core:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-AWSSDK.S3 4.0.4
+AWSSDK.S3 4.0.20.4
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:nuget:awssdk.s3:Apache-2.0
 
@@ -48,21 +48,21 @@ Source: https://app.snyk.io/vuln/snyk:lic:nuget:azure.storage.common:MIT
 <license-texts/MIT-0.txt>
 -------------------------------------
 -------------------------------------
-BouncyCastle.Cryptography 2.3.1
+BouncyCastle.Cryptography 2.6.2
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:nuget:bouncycastle.cryptography:MIT
 
 <license-texts/MIT-0.txt>
 -------------------------------------
 -------------------------------------
-chardet 5.2.0
+chardet 7.4.3
 -------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:pip:chardet:LGPL-2.1
+Source: https://app.snyk.io/vuln/snyk:lic:pip:chardet:0BSD
 
-<license-texts/LGPL-2.1-0.txt>
+<license-texts/0BSD-0.txt>
 -------------------------------------
 -------------------------------------
-click 8.1.6
+click 8.3.3
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:pip:click:BSD-3-Clause
 
@@ -76,42 +76,28 @@ Source: https://app.snyk.io/vuln/snyk:lic:pip:colorama:BSD-2-Clause
 <license-texts/Apache-2.0_OR_BSD-2-Clause_OR_MIT_OR_Protobuf-0.txt>
 -------------------------------------
 -------------------------------------
-com.amazonaws.secretsmanager:aws-secretsmanager-caching-java 2.0.0
+com.amazonaws.secretsmanager:aws-secretsmanager-caching-java 2.2.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.amazonaws.secretsmanager:aws-secretsmanager-caching-java:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.amazonaws.secretsmanager:aws-secretsmanager-jdbc 2.0.2
+com.amazonaws.secretsmanager:aws-secretsmanager-jdbc 2.1.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.amazonaws.secretsmanager:aws-secretsmanager-jdbc:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.azure:azure-core 1.53.0
+com.azure:azure-core 1.55.5
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.azure:azure-core:MIT
 
 <license-texts/MIT-0.txt>
 -------------------------------------
 -------------------------------------
-com.azure:azure-core 1.55.3
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:com.azure:azure-core:MIT
-
-<license-texts/MIT-0.txt>
--------------------------------------
--------------------------------------
-com.azure:azure-core-http-netty 1.15.11
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:com.azure:azure-core-http-netty:MIT
-
-<license-texts/MIT-0.txt>
--------------------------------------
--------------------------------------
-com.azure:azure-core-http-netty 1.15.5
+com.azure:azure-core-http-netty 1.15.13
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.azure:azure-core-http-netty:MIT
 
@@ -125,20 +111,6 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:com.azure:azure-identity:MIT
 <license-texts/MIT-0.txt>
 -------------------------------------
 -------------------------------------
-com.azure:azure-json 1.3.0
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:com.azure:azure-json:MIT
-
-<license-texts/MIT-0.txt>
--------------------------------------
--------------------------------------
-com.azure:azure-json 1.4.0
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:com.azure:azure-json:MIT
-
-<license-texts/MIT-0.txt>
--------------------------------------
--------------------------------------
 com.azure:azure-json 1.5.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.azure:azure-json:MIT
@@ -146,16 +118,16 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:com.azure:azure-json:MIT
 <license-texts/MIT-0.txt>
 -------------------------------------
 -------------------------------------
-com.azure:azure-monitor-opentelemetry-exporter 1.0.0-beta.31
+com.azure:azure-monitor-opentelemetry-autoconfigure 1.3.0
 -------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:com.azure:azure-monitor-opentelemetry-exporter:MIT
+Source: https://app.snyk.io/vuln/snyk:lic:maven:com.azure:azure-monitor-opentelemetry-autoconfigure:MIT
 
 <license-texts/MIT-0.txt>
 -------------------------------------
 -------------------------------------
-com.azure:azure-xml 1.1.0
+com.azure:azure-security-keyvault-secrets 4.9.2
 -------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:com.azure:azure-xml:MIT
+Source: https://app.snyk.io/vuln/snyk:lic:maven:com.azure:azure-security-keyvault-secrets:MIT
 
 <license-texts/MIT-0.txt>
 -------------------------------------
@@ -167,72 +139,86 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:com.azure:azure-xml:MIT
 <license-texts/MIT-0.txt>
 -------------------------------------
 -------------------------------------
-com.couchbase.client:core-io 3.9.2
+com.couchbase.client:core-io 3.12.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.couchbase.client:core-io:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.couchbase.client:java-client 3.9.2
+com.couchbase.client:java-client 3.12.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.couchbase.client:java-client:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.databricks:databricks-jdbc 3.3.3
+com.databricks:databricks-jdbc 3.4.1
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.databricks:databricks-jdbc:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.datastax.oss:java-driver-shaded-guava 25.1-jre-graal-sub-1
+com.datastax.astra:astra-sdk-devops 1.2.9
 -------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:com.datastax.oss:java-driver-shaded-guava:Apache-2.0
+Source: https://app.snyk.io/vuln/snyk:lic:maven:com.datastax.astra:astra-sdk-devops:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.datastax.oss:native-protocol 1.5.1
+com.datastax.oss:native-protocol 1.5.2
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.datastax.oss:native-protocol:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.fasterxml.jackson.core:jackson-annotations 2.19.1
+com.ethlo.time:itu 1.14.0
+-------------------------------------
+Source: https://app.snyk.io/vuln/snyk:lic:maven:com.ethlo.time:itu:Apache-2.0
+
+<license-texts/Apache-2.0-0.txt>
+-------------------------------------
+-------------------------------------
+com.fasterxml:classmate 1.7.2
+-------------------------------------
+Source: https://app.snyk.io/vuln/snyk:lic:maven:com.fasterxml:classmate:Apache-2.0
+
+<license-texts/Apache-2.0-0.txt>
+-------------------------------------
+-------------------------------------
+com.fasterxml.jackson.core:jackson-annotations 2.21
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.fasterxml.jackson.core:jackson-annotations:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-tools.jackson.core:jackson-core 2.19.1
+com.fasterxml.jackson.core:jackson-core 2.22.0
 -------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:tools.jackson.core:jackson-core:Apache-2.0
+Source: https://app.snyk.io/vuln/snyk:lic:maven:com.fasterxml.jackson.core:jackson-core:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-tools.jackson.core:jackson-databind 2.19.1
+com.fasterxml.jackson.core:jackson-databind 2.22.0
 -------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:tools.jackson.core:jackson-databind:Apache-2.0
+Source: https://app.snyk.io/vuln/snyk:lic:maven:com.fasterxml.jackson.core:jackson-databind:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-tools.jackson.dataformat:jackson-dataformat-toml 2.19.1
+com.fasterxml.jackson.dataformat:jackson-dataformat-xml 2.18.2
 -------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:tools.jackson.dataformat:jackson-dataformat-toml:Apache-2.0
+Source: https://app.snyk.io/vuln/snyk:lic:maven:com.fasterxml.jackson.dataformat:jackson-dataformat-xml:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-tools.jackson.dataformat:jackson-dataformat-xml 2.19.1
+com.fasterxml.jackson.datatype:jackson-datatype-jsr310 2.21.1
 -------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:tools.jackson.dataformat:jackson-dataformat-xml:Apache-2.0
+Source: https://app.snyk.io/vuln/snyk:lic:maven:com.fasterxml.jackson.datatype:jackson-datatype-jsr310:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
@@ -293,7 +279,7 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:com.github.jnr:jnr-x86asm:MIT
 <license-texts/MIT-0.txt>
 -------------------------------------
 -------------------------------------
-com.github.spotbugs:spotbugs-annotations 4.7.3
+com.github.spotbugs:spotbugs-annotations 4.9.6
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.github.spotbugs:spotbugs-annotations:LGPL-2.1
 
@@ -303,6 +289,20 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:com.github.spotbugs:spotbugs-ann
 com.github.stephenc.jcip:jcip-annotations 1.0-1
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.github.stephenc.jcip:jcip-annotations:Apache-2.0
+
+<license-texts/Apache-2.0-0.txt>
+-------------------------------------
+-------------------------------------
+com.github.victools:jsonschema-generator 5.0.0
+-------------------------------------
+Source: https://app.snyk.io/vuln/snyk:lic:maven:com.github.victools:jsonschema-generator:Apache-2.0
+
+<license-texts/Apache-2.0-0.txt>
+-------------------------------------
+-------------------------------------
+com.github.victools:jsonschema-module-jackson 5.0.0
+-------------------------------------
+Source: https://app.snyk.io/vuln/snyk:lic:maven:com.github.victools:jsonschema-module-jackson:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
@@ -321,168 +321,168 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.android:annotations:A
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.api:api-common 2.37.1
+com.google.api:api-common 2.64.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.api:api-common:BSD-3-Clause
 
 <license-texts/BSD-3-Clause-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.api-client:google-api-client 2.7.0
+com.google.api-client:google-api-client 2.7.2
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.api-client:google-api-client:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.api:gax 2.54.1
+com.google.api:gax 2.81.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.api:gax:BSD-3-Clause
 
 <license-texts/BSD-3-Clause-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.api:gax-grpc 2.54.1
+com.google.api:gax-grpc 2.81.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.api:gax-grpc:BSD-3-Clause
 
 <license-texts/BSD-3-Clause-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.api:gax-httpjson 2.54.1
+com.google.api:gax-httpjson 2.81.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.api:gax-httpjson:BSD-3-Clause
 
 <license-texts/BSD-3-Clause-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.api.grpc:gapic-google-cloud-storage-v2 2.43.1-beta
+com.google.api.grpc:gapic-google-cloud-storage-v2 2.60.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.api.grpc:gapic-google-cloud-storage-v2:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.api.grpc:grpc-google-cloud-spanner-admin-database-v1 6.77.0
+com.google.api.grpc:grpc-google-cloud-spanner-admin-database-v1 6.118.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.api.grpc:grpc-google-cloud-spanner-admin-database-v1:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.api.grpc:grpc-google-cloud-spanner-admin-instance-v1 6.77.0
+com.google.api.grpc:grpc-google-cloud-spanner-admin-instance-v1 6.118.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.api.grpc:grpc-google-cloud-spanner-admin-instance-v1:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.api.grpc:grpc-google-cloud-spanner-v1 6.77.0
+com.google.api.grpc:grpc-google-cloud-spanner-v1 6.118.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.api.grpc:grpc-google-cloud-spanner-v1:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.api.grpc:grpc-google-cloud-storage-v2 2.43.1-beta
+com.google.api.grpc:grpc-google-cloud-storage-v2 2.60.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.api.grpc:grpc-google-cloud-storage-v2:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.api.grpc:grpc-google-common-protos 2.45.1
+com.google.api.grpc:grpc-google-common-protos 2.72.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.api.grpc:grpc-google-common-protos:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.api.grpc:proto-google-cloud-monitoring-v3 3.31.0
+com.google.api.grpc:proto-google-cloud-monitoring-v3 3.94.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.api.grpc:proto-google-cloud-monitoring-v3:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.api.grpc:proto-google-cloud-monitoring-v3 3.52.0
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.api.grpc:proto-google-cloud-monitoring-v3:Apache-2.0
-
-<license-texts/Apache-2.0-0.txt>
--------------------------------------
--------------------------------------
-com.google.api.grpc:proto-google-cloud-secretmanager-v1 2.51.0
+com.google.api.grpc:proto-google-cloud-secretmanager-v1 2.81.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.api.grpc:proto-google-cloud-secretmanager-v1:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.api.grpc:proto-google-cloud-secretmanager-v1beta2 2.51.0
+com.google.api.grpc:proto-google-cloud-secretmanager-v1beta1 2.81.0
+-------------------------------------
+Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.api.grpc:proto-google-cloud-secretmanager-v1beta1:Apache-2.0
+
+<license-texts/Apache-2.0-0.txt>
+-------------------------------------
+-------------------------------------
+com.google.api.grpc:proto-google-cloud-secretmanager-v1beta2 2.81.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.api.grpc:proto-google-cloud-secretmanager-v1beta2:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.api.grpc:proto-google-cloud-spanner-admin-database-v1 6.77.0
+com.google.api.grpc:proto-google-cloud-spanner-admin-database-v1 6.118.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.api.grpc:proto-google-cloud-spanner-admin-database-v1:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.api.grpc:proto-google-cloud-spanner-admin-instance-v1 6.77.0
+com.google.api.grpc:proto-google-cloud-spanner-admin-instance-v1 6.118.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.api.grpc:proto-google-cloud-spanner-admin-instance-v1:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.api.grpc:proto-google-cloud-spanner-v1 6.77.0
+com.google.api.grpc:proto-google-cloud-spanner-v1 6.118.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.api.grpc:proto-google-cloud-spanner-v1:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.api.grpc:proto-google-cloud-storage-v2 2.43.1-beta
+com.google.api.grpc:proto-google-cloud-storage-v2 2.60.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.api.grpc:proto-google-cloud-storage-v2:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.api.grpc:proto-google-common-protos 2.45.1
+com.google.api.grpc:proto-google-common-protos 2.72.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.api.grpc:proto-google-common-protos:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.api.grpc:proto-google-iam-v1 1.40.1
+com.google.api.grpc:proto-google-iam-v1 1.67.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.api.grpc:proto-google-iam-v1:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.apis:google-api-services-storage v1-rev20240819-2.0.0
+com.google.apis:google-api-services-storage v1-rev20250925-2.0.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.apis:google-api-services-storage:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.auth:google-auth-library-credentials 1.27.0
+com.google.auth:google-auth-library-credentials 1.48.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.auth:google-auth-library-credentials:BSD-2-Clause
 
 <license-texts/Apache-2.0_OR_BSD-2-Clause_OR_MIT_OR_Protobuf-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.auth:google-auth-library-oauth2-http 1.27.0
+com.google.auth:google-auth-library-oauth2-http 1.48.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.auth:google-auth-library-oauth2-http:BSD-2-Clause
 
@@ -496,91 +496,84 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.auto.value:auto-value
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.cloud:google-cloud-core 2.44.1
+com.google.cloud:google-cloud-core 2.71.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.cloud:google-cloud-core:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.cloud:google-cloud-core-grpc 2.44.1
+com.google.cloud:google-cloud-core-grpc 2.71.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.cloud:google-cloud-core-grpc:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.cloud:google-cloud-core-http 2.44.1
+com.google.cloud:google-cloud-core-http 2.62.1
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.cloud:google-cloud-core-http:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.cloud:google-cloud-monitoring 3.31.0
+com.google.cloud:google-cloud-monitoring 3.94.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.cloud:google-cloud-monitoring:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.cloud:google-cloud-monitoring 3.52.0
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.cloud:google-cloud-monitoring:Apache-2.0
-
-<license-texts/Apache-2.0-0.txt>
--------------------------------------
--------------------------------------
-com.google.cloud:google-cloud-secretmanager 2.51.0
+com.google.cloud:google-cloud-secretmanager 2.81.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.cloud:google-cloud-secretmanager:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.cloud:google-cloud-spanner 6.77.0
+com.google.cloud:google-cloud-spanner 6.118.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.cloud:google-cloud-spanner:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.cloud:google-cloud-spanner-jdbc 2.22.1
+com.google.cloud:google-cloud-spanner-jdbc 2.40.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.cloud:google-cloud-spanner-jdbc:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.cloud:google-cloud-storage 2.43.1
+com.google.cloud:google-cloud-storage 2.60.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.cloud:google-cloud-storage:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.cloud:grpc-gcp 1.6.1
+com.google.cloud:grpc-gcp 1.11.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.cloud:grpc-gcp:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.cloud.opentelemetry:detector-resources-support 0.32.0
+com.google.cloud.opentelemetry:detector-resources-support 0.33.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.cloud.opentelemetry:detector-resources-support:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.cloud.opentelemetry:exporter-metrics 0.31.0
+com.google.cloud.opentelemetry:exporter-metrics 0.33.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.cloud.opentelemetry:exporter-metrics:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.cloud.opentelemetry:shared-resourcemapping 0.32.0
+com.google.cloud.opentelemetry:shared-resourcemapping 0.33.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.cloud.opentelemetry:shared-resourcemapping:Apache-2.0
 
@@ -601,42 +594,21 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.code.gson:gson:Apache
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.errorprone:error_prone_annotations 2.10.0
+com.google.errorprone:error_prone_annotations 2.48.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.errorprone:error_prone_annotations:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.errorprone:error_prone_annotations 2.32.0
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.errorprone:error_prone_annotations:Apache-2.0
-
-<license-texts/Apache-2.0-0.txt>
--------------------------------------
--------------------------------------
-com.google.guava:failureaccess 1.0.1
+com.google.guava:failureaccess 1.0.3
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.guava:failureaccess:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.guava:failureaccess 1.0.2
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.guava:failureaccess:Apache-2.0
-
-<license-texts/Apache-2.0-0.txt>
--------------------------------------
--------------------------------------
-com.google.guava:guava 32.0.1-jre
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.guava:guava:Apache-2.0
-
-<license-texts/Apache-2.0-0.txt>
--------------------------------------
--------------------------------------
-com.google.guava:guava 33.3.0-jre
+com.google.guava:guava 33.6.0-jre
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.guava:guava:Apache-2.0
 
@@ -650,35 +622,35 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.guava:listenablefutur
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.http-client:google-http-client 1.45.0
+com.google.http-client:google-http-client 2.1.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.http-client:google-http-client:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.http-client:google-http-client-apache-v2 1.45.0
+com.google.http-client:google-http-client-apache-v2 2.0.2
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.http-client:google-http-client-apache-v2:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.http-client:google-http-client-appengine 1.45.0
+com.google.http-client:google-http-client-appengine 2.0.2
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.http-client:google-http-client-appengine:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.http-client:google-http-client-gson 1.45.0
+com.google.http-client:google-http-client-gson 2.1.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.http-client:google-http-client-gson:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.http-client:google-http-client-jackson2 1.45.0
+com.google.http-client:google-http-client-jackson2 2.0.2
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.http-client:google-http-client-jackson2:Apache-2.0
 
@@ -692,35 +664,35 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.inject:guice:Apache-2
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.j2objc:j2objc-annotations 3.0.0
+com.google.j2objc:j2objc-annotations 3.1
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.j2objc:j2objc-annotations:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.oauth-client:google-oauth-client 1.36.0
+com.google.oauth-client:google-oauth-client 1.39.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.oauth-client:google-oauth-client:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.protobuf:protobuf-java 3.25.5
+com.google.protobuf:protobuf-java 4.33.2
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.protobuf:protobuf-java:BSD-3-Clause
 
 <license-texts/BSD-3-Clause-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.protobuf:protobuf-java-util 3.25.5
+com.google.protobuf:protobuf-java-util 4.33.2
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.protobuf:protobuf-java-util:BSD-3-Clause
 
 <license-texts/BSD-3-Clause-0.txt>
 -------------------------------------
 -------------------------------------
-com.google.re2j:re2j 1.7
+com.google.re2j:re2j 1.8
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.re2j:re2j:Go
 
@@ -734,7 +706,7 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:com.h2database:h2:(EPL-1.0_OR_MP
 <license-texts/EPL-1.0_OR_MPL-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.ing.data:cassandra-jdbc-wrapper 4.13.0
+com.ing.data:cassandra-jdbc-wrapper 4.16.3
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.ing.data:cassandra-jdbc-wrapper:Apache-2.0
 
@@ -769,21 +741,28 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:com.microsoft.sqlserver:mssql-jd
 <license-texts/MIT-0.txt>
 -------------------------------------
 -------------------------------------
-commons-codec:commons-codec 1.15
+commons-beanutils:commons-beanutils 1.11.0
+-------------------------------------
+Source: https://app.snyk.io/vuln/snyk:lic:maven:commons-beanutils:commons-beanutils:Apache-2.0
+
+<license-texts/Apache-2.0-0.txt>
+-------------------------------------
+-------------------------------------
+commons-codec:commons-codec 1.18.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:commons-codec:commons-codec:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-commons-codec:commons-codec 1.17.1
+commons-collections:commons-collections 3.2.2
 -------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:commons-codec:commons-codec:Apache-2.0
+Source: https://app.snyk.io/vuln/snyk:lic:maven:commons-collections:commons-collections:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-commons-io:commons-io 2.16.1
+commons-io:commons-io 2.20.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:commons-io:commons-io:Apache-2.0
 
@@ -797,7 +776,14 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:commons-logging:commons-logging:
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.nimbusds:content-type 2.2
+com.networknt:json-schema-validator 3.0.0
+-------------------------------------
+Source: https://app.snyk.io/vuln/snyk:lic:maven:com.networknt:json-schema-validator:Apache-2.0
+
+<license-texts/Apache-2.0-0.txt>
+-------------------------------------
+-------------------------------------
+com.nimbusds:content-type 2.3
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.nimbusds:content-type:Apache-2.0
 
@@ -818,9 +804,16 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:com.nimbusds:nimbus-jose-jwt:Apa
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.nimbusds:oauth2-oidc-sdk 10.7.1
+com.nimbusds:oauth2-oidc-sdk 11.32
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.nimbusds:oauth2-oidc-sdk:Apache-2.0
+
+<license-texts/Apache-2.0-0.txt>
+-------------------------------------
+-------------------------------------
+com.opencsv:opencsv 5.12.0
+-------------------------------------
+Source: https://app.snyk.io/vuln/snyk:lic:maven:com.opencsv:opencsv:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
@@ -845,7 +838,7 @@ com.oracle.database.security:osdt_core 21.18.0.0
 <license-texts/oracle-free-use.txt>
 -------------------------------------
 -------------------------------------
-com.singlestore:singlestore-jdbc-client 1.1.4
+com.singlestore:singlestore-jdbc-client 1.2.8
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.singlestore:singlestore-jdbc-client:LGPL-2.1
 
@@ -859,98 +852,98 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:com.typesafe:config:Apache-2.0
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-com.zaxxer:HikariCP 2.7.9
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:com.zaxxer:HikariCP:Apache-2.0
-
-<license-texts/Apache-2.0-0.txt>
--------------------------------------
--------------------------------------
-Dapper 2.1.66
+Dapper 2.1.79
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:nuget:dapper:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-diff-cover 9.7.2
+diff-cover 10.3.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:pip:diff-cover:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-Google.Api.Gax 4.8.0
+exceptiongroup 1.3.1
+-------------------------------------
+Source: https://app.snyk.io/vuln/snyk:lic:pip:exceptiongroup:MIT
+
+<license-texts/MIT-0.txt>
+-------------------------------------
+-------------------------------------
+Google.Api.Gax 4.12.1
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:nuget:google.api.gax:BSD-3-Clause
 
 <license-texts/BSD-3-Clause-0.txt>
 -------------------------------------
 -------------------------------------
-Google.Api.Gax.Rest 4.8.0
+Google.Api.Gax.Rest 4.12.1
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:nuget:google.api.gax.rest:BSD-3-Clause
 
 <license-texts/BSD-3-Clause-0.txt>
 -------------------------------------
 -------------------------------------
-Google.Apis 1.67.0
+Google.Apis 1.72.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:nuget:google.apis:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-Google.Apis.Auth 1.67.0
+Google.Apis.Auth 1.72.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:nuget:google.apis.auth:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-Google.Apis.Core 1.67.0
+Google.Apis.Core 1.72.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:nuget:google.apis.core:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-Google.Apis.Storage.v1 1.67.0.3365
+Google.Apis.Storage.v1 1.71.0.3920
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:nuget:google.apis.storage.v1:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-Google.Cloud.Storage.V1 4.10.0
+Google.Cloud.Storage.V1 4.14.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:nuget:google.cloud.storage.v1:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-Google.Protobuf 3.33.1
+Google.Protobuf 3.35.1
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:nuget:google.protobuf:BSD-3-Clause
 
 <license-texts/BSD-3-Clause-0.txt>
 -------------------------------------
 -------------------------------------
-Grpc.Core.Api 2.71.0
+Grpc.Core.Api 2.76.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:nuget:grpc.core.api:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-Grpc.Net.Client 2.71.0
+Grpc.Net.Client 2.76.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:nuget:grpc.net.client:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-Grpc.Net.Common 2.71.0
+Grpc.Net.Common 2.76.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:nuget:grpc.net.common:Apache-2.0
 
@@ -978,238 +971,259 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:io.github.java-diff-utils:java-d
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.grpc:grpc-alts 1.68.0
+io.grpc:grpc-alts 1.81.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.grpc:grpc-alts:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.grpc:grpc-api 1.68.0
+io.grpc:grpc-api 1.81.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.grpc:grpc-api:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.grpc:grpc-auth 1.68.0
+io.grpc:grpc-auth 1.81.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.grpc:grpc-auth:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.grpc:grpc-context 1.68.0
+io.grpc:grpc-context 1.81.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.grpc:grpc-context:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.grpc:grpc-core 1.68.0
+io.grpc:grpc-core 1.81.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.grpc:grpc-core:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.grpc:grpc-googleapis 1.68.0
+io.grpc:grpc-googleapis 1.81.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.grpc:grpc-googleapis:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.grpc:grpc-grpclb 1.68.0
+io.grpc:grpc-grpclb 1.76.2
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.grpc:grpc-grpclb:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.grpc:grpc-inprocess 1.68.0
+io.grpc:grpc-inprocess 1.81.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.grpc:grpc-inprocess:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.grpc:grpc-netty-shaded 1.68.0
+io.grpc:grpc-netty-shaded 1.81.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.grpc:grpc-netty-shaded:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.grpc:grpc-opentelemetry 1.68.0
+io.grpc:grpc-opentelemetry 1.81.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.grpc:grpc-opentelemetry:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.grpc:grpc-protobuf 1.68.0
+io.grpc:grpc-protobuf 1.81.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.grpc:grpc-protobuf:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.grpc:grpc-protobuf-lite 1.68.0
+io.grpc:grpc-protobuf-lite 1.81.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.grpc:grpc-protobuf-lite:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.grpc:grpc-rls 1.68.0
+io.grpc:grpc-rls 1.81.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.grpc:grpc-rls:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.grpc:grpc-services 1.68.0
+io.grpc:grpc-services 1.81.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.grpc:grpc-services:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.grpc:grpc-stub 1.68.0
+io.grpc:grpc-stub 1.81.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.grpc:grpc-stub:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.grpc:grpc-util 1.68.0
+io.grpc:grpc-util 1.81.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.grpc:grpc-util:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.grpc:grpc-xds 1.68.0
+io.grpc:grpc-xds 1.81.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.grpc:grpc-xds:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-buffer 4.2.13.Final
+io.modelcontextprotocol.sdk:mcp 1.1.3
+-------------------------------------
+Source: https://app.snyk.io/vuln/snyk:lic:maven:io.modelcontextprotocol.sdk:mcp:MIT
+
+<license-texts/MIT-0.txt>
+-------------------------------------
+-------------------------------------
+io.modelcontextprotocol.sdk:mcp-core 1.1.3
+-------------------------------------
+Source: https://app.snyk.io/vuln/snyk:lic:maven:io.modelcontextprotocol.sdk:mcp-core:MIT
+
+<license-texts/MIT-0.txt>
+-------------------------------------
+-------------------------------------
+io.modelcontextprotocol.sdk:mcp-json-jackson3 1.1.3
+-------------------------------------
+Source: https://app.snyk.io/vuln/snyk:lic:maven:io.modelcontextprotocol.sdk:mcp-json-jackson3:MIT
+
+<license-texts/MIT-0.txt>
+-------------------------------------
+-------------------------------------
+io.netty:netty-buffer 4.2.15.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-buffer:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-codec 4.2.13.Final
+io.netty:netty-codec 4.2.15.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-codec:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-codec-base 4.2.13.Final
+io.netty:netty-codec-base 4.2.15.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-codec-base:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-codec-compression 4.2.13.Final
+io.netty:netty-codec-compression 4.2.15.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-codec-compression:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-codec-dns 4.2.13.Final
+io.netty:netty-codec-dns 4.2.15.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-codec-dns:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-codec-http 4.2.13.Final
+io.netty:netty-codec-http 4.2.15.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-codec-http:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-codec-http2 4.2.13.Final
+io.netty:netty-codec-http2 4.2.15.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-codec-http2:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-codec-marshalling 4.2.13.Final
+io.netty:netty-codec-marshalling 4.2.15.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-codec-marshalling:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-codec-protobuf 4.2.13.Final
+io.netty:netty-codec-protobuf 4.2.15.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-codec-protobuf:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-codec-socks 4.2.13.Final
+io.netty:netty-codec-socks 4.2.15.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-codec-socks:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-common 4.2.13.Final
+io.netty:netty-common 4.2.15.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-common:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-handler 4.2.13.Final
+io.netty:netty-handler 4.2.15.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-handler:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-handler-proxy 4.2.13.Final
+io.netty:netty-handler-proxy 4.2.15.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-handler-proxy:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-resolver 4.2.13.Final
+io.netty:netty-resolver 4.2.15.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-resolver:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-resolver-dns 4.2.13.Final
+io.netty:netty-resolver-dns 4.2.15.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-resolver-dns:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-resolver-dns-classes-macos 4.2.13.Final
+io.netty:netty-resolver-dns-classes-macos 4.2.15.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-resolver-dns-classes-macos:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-resolver-dns-native-macos 4.2.13.Final
+io.netty:netty-resolver-dns-native-macos 4.2.15.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-resolver-dns-native-macos:Apache-2.0
 
@@ -1230,42 +1244,42 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-tcnative-classes:
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-transport 4.2.13.Final
+io.netty:netty-transport 4.2.15.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-transport:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-transport-classes-epoll 4.2.13.Final
+io.netty:netty-transport-classes-epoll 4.2.15.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-transport-classes-epoll:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-transport-classes-kqueue 4.2.13.Final
+io.netty:netty-transport-classes-kqueue 4.2.15.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-transport-classes-kqueue:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-transport-native-epoll 4.2.13.Final
+io.netty:netty-transport-native-epoll 4.2.15.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-transport-native-epoll:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-transport-native-kqueue 4.2.13.Final
+io.netty:netty-transport-native-kqueue 4.2.15.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-transport-native-kqueue:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.netty:netty-transport-native-unix-common 4.2.13.Final
+io.netty:netty-transport-native-unix-common 4.2.15.Final
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-transport-native-unix-common:Apache-2.0
 
@@ -1293,13 +1307,6 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:io.opencensus:opencensus-contrib
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.opencensus:opencensus-proto 0.2.0
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:io.opencensus:opencensus-proto:Apache-2.0
-
-<license-texts/Apache-2.0-0.txt>
--------------------------------------
--------------------------------------
 io.opentelemetry.contrib:opentelemetry-gcp-resources 1.37.0-alpha
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.opentelemetry.contrib:opentelemetry-gcp-resources:Apache-2.0
@@ -1307,77 +1314,70 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:io.opentelemetry.contrib:opentel
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.opentelemetry:opentelemetry-api 1.55.0
+io.opentelemetry:opentelemetry-api 1.62.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.opentelemetry:opentelemetry-api:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.opentelemetry:opentelemetry-api-incubator 1.42.1-alpha
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:io.opentelemetry:opentelemetry-api-incubator:Apache-2.0
-
-<license-texts/Apache-2.0-0.txt>
--------------------------------------
--------------------------------------
-io.opentelemetry:opentelemetry-common 1.55.0
+io.opentelemetry:opentelemetry-common 1.62.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.opentelemetry:opentelemetry-common:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.opentelemetry:opentelemetry-context 1.55.0
+io.opentelemetry:opentelemetry-context 1.62.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.opentelemetry:opentelemetry-context:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.opentelemetry:opentelemetry-sdk 1.55.0
+io.opentelemetry:opentelemetry-sdk 1.62.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.opentelemetry:opentelemetry-sdk:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.opentelemetry:opentelemetry-sdk-common 1.55.0
+io.opentelemetry:opentelemetry-sdk-common 1.62.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.opentelemetry:opentelemetry-sdk-common:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.opentelemetry:opentelemetry-sdk-extension-autoconfigure 1.55.0
+io.opentelemetry:opentelemetry-sdk-extension-autoconfigure 1.62.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.opentelemetry:opentelemetry-sdk-extension-autoconfigure:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.opentelemetry:opentelemetry-sdk-extension-autoconfigure-spi 1.55.0
+io.opentelemetry:opentelemetry-sdk-extension-autoconfigure-spi 1.62.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.opentelemetry:opentelemetry-sdk-extension-autoconfigure-spi:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.opentelemetry:opentelemetry-sdk-logs 1.55.0
+io.opentelemetry:opentelemetry-sdk-logs 1.62.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.opentelemetry:opentelemetry-sdk-logs:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.opentelemetry:opentelemetry-sdk-metrics 1.55.0
+io.opentelemetry:opentelemetry-sdk-metrics 1.62.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.opentelemetry:opentelemetry-sdk-metrics:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.opentelemetry:opentelemetry-sdk-trace 1.55.0
+io.opentelemetry:opentelemetry-sdk-trace 1.62.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.opentelemetry:opentelemetry-sdk-trace:Apache-2.0
 
@@ -1391,23 +1391,9 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:io.opentelemetry:opentelemetry-s
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.opentelemetry.semconv:opentelemetry-semconv 1.25.0-alpha
+io.opentelemetry.semconv:opentelemetry-semconv 1.29.0-alpha
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.opentelemetry.semconv:opentelemetry-semconv:Apache-2.0
-
-<license-texts/Apache-2.0-0.txt>
--------------------------------------
--------------------------------------
-io.opentelemetry.semconv:opentelemetry-semconv 1.26.0-alpha
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:io.opentelemetry.semconv:opentelemetry-semconv:Apache-2.0
-
-<license-texts/Apache-2.0-0.txt>
--------------------------------------
--------------------------------------
-io.opentelemetry.semconv:opentelemetry-semconv-incubating 1.26.0-alpha
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:io.opentelemetry.semconv:opentelemetry-semconv-incubating:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
@@ -1419,46 +1405,25 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:io.perfmark:perfmark-api:Apache-
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.projectreactor.netty:reactor-netty-core 1.2.8
+io.projectreactor.netty:reactor-netty-core 1.2.18
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.projectreactor.netty:reactor-netty-core:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.projectreactor.netty:reactor-netty-http 1.2.8
+io.projectreactor.netty:reactor-netty-http 1.2.18
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.projectreactor.netty:reactor-netty-http:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-io.projectreactor:reactor-core 3.4.38
+io.projectreactor:reactor-core 3.7.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:io.projectreactor:reactor-core:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
--------------------------------------
--------------------------------------
-io.projectreactor:reactor-core 3.4.41
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:io.projectreactor:reactor-core:Apache-2.0
-
-<license-texts/Apache-2.0-0.txt>
--------------------------------------
--------------------------------------
-io.projectreactor:reactor-core 3.6.9
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:io.projectreactor:reactor-core:Apache-2.0
-
-<license-texts/Apache-2.0-0.txt>
--------------------------------------
--------------------------------------
-javax.annotation:javax.annotation-api 1.2
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:javax.annotation:javax.annotation-api:(CDDL-1.1_OR_GPL-2.0-with-classpath-exception)
-
-<license-texts/EPL-1.0_OR_GPL-2.0_OR_LGPL-2.1-0.txt>
 -------------------------------------
 -------------------------------------
 javax.annotation:javax.annotation-api 1.3.2
@@ -1482,7 +1447,14 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:javax.resource:connector-api:(CD
 <license-texts/EPL-1.0_OR_GPL-2.0_OR_LGPL-2.1-0.txt>
 -------------------------------------
 -------------------------------------
-JetBrains.Annotations 2025.2.2
+javax.validation:validation-api 2.0.0.Final
+-------------------------------------
+Source: https://app.snyk.io/vuln/snyk:lic:maven:javax.validation:validation-api:Apache-2.0
+
+<license-texts/Apache-2.0-0.txt>
+-------------------------------------
+-------------------------------------
+JetBrains.Annotations 2026.2.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:nuget:jetbrains.annotations:MIT
 
@@ -1496,14 +1468,14 @@ Source: https://app.snyk.io/vuln/snyk:lic:pip:jinja2:BSD-2-Clause
 <license-texts/Apache-2.0_OR_BSD-2-Clause_OR_MIT_OR_Protobuf-0.txt>
 -------------------------------------
 -------------------------------------
-lxml 6.0.2
+lxml 6.1.1
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:pip:lxml:BSD-3-Clause
 
 <license-texts/BSD-3-Clause-0.txt>
 -------------------------------------
 -------------------------------------
-markupsafe 2.1.5
+markupsafe 3.0.3
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:pip:markupsafe:BSD-3-Clause
 
@@ -1524,21 +1496,14 @@ Source: https://app.snyk.io/vuln/snyk:lic:nuget:microsoft.bcl.asyncinterfaces:MI
 <license-texts/MIT-0.txt>
 -------------------------------------
 -------------------------------------
-Microsoft.CSharp 4.5.0
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:nuget:microsoft.csharp:MIT
-
-<license-texts/MIT-0.txt>
--------------------------------------
--------------------------------------
-Microsoft.Data.Sqlite 9.0.11
+Microsoft.Data.Sqlite 10.0.9
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:nuget:microsoft.data.sqlite:MIT
 
 <license-texts/MIT-0.txt>
 -------------------------------------
 -------------------------------------
-Microsoft.Data.Sqlite.Core 9.0.11
+Microsoft.Data.Sqlite.Core 10.0.9
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:nuget:microsoft.data.sqlite.core:MIT
 
@@ -1552,7 +1517,7 @@ Source: https://app.snyk.io/vuln/snyk:lic:nuget:microsoft.extensions.dependencyi
 <license-texts/MIT-0.txt>
 -------------------------------------
 -------------------------------------
-Microsoft.Extensions.DependencyInjection.Abstractions 9.0.5
+Microsoft.Extensions.DependencyInjection.Abstractions 10.0.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:nuget:microsoft.extensions.dependencyinjection.abstractions:MIT
 
@@ -1566,7 +1531,7 @@ Source: https://app.snyk.io/vuln/snyk:lic:nuget:microsoft.extensions.logging:MIT
 <license-texts/MIT-0.txt>
 -------------------------------------
 -------------------------------------
-Microsoft.Extensions.Logging.Abstractions 9.0.5
+Microsoft.Extensions.Logging.Abstractions 10.0.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:nuget:microsoft.extensions.logging.abstractions:MIT
 
@@ -1615,20 +1580,6 @@ Source: https://app.snyk.io/vuln/snyk:lic:nuget:microsoft.identitymodel.tokens:M
 <license-texts/MIT-0.txt>
 -------------------------------------
 -------------------------------------
-Microsoft.NETCore.Platforms 1.1.1
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:nuget:microsoft.netcore.platforms:Microsoft-.NET-Library
-
-<license-texts/Microsoft-.NET-Library-0.txt>
--------------------------------------
--------------------------------------
-Microsoft.NETCore.Targets 1.1.3
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:nuget:microsoft.netcore.targets:Microsoft-.NET-Library
-
-<license-texts/Microsoft-.NET-Library-0.txt>
--------------------------------------
--------------------------------------
 Mono.Unix 7.1.0-final.1.21458.1
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:nuget:mono.unix:MIT
@@ -1636,11 +1587,25 @@ Source: https://app.snyk.io/vuln/snyk:lic:nuget:mono.unix:MIT
 <license-texts/MIT-0.txt>
 -------------------------------------
 -------------------------------------
-MySqlConnector 2.5.0
+MySqlConnector 2.6.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:nuget:mysqlconnector:MIT
 
 <license-texts/MIT-0.txt>
+-------------------------------------
+-------------------------------------
+net.bytebuddy:byte-buddy 1.17.4
+-------------------------------------
+Source: https://app.snyk.io/vuln/snyk:lic:maven:net.bytebuddy:byte-buddy:Apache-2.0
+
+<license-texts/Apache-2.0-0.txt>
+-------------------------------------
+-------------------------------------
+net.bytebuddy:byte-buddy-agent 1.17.4
+-------------------------------------
+Source: https://app.snyk.io/vuln/snyk:lic:maven:net.bytebuddy:byte-buddy-agent:Apache-2.0
+
+<license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
 net.java.dev.jna:jna 5.13.0
@@ -1657,28 +1622,21 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:net.java.dev.jna:jna-platform:(A
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-net.lingala.zip4j:zip4j 2.11.3
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:net.lingala.zip4j:zip4j:Apache-2.0
-
-<license-texts/Apache-2.0-0.txt>
--------------------------------------
--------------------------------------
-net.minidev:accessors-smart 2.4.9
+net.minidev:accessors-smart 2.5.2
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:net.minidev:accessors-smart:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-net.minidev:json-smart 2.4.10
+net.minidev:json-smart 2.5.2
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:net.minidev:json-smart:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-net.snowflake:snowflake-jdbc 3.27.0
+net.snowflake:snowflake-jdbc 4.0.2
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:net.snowflake:snowflake-jdbc:Apache-2.0
 
@@ -1692,14 +1650,14 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:net.sourceforge.jtds:jtds:LGPL-3
 <license-texts/LGPL-3.0-0.txt>
 -------------------------------------
 -------------------------------------
-Newtonsoft.Json 13.0.3
+Newtonsoft.Json 13.0.4
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:nuget:newtonsoft.json:MIT
 
 <license-texts/MIT-0.txt>
 -------------------------------------
 -------------------------------------
-Npgsql 9.0.4
+Npgsql 10.0.3
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:nuget:npgsql:PostgreSQL
 
@@ -1713,14 +1671,21 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:org.antlr:antlr4-runtime:BSD-3-C
 <license-texts/BSD-3-Clause-0.txt>
 -------------------------------------
 -------------------------------------
-org.apache.cassandra:java-driver-core 4.18.1
+org.apache.cassandra:java-driver-core 4.19.2
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.apache.cassandra:java-driver-core:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.apache.commons:commons-collections4 4.4
+org.apache.cassandra:java-driver-guava-shaded 4.19.2
+-------------------------------------
+Source: https://app.snyk.io/vuln/snyk:lic:maven:org.apache.cassandra:java-driver-guava-shaded:Apache-2.0
+
+<license-texts/Apache-2.0-0.txt>
+-------------------------------------
+-------------------------------------
+org.apache.commons:commons-collections4 4.5.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.apache.commons:commons-collections4:Apache-2.0
 
@@ -1741,9 +1706,23 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:org.apache.commons:commons-text:
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.apache.httpcomponents:httpclient 4.5.13
+org.apache.httpcomponents.client5:httpclient5 5.3
 -------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:org.apache.httpcomponents:httpclient:Apache-2.0
+Source: https://app.snyk.io/vuln/snyk:lic:maven:org.apache.httpcomponents.client5:httpclient5:Apache-2.0
+
+<license-texts/Apache-2.0-0.txt>
+-------------------------------------
+-------------------------------------
+org.apache.httpcomponents.core5:httpcore5 5.2.4
+-------------------------------------
+Source: https://app.snyk.io/vuln/snyk:lic:maven:org.apache.httpcomponents.core5:httpcore5:Apache-2.0
+
+<license-texts/Apache-2.0-0.txt>
+-------------------------------------
+-------------------------------------
+org.apache.httpcomponents.core5:httpcore5-h2 5.2.4
+-------------------------------------
+Source: https://app.snyk.io/vuln/snyk:lic:maven:org.apache.httpcomponents.core5:httpcore5-h2:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
@@ -1755,13 +1734,6 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:org.apache.httpcomponents:httpcl
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.apache.httpcomponents:httpcore 4.4.13
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:org.apache.httpcomponents:httpcore:Apache-2.0
-
-<license-texts/Apache-2.0-0.txt>
--------------------------------------
--------------------------------------
 org.apache.httpcomponents:httpcore 4.4.16
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.apache.httpcomponents:httpcore:Apache-2.0
@@ -1769,70 +1741,84 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:org.apache.httpcomponents:httpco
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.apache.logging.log4j:log4j-api 2.17.1
+org.apache.logging.log4j:log4j-api 2.25.4
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.apache.logging.log4j:log4j-api:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.apache.maven:maven-artifact 3.9.6
+org.apache.maven:apache-maven 3.9.16
+-------------------------------------
+Source: https://app.snyk.io/vuln/snyk:lic:maven:org.apache.maven:apache-maven:Apache-2.0
+
+<license-texts/Apache-2.0-0.txt>
+-------------------------------------
+-------------------------------------
+org.apache.maven:maven-artifact 3.9.16
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.apache.maven:maven-artifact:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.apache.maven:maven-builder-support 3.9.6
+org.apache.maven:maven-builder-support 3.9.16
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.apache.maven:maven-builder-support:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.apache.maven:maven-core 3.9.6
+org.apache.maven:maven-core 3.9.16
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.apache.maven:maven-core:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.apache.maven:maven-model-builder 3.9.6
+org.apache.maven:maven-embedder 3.9.16
+-------------------------------------
+Source: https://app.snyk.io/vuln/snyk:lic:maven:org.apache.maven:maven-embedder:Apache-2.0
+
+<license-texts/Apache-2.0-0.txt>
+-------------------------------------
+-------------------------------------
+org.apache.maven:maven-model-builder 3.9.16
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.apache.maven:maven-model-builder:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.apache.maven:maven-plugin-api 3.9.6
+org.apache.maven:maven-plugin-api 3.9.16
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.apache.maven:maven-plugin-api:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.apache.maven:maven-repository-metadata 3.9.6
+org.apache.maven:maven-repository-metadata 3.9.16
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.apache.maven:maven-repository-metadata:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.apache.maven:maven-resolver-provider 3.9.6
+org.apache.maven:maven-resolver-provider 3.9.16
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.apache.maven:maven-resolver-provider:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.apache.maven:maven-settings 3.9.6
+org.apache.maven:maven-settings 3.9.16
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.apache.maven:maven-settings:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.apache.maven:maven-settings-builder 3.9.6
+org.apache.maven:maven-settings-builder 3.9.16
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.apache.maven:maven-settings-builder:Apache-2.0
 
@@ -1846,42 +1832,42 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:org.apache.maven.plugin-tools:ma
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.apache.maven.resolver:maven-resolver-api 1.9.18
+org.apache.maven.resolver:maven-resolver-api 1.9.27
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.apache.maven.resolver:maven-resolver-api:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.apache.maven.resolver:maven-resolver-impl 1.9.18
+org.apache.maven.resolver:maven-resolver-impl 1.9.27
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.apache.maven.resolver:maven-resolver-impl:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.apache.maven.resolver:maven-resolver-named-locks 1.9.18
+org.apache.maven.resolver:maven-resolver-named-locks 1.9.27
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.apache.maven.resolver:maven-resolver-named-locks:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.apache.maven.resolver:maven-resolver-spi 1.9.18
+org.apache.maven.resolver:maven-resolver-spi 1.9.27
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.apache.maven.resolver:maven-resolver-spi:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.apache.maven.resolver:maven-resolver-util 1.9.18
+org.apache.maven.resolver:maven-resolver-util 1.9.27
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.apache.maven.resolver:maven-resolver-util:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.apache.maven.shared:maven-shared-utils 3.3.4
+org.apache.maven.shared:maven-shared-utils 3.4.2
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.apache.maven.shared:maven-shared-utils:Apache-2.0
 
@@ -1909,14 +1895,7 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:org.bouncycastle:bcutil-jdk18on:
 <license-texts/MIT-0.txt>
 -------------------------------------
 -------------------------------------
-org.checkerframework:checker-qual 3.19.0
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:org.checkerframework:checker-qual:MIT
-
-<license-texts/MIT-0.txt>
--------------------------------------
--------------------------------------
-org.checkerframework:checker-qual 3.47.0
+org.checkerframework:checker-qual 3.49.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.checkerframework:checker-qual:MIT
 
@@ -1930,7 +1909,7 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:org.codehaus.groovy:groovy-all:A
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.codehaus.mojo:animal-sniffer-annotations 1.24
+org.codehaus.mojo:animal-sniffer-annotations 1.27
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.codehaus.mojo:animal-sniffer-annotations:MIT
 
@@ -1944,21 +1923,21 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:org.codehaus.plexus:plexus-ciphe
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.codehaus.plexus:plexus-classworlds 2.7.0
+org.codehaus.plexus:plexus-classworlds 2.11.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.codehaus.plexus:plexus-classworlds:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.codehaus.plexus:plexus-component-annotations 2.1.0
+org.codehaus.plexus:plexus-component-annotations 2.2.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.codehaus.plexus:plexus-component-annotations:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.codehaus.plexus:plexus-interpolation 1.26
+org.codehaus.plexus:plexus-interpolation 1.29
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.codehaus.plexus:plexus-interpolation:Apache-2.0
 
@@ -1972,7 +1951,7 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:org.codehaus.plexus:plexus-sec-d
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.codehaus.plexus:plexus-utils 3.5.1
+org.codehaus.plexus:plexus-utils 3.6.1
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.codehaus.plexus:plexus-utils:Apache-2.0
 
@@ -1993,42 +1972,42 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:org.conscrypt:conscrypt-openjdk-
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.eclipse.jetty:jetty-http 12.0.21
+org.eclipse.jetty:jetty-http 12.1.7
 -------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:org.eclipse.jetty:jetty-http:(Apache-2.0_OR_EPL-1.0)
+Source: https://app.snyk.io/vuln/snyk:lic:maven:org.eclipse.jetty:jetty-http:(Apache-2.0_OR_EPL-2.0)
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.eclipse.jetty:jetty-io 12.0.21
+org.eclipse.jetty:jetty-io 12.1.7
 -------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:org.eclipse.jetty:jetty-io:(Apache-2.0_OR_EPL-1.0)
+Source: https://app.snyk.io/vuln/snyk:lic:maven:org.eclipse.jetty:jetty-io:(Apache-2.0_OR_EPL-2.0)
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.eclipse.jetty:jetty-server 12.0.21
+org.eclipse.jetty:jetty-server 12.1.7
 -------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:org.eclipse.jetty:jetty-server:(Apache-2.0_OR_EPL-1.0)
+Source: https://app.snyk.io/vuln/snyk:lic:maven:org.eclipse.jetty:jetty-server:(Apache-2.0_OR_EPL-2.0)
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.eclipse.jetty:jetty-util 12.0.21
+org.eclipse.jetty:jetty-util 12.1.7
 -------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:org.eclipse.jetty:jetty-util:(Apache-2.0_OR_EPL-1.0)
+Source: https://app.snyk.io/vuln/snyk:lic:maven:org.eclipse.jetty:jetty-util:(Apache-2.0_OR_EPL-2.0)
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.eclipse.sisu:org.eclipse.sisu.inject 0.9.0.M2
+org.eclipse.sisu:org.eclipse.sisu.inject 1.0.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.eclipse.sisu:org.eclipse.sisu.inject:EPL-1.0
 
 <license-texts/EPL-1.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.eclipse.sisu:org.eclipse.sisu.plexus 0.9.0.M2
+org.eclipse.sisu:org.eclipse.sisu.plexus 1.0.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.eclipse.sisu:org.eclipse.sisu.plexus:EPL-1.0
 
@@ -2042,56 +2021,49 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:org.firebirdsql.jdbc:jaybird-jdk
 <license-texts/BSD-3-Clause-0.txt>
 -------------------------------------
 -------------------------------------
-org.flywaydb:flyway-database-clickhouse 10.24.0
+org.flywaydb:flyway-database-clickhouse 10.25.15
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.flywaydb:flyway-database-clickhouse:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.flywaydb:flyway-database-cubrid 10.24.0
+org.flywaydb:flyway-database-cubrid 10.25.15
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.flywaydb:flyway-database-cubrid:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.flywaydb:flyway-database-databricks ${project.version}
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:org.flywaydb:flyway-database-databricks:Apache-2.0
-
-<license-texts/Apache-2.0-0.txt>
--------------------------------------
--------------------------------------
-org.flywaydb:flyway-database-db2zos 10.24.0
+org.flywaydb:flyway-database-db2zos 10.25.15
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.flywaydb:flyway-database-db2zOS:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.flywaydb:flyway-database-duckdb 10.24.0
+org.flywaydb:flyway-database-duckdb 10.25.15
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.flywaydb:flyway-database-duckdb:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.flywaydb:flyway-database-ignite 10.24.0
+org.flywaydb:flyway-database-ignite 10.25.15
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.flywaydb:flyway-database-ignite:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.flywaydb:flyway-database-iris 10.24.0
+org.flywaydb:flyway-database-iris 10.25.15
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.flywaydb:flyway-database-iris:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.flywaydb:flyway-database-oceanbase 10.24.0
+org.flywaydb:flyway-database-oceanbase 10.25.15
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.flywaydb:flyway-database-oceanbase:Apache-2.0
 
@@ -2105,28 +2077,28 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:org.flywaydb:flyway-database-pos
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.flywaydb:flyway-database-questdb 10.24.0
+org.flywaydb:flyway-database-questdb 10.25.15
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.flywaydb:flyway-database-questdb:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.flywaydb:flyway-database-tidb 10.24.0
+org.flywaydb:flyway-database-tidb 10.25.15
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.flywaydb:flyway-database-tidb:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.flywaydb:flyway-database-timeplus 10.24.0
+org.flywaydb:flyway-database-timeplus 10.25.15
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.flywaydb:flyway-database-timeplus:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.flywaydb:flyway-database-yugabytedb 10.24.0
+org.flywaydb:flyway-database-yugabytedb 10.25.15
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.flywaydb:flyway-database-yugabytedb:Apache-2.0
 
@@ -2210,9 +2182,11 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:org.jboss.logging:jboss-logging:
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.json:json 20231013
+org.jetbrains:annotations 24.1.0
 -------------------------------------
-<license-texts/json-public-domain.txt>
+Source: https://app.snyk.io/vuln/snyk:lic:maven:org.jetbrains:annotations:Apache-2.0
+
+<license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
 org.jspecify:jspecify 1.0.0
@@ -2222,63 +2196,35 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:org.jspecify:jspecify:Apache-2.0
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.mariadb.jdbc:mariadb-java-client 2.7.11
+org.mariadb.jdbc:mariadb-java-client 2.7.13
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.mariadb.jdbc:mariadb-java-client:LGPL-2.1
 
 <license-texts/LGPL-2.1-0.txt>
 -------------------------------------
 -------------------------------------
-org.mock-server:mockserver-client-java 5.15.0
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:org.mock-server:mockserver-client-java:Apache-2.0
-
-<license-texts/Apache-2.0-0.txt>
--------------------------------------
--------------------------------------
-org.mock-server:mockserver-core 5.15.0
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:org.mock-server:mockserver-core:Apache-2.0
-
-<license-texts/Apache-2.0-0.txt>
--------------------------------------
--------------------------------------
-org.mock-server:mockserver-junit-jupiter 5.15.0
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:org.mock-server:mockserver-junit-jupiter:Apache-2.0
-
-<license-texts/Apache-2.0-0.txt>
--------------------------------------
--------------------------------------
-org.mock-server:mockserver-netty 5.15.0
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:org.mock-server:mockserver-netty:Apache-2.0
-
-<license-texts/Apache-2.0-0.txt>
--------------------------------------
--------------------------------------
-org.mongodb:bson 5.1.2
+org.mongodb:bson 5.6.1
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.mongodb:bson:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.mongodb:bson-record-codec 5.1.2
+org.mongodb:bson-record-codec 5.6.1
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.mongodb:bson-record-codec:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.mongodb:mongodb-driver-core 5.1.2
+org.mongodb:mongodb-driver-core 5.6.1
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.mongodb:mongodb-driver-core:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.mongodb:mongodb-driver-sync 5.1.2
+org.mongodb:mongodb-driver-sync 5.6.1
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.mongodb:mongodb-driver-sync:Apache-2.0
 
@@ -2292,14 +2238,7 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:org.osgi:org.osgi.core:Apache-2.
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-org.ow2.asm:asm 9.2
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:org.ow2.asm:asm:BSD-3-Clause
-
-<license-texts/BSD-3-Clause-0.txt>
--------------------------------------
--------------------------------------
-org.ow2.asm:asm 9.3
+org.ow2.asm:asm 9.9.1
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.ow2.asm:asm:BSD-3-Clause
 
@@ -2341,18 +2280,11 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:org.postgresql:postgresql:BSD-2-
 <license-texts/Apache-2.0_OR_BSD-2-Clause_OR_MIT_OR_Protobuf-0.txt>
 -------------------------------------
 -------------------------------------
-org.projectlombok:lombok 1.18.38
+org.projectlombok:lombok 1.18.46
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.projectlombok:lombok:MIT
 
 <license-texts/MIT-0.txt>
--------------------------------------
--------------------------------------
-org.reactivestreams:reactive-streams 1.0.3
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:org.reactivestreams:reactive-streams:CC0-1.0
-
-<license-texts/CC0-1.0-0.txt>
 -------------------------------------
 -------------------------------------
 org.reactivestreams:reactive-streams 1.0.4
@@ -2362,11 +2294,18 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:org.reactivestreams:reactive-str
 <license-texts/MIT-0-0.txt>
 -------------------------------------
 -------------------------------------
-org.semver4j:semver4j 5.3.0
+org.semver4j:semver4j 5.8.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.semver4j:semver4j:MIT
 
 <license-texts/MIT-0.txt>
+-------------------------------------
+-------------------------------------
+org.slf4j:jcl-over-slf4j 1.7.30
+-------------------------------------
+Source: https://app.snyk.io/vuln/snyk:lic:maven:org.slf4j:jcl-over-slf4j:Apache-2.0
+
+<license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
 org.slf4j:slf4j-api 1.7.30
@@ -2383,6 +2322,13 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:org.slf4j:slf4j-nop:MIT
 <license-texts/MIT-0.txt>
 -------------------------------------
 -------------------------------------
+org.snakeyaml:snakeyaml-engine 2.10
+-------------------------------------
+Source: https://app.snyk.io/vuln/snyk:lic:maven:org.snakeyaml:snakeyaml-engine:Apache-2.0
+
+<license-texts/Apache-2.0-0.txt>
+-------------------------------------
+-------------------------------------
 org.threeten:threetenbp 1.7.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:org.threeten:threetenbp:BSD-3-Clause
@@ -2397,21 +2343,21 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:org.xerial:sqlite-jdbc:Apache-2.
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-packaging 24.0
+packaging 26.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:pip:packaging:(Apache-2.0_OR_BSD-2-Clause)
 
 <license-texts/Apache-2.0_OR_BSD-2-Clause_OR_MIT_OR_Protobuf-0.txt>
 -------------------------------------
 -------------------------------------
-pathspec 0.12.1
+pathspec 1.1.1
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:pip:pathspec:MPL-2.0
 
 <license-texts/EPL-1.0_OR_MPL-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-platformdirs 4.5.0
+platformdirs 4.10.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:pip:platformdirs:MIT
 
@@ -2425,21 +2371,21 @@ Source: https://app.snyk.io/vuln/snyk:lic:pip:pluggy:MIT
 <license-texts/MIT-0.txt>
 -------------------------------------
 -------------------------------------
-pygments 2.19.2
+pygments 2.20.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:pip:pygments:BSD-2-Clause
 
 <license-texts/Apache-2.0_OR_BSD-2-Clause_OR_MIT_OR_Protobuf-0.txt>
 -------------------------------------
 -------------------------------------
-pytest 9.0.1
+pytest 9.0.3
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:pip:pytest:MIT
 
 <license-texts/MIT-0.txt>
 -------------------------------------
 -------------------------------------
-pyyaml 6.0.1
+pyyaml 6.0.3
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:pip:pyyaml:MIT
 
@@ -2453,338 +2399,254 @@ Source: https://app.snyk.io/vuln/snyk:lic:nuget:quikgraph:MS-PL
 <license-texts/MS-PL-0.txt>
 -------------------------------------
 -------------------------------------
-regex 2025.11.3
+regex 2026.6.28
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:pip:regex:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-Snowflake.Data 5.1.0
+Snowflake.Data 5.7.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:nuget:snowflake.data:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-software.amazon.awssdk:annotations 2.20.93
+software.amazon.awssdk:annotations 2.44.14
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:annotations:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-software.amazon.awssdk:annotations 2.32.22
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:annotations:Apache-2.0
-
-<license-texts/Apache-2.0-0.txt>
--------------------------------------
--------------------------------------
-software.amazon.awssdk:apache-client 2.20.93
+software.amazon.awssdk:apache-client 2.44.14
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:apache-client:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-software.amazon.awssdk:apache-client 2.32.22
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:apache-client:Apache-2.0
-
-<license-texts/Apache-2.0-0.txt>
--------------------------------------
--------------------------------------
-software.amazon.awssdk:arns 2.32.22
+software.amazon.awssdk:arns 2.44.14
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:arns:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-software.amazon.awssdk:auth 2.20.93
+software.amazon.awssdk:auth 2.44.14
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:auth:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-software.amazon.awssdk:auth 2.32.22
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:auth:Apache-2.0
-
-<license-texts/Apache-2.0-0.txt>
--------------------------------------
--------------------------------------
-software.amazon.awssdk:aws-core 2.20.93
+software.amazon.awssdk:aws-core 2.44.14
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:aws-core:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-software.amazon.awssdk:aws-core 2.32.22
+software.amazon.awssdk:aws-crt-client 2.41.3
 -------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:aws-core:Apache-2.0
+Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:aws-crt-client:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-software.amazon.awssdk:aws-json-protocol 2.20.93
+software.amazon.awssdk:aws-json-protocol 2.41.3
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:aws-json-protocol:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-software.amazon.awssdk:aws-query-protocol 2.32.22
+software.amazon.awssdk:aws-query-protocol 2.44.14
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:aws-query-protocol:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-software.amazon.awssdk:aws-xml-protocol 2.32.22
+software.amazon.awssdk:aws-xml-protocol 2.44.14
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:aws-xml-protocol:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-software.amazon.awssdk:checksums 2.32.22
+software.amazon.awssdk:checksums 2.44.14
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:checksums:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-software.amazon.awssdk:checksums-spi 2.32.22
+software.amazon.awssdk:checksums-spi 2.44.14
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:checksums-spi:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-software.amazon.awssdk:crt-core 2.32.22
+software.amazon.awssdk.crt:aws-crt 0.40.3
+-------------------------------------
+Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk.crt:aws-crt:Apache-2.0
+
+<license-texts/Apache-2.0-0.txt>
+-------------------------------------
+-------------------------------------
+software.amazon.awssdk:crt-core 2.44.14
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:crt-core:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-software.amazon.awssdk:endpoints-spi 2.20.93
+software.amazon.awssdk:endpoints-spi 2.44.14
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:endpoints-spi:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-software.amazon.awssdk:endpoints-spi 2.32.22
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:endpoints-spi:Apache-2.0
-
-<license-texts/Apache-2.0-0.txt>
--------------------------------------
--------------------------------------
-software.amazon.awssdk:http-auth 2.32.22
+software.amazon.awssdk:http-auth 2.44.14
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:http-auth:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-software.amazon.awssdk:http-auth-aws 2.32.22
+software.amazon.awssdk:http-auth-aws 2.44.14
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:http-auth-aws:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-software.amazon.awssdk:http-auth-aws-eventstream 2.32.22
+software.amazon.awssdk:http-auth-aws-eventstream 2.44.14
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:http-auth-aws-eventstream:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-software.amazon.awssdk:http-auth-spi 2.32.22
+software.amazon.awssdk:http-auth-spi 2.44.14
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:http-auth-spi:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-software.amazon.awssdk:http-client-spi 2.20.93
+software.amazon.awssdk:http-client-spi 2.44.14
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:http-client-spi:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-software.amazon.awssdk:http-client-spi 2.32.22
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:http-client-spi:Apache-2.0
-
-<license-texts/Apache-2.0-0.txt>
--------------------------------------
--------------------------------------
-software.amazon.awssdk:identity-spi 2.32.22
+software.amazon.awssdk:identity-spi 2.44.14
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:identity-spi:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-software.amazon.awssdk:json-utils 2.20.93
+software.amazon.awssdk:json-utils 2.44.14
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:json-utils:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-software.amazon.awssdk:json-utils 2.32.22
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:json-utils:Apache-2.0
-
-<license-texts/Apache-2.0-0.txt>
--------------------------------------
--------------------------------------
-software.amazon.awssdk:metrics-spi 2.20.93
+software.amazon.awssdk:metrics-spi 2.44.14
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:metrics-spi:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-software.amazon.awssdk:metrics-spi 2.32.22
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:metrics-spi:Apache-2.0
-
-<license-texts/Apache-2.0-0.txt>
--------------------------------------
--------------------------------------
-software.amazon.awssdk:netty-nio-client 2.20.93
+software.amazon.awssdk:netty-nio-client 2.44.14
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:netty-nio-client:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-software.amazon.awssdk:netty-nio-client 2.32.22
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:netty-nio-client:Apache-2.0
-
-<license-texts/Apache-2.0-0.txt>
--------------------------------------
--------------------------------------
-software.amazon.awssdk:profiles 2.20.93
+software.amazon.awssdk:profiles 2.44.14
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:profiles:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-software.amazon.awssdk:profiles 2.32.22
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:profiles:Apache-2.0
-
-<license-texts/Apache-2.0-0.txt>
--------------------------------------
--------------------------------------
-software.amazon.awssdk:protocol-core 2.20.93
+software.amazon.awssdk:protocol-core 2.44.14
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:protocol-core:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-software.amazon.awssdk:protocol-core 2.32.22
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:protocol-core:Apache-2.0
-
-<license-texts/Apache-2.0-0.txt>
--------------------------------------
--------------------------------------
-software.amazon.awssdk:regions 2.20.93
+software.amazon.awssdk:regions 2.44.14
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:regions:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-software.amazon.awssdk:regions 2.32.22
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:regions:Apache-2.0
-
-<license-texts/Apache-2.0-0.txt>
--------------------------------------
--------------------------------------
-software.amazon.awssdk:retries 2.32.22
+software.amazon.awssdk:retries 2.44.14
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:retries:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-software.amazon.awssdk:retries-spi 2.32.22
+software.amazon.awssdk:retries-spi 2.44.14
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:retries-spi:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-software.amazon.awssdk:s3 2.32.22
+software.amazon.awssdk:s3 2.44.14
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:s3:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-software.amazon.awssdk:sdk-core 2.20.93
+software.amazon.awssdk:sdk-core 2.44.14
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:sdk-core:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-software.amazon.awssdk:sdk-core 2.32.22
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:sdk-core:Apache-2.0
-
-<license-texts/Apache-2.0-0.txt>
--------------------------------------
--------------------------------------
-software.amazon.awssdk:secretsmanager 2.20.93
+software.amazon.awssdk:secretsmanager 2.41.3
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:secretsmanager:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-software.amazon.awssdk:third-party-jackson-core 2.20.93
+software.amazon.awssdk:third-party-jackson-core 2.44.14
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:third-party-jackson-core:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-software.amazon.awssdk:third-party-jackson-core 2.32.22
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:third-party-jackson-core:Apache-2.0
-
-<license-texts/Apache-2.0-0.txt>
--------------------------------------
--------------------------------------
-software.amazon.awssdk:utils 2.20.93
+software.amazon.awssdk:utils 2.44.14
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:utils:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-software.amazon.awssdk:utils 2.32.22
+software.amazon.awssdk:utils-lite 2.44.14
 -------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:utils:Apache-2.0
+Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:utils-lite:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
@@ -2796,40 +2658,47 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.eventstream:even
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-sqlfluff 4.1.0
+software.aws.mcs:aws-sigv4-auth-cassandra-java-driver-plugin 4.0.9
+-------------------------------------
+Source: https://app.snyk.io/vuln/snyk:lic:maven:software.aws.mcs:aws-sigv4-auth-cassandra-java-driver-plugin:Apache-2.0
+
+<license-texts/Apache-2.0-0.txt>
+-------------------------------------
+-------------------------------------
+sqlfluff 4.2.2
 -------------------------------------
 <license-texts/sqlfluff-mit.txt>
 -------------------------------------
 -------------------------------------
-SQLitePCLRaw.bundle_e_sqlite3 2.1.10
+SQLitePCLRaw.bundle_e_sqlite3 2.1.11
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:nuget:sqlitepclraw.bundle_e_sqlite3:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-SQLitePCLRaw.core 2.1.10
+SQLitePCLRaw.core 2.1.11
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:nuget:sqlitepclraw.core:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-SQLitePCLRaw.lib.e_sqlite3 2.1.10
+SQLitePCLRaw.lib.e_sqlite3 2.1.11
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:nuget:sqlitepclraw.lib.e_sqlite3:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-SQLitePCLRaw.provider.e_sqlite3 2.1.10
+SQLitePCLRaw.provider.e_sqlite3 2.1.11
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:nuget:sqlitepclraw.provider.e_sqlite3:Apache-2.0
 
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-Superpower 3.1.0
+Superpower 3.2.1
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:nuget:superpower:Apache-2.0
 
@@ -2843,23 +2712,9 @@ Source: https://app.snyk.io/vuln/snyk:lic:nuget:system.codedom:MIT
 <license-texts/MIT-0.txt>
 -------------------------------------
 -------------------------------------
-System.CommandLine 2.0.0-beta4.22272.1
+System.CommandLine 2.0.9
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:nuget:system.commandline:MIT
-
-<license-texts/MIT-0.txt>
--------------------------------------
--------------------------------------
-System.CommandLine.NamingConventionBinder 2.0.0-beta4.22272.1
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:nuget:system.commandline.namingconventionbinder:MIT
-
-<license-texts/MIT-0.txt>
--------------------------------------
--------------------------------------
-System.Diagnostics.DiagnosticSource 5.0.0
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:nuget:system.diagnostics.diagnosticsource:MIT
 
 <license-texts/MIT-0.txt>
 -------------------------------------
@@ -2885,72 +2740,9 @@ Source: https://app.snyk.io/vuln/snyk:lic:nuget:system.management:MIT
 <license-texts/MIT-0.txt>
 -------------------------------------
 -------------------------------------
-System.Memory 4.5.3
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:nuget:system.memory:MIT
-
-<license-texts/MIT-0.txt>
--------------------------------------
--------------------------------------
 System.Memory.Data 1.0.2
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:nuget:system.memory.data:MIT
-
-<license-texts/MIT-0.txt>
--------------------------------------
--------------------------------------
-System.Numerics.Vectors 4.5.0
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:nuget:system.numerics.vectors:MIT
-
-<license-texts/MIT-0.txt>
--------------------------------------
--------------------------------------
-System.Runtime 4.3.1
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:nuget:system.runtime:Microsoft-.NET-Library
-
-<license-texts/Microsoft-.NET-Library-0.txt>
--------------------------------------
--------------------------------------
-System.Security.Cryptography.Cng 4.5.0
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:nuget:system.security.cryptography.cng:MIT
-
-<license-texts/MIT-0.txt>
--------------------------------------
--------------------------------------
-System.Text.Encoding 4.3.0
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:nuget:system.text.encoding:Microsoft-.NET-Library
-
-<license-texts/Microsoft-.NET-Library-0.txt>
--------------------------------------
--------------------------------------
-System.Text.Encodings.Web 4.7.2
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:nuget:system.text.encodings.web:MIT
-
-<license-texts/MIT-0.txt>
--------------------------------------
--------------------------------------
-System.Text.Json 4.7.2
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:nuget:system.text.json:MIT
-
-<license-texts/MIT-0.txt>
--------------------------------------
--------------------------------------
-System.Text.RegularExpressions 4.3.1
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:nuget:system.text.regularexpressions:Microsoft-.NET-Library
-
-<license-texts/Microsoft-.NET-Library-0.txt>
--------------------------------------
--------------------------------------
-System.Threading.Tasks.Extensions 4.5.4
--------------------------------------
-Source: https://app.snyk.io/vuln/snyk:lic:nuget:system.threading.tasks.extensions:MIT
 
 <license-texts/MIT-0.txt>
 -------------------------------------
@@ -2962,6 +2754,20 @@ Source: https://app.snyk.io/vuln/snyk:lic:pip:tblib:BSD-2-Clause
 <license-texts/Apache-2.0_OR_BSD-2-Clause_OR_MIT_OR_Protobuf-0.txt>
 -------------------------------------
 -------------------------------------
+TimeZoneConverter 7.2.0
+-------------------------------------
+Source: https://app.snyk.io/vuln/snyk:lic:nuget:timezoneconverter:MIT
+
+<license-texts/MIT-0.txt>
+-------------------------------------
+-------------------------------------
+tomli 2.4.1
+-------------------------------------
+Source: https://app.snyk.io/vuln/snyk:lic:pip:tomli:MIT
+
+<license-texts/MIT-0.txt>
+-------------------------------------
+-------------------------------------
 Tomlyn.Signed 0.17.0
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:nuget:tomlyn.signed:BSD-2-Clause
@@ -2969,9 +2775,65 @@ Source: https://app.snyk.io/vuln/snyk:lic:nuget:tomlyn.signed:BSD-2-Clause
 <license-texts/Apache-2.0_OR_BSD-2-Clause_OR_MIT_OR_Protobuf-0.txt>
 -------------------------------------
 -------------------------------------
-tqdm 4.67.1
+tools.jackson.core:jackson-core 3.1.4
+-------------------------------------
+Source: https://app.snyk.io/vuln/snyk:lic:maven:tools.jackson.core:jackson-core:Apache-2.0
+
+<license-texts/Apache-2.0-0.txt>
+-------------------------------------
+-------------------------------------
+tools.jackson.core:jackson-databind 3.1.4
+-------------------------------------
+Source: https://app.snyk.io/vuln/snyk:lic:maven:tools.jackson.core:jackson-databind:Apache-2.0
+
+<license-texts/Apache-2.0-0.txt>
+-------------------------------------
+-------------------------------------
+tools.jackson.dataformat:jackson-dataformat-toml 3.1.4
+-------------------------------------
+Source: https://app.snyk.io/vuln/snyk:lic:maven:tools.jackson.dataformat:jackson-dataformat-toml:Apache-2.0
+
+<license-texts/Apache-2.0-0.txt>
+-------------------------------------
+-------------------------------------
+tools.jackson.dataformat:jackson-dataformat-xml 3.1.4
+-------------------------------------
+Source: https://app.snyk.io/vuln/snyk:lic:maven:tools.jackson.dataformat:jackson-dataformat-xml:Apache-2.0
+
+<license-texts/Apache-2.0-0.txt>
+-------------------------------------
+-------------------------------------
+tools.jackson.dataformat:jackson-dataformat-yaml 3.0.3
+-------------------------------------
+Source: https://app.snyk.io/vuln/snyk:lic:maven:tools.jackson.dataformat:jackson-dataformat-yaml:Apache-2.0
+
+<license-texts/Apache-2.0-0.txt>
+-------------------------------------
+-------------------------------------
+tqdm 4.68.3
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:pip:tqdm:MPL-2.0_AND_MIT
+
+<license-texts/MIT-0.txt>
+-------------------------------------
+-------------------------------------
+typing-extensions 4.15.0
+-------------------------------------
+Source: https://app.snyk.io/vuln/snyk:lic:pip:typing-extensions:PSF-2.0
+
+<license-texts/PSF-2.0-0.txt>
+-------------------------------------
+-------------------------------------
+uk.org.webcompere:system-stubs-core 2.1.8
+-------------------------------------
+Source: https://app.snyk.io/vuln/snyk:lic:maven:uk.org.webcompere:system-stubs-core:MIT
+
+<license-texts/MIT-0.txt>
+-------------------------------------
+-------------------------------------
+uk.org.webcompere:system-stubs-jupiter 2.1.8
+-------------------------------------
+Source: https://app.snyk.io/vuln/snyk:lic:maven:uk.org.webcompere:system-stubs-jupiter:MIT
 
 <license-texts/MIT-0.txt>
 -------------------------------------

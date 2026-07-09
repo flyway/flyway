@@ -48,11 +48,11 @@ public class PATTokenConfigurationExtensionStub implements ConfigurationExtensio
         return null;
     }
 
-    public void setEmail(String email) {
+    public void setEmail(final String email) {
         throw new FlywayRedgateEditionRequiredException("PAT Token");
     }
 
-    public void setToken(String token) {
+    public void setToken(final String token) {
         throw new FlywayRedgateEditionRequiredException("PAT Token");
     }
 

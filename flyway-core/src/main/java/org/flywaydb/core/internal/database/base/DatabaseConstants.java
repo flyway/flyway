@@ -24,8 +24,10 @@ import java.util.regex.Pattern;
 public class DatabaseConstants {
 
     public static final Pattern DATABASE_HOSTING_AZURE_URL_IDENTIFIER = Pattern.compile(".+\\.azure\\.com");
-    public static final Pattern DATABASE_HOSTING_RDS_URL_IDENTIFIER = Pattern.compile(".+\\.rds\\.([\\w-]+\\.)*amazon(aws)?\\.com(\\.\\w+)?");
-    public static final Pattern DATABASE_HOSTING_EC2_URL_IDENTIFIER = Pattern.compile("^ec2.*\\.compute(-\\d+)?\\.amazonaws\\.com");
+    public static final Pattern DATABASE_HOSTING_RDS_URL_IDENTIFIER = Pattern.compile(
+        ".+\\.rds\\.([\\w-]+\\.)*amazon(aws)?\\.com(\\.\\w+)?");
+    public static final Pattern DATABASE_HOSTING_EC2_URL_IDENTIFIER = Pattern.compile(
+        "^ec2.*\\.compute(-\\d+)?\\.amazonaws\\.com");
     public static final String DATABASE_HOSTING_EC2_HOSTNAME_IDENTIFIER = "ec2amaz";
     public static final String DATABASE_HOSTING_GCP_URL_IDENTIFIER = "socketFactory=com.google.cloud";
 
@@ -44,5 +46,4 @@ public class DatabaseConstants {
     public static final String DATABASE_HOSTING_AWS_SNOWFLAKE = "aws-snowflake";
     public static final String DATABASE_HOSTING_MONGODB_ATLAS = "mongodb-atlas";
     public static final String DATABASE_HOSTING_LOCAL = "local";
-
 }

@@ -61,7 +61,7 @@ public class CockroachDBDatabaseType extends BaseDatabaseType {
     }
 
     @Override
-    public boolean handlesJDBCUrl(String url) {
+    public boolean handlesJDBCUrl(final String url) {
         return url.startsWith("jdbc:postgresql:") || url.startsWith("jdbc:p6spy:postgresql:");
     }
 
@@ -72,7 +72,7 @@ public class CockroachDBDatabaseType extends BaseDatabaseType {
     }
 
     @Override
-    public String getDriverClass(String url, ClassLoader classLoader) {
+    public String getDriverClass(final String url, final ClassLoader classLoader) {
         if (url.startsWith("jdbc:p6spy:postgresql:")) {
             return "com.p6spy.engine.spy.P6SpyDriver";
         }
@@ -80,9 +80,11 @@ public class CockroachDBDatabaseType extends BaseDatabaseType {
     }
 
     @Override
-    public boolean handlesDatabaseProductNameAndVersion(String databaseProductName, String databaseProductVersion, Connection connection) {
+    public boolean handlesDatabaseProductNameAndVersion(final String databaseProductName,
+        final String databaseProductVersion,
+        final Connection connection) {
         if (databaseProductName.startsWith("PostgreSQL")) {
-            String selectVersionQueryOutput = BaseDatabaseType.getSelectVersionOutput(connection);
+            final String selectVersionQueryOutput = BaseDatabaseType.getSelectVersionOutput(connection);
             return selectVersionQueryOutput.contains("CockroachDB");
         }
 
@@ -90,17 +92,21 @@ public class CockroachDBDatabaseType extends BaseDatabaseType {
     }
 
     @Override
-    public Database createDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+    public Database createDatabase(final Configuration configuration,
+        final JdbcConnectionFactory jdbcConnectionFactory,
+        final StatementInterceptor statementInterceptor) {
         return new CockroachDBDatabase(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
     @Override
-    public Parser createParser(Configuration configuration, ResourceProvider resourceProvider, ParsingContext parsingContext) {
+    public Parser createParser(final Configuration configuration,
+        final ResourceProvider resourceProvider,
+        final ParsingContext parsingContext) {
         return new CockroachDBParser(configuration, parsingContext);
     }
 
     @Override
-    public DatabaseExecutionStrategy createExecutionStrategy(Connection connection) {
+    public DatabaseExecutionStrategy createExecutionStrategy(final Connection connection) {
         if (connection == null) {
             return new DefaultExecutionStrategy();
         }
@@ -109,12 +115,13 @@ public class CockroachDBDatabaseType extends BaseDatabaseType {
     }
 
     @Override
-    public ExecutionTemplate createTransactionalExecutionTemplate(Connection connection, boolean rollbackOnException) {
+    public ExecutionTemplate createTransactionalExecutionTemplate(final Connection connection,
+        final boolean rollbackOnException) {
         return new CockroachRetryingTransactionalExecutionTemplate(connection, rollbackOnException);
     }
 
     @Override
-    public void setDefaultConnectionProps(String url, Properties props, ClassLoader classLoader) {
+    public void setDefaultConnectionProps(final String url, final Properties props, final ClassLoader classLoader) {
         props.put("applicationName", BaseDatabaseType.APPLICATION_NAME);
     }
 
@@ -135,16 +142,17 @@ public class CockroachDBDatabaseType extends BaseDatabaseType {
 
 
 
-    @Override
-    public Properties getExternalAuthProperties(String url, String username) {
-        PgpassFileReader pgpassFileReader = new PgpassFileReader();
 
-        if (pgpassFileReader.getPgpassFilePath() != null) {
-            LOG.info(org.flywaydb.core.internal.license.FlywayUpgradeMessage.generate(
-                    "pgpass file '" + pgpassFileReader.getPgpassFilePath() + "'",
-                    "use this for database authentication"));
-        }
-        return super.getExternalAuthProperties(url, username);
+    @Override
+    public Properties getExternalAuthProperties(final String url, final String username) {
+        final PgpassFileReader pgpassFileReader = new PgpassFileReader();
+
+                if (pgpassFileReader.getPgpassFilePath() != null) {
+                    LOG.info(org.flywaydb.core.internal.license.FlywayUpgradeMessage.generate(
+                            "pgpass file '" + pgpassFileReader.getPgpassFilePath() + "'",
+                            "use this for database authentication"));
+                }
+                return super.getExternalAuthProperties(url, username);
 
 
 

@@ -43,9 +43,9 @@ public interface SqlStatement {
     String getDelimiter();
 
     /**
-     * Whether the execution should take place inside a transaction. Almost all implementation should return {@code true}.
-     * This however makes it possible to execute certain migrations outside a transaction. This is useful for databases
-     * like PostgreSQL and SQL Server where certain statement can only execute outside a transaction.
+     * Whether the execution should take place inside a transaction. Almost all implementation should return
+     * {@code true}. This however makes it possible to execute certain migrations outside a transaction. This is useful
+     * for databases like PostgreSQL and SQL Server where certain statement can only execute outside a transaction.
      *
      * @return {@code true} if a transaction should be used (highly recommended), or {@code false} if not.
      */
@@ -55,7 +55,6 @@ public interface SqlStatement {
      * @return Whether this statement can be run as part of batch or whether it must be run individually.
      */
     boolean isBatchable();
-
 
     /**
      * @return The external SQL script referenced by this statement. {@code null} if none.

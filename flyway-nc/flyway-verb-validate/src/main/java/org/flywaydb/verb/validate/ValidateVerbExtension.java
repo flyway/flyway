@@ -36,6 +36,7 @@ import org.flywaydb.core.api.output.ValidateOutput;
 import org.flywaydb.core.api.output.ValidateResult;
 import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
 import org.flywaydb.core.extensibility.CachingVerbExtension;
+import org.flywaydb.core.extensibility.ConfigurationParameter;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
@@ -60,6 +61,24 @@ public class ValidateVerbExtension extends CachingVerbExtension {
     }
 
     @Override
+    public List<ConfigurationParameter> getConfigurationParameters() {
+        return List.of(new ConfigurationParameter("ignoreMigrationPatterns",
+                "Patterns of migrations and states to ignore during validate",
+                false),
+            new ConfigurationParameter("validateMigrationNaming",
+                "Validate file names of SQL migrations (including callbacks)",
+                false),
+            new ConfigurationParameter("cherryPick",
+                "[teams] Comma separated list of migrations that Flyway should consider when validating",
+                false));
+    }
+
+    @Override
+    public String getExample() {
+        return "flyway validate -ignoreMigrationPatterns=*:missing";
+    }
+
+    @Override
     public OperationResult executeVerb(final Configuration configuration) {
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
@@ -68,7 +87,9 @@ public class ValidateVerbExtension extends CachingVerbExtension {
 
         final NativeConnectorsDatabase database = context.getDatabase();
 
-        final CallbackManager callbackManager = new CallbackManager(configuration, context.getCallbackResources(), Event::fromId);
+        final CallbackManager callbackManager = new CallbackManager(configuration,
+            context.getCallbackResources(),
+            Event::fromId);
 
         callbackManager.handleEvent(Event.BEFORE_VALIDATE, database, configuration, context.getParsingContext());
 
@@ -145,12 +166,13 @@ public class ValidateVerbExtension extends CachingVerbExtension {
             new ArrayList<>());
     }
 
-    private List<ValidateOutput> getInvalidMigrations(List<MigrationInfo> migrations, Configuration configuration) {
+    private List<ValidateOutput> getInvalidMigrations(final List<MigrationInfo> migrations,
+        final Configuration configuration) {
         final boolean pendingIgnored = ValidatePatternUtils.isPendingIgnored(configuration.getIgnoreMigrationPatterns());
         final boolean futureIgnored = ValidatePatternUtils.isFutureIgnored(configuration.getIgnoreMigrationPatterns());
         final MigrationVersion appliedBaselineVersion = getAppliedBaselineVersion(migrations);
 
-        List<ValidateOutput> result = new ArrayList<>();
+        final List<ValidateOutput> result = new ArrayList<>();
 
         result.addAll(getTypeMismatch(migrations, appliedBaselineVersion));
         result.addAll(getChecksumChanged(migrations, pendingIgnored, appliedBaselineVersion));
@@ -176,7 +198,7 @@ public class ValidateVerbExtension extends CachingVerbExtension {
     }
 
     private static List<ValidateOutput> getOutdatedRepeatables(final List<MigrationInfo> migrations,
-        boolean pendingIgnored) {
+        final boolean pendingIgnored) {
         return migrations.stream()
             .filter(x -> !pendingIgnored)
             .filter(x -> x.getState() == MigrationState.OUTDATED)
@@ -198,7 +220,7 @@ public class ValidateVerbExtension extends CachingVerbExtension {
             .toList();
     }
 
-    private static ValidateOutput typeMismatchesToValidateOutput(MigrationInfo mismatch) {
+    private static ValidateOutput typeMismatchesToValidateOutput(final MigrationInfo mismatch) {
         final StringBuilder errorMessage = new StringBuilder();
         final MigrationVersion version = mismatch.getVersion();
         errorMessage.append("Detected type mismatch for migration version ");
@@ -269,7 +291,7 @@ public class ValidateVerbExtension extends CachingVerbExtension {
     }
 
     private static List<ValidateOutput> getMissingAndFutureSuccessMigrations(final List<MigrationInfo> migrations,
-        boolean futureIgnored) {
+        final boolean futureIgnored) {
         return migrations.stream()
             .filter(x -> x.getState() == MigrationState.MISSING_SUCCESS || (!futureIgnored
                 && x.getState() == MigrationState.FUTURE_SUCCESS))
@@ -335,7 +357,7 @@ public class ValidateVerbExtension extends CachingVerbExtension {
     }
 
     private static List<ValidateOutput> getPendingVersionedMigrations(final List<MigrationInfo> migrations,
-        boolean pendingIgnored) {
+        final boolean pendingIgnored) {
         return migrations.stream()
             .filter(x -> !pendingIgnored)
             .filter(x -> x.getState() == MigrationState.PENDING)
@@ -349,7 +371,7 @@ public class ValidateVerbExtension extends CachingVerbExtension {
     }
 
     private static List<ValidateOutput> getPendingRepeatableMigrations(final List<MigrationInfo> migrations,
-        boolean pendingIgnored) {
+        final boolean pendingIgnored) {
         return migrations.stream()
             .filter(x -> !pendingIgnored)
             .filter(x -> x.getState() == MigrationState.PENDING)
@@ -364,7 +386,7 @@ public class ValidateVerbExtension extends CachingVerbExtension {
     }
 
     private static List<ValidateOutput> getFailedVersionedMigrations(final List<MigrationInfo> migrations,
-        boolean futureIgnored) {
+        final boolean futureIgnored) {
         return migrations.stream()
             .filter(x -> x.getState() == MigrationState.FAILED
                 || x.getState() == MigrationState.MISSING_FAILED

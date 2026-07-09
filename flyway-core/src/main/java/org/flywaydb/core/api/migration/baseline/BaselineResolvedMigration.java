@@ -29,37 +29,45 @@ import org.flywaydb.core.internal.info.MigrationInfoContext;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 
 public class BaselineResolvedMigration extends ResolvedMigrationImpl {
-    public BaselineResolvedMigration(MigrationVersion version,
-                                     String description,
-                                     String script,
-                                     Integer checksum,
-                                     Integer equivalentChecksum,
-                                     String physicalLocation,
-                                     MigrationExecutor executor,
-                                     Configuration config) {
-        this(version, description, script, checksum, equivalentChecksum, BaselineMigrationType.SQL_BASELINE, physicalLocation, executor, config);
+    public BaselineResolvedMigration(final MigrationVersion version,
+        final String description,
+        final String script,
+        final Integer checksum,
+        final Integer equivalentChecksum,
+        final String physicalLocation,
+        final MigrationExecutor executor,
+        final Configuration config) {
+        this(version,
+            description,
+            script,
+            checksum,
+            equivalentChecksum,
+            BaselineMigrationType.SQL_BASELINE,
+            physicalLocation,
+            executor,
+            config);
     }
 
-    public BaselineResolvedMigration(MigrationVersion version,
-                                     String description,
-                                     String script,
-                                     Integer checksum,
-                                     Integer equivalentChecksum,
-                                     MigrationType migrationType,
-                                     String physicalLocation,
-                                     MigrationExecutor executor,
-                                     Configuration config) {
+    public BaselineResolvedMigration(final MigrationVersion version,
+        final String description,
+        final String script,
+        final Integer checksum,
+        final Integer equivalentChecksum,
+        final MigrationType migrationType,
+        final String physicalLocation,
+        final MigrationExecutor executor,
+        final Configuration config) {
         super(version, description, script, checksum, equivalentChecksum, migrationType, physicalLocation, executor);
     }
 
     @Override
-    public boolean canCompareWith(ResolvedMigration o) {
+    public boolean canCompareWith(final ResolvedMigration o) {
         return o instanceof BaselineResolvedMigration;
     }
 
     @Override
-    public MigrationState getState(MigrationInfoContext context) {
-        MigrationState migrationState = super.getState(context);
+    public MigrationState getState(final MigrationInfoContext context) {
+        final MigrationState migrationState = super.getState(context);
         if (migrationState == MigrationState.PENDING && migrationsAppliedOrBaselineExists(context)) {
             return MigrationState.IGNORED;
         }
@@ -72,7 +80,7 @@ public class BaselineResolvedMigration extends ResolvedMigrationImpl {
         return migrationState;
     }
 
-    private boolean migrationsAppliedOrBaselineExists(MigrationInfoContext context) {
+    private boolean migrationsAppliedOrBaselineExists(final MigrationInfoContext context) {
         return context.appliedBaseline != null || context.lastApplied != MigrationVersion.EMPTY;
     }
 }

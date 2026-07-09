@@ -23,6 +23,7 @@ import static org.flywaydb.core.internal.nc.NativeConnectorsModeUtils.canUseNati
 
 import lombok.CustomLog;
 import org.flywaydb.core.FlywayExecutor;
+import org.flywaydb.core.ProgressLogger;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.TestConnectionRunner;
@@ -35,6 +36,10 @@ public class FlywayTestConnectionRunner implements TestConnectionRunner {
 
     @Override
     public String testConnection(final Configuration configuration) {
+        final ProgressLogger progress = configuration.createProgress("testConnection");
+
+        // Allows provision progress to be tracked - this call could be removed if progress were supported in core
+        configuration.resolveCurrentEnvironment(progress);
 
         if (canUseNativeConnectors(configuration)) {
             // Open-and-close to validate the connection

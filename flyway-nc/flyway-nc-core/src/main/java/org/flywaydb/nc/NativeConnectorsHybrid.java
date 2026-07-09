@@ -23,7 +23,8 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
 import org.flywaydb.core.internal.nc.AbstractNativeConnectorsHybridDatabase;
 
-public abstract class NativeConnectorsHybrid<T, U extends NativeConnectorsJdbc, V extends NativeConnectorsNonJdbc> extends AbstractNativeConnectorsHybridDatabase<T> {
+public abstract class NativeConnectorsHybrid<T, U extends NativeConnectorsJdbc, V extends NativeConnectorsNonJdbc> extends
+                                                                                                                   AbstractNativeConnectorsHybridDatabase<T> {
     protected U innerJdbc;
     protected V innerNonJdbc;
 

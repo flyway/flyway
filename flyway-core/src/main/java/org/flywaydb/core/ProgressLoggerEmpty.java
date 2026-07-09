@@ -21,22 +21,22 @@ package org.flywaydb.core;
 
 public class ProgressLoggerEmpty implements ProgressLogger {
     @Override
-    public ProgressLogger subTask(String operationName) {
+    public ProgressLogger subTask(final String operationName) {
         return this;
     }
 
     @Override
-    public ProgressLogger pushSteps(int maxSteps) {
+    public ProgressLogger pushSteps(final int maxSteps) {
         return this;
     }
 
     @Override
-    public void log(String message) {
+    public void log(final String message) {
 
     }
 
     @Override
-    public void log(String message, int step) {
+    public void log(final String message, final int step) {
 
     }
 }

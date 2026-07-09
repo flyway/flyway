@@ -43,9 +43,18 @@ public class InfoOutput {
     public String shouldExecuteExpression;
     public int executionTime;
 
-    public InfoOutput(String category, String version, String rawVersion, String description, String type,
-        String installedOnUTC, String state, String undoable, String filepath, String undoFilepath, String installedBy,
-        int executionTime) {
+    public InfoOutput(final String category,
+        final String version,
+        final String rawVersion,
+        final String description,
+        final String type,
+        final String installedOnUTC,
+        final String state,
+        final String undoable,
+        final String filepath,
+        final String undoFilepath,
+        final String installedBy,
+        final int executionTime) {
         this.category = category;
         this.version = version;
         this.rawVersion = rawVersion;

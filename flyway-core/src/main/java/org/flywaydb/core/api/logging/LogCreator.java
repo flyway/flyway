@@ -19,9 +19,6 @@
  */
 package org.flywaydb.core.api.logging;
 
-import lombok.Getter;
-import lombok.Setter;
-
 /**
  * Factory for implementation-specific loggers.
  */

@@ -35,8 +35,8 @@ public class RedshiftParser extends Parser {
 
      private static final Pattern IDENTITY_PROVIDER_REGEX = Pattern.compile("^(CREATE|ALTER|DROP) IDENTITY PROVIDER");
 
-    
-    public RedshiftParser(Configuration configuration, ParsingContext parsingContext) {
+
+    public RedshiftParser(final Configuration configuration, final ParsingContext parsingContext) {
         super(configuration, parsingContext, 3);
     }
 
@@ -46,17 +46,16 @@ public class RedshiftParser extends Parser {
     }
 
     @Override
-    protected Boolean detectCanExecuteInTransaction(String simplifiedStatement, List<Token> keywords) {
+    protected Boolean detectCanExecuteInTransaction(final String simplifiedStatement, final List<Token> keywords) {
         if (CREATE_LIBRARY_REGEX.matcher(simplifiedStatement).matches()
-                || CREATE_EXTERNAL_TABLE_REGEX.matcher(simplifiedStatement).matches()
-                || VACUUM_REGEX.matcher(simplifiedStatement).matches()
-                || ALTER_TABLE_APPEND_FROM_REGEX.matcher(simplifiedStatement).matches()
-                || ALTER_TABLE_ALTER_COLUMN_REGEX.matcher(simplifiedStatement).matches()
+            || CREATE_EXTERNAL_TABLE_REGEX.matcher(simplifiedStatement).matches()
+            || VACUUM_REGEX.matcher(simplifiedStatement).matches()
+            || ALTER_TABLE_APPEND_FROM_REGEX.matcher(simplifiedStatement).matches()
+            || ALTER_TABLE_ALTER_COLUMN_REGEX.matcher(simplifiedStatement).matches()
 
-                || IDENTITY_PROVIDER_REGEX.matcher(simplifiedStatement).matches()
+            || IDENTITY_PROVIDER_REGEX.matcher(simplifiedStatement).matches()
 
-        )
-        {
+        ) {
             return false;
         }
 
@@ -65,8 +64,12 @@ public class RedshiftParser extends Parser {
 
     @SuppressWarnings("Duplicates")
     @Override
-    protected Token handleAlternativeStringLiteral(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
-        String dollarQuote = (char) reader.read() + reader.readUntilIncluding('$');
+    protected Token handleAlternativeStringLiteral(final PeekingReader reader,
+        final ParserContext context,
+        final int pos,
+        final int line,
+        final int col) throws IOException {
+        final String dollarQuote = (char) reader.read() + reader.readUntilIncluding('$');
         reader.swallowUntilExcluding(dollarQuote);
         reader.swallow(dollarQuote.length());
         return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());

@@ -20,7 +20,6 @@
 package org.flywaydb.core.internal.database.base;
 
 import java.util.List;
-import java.util.Locale;
 import lombok.CustomLog;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.callback.Event;
@@ -42,13 +41,16 @@ import java.sql.*;
 import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
+
 import static org.flywaydb.core.internal.sqlscript.SqlScriptMetadata.getMetadataResource;
 
 @CustomLog
 public abstract class BaseDatabaseType implements DatabaseType {
     // Don't grab semicolons and ampersands - they have special meaning in URLs
-    private static final Pattern defaultJdbcCredentialsPattern = Pattern.compile("[;&?]password=([^;&]*)(?=[;&])?", Pattern.CASE_INSENSITIVE);
-    private static final Pattern hostJdbcCredentialsPattern = Pattern.compile("(?:jdbc:)?[^:]+://[^:]+:([^@]+)@.*", Pattern.CASE_INSENSITIVE);
+    private static final Pattern defaultJdbcCredentialsPattern = Pattern.compile("[;&?]password=([^;&]*)(?=[;&])?",
+        Pattern.CASE_INSENSITIVE);
+    private static final Pattern hostJdbcCredentialsPattern = Pattern.compile("(?:jdbc:)?[^:]+://[^:]+:([^@]+)@.*",
+        Pattern.CASE_INSENSITIVE);
 
     /**
      * This is useful for databases that allow setting this in order to easily correlate individual application with
@@ -101,8 +103,9 @@ public abstract class BaseDatabaseType implements DatabaseType {
     }
 
     /**
-     * A list of regex patterns that identifies credentials in the JDBC URL, where they conform to a pattern specific to this database.
-     * The first captured group should represent the password text, so that it can be redacted if necessary.
+     * A list of regex patterns that identifies credentials in the JDBC URL, where they conform to a pattern specific to
+     * this database. The first captured group should represent the password text, so that it can be redacted if
+     * necessary.
      *
      * @return a list of URL regexes.
      */
@@ -111,8 +114,8 @@ public abstract class BaseDatabaseType implements DatabaseType {
     }
 
     /**
-     * Gets a regex that identifies credentials in the JDBC URL, where they conform to the default URL pattern.
-     * The first captured group represents the password text.
+     * Gets a regex that identifies credentials in the JDBC URL, where they conform to the default URL pattern. The
+     * first captured group represents the password text.
      */
     public static List<Pattern> getDefaultJDBCCredentialsPatterns() {
         return List.of(defaultJdbcCredentialsPattern, hostJdbcCredentialsPattern);
@@ -124,44 +127,58 @@ public abstract class BaseDatabaseType implements DatabaseType {
     public abstract String getDriverClass(String url, ClassLoader classLoader);
 
     /**
-     * Retrieves a second choice backup driver for a JDBC url, in case the one returned by {@code getDriverClass} is
-     * not available.
+     * Retrieves a second choice backup driver for a JDBC url, in case the one returned by {@code getDriverClass} is not
+     * available.
      *
      * @return The JDBC driver class name, {@code null} if none.
      */
-    public String getBackupDriverClass(String url, ClassLoader classLoader) {
+    public String getBackupDriverClass(final String url, final ClassLoader classLoader) {
         return null;
     }
 
     /**
-     * This allows more fine-grained control over which DatabaseType handles which connection.
-     * Flyway will use the first DatabaseType that returns true for this method.
+     * This allows more fine-grained control over which DatabaseType handles which connection. Flyway will use the first
+     * DatabaseType that returns true for this method.
      */
-    public abstract boolean handlesDatabaseProductNameAndVersion(String databaseProductName, String databaseProductVersion, Connection connection);
+    public abstract boolean handlesDatabaseProductNameAndVersion(String databaseProductName,
+        String databaseProductVersion,
+        Connection connection);
 
-    public abstract Database createDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor);
+    public abstract Database createDatabase(Configuration configuration,
+        JdbcConnectionFactory jdbcConnectionFactory,
+        StatementInterceptor statementInterceptor);
 
-    public abstract Parser createParser(Configuration configuration, ResourceProvider resourceProvider, ParsingContext parsingContext);
+    public abstract Parser createParser(Configuration configuration,
+        ResourceProvider resourceProvider,
+        ParsingContext parsingContext);
 
-    public SqlScriptFactory createSqlScriptFactory(final Configuration configuration, final ParsingContext parsingContext) {
-        return (resource, mixed, resourceProvider) -> new ParserSqlScript(createParser(configuration, resourceProvider, parsingContext),
-                                                                          resource, getMetadataResource(resourceProvider, resource), mixed);
+    public SqlScriptFactory createSqlScriptFactory(final Configuration configuration,
+        final ParsingContext parsingContext) {
+        return (resource, mixed, resourceProvider) -> new ParserSqlScript(createParser(configuration,
+            resourceProvider,
+            parsingContext), resource, getMetadataResource(resourceProvider, resource), mixed);
     }
 
     public SqlScriptExecutorFactory createSqlScriptExecutorFactory(final JdbcConnectionFactory jdbcConnectionFactory,
-                                                                   final CallbackExecutor<Event> callbackExecutor,
-                                                                   final StatementInterceptor statementInterceptor) {
+        final CallbackExecutor<Event> callbackExecutor,
+        final StatementInterceptor statementInterceptor) {
         final DatabaseType thisRef = this;
 
-        return (connection, undo, batch, outputQueryResults) -> new DefaultSqlScriptExecutor(new JdbcTemplate(connection, thisRef),
-                                                                                             callbackExecutor, undo, jdbcConnectionFactory.isSupportsBatch() && batch, outputQueryResults, statementInterceptor);
+        return (connection, undo, batch, outputQueryResults) -> new DefaultSqlScriptExecutor(new JdbcTemplate(connection,
+            thisRef),
+            callbackExecutor,
+            undo,
+            jdbcConnectionFactory.isSupportsBatch() && batch,
+            outputQueryResults,
+            statementInterceptor);
     }
 
-    public DatabaseExecutionStrategy createExecutionStrategy(java.sql.Connection connection) {
+    public DatabaseExecutionStrategy createExecutionStrategy(final java.sql.Connection connection) {
         return new DefaultExecutionStrategy();
     }
 
-    public ExecutionTemplate createTransactionalExecutionTemplate(Connection connection, boolean rollbackOnException) {
+    public ExecutionTemplate createTransactionalExecutionTemplate(final Connection connection,
+        final boolean rollbackOnException) {
         return new TransactionalExecutionTemplate(connection, rollbackOnException);
     }
 
@@ -169,7 +186,7 @@ public abstract class BaseDatabaseType implements DatabaseType {
      * Retrieves the version string for a connection as described by SELECT VERSION(), which may differ from the
      * connection metadata.
      */
-    public static String getSelectVersionOutput(Connection connection) {
+    public static String getSelectVersionOutput(final Connection connection) {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         String result = null;
@@ -194,21 +211,23 @@ public abstract class BaseDatabaseType implements DatabaseType {
      * Set the default connection properties for this database. These can be overridden by
      * {@code setConfigConnectionProps} and {@code setOverridingConnectionProps}.
      *
-     * @param url The JDBC url.
-     * @param props The properties to write to.
+     * @param url         The JDBC url.
+     * @param props       The properties to write to.
      * @param classLoader The classLoader to use.
      */
-    public void setDefaultConnectionProps(String url, Properties props, ClassLoader classLoader) {}
+    public void setDefaultConnectionProps(final String url, final Properties props, final ClassLoader classLoader) {}
 
     /**
      * Set any necessary connection properties based on Flyway's configuration. These can be overridden by
      * {@code setOverridingConnectionProps}.
      *
-     * @param config The Flyway configuration to read properties from.
-     * @param props The properties to write to.
+     * @param config      The Flyway configuration to read properties from.
+     * @param props       The properties to write to.
      * @param classLoader The classLoader to use.
      */
-    public void setConfigConnectionProps(Configuration config, Properties props, ClassLoader classLoader) {}
+    public void setConfigConnectionProps(final Configuration config,
+        final Properties props,
+        final ClassLoader classLoader) {}
 
     /**
      * These will override anything set by {@code setDefaultConnectionProps} and {@code setConfigConnectionProps} and
@@ -216,41 +235,40 @@ public abstract class BaseDatabaseType implements DatabaseType {
      *
      * @param props The properties to write to.
      */
-    public void setOverridingConnectionProps(Map<String, String> props) {}
+    public void setOverridingConnectionProps(final Map<String, String> props) {}
 
     /**
      * Only applicable to embedded databases that require this.
      */
-    public void shutdownDatabase(String url, Driver driver) {}
+    public void shutdownDatabase(final String url, final Driver driver) {}
 
     /**
-     * Detects whether a user is required from configuration. This may not be the case if the driver supports
-     * other authentication mechanisms, or supports the user being encoded in the URL.
+     * Detects whether a user is required from configuration. This may not be the case if the driver supports other
+     * authentication mechanisms, or supports the user being encoded in the URL.
      */
     @Deprecated
-    public boolean detectUserRequiredByUrl(String url) {
+    public boolean detectUserRequiredByUrl(final String url) {
         return true;
     }
 
     /**
-     * Detects whether a password is required from configuration. This may not be the case if the driver supports
-     * other authentication mechanisms, or supports the password being encoded in the URL.
+     * Detects whether a password is required from configuration. This may not be the case if the driver supports other
+     * authentication mechanisms, or supports the password being encoded in the URL.
      */
     @Deprecated
-    public boolean detectPasswordRequiredByUrl(String url) {
+    public boolean detectPasswordRequiredByUrl(final String url) {
         return true;
     }
 
-
-    public boolean externalAuthPropertiesRequired(String url, String username, String password) {
+    public boolean externalAuthPropertiesRequired(final String url, final String username, final String password) {
         return false;
     }
 
-    public Properties getExternalAuthProperties(String url, String username) {
+    public Properties getExternalAuthProperties(final String url, final String username) {
         return new Properties();
     }
 
-    public Connection alterConnectionAsNeeded(Connection connection, Configuration configuration) {
+    public Connection alterConnectionAsNeeded(final Connection connection, final Configuration configuration) {
         return connection;
     }
 

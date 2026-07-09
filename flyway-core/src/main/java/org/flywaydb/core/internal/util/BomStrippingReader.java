@@ -35,13 +35,13 @@ public class BomStrippingReader extends FilterReader {
      * @param in a Reader object providing the underlying stream.
      * @throws NullPointerException if <code>in</code> is <code>null</code>
      */
-    public BomStrippingReader(Reader in) {
+    public BomStrippingReader(final Reader in) {
         super(in);
     }
 
     @Override
     public int read() throws IOException {
-        int c = super.read();
+        final int c = super.read();
         if (c != EMPTY_STREAM && BomFilter.isBom((char) c)) {
             // Skip BOM
             return super.read();

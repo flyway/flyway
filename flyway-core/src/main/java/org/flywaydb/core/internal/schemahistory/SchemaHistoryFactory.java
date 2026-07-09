@@ -39,10 +39,18 @@ import java.util.List;
 @CustomLog
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SchemaHistoryFactory {
-    public static SchemaHistory getSchemaHistory(Configuration configuration, SqlScriptExecutorFactory sqlScriptExecutorFactory, SqlScriptFactory sqlScriptFactory,
-                                                 Database database, Schema schema, StatementInterceptor statementInterceptor) {
-        Table table = schema.getTable(configuration.getTable());
-        JdbcTableSchemaHistory jdbcTableSchemaHistory = new JdbcTableSchemaHistory(sqlScriptExecutorFactory, sqlScriptFactory, database, table, configuration);
+    public static SchemaHistory getSchemaHistory(final Configuration configuration,
+        final SqlScriptExecutorFactory sqlScriptExecutorFactory,
+        final SqlScriptFactory sqlScriptFactory,
+        final Database database,
+        final Schema schema,
+        final StatementInterceptor statementInterceptor) {
+        final Table table = schema.getTable(configuration.getTable());
+        final JdbcTableSchemaHistory jdbcTableSchemaHistory = new JdbcTableSchemaHistory(sqlScriptExecutorFactory,
+            sqlScriptFactory,
+            database,
+            table,
+            configuration);
 
         if (statementInterceptor != null) {
             return statementInterceptor.getSchemaHistory(configuration, jdbcTableSchemaHistory);
@@ -50,23 +58,25 @@ public class SchemaHistoryFactory {
         return jdbcTableSchemaHistory;
     }
 
-    public static Pair<Schema, List<Schema>> prepareSchemas(Configuration configuration, Database database) {
-        String[] schemaNames = configuration.getSchemas();
+    public static Pair<Schema, List<Schema>> prepareSchemas(final Configuration configuration,
+        final Database database) {
+        final String[] schemaNames = configuration.getSchemas();
         String defaultSchemaName = configuration.getDefaultSchema();
 
         LOG.debug("Schemas: " + StringUtils.arrayToCommaDelimitedString(schemaNames));
         LOG.debug("Default schema: " + defaultSchemaName);
 
-        List<Schema> schemas = new ArrayList<>();
-        for (String schemaName : schemaNames) {
+        final List<Schema> schemas = new ArrayList<>();
+        for (final String schemaName : schemaNames) {
             schemas.add(database.getMainConnection().getSchema(schemaName));
         }
 
         if (defaultSchemaName == null) {
             if (schemaNames.length == 0) {
-                Schema currentSchema = database.getMainConnection().getCurrentSchema();
+                final Schema currentSchema = database.getMainConnection().getCurrentSchema();
                 if (currentSchema == null || currentSchema.getName() == null) {
-                    throw new FlywayException("Unable to determine schema for the schema history table. Set a default schema for the connection or specify one using the 'defaultSchema' property");
+                    throw new FlywayException(
+                        "Unable to determine schema for the schema history table. Set a default schema for the connection or specify one using the 'defaultSchema' property");
                 }
                 defaultSchemaName = currentSchema.getName();
             } else {
@@ -74,7 +84,7 @@ public class SchemaHistoryFactory {
             }
         }
 
-        Schema defaultSchema = database.getMainConnection().getSchema(defaultSchemaName);
+        final Schema defaultSchema = database.getMainConnection().getSchema(defaultSchemaName);
         if (!schemas.contains(defaultSchema)) {
             schemas.add(0, defaultSchema);
         }

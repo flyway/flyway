@@ -50,9 +50,10 @@ public class CheckCommandExtensionStub implements CommandExtension<OperationResu
     @SneakyThrows
     @Override
     public OperationResult handle(final Configuration config, final List<String> flags) throws FlywayException {
-        return TelemetrySpan.trackSpan(new EventTelemetryModel(COMMAND, getTelemetryManager(config)), (telemetryModel) -> {
-            throw new FlywayRedgateEditionRequiredException(COMMAND);
-        });
+        return TelemetrySpan.trackSpan(new EventTelemetryModel(COMMAND, getTelemetryManager(config)),
+            (telemetryModel) -> {
+                throw new FlywayRedgateEditionRequiredException(COMMAND);
+            });
     }
 
     @Override

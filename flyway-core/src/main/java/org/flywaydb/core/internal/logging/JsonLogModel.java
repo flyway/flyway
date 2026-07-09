@@ -19,4 +19,4 @@
  */
 package org.flywaydb.core.internal.logging;
 
-public record JsonLogModel (LogLevel level, String message){}
+public record JsonLogModel(LogLevel level, String message) {}

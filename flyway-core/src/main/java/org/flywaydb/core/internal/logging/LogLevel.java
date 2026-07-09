@@ -20,5 +20,9 @@
 package org.flywaydb.core.internal.logging;
 
 public enum LogLevel {
-    DEBUG, INFO, WARN, ERROR, NOTICE
+    DEBUG,
+    INFO,
+    WARN,
+    ERROR,
+    NOTICE
 }

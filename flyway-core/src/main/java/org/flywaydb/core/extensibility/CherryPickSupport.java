@@ -37,5 +37,8 @@ public interface CherryPickSupport extends Plugin {
 
     OptionalInt compareByPickOrder(MigrationPattern[] patterns, MigrationInfo a, MigrationInfo b);
 
-    void validatePatterns(MigrationPattern[] patterns, Collection<ResolvedMigration> resolved, List<? extends AppliedMigration> applied, Configuration config);
+    void validatePatterns(MigrationPattern[] patterns,
+        Collection<ResolvedMigration> resolved,
+        List<? extends AppliedMigration> applied,
+        Configuration config);
 }

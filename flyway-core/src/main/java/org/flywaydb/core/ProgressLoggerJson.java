@@ -28,30 +28,32 @@ public class ProgressLoggerJson implements ProgressLogger {
     private final ProgressModel progressModel = new ProgressModel();
     private final JsonMapper jsonMapper = JsonMapper.builder().build();
 
-    public ProgressLogger subTask(String operationName) {
+    public ProgressLogger subTask(final String operationName) {
         return new ProgressLoggerJson(this.progressModel.getOperation() + "." + operationName);
     }
 
-    public ProgressLoggerJson(String operationName) {
+    public ProgressLoggerJson(final String operationName) {
         progressModel.setOperation(operationName);
     }
 
     @SneakyThrows
-    public void log(String message) {
+    public void log(final String message) {
         progressModel.setMessage(message);
         System.err.println(jsonMapper.writeValueAsString(progressModel));
         progressModel.setStepAndTotal(progressModel.getStep() + 1);
     }
 
     @SneakyThrows
-    public void log(String message, int step) {
+    public void log(final String message, final int step) {
         progressModel.setMessage(message);
         progressModel.setStepAndTotal(step);
         System.err.println(jsonMapper.writeValueAsString(progressModel));
     }
 
-    public ProgressLogger pushSteps(int steps) {
-        progressModel.setTotalSteps(progressModel.getTotalSteps() == null ? steps : steps + progressModel.getTotalSteps());
+    public ProgressLogger pushSteps(final int steps) {
+        progressModel.setTotalSteps(progressModel.getTotalSteps() == null
+            ? steps
+            : steps + progressModel.getTotalSteps());
         return this;
     }
 }

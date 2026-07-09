@@ -117,7 +117,10 @@ public class HtmlReportGenerator {
                         .map(x -> x.exceptionObject);
                 }
 
-                holdingResults.add(new HoldingResult(holdingTab, tabTitle, substituteLinks(htmlFile), maybeException.orElse(null)));
+                holdingResults.add(new HoldingResult(holdingTab,
+                    tabTitle,
+                    substituteLinks(htmlFile),
+                    maybeException.orElse(null)));
             }
         }
 
@@ -125,8 +128,7 @@ public class HtmlReportGenerator {
     }
 
     private static String substituteLinks(final String html) {
-        return html
-            .replace("{{DRY_RUN_REPORT_LEARN_MORE}}", DRY_RUN_REPORT_LEARN_MORE)
+        return html.replace("{{DRY_RUN_REPORT_LEARN_MORE}}", DRY_RUN_REPORT_LEARN_MORE)
             .replace("{{CHANGES_REPORT_LEARN_MORE}}", CHANGES_REPORT_LEARN_MORE)
             .replace("{{DRIFT_REPORT_LEARN_MORE}}", DRIFT_REPORT_LEARN_MORE)
             .replace("{{INFO_REPORT_LEARN_MORE}}", INFO_REPORT_LEARN_MORE)

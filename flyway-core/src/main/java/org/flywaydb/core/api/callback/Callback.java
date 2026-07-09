@@ -22,5 +22,4 @@ package org.flywaydb.core.api.callback;
 /**
  * This is the main callback interface that should be implemented to handle Flyway lifecycle events.
  */
-public interface Callback extends GenericCallback<Event> {
-}
+public interface Callback extends GenericCallback<Event> {}

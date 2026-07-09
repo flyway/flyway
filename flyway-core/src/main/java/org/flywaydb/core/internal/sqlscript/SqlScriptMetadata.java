@@ -46,7 +46,9 @@ public class SqlScriptMetadata {
     private String shouldExecuteExpression;
     private boolean shouldExecute;
 
-    private SqlScriptMetadata(Map<String, String> metadata, Map<String, String> unmappedMetadata, Configuration config) {
+    private SqlScriptMetadata(Map<String, String> metadata,
+        final Map<String, String> unmappedMetadata,
+        final Configuration config) {
         // Make copy to prevent removing elements from the original
         metadata = new HashMap<>(metadata);
 
@@ -61,9 +63,10 @@ public class SqlScriptMetadata {
 
         if (metadata.containsKey(SHOULD_EXECUTE)) {
             this.shouldExecuteExpression = unmappedMetadata.getOrDefault(SHOULD_EXECUTE, null);
-            this.shouldExecute = this.shouldExecuteExpression == null || evaluateExpression(metadata.get(SHOULD_EXECUTE), config);
+            this.shouldExecute = this.shouldExecuteExpression == null
+                || evaluateExpression(metadata.get(SHOULD_EXECUTE), config);
             metadata.remove(SHOULD_EXECUTE);
-        } 
+        }
 
         ConfigUtils.checkConfigurationForUnrecognisedProperties(metadata, null);
     }
@@ -88,26 +91,30 @@ public class SqlScriptMetadata {
         return shouldExecuteExpression;
     }
 
-    public static boolean isMultilineBooleanExpression(String line) {
+    public static boolean isMultilineBooleanExpression(final String line) {
         return !line.startsWith(SHOULD_EXECUTE) && (line.contains("==") || line.contains("!="));
     }
 
-    public static SqlScriptMetadata fromResource(LoadableResource resource, Parser parser, Configuration config) {
+    public static SqlScriptMetadata fromResource(final LoadableResource resource,
+        final Parser parser,
+        final Configuration config) {
         if (resource != null) {
             LOG.debug("Found script configuration: " + resource.getFilename());
-            var unmappedMetadata = ConfigUtils.loadConfigurationFromReader(resource.read(), true);
+            final var unmappedMetadata = ConfigUtils.loadConfigurationFromReader(resource.read(), true);
             if (parser == null) {
                 return new SqlScriptMetadata(unmappedMetadata, unmappedMetadata, config);
             }
 
-            var mappedMetadata = ConfigUtils.loadConfigurationFromReader(
-                PlaceholderReplacingReader.create(parser.configuration, parser.parsingContext, resource.read()));
+            final var mappedMetadata = ConfigUtils.loadConfigurationFromReader(PlaceholderReplacingReader.create(parser.configuration,
+                parser.parsingContext,
+                resource.read()));
             return new SqlScriptMetadata(mappedMetadata, unmappedMetadata, parser.configuration);
         }
         return new SqlScriptMetadata(new HashMap<>(), new HashMap<>(), config);
     }
 
-    public static LoadableResource getMetadataResource(ResourceProvider resourceProvider, LoadableResource resource) {
+    public static LoadableResource getMetadataResource(final ResourceProvider resourceProvider,
+        final LoadableResource resource) {
         if (resourceProvider == null) {
             return null;
         }

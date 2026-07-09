@@ -31,7 +31,7 @@ public class DB2Parser extends Parser {
     private static final String COMMENT_DIRECTIVE = "--#";
     private static final String SET_TERMINATOR_DIRECTIVE = COMMENT_DIRECTIVE + "SET TERMINATOR ";
 
-    public DB2Parser(Configuration configuration, ParsingContext parsingContext) {
+    public DB2Parser(final Configuration configuration, final ParsingContext parsingContext) {
         super(configuration, parsingContext, COMMENT_DIRECTIVE.length());
     }
 
@@ -39,52 +39,66 @@ public class DB2Parser extends Parser {
     // See https://www.ibm.com/support/knowledgecenter/en/SSEPEK_10.0.0/sqlref/src/tpc/db2z_sqlplnativeintro.html
     private static final List<String> CONTROL_FLOW_KEYWORDS = Arrays.asList("LOOP", "CASE", "DO", "REPEAT", "IF");
 
-    private static final Pattern CREATE_IF_NOT_EXISTS = Pattern.compile(
-            ".*CREATE\\s([^\\s]+\\s){0,2}IF\\sNOT\\sEXISTS");
+    private static final Pattern CREATE_IF_NOT_EXISTS = Pattern.compile(".*CREATE\\s([^\\s]+\\s){0,2}IF\\sNOT\\sEXISTS");
     private static final Pattern CREATE_OR_REPLACE_PACKAGE = Pattern.compile(
-            ".*CREATE\\s(OR\\sREPLACE\\s)?PACKAGE\\s([^\\s]+\\s){0,2}(IS|AS)");
-    private static final Pattern DROP_IF_EXISTS = Pattern.compile(
-            ".*DROP\\s([^\\s]+\\s){0,2}IF\\sEXISTS");
+        ".*CREATE\\s(OR\\sREPLACE\\s)?PACKAGE\\s([^\\s]+\\s){0,2}(IS|AS)");
+    private static final Pattern DROP_IF_EXISTS = Pattern.compile(".*DROP\\s([^\\s]+\\s){0,2}IF\\sEXISTS");
 
     @Override
-    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) throws IOException {
-        boolean previousTokenIsKeyword = !tokens.isEmpty() && tokens.get(tokens.size() - 1).getType() == TokenType.KEYWORD;
+    protected void adjustBlockDepth(final ParserContext context,
+        final List<Token> tokens,
+        final Token keyword,
+        final PeekingReader reader) throws IOException {
+        final boolean previousTokenIsKeyword = !tokens.isEmpty()
+            && tokens.get(tokens.size() - 1).getType() == TokenType.KEYWORD;
 
         int lastKeywordIndex = getLastKeywordIndex(tokens);
-        String previousKeyword = lastKeywordIndex >= 0 ? tokens.get(lastKeywordIndex).getText() : null;
+        final String previousKeyword = lastKeywordIndex >= 0 ? tokens.get(lastKeywordIndex).getText() : null;
 
         lastKeywordIndex = getLastKeywordIndex(tokens, lastKeywordIndex);
-        String previousPreviousToken = lastKeywordIndex >= 0 ? tokens.get(lastKeywordIndex).getText() : null;
+        final String previousPreviousToken = lastKeywordIndex >= 0 ? tokens.get(lastKeywordIndex).getText() : null;
 
-        if (("BEGIN".equals(keyword.getText()) && (!"ROW".equals(previousKeyword) || previousPreviousToken == null || "EACH".equals(previousPreviousToken)))
-                || CONTROL_FLOW_KEYWORDS.contains(keyword.getText())
-                || doTokensMatchPattern(tokens, keyword, CREATE_OR_REPLACE_PACKAGE)) {
+        if (("BEGIN".equals(keyword.getText()) && (!"ROW".equals(previousKeyword)
+            || previousPreviousToken == null
+            || "EACH".equals(previousPreviousToken)))
+            || CONTROL_FLOW_KEYWORDS.contains(keyword.getText())
+            || doTokensMatchPattern(tokens, keyword, CREATE_OR_REPLACE_PACKAGE)) {
             if (!previousTokenIsKeyword || !"END".equals(previousKeyword)) {
                 context.increaseBlockDepth(keyword.getText());
             }
-        } else if (("END".equals(keyword.getText()) && !"ROW".equals(previousKeyword))
-                        || doTokensMatchPattern(tokens, keyword, CREATE_IF_NOT_EXISTS)
-                        || doTokensMatchPattern(tokens, keyword, DROP_IF_EXISTS)) {
+        } else if (("END".equals(keyword.getText()) && !"ROW".equals(previousKeyword)) || doTokensMatchPattern(tokens,
+            keyword,
+            CREATE_IF_NOT_EXISTS) || doTokensMatchPattern(tokens, keyword, DROP_IF_EXISTS)) {
             context.decreaseBlockDepth();
         }
     }
 
     @Override
-    protected void resetDelimiter(ParserContext context) {
+    protected void resetDelimiter(final ParserContext context) {
         // Do not reset delimiter as delimiter changes survive beyond a single statement
     }
 
     @Override
-    protected boolean isCommentDirective(String peek) {
+    protected boolean isCommentDirective(final String peek) {
         return peek.startsWith(COMMENT_DIRECTIVE);
     }
 
     @Override
-    protected Token handleCommentDirective(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
+    protected Token handleCommentDirective(final PeekingReader reader,
+        final ParserContext context,
+        final int pos,
+        final int line,
+        final int col) throws IOException {
         if (SET_TERMINATOR_DIRECTIVE.equals(reader.peek(SET_TERMINATOR_DIRECTIVE.length()))) {
             reader.swallow(SET_TERMINATOR_DIRECTIVE.length());
-            String delimiter = reader.readUntilExcluding('\n', '\r');
-            return new Token(TokenType.NEW_DELIMITER, pos, line, col, delimiter.trim(), delimiter, context.getParensDepth());
+            final String delimiter = reader.readUntilExcluding('\n', '\r');
+            return new Token(TokenType.NEW_DELIMITER,
+                pos,
+                line,
+                col,
+                delimiter.trim(),
+                delimiter,
+                context.getParensDepth());
         }
         reader.swallowUntilExcluding('\n', '\r');
         return new Token(TokenType.COMMENT, pos, line, col, null, null, context.getParensDepth());

@@ -34,11 +34,11 @@ public abstract class Table<D extends Database, S extends Schema> extends Schema
 
     /**
      * @param jdbcTemplate The JDBC template for communicating with the DB.
-     * @param database The database-specific support.
-     * @param schema The schema this table lives in.
-     * @param name The name of the table.
+     * @param database     The database-specific support.
+     * @param schema       The schema this table lives in.
+     * @param name         The name of the table.
      */
-    public Table(JdbcTemplate jdbcTemplate, D database, S schema, String name) {
+    public Table(final JdbcTemplate jdbcTemplate, final D database, final S schema, final String name) {
         super(jdbcTemplate, database, schema, name);
     }
 
@@ -60,13 +60,14 @@ public abstract class Table<D extends Database, S extends Schema> extends Schema
     /**
      * Checks whether the database contains a table matching the given criteria.
      *
-     * @param catalog The catalog where the table resides. (optional)
-     * @param schema The schema where the table resides. (optional)
-     * @param table The name of the table. (optional)
+     * @param catalog    The catalog where the table resides. (optional)
+     * @param schema     The schema where the table resides. (optional)
+     * @param table      The name of the table. (optional)
      * @param tableTypes The types of table to look for (e.g. TABLE). (optional)
      * @throws SQLException when the check failed.
      */
-    protected boolean exists(Schema catalog, Schema schema, String table, String... tableTypes) throws SQLException {
+    protected boolean exists(final Schema catalog, final Schema schema, final String table, String... tableTypes)
+        throws SQLException {
         String[] types = tableTypes;
         if (types.length == 0) {
             types = null;
@@ -75,11 +76,10 @@ public abstract class Table<D extends Database, S extends Schema> extends Schema
         ResultSet resultSet = null;
         boolean found;
         try {
-            resultSet = database.jdbcMetaData.getTables(
-                    catalog == null ? null : catalog.getName(),
-                    schema == null ? null : schema.getName(),
-                    table,
-                    types);
+            resultSet = database.jdbcMetaData.getTables(catalog == null ? null : catalog.getName(),
+                schema == null ? null : schema.getName(),
+                table,
+                types);
             found = resultSet.next();
         } finally {
             JdbcUtils.closeResultSet(resultSet);
@@ -90,8 +90,8 @@ public abstract class Table<D extends Database, S extends Schema> extends Schema
 
     /**
      * Locks this table in this schema using a read/write pessimistic lock until the end of the current transaction.
-     * Note that {@code unlock()} still needs to be called even if your database unlocks the table implicitly
-     * (in which case {@code doUnlock()} may be a no-op) in order to maintain the lock count correctly.
+     * Note that {@code unlock()} still needs to be called even if your database unlocks the table implicitly (in which
+     * case {@code doUnlock()} may be a no-op) in order to maintain the lock count correctly.
      */
     public void lock() {
         if (!exists()) {
@@ -107,8 +107,8 @@ public abstract class Table<D extends Database, S extends Schema> extends Schema
 
     /**
      * Locks this table in this schema using a read/write pessimistic lock until the end of the current transaction.
-     * Note that {@code unlock()} still needs to be called even if your database unlocks the table implicitly
-     * (in which case {@code doUnlock()} may be a no-op) in order to maintain the lock count correctly.
+     * Note that {@code unlock()} still needs to be called even if your database unlocks the table implicitly (in which
+     * case {@code doUnlock()} may be a no-op) in order to maintain the lock count correctly.
      *
      * @throws SQLException when this table in this schema could not be locked.
      */

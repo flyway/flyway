@@ -22,7 +22,6 @@ package org.flywaydb.core.internal.database;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.extensibility.Plugin;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.parser.Parser;
@@ -71,57 +70,58 @@ public interface DatabaseType extends GeneralDatabaseType {
     Pattern getJDBCCredentialsPattern();
 
     /**
-     * A list of regex patterns that identifies credentials in the JDBC URL, where they conform to a pattern specific to this database.
-     * The first captured group should represent the password text, so that it can be redacted if necessary.
+     * A list of regex patterns that identifies credentials in the JDBC URL, where they conform to a pattern specific to
+     * this database. The first captured group should represent the password text, so that it can be redacted if
+     * necessary.
      *
      * @return a list of URL regexes.
      */
     List<Pattern> getJDBCCredentialsPatterns();
 
     /**
-     * Get the driver class used to handle this JDBC url.
-     * This will only be called if {@code matchesJDBCUrl} previously returned {@code true}.
+     * Get the driver class used to handle this JDBC url. This will only be called if {@code matchesJDBCUrl} previously
+     * returned {@code true}.
      *
-     * @param url The JDBC url.
+     * @param url         The JDBC url.
      * @param classLoader The classLoader to check for driver classes.
      * @return The full driver class name to be instantiated to handle this url.
      */
     String getDriverClass(String url, ClassLoader classLoader);
 
     /**
-     * Retrieves a second choice backup driver for a JDBC url, in case the one returned by {@code getDriverClass} is not available.
+     * Retrieves a second choice backup driver for a JDBC url, in case the one returned by {@code getDriverClass} is not
+     * available.
      *
-     * @param url The JDBC url.
+     * @param url         The JDBC url.
      * @param classLoader The classLoader to check for driver classes.
      * @return The JDBC driver. {@code null} if none.
      */
     String getBackupDriverClass(String url, ClassLoader classLoader);
 
     /**
-     * Check if this database type handles the connection product name and version.
-     * This allows more fine-grained control over which DatabaseType handles which connection.
-     * Flyway will use the first DatabaseType that returns true for this method.
+     * Check if this database type handles the connection product name and version. This allows more fine-grained
+     * control over which DatabaseType handles which connection. Flyway will use the first DatabaseType that returns
+     * true for this method.
      *
-     * @param databaseProductName The product name returned by the database.
+     * @param databaseProductName    The product name returned by the database.
      * @param databaseProductVersion The product version returned by the database.
-     * @param connection The connection used to connect to the database.
+     * @param connection             The connection used to connect to the database.
      * @return {@code true} if this handles the product name and version, {@code false} if not.
      */
-    boolean handlesDatabaseProductNameAndVersion(String databaseProductName, String databaseProductVersion, Connection connection);
-
+    boolean handlesDatabaseProductNameAndVersion(String databaseProductName,
+        String databaseProductVersion,
+        Connection connection);
 
     /**
      * Initializes the Database used by this Database Type.
      *
-     * @param configuration The Flyway configuration.
+     * @param configuration         The Flyway configuration.
      * @param jdbcConnectionFactory The current connection factory.
      * @return The Database.
      */
-    Database createDatabase(
-            Configuration configuration,
-            JdbcConnectionFactory jdbcConnectionFactory,
-            StatementInterceptor statementInterceptor
-                           );
+    Database createDatabase(Configuration configuration,
+        JdbcConnectionFactory jdbcConnectionFactory,
+        StatementInterceptor statementInterceptor);
 
     /**
      * Initializes the Parser used by this Database Type.
@@ -129,11 +129,7 @@ public interface DatabaseType extends GeneralDatabaseType {
      * @param configuration The Flyway configuration.
      * @return The Parser.
      */
-    Parser createParser(
-            Configuration configuration
-            , ResourceProvider resourceProvider
-            , ParsingContext parsingContext
-                       );
+    Parser createParser(Configuration configuration, ResourceProvider resourceProvider, ParsingContext parsingContext);
 
     /**
      * Initializes the SqlScriptFactory used by this Database Type.
@@ -141,9 +137,7 @@ public interface DatabaseType extends GeneralDatabaseType {
      * @param configuration The Flyway configuration.
      * @return The SqlScriptFactory.
      */
-    SqlScriptFactory createSqlScriptFactory(
-            final Configuration configuration,
-            final ParsingContext parsingContext);
+    SqlScriptFactory createSqlScriptFactory(final Configuration configuration, final ParsingContext parsingContext);
 
     /**
      * Initializes the SqlScriptExecutorFactory used by this Database Type.
@@ -151,11 +145,9 @@ public interface DatabaseType extends GeneralDatabaseType {
      * @param jdbcConnectionFactory The current connection factory.
      * @return The SqlScriptExecutorFactory.
      */
-    SqlScriptExecutorFactory createSqlScriptExecutorFactory(
-            final JdbcConnectionFactory jdbcConnectionFactory,
-            final CallbackExecutor<Event> callbackExecutor,
-            final StatementInterceptor statementInterceptor
-                                                           );
+    SqlScriptExecutorFactory createSqlScriptExecutorFactory(final JdbcConnectionFactory jdbcConnectionFactory,
+        final CallbackExecutor<Event> callbackExecutor,
+        final StatementInterceptor statementInterceptor);
 
     /**
      * Initializes the DatabaseExecutionStrategy used by this Database Type.
@@ -172,20 +164,21 @@ public interface DatabaseType extends GeneralDatabaseType {
     ExecutionTemplate createTransactionalExecutionTemplate(Connection connection, boolean rollbackOnException);
 
     /**
-     * Set the default connection properties for this database. These can be overridden by {@code setConfigConnectionProps}
-     * and {@code setOverridingConnectionProps}
+     * Set the default connection properties for this database. These can be overridden by
+     * {@code setConfigConnectionProps} and {@code setOverridingConnectionProps}
      *
-     * @param url The JDBC url.
-     * @param props The properties to write to.
+     * @param url         The JDBC url.
+     * @param props       The properties to write to.
      * @param classLoader The classLoader to use.
      */
     void setDefaultConnectionProps(String url, Properties props, ClassLoader classLoader);
 
     /**
-     * Set any necessary connection properties based on Flyway's configuration. These can be overridden by {@code setOverridingConnectionProps}
+     * Set any necessary connection properties based on Flyway's configuration. These can be overridden by
+     * {@code setOverridingConnectionProps}
      *
-     * @param config The Flyway configuration to read properties from
-     * @param props The properties to write to.
+     * @param config      The Flyway configuration to read properties from
+     * @param props       The properties to write to.
      * @param classLoader The classLoader to use.
      */
     void setConfigConnectionProps(Configuration config, Properties props, ClassLoader classLoader);
@@ -199,23 +192,22 @@ public interface DatabaseType extends GeneralDatabaseType {
     void setOverridingConnectionProps(Map<String, String> props);
 
     /**
-     * Sets connection properties that must be applied before the JDBC driver is initialized.
-     * These properties typically control driver-level behavior, such as debugging or tracing,
-     * and need to be set early to take effect.
+     * Sets connection properties that must be applied before the JDBC driver is initialized. These properties typically
+     * control driver-level behavior, such as debugging or tracing, and need to be set early to take effect.
      */
     default void setEarlyConnectionProps() {}
 
     /**
      * Shutdown the database that was opened (only applicable to embedded databases that require this).
      *
-     * @param url The JDBC url used to create the database.
+     * @param url    The JDBC url used to create the database.
      * @param driver The driver created for the url.
      */
     void shutdownDatabase(String url, Driver driver);
 
     /**
-     * Detects whether a user is required from configuration. This may not be the case if the driver supports
-     * other authentication mechanisms, or supports the user being encoded in the URL
+     * Detects whether a user is required from configuration. This may not be the case if the driver supports other
+     * authentication mechanisms, or supports the user being encoded in the URL
      *
      * @param url The url to check
      * @return true if a username needs to be provided
@@ -224,8 +216,8 @@ public interface DatabaseType extends GeneralDatabaseType {
     boolean detectUserRequiredByUrl(String url);
 
     /**
-     * Detects whether a password is required from configuration. This may not be the case if the driver supports
-     * other authentication mechanisms, or supports the password being encoded in the URL
+     * Detects whether a password is required from configuration. This may not be the case if the driver supports other
+     * authentication mechanisms, or supports the password being encoded in the URL
      *
      * @param url The url to check
      * @return true if a password needs to be provided
@@ -241,7 +233,7 @@ public interface DatabaseType extends GeneralDatabaseType {
     boolean externalAuthPropertiesRequired(String url, String username, String password);
 
     /**
-     * @param url The JDBC url.
+     * @param url      The JDBC url.
      * @param username The username for the connection.
      * @return Authentication properties from database specific locations (e.g. pgpass)
      */
@@ -250,14 +242,14 @@ public interface DatabaseType extends GeneralDatabaseType {
     /**
      * Carries out any manipulation on the Connection that is required by Flyway's config
      *
-     * @param connection The JDBC connection.
+     * @param connection    The JDBC connection.
      * @param configuration The Flyway configuration.
      */
     Connection alterConnectionAsNeeded(Connection connection, Configuration configuration);
 
     String instantiateClassExtendedErrorMessage();
 
-    default List<String> getSpecialResourceFilenames(Configuration configuration) {
+    default List<String> getSpecialResourceFilenames(final Configuration configuration) {
         return Collections.emptyList();
     }
 }

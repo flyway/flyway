@@ -21,7 +21,6 @@ package org.flywaydb.core.internal.sqlscript;
 
 import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.parser.Parser;
 
@@ -59,9 +58,13 @@ public class ParserSqlScript implements SqlScript {
      *
      * @param resource         The sql script resource.
      * @param metadataResource The sql script metadata resource.
-     * @param mixed            Whether to allow mixing transactional and non-transactional statements within the same migration.
+     * @param mixed            Whether to allow mixing transactional and non-transactional statements within the same
+     *                         migration.
      */
-    public ParserSqlScript(Parser parser, LoadableResource resource, LoadableResource metadataResource, boolean mixed) {
+    public ParserSqlScript(final Parser parser,
+        final LoadableResource resource,
+        final LoadableResource metadataResource,
+        final boolean mixed) {
         this.resource = resource;
         this.metadata = SqlScriptMetadata.fromResource(metadataResource, parser, parser.configuration);
         this.parser = parser;
@@ -86,22 +89,30 @@ public class ParserSqlScript implements SqlScript {
                     nonTransactionalStatementFound = true;
                 }
 
-                if (!mixed && transactionalStatementFound && nonTransactionalStatementFound && metadata.executeInTransaction() == null && parser.configuration.isExecuteInTransaction()) {
+                if (!mixed
+                    && transactionalStatementFound
+                    && nonTransactionalStatementFound
+                    && metadata.executeInTransaction() == null
+                    && parser.configuration.isExecuteInTransaction()) {
                     throw new FlywayException(
-                            "Detected both transactional and non-transactional statements within the same migration"
-                                    + " (even though mixed is false). Offending statement found at line "
-                                    + sqlStatement.getLineNumber() + ": " + sqlStatement.getSql()
-                                    + (sqlStatement.canExecuteInTransaction() ? "" : " [non-transactional]"));
+                        "Detected both transactional and non-transactional statements within the same migration"
+                            + " (even though mixed is false). Offending statement found at line "
+                            + sqlStatement.getLineNumber()
+                            + ": "
+                            + sqlStatement.getSql()
+                            + (sqlStatement.canExecuteInTransaction() ? "" : " [non-transactional]"));
                 }
 
-                SqlScript referencedSqlScript = sqlStatement.getReferencedSqlScript();
+                final SqlScript referencedSqlScript = sqlStatement.getReferencedSqlScript();
                 if (referencedSqlScript != null) {
                     referencedSqlScripts.add(referencedSqlScript);
                     referencedSqlScripts.addAll(referencedSqlScript.getReferencedSqlScripts());
                 }
 
-                LOG.debug("Found statement at line " + sqlStatement.getLineNumber() + ": " + sqlStatement.getSql()
-                                  + (sqlStatement.canExecuteInTransaction() ? "" : " [non-transactional]"));
+                LOG.debug("Found statement at line " + sqlStatement.getLineNumber() + ": " + sqlStatement.getSql() + (
+                    sqlStatement.canExecuteInTransaction()
+                        ? ""
+                        : " [non-transactional]"));
             }
         }
         parsed = true;
@@ -169,7 +180,7 @@ public class ParserSqlScript implements SqlScript {
 
     @Override
     public boolean executeInTransaction() {
-        Boolean executeInTransactionOverride = metadata.executeInTransaction();
+        final Boolean executeInTransactionOverride = metadata.executeInTransaction();
         if (executeInTransactionOverride != null) {
             LOG.debug("Using executeInTransaction=" + executeInTransactionOverride + " from script configuration");
             return executeInTransactionOverride;
@@ -192,7 +203,7 @@ public class ParserSqlScript implements SqlScript {
 
     @Override
     public boolean placeholderReplacement() {
-        Boolean placeholderReplacementOverride = metadata.placeholderReplacement();
+        final Boolean placeholderReplacementOverride = metadata.placeholderReplacement();
         if (placeholderReplacementOverride != null) {
             LOG.debug("Using placeholderReplacement=" + placeholderReplacementOverride + " from script configuration");
             return placeholderReplacementOverride;
@@ -202,7 +213,7 @@ public class ParserSqlScript implements SqlScript {
     }
 
     @Override
-    public int compareTo(SqlScript o) {
+    public int compareTo(final SqlScript o) {
         return resource.getRelativePath().compareTo(o.getResource().getRelativePath());
     }
 

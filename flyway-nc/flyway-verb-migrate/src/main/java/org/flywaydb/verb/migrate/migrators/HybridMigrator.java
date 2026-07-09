@@ -29,8 +29,8 @@ import org.flywaydb.nc.NativeConnectorsHybrid;
 import org.flywaydb.nc.callbacks.CallbackManager;
 import org.flywaydb.verb.migrate.MigrationExecutionGroup;
 
-public class HybridMigrator extends Migrator<NativeConnectorsHybrid>{
-    private Migrator getMigrator(NativeConnectorsHybrid database) {
+public class HybridMigrator extends Migrator<NativeConnectorsHybrid> {
+    private Migrator getMigrator(final NativeConnectorsHybrid database) {
         return switch (database.getDatabaseMetaData().connectionType()) {
             case API -> new ApiMigrator();
             case JDBC -> new JdbcMigrator();
@@ -45,11 +45,11 @@ public class HybridMigrator extends Migrator<NativeConnectorsHybrid>{
         final MigrateResult migrateResult,
         final ParsingContext parsingContext) {
         final Migrator migrator = getMigrator(database);
-        return migrator.createGroups(allPendingMigrations, configuration,
-            migrator instanceof JdbcMigrator
-                ? database.toNativeConnectorsJdbc()
-                : database,
-            migrateResult, parsingContext);
+        return migrator.createGroups(allPendingMigrations,
+            configuration,
+            migrator instanceof JdbcMigrator ? database.toNativeConnectorsJdbc() : database,
+            migrateResult,
+            parsingContext);
     }
 
     @Override
@@ -62,10 +62,13 @@ public class HybridMigrator extends Migrator<NativeConnectorsHybrid>{
         final CallbackManager callbackManager,
         final ProgressLogger progress) {
         final Migrator migrator = getMigrator(database);
-        return migrator.doExecutionGroup(configuration, executionGroup,
-            migrator instanceof JdbcMigrator
-                ? database.toNativeConnectorsJdbc()
-                : database,
-            migrateResult, parsingContext, installedRank, callbackManager, progress);
+        return migrator.doExecutionGroup(configuration,
+            executionGroup,
+            migrator instanceof JdbcMigrator ? database.toNativeConnectorsJdbc() : database,
+            migrateResult,
+            parsingContext,
+            installedRank,
+            callbackManager,
+            progress);
     }
 }

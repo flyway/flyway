@@ -1,11 +1,11 @@
----
+.---
 subtitle: redgateCompare.oracle.filterFile
 ---
 
 ## Description
 
 The path to the Oracle filter file, containing custom filtering rules for excluding objects from database comparisons.
-Objects will be filtered out only after the comparison has taken place so there will be no performance benefit. See [Ignore Rules](<Configuration/Redgate Compare Namespace/Redgate Compare SQL Server Namespace/Oracle Ignore Rules File Setting>) for pre-filtering. 
+Objects will be filtered out only after the comparison has taken place so there will be no performance benefit. See [Ignore Rules](<Filter Formats/Oracle Ignore Rules Format>) for pre-filtering. 
 
 This will be resolved relative to the [working directory](<Command-line Parameters/Working Directory Parameter>).
 
@@ -21,7 +21,7 @@ String
 
 ### Flyway Desktop
 
-This can't currently be configured from Flyway Desktop, although it will be honoured.
+This can't currently be configured from Flyway Desktop, although it will be honored.
 
 ### Command-line
 

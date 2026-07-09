@@ -52,18 +52,17 @@ public class CleanModeCommandExtension implements CommandExtension<CleanResult> 
     private static final List<String> SUPPORTED_COMMANDS = Arrays.asList(CLEAN_SCHEMAS, CLEAN_ALL);
 
     @Override
-    public boolean handlesCommand(String command) {
+    public boolean handlesCommand(final String command) {
         return SUPPORTED_COMMANDS.contains(command.toLowerCase());
     }
 
     @Override
-    public boolean handlesParameter(String parameter) {
+    public boolean handlesParameter(final String parameter) {
         return false;
     }
 
     @Override
-    public CleanResult handle(Configuration config,
-        List<String> flags) throws FlywayException {
+    public CleanResult handle(final Configuration config, final List<String> flags) throws FlywayException {
         final FlywayTelemetryManager flywayTelemetryManager = getTelemetryManager(config);
         return TelemetrySpan.trackSpan(new EventTelemetryModel("cleanmode", flywayTelemetryManager),
             (telemetryModel) -> new FlywayExecutor(config).execute((migrationResolver, schemaHistory, database, defaultSchema, schemas, callbackExecutor, statementInterceptor) -> cleanMode(
@@ -87,15 +86,15 @@ public class CleanModeCommandExtension implements CommandExtension<CleanResult> 
             throw new FlywayException("'flyway.schemas' must be empty when using clean modes other than default");
         }
 
-        CleanResult cleanResult = CommandResultFactory.createCleanResult(database.getCatalog());
-        CleanModel clean = ConfigUtils.getCleanModel(config);
-        CleanModeCleanExecutor cleanExecutor = new CleanModeCleanExecutor(database.getMainConnection(),
+        final CleanResult cleanResult = CommandResultFactory.createCleanResult(database.getCatalog());
+        final CleanModel clean = ConfigUtils.getCleanModel(config);
+        final CleanModeCleanExecutor cleanExecutor = new CleanModeCleanExecutor(database.getMainConnection(),
             database,
             schemaHistory,
             callbackExecutor,
             clean.getMode());
 
-        Schema[] allSchemas = Arrays.stream(database.getAllSchemas())
+        final Schema[] allSchemas = Arrays.stream(database.getAllSchemas())
             .filter(s -> clean == null || clean.getSchemas() == null || !clean.getSchemas()
                 .getExclude()
                 .contains(s.getName()))

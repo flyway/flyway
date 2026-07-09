@@ -30,7 +30,7 @@ import java.util.List;
  * Sybase ASE schema (database).
  */
 public class SybaseASESchema extends Schema<SybaseASEDatabase, SybaseASETable> {
-    SybaseASESchema(JdbcTemplate jdbcTemplate, SybaseASEDatabase database, String name) {
+    SybaseASESchema(final JdbcTemplate jdbcTemplate, final SybaseASEDatabase database, final String name) {
         super(jdbcTemplate, database, name);
     }
 
@@ -44,7 +44,9 @@ public class SybaseASESchema extends Schema<SybaseASEDatabase, SybaseASETable> {
     protected boolean doEmpty() throws SQLException {
         //There is no schema in SAP ASE, check whether database is empty
         //Check for tables, views stored procs and triggers
-        return jdbcTemplate.queryForInt("select count(*) from sysobjects ob where (ob.type='U' or ob.type = 'V' or ob.type = 'P' or ob.type = 'TR') and ob.name != 'sysquerymetrics'") == 0;
+        return jdbcTemplate.queryForInt(
+            "select count(*) from sysobjects ob where (ob.type='U' or ob.type = 'V' or ob.type = 'P' or ob.type = 'TR') and ob.name != 'sysquerymetrics'")
+            == 0;
     }
 
     @Override
@@ -78,12 +80,12 @@ public class SybaseASESchema extends Schema<SybaseASEDatabase, SybaseASETable> {
     @Override
     protected SybaseASETable[] doAllTables() throws SQLException {
         //Retrieving all table names
-        List<String> tableNames = retrieveAllTableNames();
+        final List<String> tableNames = retrieveAllTableNames();
 
-        SybaseASETable[] result = new SybaseASETable[tableNames.size()];
+        final SybaseASETable[] result = new SybaseASETable[tableNames.size()];
 
         for (int i = 0; i < tableNames.size(); i++) {
-            String tableName = tableNames.get(i);
+            final String tableName = tableNames.get(i);
             result[i] = new SybaseASETable(jdbcTemplate, database, this, tableName);
         }
 
@@ -91,7 +93,7 @@ public class SybaseASESchema extends Schema<SybaseASEDatabase, SybaseASETable> {
     }
 
     @Override
-    public Table getTable(String tableName) {
+    public Table getTable(final String tableName) {
         return new SybaseASETable(jdbcTemplate, database, this, tableName);
     }
 
@@ -99,15 +101,18 @@ public class SybaseASESchema extends Schema<SybaseASEDatabase, SybaseASETable> {
      * @return all table names in the current database.
      */
     private List<String> retrieveAllTableNames() throws SQLException {
-        return jdbcTemplate.queryForStringList("select ob.name from sysobjects ob where ob.type=? order by ob.name", "U");
+        return jdbcTemplate.queryForStringList("select ob.name from sysobjects ob where ob.type=? order by ob.name",
+            "U");
     }
 
-    private void dropObjects(String sybaseObjType) throws SQLException {
+    private void dropObjects(final String sybaseObjType) throws SQLException {
         //Getting the table names
-        List<String> objNames = jdbcTemplate.queryForStringList("select ob.name from sysobjects ob where ob.type=? order by ob.name", sybaseObjType);
+        final List<String> objNames = jdbcTemplate.queryForStringList(
+            "select ob.name from sysobjects ob where ob.type=? order by ob.name",
+            sybaseObjType);
 
         //for each table, drop it
-        for (String name : objNames) {
+        for (final String name : objNames) {
             String sql;
 
             if ("U".equals(sybaseObjType)) {

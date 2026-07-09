@@ -24,14 +24,13 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.extensibility.MigrationType;
 import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
 
-public record LoadableResourceMetadata(
-    MigrationVersion version,
-    String description,
-    String prefix,
-    LoadableResource loadableResource,
-    SqlScriptMetadata sqlScriptMetadata,
-    int checksum,
-    MigrationType migrationType) {
+public record LoadableResourceMetadata(MigrationVersion version,
+                                       String description,
+                                       String prefix,
+                                       LoadableResource loadableResource,
+                                       SqlScriptMetadata sqlScriptMetadata,
+                                       int checksum,
+                                       MigrationType migrationType) {
 
     @Override
     public boolean equals(final Object o) {
@@ -55,11 +54,11 @@ public record LoadableResourceMetadata(
     public int hashCode() {
         return Objects.hash(version, prefix);
     }
-    
+
     public boolean isRepeatable() {
         return version == null;
     }
-    
+
     public boolean isVersioned() {
         return !isRepeatable();
     }

@@ -59,9 +59,13 @@ import org.flywaydb.nc.executors.NonJdbcExecutorExecutionUnit;
 
 public class CassandraDatabase extends NativeConnectorsNonJdbc {
     private static final String URL_PREFIX = "cassandra:";
-    private static final Set<String> SYSTEM_KEYSPACES = Set.of(
-        "system", "system_auth", "system_schema", "system_distributed",
-        "system_traces", "system_views", "system_virtual_schema");
+    private static final Set<String> SYSTEM_KEYSPACES = Set.of("system",
+        "system_auth",
+        "system_schema",
+        "system_distributed",
+        "system_traces",
+        "system_views",
+        "system_virtual_schema");
 
     private CqlSession session;
     private String keyspace;
@@ -88,7 +92,7 @@ public class CassandraDatabase extends NativeConnectorsNonJdbc {
         }
         return new DatabaseSupport(false, 0);
     }
-    
+
     @Override
     public boolean supportsTransactions() {
         return false;
@@ -175,8 +179,7 @@ public class CassandraDatabase extends NativeConnectorsNonJdbc {
         final Row row = session.execute("SELECT release_version FROM system.local").one();
         final String serverVersion = row != null ? row.getString("release_version") : "unknown";
 
-        metaData = new MetaData(
-            getDatabaseType(),
+        metaData = new MetaData(getDatabaseType(),
             "Cassandra",
             new DatabaseVersionImpl(serverVersion),
             serverVersion,
@@ -190,7 +193,9 @@ public class CassandraDatabase extends NativeConnectorsNonJdbc {
     public void createSchemaHistoryTable(final Configuration configuration) {
         final String tableName = quote(currentSchema, configuration.getTable());
 
-        session.execute("CREATE TABLE " + tableName + " (\n"
+        session.execute("CREATE TABLE "
+            + tableName
+            + " (\n"
             + "    installed_rank INT,\n"
             + "    version VARCHAR,\n"
             + "    partition VARCHAR,\n"
@@ -204,8 +209,13 @@ public class CassandraDatabase extends NativeConnectorsNonJdbc {
             + "    success BOOLEAN,\n"
             + "    PRIMARY KEY ((partition), installed_rank))");
 
-        session.execute("CREATE INDEX " + doQuote(configuration.getTable() + "_s_idx")
-            + " ON " + tableName + " (" + doQuote("success") + ")");
+        session.execute("CREATE INDEX "
+            + doQuote(configuration.getTable() + "_s_idx")
+            + " ON "
+            + tableName
+            + " ("
+            + doQuote("success")
+            + ")");
     }
 
     @Override
@@ -220,17 +230,28 @@ public class CassandraDatabase extends NativeConnectorsNonJdbc {
     public SchemaHistoryModel getSchemaHistoryModel(final String tableName) {
         final String table = quote(currentSchema, tableName);
 
-        final String query = "SELECT " + doQuote("installed_rank")
-            + ", " + doQuote("version")
-            + ", " + doQuote("description")
-            + ", " + doQuote("type")
-            + ", " + doQuote("script")
-            + ", " + doQuote("checksum")
-            + ", " + doQuote("installed_on")
-            + ", " + doQuote("installed_by")
-            + ", " + doQuote("execution_time")
-            + ", " + doQuote("success")
-            + " FROM " + table
+        final String query = "SELECT "
+            + doQuote("installed_rank")
+            + ", "
+            + doQuote("version")
+            + ", "
+            + doQuote("description")
+            + ", "
+            + doQuote("type")
+            + ", "
+            + doQuote("script")
+            + ", "
+            + doQuote("checksum")
+            + ", "
+            + doQuote("installed_on")
+            + ", "
+            + doQuote("installed_by")
+            + ", "
+            + doQuote("execution_time")
+            + ", "
+            + doQuote("success")
+            + " FROM "
+            + table
             + " WHERE partition='flyway'";
 
         final List<SchemaHistoryItem> items = new ArrayList<>();
@@ -239,9 +260,9 @@ public class CassandraDatabase extends NativeConnectorsNonJdbc {
             final ResultSet rs = session.execute(query);
             for (final Row row : rs) {
                 final Instant installedOnInstant = row.getInstant("installed_on");
-                final LocalDateTime installedOn = installedOnInstant != null
-                    ? LocalDateTime.ofInstant(installedOnInstant, ZoneId.systemDefault())
-                    : null;
+                final LocalDateTime installedOn = installedOnInstant != null ? LocalDateTime.ofInstant(
+                    installedOnInstant,
+                    ZoneId.systemDefault()) : null;
 
                 items.add(SchemaHistoryItem.builder()
                     .installedRank(row.getInt("installed_rank"))
@@ -267,25 +288,36 @@ public class CassandraDatabase extends NativeConnectorsNonJdbc {
     public void appendSchemaHistoryItem(final SchemaHistoryItem item, final String tableName) {
         final String table = quote(currentSchema, tableName);
 
-        final String insertSql = "INSERT INTO " + table
-            + " (" + doQuote("installed_rank")
-            + ", " + doQuote("version")
-            + ", " + doQuote("partition")
-            + ", " + doQuote("description")
-            + ", " + doQuote("type")
-            + ", " + doQuote("script")
-            + ", " + doQuote("checksum")
-            + ", " + doQuote("installed_by")
-            + ", " + doQuote("installed_on")
-            + ", " + doQuote("execution_time")
-            + ", " + doQuote("success")
+        final String insertSql = "INSERT INTO "
+            + table
+            + " ("
+            + doQuote("installed_rank")
+            + ", "
+            + doQuote("version")
+            + ", "
+            + doQuote("partition")
+            + ", "
+            + doQuote("description")
+            + ", "
+            + doQuote("type")
+            + ", "
+            + doQuote("script")
+            + ", "
+            + doQuote("checksum")
+            + ", "
+            + doQuote("installed_by")
+            + ", "
+            + doQuote("installed_on")
+            + ", "
+            + doQuote("execution_time")
+            + ", "
+            + doQuote("success")
             + ")"
             + " VALUES (?, ?, 'flyway', ?, ?, ?, ?, ?, toTimestamp(now()), ?, ?)";
 
         try {
             final PreparedStatement ps = session.prepare(insertSql);
-            session.execute(ps.bind(
-                item.getInstalledRank(),
+            session.execute(ps.bind(item.getInstalledRank(),
                 item.getVersion(),
                 item.getDescription(),
                 item.getType(),
@@ -303,17 +335,25 @@ public class CassandraDatabase extends NativeConnectorsNonJdbc {
     public void updateSchemaHistoryItem(final SchemaHistoryItem item, final String tableName) {
         final String table = quote(currentSchema, tableName);
 
-        final String updateSql = "UPDATE " + table
-            + " SET " + doQuote("checksum") + "=?"
-            + ", " + doQuote("description") + "=?"
-            + ", " + doQuote("type") + "=?"
-            + " WHERE " + doQuote("installed_rank") + "=?"
+        final String updateSql = "UPDATE "
+            + table
+            + " SET "
+            + doQuote("checksum")
+            + "=?"
+            + ", "
+            + doQuote("description")
+            + "=?"
+            + ", "
+            + doQuote("type")
+            + "=?"
+            + " WHERE "
+            + doQuote("installed_rank")
+            + "=?"
             + " AND partition='flyway'";
 
         try {
             final PreparedStatement ps = session.prepare(updateSql);
-            session.execute(ps.bind(
-                item.getChecksum(),
+            session.execute(ps.bind(item.getChecksum(),
                 item.getDescription(),
                 item.getType(),
                 item.getInstalledRank()));
@@ -327,12 +367,19 @@ public class CassandraDatabase extends NativeConnectorsNonJdbc {
         final String table = quote(currentSchema, tableName);
 
         try {
-            final ResultSet rs = session.execute(
-                "SELECT " + doQuote("installed_rank") + " FROM " + table
-                    + " WHERE " + doQuote("success") + " = false ALLOW FILTERING");
+            final ResultSet rs = session.execute("SELECT "
+                + doQuote("installed_rank")
+                + " FROM "
+                + table
+                + " WHERE "
+                + doQuote("success")
+                + " = false ALLOW FILTERING");
 
-            final PreparedStatement deletePs = session.prepare(
-                "DELETE FROM " + table + " WHERE partition='flyway' AND " + doQuote("installed_rank") + " = ?");
+            final PreparedStatement deletePs = session.prepare("DELETE FROM "
+                + table
+                + " WHERE partition='flyway' AND "
+                + doQuote("installed_rank")
+                + " = ?");
 
             for (final Row row : rs) {
                 session.execute(deletePs.bind(row.getInt("installed_rank")));
@@ -344,8 +391,7 @@ public class CassandraDatabase extends NativeConnectorsNonJdbc {
 
     @Override
     public boolean isSchemaEmpty(final String schema) {
-        final PreparedStatement ps = session.prepare(
-            "SELECT count(*) FROM system_schema.tables WHERE keyspace_name=?");
+        final PreparedStatement ps = session.prepare("SELECT count(*) FROM system_schema.tables WHERE keyspace_name=?");
         final Row row = session.execute(ps.bind(schema)).one();
         return row == null || row.getLong(0) == 0;
     }
@@ -361,7 +407,8 @@ public class CassandraDatabase extends NativeConnectorsNonJdbc {
     @Override
     public void createSchemas(final String... schemas) {
         for (final String schema : schemas) {
-            session.execute("CREATE KEYSPACE IF NOT EXISTS " + doQuote(schema)
+            session.execute("CREATE KEYSPACE IF NOT EXISTS "
+                + doQuote(schema)
                 + " WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : '1' }");
         }
     }

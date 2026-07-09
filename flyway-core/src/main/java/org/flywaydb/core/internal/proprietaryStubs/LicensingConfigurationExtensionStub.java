@@ -38,15 +38,17 @@ public class LicensingConfigurationExtensionStub implements ConfigurationExtensi
     }
 
     @Override
-    public String getConfigurationParameterFromEnvironmentVariable(String environmentVariable) {
+    public String getConfigurationParameterFromEnvironmentVariable(final String environmentVariable) {
         if ("FLYWAY_LICENSE_KEY".equals(environmentVariable)) {
             return LICENSE_KEY;
         }
         return null;
     }
 
-    public void setLicenseKey(String licenseKey) {
-        LOG.warn("Attempting to set a license key in Flyway open-source. Redgate features will not be available. Download Redgate Flyway at " + REDGATE_EDITION_DOWNLOAD);
+    public void setLicenseKey(final String licenseKey) {
+        LOG.warn(
+            "Attempting to set a license key in Flyway open-source. Redgate features will not be available. Download Redgate Flyway at "
+                + REDGATE_EDITION_DOWNLOAD);
     }
 
     public String getLicenseKey() {

@@ -13,7 +13,7 @@ subtitle: Babelfish
 
 [Babelfish for Aurora PostgreSQL](https://aws.amazon.com/rds/aurora/babelfish/) is an AWS-managed capability that allows Aurora PostgreSQL to understand SQL Server wire protocol (TDS) and T-SQL. Flyway connects to Babelfish using the standard SQL Server JDBC driver on port 1433, so the same `flyway-sqlserver` dependency is used.
 
-Flyway automatically detects a Babelfish endpoint by querying `SERVERPROPERTY('Babelfish')` and activates Babelfish-specific behaviour.
+Flyway automatically detects a Babelfish endpoint by querying `SERVERPROPERTY('Babelfish')` and activates Babelfish-specific behavior.
 
 Babelfish reports itself as an older version of SQL Server so it is normal to see this in the console log:`"SQL Server 2014 is outside of Redgate community support"`
 

@@ -33,6 +33,7 @@ import org.flywaydb.core.api.output.RepairOutput;
 import org.flywaydb.core.api.output.RepairResult;
 import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
 import org.flywaydb.core.internal.nc.schemahistory.SchemaHistoryItem;
+import org.flywaydb.core.extensibility.ConfigurationParameter;
 import org.flywaydb.core.extensibility.VerbExtension;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.util.StopWatch;
@@ -56,12 +57,26 @@ public class RepairVerbExtension implements VerbExtension {
     }
 
     @Override
+    public List<ConfigurationParameter> getConfigurationParameters() {
+        return List.of(new ConfigurationParameter("ignoreMigrationPatterns",
+            "Patterns of migrations and states to ignore during repair",
+            false));
+    }
+
+    @Override
+    public String getExample() {
+        return "flyway repair -ignoreMigrationPatterns=*:missing";
+    }
+
+    @Override
     public OperationResult executeVerb(final Configuration configuration) {
 
         final PreparationContext context = PreparationContext.get(configuration, false);
 
         final NativeConnectorsDatabase database = context.getDatabase();
-        final CallbackManager callbackManager = new CallbackManager(configuration, context.getCallbackResources(), Event::fromId);
+        final CallbackManager callbackManager = new CallbackManager(configuration,
+            context.getCallbackResources(),
+            Event::fromId);
 
         final RepairResult repairResult = new RepairResult(VersionPrinter.getVersion(),
             database.getDatabaseMetaData().databaseName());

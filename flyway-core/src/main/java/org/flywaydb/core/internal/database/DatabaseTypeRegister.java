@@ -42,9 +42,10 @@ public class DatabaseTypeRegister {
     private static final PluginRegister pluginRegister = new PluginRegister();
 
     // Order DatabaseType before native connector types, then by plugin priority (highest first)
-    private static final List<GeneralDatabaseType> SORTED_DATABASE_TYPES = pluginRegister.getInstancesOf(GeneralDatabaseType.class)
+    private static final List<GeneralDatabaseType> SORTED_DATABASE_TYPES = pluginRegister.getInstancesOf(
+            GeneralDatabaseType.class)
         .stream()
-        .sorted(Comparator.comparing((GeneralDatabaseType t) -> !(t instanceof DatabaseType))
+        .sorted(Comparator.comparing((final GeneralDatabaseType t) -> !(t instanceof DatabaseType))
             .thenComparing(Comparator.naturalOrder()))
         .toList();
 
@@ -52,13 +53,18 @@ public class DatabaseTypeRegister {
         return new ArrayList<>(SORTED_DATABASE_TYPES);
     }
 
-    public static List<GeneralDatabaseType> getDatabaseTypesForUrl(final String url, final Configuration configuration) {
-        final List<GeneralDatabaseType> typesAcceptingUrl = SORTED_DATABASE_TYPES.stream().filter(type -> configuration == null
-            || configuration.isCommunityDBSupportEnabled()
-            || !(type instanceof CommunityDatabaseType)).filter(type -> acceptsUrl(type, url)).toList();
+    public static List<GeneralDatabaseType> getDatabaseTypesForUrl(final String url,
+        final Configuration configuration) {
+        final List<GeneralDatabaseType> typesAcceptingUrl = SORTED_DATABASE_TYPES.stream()
+            .filter(type -> configuration == null
+                || configuration.isCommunityDBSupportEnabled()
+                || !(type instanceof CommunityDatabaseType))
+            .filter(type -> acceptsUrl(type, url))
+            .toList();
 
         if (typesAcceptingUrl.size() > 1) {
-            final String typeNames = String.join(",", typesAcceptingUrl.stream().map(GeneralDatabaseType::getName).toList());
+            final String typeNames = String.join(",",
+                typesAcceptingUrl.stream().map(GeneralDatabaseType::getName).toList());
 
             LOG.debug("Multiple databases found that handle url '"
                 + redactJdbcUrlWithKnownTypes(url, typesAcceptingUrl)
@@ -73,7 +79,8 @@ public class DatabaseTypeRegister {
         return redactJdbcUrlWithKnownTypes(url, getDatabaseTypesForUrl(url, null));
     }
 
-    public static String redactJdbcUrlWithKnownTypes(String url, final Collection<? extends GeneralDatabaseType> types) {
+    public static String redactJdbcUrlWithKnownTypes(String url,
+        final Collection<? extends GeneralDatabaseType> types) {
         if (types.isEmpty()) {
             final List<Pattern> dbPatterns = BaseDatabaseType.getDefaultJDBCCredentialsPatterns();
             url = redactJdbcUrl(url, dbPatterns);
@@ -121,13 +128,15 @@ public class DatabaseTypeRegister {
         final String databaseProductName = JdbcUtils.getDatabaseProductName(databaseMetaData);
         final String databaseProductVersion = JdbcUtils.getDatabaseProductVersion(databaseMetaData);
 
-        return sortedDatabaseTypesLegacyOnly.stream().filter(type -> configuration == null
-            || configuration.isCommunityDBSupportEnabled()
-            || !(type instanceof CommunityDatabaseType)).filter(type -> type.handlesDatabaseProductNameAndVersion(
-            databaseProductName,
-            databaseProductVersion,
-            connection)).findFirst().orElseThrow(() -> new FlywayException("Unsupported Database: "
-            + databaseProductName));
+        return sortedDatabaseTypesLegacyOnly.stream()
+            .filter(type -> configuration == null
+                || configuration.isCommunityDBSupportEnabled()
+                || !(type instanceof CommunityDatabaseType))
+            .filter(type -> type.handlesDatabaseProductNameAndVersion(databaseProductName,
+                databaseProductVersion,
+                connection))
+            .findFirst()
+            .orElseThrow(() -> new FlywayException("Unsupported Database: " + databaseProductName));
     }
 
     private static boolean acceptsUrl(final GeneralDatabaseType type, final String url) {

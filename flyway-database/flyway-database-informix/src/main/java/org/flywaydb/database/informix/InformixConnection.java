@@ -28,7 +28,7 @@ import java.sql.SQLException;
  * Informix connection.
  */
 public class InformixConnection extends Connection<InformixDatabase> {
-    InformixConnection(InformixDatabase database, java.sql.Connection connection) {
+    InformixConnection(final InformixDatabase database, final java.sql.Connection connection) {
         super(database, connection);
     }
 
@@ -38,12 +38,12 @@ public class InformixConnection extends Connection<InformixDatabase> {
     }
 
     @Override
-    public Schema getSchema(String name) {
+    public Schema getSchema(final String name) {
         return new InformixSchema(jdbcTemplate, database, name);
     }
 
     @Override
-    public void changeCurrentSchemaTo(Schema schema) {
+    public void changeCurrentSchemaTo(final Schema schema) {
         // Informix doesn't support schemas
     }
 }

@@ -31,7 +31,10 @@ public class CassandraTable extends Table<CassandraDatabase, CassandraSchema> {
      * @param schema       The schema this table lives in.
      * @param name         The name of the table.
      */
-    public CassandraTable(JdbcTemplate jdbcTemplate, CassandraDatabase database, CassandraSchema schema, String name) {
+    public CassandraTable(final JdbcTemplate jdbcTemplate,
+        final CassandraDatabase database,
+        final CassandraSchema schema,
+        final String name) {
         super(jdbcTemplate, database, schema, name);
     }
 
@@ -42,7 +45,10 @@ public class CassandraTable extends Table<CassandraDatabase, CassandraSchema> {
 
     @Override
     protected boolean doExists() throws SQLException {
-        return jdbcTemplate.queryForInt("select count(*) from system_schema.tables where keyspace_name=? and table_name=?", schema.getName(), name) > 0;
+        return jdbcTemplate.queryForInt(
+            "select count(*) from system_schema.tables where keyspace_name=? and table_name=?",
+            schema.getName(),
+            name) > 0;
     }
 
     @Override

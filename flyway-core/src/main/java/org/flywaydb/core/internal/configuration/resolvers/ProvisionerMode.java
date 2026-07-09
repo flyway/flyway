@@ -33,14 +33,14 @@ public enum ProvisionerMode {
 
     private final String value;
 
-    public static ProvisionerMode fromString(String value) {
+    public static ProvisionerMode fromString(final String value) {
         return Arrays.stream(values())
             .filter(mode -> mode.value.equalsIgnoreCase(value))
             .findFirst()
             .orElseThrow(() -> new FlywayException("Unknown provisioner mode: " + value));
     }
 
-    public boolean isHigherPriorityThan(ProvisionerMode other) {
+    public boolean isHigherPriorityThan(final ProvisionerMode other) {
         return switch (this) {
             case Reprovision -> other != Reprovision;
             case Provision -> other == Skip;

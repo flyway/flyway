@@ -28,15 +28,18 @@ import java.sql.SQLException;
 
 /**
  * CockroachDB-specific table.
- *
+ * <p>
  * Note that CockroachDB doesn't support table locks. We therefore use a row in the schema history as a lock indicator;
- * if another process has inserted such a row we wait (potentially indefinitely) for it to be removed before
- * carrying out a migration.
+ * if another process has inserted such a row we wait (potentially indefinitely) for it to be removed before carrying
+ * out a migration.
  */
 public class CockroachDBTable extends Table<CockroachDBDatabase, CockroachDBSchema> {
     private final InsertRowLock insertRowLock;
 
-    CockroachDBTable(JdbcTemplate jdbcTemplate, CockroachDBDatabase database, CockroachDBSchema schema, String name) {
+    CockroachDBTable(final JdbcTemplate jdbcTemplate,
+        final CockroachDBDatabase database,
+        final CockroachDBSchema schema,
+        final String name) {
         super(jdbcTemplate, database, schema, name);
         this.insertRowLock = new InsertRowLock(jdbcTemplate);
     }
@@ -60,44 +63,51 @@ public class CockroachDBTable extends Table<CockroachDBDatabase, CockroachDBSche
 
     protected boolean doExistsOnce() throws SQLException {
         if (schema.cockroachDB1) {
-            return jdbcTemplate.queryForBoolean("SELECT EXISTS (\n" +
-                                                        "   SELECT 1\n" +
-                                                        "   FROM   information_schema.tables \n" +
-                                                        "   WHERE  table_schema = ?\n" +
-                                                        "   AND    table_name = ?\n" +
-                                                        ")", schema.getName(), name);
+            return jdbcTemplate.queryForBoolean("SELECT EXISTS (\n"
+                + "   SELECT 1\n"
+                + "   FROM   information_schema.tables \n"
+                + "   WHERE  table_schema = ?\n"
+                + "   AND    table_name = ?\n"
+                + ")", schema.getName(), name);
         } else if (!schema.hasSchemaSupport) {
-            return jdbcTemplate.queryForBoolean("SELECT EXISTS (\n" +
-                                                        "   SELECT 1\n" +
-                                                        "   FROM   information_schema.tables \n" +
-                                                        "   WHERE  table_catalog = ?\n" +
-                                                        "   AND    table_schema = 'public'\n" +
-                                                        "   AND    table_name = ?\n" +
-                                                        ")", schema.getName(), name);
+            return jdbcTemplate.queryForBoolean("SELECT EXISTS (\n"
+                + "   SELECT 1\n"
+                + "   FROM   information_schema.tables \n"
+                + "   WHERE  table_catalog = ?\n"
+                + "   AND    table_schema = 'public'\n"
+                + "   AND    table_name = ?\n"
+                + ")", schema.getName(), name);
         } else {
             // There is a bug in CockroachDB v20.2.0-beta.* which causes the string equality operator to not work as
             // expected, therefore we apply a workaround using the like operator.
             // https://github.com/cockroachdb/cockroach/issues/55437
-            String sql = "SELECT EXISTS (\n" +
-                    "   SELECT 1\n" +
-                    "   FROM   information_schema.tables \n" +
-                    "   WHERE  table_schema = ?\n" +
-                    "   AND    table_name like '%" + name + "%' and length(table_name) = length(?)\n" +
-                    ")";
+            final String sql = "SELECT EXISTS (\n"
+                + "   SELECT 1\n"
+                + "   FROM   information_schema.tables \n"
+                + "   WHERE  table_schema = ?\n"
+                + "   AND    table_name like '%"
+                + name
+                + "%' and length(table_name) = length(?)\n"
+                + ")";
             return jdbcTemplate.queryForBoolean(sql, schema.getName(), name);
         }
     }
 
     @Override
     protected void doLock() throws SQLException {
-        String updateLockStatement = "UPDATE " + this + " SET installed_on = now() WHERE version = '?' AND DESCRIPTION = 'flyway-lock'";
-        String deleteExpiredLockStatement =
-                " DELETE FROM " + this +
-                        " WHERE DESCRIPTION = 'flyway-lock'" +
-                        " AND installed_on < TIMESTAMP '?'";
+        final String updateLockStatement = "UPDATE "
+            + this
+            + " SET installed_on = now() WHERE version = '?' AND DESCRIPTION = 'flyway-lock'";
+        final String deleteExpiredLockStatement = " DELETE FROM "
+            + this
+            + " WHERE DESCRIPTION = 'flyway-lock'"
+            + " AND installed_on < TIMESTAMP '?'";
 
         if (lockDepth == 0) {
-            insertRowLock.doLock(database.getInsertStatement(this), updateLockStatement, deleteExpiredLockStatement, database.getBooleanTrue());
+            insertRowLock.doLock(database.getInsertStatement(this),
+                updateLockStatement,
+                deleteExpiredLockStatement,
+                database.getBooleanTrue());
         }
     }
 

@@ -38,7 +38,7 @@ public enum DataUnits {
      * @param units Number of data units to convert to bytes
      * @return Number of bytes in data units
      */
-    public long toBytes(long units) {
+    public long toBytes(final long units) {
         return units * factor;
     }
 
@@ -48,14 +48,14 @@ public enum DataUnits {
      * @param bytes Number of bytes to convert to data units
      * @return Number of bytes in data units
      */
-    public long fromBytes(long bytes) {
+    public long fromBytes(final long bytes) {
         return bytes / factor;
     }
 
     /**
      * @return The specified bytes as a human-readable string normalized to this unit
      */
-    public String toHumanReadableString(long bytes) {
+    public String toHumanReadableString(final long bytes) {
         return fromBytes(bytes) + " " + suffix;
     }
 }

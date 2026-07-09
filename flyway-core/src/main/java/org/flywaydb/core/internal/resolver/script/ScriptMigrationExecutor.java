@@ -60,9 +60,10 @@ public class ScriptMigrationExecutor implements MigrationExecutor {
         } else if (context.getConnection() == null) {
             executeOnce(context);
         } else {
-            DatabaseType databaseType = DatabaseTypeRegister.getDatabaseTypeForConnection(context.getConnection(), context.getConfiguration());
+            final DatabaseType databaseType = DatabaseTypeRegister.getDatabaseTypeForConnection(context.getConnection(),
+                context.getConfiguration());
 
-            DatabaseExecutionStrategy strategy = databaseType.createExecutionStrategy(context.getConnection());
+            final DatabaseExecutionStrategy strategy = databaseType.createExecutionStrategy(context.getConnection());
             strategy.execute(() -> {
                 executeOnce(context);
                 return true;
@@ -80,32 +81,32 @@ public class ScriptMigrationExecutor implements MigrationExecutor {
         }
     }
 
-    private String join(String joiner, List<String> strings) {
+    private String join(final String joiner, final List<String> strings) {
         if (strings.size() == 1) {
             return strings.get(0);
         }
 
-        StringBuilder output = new StringBuilder();
+        final StringBuilder output = new StringBuilder();
 
-        for (String s : strings) {
+        for (final String s : strings) {
             output.append(s).append(joiner);
         }
 
         return output.toString();
     }
 
-    List<String> getProcessArgs(Context context) {
-        String resourcePath = resource.getAbsolutePathOnDisk();
-        String resourceExt = StringUtils.getFileNameAndExtension(resourcePath).getRight();
+    List<String> getProcessArgs(final Context context) {
+        final String resourcePath = resource.getAbsolutePathOnDisk();
+        final String resourceExt = StringUtils.getFileNameAndExtension(resourcePath).getRight();
 
-        List<String> args = new ArrayList<>();
+        final List<String> args = new ArrayList<>();
 
         if ("bat".equalsIgnoreCase(resourceExt) || "cmd".equalsIgnoreCase(resourceExt)) {
             args.add("cmd");
             args.add("/c");
             args.add(resourcePath);
         } else if ("ps1".equalsIgnoreCase(resourceExt)) {
-            String powershellExecutable = context.getConfiguration().getPowershellExecutable();
+            final String powershellExecutable = context.getConfiguration().getPowershellExecutable();
             if (StringUtils.hasText(powershellExecutable)) {
                 validatePowershellExecutable(powershellExecutable);
                 args.add(powershellExecutable);
@@ -125,7 +126,7 @@ public class ScriptMigrationExecutor implements MigrationExecutor {
             args.add("bash");
             args.add(resourcePath);
         } else {
-            File file = new File(resourcePath);
+            final File file = new File(resourcePath);
             if (!file.canExecute()) {
                 file.setExecutable(true, true);
             }
@@ -136,24 +137,24 @@ public class ScriptMigrationExecutor implements MigrationExecutor {
         return args;
     }
 
-    private void setIfNotNull(ProcessBuilder builder, String property, String value) {
+    private void setIfNotNull(final ProcessBuilder builder, final String property, final String value) {
         if (value != null && !value.isEmpty()) {
             builder.environment().put(property, value);
         }
     }
 
     private void runScript(final Context context) throws Exception {
-        List<String> args = getProcessArgs(context);
+        final List<String> args = getProcessArgs(context);
         LOG.info("Executing " + join(" ", args));
 
         String url = context.getConfiguration().getUrl();
         String username = context.getConfiguration().getUser();
-        String password = context.getConfiguration().getPassword();
-        String prefix = context.getConfiguration().getScriptPlaceholderPrefix();
-        String suffix = context.getConfiguration().getScriptPlaceholderSuffix();
+        final String password = context.getConfiguration().getPassword();
+        final String prefix = context.getConfiguration().getScriptPlaceholderPrefix();
+        final String suffix = context.getConfiguration().getScriptPlaceholderSuffix();
 
         parsingContext.updateFilenamePlaceholder(resourceName, context.getConfiguration());
-        Map<String, String> placeHolders = parsingContext.getPlaceholders();
+        final Map<String, String> placeHolders = parsingContext.getPlaceholders();
         placeHolders.putAll(context.getConfiguration().getPlaceholders());
 
         // If the url or username aren't set, try to read them from the connection metadata
@@ -171,21 +172,22 @@ public class ScriptMigrationExecutor implements MigrationExecutor {
             }
         }
 
-        ProcessBuilder builder = new ProcessBuilder(args);
+        final ProcessBuilder builder = new ProcessBuilder(args);
         setIfNotNull(builder, "FLYWAY_URL", url);
         setIfNotNull(builder, "FLYWAY_USER", username);
         setIfNotNull(builder, "FLYWAY_PASSWORD", password);
 
-        for (String key : placeHolders.keySet()) {
-            String value = placeHolders.get(key);
+        for (final String key : placeHolders.keySet()) {
+            final String value = placeHolders.get(key);
             setIfNotNull(builder, prefix + key.replace(':', '_') + suffix, value);
         }
 
         builder.redirectErrorStream(true);
 
-        Process process = builder.start();
-        String stdOut = FileUtils.copyToString(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8));
-        int returnCode = process.waitFor();
+        final Process process = builder.start();
+        final String stdOut = FileUtils.copyToString(new InputStreamReader(process.getInputStream(),
+            StandardCharsets.UTF_8));
+        final int returnCode = process.waitFor();
 
         LOG.info(stdOut);
 
@@ -203,13 +205,14 @@ public class ScriptMigrationExecutor implements MigrationExecutor {
     public boolean shouldExecute() {
         return true;
     }
-    
-    private void validatePowershellExecutable(String powershellExecutable) {
+
+    private void validatePowershellExecutable(final String powershellExecutable) {
         // Check if it's a legitimate PowerShell executable name
-        String executableName = powershellExecutable.toLowerCase();
+        final String executableName = powershellExecutable.toLowerCase();
         if (!executableName.equals("powershell") && !executableName.equals("pwsh")) {
-            throw new FlywayException("Invalid PowerShell executable: " + powershellExecutable + 
-                ". Only 'powershell' or 'pwsh' are allowed.");
+            throw new FlywayException("Invalid PowerShell executable: "
+                + powershellExecutable
+                + ". Only 'powershell' or 'pwsh' are allowed.");
         }
     }
 }

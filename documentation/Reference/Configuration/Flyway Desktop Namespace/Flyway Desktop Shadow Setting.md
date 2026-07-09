@@ -22,7 +22,7 @@ This setting can't be configured other than in a TOML configuration file.
 ### Flyway Desktop
 
 This will always be set to the default value when a project is created using Flyway Desktop, though Flyway Desktop will
-honour it if it is manually changed in the settings file.
+honor it if it is manually changed in the settings file.
 If there is no environment with the given name, Flyway Desktop will prompt for connection details.
 
 ### TOML Configuration File

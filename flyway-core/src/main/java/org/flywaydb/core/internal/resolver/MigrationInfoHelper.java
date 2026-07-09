@@ -37,20 +37,22 @@ public class MigrationInfoHelper {
      * Extracts the schema version and the description from a migration name formatted as 1_2__Description.
      *
      * @param migrationName The migration name to parse. Should not contain any folders or packages.
-     * @param prefix The migration prefix.
-     * @param separator The migration separator.
-     * @param suffixes The migration suffixes.
-     * @param repeatable Whether this is a repeatable migration.
+     * @param prefix        The migration prefix.
+     * @param separator     The migration separator.
+     * @param suffixes      The migration suffixes.
+     * @param repeatable    Whether this is a repeatable migration.
      * @return The extracted schema version.
      * @throws FlywayException if the migration name does not follow the standard conventions.
      */
-    public static Pair<MigrationVersion, String> extractVersionAndDescription(String migrationName,
-                                                                              String prefix, String separator,
-                                                                              String[] suffixes, boolean repeatable) {
+    public static Pair<MigrationVersion, String> extractVersionAndDescription(final String migrationName,
+        final String prefix,
+        final String separator,
+        final String[] suffixes,
+        final boolean repeatable) {
         // Only handles Java migrations now
-        String cleanMigrationName = cleanMigrationName(migrationName, prefix, suffixes);
+        final String cleanMigrationName = cleanMigrationName(migrationName, prefix, suffixes);
 
-        int separatorPos = cleanMigrationName.indexOf(separator);
+        final int separatorPos = cleanMigrationName.indexOf(separator);
 
         String version;
         String description;
@@ -64,32 +66,45 @@ public class MigrationInfoHelper {
 
         if (StringUtils.hasText(version)) {
             if (repeatable) {
-                throw new FlywayException("Wrong repeatable migration name format: " + migrationName
-                                                  + " (It cannot contain a version and should look like this: "
-                                                  + prefix + separator + description + suffixes[0] + ")");
+                throw new FlywayException("Wrong repeatable migration name format: "
+                    + migrationName
+                    + " (It cannot contain a version and should look like this: "
+                    + prefix
+                    + separator
+                    + description
+                    + suffixes[0]
+                    + ")");
             }
             try {
                 return Pair.of(MigrationVersion.fromVersion(version), description);
             } catch (Exception e) {
-                throw new FlywayException("Wrong versioned migration name format: " + migrationName
-                                                  + " (could not recognise version number " + version + ")", e);
+                throw new FlywayException("Wrong versioned migration name format: "
+                    + migrationName
+                    + " (could not recognise version number "
+                    + version
+                    + ")", e);
             }
         }
 
         if (!repeatable) {
-            throw new FlywayException("Wrong versioned migration name format: " + migrationName
-                                              + " (It must contain a version and should look like this: "
-                                              + prefix + "1.2" + separator + description + suffixes[0] + ")");
+            throw new FlywayException("Wrong versioned migration name format: "
+                + migrationName
+                + " (It must contain a version and should look like this: "
+                + prefix
+                + "1.2"
+                + separator
+                + description
+                + suffixes[0]
+                + ")");
         }
         return Pair.of(null, description);
     }
 
-    private static String cleanMigrationName(String migrationName, String prefix, String[] suffixes) {
-        for (String suffix : suffixes) {
+    private static String cleanMigrationName(final String migrationName, final String prefix, final String[] suffixes) {
+        for (final String suffix : suffixes) {
             if (migrationName.endsWith(suffix)) {
-                return migrationName.substring(
-                        StringUtils.hasLength(prefix) ? prefix.length() : 0,
-                        migrationName.length() - suffix.length());
+                return migrationName.substring(StringUtils.hasLength(prefix) ? prefix.length() : 0,
+                    migrationName.length() - suffix.length());
             }
         }
         return migrationName;

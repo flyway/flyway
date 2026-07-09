@@ -27,8 +27,8 @@ import org.flywaydb.core.extensibility.VerbExtension;
 @CustomLog
 public class NativeConnectorsModeUtils {
     public static boolean canUseNativeConnectors(final Configuration config) {
-        final NativeConnectorsSupport supportChecker = config.getPluginRegister().getInstanceOf(
-            NativeConnectorsSupport.class);
+        final NativeConnectorsSupport supportChecker = config.getPluginRegister()
+            .getInstanceOf(NativeConnectorsSupport.class);
         if (supportChecker == null) {
             return false;
         }
@@ -36,8 +36,8 @@ public class NativeConnectorsModeUtils {
     }
 
     public static boolean canCreateDataSource(final Configuration config) {
-        final NativeConnectorsSupport supportChecker = config.getPluginRegister().getInstanceOf(
-            NativeConnectorsSupport.class);
+        final NativeConnectorsSupport supportChecker = config.getPluginRegister()
+            .getInstanceOf(NativeConnectorsSupport.class);
         if (supportChecker == null) {
             return true;
         }
@@ -45,16 +45,19 @@ public class NativeConnectorsModeUtils {
     }
 
     public static boolean isNativeConnectorsTurnedOn() {
-        return System.getenv("FLYWAY_NATIVE_CONNECTORS") != null && System.getenv("FLYWAY_NATIVE_CONNECTORS").equalsIgnoreCase("true");
+        return System.getenv("FLYWAY_NATIVE_CONNECTORS") != null && System.getenv("FLYWAY_NATIVE_CONNECTORS")
+            .equalsIgnoreCase("true");
     }
 
     public static boolean isNativeConnectorsTurnedOff() {
-        return System.getenv("FLYWAY_NATIVE_CONNECTORS") != null && System.getenv("FLYWAY_NATIVE_CONNECTORS").equalsIgnoreCase("false");
+        return System.getenv("FLYWAY_NATIVE_CONNECTORS") != null && System.getenv("FLYWAY_NATIVE_CONNECTORS")
+            .equalsIgnoreCase("false");
     }
 
     public static Optional<VerbExtension> findVerbExtension(final Configuration configuration, final String command) {
         return configuration.getPluginRegister()
-            .getInstancesOf(VerbExtension.class).stream()
+            .getInstancesOf(VerbExtension.class)
+            .stream()
             .filter(verbExtension -> verbExtension.handlesCommand(command))
             .findFirst();
     }

@@ -28,45 +28,51 @@ import lombok.Getter;
 @RequiredArgsConstructor
 public enum Event implements CallbackEvent<Event> {
     /**
-     * Fired before clean is executed. This event will be fired in a separate transaction from the actual clean operation.
+     * Fired before clean is executed. This event will be fired in a separate transaction from the actual clean
+     * operation.
      */
     BEFORE_CLEAN("beforeClean"),
     /**
-     * Fired after clean has succeeded. This event will be fired in a separate transaction from the actual clean operation.
+     * Fired after clean has succeeded. This event will be fired in a separate transaction from the actual clean
+     * operation.
      */
     AFTER_CLEAN("afterClean"),
     /**
-     * Fired after clean has failed. This event will be fired in a separate transaction from the actual clean operation.
+     * Fired after clean has failed. This event will be fired in a separate transaction from the actual clean
+     * operation.
      */
     AFTER_CLEAN_ERROR("afterCleanError"),
 
     /**
-     * Fired before migrate is executed. This event will be fired in a separate transaction from the actual migrate operation.
+     * Fired before migrate is executed. This event will be fired in a separate transaction from the actual migrate
+     * operation.
      */
     BEFORE_MIGRATE("beforeMigrate"),
     /**
      * Fired before each individual migration is executed. This event will be fired within the same transaction (if any)
-     * as the migration and can be used for things like setting up connection parameters that are required by migrations.
+     * as the migration and can be used for things like setting up connection parameters that are required by
+     * migrations.
      */
     BEFORE_EACH_MIGRATE("beforeEachMigrate"),
     /**
-     * Fired before each individual statement in a migration is executed. This event will be fired within the same transaction (if any)
-     * as the migration and can be used for things like asserting a statement complies with policy (for example: no grant statements allowed).
+     * Fired before each individual statement in a migration is executed. This event will be fired within the same
+     * transaction (if any) as the migration and can be used for things like asserting a statement complies with policy
+     * (for example: no grant statements allowed).
      */
     BEFORE_EACH_MIGRATE_STATEMENT("beforeEachMigrateStatement"),
     /**
-     * Fired after each individual statement in a migration that succeeded. This event will be fired within the same transaction (if any)
-     * as the migration.
+     * Fired after each individual statement in a migration that succeeded. This event will be fired within the same
+     * transaction (if any) as the migration.
      */
     AFTER_EACH_MIGRATE_STATEMENT("afterEachMigrateStatement"),
     /**
-     * Fired after each individual statement in a migration that failed. This event will be fired within the same transaction (if any)
-     * as the migration.
+     * Fired after each individual statement in a migration that failed. This event will be fired within the same
+     * transaction (if any) as the migration.
      */
     AFTER_EACH_MIGRATE_STATEMENT_ERROR("afterEachMigrateStatementError"),
     /**
-     * Fired after each individual migration that succeeded. This event will be fired within the same transaction (if any)
-     * as the migration.
+     * Fired after each individual migration that succeeded. This event will be fired within the same transaction (if
+     * any) as the migration.
      */
     AFTER_EACH_MIGRATE("afterEachMigrate"),
     /**
@@ -75,69 +81,77 @@ public enum Event implements CallbackEvent<Event> {
      */
     AFTER_EACH_MIGRATE_ERROR("afterEachMigrateError"),
     /**
-     * Fired before any repeatable migrations are applied. This event will be fired in a separate transaction from the actual migrate operation.
+     * Fired before any repeatable migrations are applied. This event will be fired in a separate transaction from the
+     * actual migrate operation.
      */
     BEFORE_REPEATABLES("beforeRepeatables"),
     /**
-     * Fired after all versioned migrations are applied. This event will be fired in a separate transaction from the actual migrate operation.
+     * Fired after all versioned migrations are applied. This event will be fired in a separate transaction from the
+     * actual migrate operation.
      */
     AFTER_VERSIONED("afterVersioned"),
     /**
-     * Fired after migrate has succeeded, and at least one migration has been applied. This event will be fired in a separate transaction from the actual migrate operation.
+     * Fired after migrate has succeeded, and at least one migration has been applied. This event will be fired in a
+     * separate transaction from the actual migrate operation.
      */
     AFTER_MIGRATE_APPLIED("afterMigrateApplied"),
     /**
-     * Fired after migrate has succeeded. This event will be fired in a separate transaction from the actual migrate operation.
+     * Fired after migrate has succeeded. This event will be fired in a separate transaction from the actual migrate
+     * operation.
      */
     AFTER_MIGRATE("afterMigrate"),
     /**
-     * Fired after migrate has failed. This event will be fired in a separate transaction from the actual migrate operation.
+     * Fired after migrate has failed. This event will be fired in a separate transaction from the actual migrate
+     * operation.
      */
     AFTER_MIGRATE_ERROR("afterMigrateError"),
 
     /**
-     * Fired before undo is executed. This event will be fired in a separate transaction from the actual undo operation.
+     * Fired before undo is executed. This event will be fired in a separate transaction from the actual undo
+     * operation.
      * <p><i>Flyway Teams Edition only</i></p>
      */
     BEFORE_UNDO("beforeUndo"),
     /**
-     * Fired before each individual undo is executed. This event will be fired within the same transaction (if any)
-     * as the undo and can be used for things like setting up connection parameters that are required by undo.
+     * Fired before each individual undo is executed. This event will be fired within the same transaction (if any) as
+     * the undo and can be used for things like setting up connection parameters that are required by undo.
      * <p><i>Flyway Teams Edition only</i></p>
      */
     BEFORE_EACH_UNDO("beforeEachUndo"),
     /**
-     * Fired before each individual statement in an undo migration is executed. This event will be fired within the same transaction (if any)
-     * as the migration and can be used for things like asserting a statement complies with policy (for example: no grant statements allowed).
+     * Fired before each individual statement in an undo migration is executed. This event will be fired within the same
+     * transaction (if any) as the migration and can be used for things like asserting a statement complies with policy
+     * (for example: no grant statements allowed).
      * <p><i>Flyway Teams Edition only</i></p>
      */
     BEFORE_EACH_UNDO_STATEMENT("beforeEachUndoStatement"),
     /**
-     * Fired after each individual statement in an undo migration that succeeded. This event will be fired within the same transaction (if any)
-     * as the migration.
+     * Fired after each individual statement in an undo migration that succeeded. This event will be fired within the
+     * same transaction (if any) as the migration.
      * <p><i>Flyway Teams Edition only</i></p>
      */
     AFTER_EACH_UNDO_STATEMENT("afterEachUndoStatement"),
     /**
-     * Fired after each individual statement in an undo migration that failed. This event will be fired within the same transaction (if any)
-     * as the migration.
+     * Fired after each individual statement in an undo migration that failed. This event will be fired within the same
+     * transaction (if any) as the migration.
      * <p><i>Flyway Teams Edition only</i></p>
      */
     AFTER_EACH_UNDO_STATEMENT_ERROR("afterEachUndoStatementError"),
     /**
-     * Fired after each individual undo that succeeded. This event will be fired within the same transaction (if any)
-     * as the undo.
+     * Fired after each individual undo that succeeded. This event will be fired within the same transaction (if any) as
+     * the undo.
      * <p><i>Flyway Teams Edition only</i></p>
      */
     AFTER_EACH_UNDO("afterEachUndo"),
     /**
-     * Fired after each individual undo that failed. This event will be fired within the same transaction (if any)
-     * as the undo.
+     * Fired after each individual undo that failed. This event will be fired within the same transaction (if any) as
+     * the undo.
      * <p><i>Flyway Teams Edition only</i></p>
      */
     AFTER_EACH_UNDO_ERROR("afterEachUndoError"),
     /**
-     * Fired after undo has succeeded. This event will be fired in a separate transaction from the actual undo operation.
+     * Fired after undo has succeeded. This event will be fired in a separate transaction from the actual undo
+     * operation.
      * <p><i>Flyway Teams Edition only</i></p>
      */
     AFTER_UNDO("afterUndo"),
@@ -148,50 +162,61 @@ public enum Event implements CallbackEvent<Event> {
     AFTER_UNDO_ERROR("afterUndoError"),
 
     /**
-     * Fired before validate is executed. This event will be fired in a separate transaction from the actual validate operation.
+     * Fired before validate is executed. This event will be fired in a separate transaction from the actual validate
+     * operation.
      */
     BEFORE_VALIDATE("beforeValidate"),
     /**
-     * Fired after validate has succeeded. This event will be fired in a separate transaction from the actual validate operation.
+     * Fired after validate has succeeded. This event will be fired in a separate transaction from the actual validate
+     * operation.
      */
     AFTER_VALIDATE("afterValidate"),
     /**
-     * Fired after validate has failed. This event will be fired in a separate transaction from the actual validate operation.
+     * Fired after validate has failed. This event will be fired in a separate transaction from the actual validate
+     * operation.
      */
     AFTER_VALIDATE_ERROR("afterValidateError"),
 
     /**
-     * Fired before baseline is executed. This event will be fired in a separate transaction from the actual baseline operation.
+     * Fired before baseline is executed. This event will be fired in a separate transaction from the actual baseline
+     * operation.
      */
     BEFORE_BASELINE("beforeBaseline"),
     /**
-     * Fired after baseline has succeeded. This event will be fired in a separate transaction from the actual baseline operation.
+     * Fired after baseline has succeeded. This event will be fired in a separate transaction from the actual baseline
+     * operation.
      */
     AFTER_BASELINE("afterBaseline"),
     /**
-     * Fired after baseline has failed. This event will be fired in a separate transaction from the actual baseline operation.
+     * Fired after baseline has failed. This event will be fired in a separate transaction from the actual baseline
+     * operation.
      */
     AFTER_BASELINE_ERROR("afterBaselineError"),
 
     /**
-     * Fired before repair is executed. This event will be fired in a separate transaction from the actual repair operation.
+     * Fired before repair is executed. This event will be fired in a separate transaction from the actual repair
+     * operation.
      */
     BEFORE_REPAIR("beforeRepair"),
     /**
-     * Fired after repair has succeeded. This event will be fired in a separate transaction from the actual repair operation.
+     * Fired after repair has succeeded. This event will be fired in a separate transaction from the actual repair
+     * operation.
      */
     AFTER_REPAIR("afterRepair"),
     /**
-     * Fired after repair has failed. This event will be fired in a separate transaction from the actual repair operation.
+     * Fired after repair has failed. This event will be fired in a separate transaction from the actual repair
+     * operation.
      */
     AFTER_REPAIR_ERROR("afterRepairError"),
 
     /**
-     * Fired before info is executed. This event will be fired in a separate transaction from the actual info operation.
+     * Fired before info is executed. This event will be fired in a separate transaction from the actual info
+     * operation.
      */
     BEFORE_INFO("beforeInfo"),
     /**
-     * Fired after info has succeeded. This event will be fired in a separate transaction from the actual info operation.
+     * Fired after info has succeeded. This event will be fired in a separate transaction from the actual info
+     * operation.
      */
     AFTER_INFO("afterInfo"),
     /**

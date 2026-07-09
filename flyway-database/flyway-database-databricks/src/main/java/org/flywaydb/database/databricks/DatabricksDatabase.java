@@ -30,12 +30,14 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class DatabricksDatabase extends Database<DatabricksConnection> {
-    public DatabricksDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+    public DatabricksDatabase(final Configuration configuration,
+        final JdbcConnectionFactory jdbcConnectionFactory,
+        final StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
     @Override
-    protected DatabricksConnection doGetConnection(Connection connection) {
+    protected DatabricksConnection doGetConnection(final Connection connection) {
         return new DatabricksConnection(this, connection);
     }
 
@@ -45,7 +47,7 @@ public class DatabricksDatabase extends Database<DatabricksConnection> {
     }
 
     @Override
-    public void ensureSupported(Configuration configuration) {
+    public void ensureSupported(final Configuration configuration) {
         // Always latest Databricks version.
     }
 
@@ -81,8 +83,10 @@ public class DatabricksDatabase extends Database<DatabricksConnection> {
     }
 
     @Override
-    public String doQuote(String identifier) {
-        return getOpenQuote() + StringUtils.replaceAll(identifier, getCloseQuote(), getEscapedQuote()) + getCloseQuote();
+    public String doQuote(final String identifier) {
+        return getOpenQuote()
+            + StringUtils.replaceAll(identifier, getCloseQuote(), getEscapedQuote())
+            + getCloseQuote();
     }
 
     @Override
@@ -101,37 +105,50 @@ public class DatabricksDatabase extends Database<DatabricksConnection> {
     }
 
     @Override
-    public String getRawCreateScript(Table table, boolean baseline) {
-        String sql = "CREATE TABLE " + table + " (\n" +
-                "    `installed_rank` INT NOT NULL,\n" +
-                "    `version` STRING,\n" +
-                "    `description` STRING NOT NULL,\n" +
-                "    `type` STRING NOT NULL,\n" +
-                "    `script` STRING NOT NULL,\n" +
-                "    `checksum` INT,\n" +
-                "    `installed_by` STRING NOT NULL,\n" +
-                "    `installed_on` TIMESTAMP NOT NULL,\n" +
-                "    `execution_time` INT NOT NULL,\n" +
-                "    `success` BOOLEAN NOT NULL\n" +
-                ");\n" +
-                (baseline ? getBaselineStatement(table) + ";\n" : "");
+    public String getRawCreateScript(final Table table, final boolean baseline) {
+        final String sql = "CREATE TABLE "
+            + table
+            + " (\n"
+            + "    `installed_rank` INT NOT NULL,\n"
+            + "    `version` STRING,\n"
+            + "    `description` STRING NOT NULL,\n"
+            + "    `type` STRING NOT NULL,\n"
+            + "    `script` STRING NOT NULL,\n"
+            + "    `checksum` INT,\n"
+            + "    `installed_by` STRING NOT NULL,\n"
+            + "    `installed_on` TIMESTAMP NOT NULL,\n"
+            + "    `execution_time` INT NOT NULL,\n"
+            + "    `success` BOOLEAN NOT NULL\n"
+            + ");\n"
+            + (baseline ? getBaselineStatement(table) + ";\n" : "");
         return sql;
     }
 
     @Override
-    public String getInsertStatement(Table table) {
-        return "INSERT INTO " + table
-                + " (" + quote("installed_rank")
-                + ", " + quote("version")
-                + ", " + quote("description")
-                + ", " + quote("type")
-                + ", " + quote("script")
-                + ", " + quote("checksum")
-                + ", " + quote("installed_by")
-                + ", " + quote("installed_on")
-                + ", " + quote("execution_time")
-                + ", " + quote("success")
-                + ")"
-                + " VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP(), ?, ?)";
+    public String getInsertStatement(final Table table) {
+        return "INSERT INTO "
+            + table
+            + " ("
+            + quote("installed_rank")
+            + ", "
+            + quote("version")
+            + ", "
+            + quote("description")
+            + ", "
+            + quote("type")
+            + ", "
+            + quote("script")
+            + ", "
+            + quote("checksum")
+            + ", "
+            + quote("installed_by")
+            + ", "
+            + quote("installed_on")
+            + ", "
+            + quote("execution_time")
+            + ", "
+            + quote("success")
+            + ")"
+            + " VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP(), ?, ?)";
     }
 }

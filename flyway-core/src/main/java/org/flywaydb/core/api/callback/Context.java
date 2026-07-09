@@ -35,9 +35,9 @@ public interface Context {
     Configuration getConfiguration();
 
     /**
-     * @return The JDBC connection being used. Transaction are managed by Flyway.
-     * When the context is passed to the {@link Callback#handle(Event, Context)} method, a transaction will already have
-     * been started if required and will be automatically committed or rolled back afterwards.
+     * @return The JDBC connection being used. Transaction are managed by Flyway. When the context is passed to the
+     * {@link Callback#handle(Event, Context)} method, a transaction will already have been started if required and will
+     * be automatically committed or rolled back afterwards.
      */
     Connection getConnection();
 
@@ -48,13 +48,14 @@ public interface Context {
     MigrationInfo getMigrationInfo();
 
     /**
-     * @return The info about the statement being handled. Only relevant for the statement-level events.
-     * {@code null} in all other cases.
+     * @return The info about the statement being handled. Only relevant for the statement-level events. {@code null} in
+     * all other cases.
      */
     Statement getStatement();
 
     /**
-     * @return The OperationResult object for the finished operation. Only relevant for the AFTER_*_OPERATION_FINISH events.
+     * @return The OperationResult object for the finished operation. Only relevant for the AFTER_*_OPERATION_FINISH
+     * events.
      */
     OperationResult getOperationResult();
 }

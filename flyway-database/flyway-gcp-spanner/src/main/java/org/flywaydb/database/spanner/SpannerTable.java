@@ -32,7 +32,10 @@ public class SpannerTable extends Table<SpannerDatabase, SpannerSchema> {
 
     private final InsertRowLock insertRowLock;
 
-    public SpannerTable(JdbcTemplate jdbcTemplate, SpannerDatabase database, SpannerSchema schema, String name) {
+    public SpannerTable(final JdbcTemplate jdbcTemplate,
+        final SpannerDatabase database,
+        final SpannerSchema schema,
+        final String name) {
         super(jdbcTemplate, database, schema, name);
         this.insertRowLock = new InsertRowLock(jdbcTemplate);
     }
@@ -40,7 +43,7 @@ public class SpannerTable extends Table<SpannerDatabase, SpannerSchema> {
     @Override
     protected boolean doExists() throws SQLException {
         try (Connection c = database.getNewRawConnection()) {
-            Statement s = c.createStatement();
+            final Statement s = c.createStatement();
             s.close();
             try (ResultSet tables = c.getMetaData().getTables("", "", this.name, null)) {
                 return tables.next();
@@ -50,14 +53,21 @@ public class SpannerTable extends Table<SpannerDatabase, SpannerSchema> {
 
     @Override
     protected void doLock() throws SQLException {
-        String updateLockStatement = "UPDATE " + name + " SET installed_on = CURRENT_TIMESTAMP() WHERE version = '?' AND DESCRIPTION = 'flyway-lock'";
-        String deleteExpiredLockStatement =
-                " DELETE FROM " + name +
-                        " WHERE DESCRIPTION = 'flyway-lock'" +
-                        " AND installed_on < TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL -" + InsertRowLock.LOCK_TIMEOUT_MINS + " MINUTE)";
+        final String updateLockStatement = "UPDATE "
+            + name
+            + " SET installed_on = CURRENT_TIMESTAMP() WHERE version = '?' AND DESCRIPTION = 'flyway-lock'";
+        final String deleteExpiredLockStatement = " DELETE FROM "
+            + name
+            + " WHERE DESCRIPTION = 'flyway-lock'"
+            + " AND installed_on < TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL -"
+            + InsertRowLock.LOCK_TIMEOUT_MINS
+            + " MINUTE)";
 
         if (lockDepth == 0) {
-            insertRowLock.doLock(database.getInsertStatement(this), updateLockStatement, deleteExpiredLockStatement, database.getBooleanTrue());
+            insertRowLock.doLock(database.getInsertStatement(this),
+                updateLockStatement,
+                deleteExpiredLockStatement,
+                database.getBooleanTrue());
         }
     }
 

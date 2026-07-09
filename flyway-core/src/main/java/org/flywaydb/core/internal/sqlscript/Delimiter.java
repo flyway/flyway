@@ -42,11 +42,9 @@ public class Delimiter {
     private final boolean aloneOnLine;
 
     /**
-     * The escape string for the delimiter, if any.
-     * -- GETTER --
+     * The escape string for the delimiter, if any. -- GETTER --
      *
      * @return The escape string for the delimiter, if any.
-
      */
     @Getter
     private final String escape;
@@ -54,10 +52,10 @@ public class Delimiter {
     /**
      * Creates a new delimiter.
      *
-     * @param delimiter The actual delimiter string.
+     * @param delimiter   The actual delimiter string.
      * @param aloneOnLine Whether the delimiter sits alone on a new line or not.
      */
-    public Delimiter(String delimiter, boolean aloneOnLine, String escape) {
+    public Delimiter(final String delimiter, final boolean aloneOnLine, final String escape) {
         this.delimiter = delimiter;
         this.aloneOnLine = aloneOnLine;
         this.escape = escape;
@@ -76,7 +74,7 @@ public class Delimiter {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }
@@ -84,7 +82,7 @@ public class Delimiter {
             return false;
         }
 
-        Delimiter delimiter1 = (Delimiter) o;
+        final Delimiter delimiter1 = (Delimiter) o;
 
         return aloneOnLine == delimiter1.aloneOnLine && delimiter.equals(delimiter1.delimiter);
     }

@@ -39,7 +39,7 @@ public class CallbackManager {
         final Function<String, ? extends CallbackEvent<?>> eventResolver) {
         callbackHandlers = configuration.getPluginRegister().getInstancesOf(CallbackHandler.class);
 
-        if (callbackHandlers.isEmpty()){
+        if (callbackHandlers.isEmpty()) {
             LOG.warn("Native Connectors Mode is set but no callback handlers loaded");
             return;
         }

@@ -24,7 +24,6 @@ import tools.jackson.core.JsonToken;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.cfg.MapperBuilder;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.dataformat.toml.TomlStreamReadException;
@@ -53,70 +52,72 @@ public class TomlUtils {
     private static final String MSG = "Using both new Environment variable %1$s and old Environment variable %2$s. Please remove %2$s.";
 
     public static ConfigurationModel loadConfigurationFromEnvironment() {
-        Map<String, String> environmentVariables = System.getenv()
-                                                         .entrySet()
-                                                         .stream()
-                                                         .filter(e -> !e.getKey().equals("FLYWAY_CONFIG_FILES"))
-                                                         .filter(e -> e.getKey().startsWith("flyway_")
-                                                                 || e.getKey().startsWith("environments_")
-                                                                 || (e.getKey().startsWith("FLYWAY_") && ConfigUtils.convertKey(e.getKey()) != null))
-                                                         .collect(Collectors.toMap(k -> {
-                                                                                       String prop = k.getKey().startsWith("FLYWAY_") || k.getKey().toUpperCase(Locale.ENGLISH).startsWith("FLYWAY_JDBC_PROPERTIES_") ?
-                                                                                               ConfigUtils.convertKey(k.getKey().toUpperCase(Locale.ENGLISH))
-                                                                                               : k.getKey().replace("_", ".");
-                                                                                       if (prop != null && prop.startsWith("flyway.")) {
-                                                                                           String p = prop.substring("flyway.".length());
-                                                                                           if (Arrays.stream((EnvironmentModel.class).getDeclaredFields()).anyMatch(x -> x.getName().equals(p.split("\\.")[0]))) {
-                                                                                               return "environments." + ClassicConfiguration.TEMP_ENVIRONMENT_NAME + "." + p;
-                                                                                           }
-                                                                                       }
-                                                                                       return prop;
-                                                                                   },
-                                                                                   v -> Pair.of(v.getKey(), v.getValue()),
-                                                                                   (e1, e2) -> {
-                                                                                       if (e1.getLeft().startsWith("FLYWAY_")) {
-                                                                                           LOG.warn(String.format(MSG, e2.getLeft(), e1.getLeft()));
-                                                                                           return e2;
-                                                                                       } else {
-                                                                                           LOG.warn(String.format(MSG, e1.getLeft(), e2.getLeft()));
-                                                                                           return e1;
-                                                                                       }
-                                                                                   }))
-                                                         .entrySet()
-                                                         .stream()
-                                                         .collect(Collectors.toMap(Entry::getKey, v -> v.getValue().getRight()));
+        final Map<String, String> environmentVariables = System.getenv()
+            .entrySet()
+            .stream()
+            .filter(e -> !e.getKey().equals("FLYWAY_CONFIG_FILES"))
+            .filter(e -> e.getKey().startsWith("flyway_") || e.getKey().startsWith("environments_") || (e.getKey()
+                .startsWith("FLYWAY_") && ConfigUtils.convertKey(e.getKey()) != null))
+            .collect(Collectors.toMap(k -> {
+                final String prop = k.getKey().startsWith("FLYWAY_") || k.getKey()
+                    .toUpperCase(Locale.ENGLISH)
+                    .startsWith("FLYWAY_JDBC_PROPERTIES_") ? ConfigUtils.convertKey(k.getKey()
+                    .toUpperCase(Locale.ENGLISH)) : k.getKey().replace("_", ".");
+                if (prop != null && prop.startsWith("flyway.")) {
+                    final String p = prop.substring("flyway.".length());
+                    if (Arrays.stream((EnvironmentModel.class).getDeclaredFields())
+                        .anyMatch(x -> x.getName().equals(p.split("\\.")[0]))) {
+                        return "environments." + ClassicConfiguration.TEMP_ENVIRONMENT_NAME + "." + p;
+                    }
+                }
+                return prop;
+            }, v -> Pair.of(v.getKey(), v.getValue()), (e1, e2) -> {
+                if (e1.getLeft().startsWith("FLYWAY_")) {
+                    LOG.warn(String.format(MSG, e2.getLeft(), e1.getLeft()));
+                    return e2;
+                } else {
+                    LOG.warn(String.format(MSG, e1.getLeft(), e2.getLeft()));
+                    return e1;
+                }
+            }))
+            .entrySet()
+            .stream()
+            .collect(Collectors.toMap(Entry::getKey, v -> v.getValue().getRight()));
         return toConfiguration(unflattenMap(environmentVariables));
     }
 
-    public static ConfigurationModel loadConfigurationFromCommandlineArgs(Map<String, String> commandLineArguments) {
+    public static ConfigurationModel loadConfigurationFromCommandlineArgs(final Map<String, String> commandLineArguments) {
         return toConfiguration(unflattenMap(commandLineArguments));
     }
 
-    private static ConfigurationModel toConfiguration(Map<String, Object> properties) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        SimpleModule simpleModule = new SimpleModule();
+    private static ConfigurationModel toConfiguration(final Map<String, Object> properties) {
+        final ObjectMapper objectMapper = new ObjectMapper();
+        final SimpleModule simpleModule = new SimpleModule();
 
-        JavaType type = objectMapper.getTypeFactory().constructCollectionType(List.class, String.class);
+        final JavaType type = objectMapper.getTypeFactory().constructCollectionType(List.class, String.class);
 
         //noinspection unchecked
         simpleModule.addDeserializer((Class<List<String>>) type.getRawClass(), new ListDeserializer());
         try {
-            return objectMapper.rebuild().addModule(simpleModule).build()
+            return objectMapper.rebuild()
+                .addModule(simpleModule)
+                .build()
                 .convertValue(properties, ConfigurationModel.class);
         } catch (IllegalArgumentException e) {
             throw new FlywayException("Unable to parse command line params.");
         }
     }
 
-    public static Map<String, Object> unflattenMap(Map<String, String> map) {
-        Map<String, Object> result = new HashMap<>();
-        for (Entry<String, String> entry : map.entrySet()) {
-            String[] parts = entry.getKey().split("\\.");
+    public static Map<String, Object> unflattenMap(final Map<String, String> map) {
+        final Map<String, Object> result = new HashMap<>();
+        for (final Entry<String, String> entry : map.entrySet()) {
+            final String[] parts = entry.getKey().split("\\.");
             Map<String, Object> currentMap = result;
             for (int i = 0; i < parts.length; i++) {
                 if (i != parts.length - 1) {
                     //noinspection unchecked
-                    currentMap = (Map<String, Object>) currentMap.computeIfAbsent(parts[i], (x) -> new HashMap<String, Object>());
+                    currentMap = (Map<String, Object>) currentMap.computeIfAbsent(parts[i],
+                        (x) -> new HashMap<String, Object>());
                 } else {
                     currentMap.put(parts[i], entry.getValue());
                 }
@@ -125,12 +126,10 @@ public class TomlUtils {
         return result;
     }
 
-    public static ConfigurationModel loadConfigurationFiles(List<File> files) {
-        ConfigurationModel defaultConfig = ConfigurationModel.defaults();
+    public static ConfigurationModel loadConfigurationFiles(final List<File> files) {
+        final ConfigurationModel defaultConfig = ConfigurationModel.defaults();
         ConfigUtils.dumpConfigurationModel(defaultConfig, "Default configuration:");
-        return files.stream()
-                    .map(TomlUtils::loadConfigurationFile)
-                    .reduce(defaultConfig, ConfigurationModel::merge);
+        return files.stream().map(TomlUtils::loadConfigurationFile).reduce(defaultConfig, ConfigurationModel::merge);
     }
 
     static ConfigurationModel loadConfigurationFile(final File configFile) {
@@ -145,9 +144,19 @@ public class TomlUtils {
             ConfigUtils.dumpConfigurationModel(tomlConfig, "Loading config file: " + configFile.getAbsolutePath());
             return tomlConfig;
         } catch (final MismatchedInputException exception) {
-            final String path = exception.getPath().stream().map(Reference::getPropertyName).collect(Collectors.joining("."));
-            final String message = "Error parsing config file due to a mismatched data type, caused by `" + path + "` namespace. Update this from " + JsonToken.valueDescFor(exception.getCurrentToken()) + " to `" + exception.getTargetType().getSimpleName() + "` to fix the parsing error "
-                + "\n\tin " + configFile.getAbsolutePath();
+            final String path = exception.getPath()
+                .stream()
+                .map(Reference::getPropertyName)
+                .collect(Collectors.joining("."));
+            final String message = "Error parsing config file due to a mismatched data type, caused by `"
+                + path
+                + "` namespace. Update this from "
+                + JsonToken.valueDescFor(exception.getCurrentToken())
+                + " to `"
+                + exception.getTargetType().getSimpleName()
+                + "` to fix the parsing error "
+                + "\n\tin "
+                + configFile.getAbsolutePath();
             //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
             throw new FlywayException(message);
         } catch (final TomlStreamReadException tomlread) {
@@ -172,8 +181,7 @@ public class TomlUtils {
     }
 
     private static String getErrorCause(final String errorMessage) {
-        final StringBuilder message = new StringBuilder()
-            .append(" caused by: ");
+        final StringBuilder message = new StringBuilder().append(" caused by: ");
         return switch (errorMessage) {
             case "Duplicate key", "Unknown token" -> message.append(errorMessage).toString();
             case "Table redefined" -> message.append("Duplicate table").toString();

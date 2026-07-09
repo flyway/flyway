@@ -36,14 +36,11 @@ import org.flywaydb.core.Flyway;
  *
  * <img src="https://flyway.github.io/flyway/assets/command-validate.png" alt="validate">
  */
-@SuppressWarnings({"UnusedDeclaration", "JavaDoc"})
-@Mojo(name = "validate",
-        requiresDependencyResolution = ResolutionScope.TEST,
-        defaultPhase = LifecyclePhase.PRE_INTEGRATION_TEST,
-        threadSafe = true)
+@SuppressWarnings({ "UnusedDeclaration", "JavaDoc" })
+@Mojo(name = "validate", requiresDependencyResolution = ResolutionScope.TEST, defaultPhase = LifecyclePhase.PRE_INTEGRATION_TEST, threadSafe = true)
 public class ValidateMojo extends AbstractFlywayMojo {
     @Override
-    protected void doExecute(Flyway flyway) {
+    protected void doExecute(final Flyway flyway) {
         flyway.validate();
     }
 }

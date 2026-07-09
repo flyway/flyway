@@ -32,37 +32,37 @@ public class JavaUtilLog implements Log {
 
     private final Logger logger;
 
-    public void debug(String message) {
+    public void debug(final String message) {
         if (LogFactory.isDebugEnabled()) {
             log(Level.FINE, message, null);
         }
     }
 
-    public void info(String message) {
+    public void info(final String message) {
         if (!LogFactory.isQuietMode()) {
             log(Level.INFO, message, null);
         }
     }
 
-    public void warn(String message) {
+    public void warn(final String message) {
         log(Level.WARNING, message, null);
     }
 
-    public void error(String message) {
+    public void error(final String message) {
         log(Level.SEVERE, message, null);
     }
 
-    public void error(String message, Exception e) {
+    public void error(final String message, final Exception e) {
         log(Level.SEVERE, message, e);
     }
 
-    public void notice(String message) {}
+    public void notice(final String message) {}
 
     /**
      * Log the message at the specified level with the specified exception if any.
      */
-    private void log(Level level, String message, Exception e) {
-        LogRecord record = new LogRecord(level, message);
+    private void log(final Level level, final String message, final Exception e) {
+        final LogRecord record = new LogRecord(level, message);
         record.setLoggerName(logger.getName());
         record.setThrown(e);
         record.setSourceClassName(logger.getName());
@@ -74,9 +74,9 @@ public class JavaUtilLog implements Log {
      * Computes the source method name for the log output.
      */
     private String getMethodName() {
-        StackTraceElement[] steArray = new Throwable().getStackTrace();
+        final StackTraceElement[] steArray = new Throwable().getStackTrace();
 
-        for (StackTraceElement stackTraceElement : steArray) {
+        for (final StackTraceElement stackTraceElement : steArray) {
             if (logger.getName().equals(stackTraceElement.getClassName())) {
                 return stackTraceElement.getMethodName();
             }

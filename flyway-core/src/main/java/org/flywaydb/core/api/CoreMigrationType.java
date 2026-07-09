@@ -60,12 +60,13 @@ public enum CoreMigrationType implements MigrationType {
     CUSTOM(false, false, false);
 
     /**
-     * @return Whether this is a synthetic migration type, which is only ever present in the schema history table,
-     * but never discovered by migration resolvers.
+     * @return Whether this is a synthetic migration type, which is only ever present in the schema history table, but
+     * never discovered by migration resolvers.
      */
     private final boolean synthetic;
     /**
-     * @return Whether this is an undo migration, which has undone an earlier migration present in the schema history table.
+     * @return Whether this is an undo migration, which has undone an earlier migration present in the schema history
+     * table.
      */
     private final boolean undo;
     /**
@@ -73,7 +74,7 @@ public enum CoreMigrationType implements MigrationType {
      */
     private final boolean baseline;
 
-    public static MigrationType fromString(String migrationType) {
+    public static MigrationType fromString(final String migrationType) {
         // Convert legacy types to maintain compatibility
         if ("SPRING_JDBC".equals(migrationType)) {
             return JDBC;

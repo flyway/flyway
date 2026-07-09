@@ -19,6 +19,7 @@
  */
 package org.flywaydb.verb.baseline;
 
+import java.util.List;
 import lombok.CustomLog;
 import org.flywaydb.core.api.CoreMigrationType;
 import org.flywaydb.core.api.FlywayException;
@@ -31,6 +32,7 @@ import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
 import org.flywaydb.core.internal.nc.schemahistory.SchemaHistoryItem;
 import org.flywaydb.core.extensibility.CachingVerbExtension;
+import org.flywaydb.core.extensibility.ConfigurationParameter;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.nc.callbacks.CallbackManager;
@@ -52,10 +54,30 @@ public class BaselineVerbExtension extends CachingVerbExtension {
     }
 
     @Override
+    public List<ConfigurationParameter> getConfigurationParameters() {
+        return List.of(new ConfigurationParameter("baselineVersion",
+                "Version to tag schema with when executing baseline",
+                false),
+            new ConfigurationParameter("baselineDescription",
+                "Description to tag schema with when executing baseline",
+                false),
+            new ConfigurationParameter("createSchemas",
+                "Whether Flyway should attempt to create the schemas specified in the schemas property",
+                false));
+    }
+
+    @Override
+    public String getExample() {
+        return "flyway baseline -baselineVersion=1.0 -baselineDescription=\"Base Migration\"";
+    }
+
+    @Override
     public OperationResult executeVerb(final Configuration configuration) {
         final PreparationContext context = PreparationContext.get(configuration, cached);
         final NativeConnectorsDatabase database = context.getDatabase();
-        final CallbackManager callbackManager = new CallbackManager(configuration, context.getCallbackResources(), Event::fromId);
+        final CallbackManager callbackManager = new CallbackManager(configuration,
+            context.getCallbackResources(),
+            Event::fromId);
 
         final BaselineResult baselineResult = new BaselineResult(VersionPrinter.getVersion(),
             database.getDatabaseMetaData().databaseName());

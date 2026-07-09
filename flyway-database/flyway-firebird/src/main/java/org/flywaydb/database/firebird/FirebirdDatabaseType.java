@@ -44,13 +44,13 @@ public class FirebirdDatabaseType extends BaseDatabaseType {
     }
 
     @Override
-    public boolean handlesJDBCUrl(String url) {
-        return url.startsWith("jdbc:firebird:") || url.startsWith("jdbc:firebirdsql:") ||
-                url.startsWith("jdbc:p6spy:firebird:") || url.startsWith("jdbc:p6spy:firebirdsql:");
+    public boolean handlesJDBCUrl(final String url) {
+        return url.startsWith("jdbc:firebird:") || url.startsWith("jdbc:firebirdsql:") || url.startsWith(
+            "jdbc:p6spy:firebird:") || url.startsWith("jdbc:p6spy:firebirdsql:");
     }
 
     @Override
-    public String getDriverClass(String url, ClassLoader classLoader) {
+    public String getDriverClass(final String url, final ClassLoader classLoader) {
         if (url.startsWith("jdbc:p6spy:firebird:") || url.startsWith("jdbc:p6spy:firebirdsql:")) {
             return "com.p6spy.engine.spy.P6SpyDriver";
         }
@@ -58,22 +58,28 @@ public class FirebirdDatabaseType extends BaseDatabaseType {
     }
 
     @Override
-    public boolean handlesDatabaseProductNameAndVersion(String databaseProductName, String databaseProductVersion, Connection connection) {
+    public boolean handlesDatabaseProductNameAndVersion(final String databaseProductName,
+        final String databaseProductVersion,
+        final Connection connection) {
         return databaseProductName.startsWith("Firebird");
     }
 
     @Override
-    public Database createDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+    public Database createDatabase(final Configuration configuration,
+        final JdbcConnectionFactory jdbcConnectionFactory,
+        final StatementInterceptor statementInterceptor) {
         return new FirebirdDatabase(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
     @Override
-    public Parser createParser(Configuration configuration, ResourceProvider resourceProvider, ParsingContext parsingContext) {
+    public Parser createParser(final Configuration configuration,
+        final ResourceProvider resourceProvider,
+        final ParsingContext parsingContext) {
         return new FirebirdParser(configuration, parsingContext);
     }
 
     @Override
-    public void setDefaultConnectionProps(String url, Properties props, ClassLoader classLoader) {
+    public void setDefaultConnectionProps(final String url, final Properties props, final ClassLoader classLoader) {
         props.put("processName", APPLICATION_NAME);
     }
 }

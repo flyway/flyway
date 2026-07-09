@@ -31,10 +31,10 @@ public class MultiLogCreator implements LogCreator {
     private final List<LogCreator> logCreators;
 
     @Override
-    public Log createLogger(Class<?> clazz) {
-        List<Log> logs = new ArrayList<>();
+    public Log createLogger(final Class<?> clazz) {
+        final List<Log> logs = new ArrayList<>();
 
-        for (LogCreator logCreator : logCreators) {
+        for (final LogCreator logCreator : logCreators) {
             logs.add(logCreator.createLogger(clazz));
         }
 

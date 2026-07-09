@@ -35,7 +35,7 @@ public interface PluginMetadata extends Plugin {
         return getHelpText(Collections.emptyList());
     }
 
-    default String getHelpText(List<String> subCommands) {
+    default String getHelpText(final List<String> subCommands) {
         final String description = getDescription();
         List<ConfigurationParameter> configurationParameters = getConfigurationParameters();
         List<ConfigurationParameter> flags = getFlags();
@@ -51,13 +51,10 @@ public interface PluginMetadata extends Plugin {
         }
 
         if (flags != null && !filteredSubCommands.isEmpty()) {
-            flags = flags.stream()
-                .filter(f -> filteredSubCommands.contains(f.name))
-                .toList();
+            flags = flags.stream().filter(f -> filteredSubCommands.contains(f.name)).toList();
         }
 
         final List<String> examples = getExamples(filteredSubCommands);
-
 
         final HelpText helpText = new HelpText();
         helpText.setParameters(configurationParameters);
@@ -104,9 +101,8 @@ public interface PluginMetadata extends Plugin {
     /**
      * @return A list of examples of how this plugin is to be used
      */
-    default List<String> getExamples(List<String> subCommands) {
-        List<String> examples = (subCommands.isEmpty() ? getAllowedSubCommands() : subCommands)
-            .stream()
+    default List<String> getExamples(final List<String> subCommands) {
+        final List<String> examples = (subCommands.isEmpty() ? getAllowedSubCommands() : subCommands).stream()
             .map(this::getExamplePerSubCmd)
             .filter(Objects::nonNull)
             .distinct()
@@ -122,7 +118,7 @@ public interface PluginMetadata extends Plugin {
     /**
      * @return An example of how a sub-command of this plugin is to be used
      */
-    default String getExamplePerSubCmd(String subCmd) {
+    default String getExamplePerSubCmd(final String subCmd) {
         return getExample();
     }
 
@@ -130,9 +126,9 @@ public interface PluginMetadata extends Plugin {
      * @return A list of sub-commands relevant to this plugin
      */
     default List<String> getAllowedSubCommands() {
-        return getFlags() == null ?
-            Collections.emptyList() : 
-            getFlags().stream().map(ConfigurationParameter::getName).toList();
+        return getFlags() == null
+            ? Collections.emptyList()
+            : getFlags().stream().map(ConfigurationParameter::getName).toList();
     }
 
     /**

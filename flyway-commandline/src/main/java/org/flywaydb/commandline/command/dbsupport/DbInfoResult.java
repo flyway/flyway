@@ -19,4 +19,4 @@
  */
 package org.flywaydb.commandline.command.dbsupport;
 
-public record DbInfoResult(String name){}
+public record DbInfoResult(String name) {}

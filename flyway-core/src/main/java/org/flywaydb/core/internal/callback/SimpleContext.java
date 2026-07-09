@@ -45,7 +45,7 @@ public class SimpleContext implements Context {
     @Getter
     private final Database database;
 
-    public SimpleContext(Configuration configuration) {
+    public SimpleContext(final Configuration configuration) {
         this.configuration = configuration;
         this.connection = null;
         this.migrationInfo = null;
@@ -54,7 +54,10 @@ public class SimpleContext implements Context {
         this.database = null;
     }
 
-    public SimpleContext(Configuration configuration, Connection connection, MigrationInfo migrationInfo, OperationResult operationResult) {
+    public SimpleContext(final Configuration configuration,
+        final Connection connection,
+        final MigrationInfo migrationInfo,
+        final OperationResult operationResult) {
         this.configuration = configuration;
         this.connection = connection;
         this.migrationInfo = migrationInfo;
@@ -63,7 +66,11 @@ public class SimpleContext implements Context {
         this.database = null;
     }
 
-    public SimpleContext(Configuration configuration, Connection connection, MigrationInfo migrationInfo, OperationResult operationResult, Database database) {
+    public SimpleContext(final Configuration configuration,
+        final Connection connection,
+        final MigrationInfo migrationInfo,
+        final OperationResult operationResult,
+        final Database database) {
         this.configuration = configuration;
         this.connection = connection;
         this.migrationInfo = migrationInfo;
@@ -72,8 +79,12 @@ public class SimpleContext implements Context {
         this.database = database;
     }
 
-    public SimpleContext(Configuration configuration, Connection connection, MigrationInfo migrationInfo,
-                         String sql, List<Warning> warnings, List<Error> errors) {
+    public SimpleContext(final Configuration configuration,
+        final Connection connection,
+        final MigrationInfo migrationInfo,
+        final String sql,
+        final List<Warning> warnings,
+        final List<Error> errors) {
         this.configuration = configuration;
         this.connection = connection;
         this.migrationInfo = migrationInfo;

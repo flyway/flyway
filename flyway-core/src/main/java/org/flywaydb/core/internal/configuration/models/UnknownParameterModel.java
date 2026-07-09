@@ -28,7 +28,12 @@ import java.util.List;
 import java.util.Map;
 import org.flywaydb.core.internal.util.StringUtils;
 
-public record UnknownParameterModel(String rawKey, Kind kind, Source source, List<String> possibleValues, String replacement, String reason) {
+public record UnknownParameterModel(String rawKey,
+                                    Kind kind,
+                                    Source source,
+                                    List<String> possibleValues,
+                                    String replacement,
+                                    String reason) {
     private static final String CLEAN_ON_VALIDATION_ERROR = "flyway.cleanOnValidationError";
     private static final String CHECK_MINOR_TOLERANCE = "check.minorTolerance";
     private static final String CHECK_MAJOR_TOLERANCE = "check.majorTolerance";
@@ -49,8 +54,8 @@ public record UnknownParameterModel(String rawKey, Kind kind, Source source, Lis
 
     private record ObsoleteEntry(String replacement, String reason) {}
 
-    private static final Map<String, ObsoleteEntry> MOVED_OR_REMOVED_PARAMS = Map.ofEntries(
-        Map.entry(PLUGINS_CLEAN, new ObsoleteEntry(SQLSERVER_CLEAN, PLUGINS_NAMESPACE_REASON)),
+    private static final Map<String, ObsoleteEntry> MOVED_OR_REMOVED_PARAMS = Map.ofEntries(Map.entry(PLUGINS_CLEAN,
+            new ObsoleteEntry(SQLSERVER_CLEAN, PLUGINS_NAMESPACE_REASON)),
         Map.entry(PLUGINS_VAULT, new ObsoleteEntry(FLYWAY_VAULT, PLUGINS_NAMESPACE_REASON)),
         Map.entry(PLUGINS_DAPR, new ObsoleteEntry(FLYWAY_DAPR, PLUGINS_NAMESPACE_REASON)),
         Map.entry(PLUGINS_GCSM, new ObsoleteEntry(FLYWAY_GCSM, PLUGINS_NAMESPACE_REASON)),
@@ -58,8 +63,7 @@ public record UnknownParameterModel(String rawKey, Kind kind, Source source, Lis
         Map.entry(CHECK_MAJOR_TOLERANCE, new ObsoleteEntry("", CHECK_RULES_REASON)),
         Map.entry(CHECK_MINOR_TOLERANCE, new ObsoleteEntry("", CHECK_RULES_REASON)),
         Map.entry(CHECK_MINOR_RULES, new ObsoleteEntry("", CHECK_RULES_REASON)),
-        Map.entry(CHECK_MAJOR_RULES, new ObsoleteEntry("", CHECK_RULES_REASON))
-        );
+        Map.entry(CHECK_MAJOR_RULES, new ObsoleteEntry("", CHECK_RULES_REASON)));
 
     public enum Kind {
         REPLACED,
@@ -74,7 +78,9 @@ public record UnknownParameterModel(String rawKey, Kind kind, Source source, Lis
     }
 
     public static UnknownParameterModel resolveUnknownParameter(final FlywayEnvironmentModel model,
-        final String namespace, String key, String prefix) {
+        final String namespace,
+        final String key,
+        final String prefix) {
         final String rawKey = getRawKey(namespace, key, prefix);
         final String configKey = namespace + "." + key;
 
@@ -102,8 +108,7 @@ public record UnknownParameterModel(String rawKey, Kind kind, Source source, Lis
             case REMOVED -> "\tRemoved: '" + rawKey + "' has been removed and is no longer supported.";
             case UNKNOWN -> {
                 if (possibleValues != null && !possibleValues.isEmpty()) {
-                    yield "\tUnknown: '" + rawKey + "'. Possible values: "
-                        + String.join(", ", possibleValues) + "?";
+                    yield "\tUnknown: '" + rawKey + "'. Possible values: " + String.join(", ", possibleValues) + "?";
                 }
                 yield "\tUnknown: '" + rawKey + "'." + " Check the parameter spelling and ensure Flyway is up to date.";
             }

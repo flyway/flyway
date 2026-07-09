@@ -14,7 +14,7 @@ Note: Only user defined placeholders are supported, default `${flyway:property}`
 
 ### Flyway Desktop
 
-This can't be set in a config file via Flyway Desktop, although it will be honoured.
+This can't be set in a config file via Flyway Desktop, although it will be honored.
 
 ### TOML Configuration File
 

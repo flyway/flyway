@@ -34,7 +34,7 @@ public class AbbreviationUtils {
      * @param description The description to process.
      * @return The abbreviated version.
      */
-    public static String abbreviateDescription(String description) {
+    public static String abbreviateDescription(final String description) {
         if (description == null) {
             return null;
         }
@@ -52,7 +52,7 @@ public class AbbreviationUtils {
      * @param script The script to process.
      * @return The abbreviated version.
      */
-    public static String abbreviateScript(String script) {
+    public static String abbreviateScript(final String script) {
         if (script == null) {
             return null;
         }

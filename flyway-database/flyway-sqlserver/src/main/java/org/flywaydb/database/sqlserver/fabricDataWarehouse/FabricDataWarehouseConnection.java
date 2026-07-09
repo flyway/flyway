@@ -32,21 +32,20 @@ import org.flywaydb.database.sqlserver.SQLServerConnection;
  */
 public class FabricDataWarehouseConnection extends SQLServerConnection {
 
-    FabricDataWarehouseConnection(FabricDataWarehouseDatabase database, java.sql.Connection connection) {
+    FabricDataWarehouseConnection(final FabricDataWarehouseDatabase database, final java.sql.Connection connection) {
         super(database, connection);
         logPreviewFeature("Fabric Data Warehouse Support");
     }
 
     @Override
-    public Schema getSchema(String name) {
+    public Schema getSchema(final String name) {
         return new FabricDataWarehouseSchema(jdbcTemplate, database, originalDatabaseName, name);
     }
 
     @Override
-    public <T> T lock(Table table, Callable<T> callable) {
-        return ExecutionTemplateFactory
-                .createTableExclusiveExecutionTemplate(jdbcTemplate.getConnection(), table, database)
-                .execute(callable);
+    public <T> T lock(final Table table, final Callable<T> callable) {
+        return ExecutionTemplateFactory.createTableExclusiveExecutionTemplate(jdbcTemplate.getConnection(),
+            table,
+            database).execute(callable);
     }
-
 }

@@ -21,7 +21,6 @@ package org.flywaydb.database.sqlserver;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.flywaydb.core.api.FlywayException;
 
 /*
  * SQL Server engine editions. Some restrict the functionality available. See
@@ -45,8 +44,8 @@ public enum SQLServerEngineEdition {
     @Getter
     private final int code;
 
-    public static SQLServerEngineEdition fromCode(int code) {
-        for (SQLServerEngineEdition edition : values()) {
+    public static SQLServerEngineEdition fromCode(final int code) {
+        for (final SQLServerEngineEdition edition : values()) {
             if (edition.code == code) {
                 return edition;
             }

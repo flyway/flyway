@@ -45,7 +45,7 @@ public class SQLServerConnection extends Connection<SQLServerDatabase> {
     @Getter
     private final SQLServerEngineEdition engineEdition;
 
-    protected SQLServerConnection(SQLServerDatabase database, java.sql.Connection connection) {
+    protected SQLServerConnection(final SQLServerDatabase database, final java.sql.Connection connection) {
         super(database, connection);
         try {
             originalDatabaseName = jdbcTemplate.queryForString("SELECT DB_NAME()");
@@ -55,21 +55,20 @@ public class SQLServerConnection extends Connection<SQLServerDatabase> {
 
         try {
             azure = "SQL Azure".equals(getJdbcTemplate().queryForString(
-                    "SELECT CAST(SERVERPROPERTY('edition') AS VARCHAR)"));
+                "SELECT CAST(SERVERPROPERTY('edition') AS VARCHAR)"));
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine database edition.'", e);
         }
 
         try {
             engineEdition = SQLServerEngineEdition.fromCode(getJdbcTemplate().queryForInt(
-                    "SELECT SERVERPROPERTY('engineedition')"));
+                "SELECT SERVERPROPERTY('engineedition')"));
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine database engine edition.'", e);
         }
 
         try {
-            serverName = getJdbcTemplate().queryForString(
-                "SELECT SERVERPROPERTY('servername')");
+            serverName = getJdbcTemplate().queryForString("SELECT SERVERPROPERTY('servername')");
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine database server name.'", e);
         }
@@ -77,16 +76,17 @@ public class SQLServerConnection extends Connection<SQLServerDatabase> {
         awsRds = rdsAdminExists();
 
         try {
-            originalAnsiNulls = azure ? null :
-                    jdbcTemplate.queryForString("DECLARE @ANSI_NULLS VARCHAR(3) = 'OFF';\n" +
-                                                        "IF ( (32 & @@OPTIONS) = 32 ) SET @ANSI_NULLS = 'ON';\n" +
-                                                        "SELECT @ANSI_NULLS AS ANSI_NULLS;");
+            originalAnsiNulls = azure
+                ? null
+                : jdbcTemplate.queryForString("DECLARE @ANSI_NULLS VARCHAR(3) = 'OFF';\n"
+                    + "IF ( (32 & @@OPTIONS) = 32 ) SET @ANSI_NULLS = 'ON';\n"
+                    + "SELECT @ANSI_NULLS AS ANSI_NULLS;");
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine ANSI NULLS state", e);
         }
     }
 
-    void setCurrentDatabase(String databaseName) throws SQLException {
+    void setCurrentDatabase(final String databaseName) throws SQLException {
         if (!azure) {
             jdbcTemplate.execute("USE " + database.quote(databaseName));
         }
@@ -106,18 +106,22 @@ public class SQLServerConnection extends Connection<SQLServerDatabase> {
     }
 
     @Override
-    public Schema getSchema(String name) {
+    public Schema getSchema(final String name) {
         return new SQLServerSchema(jdbcTemplate, database, originalDatabaseName, name);
     }
 
     @Override
-    public <T> T lock(Table table, Callable<T> callable) {
-        return new SQLServerApplicationLockTemplate(this, jdbcTemplate, originalDatabaseName, table.toString().hashCode()).execute(callable);
+    public <T> T lock(final Table table, final Callable<T> callable) {
+        return new SQLServerApplicationLockTemplate(this,
+            jdbcTemplate,
+            originalDatabaseName,
+            table.toString().hashCode()).execute(callable);
     }
 
     private boolean rdsAdminExists() {
         try {
-            return StringUtils.hasText(jdbcTemplate.queryForString("SELECT name FROM sys.databases WHERE name = 'RDSAdmin'"));
+            return StringUtils.hasText(jdbcTemplate.queryForString(
+                "SELECT name FROM sys.databases WHERE name = 'RDSAdmin'"));
         } catch (Exception e) {
             return false;
         }

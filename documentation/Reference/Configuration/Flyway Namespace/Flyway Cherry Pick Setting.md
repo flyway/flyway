@@ -35,7 +35,7 @@ String array
 
 ### Flyway Desktop
 
-This can't be set in a config file via Flyway Desktop, although it will be honoured, and it can be configured as an advanced parameter in operations on the Migrations page.
+This can't be set in a config file via Flyway Desktop, although it will be honored, and it can be configured as an advanced parameter in operations on the Migrations page.
 
 ### Command-line
 
@@ -112,7 +112,7 @@ flyway migrate -cherryPick="1,3"
 ```
 
 When it comes to migrating
-`V2`, we can utilise [outOfOrder](<Configuration/Flyway Namespace/Flyway Out Of Order Setting>)as follows:
+`V2`, we can utilize [outOfOrder](<Configuration/Flyway Namespace/Flyway Out Of Order Setting>)as follows:
 
 ```
 flyway migrate -outOfOrder="true"

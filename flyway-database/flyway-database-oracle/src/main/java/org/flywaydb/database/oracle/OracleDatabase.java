@@ -32,7 +32,6 @@ import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.RowMapper;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
-import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -45,20 +44,27 @@ import java.util.Set;
 
 @CustomLog
 public class OracleDatabase extends Database<OracleConnection> {
-    public OracleDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+    public OracleDatabase(final Configuration configuration,
+        final JdbcConnectionFactory jdbcConnectionFactory,
+        final StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
     @Override
-    protected OracleConnection doGetConnection(Connection connection) {
+    protected OracleConnection doGetConnection(final Connection connection) {
         return new OracleConnection(this, connection);
     }
 
     @Override
-    public void ensureSupported(Configuration configuration) {
+    public void ensureSupported(final Configuration configuration) {
         ensureDatabaseIsRecentEnough("10");
         if (!getVersion().isAtLeast("12")) {
-            LOG.info(databaseType.getName() + " " + computeVersionDisplayName(getVersion()) + " is outside of Redgate support. You may be able to find help with the Flyway community if you need it, see " + COMMUNITY_SUPPORT + " for details");
+            LOG.info(databaseType.getName()
+                + " "
+                + computeVersionDisplayName(getVersion())
+                + " is outside of Redgate support. You may be able to find help with the Flyway community if you need it, see "
+                + COMMUNITY_SUPPORT
+                + " for details");
         } else {
             ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("18.0", Tier.PREMIUM, configuration);
         }
@@ -67,28 +73,44 @@ public class OracleDatabase extends Database<OracleConnection> {
     }
 
     @Override
-    public String getRawCreateScript(Table table, boolean baseline) {
+    public String getRawCreateScript(final Table table, final boolean baseline) {
         final boolean synonymRequired = !table.getName().equals(table.getName().toUpperCase(Locale.ROOT));
-        String tablespace = configuration.getTablespace() == null
-                ? ""
-                : " TABLESPACE \"" + configuration.getTablespace() + "\"";
+        final String tablespace = configuration.getTablespace() == null
+            ? ""
+            : " TABLESPACE \"" + configuration.getTablespace() + "\"";
 
-        return "CREATE TABLE " + table + " (\n" +
-                "    \"installed_rank\" INT NOT NULL,\n" +
-                "    \"version\" VARCHAR2(50),\n" +
-                "    \"description\" VARCHAR2(200) NOT NULL,\n" +
-                "    \"type\" VARCHAR2(20) NOT NULL,\n" +
-                "    \"script\" VARCHAR2(1000) NOT NULL,\n" +
-                "    \"checksum\" INT,\n" +
-                "    \"installed_by\" VARCHAR2(100) NOT NULL,\n" +
-                "    \"installed_on\" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,\n" +
-                "    \"execution_time\" INT NOT NULL,\n" +
-                "    \"success\" NUMBER(1) NOT NULL,\n" +
-                "    CONSTRAINT \"" + table.getName() + "_pk\" PRIMARY KEY (\"installed_rank\")\n" +
-                ")" + tablespace + ";\n" +
-                (baseline ? getBaselineStatement(table) + ";\n" : "") +
-                "CREATE INDEX \"" + table.getSchema().getName() + "\".\"" + table.getName() + "_s_idx\" ON " + table + " (\"success\") " + tablespace + ";\n" +
-                (synonymRequired ? "CREATE SYNONYM " + table.getSchema() + "." + table.getName() + " for " + table + ";\n" : "");
+        return "CREATE TABLE "
+            + table
+            + " (\n"
+            + "    \"installed_rank\" INT NOT NULL,\n"
+            + "    \"version\" VARCHAR2(50),\n"
+            + "    \"description\" VARCHAR2(200) NOT NULL,\n"
+            + "    \"type\" VARCHAR2(20) NOT NULL,\n"
+            + "    \"script\" VARCHAR2(1000) NOT NULL,\n"
+            + "    \"checksum\" INT,\n"
+            + "    \"installed_by\" VARCHAR2(100) NOT NULL,\n"
+            + "    \"installed_on\" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,\n"
+            + "    \"execution_time\" INT NOT NULL,\n"
+            + "    \"success\" NUMBER(1) NOT NULL,\n"
+            + "    CONSTRAINT \""
+            + table.getName()
+            + "_pk\" PRIMARY KEY (\"installed_rank\")\n"
+            + ")"
+            + tablespace
+            + ";\n"
+            + (baseline ? getBaselineStatement(table) + ";\n" : "")
+            + "CREATE INDEX \""
+            + table.getSchema().getName()
+            + "\".\""
+            + table.getName()
+            + "_s_idx\" ON "
+            + table
+            + " (\"success\") "
+            + tablespace
+            + ";\n"
+            + (synonymRequired
+            ? "CREATE SYNONYM " + table.getSchema() + "." + table.getName() + " for " + table + ";\n"
+            : "");
     }
 
     @Override
@@ -134,13 +156,14 @@ public class OracleDatabase extends Database<OracleConnection> {
      * optimized to return the first row and because the client never fetches more than 1 row despite the fetch size
      * value.
      *
-     * @param query The query to check.
+     * @param query  The query to check.
      * @param params The query parameters.
      * @return {@code true} if the query returns rows, {@code false} if not.
      * @throws SQLException when the query execution failed.
      */
-    boolean queryReturnsRows(String query, String... params) throws SQLException {
-        return getMainConnection().getJdbcTemplate().queryForBoolean("SELECT CASE WHEN EXISTS(" + query + ") THEN 1 ELSE 0 END FROM DUAL", params);
+    boolean queryReturnsRows(final String query, String... params) throws SQLException {
+        return getMainConnection().getJdbcTemplate()
+            .queryForBoolean("SELECT CASE WHEN EXISTS(" + query + ") THEN 1 ELSE 0 END FROM DUAL", params);
     }
 
     /**
@@ -149,9 +172,9 @@ public class OracleDatabase extends Database<OracleConnection> {
      * @return {@code true} if it is granted, {@code false} if not.
      * @throws SQLException if the check failed.
      */
-    boolean isPrivOrRoleGranted(String name) throws SQLException {
-        return queryReturnsRows("SELECT 1 FROM SESSION_PRIVS WHERE PRIVILEGE = ? UNION ALL " +
-                                        "SELECT 1 FROM SESSION_ROLES WHERE ROLE = ?", name, name);
+    boolean isPrivOrRoleGranted(final String name) throws SQLException {
+        return queryReturnsRows("SELECT 1 FROM SESSION_PRIVS WHERE PRIVILEGE = ? UNION ALL "
+            + "SELECT 1 FROM SESSION_ROLES WHERE ROLE = ?", name, name);
     }
 
     /**
@@ -159,13 +182,13 @@ public class OracleDatabase extends Database<OracleConnection> {
      * through a role) or not.
      *
      * @param owner the schema name, unquoted case-sensitive.
-     * @param name the data dictionary view name to check, unquoted case-sensitive.
+     * @param name  the data dictionary view name to check, unquoted case-sensitive.
      * @return {@code true} if it is accessible, {@code false} if not.
      * @throws SQLException if the check failed.
      */
-    private boolean isDataDictViewAccessible(String owner, String name) throws SQLException {
-        return queryReturnsRows("SELECT * FROM ALL_TAB_PRIVS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?" +
-                                        " AND PRIVILEGE = 'SELECT'", owner, name);
+    private boolean isDataDictViewAccessible(final String owner, final String name) throws SQLException {
+        return queryReturnsRows("SELECT * FROM ALL_TAB_PRIVS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?"
+            + " AND PRIVILEGE = 'SELECT'", owner, name);
     }
 
     /**
@@ -175,7 +198,7 @@ public class OracleDatabase extends Database<OracleConnection> {
      * @return {@code true} if it is accessible, {@code false} if not.
      * @throws SQLException if the check failed.
      */
-    boolean isDataDictViewAccessible(String name) throws SQLException {
+    boolean isDataDictViewAccessible(final String name) throws SQLException {
         return isDataDictViewAccessible("SYS", name);
     }
 
@@ -186,10 +209,9 @@ public class OracleDatabase extends Database<OracleConnection> {
      * @return the full name of the view with the proper prefix.
      * @throws SQLException if the check failed.
      */
-    String dbaOrAll(String baseName) throws SQLException {
-        return isPrivOrRoleGranted("SELECT ANY DICTIONARY") || isDataDictViewAccessible("DBA_" + baseName)
-                ? "DBA_" + baseName
-                : "ALL_" + baseName;
+    String dbaOrAll(final String baseName) throws SQLException {
+        return isPrivOrRoleGranted("SELECT ANY DICTIONARY") || isDataDictViewAccessible("DBA_" + baseName) ? "DBA_"
+            + baseName : "ALL_" + baseName;
     }
 
     /**
@@ -200,7 +222,7 @@ public class OracleDatabase extends Database<OracleConnection> {
      */
     private Set<String> getAvailableOptions() throws SQLException {
         return new HashSet<>(getMainConnection().getJdbcTemplate()
-                                     .queryForStringList("SELECT PARAMETER FROM V$OPTION WHERE VALUE = 'TRUE'"));
+            .queryForStringList("SELECT PARAMETER FROM V$OPTION WHERE VALUE = 'TRUE'"));
     }
 
     /**
@@ -254,67 +276,67 @@ public class OracleDatabase extends Database<OracleConnection> {
     Set<String> getSystemSchemas() throws SQLException {
 
         // The list of known default system schemas
-        Set<String> result = new HashSet<>(Arrays.asList(
-                "SYS", "SYSTEM", // Standard system accounts
-                "SYSBACKUP", "SYSDG", "SYSKM", "SYSRAC", "SYS$UMF", // Auxiliary system accounts
-                "DBSNMP", "MGMT_VIEW", "SYSMAN", // Enterprise Manager accounts
-                "OUTLN", // Stored outlines
-                "AUDSYS", // Unified auditing
-                "ORACLE_OCM", // Oracle Configuration Manager
-                "APPQOSSYS", // Oracle Database QoS Management
-                "OJVMSYS", // Oracle JavaVM
-                "DVF", "DVSYS", // Oracle Database Vault
-                "DBSFWUSER", // Database Service Firewall
-                "REMOTE_SCHEDULER_AGENT", // Remote scheduler agent
-                "DIP", // Oracle Directory Integration Platform
-                "APEX_PUBLIC_USER", "FLOWS_FILES", /*"APEX_######", "FLOWS_######",*/ // Oracle Application Express
-                "ANONYMOUS", "XDB", "XS$NULL", // Oracle XML Database
-                "CTXSYS", // Oracle Text
-                "LBACSYS", // Oracle Label Security
-                "EXFSYS", // Oracle Rules Manager and Expression Filter
-                "MDDATA", "MDSYS", "SPATIAL_CSW_ADMIN_USR", "SPATIAL_WFS_ADMIN_USR", // Oracle Locator and Spatial
-                "ORDDATA", "ORDPLUGINS", "ORDSYS", "SI_INFORMTN_SCHEMA", // Oracle Multimedia
-                "WMSYS", // Oracle Workspace Manager
-                "OLAPSYS", // Oracle OLAP catalogs
-                "OWBSYS", "OWBSYS_AUDIT", // Oracle Warehouse Builder
-                "GSMADMIN_INTERNAL", "GSMCATUSER", "GSMUSER", // Global Data Services
-                "GGSYS", // Oracle GoldenGate
-                "WK_TEST", "WKSYS", "WKPROXY", // Oracle Ultra Search
-                "ODM", "ODM_MTR", "DMSYS", // Oracle Data Mining
-                "TSMSYS" // Transparent Session Migration
-                                                        ));
+        final Set<String> result = new HashSet<>(Arrays.asList("SYS", "SYSTEM", // Standard system accounts
+            "SYSBACKUP", "SYSDG", "SYSKM", "SYSRAC", "SYS$UMF", // Auxiliary system accounts
+            "DBSNMP", "MGMT_VIEW", "SYSMAN", // Enterprise Manager accounts
+            "OUTLN", // Stored outlines
+            "AUDSYS", // Unified auditing
+            "ORACLE_OCM", // Oracle Configuration Manager
+            "APPQOSSYS", // Oracle Database QoS Management
+            "OJVMSYS", // Oracle JavaVM
+            "DVF", "DVSYS", // Oracle Database Vault
+            "DBSFWUSER", // Database Service Firewall
+            "REMOTE_SCHEDULER_AGENT", // Remote scheduler agent
+            "DIP", // Oracle Directory Integration Platform
+            "APEX_PUBLIC_USER", "FLOWS_FILES", /*"APEX_######", "FLOWS_######",*/ // Oracle Application Express
+            "ANONYMOUS", "XDB", "XS$NULL", // Oracle XML Database
+            "CTXSYS", // Oracle Text
+            "LBACSYS", // Oracle Label Security
+            "EXFSYS", // Oracle Rules Manager and Expression Filter
+            "MDDATA", "MDSYS", "SPATIAL_CSW_ADMIN_USR", "SPATIAL_WFS_ADMIN_USR", // Oracle Locator and Spatial
+            "ORDDATA", "ORDPLUGINS", "ORDSYS", "SI_INFORMTN_SCHEMA", // Oracle Multimedia
+            "WMSYS", // Oracle Workspace Manager
+            "OLAPSYS", // Oracle OLAP catalogs
+            "OWBSYS", "OWBSYS_AUDIT", // Oracle Warehouse Builder
+            "GSMADMIN_INTERNAL", "GSMCATUSER", "GSMUSER", // Global Data Services
+            "GGSYS", // Oracle GoldenGate
+            "WK_TEST", "WKSYS", "WKPROXY", // Oracle Ultra Search
+            "ODM", "ODM_MTR", "DMSYS", // Oracle Data Mining
+            "TSMSYS" // Transparent Session Migration
+                                                              ));
 
         // APEX has a schema with a different name for each version, so get it from ALL_USERS. In addition, starting
         // from Oracle 12.1, there is a special column in ALL_USERS that marks Oracle-maintained schemas.
-        boolean oracle12cOrHigher = getVersion().isAtLeast("12");
-        result.addAll(getMainConnection().getJdbcTemplate().queryForStringList("SELECT USERNAME FROM ALL_USERS " +
-                                                                                       "WHERE REGEXP_LIKE(USERNAME, '^(APEX|FLOWS)_\\d+$')" +
+        final boolean oracle12cOrHigher = getVersion().isAtLeast("12");
+        result.addAll(getMainConnection().getJdbcTemplate()
+            .queryForStringList("SELECT USERNAME FROM ALL_USERS "
+                    + "WHERE REGEXP_LIKE(USERNAME, '^(APEX|FLOWS)_\\d+$')"
+                    +
 
 
 
-                                                                                               " OR ORACLE_MAINTAINED = 'Y'"
+                        " OR ORACLE_MAINTAINED = 'Y'"
 
 
 
-                                                                              ));
+                               ));
 
         // For earlier Oracle versions check also DBA_REGISTRY if possible.
         if (!oracle12cOrHigher && isDataDictViewAccessible("DBA_REGISTRY")) {
-            List<List<String>> schemaSuperList = getMainConnection().getJdbcTemplate().query(
-                    "SELECT SCHEMA, OTHER_SCHEMAS FROM DBA_REGISTRY",
-                    new RowMapper<List<String>>() {
-                        @Override
-                        public List<String> mapRow(ResultSet rs) throws SQLException {
-                            List<String> schemaList = new ArrayList<>();
-                            schemaList.add(rs.getString("SCHEMA"));
-                            String otherSchemas = rs.getString("OTHER_SCHEMAS");
-                            if (otherSchemas != null && !otherSchemas.trim().isEmpty()) {
-                                schemaList.addAll(Arrays.asList(otherSchemas.trim().split("\\s*,\\s*")));
-                            }
-                            return schemaList;
+            final List<List<String>> schemaSuperList = getMainConnection().getJdbcTemplate()
+                .query("SELECT SCHEMA, OTHER_SCHEMAS FROM DBA_REGISTRY", new RowMapper<List<String>>() {
+                    @Override
+                    public List<String> mapRow(final ResultSet rs) throws SQLException {
+                        final List<String> schemaList = new ArrayList<>();
+                        schemaList.add(rs.getString("SCHEMA"));
+                        final String otherSchemas = rs.getString("OTHER_SCHEMAS");
+                        if (otherSchemas != null && !otherSchemas.trim().isEmpty()) {
+                            schemaList.addAll(Arrays.asList(otherSchemas.trim().split("\\s*,\\s*")));
                         }
-                    });
-            for (List<String> schemaList : schemaSuperList) {
+                        return schemaList;
+                    }
+                });
+            for (final List<String> schemaList : schemaSuperList) {
                 result.addAll(schemaList);
             }
         }
@@ -324,7 +346,8 @@ public class OracleDatabase extends Database<OracleConnection> {
 
     @Override
     public String getDatabaseHosting() {
-        if (getMainConnection().isAwsRds() || DATABASE_HOSTING_RDS_URL_IDENTIFIER.matcher(configuration.getUrl()).find()) {
+        if (getMainConnection().isAwsRds() || DATABASE_HOSTING_RDS_URL_IDENTIFIER.matcher(configuration.getUrl())
+            .find()) {
             return DATABASE_HOSTING_AWS_RDS;
         } else {
             return super.getDatabaseHosting();

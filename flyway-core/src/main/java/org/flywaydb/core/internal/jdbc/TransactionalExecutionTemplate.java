@@ -51,12 +51,12 @@ public class TransactionalExecutionTemplate implements ExecutionTemplate {
      * @return The result of the transaction code.
      */
     @Override
-    public <T> T execute(Callable<T> callback) {
+    public <T> T execute(final Callable<T> callback) {
         boolean oldAutocommit = true;
         try {
             oldAutocommit = connection.getAutoCommit();
             connection.setAutoCommit(false);
-            T result = callback.call();
+            final T result = callback.call();
             connection.commit();
             return result;
         } catch (Exception e) {

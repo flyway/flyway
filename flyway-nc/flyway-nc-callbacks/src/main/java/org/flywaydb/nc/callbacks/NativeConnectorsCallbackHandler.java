@@ -19,7 +19,6 @@
  */
 package org.flywaydb.nc.callbacks;
 
-import static org.flywaydb.core.internal.util.FileUtils.getParentDir;
 import static org.flywaydb.core.internal.util.TelemetryUtils.getTelemetryManager;
 import static org.flywaydb.nc.utils.ErrorUtils.calculateErrorMessage;
 
@@ -78,7 +77,7 @@ public class NativeConnectorsCallbackHandler implements CallbackHandler {
             getTelemetryManager(configuration))) {
             executionUnits.forEach(executionUnit -> {
 
-                                try {
+                try {
                     executor.execute(database, executionUnit, configuration);
                 } catch (Exception e) {
                     final String title = "Error while executing "

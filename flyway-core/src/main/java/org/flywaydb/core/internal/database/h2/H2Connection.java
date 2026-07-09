@@ -27,18 +27,18 @@ import java.sql.SQLException;
 public class H2Connection extends Connection<H2Database> {
     private final boolean requiresV2Metadata;
 
-    H2Connection(H2Database database, java.sql.Connection connection, boolean requiresV2Metadata) {
+    H2Connection(final H2Database database, final java.sql.Connection connection, final boolean requiresV2Metadata) {
         super(database, connection);
         this.requiresV2Metadata = requiresV2Metadata;
     }
 
     @Override
-    public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
+    public void doChangeCurrentSchemaOrSearchPathTo(final String schema) throws SQLException {
         jdbcTemplate.execute("SET SCHEMA " + database.quote(schema));
     }
 
     @Override
-    public Schema getSchema(String name) {
+    public Schema getSchema(final String name) {
         return new H2Schema(jdbcTemplate, database, name, requiresV2Metadata);
     }
 

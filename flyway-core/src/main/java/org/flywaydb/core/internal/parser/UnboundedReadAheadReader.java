@@ -34,12 +34,12 @@ public class UnboundedReadAheadReader extends FilterReader {
 
     private static final int bufferSize = 512;
 
-    protected UnboundedReadAheadReader(Reader in) {
+    protected UnboundedReadAheadReader(final Reader in) {
         super(in);
     }
 
     @Override
-    public void mark(int readAheadLimit) throws IOException {
+    public void mark(final int readAheadLimit) throws IOException {
         markIndex = readIndex;
     }
 
@@ -56,7 +56,7 @@ public class UnboundedReadAheadReader extends FilterReader {
             return getValue(readIndex++);
         }
 
-        int read = in.read();
+        final int read = in.read();
         if (markIndex != -1) {
             setValue(read);
             readIndex++;
@@ -65,15 +65,15 @@ public class UnboundedReadAheadReader extends FilterReader {
         return read;
     }
 
-    private int getValue(int index) {
-        int buffersIndex = index / bufferSize;
-        int buffersOffset = index - (buffersIndex * bufferSize);
+    private int getValue(final int index) {
+        final int buffersIndex = index / bufferSize;
+        final int buffersOffset = index - (buffersIndex * bufferSize);
         return buffers.get(buffersIndex)[buffersOffset];
     }
 
-    private void setValue(int value) {
-        int buffersIndex = readIndex / bufferSize;
-        int buffersOffset = readIndex - (buffersIndex * bufferSize);
+    private void setValue(final int value) {
+        final int buffersIndex = readIndex / bufferSize;
+        final int buffersOffset = readIndex - (buffersIndex * bufferSize);
 
         if (buffersOffset == 0) {
             buffers.add(new int[bufferSize]);
@@ -83,7 +83,7 @@ public class UnboundedReadAheadReader extends FilterReader {
     }
 
     private void freeBuffers() {
-        int buffersToRemove = (markIndex / bufferSize) - 1;
+        final int buffersToRemove = (markIndex / bufferSize) - 1;
 
         for (int i = 0; i < buffersToRemove; i++) {
             buffers.remove(0);

@@ -24,7 +24,6 @@ import java.util.HashMap;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.ExtensionMethod;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.MergeUtils;
 
@@ -53,10 +52,10 @@ public class EnvironmentModel {
 
     @JsonAnySetter
     @Getter(onMethod = @__(@ClassUtils.DoNotMapForLogging))
-    private Map<String,Object> unknownConfigurations = new HashMap<>();
+    private Map<String, Object> unknownConfigurations = new HashMap<>();
 
-    public EnvironmentModel merge(EnvironmentModel otherPojo) {
-        EnvironmentModel result = new EnvironmentModel();
+    public EnvironmentModel merge(final EnvironmentModel otherPojo) {
+        final EnvironmentModel result = new EnvironmentModel();
         result.url = MergeUtils.merge(url, otherPojo.url);
         result.user = MergeUtils.merge(user, otherPojo.user);
         result.password = MergeUtils.merge(password, otherPojo.password);
@@ -70,15 +69,18 @@ public class EnvironmentModel {
         result.resolvers = MergeUtils.merge(resolvers, otherPojo.resolvers, EnvironmentModel::MergeResolvers);
         result.provisioner = MergeUtils.merge(provisioner, otherPojo.provisioner);
         result.flyway = flyway.merge(otherPojo.flyway);
-        result.unknownConfigurations = MergeUtils.merge(unknownConfigurations, otherPojo.unknownConfigurations, MergeUtils::mergeObjects);
+        result.unknownConfigurations = MergeUtils.merge(unknownConfigurations,
+            otherPojo.unknownConfigurations,
+            MergeUtils::mergeObjects);
         return result;
     }
 
-    private static Map<String, Object> MergeResolvers(Map<String, Object> primary, Map<String, Object> overrides) {
-        if(primary == null) {
+    private static Map<String, Object> MergeResolvers(final Map<String, Object> primary,
+        final Map<String, Object> overrides) {
+        if (primary == null) {
             return overrides;
         }
-        if(overrides == null) {
+        if (overrides == null) {
             return primary;
         }
         return MergeUtils.merge(primary, overrides, MergeUtils::merge);

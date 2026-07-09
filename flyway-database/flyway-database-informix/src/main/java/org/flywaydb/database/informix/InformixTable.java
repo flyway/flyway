@@ -31,11 +31,14 @@ public class InformixTable extends Table<InformixDatabase, InformixSchema> {
      * Creates a new Informix table.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database The database-specific support.
-     * @param schema The schema this table lives in.
-     * @param name The name of the table.
+     * @param database     The database-specific support.
+     * @param schema       The schema this table lives in.
+     * @param name         The name of the table.
      */
-    InformixTable(JdbcTemplate jdbcTemplate, InformixDatabase database, InformixSchema schema, String name) {
+    InformixTable(final JdbcTemplate jdbcTemplate,
+        final InformixDatabase database,
+        final InformixSchema schema,
+        final String name) {
         super(jdbcTemplate, database, schema, name);
     }
 
@@ -52,7 +55,12 @@ public class InformixTable extends Table<InformixDatabase, InformixSchema> {
                 if (attempt >= MAX_RETRIES || !isRetryableFileLockError(e)) {
                     throw e;
                 }
-                LOG.warn("Retrying DROP TABLE " + name + " due to ISAM file lock (attempt " + (attempt + 1) + "): " + e.getMessage());
+                LOG.warn("Retrying DROP TABLE "
+                    + name
+                    + " due to ISAM file lock (attempt "
+                    + (attempt + 1)
+                    + "): "
+                    + e.getMessage());
                 try {
                     Thread.sleep(RETRY_DELAY_MS);
                 } catch (InterruptedException ie) {
@@ -63,10 +71,10 @@ public class InformixTable extends Table<InformixDatabase, InformixSchema> {
         }
     }
 
-    private static boolean isRetryableFileLockError(SQLException e) {
+    private static boolean isRetryableFileLockError(final SQLException e) {
         Throwable t = e;
         while (t != null) {
-            String message = t.getMessage();
+            final String message = t.getMessage();
             if (message != null && message.contains("file is locked")) {
                 return true;
             }

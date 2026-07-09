@@ -21,4 +21,4 @@ package org.flywaydb.core.internal.jdbc;
 
 import java.util.List;
 
-public record Result(long updateCount, List<String> columns, List<List<String>> data, String sql){}
+public record Result(long updateCount, List<String> columns, List<List<String>> data, String sql) {}

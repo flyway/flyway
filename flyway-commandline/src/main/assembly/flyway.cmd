@@ -25,7 +25,7 @@ if "%JAVA_ARGS%"=="" (
 )
 set EXTRA_ARGS=--enable-native-access=ALL-UNNAMED -Djava.library.path="%INSTALLDIR%\native"
 
-%JAVA_CMD% %EXTRA_ARGS% %JAVA_ARGS% -cp "%CLASSPATH%;%INSTALLDIR%\lib\*;%INSTALLDIR%\lib\plugins\*;%INSTALLDIR%\lib\aad\*;%INSTALLDIR%\lib\oracle_wallet\*;%INSTALLDIR%\lib\flyway\*;%INSTALLDIR%\lib\netty\*;%INSTALLDIR%\lib\opentelemetry\*;%INSTALLDIR%\drivers\*;%INSTALLDIR%\drivers\aws\*;%INSTALLDIR%\drivers\gcp\*;%INSTALLDIR%\drivers\cassandra\*;%INSTALLDIR%\drivers\couchbase\*;%INSTALLDIR%\drivers\mongo\*" org.flywaydb.commandline.Main %*
+%JAVA_CMD% %EXTRA_ARGS% %JAVA_ARGS% -cp "%CLASSPATH%;%INSTALLDIR%\lib\*;%INSTALLDIR%\lib\plugins\*;%INSTALLDIR%\lib\aad\*;%INSTALLDIR%\lib\oracle_wallet\*;%INSTALLDIR%\lib\flyway\*;%INSTALLDIR%\lib\netty\*;%INSTALLDIR%\lib\opentelemetry\*;%INSTALLDIR%\drivers\*;%INSTALLDIR%\drivers\aws\*;%INSTALLDIR%\drivers\cassandra\*;%INSTALLDIR%\drivers\couchbase\*;%INSTALLDIR%\drivers\mongo\*" org.flywaydb.commandline.Main %*
 
 @REM Exit using the same code returned from Java
 EXIT /B %ERRORLEVEL%

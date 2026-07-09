@@ -45,7 +45,7 @@ public class ChecksumCalculator {
             checksum = calculateChecksumForResource(loadableResources[0]);
         } else {
             final CRC32 crc32 = new CRC32();
-            for (LoadableResource resource : loadableResources) {
+            for (final LoadableResource resource : loadableResources) {
                 //noinspection Since15
                 crc32.update(intToByteArray(calculateChecksumForResource(resource)));
             }
@@ -56,7 +56,7 @@ public class ChecksumCalculator {
         return checksum;
     }
 
-    private static int calculateChecksumForResource(LoadableResource resource) {
+    private static int calculateChecksumForResource(final LoadableResource resource) {
         final CRC32 crc32 = new CRC32();
 
         BufferedReader bufferedReader = null;
@@ -72,9 +72,11 @@ public class ChecksumCalculator {
                 } while ((line = bufferedReader.readLine()) != null);
             }
         } catch (IOException e) {
-            throw new FlywayException("Unable to calculate checksum of " + resource.getFilename() + "\n" +
-                                      "Please ensure you have configured the correct file encoding with 'flyway.encoding' " +
-                                      "or enable 'flyway.detectEncoding' to let Flyway detect it for you", e);
+            throw new FlywayException("Unable to calculate checksum of "
+                + resource.getFilename()
+                + "\n"
+                + "Please ensure you have configured the correct file encoding with 'flyway.encoding' "
+                + "or enable 'flyway.detectEncoding' to let Flyway detect it for you", e);
         } finally {
             IOUtils.close(bufferedReader);
         }
@@ -82,12 +84,10 @@ public class ChecksumCalculator {
         return (int) crc32.getValue();
     }
 
-    private static byte[] intToByteArray(int i) {
-        return new byte[] {
-                (byte) ((i >> 24) & 0xFF),
-                (byte) ((i >> 16) & 0xFF),
-                (byte) ((i >> 8) & 0xFF),
-                (byte) (i & 0xFF)
-        };
+    private static byte[] intToByteArray(final int i) {
+        return new byte[] { (byte) ((i >> 24) & 0xFF),
+                            (byte) ((i >> 16) & 0xFF),
+                            (byte) ((i >> 8) & 0xFF),
+                            (byte) (i & 0xFF) };
     }
 }

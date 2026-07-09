@@ -65,11 +65,14 @@ public class DbSchemas {
     /**
      * Creates a new DbSchemas.
      *
-     * @param database The database to use.
-     * @param schemas The schemas managed by Flyway.
+     * @param database      The database to use.
+     * @param schemas       The schemas managed by Flyway.
      * @param schemaHistory The schema history table.
      */
-    public DbSchemas(Database database, Schema[] schemas, SchemaHistory schemaHistory, CallbackExecutor callbackExecutor) {
+    public DbSchemas(final Database database,
+        final Schema[] schemas,
+        final SchemaHistory schemaHistory,
+        final CallbackExecutor callbackExecutor) {
         this.database = database;
         this.connection = database.getMainConnection();
         this.schemas = schemas;
@@ -88,29 +91,30 @@ public class DbSchemas {
         int retries = 0;
         while (true) {
             try {
-                ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(), database).execute(() -> {
-                    List<Schema> createdSchemas = new ArrayList<>();
-                    for (Schema schema : schemas) {
-                        if (!schema.exists()) {
-                            if (schema.getName() == null) {
-                                throw new FlywayException("Unable to determine schema for the schema history table." +
-                                                                  " Set a default schema for the connection or specify one using the defaultSchema property!");
+                ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(), database)
+                    .execute(() -> {
+                        final List<Schema> createdSchemas = new ArrayList<>();
+                        for (final Schema schema : schemas) {
+                            if (!schema.exists()) {
+                                if (schema.getName() == null) {
+                                    throw new FlywayException("Unable to determine schema for the schema history table."
+                                        + " Set a default schema for the connection or specify one using the defaultSchema property!");
+                                }
+                                LOG.debug("Creating schema: " + schema);
+                                schema.create();
+                                createdSchemas.add(schema);
+                            } else {
+                                LOG.debug("Skipping creation of existing schema: " + schema);
                             }
-                            LOG.debug("Creating schema: " + schema);
-                            schema.create();
-                            createdSchemas.add(schema);
-                        } else {
-                            LOG.debug("Skipping creation of existing schema: " + schema);
                         }
-                    }
 
-                    if (!createdSchemas.isEmpty()) {
-                        schemaHistory.create(baseline);
-                        schemaHistory.addSchemasMarker(createdSchemas.toArray(Schema[]::new));
-                    }
+                        if (!createdSchemas.isEmpty()) {
+                            schemaHistory.create(baseline);
+                            schemaHistory.addSchemasMarker(createdSchemas.toArray(Schema[]::new));
+                        }
 
-                    return null;
-                });
+                        return null;
+                    });
                 return;
             } catch (RuntimeException e) {
                 if (++retries >= 10) {

@@ -29,11 +29,12 @@ public class HtmlReportSummary {
     private String icon;
     private String cssClass;
 
-    public HtmlReportSummary(){
+    public HtmlReportSummary() {
 
     }
+
     public HtmlReportSummary(final String cssClass, final String icon, final String summaryText) {
-        this.summaryText=summaryText;
+        this.summaryText = summaryText;
         this.icon = icon;
         this.cssClass = cssClass;
     }

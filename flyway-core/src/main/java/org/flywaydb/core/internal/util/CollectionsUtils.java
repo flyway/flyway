@@ -33,7 +33,7 @@ public class CollectionsUtils {
      * @param collection The collection to check.
      * @return {@code true} if the collection is not null and not empty, {@code false} otherwise.
      */
-    public static boolean hasItems(Collection<?> collection) {
+    public static boolean hasItems(final Collection<?> collection) {
         return collection != null && !collection.isEmpty();
     }
 }

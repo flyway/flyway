@@ -35,7 +35,7 @@ public class FlywayRepairTask extends AbstractFlywayTask {
     }
 
     @Override
-    protected Object run(Flyway flyway) {
+    protected Object run(final Flyway flyway) {
         return flyway.repair();
     }
 }

@@ -59,7 +59,7 @@ import org.flywaydb.nc.executors.NonJdbcExecutorExecutionUnit;
 public class CouchbaseDatabase extends NativeConnectorsNonJdbc {
     private static final String URL_PREFIX = "couchbases:";
     private static final String DEFAULT_SCOPE = "_default";
-    
+
     private Cluster cluster;
     private Bucket bucket;
     private Scope scope;
@@ -100,7 +100,7 @@ public class CouchbaseDatabase extends NativeConnectorsNonJdbc {
 
         initializeConnectionType(configuration);
 
-        ClusterEnvironment env = ClusterEnvironment.builder()
+        final ClusterEnvironment env = ClusterEnvironment.builder()
             .securityConfig(SecurityConfig.enableTls(true))
             .build();
 
@@ -111,7 +111,7 @@ public class CouchbaseDatabase extends NativeConnectorsNonJdbc {
         initializeBucketAndScope(getDefaultSchema(configuration));
     }
 
-    private void initializeBucketAndScope(String defaultSchema) {
+    private void initializeBucketAndScope(final String defaultSchema) {
         currentSchema = defaultSchema;
 
         bucket = cluster.bucket(getBucketFromSchema(defaultSchema));
@@ -141,24 +141,21 @@ public class CouchbaseDatabase extends NativeConnectorsNonJdbc {
         return "Couchbase";
     }
 
-
     @Override
     public MetaData getDatabaseMetaData() {
         if (this.metaData != null) {
             return metaData;
         }
 
-        QueryResult result = cluster.query("SELECT VERSION() AS version;");
-        String serverVersion = result.rowsAsObject().get(0).getString("version");
+        final QueryResult result = cluster.query("SELECT VERSION() AS version;");
+        final String serverVersion = result.rowsAsObject().get(0).getString("version");
 
-        metaData =  new MetaData(
-            getDatabaseType(),
+        metaData = new MetaData(getDatabaseType(),
             "Couchbase",
             new DatabaseVersionImpl(serverVersion),
             serverVersion,
             getCurrentSchema(),
-            connectionType
-        );
+            connectionType);
 
         return metaData;
     }
@@ -166,12 +163,12 @@ public class CouchbaseDatabase extends NativeConnectorsNonJdbc {
     @Override
     public void createSchemaHistoryTable(final Configuration configuration) {
         try {
-            String fqcn = String.format("%s.%s", currentFQCNPrefix, configuration.getTable());
+            final String fqcn = String.format("%s.%s", currentFQCNPrefix, configuration.getTable());
             scope.query("CREATE COLLECTION " + fqcn);
 
             // Allow time for collection to become visible
             Thread.sleep(300);
-            
+
             scope.query("CREATE PRIMARY INDEX ON " + fqcn);
         } catch (Exception e) {
             throw new FlywayException(e);
@@ -180,29 +177,33 @@ public class CouchbaseDatabase extends NativeConnectorsNonJdbc {
 
     @Override
     public boolean schemaHistoryTableExists(final String tableName) {
-        String sql = "SELECT * FROM system:keyspaces  WHERE `bucket` = $bucket AND `scope` = $scope AND `name` = $collection";
+        final String sql = "SELECT * FROM system:keyspaces  WHERE `bucket` = $bucket AND `scope` = $scope AND `name` = $collection";
 
-        QueryResult result = cluster.query(sql, QueryOptions.queryOptions().scanConsistency(REQUEST_PLUS).parameters(JsonObject.create()
-                .put("bucket", bucket.name())
-                .put("scope", scope.name())
-                .put("collection", tableName)));
+        final QueryResult result = cluster.query(sql,
+            QueryOptions.queryOptions()
+                .scanConsistency(REQUEST_PLUS)
+                .parameters(JsonObject.create()
+                    .put("bucket", bucket.name())
+                    .put("scope", scope.name())
+                    .put("collection", tableName)));
 
         return !result.rowsAsObject().isEmpty();
     }
 
     @Override
     public SchemaHistoryModel getSchemaHistoryModel(final String tableName) {
-        String fqcn = String.format("%s.%s", currentFQCNPrefix, tableName);
+        final String fqcn = String.format("%s.%s", currentFQCNPrefix, tableName);
 
-        String query = "SELECT installed_rank, version, description, type, script, checksum, " +
-            "installed_on, installed_by, execution_time, success FROM " + fqcn;
+        final String query = "SELECT installed_rank, version, description, type, script, checksum, "
+            + "installed_on, installed_by, execution_time, success FROM "
+            + fqcn;
 
-        List<SchemaHistoryItem> items = new ArrayList<>();
+        final List<SchemaHistoryItem> items = new ArrayList<>();
 
         try {
-            QueryResult result = cluster.query(query, QueryOptions.queryOptions().scanConsistency(REQUEST_PLUS));
+            final QueryResult result = cluster.query(query, QueryOptions.queryOptions().scanConsistency(REQUEST_PLUS));
 
-            for (JsonObject row : result.rowsAsObject()) {
+            for (final JsonObject row : result.rowsAsObject()) {
                 items.add(SchemaHistoryItem.builder()
                     .installedRank(row.getInt("installed_rank"))
                     .version(row.getString("version"))
@@ -231,9 +232,9 @@ public class CouchbaseDatabase extends NativeConnectorsNonJdbc {
 
     @Override
     public void appendSchemaHistoryItem(final SchemaHistoryItem item, final String tableName) {
-        String fqcn = String.format("%s.%s", currentFQCNPrefix, tableName);
+        final String fqcn = String.format("%s.%s", currentFQCNPrefix, tableName);
 
-        JsonObject params = JsonObject.create()
+        final JsonObject params = JsonObject.create()
             .put("installed_rank", item.getInstalledRank())
             .put("version", item.getVersion())
             .put("description", item.getDescription())
@@ -245,7 +246,7 @@ public class CouchbaseDatabase extends NativeConnectorsNonJdbc {
             .put("execution_time", item.getExecutionTime())
             .put("success", item.isSuccess());
 
-        String query = "INSERT INTO " + fqcn + " (KEY, VALUE) VALUES (UUID(), " + params.toString() + ");";
+        final String query = "INSERT INTO " + fqcn + " (KEY, VALUE) VALUES (UUID(), " + params.toString() + ");";
 
         try {
             if (batch.isEmpty()) {
@@ -253,7 +254,6 @@ public class CouchbaseDatabase extends NativeConnectorsNonJdbc {
             } else {
                 batch.add(new NonJdbcExecutorExecutionUnit(query, "", Charset.defaultCharset()));
             }
-
         } catch (Exception e) {
             throw new FlywayException(e);
         }
@@ -261,27 +261,30 @@ public class CouchbaseDatabase extends NativeConnectorsNonJdbc {
 
     @Override
     public boolean isSchemaEmpty(final String schema) {
-        String bucket = getBucketFromSchema(schema);
-        String scope = getScopeFromSchema(schema);
+        final String bucket = getBucketFromSchema(schema);
+        final String scope = getScopeFromSchema(schema);
 
-        String sql = "SELECT * FROM system:keyspaces  WHERE `bucket` = $bucket AND `scope` = $scope";
+        final String sql = "SELECT * FROM system:keyspaces  WHERE `bucket` = $bucket AND `scope` = $scope";
 
-        QueryResult result = cluster.query(sql, QueryOptions.queryOptions().scanConsistency(REQUEST_PLUS).parameters(JsonObject.create()
-                .put("bucket", bucket)
-                .put("scope", scope)));
+        final QueryResult result = cluster.query(sql,
+            QueryOptions.queryOptions()
+                .scanConsistency(REQUEST_PLUS)
+                .parameters(JsonObject.create().put("bucket", bucket).put("scope", scope)));
 
         return result.rowsAsObject().isEmpty();
     }
 
     @Override
     public boolean isSchemaExists(final String schema) {
-        String bucket = getBucketFromSchema(schema);
-        String scope = getScopeFromSchema(schema);
+        final String bucket = getBucketFromSchema(schema);
+        final String scope = getScopeFromSchema(schema);
 
-        String sql = "SELECT * FROM system:scopes  WHERE `bucket` = $bucket";
+        final String sql = "SELECT * FROM system:scopes  WHERE `bucket` = $bucket";
 
-        QueryResult result = cluster.query(sql, QueryOptions.queryOptions().scanConsistency(REQUEST_PLUS).parameters(JsonObject.create()
-            .put("bucket", bucket)));
+        final QueryResult result = cluster.query(sql,
+            QueryOptions.queryOptions()
+                .scanConsistency(REQUEST_PLUS)
+                .parameters(JsonObject.create().put("bucket", bucket)));
 
         if (result.rowsAsObject().isEmpty()) {
             return false;
@@ -289,7 +292,8 @@ public class CouchbaseDatabase extends NativeConnectorsNonJdbc {
             if (DEFAULT_SCOPE.equals(scope)) {
                 return true;
             } else {
-                return result.rowsAsObject().stream()
+                return result.rowsAsObject()
+                    .stream()
                     .anyMatch(row -> scope.equals(row.getObject("scopes").getString("name")));
             }
         }
@@ -297,9 +301,9 @@ public class CouchbaseDatabase extends NativeConnectorsNonJdbc {
 
     @Override
     public void createSchemas(final String... schemas) {
-        for (String schema : schemas) {
-            String bucket = getBucketFromSchema(schema);
-            String scope = getScopeFromSchema(schema);
+        for (final String schema : schemas) {
+            final String bucket = getBucketFromSchema(schema);
+            final String scope = getScopeFromSchema(schema);
 
             try {
                 if (!isSchemaExists(bucket)) {
@@ -307,13 +311,13 @@ public class CouchbaseDatabase extends NativeConnectorsNonJdbc {
                 }
 
                 if (!DEFAULT_SCOPE.equals(scope)) {
-                    String fullScope = String.format("`%s`.`%s`", bucket, scope);
-                    cluster.query("CREATE SCOPE " + fullScope, QueryOptions.queryOptions().scanConsistency(REQUEST_PLUS));
+                    final String fullScope = String.format("`%s`.`%s`", bucket, scope);
+                    cluster.query("CREATE SCOPE " + fullScope,
+                        QueryOptions.queryOptions().scanConsistency(REQUEST_PLUS));
 
                     // Allow time for scope to become visible
                     Thread.sleep(300);
                 }
-
             } catch (Exception e) {
                 throw new FlywayException(e);
             }
@@ -333,7 +337,7 @@ public class CouchbaseDatabase extends NativeConnectorsNonJdbc {
 
         try {
             cluster.transactions().run(ctx -> {
-                for (NonJdbcExecutorExecutionUnit executionUnit : batch) {
+                for (final NonJdbcExecutorExecutionUnit executionUnit : batch) {
                     ctx.query(scope,
                         executionUnit.getScript(),
                         TransactionQueryOptions.queryOptions().scanConsistency(REQUEST_PLUS));
@@ -373,20 +377,21 @@ public class CouchbaseDatabase extends NativeConnectorsNonJdbc {
 
     @Override
     public void doCleanSchema(final String schema) {
-        String bucket = getBucketFromSchema(schema);
-        String scope = getScopeFromSchema(schema);
+        final String bucket = getBucketFromSchema(schema);
+        final String scope = getScopeFromSchema(schema);
 
         try {
-            String sql = "SELECT * FROM system:keyspaces  WHERE `bucket` = $bucket AND `scope` = $scope";
+            final String sql = "SELECT * FROM system:keyspaces  WHERE `bucket` = $bucket AND `scope` = $scope";
 
-            QueryResult result = cluster.query(sql, QueryOptions.queryOptions().scanConsistency(REQUEST_PLUS).parameters(JsonObject.create()
-                .put("bucket", bucket)
-                .put("scope", scope)));
+            final QueryResult result = cluster.query(sql,
+                QueryOptions.queryOptions()
+                    .scanConsistency(REQUEST_PLUS)
+                    .parameters(JsonObject.create().put("bucket", bucket).put("scope", scope)));
 
-            for (JsonObject row : result.rowsAsObject()) {
-                String collectionName =  row.getObject("keyspaces").getString("name");
+            for (final JsonObject row : result.rowsAsObject()) {
+                final String collectionName = row.getObject("keyspaces").getString("name");
 
-                String fqcn = String.format("`%s`.`%s`.%s", bucket, scope, collectionName);
+                final String fqcn = String.format("`%s`.`%s`.%s", bucket, scope, collectionName);
 
                 cluster.query("DROP COLLECTION " + fqcn);
             }
@@ -397,12 +402,12 @@ public class CouchbaseDatabase extends NativeConnectorsNonJdbc {
 
     @Override
     public void doDropSchema(final String schema) {
-        String bucket = getBucketFromSchema(schema);
-        String scope = getScopeFromSchema(schema);
+        final String bucket = getBucketFromSchema(schema);
+        final String scope = getScopeFromSchema(schema);
 
         try {
             if (!DEFAULT_SCOPE.equals(scope)) {
-                String fullScope = String.format("`%s`.`%s`", bucket, scope);
+                final String fullScope = String.format("`%s`.`%s`", bucket, scope);
                 cluster.query("DROP SCOPE " + fullScope, QueryOptions.queryOptions().scanConsistency(REQUEST_PLUS));
             }
         } catch (Exception e) {
@@ -413,8 +418,9 @@ public class CouchbaseDatabase extends NativeConnectorsNonJdbc {
     @Override
     public void removeFailedSchemaHistoryItems(final String tableName) {
         try {
-            String fqcn = String.format("%s.%s", currentFQCNPrefix, tableName);
-            scope.query("DELETE FROM " + fqcn + " WHERE success = false", QueryOptions.queryOptions().scanConsistency(REQUEST_PLUS));
+            final String fqcn = String.format("%s.%s", currentFQCNPrefix, tableName);
+            scope.query("DELETE FROM " + fqcn + " WHERE success = false",
+                QueryOptions.queryOptions().scanConsistency(REQUEST_PLUS));
         } catch (Exception e) {
             throw new FlywayException(e);
         }
@@ -423,19 +429,19 @@ public class CouchbaseDatabase extends NativeConnectorsNonJdbc {
     @Override
     public void updateSchemaHistoryItem(final SchemaHistoryItem item, final String tableName) {
         try {
-            String fqcn = String.format("%s.%s", currentFQCNPrefix, tableName);
+            final String fqcn = String.format("%s.%s", currentFQCNPrefix, tableName);
 
-            String sql = "UPDATE " + fqcn
+            final String sql = "UPDATE "
+                + fqcn
                 + " SET checksum = $checksum, description = $description, type = $type WHERE installed_rank = $installed_rank LIMIT 1";
 
-            JsonObject params = JsonObject.create()
+            final JsonObject params = JsonObject.create()
                 .put("installed_rank", item.getInstalledRank())
                 .put("checksum", item.getChecksum())
                 .put("description", item.getDescription())
                 .put("type", item.getType());
 
             scope.query(sql, QueryOptions.queryOptions().scanConsistency(REQUEST_PLUS).parameters(params));
-
         } catch (Exception e) {
             throw new FlywayException(e);
         }
@@ -449,8 +455,8 @@ public class CouchbaseDatabase extends NativeConnectorsNonJdbc {
         }
     }
 
-    private String getBucketFromSchema(String schema) {
-        int index = schema.indexOf(".");
+    private String getBucketFromSchema(final String schema) {
+        final int index = schema.indexOf(".");
         if (index != -1) {
             return schema.substring(0, index);
         } else {
@@ -458,13 +464,12 @@ public class CouchbaseDatabase extends NativeConnectorsNonJdbc {
         }
     }
 
-    private String getScopeFromSchema(String schema) {
-        int index = schema.indexOf(".");
+    private String getScopeFromSchema(final String schema) {
+        final int index = schema.indexOf(".");
         if (index != -1) {
-            return schema.substring(index+1);
+            return schema.substring(index + 1);
         } else {
             return DEFAULT_SCOPE;
         }
     }
-
 }

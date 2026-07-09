@@ -53,11 +53,11 @@ public class MigrateHtmlRenderer implements HtmlRenderer<MigrateResult> {
             final HtmlTableRenderer tableRenderer = new HtmlTableRenderer();
             tableRenderer.addHeadings("Version", "Description", "Category", "Type", "Filepath", "ExecutionTime");
             result.migrations.forEach(output -> tableRenderer.addRow(output.version,
-                                                                     output.description,
-                                                                     output.category,
-                                                                     output.type,
-                                                                     FileUtils.getFilename(output.filepath),
-                                                                     format(output.executionTime)));
+                output.description,
+                output.category,
+                output.type,
+                FileUtils.getFilename(output.filepath),
+                format(output.executionTime)));
 
             html.append(tableRenderer.render());
         } else {
@@ -83,16 +83,23 @@ public class MigrateHtmlRenderer implements HtmlRenderer<MigrateResult> {
     public List<HtmlReportSummary> getHtmlSummary(final MigrateResult result, final Configuration config) {
         final List<HtmlReportSummary> htmlResult = new ArrayList<>();
         final int migratedCount = result.migrationsExecuted;
-        final String databaseVersion = result.targetSchemaVersion == null
-                ? result.migrations.stream().min((a, b) -> b.version.compareTo(a.version)).map(m -> m.version).orElse("0")
-                : result.targetSchemaVersion;
+        final String databaseVersion = result.targetSchemaVersion == null ? result.migrations.stream()
+            .min((a, b) -> b.version.compareTo(a.version))
+            .map(m -> m.version)
+            .orElse("0") : result.targetSchemaVersion;
 
-        htmlResult.add(new HtmlReportSummary(result.targetSchemaVersion != null? "scGood" : "scError", "infoOutlined", "Database version: " + databaseVersion));
-        htmlResult.add(new HtmlReportSummary(migratedCount > 0 ? "scGood" : "scWarn", "checkFilled", migratedCount + " script" + StringUtils.pluralizeSuffix(migratedCount) + " migrated"));
+        htmlResult.add(new HtmlReportSummary(result.targetSchemaVersion != null ? "scGood" : "scError",
+            "infoOutlined",
+            "Database version: " + databaseVersion));
+        htmlResult.add(new HtmlReportSummary(migratedCount > 0 ? "scGood" : "scWarn",
+            "checkFilled",
+            migratedCount + " script" + StringUtils.pluralizeSuffix(migratedCount) + " migrated"));
         if (StringUtils.hasText(result.schemaName)) {
             htmlResult.add(new HtmlReportSummary("scNote", "database", "Database Schema: " + result.schemaName));
         }
-        htmlResult.add(new HtmlReportSummary("scNote", "clockOutlined", "Execution Time: " + format(result.migrations.stream().mapToInt(i -> i.executionTime).sum())));
+        htmlResult.add(new HtmlReportSummary("scNote",
+            "clockOutlined",
+            "Execution Time: " + format(result.migrations.stream().mapToInt(i -> i.executionTime).sum())));
         if (!"default".equals(config.getCurrentEnvironmentName())) {
             htmlResult.add(new HtmlReportSummary("summaryNote",
                 "infoOutlined",

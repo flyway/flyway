@@ -32,7 +32,8 @@ public enum MigrationState {
      */
     ABOVE_TARGET("Above Target", true, false, false),
     /**
-     * This migration was not applied against this DB, because the schema history table was baselined with a higher version.
+     * This migration was not applied against this DB, because the schema history table was baselined with a higher
+     * version.
      */
     BELOW_BASELINE("Below Baseline", true, false, false),
     /**
@@ -44,28 +45,28 @@ public enum MigrationState {
      */
     BASELINE("Baseline", true, true, false),
     /**
-     * When using cherryPick, this indicates a migration that was not in the cherry picked list.
-     * When not using cherryPick, this usually indicates a problem.
-     *
+     * When using cherryPick, this indicates a migration that was not in the cherry picked list. When not using
+     * cherryPick, this usually indicates a problem.
+     * <p>
      * This migration was not applied against this DB, because a migration with a higher version has already been
      * applied. This probably means some checkins happened out of order.
-     *
+     * <p>
      * Fix by increasing the version number, run clean and migrate again or rerun migration with outOfOrder enabled.
      */
     IGNORED("Ignored", "ignored", true, false, false),
     /**
      * This migration succeeded.
-     *
-     * This migration was applied against this DB, but it is not available locally.
-     * This usually results from multiple older migration files being consolidated into a single one.
+     * <p>
+     * This migration was applied against this DB, but it is not available locally. This usually results from multiple
+     * older migration files being consolidated into a single one.
      */
     MISSING_SUCCESS("Missing", "missing", false, true, false),
     /**
      * This migration failed.
-     *
-     * This migration was applied against this DB, but it is not available locally.
-     * This usually results from multiple older migration files being consolidated into a single one.
-     *
+     * <p>
+     * This migration was applied against this DB, but it is not available locally. This usually results from multiple
+     * older migration files being consolidated into a single one.
+     * <p>
      * This should rarely, if ever, occur in practice.
      */
     MISSING_FAILED("Failed (Missing)", false, true, true),
@@ -87,25 +88,25 @@ public enum MigrationState {
     FAILED("Failed", true, true, true),
     /**
      * This migration succeeded.
-     *
-     * This migration succeeded, but it was applied out of order.
-     * Rerunning the entire migration history might produce different results!
+     * <p>
+     * This migration succeeded, but it was applied out of order. Rerunning the entire migration history might produce
+     * different results!
      */
     OUT_OF_ORDER("Out of Order", true, true, false),
     /**
      * This migration succeeded.
-     *
-     * This migration has been applied against the DB, but it is not available locally.
-     * Its version is higher than the highest version available locally.
-     * It was most likely successfully installed by a future version of this deployable.
+     * <p>
+     * This migration has been applied against the DB, but it is not available locally. Its version is higher than the
+     * highest version available locally. It was most likely successfully installed by a future version of this
+     * deployable.
      */
     FUTURE_SUCCESS("Future", "future", false, true, false),
     /**
      * This migration failed.
-     *
-     * This migration has been applied against the DB, but it is not available locally.
-     * Its version is higher than the highest version available locally.
-     * It most likely failed during the installation of a future version of this deployable.
+     * <p>
+     * This migration has been applied against the DB, but it is not available locally. Its version is higher than the
+     * highest version available locally. It most likely failed during the installation of a future version of this
+     * deployable.
      */
     FUTURE_FAILED("Failed (Future)", false, true, true),
     /**
@@ -127,11 +128,15 @@ public enum MigrationState {
     private final boolean applied;
     private final boolean failed;
 
-    MigrationState(String displayName, boolean resolved, boolean applied, boolean failed) {
+    MigrationState(final String displayName, final boolean resolved, final boolean applied, final boolean failed) {
         this(displayName, displayName, resolved, applied, failed);
     }
 
-    MigrationState(String displayName, String pattern, boolean resolved, boolean applied, boolean failed) {
+    MigrationState(final String displayName,
+        final String pattern,
+        final boolean resolved,
+        final boolean applied,
+        final boolean failed) {
         this.displayName = displayName;
         this.pattern = pattern;
         this.resolved = resolved;

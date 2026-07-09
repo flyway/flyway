@@ -98,8 +98,8 @@ public class FlywayEnvironmentModel {
     @Getter(onMethod = @__(@ClassUtils.DoNotMapForLogging))
     private Map<String, Object> pluginConfigurations = new HashMap<>();
 
-    public FlywayEnvironmentModel merge(FlywayEnvironmentModel otherPojo) {
-        FlywayEnvironmentModel result = new FlywayEnvironmentModel();
+    public FlywayEnvironmentModel merge(final FlywayEnvironmentModel otherPojo) {
+        final FlywayEnvironmentModel result = new FlywayEnvironmentModel();
         result.reportFilename = reportFilename.merge(otherPojo.reportFilename);
         result.encoding = encoding.merge(otherPojo.encoding);
         result.detectEncoding = detectEncoding.merge(otherPojo.detectEncoding);
@@ -150,14 +150,18 @@ public class FlywayEnvironmentModel {
         result.failOnMissingLocations = failOnMissingLocations.merge(otherPojo.failOnMissingLocations);
         result.loggers = loggers.merge(otherPojo.loggers);
         result.defaultSchema = defaultSchema.merge(otherPojo.defaultSchema);
-        result.placeholders = MergeUtils.merge(placeholders, otherPojo.placeholders, (a,b) -> b != null ? b : a);
+        result.placeholders = MergeUtils.merge(placeholders, otherPojo.placeholders, (a, b) -> b != null ? b : a);
         result.reportEnabled = reportEnabled.merge(otherPojo.reportEnabled);
-        result.propertyResolvers = MergeUtils.merge(propertyResolvers, otherPojo.propertyResolvers, (a,b) -> b != null ? b : a); // TODO: more granular merge
-        result.pluginConfigurations = MergeUtils.merge(pluginConfigurations, otherPojo.pluginConfigurations, MergeUtils::mergeObjects);
+        result.propertyResolvers = MergeUtils.merge(propertyResolvers,
+            otherPojo.propertyResolvers,
+            (a, b) -> b != null ? b : a); // TODO: more granular merge
+        result.pluginConfigurations = MergeUtils.merge(pluginConfigurations,
+            otherPojo.pluginConfigurations,
+            MergeUtils::mergeObjects);
         return result;
     }
 
-    public void setReportFilename(String reportFilename) {
+    public void setReportFilename(final String reportFilename) {
         if (StringUtils.hasText(reportFilename)) {
             this.reportFilename = reportFilename;
         }

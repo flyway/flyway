@@ -28,7 +28,7 @@ public class FlywayMigrateTask extends AbstractFlywayTask {
     }
 
     @Override
-    protected Object run(Flyway flyway) {
+    protected Object run(final Flyway flyway) {
         return flyway.migrate();
     }
 }

@@ -1,0 +1,53 @@
+extends: substitution
+message: "Use American English: '%s' instead of '%s'"
+level: error
+ignorecase: true
+capitalize: true
+swap:
+  honoured: honored
+  honour: honor
+  honours: honors
+  behaviour: behavior
+  organising: organizing
+  organisation: organization
+  recognised: recognized
+  recognise: recognize
+  recognises: recognizes
+  unrecognised: unrecognized
+  licence: license
+  utilise: utilize
+  labelled: labeled
+  pluralised: pluralized
+  favour: favor
+  flavour: flavor
+  colour: color
+  favourite: favorite
+  centre: center
+  analyse: analyze
+  practise: practice
+  travelling: traveling
+  cancelled: canceled
+  grey: gray
+  apologise: apologize
+  realise: realize
+  criticise: criticize
+  emphasise: emphasize
+  minimise: minimize
+  maximise: maximize
+  optimise: optimize
+  summarise: summarize
+  initialise: initialize
+  customise: customize
+  prioritise: prioritize
+  categorise: categorize
+  specialise: specialize
+  generalise: generalize
+  standardise: standardize
+  familiarise: familiarize
+  capitalise: capitalize
+  characterise: characterize
+  defence: defense
+  offence: offense
+  neighbour: neighbor
+  humour: humor
+  endeavour: endeavor

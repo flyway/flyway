@@ -35,16 +35,17 @@ public class HSQLDBSchema extends Schema<HSQLDBDatabase, HSQLDBTable> {
      * Creates a new Hsql schema.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database The database-specific support.
-     * @param name The name of the schema.
+     * @param database     The database-specific support.
+     * @param name         The name of the schema.
      */
-    HSQLDBSchema(JdbcTemplate jdbcTemplate, HSQLDBDatabase database, String name) {
+    HSQLDBSchema(final JdbcTemplate jdbcTemplate, final HSQLDBDatabase database, final String name) {
         super(jdbcTemplate, database, name);
     }
 
     @Override
     protected boolean doExists() throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT COUNT (*) FROM information_schema.system_schemas WHERE table_schem=?", name) > 0;
+        return jdbcTemplate.queryForInt("SELECT COUNT (*) FROM information_schema.system_schemas WHERE table_schem=?",
+            name) > 0;
     }
 
     @Override
@@ -54,7 +55,7 @@ public class HSQLDBSchema extends Schema<HSQLDBDatabase, HSQLDBTable> {
 
     @Override
     protected void doCreate() throws SQLException {
-        String user = jdbcTemplate.queryForString("SELECT USER() FROM (VALUES(0))");
+        final String user = jdbcTemplate.queryForString("SELECT USER() FROM (VALUES(0))");
         jdbcTemplate.execute("CREATE SCHEMA " + database.quote(name) + " AUTHORIZATION " + user);
     }
 
@@ -65,11 +66,11 @@ public class HSQLDBSchema extends Schema<HSQLDBDatabase, HSQLDBTable> {
 
     @Override
     protected void doClean() throws SQLException {
-        for (Table table : allTables()) {
+        for (final Table table : allTables()) {
             table.drop();
         }
 
-        for (String statement : generateDropStatementsForSequences()) {
+        for (final String statement : generateDropStatementsForSequences()) {
             jdbcTemplate.execute(statement);
         }
     }
@@ -81,11 +82,12 @@ public class HSQLDBSchema extends Schema<HSQLDBDatabase, HSQLDBTable> {
      * @throws SQLException when the drop statements could not be generated.
      */
     private List<String> generateDropStatementsForSequences() throws SQLException {
-        List<String> sequenceNames = jdbcTemplate.queryForStringList(
-                "SELECT SEQUENCE_NAME FROM INFORMATION_SCHEMA.SYSTEM_SEQUENCES where SEQUENCE_SCHEMA = ?", name);
+        final List<String> sequenceNames = jdbcTemplate.queryForStringList(
+            "SELECT SEQUENCE_NAME FROM INFORMATION_SCHEMA.SYSTEM_SEQUENCES where SEQUENCE_SCHEMA = ?",
+            name);
 
-        List<String> statements = new ArrayList<>();
-        for (String seqName : sequenceNames) {
+        final List<String> statements = new ArrayList<>();
+        for (final String seqName : sequenceNames) {
             statements.add("DROP SEQUENCE " + database.quote(name, seqName));
         }
 
@@ -94,10 +96,11 @@ public class HSQLDBSchema extends Schema<HSQLDBDatabase, HSQLDBTable> {
 
     @Override
     protected HSQLDBTable[] doAllTables() throws SQLException {
-        List<String> tableNames = jdbcTemplate.queryForStringList(
-                "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.SYSTEM_TABLES where TABLE_SCHEM = ? AND TABLE_TYPE = 'TABLE'", name);
+        final List<String> tableNames = jdbcTemplate.queryForStringList(
+            "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.SYSTEM_TABLES where TABLE_SCHEM = ? AND TABLE_TYPE = 'TABLE'",
+            name);
 
-        HSQLDBTable[] tables = new HSQLDBTable[tableNames.size()];
+        final HSQLDBTable[] tables = new HSQLDBTable[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new HSQLDBTable(jdbcTemplate, database, this, tableNames.get(i));
         }
@@ -105,7 +108,7 @@ public class HSQLDBSchema extends Schema<HSQLDBDatabase, HSQLDBTable> {
     }
 
     @Override
-    public Table getTable(String tableName) {
+    public Table getTable(final String tableName) {
         return new HSQLDBTable(jdbcTemplate, database, this, tableName);
     }
 }

@@ -43,12 +43,12 @@ public class CoreResourceTypeProvider implements ResourceTypeProvider {
     }
 
     @Override
-    public List<Pair<String, ResourceType>> getPrefixTypePairs(Configuration configuration) {
-        List<Pair<String, ResourceType>> pairs = new ArrayList<>();
+    public List<Pair<String, ResourceType>> getPrefixTypePairs(final Configuration configuration) {
+        final List<Pair<String, ResourceType>> pairs = new ArrayList<>();
         pairs.add(Pair.of(configuration.getSqlMigrationPrefix(), CoreResourceType.MIGRATION));
         pairs.add(Pair.of(configuration.getRepeatableSqlMigrationPrefix(), CoreResourceType.REPEATABLE_MIGRATION));
 
-        for (Event event : Event.values()) {
+        for (final Event event : Event.values()) {
             pairs.add(Pair.of(event.getId(), CoreResourceType.CALLBACK));
         }
 

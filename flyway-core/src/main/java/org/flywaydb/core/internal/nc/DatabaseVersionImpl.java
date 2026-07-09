@@ -40,5 +40,4 @@ public class DatabaseVersionImpl implements DatabaseVersion {
     public String toString() {
         return version.toString();
     }
-
 }

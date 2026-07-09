@@ -27,26 +27,26 @@ import org.flywaydb.core.internal.util.StringUtils;
 import java.sql.SQLException;
 
 public class DatabricksConnection extends Connection<DatabricksDatabase> {
-    protected DatabricksConnection(DatabricksDatabase database, java.sql.Connection connection) {
+    protected DatabricksConnection(final DatabricksDatabase database, final java.sql.Connection connection) {
         super(database, connection);
     }
 
     @Override
     protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
-        String defaultSchema = "default";
-        String currentSchema = jdbcTemplate.queryForString("SELECT current_schema();");
+        final String defaultSchema = "default";
+        final String currentSchema = jdbcTemplate.queryForString("SELECT current_schema();");
         return (currentSchema != null) ? currentSchema : defaultSchema;
     }
 
     @Override
-    public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
-        String sql = "USE SCHEMA " + database.doQuote(schema) + ";";
+    public void doChangeCurrentSchemaOrSearchPathTo(final String schema) throws SQLException {
+        final String sql = "USE SCHEMA " + database.doQuote(schema) + ";";
         jdbcTemplate.execute(sql);
     }
 
     @Override
     public Schema doGetCurrentSchema() throws SQLException {
-        String currentSchema = getCurrentSchemaNameOrSearchPath();
+        final String currentSchema = getCurrentSchemaNameOrSearchPath();
 
         if (!StringUtils.hasText(currentSchema)) {
             throw new FlywayException("Unable to determine current schema as currentSchema is empty.");
@@ -56,7 +56,7 @@ public class DatabricksConnection extends Connection<DatabricksDatabase> {
     }
 
     @Override
-    public Schema getSchema(String name) {
+    public Schema getSchema(final String name) {
         return new DatabricksSchema(jdbcTemplate, database, name);
     }
 }

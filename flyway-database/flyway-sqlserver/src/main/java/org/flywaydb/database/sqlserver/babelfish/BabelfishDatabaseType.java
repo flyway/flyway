@@ -48,11 +48,13 @@ public class BabelfishDatabaseType extends SQLServerDatabaseType {
     }
 
     @Override
-    public boolean handlesDatabaseProductNameAndVersion(String databaseProductName, String databaseProductVersion, Connection connection) {
+    public boolean handlesDatabaseProductNameAndVersion(final String databaseProductName,
+        final String databaseProductVersion,
+        final Connection connection) {
         if (databaseProductName.startsWith("Microsoft SQL Server")) {
             try {
-                String babelfish = new JdbcTemplate(connection, this).queryForString(
-                        "SELECT CAST(SERVERPROPERTY('Babelfish') AS VARCHAR(10))");
+                final String babelfish = new JdbcTemplate(connection, this).queryForString(
+                    "SELECT CAST(SERVERPROPERTY('Babelfish') AS VARCHAR(10))");
                 return "1".equals(babelfish);
             } catch (SQLException e) {
                 LOG.debug("Unable to check Babelfish property - assuming not Babelfish. " + e.getMessage());
@@ -64,7 +66,9 @@ public class BabelfishDatabaseType extends SQLServerDatabaseType {
     }
 
     @Override
-    public Database createDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+    public Database createDatabase(final Configuration configuration,
+        final JdbcConnectionFactory jdbcConnectionFactory,
+        final StatementInterceptor statementInterceptor) {
         return new BabelfishDatabase(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 }

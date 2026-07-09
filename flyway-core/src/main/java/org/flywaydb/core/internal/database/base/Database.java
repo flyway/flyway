@@ -83,7 +83,9 @@ public abstract class Database<C extends Connection> implements Closeable {
      */
     private String installedBy;
 
-    public Database(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+    public Database(final Configuration configuration,
+        final JdbcConnectionFactory jdbcConnectionFactory,
+        final StatementInterceptor statementInterceptor) {
         this.databaseType = jdbcConnectionFactory.getDatabaseType();
         this.configuration = configuration;
         this.rawMainJdbcConnection = jdbcConnectionFactory.openConnection();
@@ -100,7 +102,7 @@ public abstract class Database<C extends Connection> implements Closeable {
     /**
      * Retrieves a Flyway Connection for this JDBC connection.
      */
-    private C getConnection(java.sql.Connection connection) {
+    private C getConnection(final java.sql.Connection connection) {
         return doGetConnection(connection);
     }
 
@@ -124,12 +126,11 @@ public abstract class Database<C extends Connection> implements Closeable {
         return version;
     }
 
-    protected final void ensureDatabaseIsRecentEnough(String oldestSupportedVersion) {
+    protected final void ensureDatabaseIsRecentEnough(final String oldestSupportedVersion) {
         if (!getVersion().isAtLeast(oldestSupportedVersion)) {
-            throw new FlywayDbUpgradeRequiredException(
-                    databaseType,
-                    computeVersionDisplayName(getVersion()),
-                    computeVersionDisplayName(MigrationVersion.fromVersion(oldestSupportedVersion)));
+            throw new FlywayDbUpgradeRequiredException(databaseType,
+                computeVersionDisplayName(getVersion()),
+                computeVersionDisplayName(MigrationVersion.fromVersion(oldestSupportedVersion)));
         }
     }
 
@@ -137,42 +138,56 @@ public abstract class Database<C extends Connection> implements Closeable {
      * Ensure this database it at least as recent as this version otherwise suggest upgrade to this higher edition of
      * Flyway.
      */
-    protected final void ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition(String oldestSupportedVersionInThisEdition,
-                                                                                            List<Tier> editionWhereStillSupported, Configuration configuration) {
-        if (!LicenseGuard.isLicensed(configuration, editionWhereStillSupported) &&
-                !getVersion().isAtLeast(oldestSupportedVersionInThisEdition)) {
-            LOG.info(getDatabaseType().getName() + " " + computeVersionDisplayName(getVersion()) + " is outside of Redgate community support. See " + COMMUNITY_SUPPORT + " for details");
+    protected final void ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition(final String oldestSupportedVersionInThisEdition,
+        final List<Tier> editionWhereStillSupported,
+        final Configuration configuration) {
+        if (!LicenseGuard.isLicensed(configuration, editionWhereStillSupported) && !getVersion().isAtLeast(
+            oldestSupportedVersionInThisEdition)) {
+            LOG.info(getDatabaseType().getName()
+                + " "
+                + computeVersionDisplayName(getVersion())
+                + " is outside of Redgate community support. See "
+                + COMMUNITY_SUPPORT
+                + " for details");
         }
-
     }
 
-    protected final void recommendFlywayUpgradeIfNecessary(String newestSupportedVersion) {
+    protected final void recommendFlywayUpgradeIfNecessary(final String newestSupportedVersion) {
         if (getVersion().isNewerThan(newestSupportedVersion)) {
             recommendFlywayUpgrade(newestSupportedVersion);
         }
     }
 
-    protected final void recommendFlywayUpgradeIfNecessaryForMajorVersion(String newestSupportedVersion) {
+    protected final void recommendFlywayUpgradeIfNecessaryForMajorVersion(final String newestSupportedVersion) {
         if (getVersion().isMajorNewerThan(newestSupportedVersion)) {
             recommendFlywayUpgrade(newestSupportedVersion);
         }
     }
 
     protected final void notifyDatabaseIsNotFormallySupported() {
-        LOG.warn("Support for " + databaseType + " is provided only on a community-led basis, and is not formally supported by Redgate");
+        LOG.warn("Support for "
+            + databaseType
+            + " is provided only on a community-led basis, and is not formally supported by Redgate");
     }
 
-    private void recommendFlywayUpgrade(String newestSupportedVersion) {
-        String message = "Using " + databaseType + " " + computeVersionDisplayName(getVersion())
+    private void recommendFlywayUpgrade(final String newestSupportedVersion) {
+        final String message = "Using "
+            + databaseType
+            + " "
+            + computeVersionDisplayName(getVersion())
             + " which is newer than the version Flyway has been verified with."
-            + " The latest verified version of " + databaseType + " is " + newestSupportedVersion + ".";
+            + " The latest verified version of "
+            + databaseType
+            + " is "
+            + newestSupportedVersion
+            + ".";
         LOG.warn(message);
     }
 
     /**
      * Compute the user-friendly display name for this database version.
      */
-    protected String computeVersionDisplayName(MigrationVersion version) {
+    protected String computeVersionDisplayName(final MigrationVersion version) {
         return version.getVersion();
     }
 
@@ -223,10 +238,10 @@ public abstract class Database<C extends Connection> implements Closeable {
      * Quotes these identifiers for use in SQL queries. Multiple identifiers will be quoted and separated by a dot.
      */
     public final String quote(String... identifiers) {
-        StringBuilder result = new StringBuilder();
+        final StringBuilder result = new StringBuilder();
 
         boolean first = true;
-        for (String identifier : identifiers) {
+        for (final String identifier : identifiers) {
             if (!first) {
                 result.append(".");
             }
@@ -240,7 +255,7 @@ public abstract class Database<C extends Connection> implements Closeable {
     /**
      * Quotes this identifier for use in SQL queries.
      */
-    public String doQuote(String identifier) {
+    public String doQuote(final String identifier) {
         return getOpenQuote() + identifier + getCloseQuote();
     }
 
@@ -257,8 +272,8 @@ public abstract class Database<C extends Connection> implements Closeable {
     }
 
     public String unQuote(String identifier) {
-        String open = getOpenQuote();
-        String close = getCloseQuote();
+        final String open = getOpenQuote();
+        final String close = getCloseQuote();
 
         if (!open.equals("") && !close.equals("") && identifier.startsWith(open) && identifier.endsWith(close)) {
             identifier = identifier.substring(open.length(), identifier.length() - close.length());
@@ -312,9 +327,9 @@ public abstract class Database<C extends Connection> implements Closeable {
     }
 
     /**
-     * @return The event connection used to handle event callbacks.
-     * The reason for creating an event connection is that if using the migration connection instead, it may trigger an unwanted commit which breaks
-     * any ongoing migration transaction.
+     * @return The event connection used to handle event callbacks. The reason for creating an event connection is that
+     * if using the migration connection instead, it may trigger an unwanted commit which breaks any ongoing migration
+     * transaction.
      */
     public final C getEventConnection() {
         if (!hasEventConnection()) {
@@ -323,7 +338,7 @@ public abstract class Database<C extends Connection> implements Closeable {
         return eventConnection;
     }
 
-    public final boolean hasEventConnection(){
+    public final boolean hasEventConnection() {
         return eventConnection != null;
     }
 
@@ -342,7 +357,9 @@ public abstract class Database<C extends Connection> implements Closeable {
      */
     protected MigrationVersion determineVersion() {
         try {
-            return MigrationVersion.fromVersion(jdbcMetaData.getDatabaseMajorVersion() + "." + jdbcMetaData.getDatabaseMinorVersion());
+            return MigrationVersion.fromVersion(jdbcMetaData.getDatabaseMajorVersion()
+                + "."
+                + jdbcMetaData.getDatabaseMinorVersion());
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine the major version of the database", e);
         }
@@ -352,75 +369,109 @@ public abstract class Database<C extends Connection> implements Closeable {
      * Retrieves the script used to create the schema history table.
      *
      * @param sqlScriptFactory The factory used to create the SQL script.
-     * @param table The table to create.
-     * @param baseline Whether to include the creation of a baseline marker.
+     * @param table            The table to create.
+     * @param baseline         Whether to include the creation of a baseline marker.
      */
-    public final SqlScript getCreateScript(SqlScriptFactory sqlScriptFactory, Table table, boolean baseline) {
+    public final SqlScript getCreateScript(final SqlScriptFactory sqlScriptFactory,
+        final Table table,
+        final boolean baseline) {
         return sqlScriptFactory.createSqlScript(new StringResource(getRawCreateScript(table, baseline)), false, null);
     }
 
     public abstract String getRawCreateScript(Table table, boolean baseline);
 
-    public String getInsertStatement(Table table) {
-        return "INSERT INTO " + table
-                + " (" + quote("installed_rank")
-                + ", " + quote("version")
-                + ", " + quote("description")
-                + ", " + quote("type")
-                + ", " + quote("script")
-                + ", " + quote("checksum")
-                + ", " + quote("installed_by")
-                + ", " + quote("execution_time")
-                + ", " + quote("success")
-                + ")"
-                + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    public String getInsertStatement(final Table table) {
+        return "INSERT INTO "
+            + table
+            + " ("
+            + quote("installed_rank")
+            + ", "
+            + quote("version")
+            + ", "
+            + quote("description")
+            + ", "
+            + quote("type")
+            + ", "
+            + quote("script")
+            + ", "
+            + quote("checksum")
+            + ", "
+            + quote("installed_by")
+            + ", "
+            + quote("execution_time")
+            + ", "
+            + quote("success")
+            + ")"
+            + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     }
 
-    public String getUpdateStatement(Table table) {
-        return "UPDATE " + table
-                + " SET "
-                + quote("description") + "=? , "
-                + quote("type") + "=? , "
-                + quote("checksum") + "=?"
-                + " WHERE " + quote("installed_rank") + "=?";
+    public String getUpdateStatement(final Table table) {
+        return "UPDATE "
+            + table
+            + " SET "
+            + quote("description")
+            + "=? , "
+            + quote("type")
+            + "=? , "
+            + quote("checksum")
+            + "=?"
+            + " WHERE "
+            + quote("installed_rank")
+            + "=?";
     }
 
-    protected String getBaselineStatement(Table table) {
+    protected String getBaselineStatement(final Table table) {
         return String.format(getInsertStatement(table).replace("?", "%s"),
-                             1,
-                             "'" + configuration.getBaselineVersion() + "'",
-                             "'" + AbbreviationUtils.abbreviateDescription(configuration.getBaselineDescription()) + "'",
-                             "'" + CoreMigrationType.BASELINE + "'",
-                             "'" + AbbreviationUtils.abbreviateScript(configuration.getBaselineDescription()) + "'",
-                             "NULL",
-                             "'" + getInstalledBy() + "'",
-                             0,
-                             getBooleanTrue()
-                            );
+            1,
+            "'" + configuration.getBaselineVersion() + "'",
+            "'" + AbbreviationUtils.abbreviateDescription(configuration.getBaselineDescription()) + "'",
+            "'" + CoreMigrationType.BASELINE + "'",
+            "'" + AbbreviationUtils.abbreviateScript(configuration.getBaselineDescription()) + "'",
+            "NULL",
+            "'" + getInstalledBy() + "'",
+            0,
+            getBooleanTrue());
     }
 
-    public String getSelectStatement(Table table) {
-        return "SELECT " + quote("installed_rank")
-                + "," + quote("version")
-                + "," + quote("description")
-                + "," + quote("type")
-                + "," + quote("script")
-                + "," + quote("checksum")
-                + "," + quote("installed_on")
-                + "," + quote("installed_by")
-                + "," + quote("execution_time")
-                + "," + quote("success")
-                + " FROM " + table
-                + " WHERE " + quote("installed_rank") + " > ?"
-                + " ORDER BY " + quote("installed_rank");
+    public String getSelectStatement(final Table table) {
+        return "SELECT "
+            + quote("installed_rank")
+            + ","
+            + quote("version")
+            + ","
+            + quote("description")
+            + ","
+            + quote("type")
+            + ","
+            + quote("script")
+            + ","
+            + quote("checksum")
+            + ","
+            + quote("installed_on")
+            + ","
+            + quote("installed_by")
+            + ","
+            + quote("execution_time")
+            + ","
+            + quote("success")
+            + " FROM "
+            + table
+            + " WHERE "
+            + quote("installed_rank")
+            + " > ?"
+            + " ORDER BY "
+            + quote("installed_rank");
     }
 
-    public Pair<String, Object> getDeleteStatement(Table table, boolean version, String filter) {
-        String deleteStatement = "DELETE FROM " + table +
-            " WHERE " + quote("success") + " = " + getBooleanFalse() + " AND " +
-            (version ?
-                quote("version") + " = ?" :
-                quote("description") + " = ?");
+    public Pair<String, Object> getDeleteStatement(final Table table, final boolean version, final String filter) {
+        final String deleteStatement = "DELETE FROM "
+            + table
+            + " WHERE "
+            + quote("success")
+            + " = "
+            + getBooleanFalse()
+            + " AND "
+            + (version ? quote("version") + " = ?" : quote("description") + " = ?");
 
         return Pair.of(deleteStatement, filter);
     }
@@ -482,7 +533,7 @@ public abstract class Database<C extends Connection> implements Closeable {
      *
      * @param schemas The list of schemas managed by Flyway.
      */
-    public void cleanPostSchemas(Schema[] schemas) {
+    public void cleanPostSchemas(final Schema[] schemas) {
         try {
             doCleanPostSchemas(schemas);
         } catch (SQLException e) {
@@ -496,14 +547,14 @@ public abstract class Database<C extends Connection> implements Closeable {
      * @param schemas The list of schemas managed by Flyway.
      * @throws SQLException when the clean failed.
      */
-    protected void doCleanPostSchemas(Schema[] schemas) throws SQLException {}
+    protected void doCleanPostSchemas(final Schema[] schemas) throws SQLException {}
 
     public Schema[] getAllSchemas() {
         throw new UnsupportedOperationException("Getting all schemas not supported for " + getDatabaseType().getName());
     }
 
     public String getDatabaseHosting() {
-        String url = configuration.getUrl();
+        final String url = configuration.getUrl();
 
         if (DATABASE_HOSTING_AZURE_URL_IDENTIFIER.matcher(url).find()) {
             return DATABASE_HOSTING_AZURE_VM;

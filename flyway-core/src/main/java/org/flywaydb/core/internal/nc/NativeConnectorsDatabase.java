@@ -39,8 +39,8 @@ import org.flywaydb.core.internal.util.TimeFormat;
  * Interface to define Native Connectors database plugins.
  */
 public sealed interface NativeConnectorsDatabase<T> extends GeneralDatabaseType, AutoCloseable permits
-                                                                                  AbstractNativeConnectorsDatabase,
-                                                                                  AbstractNativeConnectorsHybridDatabase {
+                                                                                               AbstractNativeConnectorsDatabase,
+                                                                                               AbstractNativeConnectorsHybridDatabase {
     Log LOG = org.flywaydb.core.api.logging.LogFactory.getLog(NativeConnectorsDatabase.class);
     String APPLICATION_NAME = "Flyway by Redgate";
 
@@ -51,7 +51,9 @@ public sealed interface NativeConnectorsDatabase<T> extends GeneralDatabaseType,
 
     /**
      * Check for if this database type supports the provided URL/Connection String.
-     * @param url URL or Connection String for the database being connected to. This will be obtained from a resolved environment.
+     *
+     * @param url URL or Connection String for the database being connected to. This will be obtained from a resolved
+     *            environment.
      * @return A {@link DatabaseSupport] object containing confirmation that the database type is supported
      */
     DatabaseSupport supportsUrl(String url);
@@ -69,8 +71,9 @@ public sealed interface NativeConnectorsDatabase<T> extends GeneralDatabaseType,
     boolean supportsBatch();
 
     /**
-     * Checks if the database supports non-transactional statements.
-     * This is used to determine if the database has statements that cannot be inside a transaction.
+     * Checks if the database supports non-transactional statements. This is used to determine if the database has
+     * statements that cannot be inside a transaction.
+     *
      * @return True if the database supports non-transactional statements, false otherwise.
      */
     default boolean hasNonTransactionalStatements() {
@@ -78,9 +81,10 @@ public sealed interface NativeConnectorsDatabase<T> extends GeneralDatabaseType,
     }
 
     /**
-     * To initialize the connection to the database. This function will vary between the connection types.
-     * For example, a JDBC connection will establish a connection object.
-     * However, an API connection may require this function to create an authentication object instead.
+     * To initialize the connection to the database. This function will vary between the connection types. For example,
+     * a JDBC connection will establish a connection object. However, an API connection may require this function to
+     * create an authentication object instead.
+     *
      * @param environment The resolved environment to connect to.
      */
     void initialize(ResolvedEnvironment environment, Configuration configuration);
@@ -88,16 +92,17 @@ public sealed interface NativeConnectorsDatabase<T> extends GeneralDatabaseType,
     void doExecute(T executionUnit, final boolean outputQueryResults);
 
     /**
-     * Gets connection important metadata from the database.
-     * This metadata will be used primarily to confirm if the current database connection is right for the database variant connected to.
-     * This is based off existing Flyway logic.
+     * Gets connection important metadata from the database. This metadata will be used primarily to confirm if the
+     * current database connection is right for the database variant connected to. This is based off existing Flyway
+     * logic.
+     *
      * @return A {@link MetaData} object containing connection important metadata
      */
     MetaData getDatabaseMetaData();
 
     /**
-     * Creates a schema history table against the configured database.
-     * The implementation details will be determined per database but will adhere to a Flyway standard.
+     * Creates a schema history table against the configured database. The implementation details will be determined per
+     * database but will adhere to a Flyway standard.
      */
     void createSchemaHistoryTable(Configuration configuration);
 
@@ -105,13 +110,13 @@ public sealed interface NativeConnectorsDatabase<T> extends GeneralDatabaseType,
 
     /**
      * Get a model representation of the schema history table and its content.
+     *
      * @param tableName The name of the schema history table.
      * @return A model representation of the schema history table and its content.
      */
     SchemaHistoryModel getSchemaHistoryModel(String tableName);
-    
-    void appendSchemaHistoryItem(SchemaHistoryItem item,  String tableName);
 
+    void appendSchemaHistoryItem(SchemaHistoryItem item, String tableName);
 
     /**
      * Quotes this identifier for use in SQL queries.
@@ -120,12 +125,10 @@ public sealed interface NativeConnectorsDatabase<T> extends GeneralDatabaseType,
         return getOpenQuote() + identifier + getCloseQuote();
     }
 
-    
     default String getOpenQuote() {
         return "\"";
     }
 
-    
     default String getCloseQuote() {
         return "\"";
     }
@@ -147,15 +150,16 @@ public sealed interface NativeConnectorsDatabase<T> extends GeneralDatabaseType,
 
         return result.toString();
     }
-    
+
     String getCurrentSchema();
 
     /**
      * Checks if all schemas are empty.
+     *
      * @return True if all schemas are empty, false otherwise.
      */
-    default Boolean allSchemasEmpty(String[] schemas) {
-        for (String schema: schemas) {
+    default Boolean allSchemasEmpty(final String[] schemas) {
+        for (final String schema : schemas) {
             if (!isSchemaEmpty(schema)) {
                 return false;
             }
@@ -179,9 +183,9 @@ public sealed interface NativeConnectorsDatabase<T> extends GeneralDatabaseType,
      * Executes the current batch against the database.
      */
     void doExecuteBatch();
-    
+
     int getBatchSize();
-        
+
     String getCurrentUser();
 
     void startTransaction();
@@ -235,9 +239,7 @@ public sealed interface NativeConnectorsDatabase<T> extends GeneralDatabaseType,
 
     default void createSchemaHistoryTableIfNotExists(final Configuration configuration) {
         if (!schemaHistoryTableExists(configuration.getTable())) {
-            LOG.info("Creating Schema History table "
-                + quote(getCurrentSchema(), configuration.getTable())
-                + " ...");
+            LOG.info("Creating Schema History table " + quote(getCurrentSchema(), configuration.getTable()) + " ...");
             createSchemaHistoryTable(configuration);
         }
     }
@@ -259,14 +261,14 @@ public sealed interface NativeConnectorsDatabase<T> extends GeneralDatabaseType,
     }
 
     default Pattern[] getUrlRedactionPatterns() {
-        return new Pattern[] {Pattern.compile("password=([^;&]*).*", Pattern.CASE_INSENSITIVE),
-                              Pattern.compile("(?:jdbc:)?[^:]+://[^:]+:([^@]+)@.*", Pattern.CASE_INSENSITIVE)};
+        return new Pattern[] { Pattern.compile("password=([^;&]*).*", Pattern.CASE_INSENSITIVE),
+                               Pattern.compile("(?:jdbc:)?[^:]+://[^:]+:([^@]+)@.*", Pattern.CASE_INSENSITIVE) };
     }
 
     default List<String> getSupportedEngines() {
         return List.of(getDatabaseType().replaceAll("\\s", ""));
     }
-    
+
     boolean isClosed();
 
     @Override

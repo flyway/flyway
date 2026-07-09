@@ -34,7 +34,7 @@ String
 
 ### Flyway Desktop
 
-This can't be set in a config file via Flyway Desktop, although it will be honoured, and it can be configured as an
+This can't be set in a config file via Flyway Desktop, although it will be honored, and it can be configured as an
 advanced parameter in operations on the Migrations page.
 
 ### Command-line

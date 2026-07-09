@@ -23,7 +23,7 @@ public class ReportGenerationOutput {
     public ReportDetails reportDetails;
     public Exception aggregateException;
 
-    public ReportGenerationOutput() { 
+    public ReportGenerationOutput() {
         reportDetails = new ReportDetails();
     }
 

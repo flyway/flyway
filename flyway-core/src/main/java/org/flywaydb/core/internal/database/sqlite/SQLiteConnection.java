@@ -26,12 +26,12 @@ import org.flywaydb.core.internal.database.base.Schema;
  * SQLite connection.
  */
 public class SQLiteConnection extends Connection<SQLiteDatabase> {
-    SQLiteConnection(SQLiteDatabase database, java.sql.Connection connection) {
+    SQLiteConnection(final SQLiteDatabase database, final java.sql.Connection connection) {
         super(database, connection);
     }
 
     @Override
-    public Schema getSchema(String name) {
+    public Schema getSchema(final String name) {
         return new SQLiteSchema(jdbcTemplate, database, name);
     }
 

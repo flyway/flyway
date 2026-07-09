@@ -29,9 +29,12 @@ import java.util.List;
 @CustomLog
 public class PreviewFeatureWarning {
     private static final List<String> LOGGED_FEATURES = new ArrayList<>();
-    
+
     public static final String NATIVE_CONNECTORS = "Native Connectors";
-    public static boolean isPreviewFeatureEnabled(String featureName, String environmentVariable, boolean showHowToEnable) {
+
+    public static boolean isPreviewFeatureEnabled(final String featureName,
+        final String environmentVariable,
+        final boolean showHowToEnable) {
         if (System.getenv(environmentVariable) != null) {
             logPreviewFeature(featureName);
             return true;
@@ -43,12 +46,15 @@ public class PreviewFeatureWarning {
         }
         return false;
     }
-    public static void logPreviewFeature(String featureName) {
+
+    public static void logPreviewFeature(final String featureName) {
         if (LOGGED_FEATURES.contains(featureName)) {
             return;
         }
-        String link = featureName.startsWith(NATIVE_CONNECTORS) ? FEEDBACK_SURVEY_LINK : "DatabaseDevOps@red-gate.com";
-        
+        final String link = featureName.startsWith(NATIVE_CONNECTORS)
+            ? FEEDBACK_SURVEY_LINK
+            : "DatabaseDevOps@red-gate.com";
+
         LOG.info("-----------------------------------------------------------------------------");
         LOG.info("You are using a preview feature '" + featureName + "'.");
         LOG.info("Please report any issues you encounter to " + link);

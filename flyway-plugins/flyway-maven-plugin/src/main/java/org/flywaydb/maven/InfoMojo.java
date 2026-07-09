@@ -29,20 +29,17 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 
 /**
- * Maven goal to retrieve the complete information about the migrations including applied, pending and current migrations with
- * details and status.
+ * Maven goal to retrieve the complete information about the migrations including applied, pending and current
+ * migrations with details and status.
  */
-@SuppressWarnings({"UnusedDeclaration", "JavaDoc"})
-@Mojo(name = "info",
-        requiresDependencyResolution = ResolutionScope.TEST,
-        defaultPhase = LifecyclePhase.PRE_INTEGRATION_TEST,
-        threadSafe = true)
+@SuppressWarnings({ "UnusedDeclaration", "JavaDoc" })
+@Mojo(name = "info", requiresDependencyResolution = ResolutionScope.TEST, defaultPhase = LifecyclePhase.PRE_INTEGRATION_TEST, threadSafe = true)
 public class InfoMojo extends AbstractFlywayMojo {
     @Override
-    protected void doExecute(Flyway flyway) {
-        MigrationInfoService info = flyway.info();
-        MigrationInfo current = info.current();
-        MigrationVersion currentSchemaVersion = current == null ? MigrationVersion.EMPTY : current.getVersion();
+    protected void doExecute(final Flyway flyway) {
+        final MigrationInfoService info = flyway.info();
+        final MigrationInfo current = info.current();
+        final MigrationVersion currentSchemaVersion = current == null ? MigrationVersion.EMPTY : current.getVersion();
         log.info("Schema version: " + currentSchemaVersion);
         log.info("");
         log.info(MigrationInfoDumper.dumpToAsciiTable(info.all()));

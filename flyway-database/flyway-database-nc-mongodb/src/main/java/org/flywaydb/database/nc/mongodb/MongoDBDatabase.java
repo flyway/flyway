@@ -55,14 +55,12 @@ import org.flywaydb.core.internal.nc.DatabaseVersionImpl;
 import org.flywaydb.core.internal.nc.MetaData;
 import org.flywaydb.core.internal.nc.schemahistory.SchemaHistoryItem;
 import org.flywaydb.core.internal.nc.schemahistory.SchemaHistoryModel;
-import org.flywaydb.core.extensibility.LicenseGuard;
 import org.flywaydb.core.extensibility.TLSConnectionHelper;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.util.AsciiTable;
-import org.flywaydb.core.internal.util.DeprecationUtils.DeprecatedFeatures;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.nc.NativeConnectorsProcessRunner;
@@ -130,15 +128,14 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
             LOG.debug("SSL is not enabled in the current connection configuration");
         }
 
-        if (connectionString.getCredential() != null
-            || configuration.getPassword() == null) {
+        if (connectionString.getCredential() != null || configuration.getPassword() == null) {
             mongoClient = MongoClients.create(MongoClientSettings.builder()
                 .applyConnectionString(connectionString)
                 .applicationName(APPLICATION_NAME)
                 .build());
         } else {
-            String authSource = extractQueryParams(connectionString.getConnectionString()).get("authSource");
-            String defaultAuthDB = connectionString.getDatabase();
+            final String authSource = extractQueryParams(connectionString.getConnectionString()).get("authSource");
+            final String defaultAuthDB = connectionString.getDatabase();
 
             final MongoCredential credential = MongoCredential.createCredential(configuration.getUser(),
                 authSource != null ? authSource : defaultAuthDB != null ? defaultAuthDB : "admin",
@@ -164,7 +161,8 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
         switch (connectionType) {
             case API:
                 try {
-                    final Document result = mongoDatabase.runCommand(clientSession, BsonDocument.parse(executionUnit.getScript()));
+                    final Document result = mongoDatabase.runCommand(clientSession,
+                        BsonDocument.parse(executionUnit.getScript()));
                     if (result.containsKey("writeErrors")) {
                         handleWriteErrors(result);
                     }
@@ -197,11 +195,16 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
         }
 
         final String version = buildInfo.getString("version");
-        return new MetaData(getDatabaseType(), "MongoDB", new DatabaseVersionImpl(version), version, getCurrentSchema(), connectionType);
+        return new MetaData(getDatabaseType(),
+            "MongoDB",
+            new DatabaseVersionImpl(version),
+            version,
+            getCurrentSchema(),
+            connectionType);
     }
 
     @Override
-    public void createSchemaHistoryTable(Configuration configuration) {
+    public void createSchemaHistoryTable(final Configuration configuration) {
         mongoDatabase.createCollection(configuration.getTable());
         doesSchemaHistoryTableExist = true;
     }
@@ -311,8 +314,9 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
     @Override
     protected String getDefaultSchema(final Configuration configuration) {
         final String defaultSchema = ConfigUtils.getCalculatedDefaultSchema(configuration);
-        return defaultSchema != null ? defaultSchema :
-            StringUtils.hasLength(connectionString.getDatabase()) ? connectionString.getDatabase() : "test";
+        return defaultSchema != null
+            ? defaultSchema
+            : StringUtils.hasLength(connectionString.getDatabase()) ? connectionString.getDatabase() : "test";
     }
 
     @Override
@@ -332,7 +336,7 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
         }
 
         mongoDatabase.runCommand(BsonDocument.parse(batch.stream()
-        .map(NonJdbcExecutorExecutionUnit::getScript)
+            .map(NonJdbcExecutorExecutionUnit::getScript)
             .collect(Collectors.joining(";"))));
 
         batch.clear();
@@ -473,14 +477,14 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
         connectionType = ".json".equals(migrationSuffix) ? ConnectionType.API : ConnectionType.EXECUTABLE;
     }
 
-    private void handleWriteErrors(Document result) {
+    private void handleWriteErrors(final Document result) {
         final List<Document> writeErrors = result.getList("writeErrors", Document.class);
         final String errMsg = writeErrors.get(0).getString("errmsg");
         throw new FlywayException(errMsg);
     }
 
     private List<String> getMongoshConnectCommands() {
-        List<String> commands = new ArrayList<>(List.of("mongosh", mongoshCredential.url()));
+        final List<String> commands = new ArrayList<>(List.of("mongosh", mongoshCredential.url()));
         if (mongoshCredential.username() != null) {
             commands.addAll(List.of("--username", mongoshCredential.username()));
         }

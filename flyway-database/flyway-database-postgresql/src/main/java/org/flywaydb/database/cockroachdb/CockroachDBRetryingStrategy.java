@@ -46,7 +46,7 @@ public class CockroachDBRetryingStrategy implements DatabaseExecutionStrategy {
         }
     }
 
-    void checkRetryOrThrow(SQLException e, int retryCount) throws SQLException {
+    void checkRetryOrThrow(final SQLException e, final int retryCount) throws SQLException {
         if (DEADLOCK_OR_TIMEOUT_ERROR_CODE.equals(e.getSQLState()) && retryCount < MAX_RETRIES) {
             LOG.info("Retrying because of deadlock or timeout: " + e.getMessage());
         }

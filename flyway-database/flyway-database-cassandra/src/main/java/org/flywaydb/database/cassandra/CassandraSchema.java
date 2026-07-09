@@ -34,7 +34,7 @@ public class CassandraSchema extends Schema<CassandraDatabase, CassandraTable> {
      * @param database     The database-specific support.
      * @param name         The name of the schema.
      */
-    public CassandraSchema(JdbcTemplate jdbcTemplate, CassandraDatabase database, String name) {
+    public CassandraSchema(final JdbcTemplate jdbcTemplate, final CassandraDatabase database, final String name) {
         super(jdbcTemplate, database, name);
     }
 
@@ -50,7 +50,9 @@ public class CassandraSchema extends Schema<CassandraDatabase, CassandraTable> {
 
     @Override
     protected void doCreate() throws SQLException {
-        jdbcTemplate.execute("CREATE KEYSPACE IF NOT EXISTS " + database.quote(name) + " WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : '1' };");
+        jdbcTemplate.execute("CREATE KEYSPACE IF NOT EXISTS "
+            + database.quote(name)
+            + " WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : '1' };");
     }
 
     @Override
@@ -64,36 +66,38 @@ public class CassandraSchema extends Schema<CassandraDatabase, CassandraTable> {
             throw new FlywayException("Clean not supported for system schemas " + database.quote(name) + "!");
         }
 
-        for (String statement : dropIndexes()) {
+        for (final String statement : dropIndexes()) {
             jdbcTemplate.execute(statement);
         }
 
-        for (String statement : dropViews()) {
+        for (final String statement : dropViews()) {
             jdbcTemplate.execute(statement);
         }
 
-        for (String statement : dropAggregates()) {
+        for (final String statement : dropAggregates()) {
             jdbcTemplate.execute(statement);
         }
 
-        for (String statement : dropFunctions()) {
+        for (final String statement : dropFunctions()) {
             jdbcTemplate.execute(statement);
         }
 
-        for (Table table : allTables()) {
+        for (final Table table : allTables()) {
             table.drop(); //also drops triggers
         }
 
-        for (String statement : dropTypes()) {
+        for (final String statement : dropTypes()) {
             jdbcTemplate.execute(statement);
         }
     }
 
     private List<String> dropIndexes() throws SQLException {
-        List<String> indexNames = jdbcTemplate.queryForStringList("select index_name from system_schema.indexes where keyspace_name=?", name);
-        List<String> statements = new ArrayList<>();
+        final List<String> indexNames = jdbcTemplate.queryForStringList(
+            "select index_name from system_schema.indexes where keyspace_name=?",
+            name);
+        final List<String> statements = new ArrayList<>();
 
-        for (String indexName: indexNames) {
+        for (final String indexName : indexNames) {
             statements.add("drop index " + database.quote(name, indexName));
         }
 
@@ -101,10 +105,12 @@ public class CassandraSchema extends Schema<CassandraDatabase, CassandraTable> {
     }
 
     private List<String> dropViews() throws SQLException {
-        List<String> viewNames = jdbcTemplate.queryForStringList("select view_name from system_schema.views where keyspace_name=?", name);
-        List<String> statements = new ArrayList<>();
+        final List<String> viewNames = jdbcTemplate.queryForStringList(
+            "select view_name from system_schema.views where keyspace_name=?",
+            name);
+        final List<String> statements = new ArrayList<>();
 
-        for (String viewName: viewNames) {
+        for (final String viewName : viewNames) {
             statements.add("DROP MATERIALIZED VIEW " + database.quote(name, viewName));
         }
 
@@ -112,10 +118,12 @@ public class CassandraSchema extends Schema<CassandraDatabase, CassandraTable> {
     }
 
     private List<String> dropFunctions() throws SQLException {
-        List<String> functionNames = jdbcTemplate.queryForStringList("select function_name from system_schema.functions where keyspace_name=?", name);
-        List<String> statements = new ArrayList<>();
+        final List<String> functionNames = jdbcTemplate.queryForStringList(
+            "select function_name from system_schema.functions where keyspace_name=?",
+            name);
+        final List<String> statements = new ArrayList<>();
 
-        for (String functionName: functionNames) {
+        for (final String functionName : functionNames) {
             statements.add("DROP FUNCTION " + database.quote(name, functionName));
         }
 
@@ -123,10 +131,12 @@ public class CassandraSchema extends Schema<CassandraDatabase, CassandraTable> {
     }
 
     private List<String> dropAggregates() throws SQLException {
-        List<String> aggregateNames = jdbcTemplate.queryForStringList("select aggregate_name from system_schema.aggregates where keyspace_name=?", name);
-        List<String> statements = new ArrayList<>();
+        final List<String> aggregateNames = jdbcTemplate.queryForStringList(
+            "select aggregate_name from system_schema.aggregates where keyspace_name=?",
+            name);
+        final List<String> statements = new ArrayList<>();
 
-        for (String aggregateName: aggregateNames) {
+        for (final String aggregateName : aggregateNames) {
             statements.add("DROP AGGREGATE " + database.quote(name, aggregateName));
         }
 
@@ -134,10 +144,12 @@ public class CassandraSchema extends Schema<CassandraDatabase, CassandraTable> {
     }
 
     private List<String> dropTypes() throws SQLException {
-        List<String> typeNames = jdbcTemplate.queryForStringList("select type_name from system_schema.types where keyspace_name = ?", name);
-        List<String> statements = new ArrayList<>();
+        final List<String> typeNames = jdbcTemplate.queryForStringList(
+            "select type_name from system_schema.types where keyspace_name = ?",
+            name);
+        final List<String> statements = new ArrayList<>();
 
-        for (String typeName: typeNames) {
+        for (final String typeName : typeNames) {
             statements.add("DROP TYPE " + database.quote(name, typeName));
         }
 
@@ -146,12 +158,16 @@ public class CassandraSchema extends Schema<CassandraDatabase, CassandraTable> {
 
     @Override
     protected CassandraTable[] doAllTables() throws SQLException {
-        List<String> tableNames = jdbcTemplate.queryForStringList("select table_name from system_schema.tables where keyspace_name=?", name);
-        return tableNames.stream().map(tableName -> new CassandraTable(jdbcTemplate, database, this, tableName)).toArray(CassandraTable[]::new);
+        final List<String> tableNames = jdbcTemplate.queryForStringList(
+            "select table_name from system_schema.tables where keyspace_name=?",
+            name);
+        return tableNames.stream()
+            .map(tableName -> new CassandraTable(jdbcTemplate, database, this, tableName))
+            .toArray(CassandraTable[]::new);
     }
 
     @Override
-    public Table getTable(String tableName) {
+    public Table getTable(final String tableName) {
         return new CassandraTable(jdbcTemplate, database, this, tableName);
     }
 

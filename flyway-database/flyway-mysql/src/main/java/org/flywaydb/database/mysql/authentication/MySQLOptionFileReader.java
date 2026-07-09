@@ -47,7 +47,7 @@ public class MySQLOptionFileReader implements ExternalAuthFileReader {
 
     @Override
     public List<String> getAllContents() {
-        List<String> fileContents = new ArrayList<>();
+        final List<String> fileContents = new ArrayList<>();
 
 
 
@@ -113,39 +113,39 @@ public class MySQLOptionFileReader implements ExternalAuthFileReader {
 
 
     public void populateOptionFiles() {
-        boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("win");
+        final boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("win");
         if (isWindows) {
-            String winDir = System.getenv("WINDIR");
+            final String winDir = System.getenv("WINDIR");
             addIfOptionFileExists(winDir + "\\my.ini", false);
             addIfOptionFileExists(winDir + "\\my.cnf", false);
             addIfOptionFileExists("C:\\my.ini", false);
             addIfOptionFileExists("C:\\my.cnf", false);
 
-            String mysqlHome = System.getenv("MYSQL_HOME");
+            final String mysqlHome = System.getenv("MYSQL_HOME");
             if (mysqlHome != null) {
                 addIfOptionFileExists(mysqlHome + "\\my.ini", false);
                 addIfOptionFileExists(mysqlHome + "\\my.cnf", false);
             }
 
-            String appdata = System.getenv("APPDATA");
+            final String appdata = System.getenv("APPDATA");
             addIfOptionFileExists(appdata + "\\MySQL\\.mylogin.cnf", true);
         } else {
             addIfOptionFileExists("/etc/my.cnf", false);
             addIfOptionFileExists("/etc/mysql/my.cnf", false);
 
-            String mysqlHome = System.getenv("MYSQL_HOME");
+            final String mysqlHome = System.getenv("MYSQL_HOME");
             if (mysqlHome != null) {
                 addIfOptionFileExists(mysqlHome + "/my.cnf", false);
             }
 
-            String userHome = System.getProperty("user.home");
+            final String userHome = System.getProperty("user.home");
             addIfOptionFileExists(userHome + "/.my.cnf", true);
             addIfOptionFileExists(userHome + "/.mylogin.cnf", true);
         }
     }
 
-    private void addIfOptionFileExists(String optionFilePath, boolean encrypted) {
-        File optionFile = new File(optionFilePath);
+    private void addIfOptionFileExists(final String optionFilePath, final boolean encrypted) {
+        final File optionFile = new File(optionFilePath);
         if (!optionFile.exists()) {
             return;
         }

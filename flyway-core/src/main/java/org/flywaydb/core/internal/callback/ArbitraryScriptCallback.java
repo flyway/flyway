@@ -31,7 +31,8 @@ import org.flywaydb.core.internal.resolver.script.ScriptMigrationExecutor;
 
 @CustomLog
 @RequiredArgsConstructor
-public class ArbitraryScriptCallback<E extends CallbackEvent<E>> implements GenericCallback<E>, Comparable<ArbitraryScriptCallback<E>> {
+public class ArbitraryScriptCallback<E extends CallbackEvent<E>> implements GenericCallback<E>,
+                                                                            Comparable<ArbitraryScriptCallback<E>> {
 
     private final E event;
     private final String description;
@@ -49,9 +50,10 @@ public class ArbitraryScriptCallback<E extends CallbackEvent<E>> implements Gene
 
     @Override
     public void handle(final E event, final Context context) {
-        LOG.info("Executing script callback: " + event.getId()
-                         + (description == null ? "" : " - " + description)
-                         + (scriptMigrationExecutor.canExecuteInTransaction() ? "" : " [non-transactional]"));
+        LOG.info("Executing script callback: " + event.getId() + (description == null ? "" : " - " + description) + (
+            scriptMigrationExecutor.canExecuteInTransaction()
+                ? ""
+                : " [non-transactional]"));
 
         try {
             scriptMigrationExecutor.execute(new org.flywaydb.core.api.executor.Context() {

@@ -23,5 +23,6 @@ import javax.crypto.SealedObject;
 
 public interface EncryptedFlywayPermit {
     SealedObject getEncryptedObject();
+
     FlywayPermit decrypt();
 }

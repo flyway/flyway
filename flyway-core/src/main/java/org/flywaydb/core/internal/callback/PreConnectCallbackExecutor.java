@@ -33,13 +33,19 @@ public class PreConnectCallbackExecutor {
     private final Configuration configuration;
     private final ScriptMigrationResolver<Event> scriptMigrationResolver;
 
-    public PreConnectCallbackExecutor(final ResourceProvider resourceProvider, final Configuration configuration, final ParsingContext parsingContext, final StatementInterceptor statementInterceptor) {
+    public PreConnectCallbackExecutor(final ResourceProvider resourceProvider,
+        final Configuration configuration,
+        final ParsingContext parsingContext,
+        final StatementInterceptor statementInterceptor) {
         this.configuration = configuration;
-        this.scriptMigrationResolver = new ScriptMigrationResolver<>(resourceProvider, configuration, parsingContext, statementInterceptor);
+        this.scriptMigrationResolver = new ScriptMigrationResolver<>(resourceProvider,
+            configuration,
+            parsingContext,
+            statementInterceptor);
     }
 
     public void executeCallbacks() {
-        scriptMigrationResolver.resolveCallbacks((String id) -> Optional.ofNullable(Event.fromId(id)));
+        scriptMigrationResolver.resolveCallbacks((final String id) -> Optional.ofNullable(Event.fromId(id)));
         final Context context = new SimpleContext(configuration);
         for (final GenericCallback<Event> callback : scriptMigrationResolver.scriptCallbacks) {
             if (callback.supports(Event.BEFORE_CONNECT, context)) {

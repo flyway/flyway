@@ -1568,6 +1568,286 @@
     "https://app.snyk.io/vuln/snyk:lic:pip:tqdm:MPL-2.0_AND_MIT": {
       "path": "cached/MIT-0.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:pip:certifi:MPL-2.0": {
+      "path": "cached/EPL-1.0_OR_MPL-2.0-0.txt",
+      "sha256": "8f413228f933ccc758b10bdf85bd48353cf31b9eba859c2ff6acdd454f9a5e0b"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:pip:cffi:MIT-0": {
+      "path": "cached/MIT-0-0.txt",
+      "sha256": "f0f4a5977de2e4310448d4a64025fcc9e4c73d457504ae220a415a0501c5acf2"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:pip:chardet:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:pip:chardet:0BSD": {
+      "path": "cached/0BSD-0.txt",
+      "sha256": "e9e1b2278b59fbe3414e158aa804543d4872338b4bf198f0324294a16b7f2c22"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:pip:charset-normalizer:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:com.azure:azure-monitor-opentelemetry-autoconfigure:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:com.azure:azure-security-keyvault-secrets:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:com.datastax.astra:astra-sdk-devops:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:com.ethlo.time:itu:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:com.fasterxml:classmate:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:com.fasterxml.jackson.core:jackson-core:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:com.fasterxml.jackson.core:jackson-databind:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:com.fasterxml.jackson.dataformat:jackson-dataformat-xml:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:com.fasterxml.jackson.datatype:jackson-datatype-jsr310:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:com.github.docker-java:docker-java-transport-zerodep:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:com.github.victools:jsonschema-generator:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:com.github.victools:jsonschema-module-jackson:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:com.google.api.grpc:proto-google-cloud-secretmanager-v1beta1:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:commons-beanutils:commons-beanutils:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:commons-collections:commons-collections:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:com.networknt:json-schema-validator:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:com.opencsv:opencsv:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:pip:exceptiongroup:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:pip:idna:BSD-3-Clause": {
+      "path": "cached/BSD-3-Clause-0.txt",
+      "sha256": "1934ed7b93e49392abfc7b081929bd0ec62e5238a4b0654954cf3091083e2a74"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:io.modelcontextprotocol.sdk:mcp:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:io.modelcontextprotocol.sdk:mcp-core:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:io.modelcontextprotocol.sdk:mcp-json-jackson3:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:javax.validation:validation-api:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:pip:more-itertools:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:net.bytebuddy:byte-buddy:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:net.bytebuddy:byte-buddy-agent:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:org.apache.cassandra:java-driver-guava-shaded:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:org.apache.derby:derbytools:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:org.apache.httpcomponents.client5:httpclient5:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:org.apache.httpcomponents.core5:httpcore5:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:org.apache.httpcomponents.core5:httpcore5-h2:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:org.apache.maven:apache-maven:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:org.apache.maven:maven-embedder:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:org.eclipse.jetty:jetty-http:(Apache-2.0_OR_EPL-2.0)": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:org.eclipse.jetty:jetty-io:(Apache-2.0_OR_EPL-2.0)": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:org.eclipse.jetty:jetty-server:(Apache-2.0_OR_EPL-2.0)": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:org.eclipse.jetty:jetty-util:(Apache-2.0_OR_EPL-2.0)": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:org.jetbrains:annotations:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:org.rnorth.duct-tape:duct-tape:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:org.slf4j:jcl-over-slf4j:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:org.snakeyaml:snakeyaml-engine:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:org.testcontainers:cockroachdb:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:org.testcontainers:database-commons:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:org.testcontainers:db2:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:org.testcontainers:jdbc:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:org.testcontainers:junit-jupiter:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:org.testcontainers:mariadb:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:org.testcontainers:postgresql:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:org.testcontainers:testcontainers:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:pip:pycparser:BSD-3-Clause": {
+      "path": "cached/BSD-3-Clause-0.txt",
+      "sha256": "1934ed7b93e49392abfc7b081929bd0ec62e5238a4b0654954cf3091083e2a74"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:pip:pygithub:LGPL-3.0": {
+      "path": "cached/LGPL-3.0-0.txt",
+      "sha256": "6b6255aa0afecc112bc296c39b5ed3d25d944a622e02b8635630da049f6c5297"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:pip:pyjwt:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:pip:pynacl:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:pip:requests:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:aws-crt-client:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk.crt:aws-crt:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:utils-lite:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:software.aws.mcs:aws-sigv4-auth-cassandra-java-driver-plugin:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:nuget:timezoneconverter:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:pip:tomli:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:tools.jackson.dataformat:jackson-dataformat-yaml:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:pip:typing-extensions:PSF-2.0": {
+      "path": "cached/PSF-2.0-0.txt",
+      "sha256": "520340630ec1277287b24481e00d2f0bf13b475f29b54f8af73ff9861b190b14"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:uk.org.webcompere:system-stubs-core:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:uk.org.webcompere:system-stubs-jupiter:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:pip:urllib3:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     }
   }
 }

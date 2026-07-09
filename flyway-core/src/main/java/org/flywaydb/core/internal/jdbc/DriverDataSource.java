@@ -81,49 +81,75 @@ public class DriverDataSource implements DataSource {
     @Setter
     private boolean autoCommit = true;
 
-    public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password) throws FlywayException {
+    public DriverDataSource(final ClassLoader classLoader,
+        final String driverClass,
+        final String url,
+        final String user,
+        final String password) throws FlywayException {
         this(classLoader, driverClass, url, user, password, null, new Properties(), new HashMap<>());
     }
 
-    public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password, Configuration configuration) throws FlywayException {
+    public DriverDataSource(final ClassLoader classLoader,
+        final String driverClass,
+        final String url,
+        final String user,
+        final String password,
+        final Configuration configuration) throws FlywayException {
         this(classLoader, driverClass, url, user, password, configuration, new Properties(), new HashMap<>());
     }
 
-    public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password, Map<String, String> additionalProperties) throws FlywayException {
+    public DriverDataSource(final ClassLoader classLoader,
+        final String driverClass,
+        final String url,
+        final String user,
+        final String password,
+        final Map<String, String> additionalProperties) throws FlywayException {
         this(classLoader, driverClass, url, user, password, null, new Properties(), additionalProperties);
     }
 
-    public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password, Configuration configuration,
-                            Map<String, String> additionalProperties) throws FlywayException {
+    public DriverDataSource(final ClassLoader classLoader,
+        final String driverClass,
+        final String url,
+        final String user,
+        final String password,
+        final Configuration configuration,
+        final Map<String, String> additionalProperties) throws FlywayException {
         this(classLoader, driverClass, url, user, password, configuration, new Properties(), additionalProperties);
     }
 
     /**
      * Creates a new DriverDataSource.
      *
-     * @param classLoader The ClassLoader to use.
-     * @param driverClass The name of the JDBC Driver class to use. {@code null} for url-based autodetection.
-     * @param url The JDBC URL to use for connecting through the Driver. (required)
-     * @param user The JDBC user to use for connecting through the Driver.
-     * @param password The JDBC password to use for connecting through the Driver.
-     * @param configuration The Flyway configuration
-     * @param defaultProperties Default values of properties to pass to the connection (can be overridden by {@code additionalProperties})
+     * @param classLoader          The ClassLoader to use.
+     * @param driverClass          The name of the JDBC Driver class to use. {@code null} for url-based autodetection.
+     * @param url                  The JDBC URL to use for connecting through the Driver. (required)
+     * @param user                 The JDBC user to use for connecting through the Driver.
+     * @param password             The JDBC password to use for connecting through the Driver.
+     * @param configuration        The Flyway configuration
+     * @param defaultProperties    Default values of properties to pass to the connection (can be overridden by
+     *                             {@code additionalProperties})
      * @param additionalProperties The properties to pass to the connection.
      * @throws FlywayException when the datasource could not be created.
      */
-    public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password, Configuration configuration, Properties defaultProperties,
-                            Map<String, String> additionalProperties) throws FlywayException {
+    public DriverDataSource(final ClassLoader classLoader,
+        final String driverClass,
+        final String url,
+        final String user,
+        final String password,
+        final Configuration configuration,
+        final Properties defaultProperties,
+        final Map<String, String> additionalProperties) throws FlywayException {
         this.url = detectFallbackUrl(url);
 
-        List<DatabaseType> typesAcceptingUrl = DatabaseTypeRegister.getDatabaseTypesForUrl(url, configuration)
+        final List<DatabaseType> typesAcceptingUrl = DatabaseTypeRegister.getDatabaseTypesForUrl(url, configuration)
             .stream()
             .filter(DatabaseType.class::isInstance)
             .map(DatabaseType.class::cast)
             .toList();
 
         if (typesAcceptingUrl.isEmpty()) {
-            throw new FlywayException("No Flyway database plugin found to handle " + DatabaseTypeRegister.redactJdbcUrl(url)
-                + ". See " + FlywayDbWebsiteLinks.DATABASE_TROUBLESHOOTING + " for troubleshooting");
+            throw new FlywayException("No Flyway database plugin found to handle " + DatabaseTypeRegister.redactJdbcUrl(
+                url) + ". See " + FlywayDbWebsiteLinks.DATABASE_TROUBLESHOOTING + " for troubleshooting");
         }
 
         String secretManagerDriverClass = null;
@@ -133,9 +159,10 @@ public class DriverDataSource implements DataSource {
                 .getSecretManagerDriverClass(url, configuration);
         }
 
-        for (DatabaseType type: typesAcceptingUrl) {
-            String mainDriverClass = StringUtils.hasLength(driverClass) ? driverClass :
-                (secretManagerDriverClass != null ? secretManagerDriverClass : type.getDriverClass(url, classLoader));
+        for (final DatabaseType type : typesAcceptingUrl) {
+            final String mainDriverClass = StringUtils.hasLength(driverClass)
+                ? driverClass
+                : (secretManagerDriverClass != null ? secretManagerDriverClass : type.getDriverClass(url, classLoader));
             type.setEarlyConnectionProps();
 
             try {
@@ -145,27 +172,34 @@ public class DriverDataSource implements DataSource {
 
                 /* If the user-provided driverClass failed, no need to check backup driverClass or any other candidates in the queue */
                 if (StringUtils.hasLength(driverClass)) {
-                    throw new FlywayException("Unable to instantiate JDBC driver: " + driverClass
-                                                  + " => Check whether the jar file is present"
-                                                  + extendedError, e,
-                                              CoreErrorCode.JDBC_DRIVER);
+                    throw new FlywayException("Unable to instantiate JDBC driver: "
+                        + driverClass
+                        + " => Check whether the jar file is present"
+                        + extendedError, e, CoreErrorCode.JDBC_DRIVER);
                 }
 
-                String backupDriverClass = type.getBackupDriverClass(url, classLoader);
+                final String backupDriverClass = type.getBackupDriverClass(url, classLoader);
 
                 if (backupDriverClass == null) {
                     if (StringUtils.hasText(extendedError)) {
                         extendedError = System.lineSeparator() + extendedError;
                     }
 
-                    LOG.debug("Unable to instantiate JDBC driver: " + mainDriverClass + " => Check whether the jar file is present." + extendedError);
+                    LOG.debug("Unable to instantiate JDBC driver: "
+                        + mainDriverClass
+                        + " => Check whether the jar file is present."
+                        + extendedError);
                     continue;
                 }
 
                 try {
                     this.driver = ClassUtils.instantiate(backupDriverClass, classLoader);
                 } catch (Exception e1) {
-                    LOG.debug("Unable to instantiate JDBC driver: " + mainDriverClass + " or backup driver: " + backupDriverClass + " => Check whether the jar file is present");
+                    LOG.debug("Unable to instantiate JDBC driver: "
+                        + mainDriverClass
+                        + " or backup driver: "
+                        + backupDriverClass
+                        + " => Check whether the jar file is present");
                     continue;
                 }
             }
@@ -175,8 +209,11 @@ public class DriverDataSource implements DataSource {
         }
 
         if (this.type == null) {
-            throw new FlywayException("No JDBC driver found to handle " + DatabaseTypeRegister.redactJdbcUrl(url)
-                + ". See " + FlywayDbWebsiteLinks.DATABASE_TROUBLESHOOTING + " for troubleshooting");
+            throw new FlywayException("No JDBC driver found to handle "
+                + DatabaseTypeRegister.redactJdbcUrl(url)
+                + ". See "
+                + FlywayDbWebsiteLinks.DATABASE_TROUBLESHOOTING
+                + " for troubleshooting");
         }
 
         if (additionalProperties != null) {
@@ -202,10 +239,10 @@ public class DriverDataSource implements DataSource {
      * @param url The url to check.
      * @return The url to use.
      */
-    private String detectFallbackUrl(String url) {
+    private String detectFallbackUrl(final String url) {
         if (!StringUtils.hasText(url)) {
             // Attempt fallback to the automatically provided Boxfuse database URL (https://boxfuse.com/docs/databases#envvars)
-            String boxfuseDatabaseUrl = System.getenv("BOXFUSE_DATABASE_URL");
+            final String boxfuseDatabaseUrl = System.getenv("BOXFUSE_DATABASE_URL");
             if (StringUtils.hasText(boxfuseDatabaseUrl)) {
                 return boxfuseDatabaseUrl;
             }
@@ -222,10 +259,10 @@ public class DriverDataSource implements DataSource {
      * @param user The user to check.
      * @return The user to use.
      */
-    private String detectFallbackUser(String user) {
+    private String detectFallbackUser(final String user) {
         if (!StringUtils.hasText(user)) {
             // Attempt fallback to the automatically provided Boxfuse database user (https://boxfuse.com/docs/databases#envvars)
-            String boxfuseDatabaseUser = System.getenv("BOXFUSE_DATABASE_USER");
+            final String boxfuseDatabaseUser = System.getenv("BOXFUSE_DATABASE_USER");
             if (StringUtils.hasText(boxfuseDatabaseUser)) {
                 return boxfuseDatabaseUser;
             }
@@ -239,10 +276,10 @@ public class DriverDataSource implements DataSource {
      * @param password The password to check.
      * @return The password to use.
      */
-    private String detectFallbackPassword(String password) {
+    private String detectFallbackPassword(final String password) {
         if (!StringUtils.hasText(password)) {
             // Attempt fallback to the automatically provided Boxfuse database password (https://boxfuse.com/docs/databases#envvars)
-            String boxfuseDatabasePassword = System.getenv("BOXFUSE_DATABASE_PASSWORD");
+            final String boxfuseDatabasePassword = System.getenv("BOXFUSE_DATABASE_PASSWORD");
             if (StringUtils.hasText(boxfuseDatabasePassword)) {
                 return boxfuseDatabasePassword;
             }
@@ -251,8 +288,8 @@ public class DriverDataSource implements DataSource {
     }
 
     /**
-     * This implementation delegates to {@code getConnectionFromDriver},
-     * using the default user and password of this DataSource.
+     * This implementation delegates to {@code getConnectionFromDriver}, using the default user and password of this
+     * DataSource.
      *
      * @see #getConnectionFromDriver(String, String)
      */
@@ -262,19 +299,18 @@ public class DriverDataSource implements DataSource {
     }
 
     /**
-     * This implementation delegates to {@code getConnectionFromDriver},
-     * using the given user and password.
+     * This implementation delegates to {@code getConnectionFromDriver}, using the given user and password.
      *
      * @see #getConnectionFromDriver(String, String)
      */
     @Override
-    public Connection getConnection(String username, String password) throws SQLException {
+    public Connection getConnection(final String username, final String password) throws SQLException {
         return getConnectionFromDriver(username, password);
     }
 
     /**
-     * Build properties for the Driver, including the given user and password (if any),
-     * and obtain a corresponding Connection.
+     * Build properties for the Driver, including the given user and password (if any), and obtain a corresponding
+     * Connection.
      *
      * @param username the name of the user
      * @param password the password to use
@@ -282,8 +318,8 @@ public class DriverDataSource implements DataSource {
      * @throws SQLException in case of failure
      * @see java.sql.Driver#connect(String, java.util.Properties)
      */
-    protected Connection getConnectionFromDriver(String username, String password) throws SQLException {
-        Properties properties = new Properties(this.defaultProperties);
+    protected Connection getConnectionFromDriver(final String username, final String password) throws SQLException {
+        final Properties properties = new Properties(this.defaultProperties);
         properties.putAll(additionalProperties);
 
         if (username != null) {
@@ -293,7 +329,7 @@ public class DriverDataSource implements DataSource {
             properties.setProperty("password", password);
         }
 
-        Connection connection = driver.connect(url, properties);
+        final Connection connection = driver.connect(url, properties);
         if (connection == null) {
             throw new FlywayException("Unable to connect to " + DatabaseTypeRegister.redactJdbcUrl(url));
         }
@@ -311,7 +347,7 @@ public class DriverDataSource implements DataSource {
     }
 
     @Override
-    public void setLoginTimeout(int timeout) {
+    public void setLoginTimeout(final int timeout) {
         unsupportedMethod("setLoginTimeout");
     }
 
@@ -322,18 +358,18 @@ public class DriverDataSource implements DataSource {
     }
 
     @Override
-    public void setLogWriter(PrintWriter pw) {
+    public void setLogWriter(final PrintWriter pw) {
         unsupportedMethod("setLogWriter");
     }
 
     @Override
-    public <T> T unwrap(Class<T> iface) {
+    public <T> T unwrap(final Class<T> iface) {
         unsupportedMethod("unwrap");
         return null;
     }
 
     @Override
-    public boolean isWrapperFor(Class<?> iface) {
+    public boolean isWrapperFor(final Class<?> iface) {
         return DataSource.class.equals(iface);
     }
 
@@ -343,7 +379,7 @@ public class DriverDataSource implements DataSource {
         return null;
     }
 
-    private void unsupportedMethod(String methodName) {
+    private void unsupportedMethod(final String methodName) {
         throw new UnsupportedOperationException(methodName);
     }
 }

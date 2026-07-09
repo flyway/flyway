@@ -44,7 +44,7 @@ public class FileUtils {
     private static final String ORGANIZATION_ID_FILE = "organization_id";
     private static final String USER_ID_FILE = "feature_usage_data";
 
-    public static String getFilename(String path) {
+    public static String getFilename(final String path) {
         if (StringUtils.hasText(path)) {
             return path.substring(path.replace("/", "\\").lastIndexOf("\\") + 1);
         } else {
@@ -53,19 +53,16 @@ public class FileUtils {
     }
 
     /**
-     * Copy the contents of the given Reader into a String.
-     * Closes the reader when done.
+     * Copy the contents of the given Reader into a String. Closes the reader when done.
      *
      * @param in the reader to copy from
-     *
      * @return the String that has been copied to
-     *
      * @throws IOException in case of I/O errors
      */
-    public static String copyToString(Reader in) throws IOException {
-        StringWriter out = new StringWriter();
+    public static String copyToString(final Reader in) throws IOException {
+        final StringWriter out = new StringWriter();
         copy(in, out);
-        String str = out.toString();
+        final String str = out.toString();
 
         //Strip UTF-8 BOM if necessary
         if (str.startsWith("\ufeff")) {
@@ -76,34 +73,30 @@ public class FileUtils {
     }
 
     /**
-     * Copy the contents of the given InputStream into a new String based on this encoding.
-     * Closes the stream when done.
+     * Copy the contents of the given InputStream into a new String based on this encoding. Closes the stream when
+     * done.
      *
      * @param in       the stream to copy from
      * @param encoding The encoding to use.
-     *
      * @return The new String.
-     *
      * @throws IOException in case of I/O errors
      */
-    public static String copyToString(InputStream in, Charset encoding) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream(4096);
+    public static String copyToString(final InputStream in, final Charset encoding) throws IOException {
+        final ByteArrayOutputStream out = new ByteArrayOutputStream(4096);
         copy(in, out);
         return out.toString(encoding.name());
     }
 
     /**
-     * Copy the contents of the given Reader to the given Writer.
-     * Closes both when done.
+     * Copy the contents of the given Reader to the given Writer. Closes both when done.
      *
      * @param in  the Reader to copy from
      * @param out the Writer to copy to
-     *
      * @throws IOException in case of I/O errors
      */
-    public static void copy(Reader in, Writer out) throws IOException {
+    public static void copy(final Reader in, final Writer out) throws IOException {
         try {
-            char[] buffer = new char[4096];
+            final char[] buffer = new char[4096];
             int bytesRead;
             while ((bytesRead = in.read(buffer)) != -1) {
                 out.write(buffer, 0, bytesRead);
@@ -116,20 +109,17 @@ public class FileUtils {
     }
 
     /**
-     * Copy the contents of the given InputStream to the given OutputStream.
-     * Closes both streams when done.
+     * Copy the contents of the given InputStream to the given OutputStream. Closes both streams when done.
      *
      * @param in  the stream to copy from
      * @param out the stream to copy to
-     *
      * @return the number of bytes copied
-     *
      * @throws IOException in case of I/O errors
      */
-    public static int copy(InputStream in, OutputStream out) throws IOException {
+    public static int copy(final InputStream in, final OutputStream out) throws IOException {
         try {
             int byteCount = 0;
-            byte[] buffer = new byte[4096];
+            final byte[] buffer = new byte[4096];
             int bytesRead;
             while ((bytesRead = in.read(buffer)) != -1) {
                 out.write(buffer, 0, bytesRead);
@@ -143,7 +133,7 @@ public class FileUtils {
         }
     }
 
-    private static String readAsString(Path path, Charset charset) {
+    private static String readAsString(final Path path, final Charset charset) {
         try {
             return String.join(System.lineSeparator(), Files.readAllLines(path.toAbsolutePath(), charset));
         } catch (IOException ioe) {
@@ -151,7 +141,7 @@ public class FileUtils {
         }
     }
 
-    public static String readAsString(Path path) {
+    public static String readAsString(final Path path) {
         return readAsString(path, StandardCharsets.UTF_8);
     }
 
@@ -163,11 +153,11 @@ public class FileUtils {
         }
     }
 
-    public static String readResourceAsString(String path) {
+    public static String readResourceAsString(final String path) {
         return readResourceAsString(FileUtils.class.getClassLoader(), path);
     }
 
-    public static String readResourceAsString(ClassLoader classLoader, String path) {
+    public static String readResourceAsString(final ClassLoader classLoader, final String path) {
         try (InputStream inputStream = classLoader.getResourceAsStream(path);
              BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
 
@@ -181,17 +171,17 @@ public class FileUtils {
         }
     }
 
-    public static String readAsStringFallbackToResource(String parent, String path) {
+    public static String readAsStringFallbackToResource(final String parent, final String path) {
         try {
-            return readAsString(Paths.get(parent,path), Charset.defaultCharset()) + System.lineSeparator();
+            return readAsString(Paths.get(parent, path), Charset.defaultCharset()) + System.lineSeparator();
         } catch (FlywayException fe) {
             return readResourceAsString(path);
         }
     }
 
-    public static void createDirIfNotExists(File file) {
+    public static void createDirIfNotExists(final File file) {
 
-        File dir = file.getParentFile();
+        final File dir = file.getParentFile();
 
         if (dir == null || dir.exists()) {
             return;
@@ -203,16 +193,18 @@ public class FileUtils {
     }
 
     public static File getAppDataLocation() {
-        boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("win");
-        return isWindows ? new File(System.getenv("APPDATA"), "Redgate") : new File(System.getProperty("user.home"), ".config/Redgate");
+        final boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("win");
+        return isWindows
+            ? new File(System.getenv("APPDATA"), "Redgate")
+            : new File(System.getProperty("user.home"), ".config/Redgate");
     }
 
     public static File getAppDataFlywayCLILocation() {
-        File redgateAppData = getAppDataLocation();
+        final File redgateAppData = getAppDataLocation();
         return new File(redgateAppData, "Flyway CLI");
     }
 
-    public static void writeToFile(File file, String content) {
+    public static void writeToFile(final File file, final String content) {
         try (FileWriter fileWriter = new FileWriter(file)) {
             fileWriter.write(content);
         } catch (IOException e) {
@@ -220,39 +212,40 @@ public class FileUtils {
         }
     }
 
-    private static String readIdFromFileIfNoneWriteDefault(String filename, boolean generateDefault) {
+    private static String readIdFromFileIfNoneWriteDefault(final String filename, final boolean generateDefault) {
         String id = null;
 
-        File redgateAppData = getAppDataLocation();
+        final File redgateAppData = getAppDataLocation();
 
-        File idFile = new File(redgateAppData, filename);
+        final File idFile = new File(redgateAppData, filename);
         if (idFile.exists()) {
             id = FileUtils.readAsString(idFile.toPath());
         }
 
-        if(!id.hasText() && generateDefault) {
+        if (!id.hasText() && generateDefault) {
             id = UUID.randomUUID().toString();
 
-            if(!redgateAppData.exists()) {
+            if (!redgateAppData.exists()) {
                 redgateAppData.mkdirs();
             }
 
-            try(FileWriter fileWriter = new FileWriter(idFile)) {
+            try (FileWriter fileWriter = new FileWriter(idFile)) {
                 fileWriter.write(id);
-            } catch (IOException ignore) {}
+            } catch (IOException ignore) {
+            }
         }
 
         return id;
     }
 
-    private static void writeIdToFile(String id, String filename) {
-        if(!id.hasText()) {
+    private static void writeIdToFile(final String id, final String filename) {
+        if (!id.hasText()) {
             return;
         }
 
-        File redgateAppData = getAppDataLocation();
+        final File redgateAppData = getAppDataLocation();
 
-        File idFile = new File(redgateAppData, filename);
+        final File idFile = new File(redgateAppData, filename);
 
         if (idFile.exists()) {
             idFile.delete();
@@ -264,14 +257,15 @@ public class FileUtils {
 
         try (FileWriter fileWriter = new FileWriter(idFile)) {
             fileWriter.write(id);
-        } catch (IOException ignore) {}
+        } catch (IOException ignore) {
+        }
     }
 
     public static String readUserIdFromFileIfNoneWriteDefault() {
         return readIdFromFileIfNoneWriteDefault(USER_ID_FILE, true);
     }
 
-    public static void writeUserIdToFile(String userId) {
+    public static void writeUserIdToFile(final String userId) {
         writeIdToFile(userId, USER_ID_FILE);
     }
 
@@ -279,7 +273,7 @@ public class FileUtils {
         return readIdFromFileIfNoneWriteDefault(ORGANIZATION_ID_FILE, false);
     }
 
-    public static void writeOrganizationIdToFile(String organizationId) {
+    public static void writeOrganizationIdToFile(final String organizationId) {
         writeIdToFile(organizationId, ORGANIZATION_ID_FILE);
     }
 
@@ -294,8 +288,7 @@ public class FileUtils {
         try (final var stream = Files.walk(sourcePath)) {
             for (final var path : stream.toList()) {
                 final var relativePath = folderRelativePath.resolve(sourcePath.relativize(path));
-                final var destinationFilePath = destinationRootPath
-                    .resolve(relativePath)
+                final var destinationFilePath = destinationRootPath.resolve(relativePath)
                     .getParent()
                     .resolve(path.getFileName());
                 Files.copy(path, destinationFilePath, REPLACE_EXISTING);
@@ -319,7 +312,7 @@ public class FileUtils {
         throw new FlywayException("Unable to read line " + lineNumber + " from " + file.getAbsolutePath());
     }
 
-    public static String getParentDir(String file) {
+    public static String getParentDir(final String file) {
         return new File(file).getParent();
     }
 

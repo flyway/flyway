@@ -29,7 +29,7 @@ import org.flywaydb.core.internal.sqlscript.Delimiter;
 import java.io.IOException;
 
 public class SybaseASEParser extends Parser {
-    public SybaseASEParser(Configuration configuration, ParsingContext parsingContext) {
+    public SybaseASEParser(final Configuration configuration, final ParsingContext parsingContext) {
         super(configuration, parsingContext, 3);
     }
 
@@ -39,15 +39,17 @@ public class SybaseASEParser extends Parser {
     }
 
     @Override
-    protected boolean isDelimiter(String peek, ParserContext context, int col, int colIgnoringWhitespace) {
-        return peek.length() >= 2
-                && (peek.charAt(0) == 'G' || peek.charAt(0) == 'g')
-                && (peek.charAt(1) == 'O' || peek.charAt(1) == 'o')
-                && (peek.length() == 2 || Character.isWhitespace(peek.charAt(2)));
+    protected boolean isDelimiter(final String peek,
+        final ParserContext context,
+        final int col,
+        final int colIgnoringWhitespace) {
+        return peek.length() >= 2 && (peek.charAt(0) == 'G' || peek.charAt(0) == 'g') && (peek.charAt(1) == 'O'
+            || peek.charAt(1) == 'o') && (peek.length() == 2 || Character.isWhitespace(peek.charAt(2)));
     }
 
     @Override
-    protected String readKeyword(PeekingReader reader, Delimiter delimiter, ParserContext context) throws IOException {
+    protected String readKeyword(final PeekingReader reader, final Delimiter delimiter, final ParserContext context)
+        throws IOException {
         // #2414: Ignore delimiter as GO (unlike ;) can be part of a regular keyword
         return "" + (char) reader.read() + reader.readKeywordPart(null, context);
     }

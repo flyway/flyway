@@ -30,7 +30,7 @@ public enum Tier {
 
     public static final List<Tier> PREMIUM = List.of(Tier.TEAMS, Tier.ENTERPRISE);
 
-    public static boolean isAtLeast(Tier tier, Tier minimumTier) {
+    public static boolean isAtLeast(final Tier tier, final Tier minimumTier) {
         if (minimumTier == null) {
             return true;
         }
@@ -47,12 +47,12 @@ public enum Tier {
     @Getter
     private final String description;
 
-    Tier(String displayName) {
+    Tier(final String displayName) {
         this.displayName = displayName;
         this.description = "Flyway " + displayName + " Edition";
     }
 
-    public static String asString(Tier tier) {
+    public static String asString(final Tier tier) {
         if (tier == null) {
             return "OSS";
         }

@@ -21,5 +21,4 @@ package org.flywaydb.core.internal.reports;
 
 import java.nio.file.Path;
 
-public record ResolvedReportPaths(Path jsonReportPath, Path htmlReportPath, Path sarifReportPath) {
-}
+public record ResolvedReportPaths(Path jsonReportPath, Path htmlReportPath, Path sarifReportPath) {}

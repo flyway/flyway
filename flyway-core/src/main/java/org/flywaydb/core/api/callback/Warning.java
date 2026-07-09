@@ -44,8 +44,8 @@ public interface Warning {
     /**
      * Checks whether this warning has already been handled.
      *
-     * @return {@code true} {@code true} if this warning has already be handled or {@code false} if it should flow
-     * via the default warning handler.
+     * @return {@code true} {@code true} if this warning has already be handled or {@code false} if it should flow via
+     * the default warning handler.
      */
     boolean isHandled();
 
@@ -53,7 +53,7 @@ public interface Warning {
      * Sets whether this warning has already been handled.
      *
      * @param handled {@code true} if this warning has already be handled or {@code false} if it should flow via the
-     * default warning handler.
+     *                default warning handler.
      */
     void setHandled(boolean handled, Configuration config);
 }

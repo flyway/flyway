@@ -32,11 +32,14 @@ public class MySQLTable extends Table<MySQLDatabase, MySQLSchema> {
      * Creates a new MySQL table.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database The database-specific support.
-     * @param schema The schema this table lives in.
-     * @param name The name of the table.
+     * @param database     The database-specific support.
+     * @param schema       The schema this table lives in.
+     * @param name         The name of the table.
      */
-    MySQLTable(JdbcTemplate jdbcTemplate, MySQLDatabase database, MySQLSchema schema, String name) {
+    MySQLTable(final JdbcTemplate jdbcTemplate,
+        final MySQLDatabase database,
+        final MySQLSchema schema,
+        final String name) {
         super(jdbcTemplate, database, schema, name);
     }
 

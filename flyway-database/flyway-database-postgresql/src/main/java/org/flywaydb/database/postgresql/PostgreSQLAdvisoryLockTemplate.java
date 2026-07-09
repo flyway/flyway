@@ -35,29 +35,32 @@ import java.util.concurrent.Callable;
 
 @CustomLog
 public class PostgreSQLAdvisoryLockTemplate {
-    private static final long LOCK_MAGIC_NUM =
-            (0x46L << 40) // F
-                    + (0x6CL << 32) // l
-                    + (0x79L << 24) // y
-                    + (0x77 << 16) // w
-                    + (0x61 << 8) // a
-                    + 0x79; // y
+    private static final long LOCK_MAGIC_NUM = (0x46L << 40) // F
+        + (0x6CL << 32) // l
+        + (0x79L << 24) // y
+        + (0x77 << 16) // w
+        + (0x61 << 8) // a
+        + 0x79; // y
 
     private final Configuration configuration;
     private final JdbcTemplate jdbcTemplate;
     private final long lockNum;
 
-    PostgreSQLAdvisoryLockTemplate(Configuration configuration, JdbcTemplate jdbcTemplate, int discriminator) {
+    PostgreSQLAdvisoryLockTemplate(final Configuration configuration,
+        final JdbcTemplate jdbcTemplate,
+        final int discriminator) {
         this.configuration = configuration;
         this.jdbcTemplate = jdbcTemplate;
         this.lockNum = LOCK_MAGIC_NUM + discriminator;
     }
 
-    public <T> T execute(Callable<T> callable) {
-        PostgreSQLConfigurationExtension configurationExtension = configuration.getPluginRegister().getExact(PostgreSQLConfigurationExtension.class);
+    public <T> T execute(final Callable<T> callable) {
+        final PostgreSQLConfigurationExtension configurationExtension = configuration.getPluginRegister()
+            .getExact(PostgreSQLConfigurationExtension.class);
 
         if (configurationExtension.isTransactionalLock()) {
-            return new TransactionalExecutionTemplate(jdbcTemplate.getConnection(), true).execute(() -> execute(callable, this::tryLockTransactional));
+            return new TransactionalExecutionTemplate(jdbcTemplate.getConnection(),
+                true).execute(() -> execute(callable, this::tryLockTransactional));
         } else {
             RuntimeException rethrow = null;
             try {
@@ -71,7 +74,7 @@ public class PostgreSQLAdvisoryLockTemplate {
         }
     }
 
-    private <T> T execute(Callable<T> callable, SqlCallable<Boolean> tryLock) {
+    private <T> T execute(final Callable<T> callable, final SqlCallable<Boolean> tryLock) {
         try {
             lock(tryLock);
             return callable.call();
@@ -85,26 +88,30 @@ public class PostgreSQLAdvisoryLockTemplate {
         }
     }
 
-    private void lock(SqlCallable<Boolean> tryLock) throws SQLException {
-        RetryStrategy strategy = new RetryStrategy();
-        strategy.doWithRetries(tryLock, "Interrupted while attempting to acquire PostgreSQL advisory lock",
-                               "Number of retries exceeded while attempting to acquire PostgreSQL advisory lock. " +
-                                       "Configure the number of retries with the 'lockRetryCount' configuration option: " + FlywayDbWebsiteLinks.LOCK_RETRY_COUNT);
+    private void lock(final SqlCallable<Boolean> tryLock) throws SQLException {
+        final RetryStrategy strategy = new RetryStrategy();
+        strategy.doWithRetries(tryLock,
+            "Interrupted while attempting to acquire PostgreSQL advisory lock",
+            "Number of retries exceeded while attempting to acquire PostgreSQL advisory lock. "
+                + "Configure the number of retries with the 'lockRetryCount' configuration option: "
+                + FlywayDbWebsiteLinks.LOCK_RETRY_COUNT);
     }
 
     private boolean tryLockTransactional() throws SQLException {
-        List<Boolean> results = jdbcTemplate.query("SELECT pg_try_advisory_xact_lock(" + lockNum + ")", rs -> rs.getBoolean("pg_try_advisory_xact_lock"));
+        final List<Boolean> results = jdbcTemplate.query("SELECT pg_try_advisory_xact_lock(" + lockNum + ")",
+            rs -> rs.getBoolean("pg_try_advisory_xact_lock"));
         return results.size() == 1 && results.get(0);
     }
 
     private boolean tryLock() throws SQLException {
-        List<Boolean> results = jdbcTemplate.query("SELECT pg_try_advisory_lock(" + lockNum + ")", rs -> rs.getBoolean("pg_try_advisory_lock"));
+        final List<Boolean> results = jdbcTemplate.query("SELECT pg_try_advisory_lock(" + lockNum + ")",
+            rs -> rs.getBoolean("pg_try_advisory_lock"));
         return results.size() == 1 && results.get(0);
     }
 
-    private void unlock(RuntimeException rethrow) throws FlywaySqlException {
+    private void unlock(final RuntimeException rethrow) throws FlywaySqlException {
         try {
-            boolean unlocked = jdbcTemplate.queryForBoolean("SELECT pg_advisory_unlock(" + lockNum + ")");
+            final boolean unlocked = jdbcTemplate.queryForBoolean("SELECT pg_advisory_unlock(" + lockNum + ")");
             if (!unlocked) {
                 if (rethrow == null) {
                     throw new FlywayException("Unable to release PostgreSQL advisory lock");

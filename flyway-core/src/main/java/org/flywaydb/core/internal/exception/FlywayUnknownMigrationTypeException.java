@@ -22,8 +22,10 @@ package org.flywaydb.core.internal.exception;
 import org.flywaydb.core.api.FlywayException;
 
 public class FlywayUnknownMigrationTypeException extends FlywayException {
-    public FlywayUnknownMigrationTypeException(String type) {
-        super("Unknown migration type '" + type + "' found in schema history.\n"
+    public FlywayUnknownMigrationTypeException(final String type) {
+        super("Unknown migration type '"
+            + type
+            + "' found in schema history.\n"
             + "You might be missing a required extension JAR on the classpath.");
     }
 }

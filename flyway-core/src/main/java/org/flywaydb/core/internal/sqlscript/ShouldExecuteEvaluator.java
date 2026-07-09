@@ -22,7 +22,7 @@ package org.flywaydb.core.internal.sqlscript;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.Plugin;
 
-public interface ShouldExecuteEvaluator extends Plugin  {
+public interface ShouldExecuteEvaluator extends Plugin {
 
     /**
      * Evaluates a boolean expression.

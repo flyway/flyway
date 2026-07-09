@@ -25,7 +25,7 @@ import org.flywaydb.core.internal.parser.*;
 import java.io.IOException;
 
 public class H2Parser extends Parser {
-    public H2Parser(Configuration configuration, ParsingContext parsingContext) {
+    public H2Parser(final Configuration configuration, final ParsingContext parsingContext) {
         super(configuration, parsingContext, 2);
     }
 
@@ -43,8 +43,12 @@ public class H2Parser extends Parser {
 
     @SuppressWarnings("Duplicates")
     @Override
-    protected Token handleAlternativeStringLiteral(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
-        String dollarQuote = (char) reader.read() + reader.readUntilIncluding('$');
+    protected Token handleAlternativeStringLiteral(final PeekingReader reader,
+        final ParserContext context,
+        final int pos,
+        final int line,
+        final int col) throws IOException {
+        final String dollarQuote = (char) reader.read() + reader.readUntilIncluding('$');
         reader.swallowUntilExcluding(dollarQuote);
         reader.swallow(dollarQuote.length());
         return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());

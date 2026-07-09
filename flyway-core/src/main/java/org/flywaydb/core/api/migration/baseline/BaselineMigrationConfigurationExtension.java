@@ -36,7 +36,7 @@ public class BaselineMigrationConfigurationExtension implements ConfigurationExt
     }
 
     @Override
-    public String getConfigurationParameterFromEnvironmentVariable(String environmentVariable) {
+    public String getConfigurationParameterFromEnvironmentVariable(final String environmentVariable) {
         if ("FLYWAY_BASELINE_MIGRATION_PREFIX".equals(environmentVariable)) {
             return BASELINE_MIGRATION_PREFIX;
         }

@@ -36,7 +36,7 @@ public class SpannerParser extends Parser {
 
     private boolean previousStatementStartedBatch = false;
 
-    public SpannerParser(Configuration configuration, ParsingContext parsingContext) {
+    public SpannerParser(final Configuration configuration, final ParsingContext parsingContext) {
         super(configuration, parsingContext, 3);
     }
 
@@ -50,20 +50,25 @@ public class SpannerParser extends Parser {
     }
 
     @Override
-    protected Boolean detectCanExecuteInTransaction(String simplifiedStatement, List<Token> keywords) {
+    protected Boolean detectCanExecuteInTransaction(final String simplifiedStatement, final List<Token> keywords) {
         LOG.debug("checking if [" + simplifiedStatement + "] can run in transaction");
         // Flyway tries to do hold transaction in which migration will happen
         return false;
     }
 
     @Override
-    protected boolean shouldAdjustBlockDepth(ParserContext context, List<Token> tokens, Token token) {
-        return previousStatementStartedBatch || super.shouldAdjustBlockDepth(context, tokens, token) || token.getType() == TokenType.DELIMITER;
+    protected boolean shouldAdjustBlockDepth(final ParserContext context, final List<Token> tokens, final Token token) {
+        return previousStatementStartedBatch
+            || super.shouldAdjustBlockDepth(context, tokens, token)
+            || token.getType() == TokenType.DELIMITER;
     }
 
     @Override
-    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) throws IOException {
-        String keywordText = keyword.getText();
+    protected void adjustBlockDepth(final ParserContext context,
+        final List<Token> tokens,
+        final Token keyword,
+        final PeekingReader reader) throws IOException {
+        final String keywordText = keyword.getText();
         if (previousStatementStartedBatch) {
             context.increaseBlockDepth("");
             previousStatementStartedBatch = false;

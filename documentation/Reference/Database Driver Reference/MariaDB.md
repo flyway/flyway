@@ -2,7 +2,7 @@
 subtitle: MariaDB
 ---
 
-- **Verified Versions:** 5.1, 11.7
+- **Verified Versions:** 5.1, 12.3.2
 - **Maintainer:** {% include redgate-badge.html %}
 
 ## Supported Versions and Support Levels

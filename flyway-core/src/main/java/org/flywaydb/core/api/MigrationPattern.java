@@ -28,13 +28,13 @@ public class MigrationPattern {
     private static final Pattern VERSION_NUMBER_PATTERN = Pattern.compile("-?\\d+(\\.\\d+)*");
     private final String migrationName;
 
-    public boolean matches(MigrationVersion version, String description) {
-        String migrationNameAsVersion = migrationName.replace("_", ".");
+    public boolean matches(final MigrationVersion version, final String description) {
+        final String migrationNameAsVersion = migrationName.replace("_", ".");
         if (version != null && isValidVersionNumber(migrationNameAsVersion)) {
-            MigrationVersion patternVersion = MigrationVersion.fromVersion(migrationNameAsVersion);
+            final MigrationVersion patternVersion = MigrationVersion.fromVersion(migrationNameAsVersion);
             return patternVersion.equals(version);
         }
-        String pattern = migrationName.replace("_", " ");
+        final String pattern = migrationName.replace("_", " ");
         return pattern.equals(description);
     }
 
@@ -48,7 +48,7 @@ public class MigrationPattern {
         return migrationName.hashCode();
     }
 
-    private static boolean isValidVersionNumber(String versionNumber) {
+    private static boolean isValidVersionNumber(final String versionNumber) {
         return VERSION_NUMBER_PATTERN.matcher(versionNumber).matches();
     }
 }

@@ -41,8 +41,12 @@ public class MigrationInfoImpl implements MigrationInfo {
     private final boolean shouldNotExecuteMigration;
     private final boolean undone;
 
-    MigrationInfoImpl(ResolvedMigration resolvedMigration, AppliedMigration appliedMigration,
-                      MigrationInfoContext context, boolean outOfOrder, boolean deleted, boolean undone) {
+    MigrationInfoImpl(final ResolvedMigration resolvedMigration,
+        final AppliedMigration appliedMigration,
+        final MigrationInfoContext context,
+        final boolean outOfOrder,
+        final boolean deleted,
+        final boolean undone) {
         this.resolvedMigration = resolvedMigration;
         this.appliedMigration = appliedMigration;
         this.context = context;
@@ -116,7 +120,7 @@ public class MigrationInfoImpl implements MigrationInfo {
 
     @Override
     public String getShouldExecuteExpression() {
-        if(resolvedMigration != null) {
+        if (resolvedMigration != null) {
             return resolvedMigration.getExecutor().shouldExecuteExpression();
         }
         return null;
@@ -133,7 +137,9 @@ public class MigrationInfoImpl implements MigrationInfo {
         }
 
         if (appliedMigration == null) {
-            MigrationState cherryPickState = context.cherryPickSupport.getStateOverride(context.cherryPick, resolvedMigration.getVersion(), resolvedMigration.getDescription());
+            final MigrationState cherryPickState = context.cherryPickSupport.getStateOverride(context.cherryPick,
+                resolvedMigration.getVersion(),
+                resolvedMigration.getDescription());
             if (cherryPickState != null) {
                 return cherryPickState;
             }
@@ -192,7 +198,7 @@ public class MigrationInfoImpl implements MigrationInfo {
      * @return The error code with the relevant validation message, or {@code null} if everything is fine.
      */
     public ErrorDetails validate() {
-        MigrationState state = getState();
+        final MigrationState state = getState();
 
         if (MigrationState.UNDONE.equals(state)) {
             return null;
@@ -212,10 +218,17 @@ public class MigrationInfoImpl implements MigrationInfo {
 
         if (state.isFailed() && (!context.isFutureIgnored() || MigrationState.FUTURE_FAILED != state)) {
             if (getVersion() == null) {
-                String errorMessage = "Detected failed repeatable migration: " + getDescription() + ".\nPlease remove any half-completed changes then run repair to fix the schema history.";
+                final String errorMessage = "Detected failed repeatable migration: "
+                    + getDescription()
+                    + ".\nPlease remove any half-completed changes then run repair to fix the schema history.";
                 return new ErrorDetails(CoreErrorCode.FAILED_REPEATABLE_MIGRATION, errorMessage);
             }
-            String errorMessage = "Detected failed migration to version " + getVersion() + " (" + getDescription() + ")" + ".\nPlease remove any half-completed changes then run repair to fix the schema history.";
+            final String errorMessage = "Detected failed migration to version "
+                + getVersion()
+                + " ("
+                + getDescription()
+                + ")"
+                + ".\nPlease remove any half-completed changes then run repair to fix the schema history.";
             return new ErrorDetails(CoreErrorCode.FAILED_VERSIONED_MIGRATION, errorMessage);
         }
 
@@ -224,65 +237,98 @@ public class MigrationInfoImpl implements MigrationInfo {
         }
 
         if (resolvedMigration == null
-                && !appliedMigration.getType().isSynthetic()
-                && !appliedMigration.getType().isUndo()
-                && (MigrationState.SUPERSEDED != state)
-                && (!context.isMissingIgnored() || (MigrationState.MISSING_SUCCESS != state && MigrationState.MISSING_FAILED != state))
-                && (!context.isFutureIgnored() || (MigrationState.FUTURE_SUCCESS != state && MigrationState.FUTURE_FAILED != state))) {
+            && !appliedMigration.getType().isSynthetic()
+            && !appliedMigration.getType()
+            .isUndo()
+            && (MigrationState.SUPERSEDED != state)
+            && (!context.isMissingIgnored()
+            || (MigrationState.MISSING_SUCCESS != state && MigrationState.MISSING_FAILED != state))
+            && (!context.isFutureIgnored() || (MigrationState.FUTURE_SUCCESS != state
+            && MigrationState.FUTURE_FAILED != state))) {
             if (appliedMigration.getVersion() != null) {
-                String errorMessage = "Detected applied migration not resolved locally: " + getVersion() + ".\nIf you removed this migration intentionally, run repair to mark the migration as deleted.";
+                final String errorMessage = "Detected applied migration not resolved locally: "
+                    + getVersion()
+                    + ".\nIf you removed this migration intentionally, run repair to mark the migration as deleted.";
                 return new ErrorDetails(CoreErrorCode.APPLIED_VERSIONED_MIGRATION_NOT_RESOLVED, errorMessage);
             } else {
-                String errorMessage = "Detected applied migration not resolved locally: " + getDescription() + ".\nIf you removed this migration intentionally, run repair to mark the migration as deleted.";
+                final String errorMessage = "Detected applied migration not resolved locally: "
+                    + getDescription()
+                    + ".\nIf you removed this migration intentionally, run repair to mark the migration as deleted.";
                 return new ErrorDetails(CoreErrorCode.APPLIED_REPEATABLE_MIGRATION_NOT_RESOLVED, errorMessage);
             }
         }
 
-        if (!context.isIgnoredIgnored() && MigrationState.IGNORED == state && !resolvedMigration.getType().isBaseline() && !resolvedMigration.getType().isUndo()) {
+        if (!context.isIgnoredIgnored()
+            && MigrationState.IGNORED == state
+            && !resolvedMigration.getType().isBaseline()
+            && !resolvedMigration.getType().isUndo()) {
             if (shouldNotExecuteMigration) {
                 return null;
             }
             if (getVersion() != null) {
-                String errorMessage = "Detected resolved migration not applied to database: " + getVersion() + ".\nTo ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.";
+                final String errorMessage = "Detected resolved migration not applied to database: "
+                    + getVersion()
+                    + ".\nTo ignore this migration, set -ignoreMigrationPatterns='*:ignored'. To allow executing this migration, set -outOfOrder=true.";
                 return new ErrorDetails(CoreErrorCode.RESOLVED_VERSIONED_MIGRATION_NOT_APPLIED, errorMessage);
             }
-            String errorMessage = "Detected resolved repeatable migration not applied to database: " + getDescription() + ".\nTo ignore this migration, set -ignoreMigrationPatterns='*:ignored'.";
+            final String errorMessage = "Detected resolved repeatable migration not applied to database: "
+                + getDescription()
+                + ".\nTo ignore this migration, set -ignoreMigrationPatterns='*:ignored'.";
             return new ErrorDetails(CoreErrorCode.RESOLVED_REPEATABLE_MIGRATION_NOT_APPLIED, errorMessage);
         }
 
         if (!context.isPendingIgnored() && MigrationState.PENDING == state) {
             if (getVersion() != null) {
-                String errorMessage = "Detected resolved migration not applied to database: " + getVersion() + ".\nTo fix this error, either run migrate, or set -ignoreMigrationPatterns='*:pending'.";
+                final String errorMessage = "Detected resolved migration not applied to database: "
+                    + getVersion()
+                    + ".\nTo fix this error, either run migrate, or set -ignoreMigrationPatterns='*:pending'.";
                 return new ErrorDetails(CoreErrorCode.RESOLVED_VERSIONED_MIGRATION_NOT_APPLIED, errorMessage);
             }
-            String errorMessage = "Detected resolved repeatable migration not applied to database: " + getDescription() + ".\nTo fix this error, either run migrate, or set -ignoreMigrationPatterns='*:pending'.";
+            final String errorMessage = "Detected resolved repeatable migration not applied to database: "
+                + getDescription()
+                + ".\nTo fix this error, either run migrate, or set -ignoreMigrationPatterns='*:pending'.";
             return new ErrorDetails(CoreErrorCode.RESOLVED_REPEATABLE_MIGRATION_NOT_APPLIED, errorMessage);
         }
 
         if (!context.isPendingIgnored() && MigrationState.OUTDATED == state) {
-            String errorMessage = "Detected outdated resolved repeatable migration that should be re-applied to database: " + getDescription() + ".\nRun migrate to execute this migration.";
+            final String errorMessage =
+                "Detected outdated resolved repeatable migration that should be re-applied to database: "
+                    + getDescription()
+                    + ".\nRun migrate to execute this migration.";
             return new ErrorDetails(CoreErrorCode.OUTDATED_REPEATABLE_MIGRATION, errorMessage);
         }
 
-        if (resolvedMigration != null &&
-                appliedMigration != null &&
-                getType() != CoreMigrationType.DELETE
-                && !getType().isUndo()
-        ) {
-            String migrationIdentifier = appliedMigration.getVersion() == null ? appliedMigration.getScript() : "version " + appliedMigration.getVersion();
+        if (resolvedMigration != null
+            && appliedMigration != null
+            && getType() != CoreMigrationType.DELETE
+            && !getType().isUndo()) {
+            final String migrationIdentifier = appliedMigration.getVersion() == null
+                ? appliedMigration.getScript()
+                : "version " + appliedMigration.getVersion();
             if (getVersion() == null || getVersion().compareTo(context.appliedBaseline) > 0) {
                 if (resolvedMigration.getType() != appliedMigration.getType()) {
-                    String mismatchMessage = createMismatchMessage("type", migrationIdentifier, appliedMigration.getType(), resolvedMigration.getType());
+                    final String mismatchMessage = createMismatchMessage("type",
+                        migrationIdentifier,
+                        appliedMigration.getType(),
+                        resolvedMigration.getType());
                     return new ErrorDetails(CoreErrorCode.TYPE_MISMATCH, mismatchMessage);
                 }
-                if (resolvedMigration.getVersion() != null || (context.isPendingIgnored() && MigrationState.OUTDATED != state && MigrationState.SUPERSEDED != state)) {
+                if (resolvedMigration.getVersion() != null || (context.isPendingIgnored()
+                    && MigrationState.OUTDATED != state
+                    && MigrationState.SUPERSEDED != state)) {
                     if (!isChecksumMatching()) {
-                        String mismatchMessage = createMismatchMessage("checksum", migrationIdentifier, appliedMigration.getChecksum(), resolvedMigration.getChecksum());
+                        final String mismatchMessage = createMismatchMessage("checksum",
+                            migrationIdentifier,
+                            appliedMigration.getChecksum(),
+                            resolvedMigration.getChecksum());
                         return new ErrorDetails(CoreErrorCode.CHECKSUM_MISMATCH, mismatchMessage);
                     }
                 }
                 if (descriptionMismatch(resolvedMigration, appliedMigration)) {
-                    String mismatchMessage = createMismatchMessage("description", migrationIdentifier, appliedMigration.getDescription(), resolvedMigration.getDescription());
+                    final String mismatchMessage = createMismatchMessage("description",
+                        migrationIdentifier,
+                        appliedMigration.getDescription(),
+                        resolvedMigration.getDescription());
                     return new ErrorDetails(CoreErrorCode.DESCRIPTION_MISMATCH, mismatchMessage);
                 }
             }
@@ -291,32 +337,43 @@ public class MigrationInfoImpl implements MigrationInfo {
         // Perform additional validation for pending migrations. This is not performed for previously applied migrations
         // as it is assumed that if the checksum is unchanged, previous positive validation results still hold true.
         // #2392: Migrations above target are also ignored as the user explicitly asked for them to not be taken into account.
-        if (!context.isPendingIgnored() && MigrationState.PENDING == state && resolvedMigration instanceof ResolvedMigrationImpl) {
+        if (!context.isPendingIgnored()
+            && MigrationState.PENDING == state
+            && resolvedMigration instanceof ResolvedMigrationImpl) {
             ((ResolvedMigrationImpl) resolvedMigration).validate();
         }
 
         return null;
     }
 
-    private boolean shouldNotExecuteMigration(ResolvedMigration resolvedMigration) {
-        return resolvedMigration != null && resolvedMigration.getExecutor() != null && !resolvedMigration.getExecutor().shouldExecute();
+    private boolean shouldNotExecuteMigration(final ResolvedMigration resolvedMigration) {
+        return resolvedMigration != null && resolvedMigration.getExecutor() != null && !resolvedMigration.getExecutor()
+            .shouldExecute();
     }
 
-    private boolean descriptionMismatch(ResolvedMigration resolvedMigration, AppliedMigration appliedMigration) {
+    private boolean descriptionMismatch(final ResolvedMigration resolvedMigration,
+        final AppliedMigration appliedMigration) {
         // For some databases, we can't put an empty description into the history table
         if (SchemaHistory.NO_DESCRIPTION_MARKER.equals(appliedMigration.getDescription())) {
             return !"".equals(resolvedMigration.getDescription());
         }
         return (!AbbreviationUtils.abbreviateDescription(resolvedMigration.getDescription())
-                .equals(appliedMigration.getDescription()));
+            .equals(appliedMigration.getDescription()));
     }
 
-    private String createMismatchMessage(String mismatch, String migrationIdentifier, Object applied, Object resolved) {
-        return String.format("Migration " + mismatch + " mismatch for migration %s\n" +
-                                     "-> Applied to database : %s\n" +
-                                     "-> Resolved locally    : %s\n" +
-                                     "Either revert the changes to the migration, or run repair to update the schema history.",
-                             migrationIdentifier, applied, resolved);
+    private String createMismatchMessage(final String mismatch,
+        final String migrationIdentifier,
+        final Object applied,
+        final Object resolved) {
+        return String.format("Migration "
+                + mismatch
+                + " mismatch for migration %s\n"
+                + "-> Applied to database : %s\n"
+                + "-> Resolved locally    : %s\n"
+                + "Either revert the changes to the migration, or run repair to update the schema history.",
+            migrationIdentifier,
+            applied,
+            resolved);
     }
 
     public boolean canExecuteInTransaction() {
@@ -324,8 +381,10 @@ public class MigrationInfoImpl implements MigrationInfo {
     }
 
     @Override
-    public int compareTo(MigrationInfo o) {
-        OptionalInt cherryPickComparison = context.cherryPickSupport.compareByPickOrder(context.cherryPick, this, o);
+    public int compareTo(final MigrationInfo o) {
+        final OptionalInt cherryPickComparison = context.cherryPickSupport.compareByPickOrder(context.cherryPick,
+            this,
+            o);
         if (cherryPickComparison.isPresent()) {
             return cherryPickComparison.getAsInt();
         }
@@ -334,16 +393,16 @@ public class MigrationInfoImpl implements MigrationInfo {
             return getInstalledRank().compareTo(o.getInstalledRank());
         }
 
-        MigrationState state = getState();
-        MigrationState oState = o.getState();
+        final MigrationState state = getState();
+        final MigrationState oState = o.getState();
 
         // Below baseline migrations come before applied ones
         if ((state == MigrationState.BELOW_BASELINE || state == MigrationState.BASELINE_IGNORED)
-                && oState.isApplied()) {
+            && oState.isApplied()) {
             return -1;
         }
-        if (state.isApplied() &&
-                (oState == MigrationState.BELOW_BASELINE || oState == MigrationState.BASELINE_IGNORED)) {
+        if (state.isApplied() && (oState == MigrationState.BELOW_BASELINE
+            || oState == MigrationState.BASELINE_IGNORED)) {
             return 1;
         }
 
@@ -359,9 +418,9 @@ public class MigrationInfoImpl implements MigrationInfo {
     }
 
     @Override
-    public int compareVersion(MigrationInfo o) {
+    public int compareVersion(final MigrationInfo o) {
         if (getVersion() != null && o.getVersion() != null) {
-            int v = getVersion().compareTo(o.getVersion());
+            final int v = getVersion().compareTo(o.getVersion());
             if (v != 0) {
                 return v;
             }
@@ -400,7 +459,7 @@ public class MigrationInfoImpl implements MigrationInfo {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }
@@ -408,7 +467,7 @@ public class MigrationInfoImpl implements MigrationInfo {
             return false;
         }
 
-        MigrationInfoImpl that = (MigrationInfoImpl) o;
+        final MigrationInfoImpl that = (MigrationInfoImpl) o;
 
         if (!Objects.equals(appliedMigration, that.appliedMigration)) {
             return false;

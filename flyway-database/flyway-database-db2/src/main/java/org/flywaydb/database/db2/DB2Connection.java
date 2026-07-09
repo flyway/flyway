@@ -28,7 +28,7 @@ import java.sql.SQLException;
  * DB2 connection.
  */
 public class DB2Connection extends Connection<DB2Database> {
-    DB2Connection(DB2Database database, java.sql.Connection connection) {
+    DB2Connection(final DB2Database database, final java.sql.Connection connection) {
         super(database, connection);
     }
 
@@ -38,12 +38,12 @@ public class DB2Connection extends Connection<DB2Database> {
     }
 
     @Override
-    public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
+    public void doChangeCurrentSchemaOrSearchPathTo(final String schema) throws SQLException {
         jdbcTemplate.execute("SET SCHEMA " + database.quote(schema));
     }
 
     @Override
-    public Schema getSchema(String name) {
+    public Schema getSchema(final String name) {
         return new DB2Schema(jdbcTemplate, database, name);
     }
 }

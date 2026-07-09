@@ -20,7 +20,7 @@ String
 
 ### Flyway Desktop
 
-This can't currently be configured from Flyway Desktop, although it will be honoured.
+This can't currently be configured from Flyway Desktop, although it will be honored.
 
 ### Command-line
 

@@ -32,11 +32,11 @@ public abstract class SchemaObject<D extends Database, S extends Schema> {
 
     /**
      * @param jdbcTemplate The JDBC template to access the DB.
-     * @param database The database-specific support.
-     * @param schema The schema the object lives in.
-     * @param name The name of the object.
+     * @param database     The database-specific support.
+     * @param schema       The schema the object lives in.
+     * @param name         The name of the object.
      */
-    SchemaObject(JdbcTemplate jdbcTemplate, D database, S schema, String name) {
+    SchemaObject(final JdbcTemplate jdbcTemplate, final D database, final S schema, final String name) {
         this.name = name;
         this.jdbcTemplate = jdbcTemplate;
         this.database = database;

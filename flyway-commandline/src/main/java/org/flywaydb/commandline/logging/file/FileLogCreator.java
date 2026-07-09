@@ -23,7 +23,6 @@ import org.flywaydb.commandline.configuration.CommandLineArguments;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
-import org.flywaydb.commandline.logging.console.ConsoleLog.Level;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -34,7 +33,7 @@ import java.nio.file.StandardOpenOption;
 public class FileLogCreator implements LogCreator {
     private final Path path;
 
-    public FileLogCreator(CommandLineArguments commandLineArguments) {
+    public FileLogCreator(final CommandLineArguments commandLineArguments) {
         String outputFilepath = "";
 
         if (commandLineArguments.isOutputFileSet()) {
@@ -46,13 +45,17 @@ public class FileLogCreator implements LogCreator {
         prepareOutputFile(path);
     }
 
-    public Log createLogger(Class<?> clazz) {
+    public Log createLogger(final Class<?> clazz) {
         return new FileLog(path);
     }
 
-    private static void prepareOutputFile(Path path) {
+    private static void prepareOutputFile(final Path path) {
         try {
-            Files.write(path, "".getBytes(), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+            Files.write(path,
+                "".getBytes(),
+                StandardOpenOption.WRITE,
+                StandardOpenOption.TRUNCATE_EXISTING,
+                StandardOpenOption.CREATE);
         } catch (IOException exception) {
             throw new FlywayException("Could not initialize log file at " + path + ".", exception);
         }

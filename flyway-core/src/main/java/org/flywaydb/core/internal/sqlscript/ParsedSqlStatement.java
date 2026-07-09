@@ -50,8 +50,13 @@ public class ParsedSqlStatement implements SqlStatement {
     @Getter(onMethod = @__(@Override))
     private final boolean batchable;
 
-    public ParsedSqlStatement(int pos, int line, int col, String sql, Delimiter delimiter,
-                              boolean canExecuteInTransaction, boolean batchable) {
+    public ParsedSqlStatement(final int pos,
+        final int line,
+        final int col,
+        final String sql,
+        final Delimiter delimiter,
+        final boolean canExecuteInTransaction,
+        final boolean batchable) {
         this.pos = pos;
         this.line = line;
         this.col = col;
@@ -82,7 +87,9 @@ public class ParsedSqlStatement implements SqlStatement {
     }
 
     @Override
-    public Results execute(JdbcTemplate jdbcTemplate, SqlScriptExecutor sqlScriptExecutor, Configuration config) {
+    public Results execute(final JdbcTemplate jdbcTemplate,
+        final SqlScriptExecutor sqlScriptExecutor,
+        final Configuration config) {
         return jdbcTemplate.executeStatement(sql);
     }
 }

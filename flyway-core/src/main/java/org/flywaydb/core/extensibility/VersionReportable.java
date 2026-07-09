@@ -22,9 +22,9 @@ package org.flywaydb.core.extensibility;
 import org.flywaydb.core.api.configuration.Configuration;
 
 /**
- * Marker interface for plugins that report a version string in the {@code flyway version} command.
- * Only plugins implementing this interface will be instantiated when collecting version information,
- * avoiding the cost of loading all plugins.
+ * Marker interface for plugins that report a version string in the {@code flyway version} command. Only plugins
+ * implementing this interface will be instantiated when collecting version information, avoiding the cost of loading
+ * all plugins.
  */
 public interface VersionReportable extends Plugin {
     String getPluginVersion(Configuration config);

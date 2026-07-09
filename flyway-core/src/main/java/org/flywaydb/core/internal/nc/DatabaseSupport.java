@@ -20,9 +20,11 @@
 package org.flywaydb.core.internal.nc;
 
 /**
- * This contains both a boolean for if the database is supported and the priority of which a database should be assessed against.
- * Multiple database types may support the same URL and the priority will be used to check if it is correct for the connected database.
+ * This contains both a boolean for if the database is supported and the priority of which a database should be assessed
+ * against. Multiple database types may support the same URL and the priority will be used to check if it is correct for
+ * the connected database.
+ *
  * @param isSupported Is the database type supported?
- * @param priority What is the Flyway specific priority of this database type over others which support this URL.
+ * @param priority    What is the Flyway specific priority of this database type over others which support this URL.
  */
 public record DatabaseSupport(boolean isSupported, int priority) {}

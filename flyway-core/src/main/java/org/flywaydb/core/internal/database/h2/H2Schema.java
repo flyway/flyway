@@ -33,14 +33,18 @@ import java.util.List;
 public class H2Schema extends Schema<H2Database, H2Table> {
     private final boolean requiresV2Metadata;
 
-    H2Schema(JdbcTemplate jdbcTemplate, H2Database database, String name, boolean requiresV2Metadata) {
+    H2Schema(final JdbcTemplate jdbcTemplate,
+        final H2Database database,
+        final String name,
+        final boolean requiresV2Metadata) {
         super(jdbcTemplate, database, name);
         this.requiresV2Metadata = requiresV2Metadata;
     }
 
     @Override
     protected boolean doExists() throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME=?", name) > 0;
+        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME=?", name)
+            > 0;
     }
 
     @Override
@@ -55,45 +59,46 @@ public class H2Schema extends Schema<H2Database, H2Table> {
 
     @Override
     protected void doDrop() throws SQLException {
-        jdbcTemplate.execute("DROP SCHEMA " + database.quote(name)
-                                     + (database.supportsDropSchemaCascade ? " CASCADE" : ""));
+        jdbcTemplate.execute("DROP SCHEMA " + database.quote(name) + (database.supportsDropSchemaCascade
+            ? " CASCADE"
+            : ""));
     }
 
     @Override
     protected void doClean() throws SQLException {
-        for (Table table : allTables()) {
+        for (final Table table : allTables()) {
             table.drop();
         }
 
-        String sequenceSuffix = requiresV2Metadata ? "" : "IS_GENERATED = false";
+        final String sequenceSuffix = requiresV2Metadata ? "" : "IS_GENERATED = false";
 
-        List<String> sequenceNames = listObjectNames("SEQUENCE", sequenceSuffix);
-        for (String statement : generateDropStatements("SEQUENCE", sequenceNames)) {
+        final List<String> sequenceNames = listObjectNames("SEQUENCE", sequenceSuffix);
+        for (final String statement : generateDropStatements("SEQUENCE", sequenceNames)) {
             jdbcTemplate.execute(statement);
         }
 
-        List<String> constantNames = listObjectNames("CONSTANT", "");
-        for (String statement : generateDropStatements("CONSTANT", constantNames)) {
+        final List<String> constantNames = listObjectNames("CONSTANT", "");
+        for (final String statement : generateDropStatements("CONSTANT", constantNames)) {
             jdbcTemplate.execute(statement);
         }
 
-        List<String> aliasNames = jdbcTemplate.queryForStringList(
-                requiresV2Metadata
-                        ? "SELECT ROUTINE_NAME FROM INFORMATION_SCHEMA.ROUTINES WHERE ROUTINE_TYPE = 'FUNCTION' AND ROUTINE_SCHEMA = ?"
-                        : "SELECT ALIAS_NAME FROM INFORMATION_SCHEMA.FUNCTION_ALIASES WHERE ALIAS_SCHEMA = ?", name);
-        for (String statement : generateDropStatements("ALIAS", aliasNames)) {
+        final List<String> aliasNames = jdbcTemplate.queryForStringList(requiresV2Metadata
+            ? "SELECT ROUTINE_NAME FROM INFORMATION_SCHEMA.ROUTINES WHERE ROUTINE_TYPE = 'FUNCTION' AND ROUTINE_SCHEMA = ?"
+            : "SELECT ALIAS_NAME FROM INFORMATION_SCHEMA.FUNCTION_ALIASES WHERE ALIAS_SCHEMA = ?", name);
+        for (final String statement : generateDropStatements("ALIAS", aliasNames)) {
             jdbcTemplate.execute(statement);
         }
 
-        List<String> domainNames = listObjectNames("DOMAIN", "");
+        final List<String> domainNames = listObjectNames("DOMAIN", "");
         if (!domainNames.isEmpty()) {
             if (name.equals(database.getMainConnection().getCurrentSchema().getName())) {
-                for (String statement : generateDropStatementsForCurrentSchema("DOMAIN", domainNames)) {
+                for (final String statement : generateDropStatementsForCurrentSchema("DOMAIN", domainNames)) {
                     jdbcTemplate.execute(statement);
                 }
             } else {
-                LOG.error("Unable to drop DOMAIN objects in schema " + database.quote(name)
-                                  + " due to H2 bug! (More info: http://code.google.com/p/h2database/issues/detail?id=306)");
+                LOG.error("Unable to drop DOMAIN objects in schema "
+                    + database.quote(name)
+                    + " due to H2 bug! (More info: http://code.google.com/p/h2database/issues/detail?id=306)");
             }
         }
     }
@@ -101,15 +106,14 @@ public class H2Schema extends Schema<H2Database, H2Table> {
     /**
      * Generate the statements for dropping all the objects of this type in this schema.
      *
-     * @param objectType The type of object to drop (Sequence, constant, ...)
+     * @param objectType  The type of object to drop (Sequence, constant, ...)
      * @param objectNames The names of the objects to drop.
      * @return The list of statements.
      */
-    private List<String> generateDropStatements(String objectType, List<String> objectNames) {
-        List<String> statements = new ArrayList<>();
-        for (String objectName : objectNames) {
-            String dropStatement =
-                    "DROP " + objectType + database.quote(name, objectName);
+    private List<String> generateDropStatements(final String objectType, final List<String> objectNames) {
+        final List<String> statements = new ArrayList<>();
+        for (final String objectName : objectNames) {
+            final String dropStatement = "DROP " + objectType + database.quote(name, objectName);
 
             statements.add(dropStatement);
         }
@@ -119,15 +123,15 @@ public class H2Schema extends Schema<H2Database, H2Table> {
     /**
      * Generate the statements for dropping all the objects of this type in the current schema.
      *
-     * @param objectType The type of object to drop (Sequence, constant, ...)
+     * @param objectType  The type of object to drop (Sequence, constant, ...)
      * @param objectNames The names of the objects to drop.
      * @return The list of statements.
      */
-    private List<String> generateDropStatementsForCurrentSchema(String objectType, List<String> objectNames) {
-        List<String> statements = new ArrayList<>();
-        for (String objectName : objectNames) {
-            String dropStatement =
-                    "DROP " + objectType + database.quote(objectName);
+    private List<String> generateDropStatementsForCurrentSchema(final String objectType,
+        final List<String> objectNames) {
+        final List<String> statements = new ArrayList<>();
+        for (final String objectName : objectNames) {
+            final String dropStatement = "DROP " + objectType + database.quote(objectName);
 
             statements.add(dropStatement);
         }
@@ -136,9 +140,10 @@ public class H2Schema extends Schema<H2Database, H2Table> {
 
     @Override
     protected H2Table[] doAllTables() throws SQLException {
-        List<String> tableNames = listObjectNames("TABLE", "TABLE_TYPE = " + (requiresV2Metadata ? "'BASE TABLE'" : "'TABLE'"));
+        final List<String> tableNames = listObjectNames("TABLE",
+            "TABLE_TYPE = " + (requiresV2Metadata ? "'BASE TABLE'" : "'TABLE'"));
 
-        H2Table[] tables = new H2Table[tableNames.size()];
+        final H2Table[] tables = new H2Table[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new H2Table(jdbcTemplate, database, this, tableNames.get(i));
         }
@@ -148,14 +153,19 @@ public class H2Schema extends Schema<H2Database, H2Table> {
     /**
      * List the names of the objects of this type in this schema.
      *
-     * @param objectType The type of objects to list (Sequence, constant, ...)
+     * @param objectType  The type of objects to list (Sequence, constant, ...)
      * @param querySuffix Suffix to append to the query to find the objects to list.
      * @return The names of the objects.
      * @throws java.sql.SQLException when the object names could not be listed.
      */
-    private List<String> listObjectNames(String objectType, String querySuffix) throws SQLException {
-        String query = "SELECT " + objectType + "_NAME FROM INFORMATION_SCHEMA." + objectType
-                + "S WHERE " + objectType + "_SCHEMA = ?";
+    private List<String> listObjectNames(final String objectType, final String querySuffix) throws SQLException {
+        String query = "SELECT "
+            + objectType
+            + "_NAME FROM INFORMATION_SCHEMA."
+            + objectType
+            + "S WHERE "
+            + objectType
+            + "_SCHEMA = ?";
         if (StringUtils.hasLength(querySuffix)) {
             query += " AND " + querySuffix;
         }
@@ -164,7 +174,7 @@ public class H2Schema extends Schema<H2Database, H2Table> {
     }
 
     @Override
-    public Table getTable(String tableName) {
+    public Table getTable(final String tableName) {
         return new H2Table(jdbcTemplate, database, this, tableName);
     }
 }

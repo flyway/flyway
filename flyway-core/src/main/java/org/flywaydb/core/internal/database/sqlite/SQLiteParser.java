@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.util.List;
 
 public class SQLiteParser extends Parser {
-    public SQLiteParser(Configuration configuration, ParsingContext parsingContext) {
+    public SQLiteParser(final Configuration configuration, final ParsingContext parsingContext) {
         super(configuration, parsingContext, 3);
     }
 
@@ -36,7 +36,7 @@ public class SQLiteParser extends Parser {
     }
 
     @Override
-    protected Boolean detectCanExecuteInTransaction(String simplifiedStatement, List<Token> keywords) {
+    protected Boolean detectCanExecuteInTransaction(final String simplifiedStatement, final List<Token> keywords) {
         if ("PRAGMA FOREIGN_KEYS".equals(simplifiedStatement)) {
             return false;
         }
@@ -45,8 +45,11 @@ public class SQLiteParser extends Parser {
     }
 
     @Override
-    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) throws IOException {
-        String lastKeyword = keyword.getText();
+    protected void adjustBlockDepth(final ParserContext context,
+        final List<Token> tokens,
+        final Token keyword,
+        final PeekingReader reader) throws IOException {
+        final String lastKeyword = keyword.getText();
         if ("BEGIN".equals(lastKeyword) || "CASE".equals(lastKeyword)) {
             context.increaseBlockDepth(lastKeyword);
         } else if ("END".equals(lastKeyword)) {

@@ -24,5 +24,6 @@ import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
 
 public interface LoadableMigrationInfo extends MigrationInfo {
     LoadableResource getLoadableResource();
+
     SqlScriptMetadata getSqlScriptMetadata();
 }

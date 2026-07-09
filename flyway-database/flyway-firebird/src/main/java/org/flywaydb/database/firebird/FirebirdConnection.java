@@ -26,7 +26,7 @@ public class FirebirdConnection extends Connection<FirebirdDatabase> {
 
     private static final String DUMMY_SCHEMA_NAME = "default";
 
-    FirebirdConnection(FirebirdDatabase database, java.sql.Connection connection) {
+    FirebirdConnection(final FirebirdDatabase database, final java.sql.Connection connection) {
         super(database, connection);
     }
 
@@ -36,7 +36,7 @@ public class FirebirdConnection extends Connection<FirebirdDatabase> {
     }
 
     @Override
-    public Schema getSchema(String name) {
+    public Schema getSchema(final String name) {
         // database == schema, always return the same dummy schema
         return new FirebirdSchema(jdbcTemplate, database, DUMMY_SCHEMA_NAME);
     }

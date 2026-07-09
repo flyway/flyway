@@ -34,7 +34,7 @@ public class BigQueryConnection extends Connection<BigQueryDatabase> {
      */
     private static final Pattern DEFAULT_DATASET_PATTERN = Pattern.compile("DefaultDataset=([a-zA-Z0-9]*);");
 
-    BigQueryConnection(BigQueryDatabase database, java.sql.Connection connection) {
+    BigQueryConnection(final BigQueryDatabase database, final java.sql.Connection connection) {
         super(database, connection);
         this.jdbcTemplate = new BigQueryJdbcTemplate(connection, database.getDatabaseType());
     }
@@ -42,17 +42,17 @@ public class BigQueryConnection extends Connection<BigQueryDatabase> {
     @Override
     protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
         // BigQuery has no concept of current schema, return DefaultDataset if it is set in JDBC, otherwise null.
-        String defaultDataset = getJdbcClientOption("DefaultDataset");
+        final String defaultDataset = getJdbcClientOption("DefaultDataset");
         return StringUtils.hasText(defaultDataset) ? defaultDataset.trim() : null;
     }
 
     @Override
-    public void changeCurrentSchemaTo(Schema schema) {
+    public void changeCurrentSchemaTo(final Schema schema) {
         // BigQuery has no concept of current schema, do nothing.
     }
 
     @Override
-    public void doChangeCurrentSchemaOrSearchPathTo(String schema) {
+    public void doChangeCurrentSchemaOrSearchPathTo(final String schema) {
         // BigQuery has no concept of current schema, do nothing.
     }
 
@@ -61,25 +61,25 @@ public class BigQueryConnection extends Connection<BigQueryDatabase> {
         // BigQuery has no concept of current schema, return DefaultDataset if it is set in JDBC, otherwise null.
         // We would expect to be able to call this: getJdbcClientOption("DefaultDataset"); but we always get
         // null for any ClientInfo() with driver google-cloud-bigquery-1.126.6.jar
-        String defaultDataset = parseDefaultDatasetFromUrl();
+        final String defaultDataset = parseDefaultDatasetFromUrl();
         return StringUtils.hasText(defaultDataset) ? getSchema(defaultDataset.trim()) : null;
     }
 
     private String parseDefaultDatasetFromUrl() throws SQLException {
-        String url = getJdbcConnection().getMetaData().getURL();
-        Matcher matcher = DEFAULT_DATASET_PATTERN.matcher(url);
+        final String url = getJdbcConnection().getMetaData().getURL();
+        final Matcher matcher = DEFAULT_DATASET_PATTERN.matcher(url);
         if (matcher.find()) {
             return matcher.group(1);
         }
         return null;
     }
 
-    private String getJdbcClientOption(String option) throws SQLException {
+    private String getJdbcClientOption(final String option) throws SQLException {
         return getJdbcConnection().getClientInfo(option);
     }
 
     @Override
-    public Schema getSchema(String name) {
+    public Schema getSchema(final String name) {
         return new BigQuerySchema(jdbcTemplate, database, name);
     }
 }

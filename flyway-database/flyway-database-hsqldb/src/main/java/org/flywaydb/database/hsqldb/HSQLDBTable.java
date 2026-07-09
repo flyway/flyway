@@ -35,11 +35,14 @@ public class HSQLDBTable extends Table<HSQLDBDatabase, HSQLDBSchema> {
      * Creates a new Hsql table.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database The database-specific support.
-     * @param schema The schema this table lives in.
-     * @param name The name of the table.
+     * @param database     The database-specific support.
+     * @param schema       The schema this table lives in.
+     * @param name         The name of the table.
      */
-    HSQLDBTable(JdbcTemplate jdbcTemplate, HSQLDBDatabase database, HSQLDBSchema schema, String name) {
+    HSQLDBTable(final JdbcTemplate jdbcTemplate,
+        final HSQLDBDatabase database,
+        final HSQLDBSchema schema,
+        final String name) {
         super(jdbcTemplate, database, schema, name);
     }
 
@@ -56,7 +59,9 @@ public class HSQLDBTable extends Table<HSQLDBDatabase, HSQLDBSchema> {
     @Override
     protected void doLock() throws SQLException {
         if (!database.getVersion().isAtLeast("2")) {
-            LOG.debug("Unable to lock " + this + " as Hsql 1.8 does not support locking. No concurrent migration supported.");
+            LOG.debug("Unable to lock "
+                + this
+                + " as Hsql 1.8 does not support locking. No concurrent migration supported.");
             return;
         }
         jdbcTemplate.execute("LOCK TABLE " + this + " WRITE");

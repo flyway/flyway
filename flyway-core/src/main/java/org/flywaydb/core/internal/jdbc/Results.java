@@ -41,15 +41,15 @@ public class Results {
     @Setter
     private SQLException exception = null;
 
-    public void addResult(Result result) {
+    public void addResult(final Result result) {
         results.add(result);
     }
 
-    public void addWarning(Warning warning) {
+    public void addWarning(final Warning warning) {
         warnings.add(warning);
     }
 
-    public void addError(Error error) {
+    public void addError(final Error error) {
         errors.add(error);
     }
 }

@@ -25,8 +25,8 @@ import lombok.RequiredArgsConstructor;
 
 /**
  * A configuration parameter that is no longer supported. Either replaced by a newer parameter ({@link Kind#REPLACED})
- * or removed entirely ({@link Kind#REMOVED}). The {@code reason} provides a human-readable explanation suitable
- * for display to end users.
+ * or removed entirely ({@link Kind#REMOVED}). The {@code reason} provides a human-readable explanation suitable for
+ * display to end users.
  */
 public record ObsoleteParameter(String rawKey, Kind kind, String replacement, String reason) {
     @Getter

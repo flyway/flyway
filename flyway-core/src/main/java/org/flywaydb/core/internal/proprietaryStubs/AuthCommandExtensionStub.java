@@ -39,7 +39,7 @@ public class AuthCommandExtensionStub implements CommandExtension<OperationResul
     public static final String DESCRIPTION = "Authenticates Flyway with Redgate licensing";
 
     @Override
-    public boolean handlesCommand(String command) {
+    public boolean handlesCommand(final String command) {
         return COMMAND.equals(command);
     }
 
@@ -49,15 +49,16 @@ public class AuthCommandExtensionStub implements CommandExtension<OperationResul
     }
 
     @Override
-    public boolean handlesParameter(String parameter) {
+    public boolean handlesParameter(final String parameter) {
         return false;
     }
 
     @Override
-    public OperationResult handle(Configuration config, List<String> flags) throws FlywayException {
-        return TelemetrySpan.trackSpan(new EventTelemetryModel(COMMAND, getTelemetryManager(config)), (telemetryModel) -> {
-            throw new FlywayRedgateEditionRequiredException(FEATURE_NAME);
-        });
+    public OperationResult handle(final Configuration config, final List<String> flags) throws FlywayException {
+        return TelemetrySpan.trackSpan(new EventTelemetryModel(COMMAND, getTelemetryManager(config)),
+            (telemetryModel) -> {
+                throw new FlywayRedgateEditionRequiredException(FEATURE_NAME);
+            });
     }
 
     @Override

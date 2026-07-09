@@ -7,6 +7,53 @@
 
 </div>
 <div class="col-md-9">
+<!-- BEGIN db-generated release notes -->
+  <div class="release">
+        <h2 id="12.11.0">Flyway 12.11.0 (2026-07-09)</h2>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Add support for new 'disable-constraints-for-static-data' option for PostgreSQL</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>-h help for migrate, info, validate, clean, and undo now lists relevant configuration parameters and a usage example instead of just a description</li>
+            <li>Oracle SQL error output no longer shows the redundant SQL State and Error Code lines, as the ORA-#### code is already in the message</li>
+            <li>`testConnection` now keeps the configured environments available so provisioners that reference another environment (for example the docker provisioner's `sourceEnvironment`) resolve correctly when testing an inline environment</li>
+            <li>testConnection now reports provisioning progress (e.g. Docker container start-up) when progress output is enabled</li>
+            <li>the `docker` provisioner now reports clear, dedicated errors when the Docker CLI is not installed or the Docker daemon is not running</li>
+            <li>the legacy compose-file configuration of the preview `docker` provisioner is deprecated and now logs a warning; use the `docker-compose` provisioner instead</li>
+            <li>using 'auth' without the '-IAgreeToTheEula' flag defaults to an interactive EULA agreement process</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fixed an issue where authentication warnings could be displayed multiple times during a Flyway run</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/4253">Issue 4253</a>
+                Fixed `FlywayUnknownMigrationTypeException` when schema history table contains legacy `SPRING_JDBC` type from older Flyway versions
+            </li>
+        </ul>
+
+        <h3>Performance improvements</h3>
+        <ul>
+            <li>Improved Flyway CLI cold start time by switching `driver` JARs from eager static `classpath` loading to lazy dynamic loading</li>
+        </ul>
+
+        <h3>Library upgrades</h3>
+        <ul>
+            <li>Upgrade Snowflake from 4.0.2 to 4.3.1</li>
+        </ul>
+
+        <h3>Internal dependency</h3>
+        <ul>
+            <li>Upgraded RgCompare to 1.60.0.4759</li>
+        </ul>
+
+  </div>
+
+
   <div class="release">
         <h2 id="12.10.0">Flyway 12.10.0 (2026-06-30)</h2>
 
@@ -42,12 +89,8 @@
             <li>Upgraded tools.jackson.core:jackson-databind from 3.1.1 to 3.1.4</li>
         </ul>
 
-        <h3>Internal dependency</h3>
-        <ul>
-            <li>Upgraded RgCompare to 1.58.5.4666</li>
-        </ul>
-
   </div>
+
 
   <div class="release">
         <h2 id="12.9.0">Flyway 12.9.0 (2026-06-18)</h2>
@@ -63,12 +106,8 @@
             <li>check drift, changes and dryrun commands now report phase-level progress when outputProgress is enabled</li>
         </ul>
 
-        <h3>Internal dependency</h3>
-        <ul>
-            <li>Upgraded RgCompare to 1.58.4.4526</li>
-        </ul>
-
   </div>
+
 
   <div class="release">
         <h2 id="12.8.1">Flyway 12.8.1 (2026-06-05)</h2>
@@ -78,20 +117,11 @@
             <li>Fix FLYWAY_TOKEN and FLYWAY_EMAIL environment variables not being recognised for PAT authentication</li>
         </ul>
 
-        <h3>Internal dependency</h3>
-        <ul>
-            <li>Upgraded RgCompare to 1.58.3.4420</li>
-        </ul>
-
   </div>
+
 
   <div class="release">
         <h2 id="12.8.0">Flyway 12.8.0 (2026-06-04)</h2>
-
-        <h3>Known Issues</h3>
-        <ul>
-          <li>There is an issue in the resolution of some FLYWAY_ environmental variables. We suggest you use `12.8.1` or later</li>
-        </ul>
 
         <h3>Changes</h3>
         <ul>
@@ -109,12 +139,8 @@
             <li>API users now must include a flyway `Licensing` module dependency to be recognized as Redgate edition</li>
         </ul>
 
-        <h3>Internal dependency</h3>
-        <ul>
-            <li>Upgraded RgCompare to 1.58.3.4416</li>
-        </ul>
-
   </div>
+
 
   <div class="release">
         <h2 id="12.7.0">Flyway 12.7.0 (2026-05-29)</h2>
@@ -135,6 +161,7 @@
         </ul>
 
   </div>
+
 
   <div class="release">
         <h2 id="12.6.2">Flyway 12.6.2 (2026-05-21)</h2>
@@ -172,6 +199,7 @@
 
   </div>
 
+
   <div class="release">
         <h2 id="12.6.1">Flyway 12.6.1 (2026-05-12)</h2>
 
@@ -179,15 +207,10 @@
         <ul>
             <li>flyway repair against a dry-run target no longer fails for SQL baseline migrations</li>
             <li>license text files now included in Flyway distributions</li>
-            <li>Fixed SARIF output for check -code</li>
-        </ul>
-
-        <h3>Internal dependency</h3>
-        <ul>
-            <li>Upgraded RgCompare.Cli to 1.58.1.4056</li>
         </ul>
 
   </div>
+
 
   <div class="release">
         <h2 id="12.6.0">Flyway 12.6.0 (2026-05-08)</h2>
@@ -228,15 +251,31 @@
         <h3>Library upgrades</h3>
         <ul>
             <li>Upgraded adoptium/temurin25-binaries from 25.0.2+10 to 25.0.3+9</li>
+            <li>Upgraded com.google.jimfs:jimfs from 1.3.0 to 1.3.1</li>
+            <li>Upgraded org.apache.maven.plugins:maven-antrun-plugin from 1.7 to 1.8</li>
+            <li>Upgraded org.apache.maven.plugins:maven-compiler-plugin from 2.3.2 to 3.15.0</li>
+            <li>Upgraded org.apache.maven.plugins:maven-deploy-plugin from 3.0.0-M1 to 3.1.4</li>
+            <li>Upgraded org.apache.maven.plugins:maven-failsafe-plugin from 3.1.0 to 3.5.5</li>
+            <li>Upgraded org.apache.maven.plugins:maven-install-plugin from 3.0.0-M1 to 3.1.4</li>
+            <li>Upgraded org.apache.maven.plugins:maven-jar-plugin from 3.0.2 to 3.5.0</li>
+            <li>Upgraded org.apache.maven.plugins:maven-resources-plugin from 2.5 to 3.5.0</li>
+            <li>Upgraded org.apache.maven.plugins:maven-surefire-plugin from 3.1.0 to 3.5.5</li>
+            <li>Upgraded org.apache.maven.wagon:wagon-http from 2.12 to 3.5.3</li>
+            <li>Upgraded org.codehaus.mojo:versions-maven-plugin from 2.7 to 2.21.0</li>
+            <li>Upgraded org.junit.jupiter:junit-jupiter from 6.0.1 to 6.0.3</li>
+            <li>Upgraded org.junit.platform:junit-platform-launcher from 6.0.1 to 6.0.3</li>
+            <li>Upgraded org.mockito:mockito-core from 5.18.0 to 5.23.0</li>
+            <li>Upgraded org.mockito:mockito-junit-jupiter from 5.18.0 to 5.23.0</li>
             <li>Bumped aws-secretsmanager-jdbc from 2.0.4 to 2.1.0</li>
         </ul>
 
         <h3>Internal dependency</h3>
         <ul>
-            <li>Upgraded RgCompare.Cli to 1.58.0.3966</li>
+            <li>Upgraded RgCompare.Cli from 1.55.1.3732 to 1.56.1.3818</li>
         </ul>
 
   </div>
+
 
   <div class="release">
         <h2 id="12.5.0">Flyway 12.5.0 (2026-04-27)</h2>
@@ -266,6 +305,7 @@
         </ul>
 
   </div>
+
 
   <div class="release">
         <h2 id="12.4.0">Flyway 12.4.0 (2026-04-14)</h2>
@@ -304,6 +344,7 @@
 
   </div>
 
+
   <div class="release">
         <h2 id="12.3.0">Flyway 12.3.0 (2026-03-31)</h2>
 
@@ -316,6 +357,7 @@
         <h3>Changes</h3>
         <ul>
             <li>Added additional properties to json output of check code: "engine", "file_pos", "file_pos_end" and (optional) "fixes".</li>
+            <li>Release note generation now reads from the database, enabling sub-product notes to be included</li>
         </ul>
 
         <h3>Bug fixes</h3>
@@ -330,6 +372,7 @@
 
   </div>
 
+
   <div class="release">
         <h2 id="12.2.0">Flyway 12.2.0 (2026-03-26)</h2>
 
@@ -338,8 +381,8 @@
             <li>Added a new rule: RG19 - Simple check to ensure table names are not pluralized. More complex pluralizations should be handled by hand.</li>
             <li>Added a new rule: RG20 - Object names should be contained within square brackets.</li>
             <li>`check -code` now generates a SARIF 2.1.0 report file (`.sarif`) alongside JSON and HTML reports, enabling integration with GitHub Code Scanning, Azure DevOps, and other SARIF-compatible tools</li>
-            <li>Add RG21, a configurable rule that can enforce naming prefixes for multiple object types. (Table, View, Procedure, Function, Schema)</li>
             <li>added `check.code.noqaSeverity` setting for configuring the severity of the warning about use of `--noqa` in migrations checked by SQLFluff as part of `check -code`</li>
+            <li>Added a new rule: RG21 - This is a configurable rule that can enforce naming prefixes for multiple object types. (Table, View, Procedure, Function, Schema)</li>
         </ul>
 
         <h3>Changes</h3>
@@ -362,14 +405,12 @@
 
         <h3>Internal dependency</h3>
         <ul>
-            <li>Updated RgCompare.Cli from 1.52.0.3327 to 1.52.0.3345</li>
-            <li>Updated RgCompare.Cli from 1.52.0.3345 to 1.52.0.3385</li>
-            <li>Upgraded RgCompare.Cli from 1.52.1.3407 to 1.52.1.3410</li>
-            <li>Upgraded RgCompare.Cli from 1.52.1.3410 to 1.52.1.3424</li>
-            <li>Upgraded RgCompare.Cli from 1.52.1.3424 to 1.52.1.3430</li>
+            <li>Upgraded RgCompare.Cli from 1.52.0.3327 to 1.52.1.3430</li>
         </ul>
 
   </div>
+
+<!-- END db-generated release notes -->
 
   <div class="release">
         <h2 id="12.1.1">Flyway 12.1.1 (2026-03-17)</h2>
@@ -462,7 +503,7 @@
 
         <h3>Changes</h3>
         <ul>
-            <li>flyway check now honours environment-specific cleanDisabled override when no provisioner set for the build database</li>
+            <li>flyway check now honors environment-specific cleanDisabled override when no provisioner set for the build database</li>
             <li>running snapshot against an Oracle database without specifying schemas will now use the default schema if set</li>
         </ul>
 
@@ -478,7 +519,7 @@
 
         <h3>New features</h3>
         <ul>
-            <li>check -changes now honours target parameter for setting a target version</li>
+            <li>check -changes now honors target parameter for setting a target version</li>
         </ul>
 
         <h3>Changes</h3>
@@ -2323,7 +2364,7 @@
         <h3>Changes</h3>
         <ul>
             <li>Update license header plugin</li>
-            <li>When running the SQL*Plus '@' command, Flyway will honour 'workingDirectory' configuration when looking for runnable scripts</li>
+            <li>When running the SQL*Plus '@' command, Flyway will honor 'workingDirectory' configuration when looking for runnable scripts</li>
         </ul>
 
         <p>
@@ -7579,7 +7620,7 @@
         <ul>
             <li>
                 <a href="https://github.com/flyway/flyway/issues/2608" target="_blank">Issue 2608</a>
-                Unrecognised configration parameters all reported on at the same time
+                Unrecognized configration parameters all reported on at the same time
 
             </li>
             <li>
@@ -7666,7 +7707,7 @@
             </li>
             <li>
                 <a href="https://github.com/flyway/flyway/issues/2602" target="_blank">Issue 2602</a>
-                Redact licence key in <code>-X</code> (DEBUG) mode
+                Redact license key in <code>-X</code> (DEBUG) mode
 
             </li>
         </ul>
@@ -7810,7 +7851,7 @@
             </li>
             <li>
                 <a href="https://github.com/flyway/flyway/issues/2562" target="_blank">Issue 2562</a>
-                Dry Run fails to recognise baseline version
+                Dry Run fails to recognize baseline version
 
             </li>
             <li>
@@ -11813,7 +11854,7 @@
             </li>
             <li>
                 <a href="https://github.com/flyway/flyway/issues/640" target="_blank">Issue 640</a>
-                MySQL multi-line comment directives not recognised <span class="label label-info"><a href="https://github.com/flyway/flyway/pull/641" target="_blank"><i class="fa fa-mail-reply"></i> Pull
+                MySQL multi-line comment directives not recognized <span class="label label-info"><a href="https://github.com/flyway/flyway/pull/641" target="_blank"><i class="fa fa-mail-reply"></i> Pull
             Request</a></span>
             </li>
             <li>

@@ -24,40 +24,52 @@ import lombok.NoArgsConstructor;
 import org.flywaydb.commandline.Main;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.util.ClassUtils;
-import org.flywaydb.core.internal.util.StringUtils;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @CustomLog
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class CommandLineConfigurationUtils {
-    public static List<File> getJdbcDriverJarFiles() {
-        File driversDir = new File(ClassUtils.getInstallDir(Main.class), "drivers");
-        File[] files = driversDir.listFiles((dir, name) -> name.endsWith(".jar"));
 
-        // see javadoc of listFiles(): null if given path is not a real directory
-        if (files == null) {
+    private static final List<String> DYNAMIC_DRIVER_SUBDIRS = List.of("gcp");
+
+    public static List<File> getJdbcDriverJarFiles() {
+        final File driversDir = new File(ClassUtils.getInstallDir(Main.class), "drivers");
+        if (!driversDir.isDirectory()) {
             LOG.debug("Directory for Jdbc Drivers not found: " + driversDir.getAbsolutePath());
             return Collections.emptyList();
         }
 
-        return Arrays.asList(files);
+        final List<File> jarFiles = new ArrayList<>();
+        collectJarFiles(driversDir, jarFiles);
+
+        for (final String subdir : DYNAMIC_DRIVER_SUBDIRS) {
+            collectJarFiles(new File(driversDir, subdir), jarFiles);
+        }
+
+        return jarFiles;
     }
 
-    public static List<File> getJavaMigrationJarFiles(String[] dirs) {
+    private static void collectJarFiles(final File directory, final List<File> jarFiles) {
+        final File[] files = directory.listFiles((dir, name) -> name.endsWith(".jar"));
+        if (files != null) {
+            jarFiles.addAll(Arrays.asList(files));
+        }
+    }
+
+    public static List<File> getJavaMigrationJarFiles(final String[] dirs) {
         if (dirs.length == 0) {
             return Collections.emptyList();
         }
 
-        List<File> jarFiles = new ArrayList<>();
-        for (String dirName : dirs) {
-            File dir = new File(dirName);
-            File[] files = dir.listFiles((dir1, name) -> name.endsWith(".jar"));
+        final List<File> jarFiles = new ArrayList<>();
+        for (final String dirName : dirs) {
+            final File dir = new File(dirName);
+            final File[] files = dir.listFiles((dir1, name) -> name.endsWith(".jar"));
 
             // see javadoc of listFiles(): null if given path is not a real directory
             if (files == null) {

@@ -45,17 +45,19 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class SQLServerDatabase extends Database<SQLServerConnection> {
-    public SQLServerDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+    public SQLServerDatabase(final Configuration configuration,
+        final JdbcConnectionFactory jdbcConnectionFactory,
+        final StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
     @Override
-    protected SQLServerConnection doGetConnection(Connection connection) {
+    protected SQLServerConnection doGetConnection(final Connection connection) {
         return new SQLServerConnection(this, connection);
     }
 
     @Override
-    public void ensureSupported(Configuration configuration) {
+    public void ensureSupported(final Configuration configuration) {
         if (isAzure()) {
             ensureDatabaseIsRecentEnough("11.0");
 
@@ -72,7 +74,7 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
     }
 
     @Override
-    protected String computeVersionDisplayName(MigrationVersion version) {
+    protected String computeVersionDisplayName(final MigrationVersion version) {
         if (isAzure()) {
             return "Azure v" + getVersion().getMajorAsString();
         }
@@ -136,12 +138,12 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
         return "0";
     }
 
-    private String escapeIdentifier(String identifier) {
+    private String escapeIdentifier(final String identifier) {
         return StringUtils.replaceAll(identifier, getCloseQuote(), getEscapedQuote());
     }
 
     @Override
-    public String doQuote(String identifier) {
+    public String doQuote(final String identifier) {
         return getOpenQuote() + escapeIdentifier(identifier) + getCloseQuote();
     }
 
@@ -171,26 +173,40 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
     }
 
     @Override
-    public String getRawCreateScript(Table table, boolean baseline) {
-        String filegroup = isAzure() || configuration.getTablespace() == null ?
-                "" : " ON \"" + configuration.getTablespace() + "\"";
+    public String getRawCreateScript(final Table table, final boolean baseline) {
+        final String filegroup = isAzure() || configuration.getTablespace() == null
+            ? ""
+            : " ON \"" + configuration.getTablespace() + "\"";
 
-        return "CREATE TABLE " + table + " (\n" +
-                "    [installed_rank] INT NOT NULL,\n" +
-                "    [" + "version] NVARCHAR(50),\n" +
-                "    [description] NVARCHAR(200),\n" +
-                "    [type] NVARCHAR(20) NOT NULL,\n" +
-                "    [script] NVARCHAR(1000) NOT NULL,\n" +
-                "    [checksum] INT,\n" +
-                "    [installed_by] NVARCHAR(100) NOT NULL,\n" +
-                "    [installed_on] DATETIME NOT NULL DEFAULT GETDATE(),\n" +
-                "    [execution_time] INT NOT NULL,\n" +
-                "    [success] BIT NOT NULL\n" +
-                ")" + filegroup + ";\n" +
-                (baseline ? getBaselineStatement(table) + ";\n" : "") +
-                "ALTER TABLE " + table + " ADD CONSTRAINT [" + table.getName() + "_pk] PRIMARY KEY ([installed_rank]);\n" +
-                "CREATE INDEX [" + table.getName() + "_s_idx] ON " + table + " ([success]);\n" +
-                "GO\n";
+        return "CREATE TABLE "
+            + table
+            + " (\n"
+            + "    [installed_rank] INT NOT NULL,\n"
+            + "    ["
+            + "version] NVARCHAR(50),\n"
+            + "    [description] NVARCHAR(200),\n"
+            + "    [type] NVARCHAR(20) NOT NULL,\n"
+            + "    [script] NVARCHAR(1000) NOT NULL,\n"
+            + "    [checksum] INT,\n"
+            + "    [installed_by] NVARCHAR(100) NOT NULL,\n"
+            + "    [installed_on] DATETIME NOT NULL DEFAULT GETDATE(),\n"
+            + "    [execution_time] INT NOT NULL,\n"
+            + "    [success] BIT NOT NULL\n"
+            + ")"
+            + filegroup
+            + ";\n"
+            + (baseline ? getBaselineStatement(table) + ";\n" : "")
+            + "ALTER TABLE "
+            + table
+            + " ADD CONSTRAINT ["
+            + table.getName()
+            + "_pk] PRIMARY KEY ([installed_rank]);\n"
+            + "CREATE INDEX ["
+            + table.getName()
+            + "_s_idx] ON "
+            + table
+            + " ([success]);\n"
+            + "GO\n";
     }
 
     boolean isAzure() {
@@ -211,7 +227,9 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
     }
 
     protected boolean supportsPartitions() {
-        return isAzure() || SQLServerEngineEdition.ENTERPRISE.equals(getEngineEdition()) || getVersion().isAtLeast("13");
+        return isAzure()
+            || SQLServerEngineEdition.ENTERPRISE.equals(getEngineEdition())
+            || getVersion().isAtLeast("13");
     }
 
     protected boolean supportsSequences() {
@@ -250,61 +268,64 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
      * Cleans all the objects in this database that need to be cleaned after cleaning schemas.
      *
      * @param schemas The list of schemas managed by Flyway
-     *
      * @throws SQLException when the clean failed.
      */
     @Override
-    protected void doCleanPostSchemas(Schema[] schemas) throws SQLException {
+    protected void doCleanPostSchemas(final Schema[] schemas) throws SQLException {
         if (supportsPartitions()) {
-            for (String statement : cleanPartitionSchemes()) {
+            for (final String statement : cleanPartitionSchemes()) {
                 jdbcTemplate.execute(statement);
             }
-            for (String statement : cleanPartitionFunctions()) {
+            for (final String statement : cleanPartitionFunctions()) {
                 jdbcTemplate.execute(statement);
             }
         }
 
         if (supportsAssemblies()) {
-            for (String statement : cleanAssemblies()) {
+            for (final String statement : cleanAssemblies()) {
                 jdbcTemplate.execute(statement);
             }
         }
 
         if (supportsTypes()) {
-            for (String statement : cleanTypes(schemas)) {
+            for (final String statement : cleanTypes(schemas)) {
                 jdbcTemplate.execute(statement);
             }
         }
 
-        String cleanMode = ConfigUtils.getCleanModel(configuration).getMode();
+        final String cleanMode = ConfigUtils.getCleanModel(configuration).getMode();
         if (Mode.ALL.name().equalsIgnoreCase(cleanMode)) {
-            CleanModePlugin cleanModePlugin = configuration.getPluginRegister().getInstancesOf(CleanModePlugin.class).stream()
-                                                           .filter(p -> p.handlesMode(Mode.valueOf(cleanMode)))
-                                                           .filter(p -> p.handlesDatabase(this))
-                                                           .findFirst()
-                                                           .orElseThrow(() -> new FlywayException("No plugin found to handle clean mode " + cleanMode + " for SQLServer."));
+            final CleanModePlugin cleanModePlugin = configuration.getPluginRegister()
+                .getInstancesOf(CleanModePlugin.class)
+                .stream()
+                .filter(p -> p.handlesMode(Mode.valueOf(cleanMode)))
+                .filter(p -> p.handlesDatabase(this))
+                .findFirst()
+                .orElseThrow(() -> new FlywayException("No plugin found to handle clean mode "
+                    + cleanMode
+                    + " for SQLServer."));
             cleanModePlugin.cleanDatabasePostSchema(this, jdbcTemplate);
         }
     }
 
     /**
      * @param schemas The list of schemas managed by Flyway
-     *
      * @return The drop statements.
-     *
      * @throws SQLException when the clean statements could not be generated.
      */
-    private List<String> cleanTypes(Schema[] schemas) throws SQLException {
-        List<String> statements = new ArrayList<>();
+    private List<String> cleanTypes(final Schema[] schemas) throws SQLException {
+        final List<String> statements = new ArrayList<>();
         String schemaList = Arrays.stream(schemas).map(s -> "'" + s.getName() + "'").collect(Collectors.joining(","));
         if (schemaList.isEmpty()) {
             schemaList = "''";
         }
-        List<Map<String, String>> typesAndSchemas = jdbcTemplate.queryForList("" +
-                                                                                      "SELECT t.name as type_name, s.name as schema_name " +
-                                                                                      "FROM sys.types t INNER JOIN sys.schemas s ON t.schema_id = s.schema_id " +
-                                                                                      "WHERE t.is_user_defined = 1 AND s.name IN (" + schemaList + ")");
-        for (Map<String, String> typeAndSchema : typesAndSchemas) {
+        final List<Map<String, String>> typesAndSchemas = jdbcTemplate.queryForList(""
+            + "SELECT t.name as type_name, s.name as schema_name "
+            + "FROM sys.types t INNER JOIN sys.schemas s ON t.schema_id = s.schema_id "
+            + "WHERE t.is_user_defined = 1 AND s.name IN ("
+            + schemaList
+            + ")");
+        for (final Map<String, String> typeAndSchema : typesAndSchemas) {
             statements.add("DROP TYPE " + quote(typeAndSchema.get("schema_name"), typeAndSchema.get("type_name")));
         }
         return statements;
@@ -312,13 +333,13 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
 
     /**
      * @return The drop statements.
-     *
      * @throws SQLException when the clean statements could not be generated.
      */
     private List<String> cleanPartitionSchemes() throws SQLException {
-        List<String> statements = new ArrayList<>();
-        List<String> partitionSchemeNames = jdbcTemplate.queryForStringList("SELECT name FROM sys.partition_schemes");
-        for (String partitionSchemeName : partitionSchemeNames) {
+        final List<String> statements = new ArrayList<>();
+        final List<String> partitionSchemeNames = jdbcTemplate.queryForStringList(
+            "SELECT name FROM sys.partition_schemes");
+        for (final String partitionSchemeName : partitionSchemeNames) {
             statements.add("DROP PARTITION SCHEME " + quote(partitionSchemeName));
         }
         return statements;
@@ -326,13 +347,13 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
 
     /**
      * @return The drop statements.
-     *
      * @throws SQLException when the clean statements could not be generated.
      */
     private List<String> cleanAssemblies() throws SQLException {
-        List<String> statements = new ArrayList<>();
-        List<String> assemblyNames = jdbcTemplate.queryForStringList("SELECT * FROM sys.assemblies WHERE is_user_defined=1");
-        for (String assemblyName : assemblyNames) {
+        final List<String> statements = new ArrayList<>();
+        final List<String> assemblyNames = jdbcTemplate.queryForStringList(
+            "SELECT * FROM sys.assemblies WHERE is_user_defined=1");
+        for (final String assemblyName : assemblyNames) {
             statements.add("DROP ASSEMBLY " + quote(assemblyName));
         }
         return statements;
@@ -340,13 +361,13 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
 
     /**
      * @return The drop statements.
-     *
      * @throws SQLException when the clean statements could not be generated.
      */
     private List<String> cleanPartitionFunctions() throws SQLException {
-        List<String> statements = new ArrayList<>();
-        List<String> partitionFunctionNames = jdbcTemplate.queryForStringList("SELECT name FROM sys.partition_functions");
-        for (String partitionFunctionName : partitionFunctionNames) {
+        final List<String> statements = new ArrayList<>();
+        final List<String> partitionFunctionNames = jdbcTemplate.queryForStringList(
+            "SELECT name FROM sys.partition_functions");
+        for (final String partitionFunctionName : partitionFunctionNames) {
             statements.add("DROP PARTITION FUNCTION " + quote(partitionFunctionName));
         }
         return statements;
@@ -355,21 +376,21 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
     @Override
     public Schema[] getAllSchemas() {
         try {
-            List<String> allSchemaNames = jdbcTemplate.queryForStringList("(" +
-                                                                                  "SELECT s.name\n" +
-                                                                                  "FROM sys.schemas s\n" +
-                                                                                  "INNER JOIN sys.sysusers u ON u.uid = s.principal_id\n" +
-                                                                                  "WHERE u.issqluser = 1 AND u.name NOT IN ('sys', 'guest', 'INFORMATION_SCHEMA')\n" +
-                                                                                  ") UNION (\n" +
-                                                                                  "SELECT s.name\n" +
-                                                                                  "FROM sys.schemas s\n" +
-                                                                                  "INNER JOIN sys.sysusers u ON u.uid = s.schema_id\n" +
-                                                                                  "WHERE u.islogin = 1 AND u.name NOT IN ('sys', 'guest', 'INFORMATION_SCHEMA')\n" +
-                                                                                  ") UNION (\n" +
-                                                                                  "SELECT DISTINCT s.name\n" +
-                                                                                  "FROM sys.schemas s\n" +
-                                                                                  "INNER JOIN sys.objects o ON o.schema_id = s.schema_id\n" +
-                                                                                  "WHERE o.is_ms_shipped = 0)");
+            final List<String> allSchemaNames = jdbcTemplate.queryForStringList("("
+                + "SELECT s.name\n"
+                + "FROM sys.schemas s\n"
+                + "INNER JOIN sys.sysusers u ON u.uid = s.principal_id\n"
+                + "WHERE u.issqluser = 1 AND u.name NOT IN ('sys', 'guest', 'INFORMATION_SCHEMA')\n"
+                + ") UNION (\n"
+                + "SELECT s.name\n"
+                + "FROM sys.schemas s\n"
+                + "INNER JOIN sys.sysusers u ON u.uid = s.schema_id\n"
+                + "WHERE u.islogin = 1 AND u.name NOT IN ('sys', 'guest', 'INFORMATION_SCHEMA')\n"
+                + ") UNION (\n"
+                + "SELECT DISTINCT s.name\n"
+                + "FROM sys.schemas s\n"
+                + "INNER JOIN sys.objects o ON o.schema_id = s.schema_id\n"
+                + "WHERE o.is_ms_shipped = 0)");
             return allSchemaNames.stream().map(n -> getMainConnection().getSchema(n)).toArray(Schema[]::new);
         } catch (SQLException e) {
             throw new FlywayException("Unable to determine all schemas", e);
@@ -387,9 +408,11 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
             } else if (code == 12) {
                 return DATABASE_HOSTING_FABRIC;
             }
-        } else if (getMainConnection().isAwsRds() || DATABASE_HOSTING_RDS_URL_IDENTIFIER.matcher(configuration.getUrl()).find()) {
+        } else if (getMainConnection().isAwsRds() || DATABASE_HOSTING_RDS_URL_IDENTIFIER.matcher(configuration.getUrl())
+            .find()) {
             return DATABASE_HOSTING_AWS_RDS;
-        } else if (StringUtils.hasText(getServerName()) && getServerName().toLowerCase().contains(DATABASE_HOSTING_EC2_HOSTNAME_IDENTIFIER)) {
+        } else if (StringUtils.hasText(getServerName()) && getServerName().toLowerCase()
+            .contains(DATABASE_HOSTING_EC2_HOSTNAME_IDENTIFIER)) {
             return DATABASE_HOSTING_AWS_VM;
         } else {
             return super.getDatabaseHosting();

@@ -23,7 +23,9 @@ import static org.flywaydb.core.internal.util.ExceptionUtils.CONTACT_EMAIL;
 
 public class FlywayRedgateLicenseKeyException extends FlywayLicensingException {
     public FlywayRedgateLicenseKeyException() {
-        super("A Redgate license key was provided; fell back to Community Edition. " +
-                      "Please contact sales at " + CONTACT_EMAIL + " for license information.");
+        super("A Redgate license key was provided; fell back to Community Edition. "
+            + "Please contact sales at "
+            + CONTACT_EMAIL
+            + " for license information.");
     }
 }

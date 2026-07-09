@@ -25,7 +25,11 @@ import org.flywaydb.core.internal.util.StringUtils;
 public abstract class Function<D extends Database, S extends Schema> extends SchemaObject<D, S> {
     protected String[] args;
 
-    public Function(JdbcTemplate jdbcTemplate, D database, S schema, String name, String... args) {
+    public Function(final JdbcTemplate jdbcTemplate,
+        final D database,
+        final S schema,
+        final String name,
+        String... args) {
         super(jdbcTemplate, database, schema, name);
         this.args = args == null ? new String[0] : args;
     }

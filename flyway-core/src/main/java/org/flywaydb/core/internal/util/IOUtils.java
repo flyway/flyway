@@ -29,13 +29,14 @@ public class IOUtils {
      *
      * @param closeable The closeable to close. Can be {@code null}.
      */
-    public static void close(AutoCloseable closeable) {
+    public static void close(final AutoCloseable closeable) {
         if (closeable == null) {
             return;
         }
 
         try {
             closeable.close();
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 }

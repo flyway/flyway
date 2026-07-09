@@ -27,8 +27,8 @@ import org.flywaydb.core.api.FlywayException;
 
 @ExtensionMethod(StringUtils.class)
 public class ObjectMapperFactory {
-    public static ObjectMapper getObjectMapper(String file) {
-        String extension = getFileExtension(file);
+    public static ObjectMapper getObjectMapper(final String file) {
+        final String extension = getFileExtension(file);
         return switch (extension.toLowerCase()) {
             case ".json" -> JsonMapper.builder().build();
             case ".toml" -> TomlMapper.builder().build();
@@ -36,9 +36,9 @@ public class ObjectMapperFactory {
         };
     }
 
-    private static String getFileExtension(String filename) {
-        if(filename.hasText()) {
-            int dotLocation = filename.lastIndexOf('.');
+    private static String getFileExtension(final String filename) {
+        if (filename.hasText()) {
+            final int dotLocation = filename.lastIndexOf('.');
             if (dotLocation > 0) {
                 return filename.substring(dotLocation);
             }

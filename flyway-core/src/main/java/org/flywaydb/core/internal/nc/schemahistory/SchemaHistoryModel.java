@@ -30,35 +30,35 @@ import org.flywaydb.core.extensibility.MigrationType;
 
 @RequiredArgsConstructor
 public class SchemaHistoryModel {
-    
+
     private final List<SchemaHistoryItem> schemaHistoryItems;
-    
-    public SchemaHistoryModel(){
+
+    public SchemaHistoryModel() {
         this(List.of());
     }
-    
-    public List<SchemaHistoryItem> getSchemaHistoryItems(){
+
+    public List<SchemaHistoryItem> getSchemaHistoryItems() {
         return Collections.unmodifiableList(schemaHistoryItems);
     }
 
-    public Optional<SchemaHistoryItem> getSchemaHistoryItem(final int installedRank){
+    public Optional<SchemaHistoryItem> getSchemaHistoryItem(final int installedRank) {
         return getSchemaHistoryItems().stream().filter(x -> x.getInstalledRank() == installedRank).findFirst();
     }
 
-    public int calculateInstalledRank(MigrationType type) {
+    public int calculateInstalledRank(final MigrationType type) {
         if (schemaHistoryItems.isEmpty()) {
             return type == CoreMigrationType.SCHEMA ? 0 : 1;
         }
-        return schemaHistoryItems
-            .stream()
-            .map(SchemaHistoryItem::getInstalledRank)
-            .max(Integer::compareTo)
-            .orElse(0) + 1;
+        return schemaHistoryItems.stream().map(SchemaHistoryItem::getInstalledRank).max(Integer::compareTo).orElse(0)
+            + 1;
     }
 
     public MigrationVersion getInitialVersion() {
-        return schemaHistoryItems.stream().map(
-            SchemaHistoryItem::getVersion).filter(Objects::nonNull).map(MigrationVersion::fromVersion).max(
-            MigrationVersion::compareTo).orElse(MigrationVersion.EMPTY);
+        return schemaHistoryItems.stream()
+            .map(SchemaHistoryItem::getVersion)
+            .filter(Objects::nonNull)
+            .map(MigrationVersion::fromVersion)
+            .max(MigrationVersion::compareTo)
+            .orElse(MigrationVersion.EMPTY);
     }
 }

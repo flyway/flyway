@@ -32,11 +32,14 @@ public class PostgreSQLTable extends Table<PostgreSQLDatabase, PostgreSQLSchema>
      * Creates a new PostgreSQL table.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database The database-specific support.
-     * @param schema The schema this table lives in.
-     * @param name The name of the table.
+     * @param database     The database-specific support.
+     * @param schema       The schema this table lives in.
+     * @param name         The name of the table.
      */
-    protected PostgreSQLTable(JdbcTemplate jdbcTemplate, PostgreSQLDatabase database, PostgreSQLSchema schema, String name) {
+    protected PostgreSQLTable(final JdbcTemplate jdbcTemplate,
+        final PostgreSQLDatabase database,
+        final PostgreSQLSchema schema,
+        final String name) {
         super(jdbcTemplate, database, schema, name);
     }
 
@@ -47,14 +50,16 @@ public class PostgreSQLTable extends Table<PostgreSQLDatabase, PostgreSQLSchema>
 
     @Override
     protected boolean doExists() throws SQLException {
-        return jdbcTemplate.queryForBoolean("SELECT EXISTS (\n" +
-                                                    "  SELECT 1\n" +
-                                                    "  FROM   pg_catalog.pg_class c\n" +
-                                                    "  JOIN   pg_catalog.pg_namespace n ON n.oid = c.relnamespace\n" +
-                                                    "  WHERE  n.nspname = ?\n" +
-                                                    "  AND    c.relname = ?\n" +
-                                                    "  AND    c.relkind = 'r'\n" + // only tables
-                                                    ")", schema.getName(), name);
+        return jdbcTemplate.queryForBoolean("SELECT EXISTS (\n"
+            + "  SELECT 1\n"
+            + "  FROM   pg_catalog.pg_class c\n"
+            + "  JOIN   pg_catalog.pg_namespace n ON n.oid = c.relnamespace\n"
+            + "  WHERE  n.nspname = ?\n"
+            + "  AND    c.relname = ?\n"
+            + "  AND    c.relkind = 'r'\n"
+            +
+            // only tables
+            ")", schema.getName(), name);
     }
 
     @Override

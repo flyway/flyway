@@ -29,27 +29,27 @@ public class Log4j2Log implements Log {
 
     private final Logger logger;
 
-    public void debug(String message) {
+    public void debug(final String message) {
         if (LogFactory.isDebugEnabled()) {
             logger.debug(message);
         }
     }
 
-    public void info(String message) {
+    public void info(final String message) {
         if (!LogFactory.isQuietMode()) {
             logger.info(message);
         }
     }
 
-    public void warn(String message) {
+    public void warn(final String message) {
         logger.warn(message);
     }
 
-    public void error(String message) {logger.error(message);}
+    public void error(final String message) {logger.error(message);}
 
-    public void error(String message, Exception e) {
+    public void error(final String message, final Exception e) {
         logger.error(message, e);
     }
 
-    public void notice(String message) {}
+    public void notice(final String message) {}
 }

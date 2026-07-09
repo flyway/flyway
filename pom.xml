@@ -20,7 +20,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.flywaydb</groupId>
   <artifactId>flyway-parent</artifactId>
-  <version>12.10.0</version>
+  <version>12.11.0</version>
   <packaging>pom</packaging>
   <name>${project.artifactId}</name>
   <description>Flyway: Database Migrations Made Easy.</description>
@@ -62,6 +62,7 @@
     <module>flyway-nc</module>
     <module>flyway-shades</module>
     <module>flyway-command</module>
+
 
 
 
@@ -132,7 +133,7 @@
     <version.bcpkix-jdk18on>1.84</version.bcpkix-jdk18on>
     <version.build-helper-maven-plugin>3.6.1</version.build-helper-maven-plugin>
     <version.byte-buddy-agent>1.17.6</version.byte-buddy-agent>
-    <version.cassandra-jdbc>4.16.3</version.cassandra-jdbc>
+    <version.cassandra-jdbc>5.0.1</version.cassandra-jdbc>
     <version.cassandra-nc>4.19.2</version.cassandra-nc>
     <version.commonslogging>1.2</version.commonslogging>
     <version.commonstext>1.10.0</version.commonstext>
@@ -143,6 +144,8 @@
     <version.derby>10.17.1.0</version.derby>
     <version.equinox>3.15.200</version.equinox>
     <version.equinoxcommon>3.10.600</version.equinoxcommon>
+    <version.frontend-maven-plugin>1.15.4</version.frontend-maven-plugin>
+    <version.node>v22.12.0</version.node>
     <version.gcs>2.60.0</version.gcs>
     <version.gcsm>2.81.0</version.gcsm>
     <version.gradle>6.1.1</version.gradle>
@@ -150,7 +153,7 @@
     <version.h2>2.3.232</version.h2>
     <version.hamcrest>2.2</version.hamcrest>
     <version.hsqldb>2.7.2</version.hsqldb>
-    <version.ignite>2.17.0</version.ignite>
+    <version.ignite>2.18.0</version.ignite>
     <version.informix>4.50.3</version.informix>
     <version.jansi>1.18</version.jansi>
     <version.jackson>3.1.4</version.jackson>
@@ -162,7 +165,7 @@
     <version.jimfs>1.3.1</version.jimfs>
     <version.jna>5.13.0</version.jna>
     <version.jtds>1.3.1</version.jtds>
-    <version.junit>6.1.0</version.junit>
+    <version.junit>6.1.1</version.junit>
     <version.java-diff-utils>4.12</version.java-diff-utils>
     <version.system-stubs>2.1.8</version.system-stubs>
     <version.legacy-jackson>2.22.0</version.legacy-jackson>
@@ -188,13 +191,13 @@
     <version.oracle>21.18.0.0</version.oracle>
     <version.osgi>4.3.1</version.osgi>
     <version.p6spy>3.9.1</version.p6spy>
-    <version.postgresql>42.7.11</version.postgresql>
+    <version.postgresql>42.7.12</version.postgresql>
     <version.reactor-netty>1.2.18</version.reactor-netty>
     <version.redshift>2.2.5</version.redshift>
     <version.sap>2.6.30</version.sap>
     <version.singlestore>1.2.8</version.singlestore>
     <version.slf4j>1.7.30</version.slf4j>
-    <version.snowflake>4.0.2</version.snowflake>
+    <version.snowflake>4.3.1</version.snowflake>
     <version.spanner>2.40.0</version.spanner>
     <version.springjdbc>5.3.19</version.springjdbc>
     <version.sqlite>3.50.3.0</version.sqlite>
@@ -931,9 +934,21 @@
           <artifactId>maven-source-plugin</artifactId>
           <version>3.4.0</version>
         </plugin>
+        <!-- Not used directly anywhere in the reactor; implicitly pulled in via Maven's built-in
+             lifecycle bindings (the site lifecycle, not the default build lifecycle).
+             Pinned here only to satisfy the require-plugin-versions enforcer rule below. -->
+        <plugin>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>3.12.1</version>
+        </plugin>
         <plugin>
           <artifactId>maven-enforcer-plugin</artifactId>
           <version>3.6.2</version>
+        </plugin>
+        <plugin>
+          <groupId>org.projectlombok</groupId>
+          <artifactId>lombok-maven-plugin</artifactId>
+          <version>${version.lombok-maven-plugin}</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -1006,6 +1021,19 @@
           </gpgArguments>
         </configuration>
       </plugin>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1205,7 +1233,6 @@
           <plugin>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok-maven-plugin</artifactId>
-            <version>${version.lombok-maven-plugin}</version>
             <executions>
               <execution>
                 <phase>generate-sources</phase>

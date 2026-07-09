@@ -29,7 +29,8 @@ class ThreadUtils {
     static void terminate(final int exitCode, final AutoCloseable flywayTelemetryHandle) {
         try {
             flywayTelemetryHandle.close();
-        } catch(final Exception ignore){}
+        } catch (final Exception ignore) {
+        }
 
         if (exitCode != 0) {
             System.exit(exitCode);
@@ -51,7 +52,7 @@ class ThreadUtils {
         t.start();
     }
 
-    private static void stopThreads(){
+    private static void stopThreads() {
         final Thread current = Thread.currentThread();
         final ThreadGroup root = getRootThreadGroup();
 
@@ -93,8 +94,10 @@ class ThreadUtils {
             n = root.enumerate(threads, true);
         } while (size > n);
 
-        final Collection<String> knownSystemThreads = new HashSet<>(Arrays.asList(
-            "Finalizer", "Reference Handler", "Signal Dispatcher", "Common-Cleaner"));
+        final Collection<String> knownSystemThreads = new HashSet<>(Arrays.asList("Finalizer",
+            "Reference Handler",
+            "Signal Dispatcher",
+            "Common-Cleaner"));
 
         return Arrays.stream(threads)
             .filter(Objects::nonNull)

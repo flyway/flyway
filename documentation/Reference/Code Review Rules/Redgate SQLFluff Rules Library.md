@@ -210,7 +210,7 @@ It is a good practice to include a description in the `MS_Description` extended 
 
 ---
 {% include anchor.html link="RG18"%}
-# Rule: RG18 TABLE names should be pluralised
+# Rule: RG18 TABLE names should be pluralized
 ## Check that CREATE TABLE statements are created as plurals
 This will apply a simple suffix heuristic that covers the most common English pluralization patterns to new tables.
 Note that RG18 and RG19 are mutually exclusive, enable only one to suit your naming convention.

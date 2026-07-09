@@ -48,12 +48,12 @@ public class DerbyDatabaseType extends BaseDatabaseType {
     }
 
     @Override
-    public boolean handlesJDBCUrl(String url) {
+    public boolean handlesJDBCUrl(final String url) {
         return url.startsWith("jdbc:derby:") || url.startsWith("jdbc:p6spy:derby:");
     }
 
     @Override
-    public String getDriverClass(String url, ClassLoader classLoader) {
+    public String getDriverClass(final String url, final ClassLoader classLoader) {
         if (url.startsWith("jdbc:p6spy:derby:")) {
             return "com.p6spy.engine.spy.P6SpyDriver";
         }
@@ -64,28 +64,34 @@ public class DerbyDatabaseType extends BaseDatabaseType {
     }
 
     @Override
-    public boolean handlesDatabaseProductNameAndVersion(String databaseProductName, String databaseProductVersion, Connection connection) {
+    public boolean handlesDatabaseProductNameAndVersion(final String databaseProductName,
+        final String databaseProductVersion,
+        final Connection connection) {
         return databaseProductName.startsWith("Apache Derby");
     }
 
     @Override
-    public Database createDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+    public Database createDatabase(final Configuration configuration,
+        final JdbcConnectionFactory jdbcConnectionFactory,
+        final StatementInterceptor statementInterceptor) {
         return new DerbyDatabase(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
     @Override
-    public Parser createParser(Configuration configuration, ResourceProvider resourceProvider, ParsingContext parsingContext) {
+    public Parser createParser(final Configuration configuration,
+        final ResourceProvider resourceProvider,
+        final ParsingContext parsingContext) {
         return new DerbyParser(configuration, parsingContext);
     }
 
     @Override
-    public void shutdownDatabase(String url, Driver driver) {
+    public void shutdownDatabase(final String url, final Driver driver) {
 
         // only do this on the embedded version
         if (!url.startsWith("jdbc:derby://")) {
             try {
-                int i = url.indexOf(";");
-                String shutdownUrl = (i < 0 ? url : url.substring(0, i)) + ";shutdown=true";
+                final int i = url.indexOf(";");
+                final String shutdownUrl = (i < 0 ? url : url.substring(0, i)) + ";shutdown=true";
 
                 driver.connect(shutdownUrl, new Properties());
             } catch (SQLException e) {

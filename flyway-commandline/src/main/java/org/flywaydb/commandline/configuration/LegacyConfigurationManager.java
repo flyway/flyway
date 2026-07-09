@@ -41,27 +41,30 @@ import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeL
 @CustomLog
 public class LegacyConfigurationManager implements ConfigurationManager {
 
-    public Configuration getConfiguration(CommandLineArguments commandLineArguments) {
+    public Configuration getConfiguration(final CommandLineArguments commandLineArguments) {
 
         Map<String, String> config = new HashMap<>();
-        String installDirectory = commandLineArguments.isWorkingDirectorySet() ? commandLineArguments.getWorkingDirectory() : ClassUtils.getInstallDir(Main.class);
-        String workingDirectory = commandLineArguments.getWorkingDirectoryOrNull();
+        final String installDirectory = commandLineArguments.isWorkingDirectorySet()
+            ? commandLineArguments.getWorkingDirectory()
+            : ClassUtils.getInstallDir(Main.class);
+        final String workingDirectory = commandLineArguments.getWorkingDirectoryOrNull();
 
-        File jarDir = new File(installDirectory, DEFAULT_CLI_JARS_LOCATION);
+        final File jarDir = new File(installDirectory, DEFAULT_CLI_JARS_LOCATION);
         ConfigUtils.warnIfUsingDeprecatedMigrationsFolder(jarDir, ".jar");
         if (jarDir.exists()) {
             config.put(ConfigUtils.JAR_DIRS, jarDir.getAbsolutePath());
         }
 
-        Map<String, String> envVars = ConfigUtils.environmentVariablesToPropertyMap();
+        final Map<String, String> envVars = ConfigUtils.environmentVariablesToPropertyMap();
 
         loadConfigurationFromConfigFiles(config, commandLineArguments, envVars);
 
         config.putAll(envVars);
         config = overrideConfiguration(config, commandLineArguments.getConfiguration(false));
 
-        File sqlFolder = new File(installDirectory, DEFAULT_CLI_SQL_LOCATION);
-        if (ConfigUtils.shouldUseDefaultCliSqlLocation(sqlFolder, StringUtils.hasText(config.get(ConfigUtils.LOCATIONS)))) {
+        final File sqlFolder = new File(installDirectory, DEFAULT_CLI_SQL_LOCATION);
+        if (ConfigUtils.shouldUseDefaultCliSqlLocation(sqlFolder,
+            StringUtils.hasText(config.get(ConfigUtils.LOCATIONS)))) {
             config.put(ConfigUtils.LOCATIONS, "filesystem:" + sqlFolder.getAbsolutePath());
         }
 
@@ -71,7 +74,8 @@ public class LegacyConfigurationManager implements ConfigurationManager {
             makeRelativeJarDirsBasedOnWorkingDirectory(workingDirectory, config);
         }
 
-        ClassLoader classLoader = buildClassLoaderBasedOnJarDirs(Thread.currentThread().getContextClassLoader(), config);
+        final ClassLoader classLoader = buildClassLoaderBasedOnJarDirs(Thread.currentThread().getContextClassLoader(),
+            config);
 
         ConfigUtils.dumpConfigurationMap(config, "Using configuration:");
         filterProperties(config);
@@ -79,14 +83,16 @@ public class LegacyConfigurationManager implements ConfigurationManager {
         return new FluentConfiguration(classLoader).configuration(config).workingDirectory(workingDirectory);
     }
 
-    protected void loadConfigurationFromConfigFiles(Map<String, String> config, CommandLineArguments commandLineArguments, Map<String, String> envVars) {
-        String encoding = determineConfigurationFileEncoding(commandLineArguments, envVars);
-        File installationDir = new File(ClassUtils.getInstallDir(Main.class));
-        String workingDirectory = commandLineArguments.getWorkingDirectoryOrNull();
+    protected void loadConfigurationFromConfigFiles(final Map<String, String> config,
+        final CommandLineArguments commandLineArguments,
+        final Map<String, String> envVars) {
+        final String encoding = determineConfigurationFileEncoding(commandLineArguments, envVars);
+        final File installationDir = new File(ClassUtils.getInstallDir(Main.class));
+        final String workingDirectory = commandLineArguments.getWorkingDirectoryOrNull();
 
         config.putAll(ConfigUtils.loadDefaultConfigurationFiles(installationDir, workingDirectory, encoding));
 
-        for (File configFile : determineLegacyConfigFilesFromArgs(commandLineArguments)) {
+        for (final File configFile : determineLegacyConfigFilesFromArgs(commandLineArguments)) {
             config.putAll(ConfigUtils.loadConfigurationFile(configFile, encoding, true));
         }
     }
@@ -94,7 +100,8 @@ public class LegacyConfigurationManager implements ConfigurationManager {
     /**
      * @return The encoding. (default: UTF-8)
      */
-    private static String determineConfigurationFileEncoding(CommandLineArguments commandLineArguments, Map<String, String> envVars) {
+    private static String determineConfigurationFileEncoding(final CommandLineArguments commandLineArguments,
+        final Map<String, String> envVars) {
         if (envVars.containsKey(ConfigUtils.CONFIG_FILE_ENCODING)) {
             return envVars.get(ConfigUtils.CONFIG_FILE_ENCODING);
         }
@@ -106,16 +113,21 @@ public class LegacyConfigurationManager implements ConfigurationManager {
         return "UTF-8";
     }
 
-    private static List<File> determineLegacyConfigFilesFromArgs(CommandLineArguments commandLineArguments) {
+    private static List<File> determineLegacyConfigFilesFromArgs(final CommandLineArguments commandLineArguments) {
 
-        List<File> legacyFiles = commandLineArguments.getConfigFilePathsFromEnv(false);
-        legacyFiles.addAll(commandLineArguments.getConfigFiles().stream().filter(s -> !s.endsWith(".toml")).map(File::new).toList());
+        final List<File> legacyFiles = commandLineArguments.getConfigFilePathsFromEnv(false);
+        legacyFiles.addAll(commandLineArguments.getConfigFiles()
+            .stream()
+            .filter(s -> !s.endsWith(".toml"))
+            .map(File::new)
+            .toList());
 
         return legacyFiles;
     }
 
-    private static Map<String, String> overrideConfiguration(Map<String, String> existingConfiguration, Map<String, String> newConfiguration) {
-        Map<String, String> combinedConfiguration = new HashMap<>();
+    private static Map<String, String> overrideConfiguration(final Map<String, String> existingConfiguration,
+        final Map<String, String> newConfiguration) {
+        final Map<String, String> combinedConfiguration = new HashMap<>();
 
         combinedConfiguration.putAll(existingConfiguration);
         combinedConfiguration.putAll(newConfiguration);
@@ -126,18 +138,21 @@ public class LegacyConfigurationManager implements ConfigurationManager {
     /**
      * Filters the properties to remove the Flyway Commandline-specific ones.
      */
-    private void filterProperties(Map<String, String> config) {
+    private void filterProperties(final Map<String, String> config) {
         config.remove(ConfigUtils.CONFIG_FILES);
         config.remove(ConfigUtils.CONFIG_FILE_ENCODING);
     }
 
-    private ClassLoader buildClassLoaderBasedOnJarDirs(ClassLoader parentClassLoader, Map<String, String> config) {
-        List<File> jarFiles = new ArrayList<>(CommandLineConfigurationUtils.getJdbcDriverJarFiles());
+    private ClassLoader buildClassLoaderBasedOnJarDirs(final ClassLoader parentClassLoader,
+        final Map<String, String> config) {
+        final List<File> jarFiles = new ArrayList<>(CommandLineConfigurationUtils.getJdbcDriverJarFiles());
 
-        String jarDirs = config.get(ConfigUtils.JAR_DIRS);
+        final String jarDirs = config.get(ConfigUtils.JAR_DIRS);
 
         if (StringUtils.hasText(jarDirs)) {
-            jarFiles.addAll(CommandLineConfigurationUtils.getJavaMigrationJarFiles(StringUtils.tokenizeToStringArray(jarDirs.replace(File.pathSeparator, ","), ",")));
+            jarFiles.addAll(CommandLineConfigurationUtils.getJavaMigrationJarFiles(StringUtils.tokenizeToStringArray(
+                jarDirs.replace(File.pathSeparator, ","),
+                ",")));
         }
 
         if (!jarFiles.isEmpty()) {

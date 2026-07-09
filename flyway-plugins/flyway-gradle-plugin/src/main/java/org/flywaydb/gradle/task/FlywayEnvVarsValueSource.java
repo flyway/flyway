@@ -24,14 +24,15 @@ import java.util.stream.Collectors;
 import org.gradle.api.provider.ValueSource;
 import org.gradle.api.provider.ValueSourceParameters;
 
-public abstract class FlywayEnvVarsValueSource
-    implements ValueSource<Map<String, String>, ValueSourceParameters.None> {
+public abstract class FlywayEnvVarsValueSource implements ValueSource<Map<String, String>, ValueSourceParameters.None> {
 
     private static final String FLYWAY_ENV_PREFIX = "FLYWAY_";
 
     @Override
     public Map<String, String> obtain() {
-        return System.getenv().entrySet().stream()
+        return System.getenv()
+            .entrySet()
+            .stream()
             .filter(entry -> entry.getKey().startsWith(FLYWAY_ENV_PREFIX))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }

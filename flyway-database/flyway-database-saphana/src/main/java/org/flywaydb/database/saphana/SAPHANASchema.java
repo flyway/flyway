@@ -35,10 +35,10 @@ public class SAPHANASchema extends Schema<SAPHANADatabase, SAPHANATable> {
      * Creates a new SAP HANA schema.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database The database-specific support.
-     * @param name The name of the schema.
+     * @param database     The database-specific support.
+     * @param name         The name of the schema.
      */
-    SAPHANASchema(JdbcTemplate jdbcTemplate, SAPHANADatabase database, String name) {
+    SAPHANASchema(final JdbcTemplate jdbcTemplate, final SAPHANADatabase database, final String name) {
         super(jdbcTemplate, database, name);
     }
 
@@ -69,19 +69,19 @@ public class SAPHANASchema extends Schema<SAPHANADatabase, SAPHANATable> {
 
     @Override
     protected void doClean() throws SQLException {
-        for (String dropStatement : generateDropStatements("SYNONYM")) {
+        for (final String dropStatement : generateDropStatements("SYNONYM")) {
             jdbcTemplate.execute(dropStatement);
         }
 
-        for (String dropStatement : generateDropStatementsForViews()) {
+        for (final String dropStatement : generateDropStatementsForViews()) {
             jdbcTemplate.execute(dropStatement);
         }
 
-        for (String dropStatement : generateDropStatements("TABLE")) {
+        for (final String dropStatement : generateDropStatements("TABLE")) {
             jdbcTemplate.execute(dropStatement);
         }
 
-        for (String dropStatement : generateDropStatements("SEQUENCE")) {
+        for (final String dropStatement : generateDropStatements("SEQUENCE")) {
             jdbcTemplate.execute(dropStatement);
         }
     }
@@ -93,9 +93,9 @@ public class SAPHANASchema extends Schema<SAPHANADatabase, SAPHANATable> {
      * @return The drop statements.
      * @throws SQLException when the statements could not be generated.
      */
-    private List<String> generateDropStatements(String objectType) throws SQLException {
-        List<String> dropStatements = new ArrayList<>();
-        for (String dbObject : getDbObjects(objectType)) {
+    private List<String> generateDropStatements(final String objectType) throws SQLException {
+        final List<String> dropStatements = new ArrayList<>();
+        for (final String dbObject : getDbObjects(objectType)) {
             dropStatements.add("DROP " + objectType + " " + database.quote(name, dbObject) + " CASCADE");
         }
         return dropStatements;
@@ -108,22 +108,25 @@ public class SAPHANASchema extends Schema<SAPHANADatabase, SAPHANATable> {
      * @throws SQLException when the statements could not be generated.
      */
     private List<String> generateDropStatementsForViews() throws SQLException {
-        List<String> dropStatements = new ArrayList<>();
-        for (String dbObject : getDbObjects("VIEW")) {
+        final List<String> dropStatements = new ArrayList<>();
+        for (final String dbObject : getDbObjects("VIEW")) {
             dropStatements.add("DROP VIEW " + database.quote(name, dbObject));
         }
         return dropStatements;
     }
 
-    private List<String> getDbObjects(String objectType) throws SQLException {
-        return jdbcTemplate.queryForStringList(
-                "select " + objectType + "_NAME from SYS." + objectType + "S where SCHEMA_NAME = ?", name);
+    private List<String> getDbObjects(final String objectType) throws SQLException {
+        return jdbcTemplate.queryForStringList("select "
+            + objectType
+            + "_NAME from SYS."
+            + objectType
+            + "S where SCHEMA_NAME = ?", name);
     }
 
     @Override
     protected SAPHANATable[] doAllTables() throws SQLException {
-        List<String> tableNames = getDbObjects("TABLE");
-        SAPHANATable[] tables = new SAPHANATable[tableNames.size()];
+        final List<String> tableNames = getDbObjects("TABLE");
+        final SAPHANATable[] tables = new SAPHANATable[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new SAPHANATable(jdbcTemplate, database, this, tableNames.get(i));
         }
@@ -131,7 +134,7 @@ public class SAPHANASchema extends Schema<SAPHANADatabase, SAPHANATable> {
     }
 
     @Override
-    public Table getTable(String tableName) {
+    public Table getTable(final String tableName) {
         return new SAPHANATable(jdbcTemplate, database, this, tableName);
     }
 }

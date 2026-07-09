@@ -32,10 +32,10 @@ public class FlywayInfoTask extends AbstractFlywayTask {
     }
 
     @Override
-    protected Object run(Flyway flyway) {
-        MigrationInfoService info = flyway.info();
-        MigrationInfo current = info.current();
-        MigrationVersion currentSchemaVersion = current == null ? MigrationVersion.EMPTY : current.getVersion();
+    protected Object run(final Flyway flyway) {
+        final MigrationInfoService info = flyway.info();
+        final MigrationInfo current = info.current();
+        final MigrationVersion currentSchemaVersion = current == null ? MigrationVersion.EMPTY : current.getVersion();
         System.out.println("Schema version: " + currentSchemaVersion);
         System.out.println(MigrationInfoDumper.dumpToAsciiTable(info.all()));
         return info;

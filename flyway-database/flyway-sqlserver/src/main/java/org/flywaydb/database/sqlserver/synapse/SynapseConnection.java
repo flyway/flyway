@@ -31,20 +31,19 @@ import java.util.concurrent.Callable;
  */
 public class SynapseConnection extends SQLServerConnection {
 
-    SynapseConnection(SynapseDatabase database, java.sql.Connection connection) {
+    SynapseConnection(final SynapseDatabase database, final java.sql.Connection connection) {
         super(database, connection);
     }
 
     @Override
-    public Schema getSchema(String name) {
+    public Schema getSchema(final String name) {
         return new SynapseSchema(jdbcTemplate, database, originalDatabaseName, name);
     }
 
     @Override
-    public <T> T lock(Table table, Callable<T> callable) {
-        return ExecutionTemplateFactory
-                .createTableExclusiveExecutionTemplate(jdbcTemplate.getConnection(), table, database)
-                .execute(callable);
+    public <T> T lock(final Table table, final Callable<T> callable) {
+        return ExecutionTemplateFactory.createTableExclusiveExecutionTemplate(jdbcTemplate.getConnection(),
+            table,
+            database).execute(callable);
     }
-
 }

@@ -46,11 +46,11 @@ public class DiffTextCommandExtensionStub implements CommandExtension<OperationR
     }
 
     @Override
-    public OperationResult handle(final Configuration config,
-        final List<String> flags) throws FlywayException {
-        return TelemetrySpan.trackSpan(new EventTelemetryModel(COMMAND, getTelemetryManager(config)), (telemetryModel) -> {
-            throw new FlywayRedgateEditionRequiredException(FEATURE_NAME);
-        });
+    public OperationResult handle(final Configuration config, final List<String> flags) throws FlywayException {
+        return TelemetrySpan.trackSpan(new EventTelemetryModel(COMMAND, getTelemetryManager(config)),
+            (telemetryModel) -> {
+                throw new FlywayRedgateEditionRequiredException(FEATURE_NAME);
+            });
     }
 
     @Override

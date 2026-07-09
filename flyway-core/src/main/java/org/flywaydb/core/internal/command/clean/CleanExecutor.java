@@ -45,14 +45,17 @@ public class CleanExecutor {
     protected final SchemaHistory schemaHistory;
     protected final CallbackExecutor<Event> callbackExecutor;
 
-    public CleanExecutor(Connection connection, Database database, SchemaHistory schemaHistory, CallbackExecutor<Event> callbackExecutor) {
+    public CleanExecutor(final Connection connection,
+        final Database database,
+        final SchemaHistory schemaHistory,
+        final CallbackExecutor<Event> callbackExecutor) {
         this.connection = connection;
         this.database = database;
         this.schemaHistory = schemaHistory;
         this.callbackExecutor = callbackExecutor;
     }
 
-    public void clean(Schema defaultSchema, Schema[] schemas, CleanResult cleanResult) {
+    public void clean(final Schema defaultSchema, final Schema[] schemas, final CleanResult cleanResult) {
         try {
             connection.changeCurrentSchemaTo(defaultSchema);
 
@@ -70,14 +73,14 @@ public class CleanExecutor {
         }
     }
 
-    protected void clean(Schema[] schemas, CleanResult cleanResult, List<String> dropSchemas) {
+    protected void clean(final Schema[] schemas, final CleanResult cleanResult, final List<String> dropSchemas) {
         dropDatabaseObjectsPreSchemas();
 
-        List<Schema> schemaList = new ArrayList<>(Arrays.asList(schemas));
+        final List<Schema> schemaList = new ArrayList<>(Arrays.asList(schemas));
         for (int i = 0; i < schemaList.size(); ) {
-            Schema schema = schemaList.get(i);
+            final Schema schema = schemaList.get(i);
             if (!schema.exists()) {
-                String unknownSchemaWarning = "Unable to clean unknown schema: " + schema;
+                final String unknownSchemaWarning = "Unable to clean unknown schema: " + schema;
                 cleanResult.addWarning(unknownSchemaWarning);
                 LOG.warn(unknownSchemaWarning);
                 schemaList.remove(i);
@@ -91,7 +94,7 @@ public class CleanExecutor {
 
         dropDatabaseObjectsPostSchemas(schemas);
 
-        for (Schema schema : schemas) {
+        for (final Schema schema : schemas) {
             if (dropSchemas.contains(schema.getName())) {
                 dropSchema(schema, cleanResult);
             }
@@ -100,55 +103,59 @@ public class CleanExecutor {
 
     private void dropDatabaseObjectsPreSchemas() {
         LOG.debug("Dropping pre-schema database level objects...");
-        StopWatch stopWatch = new StopWatch();
+        final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         try {
-            ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(), database, true).execute(() -> {
-                database.cleanPreSchemas();
-                return null;
-            });
+            ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(), database, true)
+                .execute(() -> {
+                    database.cleanPreSchemas();
+                    return null;
+                });
             stopWatch.stop();
             LOG.info(String.format("Successfully dropped pre-schema database level objects (execution time %s)",
-                                   TimeFormat.format(stopWatch.getTotalTimeMillis())));
+                TimeFormat.format(stopWatch.getTotalTimeMillis())));
         } catch (FlywaySqlException e) {
             LOG.debug(e.getMessage());
             LOG.warn("Unable to drop pre-schema database level objects");
         }
     }
 
-    private void dropDatabaseObjectsPostSchemas(Schema[] schemas) {
+    private void dropDatabaseObjectsPostSchemas(final Schema[] schemas) {
         LOG.debug("Dropping post-schema database level objects...");
-        StopWatch stopWatch = new StopWatch();
+        final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         try {
-            ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(), database, true).execute(() -> {
-                database.cleanPostSchemas(schemas);
-                return null;
-            });
+            ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(), database, true)
+                .execute(() -> {
+                    database.cleanPostSchemas(schemas);
+                    return null;
+                });
             stopWatch.stop();
             LOG.info(String.format("Successfully dropped post-schema database level objects (execution time %s)",
-                                   TimeFormat.format(stopWatch.getTotalTimeMillis())));
+                TimeFormat.format(stopWatch.getTotalTimeMillis())));
         } catch (FlywaySqlException e) {
             LOG.debug(e.getMessage());
             LOG.warn("Unable to drop post-schema database level objects");
         }
     }
 
-    private void dropSchema(final Schema schema, CleanResult cleanResult) {
+    private void dropSchema(final Schema schema, final CleanResult cleanResult) {
         LOG.debug("Dropping schema " + schema + "...");
-        StopWatch stopWatch = new StopWatch();
+        final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         try {
-            ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(), database, true).execute(() -> {
-                schema.drop();
-                return null;
-            });
+            ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(), database, true)
+                .execute(() -> {
+                    schema.drop();
+                    return null;
+                });
 
             cleanResult.schemasDropped.add(schema.getName());
 
             stopWatch.stop();
             LOG.info(String.format("Successfully dropped schema %s (execution time %s)",
-                                   schema, TimeFormat.format(stopWatch.getTotalTimeMillis())));
+                schema,
+                TimeFormat.format(stopWatch.getTotalTimeMillis())));
         } catch (FlywaySqlException e) {
             LOG.debug(e.getMessage());
             LOG.warn("Unable to drop schema " + schema + ". It was cleaned instead.");
@@ -156,8 +163,8 @@ public class CleanExecutor {
         }
     }
 
-    private void cleanSchemas(Schema[] schemas, List<String> dropSchemas, CleanResult cleanResult) {
-        for (Schema schema : schemas) {
+    private void cleanSchemas(final Schema[] schemas, final List<String> dropSchemas, final CleanResult cleanResult) {
+        for (final Schema schema : schemas) {
             if (dropSchemas.contains(schema.getName())) {
                 try {
                     cleanSchema(schema);
@@ -172,16 +179,18 @@ public class CleanExecutor {
         }
     }
 
-    private void cleanSchema(Schema schema) {
+    private void cleanSchema(final Schema schema) {
         LOG.debug("Cleaning schema " + schema + "...");
-        StopWatch stopWatch = new StopWatch();
+        final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         doCleanSchema(schema);
         stopWatch.stop();
-        LOG.info(String.format("Successfully cleaned schema %s (execution time %s)", schema, TimeFormat.format(stopWatch.getTotalTimeMillis())));
+        LOG.info(String.format("Successfully cleaned schema %s (execution time %s)",
+            schema,
+            TimeFormat.format(stopWatch.getTotalTimeMillis())));
     }
 
-    protected void doCleanSchema(Schema schema) {
+    protected void doCleanSchema(final Schema schema) {
         ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(), database, true).execute(() -> {
             schema.clean();
             return null;

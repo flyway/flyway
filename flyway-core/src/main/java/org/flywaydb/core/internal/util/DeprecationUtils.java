@@ -36,7 +36,10 @@ public class DeprecationUtils {
         CREATE_SCHEMA("'createSchema' callback", "'beforeCreateSchema' callback", null),
         MONGODB_URL("jdbc:mongodb:// URL prefix", "mongodb://", null),
         CASSANDRA_URL("jdbc:cassandra:// URL prefix", "cassandra://", null),
-        CASSANDRA_JDBC("Cassandra JDBC connection", "Cassandra Native Connectors", null);
+        CASSANDRA_JDBC("Cassandra JDBC connection", "Cassandra Native Connectors", null),
+        DOCKER_PROVISIONER_LEGACY_CONFIG("The docker provisioner's compose-file configuration",
+            "the docker-compose provisioner",
+            null);
 
         private final String feature;
         private final String replacement;
@@ -65,7 +68,7 @@ public class DeprecationUtils {
     public static void printDeprecationNotice(final DeprecatedFeatures feature) {
         final String message = feature.feature
             + " is deprecated and will be removed in a future release."
-            + (feature.replacement != null ? "Please use " + feature.replacement + " instead" : "");
+            + (feature.replacement != null ? " Please use " + feature.replacement + " instead" : "");
         LOG.warn(message);
     }
 }

@@ -48,11 +48,11 @@ public class VersionCommandExtension implements CommandExtension<VersionResult> 
     public static final List<String> FLAGS = Arrays.asList("-v", "--version");
 
     @Override
-    public boolean handlesCommand(String command) {
+    public boolean handlesCommand(final String command) {
         return command.equals(VERSION);
     }
 
-    public String getCommandForFlag(String flag) {
+    public String getCommandForFlag(final String flag) {
         if (FLAGS.contains(flag.toLowerCase(Locale.ROOT))) {
             return VERSION;
         }
@@ -65,13 +65,13 @@ public class VersionCommandExtension implements CommandExtension<VersionResult> 
     }
 
     @Override
-    public boolean handlesParameter(String parameter) {
+    public boolean handlesParameter(final String parameter) {
         return false;
     }
 
     @Override
     @SneakyThrows
-    public VersionResult handle(Configuration config, List<String> flags) throws FlywayException {
+    public VersionResult handle(final Configuration config, final List<String> flags) throws FlywayException {
         return TelemetrySpan.trackSpan(new EventTelemetryModel("version", getTelemetryManager(config)),
             (telemetryModel) -> version(VERSION.toLowerCase(Locale.ROOT), config));
     }
@@ -81,17 +81,19 @@ public class VersionCommandExtension implements CommandExtension<VersionResult> 
         LOG.debug(System.getProperty("os.name") + " " + System.getProperty("os.version") + " " + System.getProperty(
             "os.arch") + "\n");
 
-        List<VersionReportable> versionedPlugins = config.getPluginRegister().getInstancesOf(VersionReportable.class);
+        final List<VersionReportable> versionedPlugins = config.getPluginRegister()
+            .getInstancesOf(VersionReportable.class);
 
-        List<PluginVersionResult> pluginVersions = versionedPlugins.stream()
+        final List<PluginVersionResult> pluginVersions = versionedPlugins.stream()
             .map(p -> new PluginVersionResult(p.getName(), p.getPluginVersion(config), p.isLicensed(config)))
             .filter(p -> StringUtils.hasText(p.version))
             .collect(Collectors.toList());
 
         if (!pluginVersions.isEmpty()) {
 
-            int nameLength = pluginVersions.stream().map(p -> p.name.length()).max(Integer::compare).get() + 2;
-            int versionLength = pluginVersions.stream().map(p -> p.version.length()).max(Integer::compare).get() + 2;
+            final int nameLength = pluginVersions.stream().map(p -> p.name.length()).max(Integer::compare).get() + 2;
+            final int versionLength = pluginVersions.stream().map(p -> p.version.length()).max(Integer::compare).get()
+                + 2;
 
             LOG.info(StringUtils.rightPad("Plugin Name", nameLength, ' ') + " | " + StringUtils.rightPad("Version",
                 versionLength,
@@ -101,14 +103,14 @@ public class VersionCommandExtension implements CommandExtension<VersionResult> 
                 + " | "
                 + StringUtils.rightPad(StringUtils.leftPad("", versionLength, '-'), versionLength, ' '));
 
-            for (PluginVersionResult p : pluginVersions) {
+            for (final PluginVersionResult p : pluginVersions) {
                 LOG.info(StringUtils.rightPad(p.name, nameLength, ' ') + " | " + StringUtils.rightPad(p.version,
                     versionLength,
                     ' '));
             }
         }
 
-        Date permitExpiry = LicenseGuard.getPermit(config).getPermitExpiry();
+        final Date permitExpiry = LicenseGuard.getPermit(config).getPermitExpiry();
         return new VersionResult(VersionPrinter.getVersion(),
             command,
             LicenseGuard.getTier(config),

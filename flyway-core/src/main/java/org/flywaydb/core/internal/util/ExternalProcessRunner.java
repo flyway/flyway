@@ -19,50 +19,50 @@
  */
 package org.flywaydb.core.internal.util;
 
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.function.Consumer;
-import lombok.SneakyThrows;
+import org.flywaydb.core.api.CoreErrorCode;
+import org.flywaydb.core.api.FlywayException;
 
 public class ExternalProcessRunner {
 
-    @SneakyThrows
     public int run(final String[] command,
-                   final Consumer<? super String> onStdOut,
-                   final Consumer<? super String> onStdErr) {
+        final Consumer<? super String> onStdOut,
+        final Consumer<? super String> onStdErr) throws IOException {
         return run(command, null, null, onStdOut, onStdErr);
     }
 
-    @SneakyThrows
     public int run(final String[] command,
-                   final Path workingDirectory,
-                   final Consumer<? super String> onStdOut,
-                   final Consumer<? super String> onStdErr) {
+        final Path workingDirectory,
+        final Consumer<? super String> onStdOut,
+        final Consumer<? super String> onStdErr) throws IOException {
         return run(command, workingDirectory, null, onStdOut, onStdErr);
     }
 
-    @SneakyThrows
     public int run(final String[] command,
-                   final Path workingDirectory,
-                   final String stdIn,
-                   final Consumer<? super String> onStdOut,
-                   final Consumer<? super String> onStdErr) {
+        final Path workingDirectory,
+        final String stdIn,
+        final Consumer<? super String> onStdOut,
+        final Consumer<? super String> onStdErr) throws IOException {
         return run(command, workingDirectory, null, stdIn, onStdOut, onStdErr);
     }
 
     @SuppressWarnings("MethodWithTooManyParameters")
-    @SneakyThrows
     public int run(final String[] command,
-                   final Path workingDirectory,
-                   final Map<String, String> env,
-                   final String stdIn,
-                   final Consumer<? super String> onStdOut,
-                   final Consumer<? super String> onStdErr) {
+        final Path workingDirectory,
+        final Map<String, String> env,
+        final String stdIn,
+        final Consumer<? super String> onStdOut,
+        final Consumer<? super String> onStdErr) throws IOException {
         final var processBuilder = new ProcessBuilder(command);
         if (workingDirectory != null) {
             processBuilder.directory(workingDirectory.toFile());
@@ -94,20 +94,41 @@ public class ExternalProcessRunner {
             }
             inputSteam.close();
 
-            handleStdOut.get();
-            handleStdErr.get();
+            awaitCompletion(handleStdOut);
+            awaitCompletion(handleStdErr);
         } finally {
             executorService.shutdown();
         }
 
-        return process.waitFor();
+        return waitFor(process);
     }
 
-    @SneakyThrows
+    private static void awaitCompletion(final Future<?> future) {
+        try {
+            future.get();
+        } catch (final InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new FlywayException("Interrupted while reading external process output", e, CoreErrorCode.FAULT);
+        } catch (final ExecutionException e) {
+            throw new FlywayException("Failed to read external process output", e.getCause(), CoreErrorCode.FAULT);
+        }
+    }
+
+    private static int waitFor(final Process process) {
+        try {
+            return process.waitFor();
+        } catch (final InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new FlywayException("Interrupted while waiting for external process to complete",
+                e,
+                CoreErrorCode.FAULT);
+        }
+    }
+
     public int run(final ProcessBuilder processBuilder,
-                   final Path workingDirectory,
-                   final Map<String, String> env,
-                   final String stdIn) {
+        final Path workingDirectory,
+        final Map<String, String> env,
+        final String stdIn) throws IOException {
 
         if (workingDirectory != null) {
             processBuilder.directory(workingDirectory.toFile());
@@ -123,6 +144,6 @@ public class ExternalProcessRunner {
             }
         }
 
-        return process.waitFor();
+        return waitFor(process);
     }
 }

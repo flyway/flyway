@@ -33,7 +33,7 @@ else
 fi
 
 
-CP="$CLASSPATH:$INSTALLDIR/lib/*:$INSTALLDIR/lib/aad/*:$INSTALLDIR/lib/plugins/*:$INSTALLDIR/lib/oracle_wallet/*:$INSTALLDIR/lib/flyway/*:$INSTALLDIR/lib/netty/*:$INSTALLDIR/lib/opentelemetry/*:$INSTALLDIR/drivers/*:$INSTALLDIR/drivers/aws/*:$INSTALLDIR/drivers/gcp/*:$INSTALLDIR/drivers/cassandra/*:$INSTALLDIR/drivers/couchbase/*:$INSTALLDIR/drivers/mongo/*"
+CP="$CLASSPATH:$INSTALLDIR/lib/*:$INSTALLDIR/lib/aad/*:$INSTALLDIR/lib/plugins/*:$INSTALLDIR/lib/oracle_wallet/*:$INSTALLDIR/lib/flyway/*:$INSTALLDIR/lib/netty/*:$INSTALLDIR/lib/opentelemetry/*:$INSTALLDIR/drivers/*:$INSTALLDIR/drivers/aws/*:$INSTALLDIR/drivers/cassandra/*:$INSTALLDIR/drivers/couchbase/*:$INSTALLDIR/drivers/mongo/*"
 
 
 NATIVE_ACCESS="--enable-native-access=ALL-UNNAMED"

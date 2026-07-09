@@ -27,8 +27,7 @@ import org.flywaydb.core.extensibility.MigrationType;
 
 @Value
 @Builder
-public class ResolvedSchemaHistoryItem
-{
+public class ResolvedSchemaHistoryItem {
     int installedRank;
     MigrationVersion version;
     String description;
@@ -39,11 +38,11 @@ public class ResolvedSchemaHistoryItem
     LocalDateTime installedOn;
     int executionTime;
     boolean success;
-    
+
     public boolean isRepeatable() {
         return version == null;
     }
-    
+
     public boolean isVersioned() {
         return !isRepeatable();
     }

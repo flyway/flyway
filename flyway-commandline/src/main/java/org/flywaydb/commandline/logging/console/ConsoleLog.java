@@ -27,7 +27,10 @@ import org.flywaydb.core.api.logging.LogLevel;
 @RequiredArgsConstructor
 public class ConsoleLog implements Log {
     public enum Level {
-        DEBUG, INFO, WARN;
+        DEBUG,
+        INFO,
+        WARN;
+
         public LogLevel toLogLevel() {
             return switch (this) {
                 case DEBUG -> LogLevel.DEBUG;
@@ -37,33 +40,33 @@ public class ConsoleLog implements Log {
         }
     }
 
-    public void debug(String message) {
+    public void debug(final String message) {
         if (LogFactory.isDebugEnabled()) {
             System.out.println("DEBUG: " + message);
         }
     }
 
-    public void info(String message) {
+    public void info(final String message) {
         if (!LogFactory.isQuietMode()) {
             System.out.println(message);
         }
     }
 
-    public void notice(String message) {
+    public void notice(final String message) {
         if (!LogFactory.isQuietMode()) {
             System.out.println(message);
         }
     }
 
-    public void warn(String message) {
+    public void warn(final String message) {
         System.out.println("WARNING: " + message);
     }
 
-    public void error(String message) {
+    public void error(final String message) {
         System.err.println("ERROR: " + message);
     }
 
-    public void error(String message, Exception e) {
+    public void error(final String message, final Exception e) {
         System.err.println("ERROR: " + message);
         e.printStackTrace(System.err);
     }

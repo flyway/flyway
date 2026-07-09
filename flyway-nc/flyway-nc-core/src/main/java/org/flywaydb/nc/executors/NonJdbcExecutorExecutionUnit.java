@@ -31,7 +31,7 @@ public class NonJdbcExecutorExecutionUnit {
     private Charset encoding;
     private boolean executeInTransaction;
 
-    public NonJdbcExecutorExecutionUnit(String script, String contextPath, Charset encoding) {
+    public NonJdbcExecutorExecutionUnit(final String script, final String contextPath, final Charset encoding) {
         this.script = script;
         this.contextPath = contextPath;
         this.encoding = encoding;

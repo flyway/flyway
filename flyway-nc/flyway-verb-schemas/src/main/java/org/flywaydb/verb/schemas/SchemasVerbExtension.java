@@ -42,7 +42,7 @@ public class SchemasVerbExtension extends CachingVerbExtension {
 
     // The schemas verb should not be reached through the command extension handling framework
     @Override
-    public boolean handlesCommand(String command) {
+    public boolean handlesCommand(final String command) {
         return false;
     }
 

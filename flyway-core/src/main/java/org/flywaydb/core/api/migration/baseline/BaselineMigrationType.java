@@ -31,7 +31,7 @@ public enum BaselineMigrationType implements MigrationType {
      */
     SQL_BASELINE;
 
-    public static MigrationType fromString(String migrationType) {
+    public static MigrationType fromString(final String migrationType) {
         if ("JDBC_STATE_SCRIPT".equals(migrationType)) {
             return JDBC_BASELINE;
         }

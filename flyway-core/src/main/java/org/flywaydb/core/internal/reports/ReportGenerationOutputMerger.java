@@ -21,7 +21,8 @@ package org.flywaydb.core.internal.reports;
 
 public class ReportGenerationOutputMerger {
 
-    public static ReportGenerationOutput merge(final ReportGenerationOutput first, final ReportGenerationOutput second) {
+    public static ReportGenerationOutput merge(final ReportGenerationOutput first,
+        final ReportGenerationOutput second) {
         if (first == null) {
             return second;
         }
@@ -43,9 +44,15 @@ public class ReportGenerationOutputMerger {
             return first;
         }
         final ReportDetails merged = new ReportDetails();
-        merged.setJsonReportFilename(first.getJsonReportFilename() != null ? first.getJsonReportFilename() : second.getJsonReportFilename());
-        merged.setHtmlReportFilename(first.getHtmlReportFilename() != null ? first.getHtmlReportFilename() : second.getHtmlReportFilename());
-        merged.setSarifReportFilename(first.getSarifReportFilename() != null ? first.getSarifReportFilename() : second.getSarifReportFilename());
+        merged.setJsonReportFilename(first.getJsonReportFilename() != null
+            ? first.getJsonReportFilename()
+            : second.getJsonReportFilename());
+        merged.setHtmlReportFilename(first.getHtmlReportFilename() != null
+            ? first.getHtmlReportFilename()
+            : second.getHtmlReportFilename());
+        merged.setSarifReportFilename(first.getSarifReportFilename() != null
+            ? first.getSarifReportFilename()
+            : second.getSarifReportFilename());
         return merged;
     }
 

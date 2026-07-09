@@ -31,11 +31,12 @@ import java.util.List;
 
 @CustomLog
 public class SQLiteSchema extends Schema<SQLiteDatabase, SQLiteTable> {
-    private static final List<String> IGNORED_SYSTEM_TABLE_NAMES = Arrays.asList("android_metadata", SQLiteTable.SQLITE_SEQUENCE);
+    private static final List<String> IGNORED_SYSTEM_TABLE_NAMES = Arrays.asList("android_metadata",
+        SQLiteTable.SQLITE_SEQUENCE);
 
     private boolean foreignKeysEnabled;
 
-    SQLiteSchema(JdbcTemplate jdbcTemplate, SQLiteDatabase database, String name) {
+    SQLiteSchema(final JdbcTemplate jdbcTemplate, final SQLiteDatabase database, final String name) {
         super(jdbcTemplate, database, name);
     }
 
@@ -51,10 +52,10 @@ public class SQLiteSchema extends Schema<SQLiteDatabase, SQLiteTable> {
 
     @Override
     protected boolean doEmpty() {
-        Table[] tables = allTables();
-        List<String> tableNames = new ArrayList<>();
-        for (Table table : tables) {
-            String tableName = table.getName();
+        final Table[] tables = allTables();
+        final List<String> tableNames = new ArrayList<>();
+        for (final Table table : tables) {
+            final String tableName = table.getName();
             if (!IGNORED_SYSTEM_TABLE_NAMES.contains(tableName)) {
                 tableNames.add(tableName);
             }
@@ -76,13 +77,15 @@ public class SQLiteSchema extends Schema<SQLiteDatabase, SQLiteTable> {
     protected void doClean() throws SQLException {
         foreignKeysEnabled = jdbcTemplate.queryForBoolean("PRAGMA foreign_keys");
 
-        List<String> viewNames = jdbcTemplate.queryForStringList("SELECT tbl_name FROM " + database.quote(name) + ".sqlite_master WHERE type='view'");
+        final List<String> viewNames = jdbcTemplate.queryForStringList("SELECT tbl_name FROM "
+            + database.quote(name)
+            + ".sqlite_master WHERE type='view'");
 
-        for (String viewName : viewNames) {
+        for (final String viewName : viewNames) {
             jdbcTemplate.execute("DROP VIEW " + database.quote(name, viewName));
         }
 
-        for (Table table : allTables()) {
+        for (final Table table : allTables()) {
             table.drop();
         }
 
@@ -93,9 +96,11 @@ public class SQLiteSchema extends Schema<SQLiteDatabase, SQLiteTable> {
 
     @Override
     protected SQLiteTable[] doAllTables() throws SQLException {
-        List<String> tableNames = jdbcTemplate.queryForStringList("SELECT tbl_name FROM " + database.quote(name) + ".sqlite_master WHERE type='table'");
+        final List<String> tableNames = jdbcTemplate.queryForStringList("SELECT tbl_name FROM "
+            + database.quote(name)
+            + ".sqlite_master WHERE type='table'");
 
-        SQLiteTable[] tables = new SQLiteTable[tableNames.size()];
+        final SQLiteTable[] tables = new SQLiteTable[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new SQLiteTable(jdbcTemplate, database, this, tableNames.get(i));
         }
@@ -103,7 +108,7 @@ public class SQLiteSchema extends Schema<SQLiteDatabase, SQLiteTable> {
     }
 
     @Override
-    public Table getTable(String tableName) {
+    public Table getTable(final String tableName) {
         return new SQLiteTable(jdbcTemplate, database, this, tableName);
     }
 

@@ -32,9 +32,9 @@ import java.util.TreeSet;
  */
 @CustomLog
 public class FileSystemClassPathLocationScanner implements ClassPathLocationScanner {
-    public Set<String> findResourceNames(String location, URL locationUrl) {
-        String filePath = UrlUtils.toFilePath(locationUrl);
-        File folder = new File(filePath);
+    public Set<String> findResourceNames(final String location, final URL locationUrl) {
+        final String filePath = UrlUtils.toFilePath(locationUrl);
+        final File folder = new File(filePath);
         if (!folder.isDirectory()) {
             LOG.debug("Skipping path as it is not a directory: " + filePath);
             return new TreeSet<String>();
@@ -52,26 +52,30 @@ public class FileSystemClassPathLocationScanner implements ClassPathLocationScan
      * Finds all the resource names contained in this file system folder.
      *
      * @param classPathRootOnDisk The location of the classpath root on disk, with a trailing slash.
-     * @param scanRootLocation The root location of the scan on the classpath, without leading or trailing slashes.
-     * @param folder The folder to look for resources under on disk.
+     * @param scanRootLocation    The root location of the scan on the classpath, without leading or trailing slashes.
+     * @param folder              The folder to look for resources under on disk.
      * @return The resource names;
      */
     /*private -> for testing*/
     @SuppressWarnings("ConstantConditions")
-    Set<String> findResourceNamesFromFileSystem(String classPathRootOnDisk, String scanRootLocation, File folder) {
+    Set<String> findResourceNamesFromFileSystem(final String classPathRootOnDisk,
+        final String scanRootLocation,
+        final File folder) {
         LOG.debug("Scanning for resources in path: " + folder.getPath() + " (" + scanRootLocation + ")");
 
-        Set<String> resourceNames = new TreeSet<>();
+        final Set<String> resourceNames = new TreeSet<>();
 
-        File[] files = folder.listFiles();
-        for (File file : files) {
+        final File[] files = folder.listFiles();
+        for (final File file : files) {
             if (file.canRead()) {
                 if (file.isDirectory()) {
                     if (file.isHidden()) {
                         // #1807: Skip hidden directories to avoid issues with Kubernetes
                         LOG.debug("Skipping hidden directory: " + file.getAbsolutePath());
                     } else {
-                        resourceNames.addAll(findResourceNamesFromFileSystem(classPathRootOnDisk, scanRootLocation, file));
+                        resourceNames.addAll(findResourceNamesFromFileSystem(classPathRootOnDisk,
+                            scanRootLocation,
+                            file));
                     }
                 } else {
                     resourceNames.add(toResourceNameOnClasspath(classPathRootOnDisk, file));
@@ -86,11 +90,11 @@ public class FileSystemClassPathLocationScanner implements ClassPathLocationScan
      * Converts this file into a resource name on the classpath.
      *
      * @param classPathRootOnDisk The location of the classpath root on disk, with a trailing slash.
-     * @param file The file.
+     * @param file                The file.
      * @return The resource name on the classpath.
      */
-    private String toResourceNameOnClasspath(String classPathRootOnDisk, File file) {
-        String fileName = file.getAbsolutePath().replace("\\", "/");
+    private String toResourceNameOnClasspath(final String classPathRootOnDisk, final File file) {
+        final String fileName = file.getAbsolutePath().replace("\\", "/");
 
         //Cut off the part on disk leading to the root of the classpath
         //This leaves a resource name starting with the scanRootLocation,

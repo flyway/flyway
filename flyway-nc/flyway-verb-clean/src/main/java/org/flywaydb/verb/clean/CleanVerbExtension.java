@@ -31,6 +31,7 @@ import org.flywaydb.core.api.output.CleanResult;
 import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
 import org.flywaydb.core.internal.nc.schemahistory.SchemaHistoryItem;
+import org.flywaydb.core.extensibility.ConfigurationParameter;
 import org.flywaydb.core.extensibility.VerbExtension;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.nc.callbacks.CallbackManager;
@@ -50,6 +51,16 @@ public class CleanVerbExtension implements VerbExtension {
     }
 
     @Override
+    public List<ConfigurationParameter> getConfigurationParameters() {
+        return List.of(new ConfigurationParameter("cleanDisabled", "Whether to disable clean", false));
+    }
+
+    @Override
+    public String getExample() {
+        return "flyway clean -cleanDisabled=false";
+    }
+
+    @Override
     public OperationResult executeVerb(final Configuration configuration) {
         if (configuration.isCleanDisabled()) {
             throw new FlywayException(
@@ -60,7 +71,9 @@ public class CleanVerbExtension implements VerbExtension {
 
         final NativeConnectorsDatabase database = context.getDatabase();
 
-        final CallbackManager callbackManager = new CallbackManager(configuration, context.getCallbackResources(), Event::fromId);
+        final CallbackManager callbackManager = new CallbackManager(configuration,
+            context.getCallbackResources(),
+            Event::fromId);
 
         callbackManager.handleEvent(Event.BEFORE_CLEAN, database, configuration, context.getParsingContext());
 

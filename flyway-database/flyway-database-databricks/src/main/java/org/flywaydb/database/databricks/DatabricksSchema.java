@@ -30,33 +30,34 @@ import java.util.Map;
 import java.util.Objects;
 
 public class DatabricksSchema extends Schema<DatabricksDatabase, DatabricksTable> {
-    public DatabricksSchema(JdbcTemplate jdbcTemplate, DatabricksDatabase database, String name) {
+    public DatabricksSchema(final JdbcTemplate jdbcTemplate, final DatabricksDatabase database, final String name) {
         super(jdbcTemplate, database, name);
     }
 
-    private List<String> fetchAllObjs(String obj, String column) throws SQLException {
-        List<Map<String, String>> tableInfos = jdbcTemplate.queryForList(
-                "show " + obj + "s from " + database.quote(name)
-        );
-        List<String> tableNames = new ArrayList<>();
-        for (Map<String, String> tableInfo : tableInfos) {
+    private List<String> fetchAllObjs(final String obj, final String column) throws SQLException {
+        final List<Map<String, String>> tableInfos = jdbcTemplate.queryForList("show "
+            + obj
+            + "s from "
+            + database.quote(name));
+        final List<String> tableNames = new ArrayList<>();
+        for (final Map<String, String> tableInfo : tableInfos) {
             tableNames.add(tableInfo.get(column));
         }
         return tableNames;
     }
 
     private List<String> fetchAllSchemas() throws SQLException {
-        List<Map<String, String>> schemaInfos = jdbcTemplate.queryForList("show schemas");
-        List<String> schemaNames = new ArrayList<>();
-        for (Map<String, String> schemaInfo : schemaInfos) {
+        final List<Map<String, String>> schemaInfos = jdbcTemplate.queryForList("show schemas");
+        final List<String> schemaNames = new ArrayList<>();
+        for (final Map<String, String> schemaInfo : schemaInfos) {
             schemaNames.add(schemaInfo.get("databaseName"));
         }
         return schemaNames;
     }
 
     private List<String> fetchAllTables() throws SQLException {
-        var tables = fetchAllObjs("table", "tableName");
-        var views = fetchAllObjs("view", "viewName");
+        final var tables = fetchAllObjs("table", "tableName");
+        final var views = fetchAllObjs("view", "viewName");
         return tables.stream().filter(t -> !views.contains(t)).toList();
     }
 
@@ -82,20 +83,20 @@ public class DatabricksSchema extends Schema<DatabricksDatabase, DatabricksTable
 
     @Override
     protected void doClean() throws SQLException {
-        for (String statement : generateDropStatements("TABLE", fetchAllTables())) {
+        for (final String statement : generateDropStatements("TABLE", fetchAllTables())) {
             jdbcTemplate.execute(statement);
         }
-        for (String statement : generateDropStatements("VIEW", fetchAllObjs("VIEW", "viewName"))) {
+        for (final String statement : generateDropStatements("VIEW", fetchAllObjs("VIEW", "viewName"))) {
             jdbcTemplate.execute(statement);
         }
-        for (String statement : generateDropStatements("FUNCTION", fetchAllObjs("USER FUNCTION", "function"))) {
+        for (final String statement : generateDropStatements("FUNCTION", fetchAllObjs("USER FUNCTION", "function"))) {
             jdbcTemplate.execute(statement);
         }
     }
 
-    private List<String> generateDropStatements(String objType, List<String> names) {
-        List<String> statements = new ArrayList<>();
-        for (String name : names) {
+    private List<String> generateDropStatements(final String objType, final List<String> names) {
+        final List<String> statements = new ArrayList<>();
+        for (final String name : names) {
             statements.add("drop " + objType + " if exists " + database.quote(this.name, name) + ";");
         }
         return statements;
@@ -103,8 +104,8 @@ public class DatabricksSchema extends Schema<DatabricksDatabase, DatabricksTable
 
     @Override
     protected DatabricksTable[] doAllTables() throws SQLException {
-        List<String> tableNames = fetchAllTables();
-        DatabricksTable[] tables = new DatabricksTable[tableNames.size()];
+        final List<String> tableNames = fetchAllTables();
+        final DatabricksTable[] tables = new DatabricksTable[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new DatabricksTable(jdbcTemplate, database, this, tableNames.get(i));
         }
@@ -112,7 +113,7 @@ public class DatabricksSchema extends Schema<DatabricksDatabase, DatabricksTable
     }
 
     @Override
-    public Table getTable(String tableName) {
+    public Table getTable(final String tableName) {
         return new DatabricksTable(jdbcTemplate, database, this, tableName);
     }
 }

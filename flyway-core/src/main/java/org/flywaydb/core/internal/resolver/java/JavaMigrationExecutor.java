@@ -19,9 +19,7 @@
  */
 package org.flywaydb.core.internal.resolver.java;
 
-import java.util.Collections;
 import java.util.List;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -54,9 +52,10 @@ public class JavaMigrationExecutor implements MigrationExecutor {
         if (statementInterceptor != null) {
             statementInterceptor.javaMigration(javaMigration);
         } else {
-            DatabaseType databaseType = DatabaseTypeRegister.getDatabaseTypeForConnection(context.getConnection(), context.getConfiguration());
+            final DatabaseType databaseType = DatabaseTypeRegister.getDatabaseTypeForConnection(context.getConnection(),
+                context.getConfiguration());
 
-            DatabaseExecutionStrategy strategy = databaseType.createExecutionStrategy(context.getConnection());
+            final DatabaseExecutionStrategy strategy = databaseType.createExecutionStrategy(context.getConnection());
             strategy.execute(() -> {
                 executeOnce(context);
                 return true;

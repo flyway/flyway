@@ -27,12 +27,14 @@ import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 
 public class BabelfishDatabase extends SQLServerDatabase {
 
-    public BabelfishDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+    public BabelfishDatabase(final Configuration configuration,
+        final JdbcConnectionFactory jdbcConnectionFactory,
+        final StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
     @Override
-    protected String computeVersionDisplayName(MigrationVersion version) {
+    protected String computeVersionDisplayName(final MigrationVersion version) {
         return "Babelfish";
     }
 

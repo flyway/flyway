@@ -40,11 +40,14 @@ public class InfoHtmlRenderer implements HtmlRenderer<InfoResult> {
         tableRenderer.addHeadings("Version", "Category", "Description", "Type", "Installed On", "State", "Undoable");
 
         result.migrations.forEach(migration -> tableRenderer.addRow(migration.version,
-                                                                    migration.category,
-                                                                    migration.description,
-                                                                    migration.type,
-                                                                    StringUtils.hasText(migration.installedOnUTC) ? DateUtils.formatStringAsIsoDateString(migration.installedOnUTC) : "--",
-                                                                    migration.state, migration.undoable));
+            migration.category,
+            migration.description,
+            migration.type,
+            StringUtils.hasText(migration.installedOnUTC)
+                ? DateUtils.formatStringAsIsoDateString(migration.installedOnUTC)
+                : "--",
+            migration.state,
+            migration.undoable));
 
         return tableRenderer.render();
     }
@@ -86,7 +89,6 @@ public class InfoHtmlRenderer implements HtmlRenderer<InfoResult> {
                 "infoOutlined",
                 "Environment: " + config.getCurrentEnvironmentName()));
         }
-
 
         return htmlResult;
     }

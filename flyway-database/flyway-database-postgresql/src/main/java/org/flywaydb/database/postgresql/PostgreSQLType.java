@@ -32,11 +32,14 @@ public class PostgreSQLType extends Type<PostgreSQLDatabase, PostgreSQLSchema> {
      * Creates a new PostgreSQL type.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database The database-specific support.
-     * @param schema The schema this type lives in.
-     * @param name The name of the type.
+     * @param database     The database-specific support.
+     * @param schema       The schema this type lives in.
+     * @param name         The name of the type.
      */
-    public PostgreSQLType(JdbcTemplate jdbcTemplate, PostgreSQLDatabase database, PostgreSQLSchema schema, String name) {
+    public PostgreSQLType(final JdbcTemplate jdbcTemplate,
+        final PostgreSQLDatabase database,
+        final PostgreSQLSchema schema,
+        final String name) {
         super(jdbcTemplate, database, schema, name);
     }
 

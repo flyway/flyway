@@ -30,7 +30,7 @@ import tools.jackson.databind.ValueDeserializer;
 public class ListDeserializer extends ValueDeserializer<List<String>> {
 
     @Override
-    public List<String> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
+    public List<String> deserialize(final JsonParser jsonParser, final DeserializationContext deserializationContext) {
         return Arrays.stream(jsonParser.getValueAsString().split(",")).collect(Collectors.toList());
     }
 }

@@ -23,6 +23,8 @@ import static org.flywaydb.core.internal.util.TelemetryUtils.getTelemetryManager
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.FlywayTelemetryManager;
@@ -101,12 +103,17 @@ public class TestConnectionCommandExtension implements CommandExtension<TestConn
         return new TestConnectionResult(results);
     }
 
-    private Configuration getConfigWithRelevantEnvironments(final Configuration config) {
+    Configuration getConfigWithRelevantEnvironments(final Configuration config) {
         if ("-".equals(config.getCurrentEnvironmentName())) {
             final EnvironmentModel environment = modelProvider.getModel();
+            final Map<String, EnvironmentModel> environments = Stream.concat(config.getModernConfig()
+                    .getEnvironments()
+                    .entrySet()
+                    .stream(), Stream.of(Map.entry(TEST_CONNECTION_INLINE_ENVIRONMENT, environment)))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (existing, inline) -> inline));
             return new FluentConfiguration().configuration(config)
-                .environment(TEST_CONNECTION_INLINE_ENVIRONMENT)
-                .allEnvironments(Map.of(TEST_CONNECTION_INLINE_ENVIRONMENT, environment));
+                .allEnvironments(environments)
+                .environment(TEST_CONNECTION_INLINE_ENVIRONMENT);
         }
 
         return config;

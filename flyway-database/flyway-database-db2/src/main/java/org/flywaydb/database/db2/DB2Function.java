@@ -34,12 +34,16 @@ public class DB2Function extends Function {
      * Creates a new Db2 function.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database The database-specific support.
-     * @param schema The schema this function lives in.
-     * @param name The name of the function.
-     * @param args The arguments of the function.
+     * @param database     The database-specific support.
+     * @param schema       The schema this function lives in.
+     * @param name         The name of the function.
+     * @param args         The arguments of the function.
      */
-    DB2Function(JdbcTemplate jdbcTemplate, Database database, Schema schema, String name, String... args) {
+    DB2Function(final JdbcTemplate jdbcTemplate,
+        final Database database,
+        final Schema schema,
+        final String name,
+        String... args) {
         super(jdbcTemplate, database, schema, name, args);
     }
 

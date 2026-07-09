@@ -856,8 +856,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
         }
 
         for (final String key : pluginConfiguration.keySet()) {
-            conf.put("flyway." + key,
-                pluginConfiguration.get(key));
+            conf.put("flyway." + key, pluginConfiguration.get(key));
         }
 
         return conf;

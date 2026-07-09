@@ -19,15 +19,12 @@
  */
 package org.flywaydb.core.internal.logging;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
-import org.flywaydb.core.api.logging.LogFactory;
 
 public class JsonLogCreator implements LogCreator {
     @Override
-    public Log createLogger(Class<?> clazz) {
+    public Log createLogger(final Class<?> clazz) {
         return new JsonLog();
     }
 }

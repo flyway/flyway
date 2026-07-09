@@ -39,7 +39,7 @@ public interface CommandExtension<T extends OperationResult> extends PluginMetad
      * @param flag The CLI flag to get the command for
      * @return The command, or null if no action is to be taken
      */
-    default String getCommandForFlag(String flag) {
+    default String getCommandForFlag(final String flag) {
         return null;
     }
 
@@ -62,5 +62,4 @@ public interface CommandExtension<T extends OperationResult> extends PluginMetad
      * @return The result of this command being handled
      */
     T handle(Configuration config, List<String> flags) throws FlywayException;
-
 }

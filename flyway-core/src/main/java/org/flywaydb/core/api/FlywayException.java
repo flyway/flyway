@@ -32,11 +32,11 @@ public class FlywayException extends RuntimeException {
     /**
      * Creates a new FlywayException with this message, cause, and error code.
      *
-     * @param message The exception message.
-     * @param cause The exception cause.
+     * @param message   The exception message.
+     * @param cause     The exception cause.
      * @param errorCode The error code.
      */
-    public FlywayException(String message, Throwable cause, ErrorCode errorCode) {
+    public FlywayException(final String message, final Throwable cause, final ErrorCode errorCode) {
         super(message, cause);
         this.errorCode = errorCode;
     }
@@ -44,10 +44,10 @@ public class FlywayException extends RuntimeException {
     /**
      * Creates a new FlywayException with this message and error code
      *
-     * @param message The exception message.
+     * @param message   The exception message.
      * @param errorCode The error code.
      */
-    public FlywayException(String message, ErrorCode errorCode) {
+    public FlywayException(final String message, final ErrorCode errorCode) {
         super(message);
         this.errorCode = errorCode;
     }
@@ -56,9 +56,9 @@ public class FlywayException extends RuntimeException {
      * Creates a new FlywayException with this message and this cause.
      *
      * @param message The exception message.
-     * @param cause The exception cause.
+     * @param cause   The exception cause.
      */
-    public FlywayException(String message, Throwable cause) {
+    public FlywayException(final String message, final Throwable cause) {
         super(message, cause);
     }
 
@@ -67,7 +67,7 @@ public class FlywayException extends RuntimeException {
      *
      * @param cause The exception cause.
      */
-    public FlywayException(Throwable cause) {
+    public FlywayException(final Throwable cause) {
         super(cause.getMessage(), cause);
     }
 
@@ -76,7 +76,7 @@ public class FlywayException extends RuntimeException {
      *
      * @param message The exception message.
      */
-    public FlywayException(String message) {
+    public FlywayException(final String message) {
         super(message);
     }
 

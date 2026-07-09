@@ -34,11 +34,11 @@ public class SingleStoreConnection extends Connection<SingleStoreDatabase> {
 
     private static final String USER_VARIABLES_TABLE = "information_schema.user_variables";
     private static final String USER_VARIABLES_QUERY = "SELECT variable_name FROM "
-            + USER_VARIABLES_TABLE
-            + " WHERE variable_value IS NOT NULL";
+        + USER_VARIABLES_TABLE
+        + " WHERE variable_value IS NOT NULL";
     private final boolean canResetUserVariables;
 
-    public SingleStoreConnection(SingleStoreDatabase database, java.sql.Connection connection) {
+    public SingleStoreConnection(final SingleStoreDatabase database, final java.sql.Connection connection) {
         super(database, connection);
         canResetUserVariables = hasUserVariableResetCapability();
     }
@@ -49,8 +49,12 @@ public class SingleStoreConnection extends Connection<SingleStoreDatabase> {
             jdbcTemplate.queryForStringList(USER_VARIABLES_QUERY);
         } catch (SQLException e) {
             LOG.debug("Disabled user variable reset as "
-                    + USER_VARIABLES_TABLE
-                    + " cannot be queried (SQL State: " + e.getSQLState() + ", Error Code: " + e.getErrorCode() + ")");
+                + USER_VARIABLES_TABLE
+                + " cannot be queried (SQL State: "
+                + e.getSQLState()
+                + ", Error Code: "
+                + e.getErrorCode()
+                + ")");
             return false;
         }
         return true;
@@ -60,10 +64,10 @@ public class SingleStoreConnection extends Connection<SingleStoreDatabase> {
     protected void doRestoreOriginalState() throws SQLException {
         // prevent user-defined variables from leaking beyond the scope of a migration
         if (canResetUserVariables) {
-            List<String> userVariables = jdbcTemplate.queryForStringList(USER_VARIABLES_QUERY);
+            final List<String> userVariables = jdbcTemplate.queryForStringList(USER_VARIABLES_QUERY);
             if (!userVariables.isEmpty()) {
-                String nulls = String.join(",", Collections.nCopies(userVariables.size(), "NULL"));
-                String variables = String.join(",", userVariables);
+                final String nulls = String.join(",", Collections.nCopies(userVariables.size(), "NULL"));
+                final String variables = String.join(",", userVariables);
                 jdbcTemplate.executeStatement("SELECT " + nulls + " INTO " + variables);
             }
         }
@@ -75,13 +79,13 @@ public class SingleStoreConnection extends Connection<SingleStoreDatabase> {
     }
 
     @Override
-    public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
+    public void doChangeCurrentSchemaOrSearchPathTo(final String schema) throws SQLException {
         if (StringUtils.hasLength(schema)) {
             jdbcTemplate.getConnection().setCatalog(schema);
         } else {
             try {
                 // Weird hack to switch back to no database selected...
-                String newDb = database.quote(UUID.randomUUID().toString());
+                final String newDb = database.quote(UUID.randomUUID().toString());
                 jdbcTemplate.execute("CREATE SCHEMA " + newDb);
                 jdbcTemplate.execute("USE " + newDb);
                 jdbcTemplate.execute("DROP SCHEMA " + newDb);
@@ -93,13 +97,13 @@ public class SingleStoreConnection extends Connection<SingleStoreDatabase> {
 
     @Override
     protected Schema doGetCurrentSchema() throws SQLException {
-        String schemaName = getCurrentSchemaNameOrSearchPath();
+        final String schemaName = getCurrentSchemaNameOrSearchPath();
         // SingleStore can have URLs where no current schema is set, so we must handle this case explicitly.
         return schemaName == null ? null : getSchema(schemaName);
     }
 
     @Override
-    public Schema getSchema(String name) {
+    public Schema getSchema(final String name) {
         return new SingleStoreSchema(jdbcTemplate, database, name);
     }
 }

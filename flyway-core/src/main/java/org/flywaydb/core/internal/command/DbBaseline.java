@@ -66,14 +66,17 @@ public class DbBaseline {
     /**
      * Creates a new DbBaseline.
      *
-     * @param schemaHistory The database schema history table.
-     * @param baselineVersion The version to tag an existing schema with when executing baseline.
+     * @param schemaHistory       The database schema history table.
+     * @param baselineVersion     The version to tag an existing schema with when executing baseline.
      * @param baselineDescription The description to tag an existing schema with when executing baseline.
-     * @param callbackExecutor The callback executor.
-     * @param database Database-specific functionality.
+     * @param callbackExecutor    The callback executor.
+     * @param database            Database-specific functionality.
      */
-    public DbBaseline(SchemaHistory schemaHistory, MigrationVersion baselineVersion, String baselineDescription,
-                      CallbackExecutor<Event> callbackExecutor, Database database) {
+    public DbBaseline(final SchemaHistory schemaHistory,
+        final MigrationVersion baselineVersion,
+        final String baselineDescription,
+        final CallbackExecutor<Event> callbackExecutor,
+        final Database database) {
         this.schemaHistory = schemaHistory;
         this.baselineVersion = baselineVersion;
         this.baselineDescription = baselineDescription;
@@ -95,39 +98,62 @@ public class DbBaseline {
                 baselineResult.successfullyBaselined = true;
                 baselineResult.baselineVersion = baselineVersion.toString();
             } else {
-                AppliedMigration baselineMarker = schemaHistory.getBaselineMarker();
+                final AppliedMigration baselineMarker = schemaHistory.getBaselineMarker();
                 if (baselineMarker != null) {
                     if (baselineVersion.equals(baselineMarker.getVersion())
-                            && baselineDescription.equals(baselineMarker.getDescription())) {
-                        LOG.info("Schema history table " + schemaHistory + " already initialized with ("
-                                         + baselineVersion + "," + baselineDescription + "). Skipping.");
+                        && baselineDescription.equals(baselineMarker.getDescription())) {
+                        LOG.info("Schema history table "
+                            + schemaHistory
+                            + " already initialized with ("
+                            + baselineVersion
+                            + ","
+                            + baselineDescription
+                            + "). Skipping.");
                         baselineResult.successfullyBaselined = true;
                         baselineResult.baselineVersion = baselineVersion.toString();
                     } else {
-                        throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " with ("
-                                                          + baselineVersion + "," + baselineDescription
-                                                          + ") as it has already been baselined with ("
-                                                          + baselineMarker.getVersion() + "," + baselineMarker.getDescription() + ")\n" + "Need to reset your baseline? Learn more: "
-                                                          + FlywayDbWebsiteLinks.getRedirectLinkFromTopic(Topic.REBASELINING));
+                        throw new FlywayException("Unable to baseline schema history table "
+                            + schemaHistory
+                            + " with ("
+                            + baselineVersion
+                            + ","
+                            + baselineDescription
+                            + ") as it has already been baselined with ("
+                            + baselineMarker.getVersion()
+                            + ","
+                            + baselineMarker.getDescription()
+                            + ")\n"
+                            + "Need to reset your baseline? Learn more: "
+                            + FlywayDbWebsiteLinks.getRedirectLinkFromTopic(Topic.REBASELINING));
                     }
                 } else {
                     if (schemaHistory.hasSchemasMarker() && baselineVersion.equals(MigrationVersion.fromVersion("0"))) {
-                        throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " with version 0 as this version was used for schema creation");
+                        throw new FlywayException("Unable to baseline schema history table "
+                            + schemaHistory
+                            + " with version 0 as this version was used for schema creation");
                     }
 
                     if (schemaHistory.hasNonSyntheticAppliedMigrations()) {
-                        throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " as it already contains migrations\n" +
-                                                          "Need to reset your baseline? Learn more: " + FlywayDbWebsiteLinks.getRedirectLinkFromTopic(Topic.REBASELINING));
+                        throw new FlywayException("Unable to baseline schema history table "
+                            + schemaHistory
+                            + " as it already contains migrations\n"
+                            + "Need to reset your baseline? Learn more: "
+                            + FlywayDbWebsiteLinks.getRedirectLinkFromTopic(Topic.REBASELINING));
                     }
 
                     if (schemaHistory.allAppliedMigrations().isEmpty()) {
-                        throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " as it already exists, and is empty.\n" +
-                                                          "Delete the schema history table, and run baseline again.");
+                        throw new FlywayException("Unable to baseline schema history table "
+                            + schemaHistory
+                            + " as it already exists, and is empty.\n"
+                            + "Delete the schema history table, and run baseline again.");
                     }
 
-                    throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " as it already contains migrations.\n" +
-                                                      "Delete the schema history table, and run baseline again.\n" +
-                                                      "Need to reset your baseline? Learn more: " + FlywayDbWebsiteLinks.getRedirectLinkFromTopic(Topic.REBASELINING));
+                    throw new FlywayException("Unable to baseline schema history table "
+                        + schemaHistory
+                        + " as it already contains migrations.\n"
+                        + "Delete the schema history table, and run baseline again.\n"
+                        + "Need to reset your baseline? Learn more: "
+                        + FlywayDbWebsiteLinks.getRedirectLinkFromTopic(Topic.REBASELINING));
                 }
             }
         } catch (FlywayException e) {

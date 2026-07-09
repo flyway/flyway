@@ -28,7 +28,10 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class SnowflakeTable extends Table<SnowflakeDatabase, SnowflakeSchema> {
-    SnowflakeTable(JdbcTemplate jdbcTemplate, SnowflakeDatabase database, SnowflakeSchema schema, String name) {
+    SnowflakeTable(final JdbcTemplate jdbcTemplate,
+        final SnowflakeDatabase database,
+        final SnowflakeSchema schema,
+        final String name) {
         super(jdbcTemplate, database, schema, name);
     }
 
@@ -43,10 +46,10 @@ public class SnowflakeTable extends Table<SnowflakeDatabase, SnowflakeSchema> {
             return false;
         }
 
-        String sql = "SHOW TABLES LIKE '" + name + "' IN SCHEMA " + database.quote(schema.getName());
-        List<Boolean> results = jdbcTemplate.query(sql, new RowMapper<Boolean>() {
+        final String sql = "SHOW TABLES LIKE '" + name + "' IN SCHEMA " + database.quote(schema.getName());
+        final List<Boolean> results = jdbcTemplate.query(sql, new RowMapper<Boolean>() {
             @Override
-            public Boolean mapRow(ResultSet rs) throws SQLException {
+            public Boolean mapRow(final ResultSet rs) throws SQLException {
                 return true;
             }
         });

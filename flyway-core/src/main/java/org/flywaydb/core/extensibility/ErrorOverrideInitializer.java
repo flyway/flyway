@@ -30,6 +30,11 @@ import org.flywaydb.core.internal.database.base.Schema;
 public interface ErrorOverrideInitializer extends Plugin {
 
     void setCallback(String[] errorOverrides);
+
     Callback getCallback();
-    CallbackExecutor<Event> getCallbackExecutor(Configuration configuration, Database database, Schema schema, FlywayTelemetryManager flywayTelemetryManager);
+
+    CallbackExecutor<Event> getCallbackExecutor(Configuration configuration,
+        Database database,
+        Schema schema,
+        FlywayTelemetryManager flywayTelemetryManager);
 }

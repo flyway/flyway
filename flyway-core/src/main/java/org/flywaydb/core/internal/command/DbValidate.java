@@ -68,10 +68,15 @@ public class DbValidate {
      * Creates a new database validator.
      *
      * @param schemaHistory The database schema history table.
-     * @param schema The schema containing the schema history table.
+     * @param schema        The schema containing the schema history table.
      */
-    public DbValidate(Database database, SchemaHistory schemaHistory, Schema schema, CompositeMigrationResolver migrationResolver,
-                      Configuration configuration, CallbackExecutor callbackExecutor, ValidatePattern[] ignorePatterns) {
+    public DbValidate(final Database database,
+        final SchemaHistory schemaHistory,
+        final Schema schema,
+        final CompositeMigrationResolver migrationResolver,
+        final Configuration configuration,
+        final CallbackExecutor callbackExecutor,
+        final ValidatePattern[] ignorePatterns) {
         this.schemaHistory = schemaHistory;
         this.schema = schema;
         this.database = database;
@@ -87,10 +92,16 @@ public class DbValidate {
      */
     public ValidateResult validate() {
         if (!schema.exists()) {
-            if (!migrationResolver.resolveMigrations(configuration).isEmpty() && !ValidatePatternUtils.isPendingIgnored(ignorePatterns)) {
-                String validationErrorMessage = "Schema " + schema + " doesn't exist yet";
-                ErrorDetails validationError = new ErrorDetails(CoreErrorCode.SCHEMA_DOES_NOT_EXIST, validationErrorMessage);
-                return CommandResultFactory.createValidateResult(database.getCatalog(), validationError, 0, null, new ArrayList<>());
+            if (!migrationResolver.resolveMigrations(configuration).isEmpty() && !ValidatePatternUtils.isPendingIgnored(
+                ignorePatterns)) {
+                final String validationErrorMessage = "Schema " + schema + " doesn't exist yet";
+                final ErrorDetails validationError = new ErrorDetails(CoreErrorCode.SCHEMA_DOES_NOT_EXIST,
+                    validationErrorMessage);
+                return CommandResultFactory.createValidateResult(database.getCatalog(),
+                    validationError,
+                    0,
+                    null,
+                    new ArrayList<>());
             }
             return CommandResultFactory.createValidateResult(database.getCatalog(), null, 0, null, new ArrayList<>());
         }
@@ -98,40 +109,44 @@ public class DbValidate {
         callbackExecutor.onEvent(Event.BEFORE_VALIDATE);
 
         LOG.debug("Validating migrations ...");
-        StopWatch stopWatch = new StopWatch();
+        final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        Pair<Integer, List<ValidateOutput>> result = ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(), database)
-                .execute(() -> {
-                    MigrationInfoServiceImpl migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, schemaHistory, database, configuration,
-                                                                                                 configuration.getTarget(),
-                                                                                                 configuration.isOutOfOrder(),
-                                                                                                 ignorePatterns);
+        final Pair<Integer, List<ValidateOutput>> result = ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(),
+            database).execute(() -> {
+            final MigrationInfoServiceImpl migrationInfoService = new MigrationInfoServiceImpl(migrationResolver,
+                schemaHistory,
+                database,
+                configuration,
+                configuration.getTarget(),
+                configuration.isOutOfOrder(),
+                ignorePatterns);
 
-                    migrationInfoService.refresh();
+            migrationInfoService.refresh();
 
-                    int count = migrationInfoService.all().length;
-                    List<ValidateOutput> invalidMigrations = migrationInfoService.validate();
-                    return Pair.of(count, invalidMigrations);
-                });
+            final int count = migrationInfoService.all().length;
+            final List<ValidateOutput> invalidMigrations = migrationInfoService.validate();
+            return Pair.of(count, invalidMigrations);
+        });
 
         stopWatch.stop();
 
-        List<String> warnings = new ArrayList<>();
-        List<ValidateOutput> invalidMigrations = result.getRight();
+        final List<String> warnings = new ArrayList<>();
+        final List<ValidateOutput> invalidMigrations = result.getRight();
         ErrorDetails validationError = null;
         int count = 0;
         if (invalidMigrations.isEmpty()) {
             count = result.getLeft();
             if (count == 1) {
                 LOG.info(String.format("Successfully validated 1 migration (execution time %s)",
-                                       TimeFormat.format(stopWatch.getTotalTimeMillis())));
+                    TimeFormat.format(stopWatch.getTotalTimeMillis())));
             } else {
                 LOG.info(String.format("Successfully validated %d migrations (execution time %s)",
-                                       count, TimeFormat.format(stopWatch.getTotalTimeMillis())));
+                    count,
+                    TimeFormat.format(stopWatch.getTotalTimeMillis())));
 
                 if (count == 0) {
-                    String noMigrationsWarning = "No migrations found. Are your locations set up correctly?";
+                    final String noMigrationsWarning = "No migrations found. Are your locations set up correctly?";
                     warnings.add(noMigrationsWarning);
                     LOG.warn(noMigrationsWarning);
                 }
@@ -142,6 +157,10 @@ public class DbValidate {
             callbackExecutor.onEvent(Event.AFTER_VALIDATE_ERROR);
         }
 
-        return CommandResultFactory.createValidateResult(database.getCatalog(), validationError, count, invalidMigrations, warnings);
+        return CommandResultFactory.createValidateResult(database.getCatalog(),
+            validationError,
+            count,
+            invalidMigrations,
+            warnings);
     }
 }

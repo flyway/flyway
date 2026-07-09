@@ -32,8 +32,8 @@ import java.sql.SQLException;
 
 public class H2Database extends Database<H2Connection> {
     /**
-     * A dummy user used in Oracle mode, where USER() can return null but nulls can't be inserted into the
-     * schema history table
+     * A dummy user used in Oracle mode, where USER() can return null but nulls can't be inserted into the schema
+     * history table
      */
     private static final String DEFAULT_USER = "<< default user >>";
     /**
@@ -63,7 +63,9 @@ public class H2Database extends Database<H2Connection> {
     private boolean requiresV2MetadataColumnNames;
     CompatibilityMode compatibilityMode;
 
-    public H2Database(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+    public H2Database(final Configuration configuration,
+        final JdbcConnectionFactory jdbcConnectionFactory,
+        final StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
 
         requiresV2MetadataColumnNames = super.determineVersion().isAtLeast("2.0.0");
@@ -71,17 +73,17 @@ public class H2Database extends Database<H2Connection> {
     }
 
     @Override
-    protected H2Connection doGetConnection(Connection connection) {
+    protected H2Connection doGetConnection(final Connection connection) {
         return new H2Connection(this, connection, requiresV2MetadataColumnNames);
     }
 
     @Override
     protected MigrationVersion determineVersion() {
-        String query = requiresV2MetadataColumnNames
-                ? "SELECT SETTING_VALUE FROM INFORMATION_SCHEMA.SETTINGS WHERE SETTING_NAME = 'info.BUILD_ID'"
-                : "SELECT VALUE FROM INFORMATION_SCHEMA.SETTINGS WHERE NAME = 'info.BUILD_ID'";
+        final String query = requiresV2MetadataColumnNames
+            ? "SELECT SETTING_VALUE FROM INFORMATION_SCHEMA.SETTINGS WHERE SETTING_NAME = 'info.BUILD_ID'"
+            : "SELECT VALUE FROM INFORMATION_SCHEMA.SETTINGS WHERE NAME = 'info.BUILD_ID'";
         try {
-            int buildId = getMainConnection().getJdbcTemplate().queryForInt(query);
+            final int buildId = getMainConnection().getJdbcTemplate().queryForInt(query);
             return MigrationVersion.fromVersion(super.determineVersion().getVersion() + "." + buildId);
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine H2 build ID", e);
@@ -89,11 +91,11 @@ public class H2Database extends Database<H2Connection> {
     }
 
     private CompatibilityMode determineCompatibilityMode() {
-        String query = requiresV2MetadataColumnNames
-                ? "SELECT SETTING_VALUE FROM INFORMATION_SCHEMA.SETTINGS WHERE SETTING_NAME = 'MODE'"
-                : "SELECT VALUE FROM INFORMATION_SCHEMA.SETTINGS WHERE NAME = 'MODE'";
+        final String query = requiresV2MetadataColumnNames
+            ? "SELECT SETTING_VALUE FROM INFORMATION_SCHEMA.SETTINGS WHERE SETTING_NAME = 'MODE'"
+            : "SELECT VALUE FROM INFORMATION_SCHEMA.SETTINGS WHERE NAME = 'MODE'";
         try {
-            String mode = getMainConnection().getJdbcTemplate().queryForString(query);
+            final String mode = getMainConnection().getJdbcTemplate().queryForString(query);
             if (mode == null || "".equals(mode)) {
                 return CompatibilityMode.REGULAR;
             }
@@ -104,55 +106,85 @@ public class H2Database extends Database<H2Connection> {
     }
 
     @Override
-    public void ensureSupported(Configuration configuration) {
+    public void ensureSupported(final Configuration configuration) {
         ensureDatabaseIsRecentEnough("1.2.137");
         recommendFlywayUpgradeIfNecessary("2.3.232");
         supportsDropSchemaCascade = getVersion().isAtLeast("1.4.200");
     }
 
     @Override
-    public String getRawCreateScript(Table table, boolean baseline) {
+    public String getRawCreateScript(final Table table, final boolean baseline) {
         // In Oracle mode, empty strings in the marker row would be converted to NULLs. As the script column is
         // defined as NOT NULL, we insert a dummy value when required.
-        String script = (compatibilityMode == CompatibilityMode.Oracle)
-                ? DUMMY_SCRIPT_NAME : "";
+        final String script = (compatibilityMode == CompatibilityMode.Oracle) ? DUMMY_SCRIPT_NAME : "";
 
-        return "CREATE TABLE IF NOT EXISTS " + table + " (\n" +
-                "    \"installed_rank\" INT NOT NULL,\n" +
-                "    \"version\" VARCHAR(50),\n" +
-                "    \"description\" VARCHAR(200) NOT NULL,\n" +
-                "    \"type\" VARCHAR(20) NOT NULL,\n" +
-                "    \"script\" VARCHAR(1000) NOT NULL,\n" +
-                "    \"checksum\" INT,\n" +
-                "    \"installed_by\" VARCHAR(100) NOT NULL,\n" +
-                "    \"installed_on\" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
-                "    \"execution_time\" INT NOT NULL,\n" +
-                "    \"success\" BOOLEAN NOT NULL,\n" +
-                "    CONSTRAINT \"" + table.getName() + "_pk\" PRIMARY KEY (\"installed_rank\")\n" +
-                ")" +
-                // Add special table created marker to compensate for the inability of H2 to lock empty tables
-                " AS SELECT -1, NULL, '<< Flyway Schema History table created >>', 'TABLE', '" + script + "', NULL, '" + getInstalledBy() + "', CURRENT_TIMESTAMP, 0, TRUE;\n" +
-                (baseline ? getBaselineStatement(table) + ";\n" : "") +
-                "CREATE INDEX \"" + table.getSchema().getName() + "\".\"" + table.getName() + "_s_idx\" ON " + table + " (\"success\");";
+        return "CREATE TABLE IF NOT EXISTS "
+            + table
+            + " (\n"
+            + "    \"installed_rank\" INT NOT NULL,\n"
+            + "    \"version\" VARCHAR(50),\n"
+            + "    \"description\" VARCHAR(200) NOT NULL,\n"
+            + "    \"type\" VARCHAR(20) NOT NULL,\n"
+            + "    \"script\" VARCHAR(1000) NOT NULL,\n"
+            + "    \"checksum\" INT,\n"
+            + "    \"installed_by\" VARCHAR(100) NOT NULL,\n"
+            + "    \"installed_on\" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n"
+            + "    \"execution_time\" INT NOT NULL,\n"
+            + "    \"success\" BOOLEAN NOT NULL,\n"
+            + "    CONSTRAINT \""
+            + table.getName()
+            + "_pk\" PRIMARY KEY (\"installed_rank\")\n"
+            + ")"
+            +
+            // Add special table created marker to compensate for the inability of H2 to lock empty tables
+            " AS SELECT -1, NULL, '<< Flyway Schema History table created >>', 'TABLE', '"
+            + script
+            + "', NULL, '"
+            + getInstalledBy()
+            + "', CURRENT_TIMESTAMP, 0, TRUE;\n"
+            + (baseline ? getBaselineStatement(table) + ";\n" : "")
+            + "CREATE INDEX \""
+            + table.getSchema().getName()
+            + "\".\""
+            + table.getName()
+            + "_s_idx\" ON "
+            + table
+            + " (\"success\");";
     }
 
     @Override
-    public String getSelectStatement(Table table) {
-        return "SELECT " + quote("installed_rank")
-                + "," + quote("version")
-                + "," + quote("description")
-                + "," + quote("type")
-                + "," + quote("script")
-                + "," + quote("checksum")
-                + "," + quote("installed_on")
-                + "," + quote("installed_by")
-                + "," + quote("execution_time")
-                + "," + quote("success")
-                + " FROM " + table
-                // Ignore special table created marker
-                + " WHERE " + quote("type") + " != 'TABLE'"
-                + " AND " + quote("installed_rank") + " > ?"
-                + " ORDER BY " + quote("installed_rank");
+    public String getSelectStatement(final Table table) {
+        return "SELECT "
+            + quote("installed_rank")
+            + ","
+            + quote("version")
+            + ","
+            + quote("description")
+            + ","
+            + quote("type")
+            + ","
+            + quote("script")
+            + ","
+            + quote("checksum")
+            + ","
+            + quote("installed_on")
+            + ","
+            + quote("installed_by")
+            + ","
+            + quote("execution_time")
+            + ","
+            + quote("success")
+            + " FROM "
+            + table
+            // Ignore special table created marker
+            + " WHERE "
+            + quote("type")
+            + " != 'TABLE'"
+            + " AND "
+            + quote("installed_rank")
+            + " > ?"
+            + " ORDER BY "
+            + quote("installed_rank");
     }
 
     @Override

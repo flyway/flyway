@@ -35,7 +35,7 @@ public class PostgreSQLConnection extends Connection<PostgreSQLDatabase> {
     @Getter
     private final boolean awsRds;
 
-    protected PostgreSQLConnection(PostgreSQLDatabase database, java.sql.Connection connection) {
+    protected PostgreSQLConnection(final PostgreSQLDatabase database, final java.sql.Connection connection) {
         super(database, connection);
 
         try {
@@ -55,15 +55,15 @@ public class PostgreSQLConnection extends Connection<PostgreSQLDatabase> {
 
     @Override
     public Schema doGetCurrentSchema() throws SQLException {
-        String currentSchema = jdbcTemplate.queryForString("SELECT current_schema");
-        String searchPath = getCurrentSchemaNameOrSearchPath();
+        final String currentSchema = jdbcTemplate.queryForString("SELECT current_schema");
+        final String searchPath = getCurrentSchemaNameOrSearchPath();
 
         if (!StringUtils.hasText(currentSchema) && !StringUtils.hasText(searchPath)) {
-            throw new FlywayException("Unable to determine current schema as search_path is empty. " +
-                                              "Set the current schema in currentSchema parameter of the JDBC URL or in Flyway's schemas property.");
+            throw new FlywayException("Unable to determine current schema as search_path is empty. "
+                + "Set the current schema in currentSchema parameter of the JDBC URL or in Flyway's schemas property.");
         }
 
-        String schema = StringUtils.hasText(currentSchema) ? currentSchema : searchPath;
+        final String schema = StringUtils.hasText(currentSchema) ? currentSchema : searchPath;
 
         return getSchema(schema);
     }
@@ -74,9 +74,10 @@ public class PostgreSQLConnection extends Connection<PostgreSQLDatabase> {
     }
 
     @Override
-    public void changeCurrentSchemaTo(Schema schema) {
+    public void changeCurrentSchemaTo(final Schema schema) {
         try {
-            if (schema.getName().equals(originalSchemaNameOrSearchPath) || originalSchemaNameOrSearchPath.startsWith(schema.getName() + ",") || !schema.exists()) {
+            if (schema.getName().equals(originalSchemaNameOrSearchPath) || originalSchemaNameOrSearchPath.startsWith(
+                schema.getName() + ",") || !schema.exists()) {
                 return;
             }
 
@@ -91,23 +92,26 @@ public class PostgreSQLConnection extends Connection<PostgreSQLDatabase> {
     }
 
     @Override
-    public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
+    public void doChangeCurrentSchemaOrSearchPathTo(final String schema) throws SQLException {
         jdbcTemplate.execute("SELECT set_config('search_path', ?, false)", schema);
     }
 
     @Override
-    public Schema getSchema(String name) {
+    public Schema getSchema(final String name) {
         return new PostgreSQLSchema(jdbcTemplate, database, name);
     }
 
     @Override
-    public <T> T lock(Table table, Callable<T> callable) {
-        return new PostgreSQLAdvisoryLockTemplate(database.getConfiguration(), jdbcTemplate, table.toString().hashCode()).execute(callable);
+    public <T> T lock(final Table table, final Callable<T> callable) {
+        return new PostgreSQLAdvisoryLockTemplate(database.getConfiguration(),
+            jdbcTemplate,
+            table.toString().hashCode()).execute(callable);
     }
 
     private boolean rdsAdminExists() {
         try {
-            return StringUtils.hasText(jdbcTemplate.queryForString("SELECT rolname FROM pg_roles WHERE rolname ILIKE 'rds_superuser';"));
+            return StringUtils.hasText(jdbcTemplate.queryForString(
+                "SELECT rolname FROM pg_roles WHERE rolname ILIKE 'rds_superuser';"));
         } catch (Exception e) {
             return false;
         }

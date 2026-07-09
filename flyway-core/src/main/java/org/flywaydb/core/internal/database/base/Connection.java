@@ -35,7 +35,7 @@ public abstract class Connection<D extends Database> implements Closeable {
     protected final String originalSchemaNameOrSearchPath;
     private final boolean originalAutoCommit;
 
-    protected Connection(D database, java.sql.Connection connection) {
+    protected Connection(final D database, final java.sql.Connection connection) {
         this.database = database;
 
         try {
@@ -78,7 +78,7 @@ public abstract class Connection<D extends Database> implements Closeable {
      */
     public abstract Schema getSchema(String name);
 
-    public void changeCurrentSchemaTo(Schema schema) {
+    public void changeCurrentSchemaTo(final Schema schema) {
         try {
             if (!schema.exists()) {
                 return;
@@ -93,7 +93,7 @@ public abstract class Connection<D extends Database> implements Closeable {
      * @param schemaNameOrSearchPath The new current schema for this connection.
      * @throws SQLException when the current schema could not be set.
      */
-    protected void doChangeCurrentSchemaOrSearchPathTo(String schemaNameOrSearchPath) throws SQLException {}
+    protected void doChangeCurrentSchemaOrSearchPathTo(final String schemaNameOrSearchPath) throws SQLException {}
 
     /**
      * Locks this table and executes this callable.
@@ -101,9 +101,9 @@ public abstract class Connection<D extends Database> implements Closeable {
      * @return The result of the callable.
      */
     public <T> T lock(final Table table, final Callable<T> callable) {
-        return ExecutionTemplateFactory
-                .createTableExclusiveExecutionTemplate(jdbcTemplate.getConnection(), table, database)
-                .execute(callable);
+        return ExecutionTemplateFactory.createTableExclusiveExecutionTemplate(jdbcTemplate.getConnection(),
+            table,
+            database).execute(callable);
     }
 
     public final JdbcTemplate getJdbcTemplate() {

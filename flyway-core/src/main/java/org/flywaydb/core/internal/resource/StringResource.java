@@ -27,7 +27,7 @@ import java.io.StringReader;
 public class StringResource extends LoadableResource {
     private final String str;
 
-    public StringResource(String str) {
+    public StringResource(final String str) {
         this.str = str;
     }
 

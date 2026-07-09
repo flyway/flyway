@@ -92,8 +92,9 @@ public class JdbcMigrator extends Migrator<NativeConnectorsJdbc> {
                     throw new FlywayMigrateException(migrationInfo,
                         "Detected both transactional and non-transactional migrations within the same migration group"
                             + " (even though mixed is false). First offending migration: "
-                            + database.doQuote((migrationInfo.isVersioned() ? migrationInfo.getVersion()
-                            .getVersion() : "") + (StringUtils.hasLength(migrationInfo.getDescription()) ? " "
+                            + database.doQuote((migrationInfo.isVersioned()
+                            ? migrationInfo.getVersion().getVersion()
+                            : "") + (StringUtils.hasLength(migrationInfo.getDescription()) ? " "
                             + migrationInfo.getDescription() : ""))
                             + (shouldExecuteMigrationInTransaction ? "" : " [non-transactional]"),
                         shouldExecuteMigrationInTransaction,
@@ -109,8 +110,7 @@ public class JdbcMigrator extends Migrator<NativeConnectorsJdbc> {
 
         if (database.hasNonTransactionalStatements()) {
             final List<Pair<MigrationInfo, Boolean>> migrationContainsNonTransactionalStatements = currentGroup.stream()
-                .map(x -> Pair.of(x,
-                    containsNonTransactionalStatements(configuration, database, x, parsingContext)))
+                .map(x -> Pair.of(x, containsNonTransactionalStatements(configuration, database, x, parsingContext)))
                 .toList();
             for (final Pair<MigrationInfo, Boolean> pair : migrationContainsNonTransactionalStatements) {
                 final MigrationInfo migrationInfo = pair.getLeft();
@@ -161,7 +161,8 @@ public class JdbcMigrator extends Migrator<NativeConnectorsJdbc> {
             if (!configuration.isMixed() && configuration.isExecuteInTransaction()) {
                 validateMixedStatements(configuration, database, migrationInfo, parsingContext);
             }
-            doIndividualMigration(migrationInfo, database,
+            doIndividualMigration(migrationInfo,
+                database,
                 configuration,
                 migrateResult,
                 parsingContext,
@@ -192,11 +193,9 @@ public class JdbcMigrator extends Migrator<NativeConnectorsJdbc> {
         final AtomicReference<SqlStatement> sqlStatement = new AtomicReference<>();
         final boolean outOfOrder = migrationInfo.getState() == MigrationState.OUT_OF_ORDER
             && configuration.isOutOfOrder();
-        final String migrationText = toMigrationText(migrationInfo,
-            executeInTransaction,
-            database,
-            outOfOrder);
-        final Executor<SqlStatement, NativeConnectorsJdbc> executor = ExecutorFactory.getExecutor(database, configuration);
+        final String migrationText = toMigrationText(migrationInfo, executeInTransaction, database, outOfOrder);
+        final Executor<SqlStatement, NativeConnectorsJdbc> executor = ExecutorFactory.getExecutor(database,
+            configuration);
         final Reader<SqlStatement> reader = ReaderFactory.getReader(database, configuration);
 
         try {
@@ -206,11 +205,10 @@ public class JdbcMigrator extends Migrator<NativeConnectorsJdbc> {
             } else {
                 LOG.debug("Starting migration of " + migrationText + " ...");
                 progress.log("Starting migration of " + migrationInfo.getScript() + " ...");
-                final Event beforeEach = migrationInfo.getType().isUndo() ? Event.BEFORE_EACH_UNDO : Event.BEFORE_EACH_MIGRATE;
-                callbackManager.handleEvent(beforeEach,
-                    database,
-                    configuration,
-                    parsingContext);
+                final Event beforeEach = migrationInfo.getType().isUndo()
+                    ? Event.BEFORE_EACH_UNDO
+                    : Event.BEFORE_EACH_MIGRATE;
+                callbackManager.handleEvent(beforeEach, database, configuration, parsingContext);
                 if (!migrationInfo.getType().isUndo()) {
                     LOG.info("Migrating " + migrationText);
                     progress.log("Migrating " + migrationInfo.getScript());
@@ -232,11 +230,10 @@ public class JdbcMigrator extends Migrator<NativeConnectorsJdbc> {
                     executor.finishExecution(database, configuration);
                 }
 
-                final Event afterEach = migrationInfo.getType().isUndo() ? Event.AFTER_EACH_UNDO : Event.AFTER_EACH_MIGRATE;
-                callbackManager.handleEvent(afterEach,
-                    database,
-                    configuration,
-                    parsingContext);
+                final Event afterEach = migrationInfo.getType().isUndo()
+                    ? Event.AFTER_EACH_UNDO
+                    : Event.AFTER_EACH_MIGRATE;
+                callbackManager.handleEvent(afterEach, database, configuration, parsingContext);
             }
         } catch (final FlywayException e) {
             watch.stop();
@@ -246,7 +243,9 @@ public class JdbcMigrator extends Migrator<NativeConnectorsJdbc> {
                 migrationInfo,
                 executor,
                 sqlStatement.get(),
-                migrateResult, installedRank, executeInTransaction,
+                migrateResult,
+                installedRank,
+                executeInTransaction,
                 totalTimeMillis,
                 configuration,
                 parsingContext,
@@ -344,11 +343,10 @@ public class JdbcMigrator extends Migrator<NativeConnectorsJdbc> {
         migrateResult.putFailedMigration(migrationInfo, totalTimeMillis);
         migrateResult.setSuccess(false);
 
-        final Event afterEach = migrationInfo.getType().isUndo() ? Event.AFTER_EACH_UNDO_ERROR : Event.AFTER_EACH_MIGRATE_ERROR;
-        callbackManager.handleEvent(afterEach,
-            database,
-            configuration,
-            context);
+        final Event afterEach = migrationInfo.getType().isUndo()
+            ? Event.AFTER_EACH_UNDO_ERROR
+            : Event.AFTER_EACH_MIGRATE_ERROR;
+        callbackManager.handleEvent(afterEach, database, configuration, context);
 
         if (executeInTransaction) {
             database.rollbackTransaction();
@@ -369,7 +367,11 @@ public class JdbcMigrator extends Migrator<NativeConnectorsJdbc> {
         if (sqlStatement == null) {
             throw new FlywayMigrateException(migrationInfo, e.getMessage(), executeInTransaction, migrateResult);
         } else {
-            final String message = calculateErrorMessage(e, migrationInfo, executor, sqlStatement, configuration.getCurrentEnvironmentName());
+            final String message = calculateErrorMessage(e,
+                migrationInfo,
+                executor,
+                sqlStatement,
+                configuration.getCurrentEnvironmentName());
             throw new FlywayMigrateException(migrationInfo,
                 configuration.isOutOfOrder(),
                 message,
@@ -386,7 +388,8 @@ public class JdbcMigrator extends Migrator<NativeConnectorsJdbc> {
         final SqlStatement sqlStatement,
         final String environment) {
 
-        final String title = ErrorUtils.getScriptExecutionErrorMessageTitle(Paths.get(migrationInfo.getScript()).getFileName(), environment);
+        final String title = ErrorUtils.getScriptExecutionErrorMessageTitle(Paths.get(migrationInfo.getScript())
+            .getFileName(), environment);
 
         String message = null;
         if (e.getCause() instanceof final SQLException sqlException) {

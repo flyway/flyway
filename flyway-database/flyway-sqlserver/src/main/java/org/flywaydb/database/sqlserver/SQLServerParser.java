@@ -31,19 +31,24 @@ import java.util.regex.Pattern;
 public class SQLServerParser extends Parser {
     // #2175, 2298, 2542: Various system sprocs, mostly around replication, cannot be executed within a transaction.
     // These procedures are only present in SQL Server. Not on Azure nor in PDW.
-    private static final List<String> SPROCS_INVALID_IN_TRANSACTIONS = Arrays.asList(
-            "SP_ADDSUBSCRIPTION", "SP_DROPSUBSCRIPTION",
-            "SP_ADDDISTRIBUTOR", "SP_DROPDISTRIBUTOR",
-            "SP_ADDDISTPUBLISHER", "SP_DROPDISTPUBLISHER",
-            "SP_ADDLINKEDSERVER", "SP_DROPLINKEDSERVER",
-            "SP_ADDLINKEDSRVLOGIN", "SP_DROPLINKEDSRVLOGIN",
-            "SP_SERVEROPTION", "SP_REPLICATIONDBOPTION",
-            "SP_FULLTEXT_DATABASE");
+    private static final List<String> SPROCS_INVALID_IN_TRANSACTIONS = Arrays.asList("SP_ADDSUBSCRIPTION",
+        "SP_DROPSUBSCRIPTION",
+        "SP_ADDDISTRIBUTOR",
+        "SP_DROPDISTRIBUTOR",
+        "SP_ADDDISTPUBLISHER",
+        "SP_DROPDISTPUBLISHER",
+        "SP_ADDLINKEDSERVER",
+        "SP_DROPLINKEDSERVER",
+        "SP_ADDLINKEDSRVLOGIN",
+        "SP_DROPLINKEDSRVLOGIN",
+        "SP_SERVEROPTION",
+        "SP_REPLICATIONDBOPTION",
+        "SP_FULLTEXT_DATABASE");
 
     private static final Pattern BEGIN_SINGLE_STATEMENT_REGEX = Pattern.compile("TRAN(SACTION)?|CONVERSATION|DIALOG");
     private static final Pattern TRANSACTION_REGEX = Pattern.compile("TRAN(SACTION)?");
 
-    public SQLServerParser(Configuration configuration, ParsingContext parsingContext) {
+    public SQLServerParser(final Configuration configuration, final ParsingContext parsingContext) {
         super(configuration, parsingContext, 3);
     }
 
@@ -53,30 +58,33 @@ public class SQLServerParser extends Parser {
     }
 
     @Override
-    protected boolean isDelimiter(String peek, ParserContext context, int col, int colIgnoringWhitespace) {
-        return peek.length() >= 2
-                && (peek.charAt(0) == 'G' || peek.charAt(0) == 'g')
-                && (peek.charAt(1) == 'O' || peek.charAt(1) == 'o')
-                && (peek.length() == 2 || Character.isWhitespace(peek.charAt(2)));
+    protected boolean isDelimiter(final String peek,
+        final ParserContext context,
+        final int col,
+        final int colIgnoringWhitespace) {
+        return peek.length() >= 2 && (peek.charAt(0) == 'G' || peek.charAt(0) == 'g') && (peek.charAt(1) == 'O'
+            || peek.charAt(1) == 'o') && (peek.length() == 2 || Character.isWhitespace(peek.charAt(2)));
     }
 
     @Override
-    protected String readKeyword(PeekingReader reader, Delimiter delimiter, ParserContext context) throws IOException {
+    protected String readKeyword(final PeekingReader reader, final Delimiter delimiter, final ParserContext context)
+        throws IOException {
         // #2414: Ignore delimiter as GO (unlike ;) can be part of a regular keyword
         return "" + (char) reader.read() + reader.readKeywordPart(null, context);
     }
 
     @Override
-    protected Boolean detectCanExecuteInTransaction(String simplifiedStatement, List<Token> keywords) {
+    protected Boolean detectCanExecuteInTransaction(final String simplifiedStatement, final List<Token> keywords) {
         if (keywords.size() == 0) {
             return null;
         }
 
-        Token currentToken = keywords.get(keywords.size() - 1);
-        String current = currentToken.getText();
+        final Token currentToken = keywords.get(keywords.size() - 1);
+        final String current = currentToken.getText();
 
-        if (currentToken.getType() != TokenType.IDENTIFIER &&
-                ("BACKUP".equals(current) || "RESTORE".equals(current) || "RECONFIGURE".equals(current))) {
+        if (currentToken.getType() != TokenType.IDENTIFIER && ("BACKUP".equals(current)
+            || "RESTORE".equals(current)
+            || "RECONFIGURE".equals(current))) {
             return false;
         }
 
@@ -84,15 +92,15 @@ public class SQLServerParser extends Parser {
             return null;
         }
 
-        String previous = keywords.get(keywords.size() - 2).getText();
+        final String previous = keywords.get(keywords.size() - 2).getText();
 
         if ("EXEC".equals(previous) && SPROCS_INVALID_IN_TRANSACTIONS.contains(current)) {
             return false;
         }
 
         // (CREATE|DROP|ALTER) (DATABASE|FULLTEXT (INDEX|CATALOG))
-        if (("CREATE".equals(previous) || "ALTER".equals(previous) || "DROP".equals(previous))
-                && ("DATABASE".equals(current) || "FULLTEXT".equals(current))) {
+        if (("CREATE".equals(previous) || "ALTER".equals(previous) || "DROP".equals(previous)) && ("DATABASE".equals(
+            current) || "FULLTEXT".equals(current))) {
             return false;
         }
 
@@ -100,8 +108,8 @@ public class SQLServerParser extends Parser {
     }
 
     @Override
-    protected boolean shouldAdjustBlockDepth(ParserContext context, List<Token> tokens, Token token) {
-        TokenType tokenType = token.getType();
+    protected boolean shouldAdjustBlockDepth(final ParserContext context, final List<Token> tokens, final Token token) {
+        final TokenType tokenType = token.getType();
         if (TokenType.DELIMITER.equals(tokenType) || ";".equals(token.getText())) {
             return true;
         } else if (TokenType.EOF.equals(tokenType)) {
@@ -112,31 +120,35 @@ public class SQLServerParser extends Parser {
     }
 
     @Override
-    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) throws IOException {
-        String keywordText = keyword.getText();
+    protected void adjustBlockDepth(final ParserContext context,
+        final List<Token> tokens,
+        final Token keyword,
+        final PeekingReader reader) throws IOException {
+        final String keywordText = keyword.getText();
 
         if ("BEGIN".equals(keywordText)) {
             context.increaseBlockDepth("");
         }
 
-        if (context.getBlockDepth() > 0 && ("END".equals(keywordText) ||
-                isSingleStatementBegin(tokens, keyword, keywordText) ||
-                isDistributedTransaction(tokens, keyword, keywordText))) {
+        if (context.getBlockDepth() > 0 && ("END".equals(keywordText) || isSingleStatementBegin(tokens,
+            keyword,
+            keywordText) || isDistributedTransaction(tokens, keyword, keywordText))) {
             context.decreaseBlockDepth();
         }
 
         super.adjustBlockDepth(context, tokens, keyword, reader);
     }
 
-    private boolean isSingleStatementBegin(List<Token> tokens, Token keyword, String keywordText) {
-        return keywordText != null && BEGIN_SINGLE_STATEMENT_REGEX.matcher(keywordText).matches() &&
-                lastTokenIs(tokens, keyword.getParensDepth(), "BEGIN");
+    private boolean isSingleStatementBegin(final List<Token> tokens, final Token keyword, final String keywordText) {
+        return keywordText != null && BEGIN_SINGLE_STATEMENT_REGEX.matcher(keywordText).matches() && lastTokenIs(tokens,
+            keyword.getParensDepth(),
+            "BEGIN");
     }
 
-    private boolean isDistributedTransaction(List<Token> tokens, Token keyword, String keywordText) {
-        return keywordText != null && TRANSACTION_REGEX.matcher(keywordText).matches() &&
-                lastTokenIs(tokens, keyword.getParensDepth(), "DISTRIBUTED") &&
-                tokenAtIndexIs(tokens, tokens.size() - 2, "BEGIN");
+    private boolean isDistributedTransaction(final List<Token> tokens, final Token keyword, final String keywordText) {
+        return keywordText != null && TRANSACTION_REGEX.matcher(keywordText).matches() && lastTokenIs(tokens,
+            keyword.getParensDepth(),
+            "DISTRIBUTED") && tokenAtIndexIs(tokens, tokens.size() - 2, "BEGIN");
     }
 
     @Override

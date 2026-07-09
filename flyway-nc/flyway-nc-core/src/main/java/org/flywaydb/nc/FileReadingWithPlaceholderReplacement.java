@@ -25,13 +25,15 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.parser.PlaceholderReplacingReader;
 
 public class FileReadingWithPlaceholderReplacement {
-    public static String readFile(final Configuration configuration, final ParsingContext parsingContext, final String physicalLocation, final Charset encoding) {
+    public static String readFile(final Configuration configuration,
+        final ParsingContext parsingContext,
+        final String physicalLocation,
+        final Charset encoding) {
         try {
             final PlaceholderReplacingReader reader = PlaceholderReplacingReader.create(configuration,
                 parsingContext,
