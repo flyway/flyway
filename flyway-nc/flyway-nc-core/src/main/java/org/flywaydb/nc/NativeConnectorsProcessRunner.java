@@ -89,8 +89,7 @@ public class NativeConnectorsProcessRunner {
     }
 
     private String getOutputFromStream(final InputStream inputStream) throws IOException {
-        return FileUtils.copyToString(new InputStreamReader(inputStream,
-            StandardCharsets.UTF_8)).strip();
+        return FileUtils.copyToString(new InputStreamReader(inputStream, StandardCharsets.UTF_8)).strip();
     }
 
     private String getOutputFromFile(final File file) throws IOException {
@@ -105,8 +104,12 @@ public class NativeConnectorsProcessRunner {
             if (!exited) {
                 throw new FlywayException(tool + " execution timeout. Consider using smaller migrations");
             }
-            final String stdOut = redirectOutput ? getOutputFromFile(processBuilder.redirectOutput().file()) : getOutputFromStream(process.getInputStream());
-            final String stdErr = redirectOutput ? getOutputFromFile(processBuilder.redirectError().file()) : getOutputFromStream(process.getErrorStream());
+            final String stdOut = redirectOutput
+                ? getOutputFromFile(processBuilder.redirectOutput().file())
+                : getOutputFromStream(process.getInputStream());
+            final String stdErr = redirectOutput
+                ? getOutputFromFile(processBuilder.redirectError().file())
+                : getOutputFromStream(process.getErrorStream());
 
             final int exitCode = process.exitValue();
 
@@ -128,7 +131,6 @@ public class NativeConnectorsProcessRunner {
                 }
                 throw new FlywayException(stdErr + " (ExitCode: " + exitCode + ")");
             }
-
         } catch (final FlywayException e) {
             throw e;
         } catch (final Exception e) {
@@ -145,9 +147,11 @@ public class NativeConnectorsProcessRunner {
                 return false;
             }
             if (DockerUtils.isContainer()) {
-                throw new FlywayException(
-                    tool + " is not installed on this docker image. Please use the " + tool + " docker image on our repository: "
-                        + FlywayDbWebsiteLinks.OSS_DOCKER_REPOSITORY);
+                throw new FlywayException(tool
+                    + " is not installed on this docker image. Please use the "
+                    + tool
+                    + " docker image on our repository: "
+                    + FlywayDbWebsiteLinks.OSS_DOCKER_REPOSITORY);
             }
             throw new FlywayException(errorMessage);
         }

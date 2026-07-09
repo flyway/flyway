@@ -27,16 +27,18 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public class MariaDBParser extends MySQLParser {
-    private static final Pattern BEGIN_NOT_ATOMIC_REGEX = Pattern.compile(
-            "^BEGIN\\sNOT\\sATOMIC\\s.*END", Pattern.CASE_INSENSITIVE);
+    private static final Pattern BEGIN_NOT_ATOMIC_REGEX = Pattern.compile("^BEGIN\\sNOT\\sATOMIC\\s.*END",
+        Pattern.CASE_INSENSITIVE);
     private static final StatementType BEGIN_NOT_ATOMIC_STATEMENT = new StatementType();
 
-    public MariaDBParser(Configuration configuration, ParsingContext parsingContext) {
+    public MariaDBParser(final Configuration configuration, final ParsingContext parsingContext) {
         super(configuration, parsingContext);
     }
 
     @Override
-    protected StatementType detectStatementType(String simplifiedStatement, ParserContext context, PeekingReader reader) {
+    protected StatementType detectStatementType(final String simplifiedStatement,
+        final ParserContext context,
+        final PeekingReader reader) {
         if (BEGIN_NOT_ATOMIC_REGEX.matcher(simplifiedStatement).matches()) {
             return BEGIN_NOT_ATOMIC_STATEMENT;
         }
@@ -45,15 +47,19 @@ public class MariaDBParser extends MySQLParser {
     }
 
     @Override
-    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) {
-        String keywordText = keyword.getText();
+    protected void adjustBlockDepth(final ParserContext context,
+        final List<Token> tokens,
+        final Token keyword,
+        final PeekingReader reader) {
+        final String keywordText = keyword.getText();
 
         if (lastTokenIs(tokens, context.getParensDepth(), "NOT") && "ATOMIC".equalsIgnoreCase(keywordText)) {
             context.increaseBlockDepth("");
         }
 
-        if (context.getBlockDepth() > 0 && context.getStatementType() == BEGIN_NOT_ATOMIC_STATEMENT &&
-                keywordText.equalsIgnoreCase("END")) {
+        if (context.getBlockDepth() > 0
+            && context.getStatementType() == BEGIN_NOT_ATOMIC_STATEMENT
+            && keywordText.equalsIgnoreCase("END")) {
             context.decreaseBlockDepth();
         }
 

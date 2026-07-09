@@ -23,7 +23,7 @@ public class BaselineResult extends OperationResultBase {
     public boolean successfullyBaselined;
     public String baselineVersion = null;
 
-    public BaselineResult(String flywayVersion, String database) {
+    public BaselineResult(final String flywayVersion, final String database) {
         this.flywayVersion = flywayVersion;
         this.database = database;
         this.operation = "baseline";

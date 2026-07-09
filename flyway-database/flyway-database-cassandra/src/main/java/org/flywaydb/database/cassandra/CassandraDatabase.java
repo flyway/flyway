@@ -32,17 +32,19 @@ import org.flywaydb.core.internal.util.StringUtils;
 
 public class CassandraDatabase extends Database<CassandraConnection> {
 
-    public CassandraDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+    public CassandraDatabase(final Configuration configuration,
+        final JdbcConnectionFactory jdbcConnectionFactory,
+        final StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
     @Override
-    protected CassandraConnection doGetConnection(java.sql.Connection connection) {
+    protected CassandraConnection doGetConnection(final java.sql.Connection connection) {
         return new CassandraConnection(this, connection);
     }
 
     @Override
-    public void ensureSupported(Configuration configuration) {
+    public void ensureSupported(final Configuration configuration) {
 
     }
 
@@ -71,90 +73,126 @@ public class CassandraDatabase extends Database<CassandraConnection> {
     }
 
     @Override
-    public String getRawCreateScript(Table table, boolean baseline) {
-        return "CREATE TABLE " + table + " (\n" +
-            "    installed_rank INT,\n" +
-            "    version VARCHAR,\n" +
-            "    partition VARCHAR,\n" +
-            "    description VARCHAR,\n" +
-            "    type VARCHAR,\n" +
-            "    script VARCHAR,\n" +
-            "    checksum INT,\n" +
-            "    installed_by VARCHAR,\n" +
-            "    installed_on TIMESTAMP,\n" +
-            "    execution_time INT,\n" +
-            "    success BOOLEAN,\n" +
-            "    PRIMARY KEY ((partition), installed_rank));\n" +
-            (baseline ? getBaselineStatement(table) + ";\n" : "") +
-            "CREATE INDEX \"" + table.getName() + "_s_idx\" ON " + table + " (\"success\");";
+    public String getRawCreateScript(final Table table, final boolean baseline) {
+        return "CREATE TABLE "
+            + table
+            + " (\n"
+            + "    installed_rank INT,\n"
+            + "    version VARCHAR,\n"
+            + "    partition VARCHAR,\n"
+            + "    description VARCHAR,\n"
+            + "    type VARCHAR,\n"
+            + "    script VARCHAR,\n"
+            + "    checksum INT,\n"
+            + "    installed_by VARCHAR,\n"
+            + "    installed_on TIMESTAMP,\n"
+            + "    execution_time INT,\n"
+            + "    success BOOLEAN,\n"
+            + "    PRIMARY KEY ((partition), installed_rank));\n"
+            + (baseline ? getBaselineStatement(table) + ";\n" : "")
+            + "CREATE INDEX \""
+            + table.getName()
+            + "_s_idx\" ON "
+            + table
+            + " (\"success\");";
     }
 
     @Override
-    public String getSelectStatement(Table table) {
-        return "SELECT " + quote("installed_rank")
-            + "," + quote("version")
-            + "," + quote("description")
-            + "," + quote("type")
-            + "," + quote("script")
-            + "," + quote("checksum")
-            + "," + quote("installed_on")
-            + "," + quote("installed_by")
-            + "," + quote("execution_time")
-            + "," + quote("success")
-            + " FROM " + table
-            + " WHERE " + quote("installed_rank") + " > ?"
+    public String getSelectStatement(final Table table) {
+        return "SELECT "
+            + quote("installed_rank")
+            + ","
+            + quote("version")
+            + ","
+            + quote("description")
+            + ","
+            + quote("type")
+            + ","
+            + quote("script")
+            + ","
+            + quote("checksum")
+            + ","
+            + quote("installed_on")
+            + ","
+            + quote("installed_by")
+            + ","
+            + quote("execution_time")
+            + ","
+            + quote("success")
+            + " FROM "
+            + table
+            + " WHERE "
+            + quote("installed_rank")
+            + " > ?"
             + " ALLOW FILTERING";
     }
 
     @Override
-    public String getInsertStatement(Table table) {
+    public String getInsertStatement(final Table table) {
         // Explicitly set installed_on to CURRENT_TIMESTAMP().
-        return "INSERT INTO " + table
-            + " (" + quote("installed_rank")
-            + ", " + quote("version")
-            + ", " + quote("partition")
-            + ", " + quote("description")
-            + ", " + quote("type")
-            + ", " + quote("script")
-            + ", " + quote("checksum")
-            + ", " + quote("installed_by")
-            + ", " + quote("installed_on")
-            + ", " + quote("execution_time")
-            + ", " + quote("success")
+        return "INSERT INTO "
+            + table
+            + " ("
+            + quote("installed_rank")
+            + ", "
+            + quote("version")
+            + ", "
+            + quote("partition")
+            + ", "
+            + quote("description")
+            + ", "
+            + quote("type")
+            + ", "
+            + quote("script")
+            + ", "
+            + quote("checksum")
+            + ", "
+            + quote("installed_by")
+            + ", "
+            + quote("installed_on")
+            + ", "
+            + quote("execution_time")
+            + ", "
+            + quote("success")
             + ")"
             + " VALUES (?, ?, 'flyway', ?, ?, ?, ?, ?, toTimestamp(now()), ?, ?)";
     }
 
-    public String getUpdateStatement(Table table) {
+    public String getUpdateStatement(final Table table) {
         return super.getUpdateStatement(table) + " and partition='flyway'";
     }
 
     public Set<String> getSystemSchemas() {
-        return Set.of("system", "system_auth", "system_schema", "system_distributed",
-            "system_traces", "system_views", "system_virtual_schema");
+        return Set.of("system",
+            "system_auth",
+            "system_schema",
+            "system_distributed",
+            "system_traces",
+            "system_views",
+            "system_virtual_schema");
     }
 
     @Override
-    public Pair<String, Object> getDeleteStatement(Table table, boolean version, String filter) {
+    public Pair<String, Object> getDeleteStatement(final Table table, final boolean version, final String filter) {
         try {
-            String selectStatement = "SELECT " + quote("installed_rank")
-                + " FROM " + table +
-                " WHERE " + quote("success") + " = " + getBooleanFalse() + " AND " +
-                (version ?
-                    quote("version") + " = ?" :
-                    quote("description") + " = ?") + " ALLOW FILTERING";
+            final String selectStatement = "SELECT " + quote("installed_rank") + " FROM " + table + " WHERE " + quote(
+                "success") + " = " + getBooleanFalse() + " AND " + (version
+                ? quote("version") + " = ?"
+                : quote("description") + " = ?") + " ALLOW FILTERING";
 
-            String installedRank = jdbcTemplate.queryForString(selectStatement, filter);
+            final String installedRank = jdbcTemplate.queryForString(selectStatement, filter);
 
             if (!StringUtils.hasText(installedRank)) {
                 return null;
             }
 
-            String deleteStatement = "DELETE FROM " + table + " WHERE partition='flyway' AND " + quote("installed_rank") + " = ?";
+            final String deleteStatement = "DELETE FROM " + table + " WHERE partition='flyway' AND " + quote(
+                "installed_rank") + " = ?";
 
             return Pair.of(deleteStatement, Integer.valueOf(installedRank));
         } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to repair Schema History table. Query statement failed due to " + e.getMessage(), e);
+            throw new FlywaySqlException("Unable to repair Schema History table. Query statement failed due to "
+                + e.getMessage(), e);
         }
     }
 }

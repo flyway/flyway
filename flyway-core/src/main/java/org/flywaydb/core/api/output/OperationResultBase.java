@@ -32,7 +32,7 @@ public abstract class OperationResultBase implements OperationResult {
         this.warnings = new LinkedList<>();
     }
 
-    public void addWarning(String warning) {
+    public void addWarning(final String warning) {
         warnings.add(warning);
     }
 }

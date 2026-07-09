@@ -34,17 +34,19 @@ public class FirebirdDatabase extends Database<FirebirdConnection> {
      *
      * @param configuration The Flyway configuration.
      */
-    public FirebirdDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+    public FirebirdDatabase(final Configuration configuration,
+        final JdbcConnectionFactory jdbcConnectionFactory,
+        final StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
     @Override
-    protected FirebirdConnection doGetConnection(Connection connection) {
+    protected FirebirdConnection doGetConnection(final Connection connection) {
         return new FirebirdConnection(this, connection);
     }
 
     @Override
-    public void ensureSupported(Configuration configuration) {
+    public void ensureSupported(final Configuration configuration) {
         ensureDatabaseIsRecentEnough("3.0");
     }
 
@@ -67,7 +69,7 @@ public class FirebirdDatabase extends Database<FirebirdConnection> {
     }
 
     @Override
-    public String doQuote(String identifier) {
+    public String doQuote(final String identifier) {
         return getOpenQuote() + identifier.replace(getCloseQuote(), getEscapedQuote()) + getCloseQuote();
     }
 
@@ -83,28 +85,34 @@ public class FirebirdDatabase extends Database<FirebirdConnection> {
     }
 
     @Override
-    public String getRawCreateScript(Table table, boolean baseline) {
-        String createScript = "CREATE TABLE " + table + " (\n" +
-                "    \"installed_rank\" INTEGER CONSTRAINT \"" + table.getName() + "_pk\" PRIMARY KEY,\n" +
-                "    \"version\" VARCHAR(50),\n" +
-                "    \"description\" VARCHAR(200) NOT NULL,\n" +
-                "    \"type\" VARCHAR(20) NOT NULL,\n" +
-                "    \"script\" VARCHAR(1000) NOT NULL,\n" +
-                "    \"checksum\" INTEGER,\n" +
-                "    \"installed_by\" VARCHAR(100) NOT NULL,\n" +
-                "    \"installed_on\" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,\n" +
-                "    \"execution_time\" INTEGER NOT NULL,\n" +
-                "    \"success\" SMALLINT NOT NULL\n" +
-                ");\n" +
-                "CREATE INDEX \"" + table.getName() + "_s_idx\" ON " + table + " (\"success\");\n";
+    public String getRawCreateScript(final Table table, final boolean baseline) {
+        String createScript = "CREATE TABLE "
+            + table
+            + " (\n"
+            + "    \"installed_rank\" INTEGER CONSTRAINT \""
+            + table.getName()
+            + "_pk\" PRIMARY KEY,\n"
+            + "    \"version\" VARCHAR(50),\n"
+            + "    \"description\" VARCHAR(200) NOT NULL,\n"
+            + "    \"type\" VARCHAR(20) NOT NULL,\n"
+            + "    \"script\" VARCHAR(1000) NOT NULL,\n"
+            + "    \"checksum\" INTEGER,\n"
+            + "    \"installed_by\" VARCHAR(100) NOT NULL,\n"
+            + "    \"installed_on\" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,\n"
+            + "    \"execution_time\" INTEGER NOT NULL,\n"
+            + "    \"success\" SMALLINT NOT NULL\n"
+            + ");\n"
+            + "CREATE INDEX \""
+            + table.getName()
+            + "_s_idx\" ON "
+            + table
+            + " (\"success\");\n";
 
         if (baseline) {
             // COMMIT RETAIN is needed to be able to insert into the created table.
             // This will commit the transaction, but reuse the transaction handle so the JDBC driver doesn't break with
             // an "invalid transaction handle" error.
-            createScript += "COMMIT RETAIN;\n" +
-                    getBaselineStatement(table) + ";\n";
-
+            createScript += "COMMIT RETAIN;\n" + getBaselineStatement(table) + ";\n";
         }
 
         return createScript;

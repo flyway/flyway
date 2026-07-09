@@ -29,8 +29,8 @@ public class EnvironmentVariableResolver implements PropertyResolver {
     }
 
     @Override
-    public String resolve(String key, PropertyResolverContext context, ProgressLogger progress) {
-        String result = System.getenv(key);
+    public String resolve(final String key, final PropertyResolverContext context, final ProgressLogger progress) {
+        final String result = System.getenv(key);
         if (result == null) {
             throw new FlywayException("Unable to resolve environment variable: '" + key + "'");
         }

@@ -37,10 +37,10 @@ public abstract class Schema<D extends Database, T extends Table> {
 
     /**
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database The database-specific support.
-     * @param name The name of the schema.
+     * @param database     The database-specific support.
+     * @param name         The name of the schema.
      */
-    public Schema(JdbcTemplate jdbcTemplate, D database, String name) {
+    public Schema(final JdbcTemplate jdbcTemplate, final D database, final String name) {
         this.jdbcTemplate = jdbcTemplate;
         this.database = database;
         this.name = name;
@@ -161,7 +161,7 @@ public abstract class Schema<D extends Database, T extends Table> {
         try {
             resultSet = database.jdbcMetaData.getUDTs(null, name, null, null);
 
-            List<Type> types = new ArrayList<>();
+            final List<Type> types = new ArrayList<>();
             while (resultSet.next()) {
                 types.add(getType(resultSet.getString("TYPE_NAME")));
             }
@@ -177,7 +177,7 @@ public abstract class Schema<D extends Database, T extends Table> {
     /**
      * Retrieves the type with this name in this schema.
      */
-    protected Type getType(String typeName) {
+    protected Type getType(final String typeName) {
         return null;
     }
 
@@ -189,7 +189,7 @@ public abstract class Schema<D extends Database, T extends Table> {
     /**
      * Retrieves the function with this name in this schema.
      */
-    public Function getFunction(String functionName, String... args) {
+    public Function getFunction(final String functionName, String... args) {
         throw new UnsupportedOperationException("getFunction()");
     }
 
@@ -222,7 +222,7 @@ public abstract class Schema<D extends Database, T extends Table> {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }
@@ -230,7 +230,7 @@ public abstract class Schema<D extends Database, T extends Table> {
             return false;
         }
 
-        Schema schema = (Schema) o;
+        final Schema schema = (Schema) o;
         return name.equals(schema.name);
     }
 

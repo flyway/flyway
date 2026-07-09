@@ -29,38 +29,38 @@ public class BufferedLog implements Log {
     private final List<BufferedLogMessage> bufferedLogMessages = Collections.synchronizedList(new ArrayList<>());
 
     @Override
-    public void debug(String message) {
+    public void debug(final String message) {
         bufferedLogMessages.add(new BufferedLogMessage(message, Level.DEBUG));
     }
 
     @Override
-    public void info(String message) {
+    public void info(final String message) {
         bufferedLogMessages.add(new BufferedLogMessage(message, Level.INFO));
     }
 
     @Override
-    public void warn(String message) {
+    public void warn(final String message) {
         bufferedLogMessages.add(new BufferedLogMessage(message, Level.WARN));
     }
 
     @Override
-    public void error(String message) {
+    public void error(final String message) {
         bufferedLogMessages.add(new BufferedLogMessage(message, Level.ERROR));
     }
 
     @Override
-    public void error(String message, Exception e) {
+    public void error(final String message, final Exception e) {
         bufferedLogMessages.add(new BufferedLogMessage(message, Level.ERROR, e));
     }
 
     @Override
-    public void notice(String message) {
+    public void notice(final String message) {
         bufferedLogMessages.add(new BufferedLogMessage(message, Level.NOTICE));
     }
 
-    public void flush(Log target) {
+    public void flush(final Log target) {
         synchronized (bufferedLogMessages) {
-            for (BufferedLog.BufferedLogMessage message : bufferedLogMessages) {
+            for (final BufferedLog.BufferedLogMessage message : bufferedLogMessages) {
                 switch (message.level) {
                     case DEBUG:
                         target.debug(message.message);
@@ -92,11 +92,11 @@ public class BufferedLog implements Log {
         public final Level level;
         public final Exception e;
 
-        public BufferedLogMessage(String message, Level level) {
+        public BufferedLogMessage(final String message, final Level level) {
             this(message, level, null);
         }
 
-        public BufferedLogMessage(String message, Level level, Exception e) {
+        public BufferedLogMessage(final String message, final Level level, final Exception e) {
             this.message = message;
             this.level = level;
             this.e = e;
@@ -104,6 +104,10 @@ public class BufferedLog implements Log {
     }
 
     public enum Level {
-        DEBUG, INFO, WARN, ERROR, NOTICE
+        DEBUG,
+        INFO,
+        WARN,
+        ERROR,
+        NOTICE
     }
 }

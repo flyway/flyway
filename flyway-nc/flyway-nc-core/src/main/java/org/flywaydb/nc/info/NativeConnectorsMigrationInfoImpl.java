@@ -38,7 +38,7 @@ public class NativeConnectorsMigrationInfoImpl implements LoadableMigrationInfo 
     private final MigrationState migrationState;
 
     public NativeConnectorsMigrationInfoImpl(final Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata> migration,
-        MigrationState migrationState) {
+        final MigrationState migrationState) {
         this.migration = migration;
         this.migrationState = migrationState;
     }

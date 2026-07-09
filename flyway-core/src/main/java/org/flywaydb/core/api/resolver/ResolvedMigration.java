@@ -34,7 +34,7 @@ public interface ResolvedMigration extends ChecksumMatcher {
      */
     MigrationVersion getVersion();
 
-    default boolean isVersioned()  {
+    default boolean isVersioned() {
         return getVersion() != null;
     }
 
@@ -44,7 +44,8 @@ public interface ResolvedMigration extends ChecksumMatcher {
     String getDescription();
 
     /**
-     * @return The name of the script to execute for this migration, relative to its base (classpath/filesystem) location.
+     * @return The name of the script to execute for this migration, relative to its base (classpath/filesystem)
+     * location.
      */
     String getScript();
 
@@ -59,7 +60,8 @@ public interface ResolvedMigration extends ChecksumMatcher {
     MigrationType getType();
 
     /**
-     * @return The physical location of the migration on disk. Used for more precise error reporting in case of conflict.
+     * @return The physical location of the migration on disk. Used for more precise error reporting in case of
+     * conflict.
      */
     String getPhysicalLocation();
 
@@ -68,15 +70,21 @@ public interface ResolvedMigration extends ChecksumMatcher {
      */
     MigrationExecutor getExecutor();
 
-    default MigrationState getState(MigrationInfoContext context) {
+    default MigrationState getState(final MigrationInfoContext context) {
         if (getVersion() != null) {
-            if (getVersion().compareTo(context.lastApplied == MigrationVersion.EMPTY ? context.pendingBaseline : context.appliedBaseline) < 0) {
+            if (getVersion().compareTo(context.lastApplied == MigrationVersion.EMPTY
+                ? context.pendingBaseline
+                : context.appliedBaseline) < 0) {
                 return MigrationState.BELOW_BASELINE;
             }
-            if (getVersion().compareTo(context.lastApplied == MigrationVersion.EMPTY ? context.pendingBaseline : context.appliedBaseline) == 0) {
+            if (getVersion().compareTo(context.lastApplied == MigrationVersion.EMPTY
+                ? context.pendingBaseline
+                : context.appliedBaseline) == 0) {
                 return MigrationState.BASELINE_IGNORED;
             }
-            if (context.target != null && context.target != MigrationVersion.NEXT && getVersion().compareTo(context.target) > 0) {
+            if (context.target != null
+                && context.target != MigrationVersion.NEXT
+                && getVersion().compareTo(context.target) > 0) {
                 return MigrationState.ABOVE_TARGET;
             }
             if ((getVersion().compareTo(context.lastApplied) < 0) && !context.outOfOrder) {
@@ -86,7 +94,7 @@ public interface ResolvedMigration extends ChecksumMatcher {
         return MigrationState.PENDING;
     }
 
-    default boolean canCompareWith(ResolvedMigration o) {
+    default boolean canCompareWith(final ResolvedMigration o) {
         return true;
     }
 }

@@ -32,7 +32,7 @@ import java.io.PrintStream;
 public class ColorizedConsoleLog implements Log {
     private final ConsoleLog log;
 
-    public static void install(boolean force) {
+    public static void install(final boolean force) {
         if (force) {
             System.setProperty("jansi.force", "true");
         }
@@ -41,7 +41,7 @@ public class ColorizedConsoleLog implements Log {
     }
 
     @Override
-    public void debug(String message) {
+    public void debug(final String message) {
         if (LogFactory.isDebugEnabled()) {
             colorizeBright(System.out, Color.BLACK);
             this.log.debug(message);
@@ -50,7 +50,7 @@ public class ColorizedConsoleLog implements Log {
     }
 
     @Override
-    public void info(String message) {
+    public void info(final String message) {
         if (!LogFactory.isQuietMode()) {
             if (message.startsWith("Successfully")) {
                 colorize(System.out, Color.GREEN);
@@ -63,42 +63,42 @@ public class ColorizedConsoleLog implements Log {
     }
 
     @Override
-    public void warn(String message) {
+    public void warn(final String message) {
         colorize(System.out, Color.YELLOW);
         this.log.warn(message);
         reset(System.out);
     }
 
     @Override
-    public void error(String message) {
+    public void error(final String message) {
         colorize(System.err, Color.RED);
         this.log.error(message);
         reset(System.err);
     }
 
     @Override
-    public void error(String message, Exception e) {
+    public void error(final String message, final Exception e) {
         colorize(System.err, Color.RED);
         this.log.error(message, e);
         reset(System.err);
     }
 
     @Override
-    public void notice(String message) {
+    public void notice(final String message) {
         colorize(System.out, Color.BLUE);
         this.log.notice(message);
         reset(System.out);
     }
 
-    private void colorize(PrintStream stream, Color color) {
+    private void colorize(final PrintStream stream, final Color color) {
         stream.print(Ansi.ansi().fg(color));
     }
 
-    private void colorizeBright(PrintStream stream, Color color) {
+    private void colorizeBright(final PrintStream stream, final Color color) {
         stream.print(Ansi.ansi().fgBright(color));
     }
 
-    private void reset(PrintStream stream) {
+    private void reset(final PrintStream stream) {
         stream.print(Ansi.ansi().reset());
     }
 }

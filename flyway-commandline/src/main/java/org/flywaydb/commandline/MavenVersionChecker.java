@@ -70,10 +70,9 @@ class MavenVersionChecker {
 
     private static final int CONNECT_TIMEOUT_MS = 1000;
     private static final int REQUEST_TIMEOUT_MS = 8000;
-    private static final String FLYWAY_URL =
-            isRedgate()
-                ? "https://download.red-gate.com/maven/release/com/redgate/flyway/flyway-core/maven-metadata.xml"
-                : "https://repo1.maven.org/maven2/org/flywaydb/flyway-core/maven-metadata.xml";
+    private static final String FLYWAY_URL = isRedgate()
+        ? "https://download.red-gate.com/maven/release/com/redgate/flyway/flyway-core/maven-metadata.xml"
+        : "https://repo1.maven.org/maven2/org/flywaydb/flyway-core/maven-metadata.xml";
 
     String checkForVersionUpdates() {
         try {
@@ -115,7 +114,7 @@ class MavenVersionChecker {
         String currentVersion = VersionPrinter.getVersion();
 
         // Extra suffixes in the current version may cause MigrationVersion parsing to fail
-        int idx = currentVersion.indexOf('-');
+        final int idx = currentVersion.indexOf('-');
         currentVersion = idx >= 0 ? currentVersion.substring(0, idx) : currentVersion;
 
         return MigrationVersion.fromVersion(currentVersion);

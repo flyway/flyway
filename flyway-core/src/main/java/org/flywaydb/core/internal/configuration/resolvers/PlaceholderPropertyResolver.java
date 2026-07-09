@@ -38,9 +38,10 @@ public class PlaceholderPropertyResolver implements PropertyResolver {
                 "Only user defined placeholders are supported, but detected attempt to use a default placeholder.",
                 CoreErrorCode.CONFIGURATION);
         }
-        return Optional.ofNullable(context.getConfiguration().getPlaceholders()).map(placeholders -> placeholders.get(
-            key)).orElseThrow(() -> new FlywayException("Unable to resolve placeholder: '" + key + "'",
-            CoreErrorCode.CONFIGURATION));
+        return Optional.ofNullable(context.getConfiguration().getPlaceholders())
+            .map(placeholders -> placeholders.get(key))
+            .orElseThrow(() -> new FlywayException("Unable to resolve placeholder: '" + key + "'",
+                CoreErrorCode.CONFIGURATION));
     }
 
     @Override

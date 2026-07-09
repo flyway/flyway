@@ -20,6 +20,7 @@
 package org.flywaydb.mcp;
 
 import java.io.PrintStream;
+import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.logging.Log;
 
@@ -44,7 +45,8 @@ public class McpServerStdErrLog implements Log {
     @Override
     public void error(final String message, final Exception e) {
         stream.println("[ERROR] " + message);
-        e.printStackTrace(stream);
+        stream.println("[ERROR] " + e.getClass().getName() + " stacktrace:");
+        Arrays.stream(e.getStackTrace()).forEach(x -> stream.println("[ERROR]  " + x));
     }
 
     @Override

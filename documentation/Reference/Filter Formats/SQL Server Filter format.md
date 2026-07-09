@@ -43,7 +43,7 @@ This expression will be evaluated against every difference returned as the resul
 If the expression evaluates to true and the `Include` node is set to true, the difference will be included, and if false, it will be filtered out.
 Conversely, if the expression evaluates to true and the `Include` node is set to false, the difference will be filtered out, and if false, it will be included. 
 
-The `None` entry determines what the default behaviour is, irrespective of object type.
+The `None` entry determines what the default behavior is, irrespective of object type.
 
 In the example above, `Table` objects will always be included, `User` objects will always be excluded, and all stored procedures will be included, with the exception of one named `dbo.getCustomerOrders`.
 

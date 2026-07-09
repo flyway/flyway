@@ -28,17 +28,19 @@ import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import java.sql.Connection;
 
 public class SQLiteDatabase extends Database<SQLiteConnection> {
-    public SQLiteDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+    public SQLiteDatabase(final Configuration configuration,
+        final JdbcConnectionFactory jdbcConnectionFactory,
+        final StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
     @Override
-    protected SQLiteConnection doGetConnection(Connection connection) {
+    protected SQLiteConnection doGetConnection(final Connection connection) {
         return new SQLiteConnection(this, connection);
     }
 
     @Override
-    public void ensureSupported(Configuration configuration) {
+    public void ensureSupported(final Configuration configuration) {
         // The minimum should really be 3.7.2. However the SQLite driver quality is really hit and miss, so we can't
         // reliably detect this.
         // #2221: Older versions of the Xerial JDBC driver misreport 3.x versions as being 3.0.
@@ -46,21 +48,29 @@ public class SQLiteDatabase extends Database<SQLiteConnection> {
     }
 
     @Override
-    public String getRawCreateScript(Table table, boolean baseline) {
-        return "CREATE TABLE " + table + " (\n" +
-                "    \"installed_rank\" INT NOT NULL PRIMARY KEY,\n" +
-                "    \"version\" VARCHAR(50),\n" +
-                "    \"description\" VARCHAR(200) NOT NULL,\n" +
-                "    \"type\" VARCHAR(20) NOT NULL,\n" +
-                "    \"script\" VARCHAR(1000) NOT NULL,\n" +
-                "    \"checksum\" INT,\n" +
-                "    \"installed_by\" VARCHAR(100) NOT NULL,\n" +
-                "    \"installed_on\" TEXT NOT NULL DEFAULT (strftime('%Y-%m-%d %H:%M:%f','now')),\n" +
-                "    \"execution_time\" INT NOT NULL,\n" +
-                "    \"success\" BOOLEAN NOT NULL\n" +
-                ");\n" +
-                (baseline ? getBaselineStatement(table) + ";\n" : "") +
-                "CREATE INDEX \"" + table.getSchema().getName() + "\".\"" + table.getName() + "_s_idx\" ON \"" + table.getName() + "\" (\"success\");";
+    public String getRawCreateScript(final Table table, final boolean baseline) {
+        return "CREATE TABLE "
+            + table
+            + " (\n"
+            + "    \"installed_rank\" INT NOT NULL PRIMARY KEY,\n"
+            + "    \"version\" VARCHAR(50),\n"
+            + "    \"description\" VARCHAR(200) NOT NULL,\n"
+            + "    \"type\" VARCHAR(20) NOT NULL,\n"
+            + "    \"script\" VARCHAR(1000) NOT NULL,\n"
+            + "    \"checksum\" INT,\n"
+            + "    \"installed_by\" VARCHAR(100) NOT NULL,\n"
+            + "    \"installed_on\" TEXT NOT NULL DEFAULT (strftime('%Y-%m-%d %H:%M:%f','now')),\n"
+            + "    \"execution_time\" INT NOT NULL,\n"
+            + "    \"success\" BOOLEAN NOT NULL\n"
+            + ");\n"
+            + (baseline ? getBaselineStatement(table) + ";\n" : "")
+            + "CREATE INDEX \""
+            + table.getSchema().getName()
+            + "\".\""
+            + table.getName()
+            + "_s_idx\" ON \""
+            + table.getName()
+            + "\" (\"success\");";
     }
 
     @Override

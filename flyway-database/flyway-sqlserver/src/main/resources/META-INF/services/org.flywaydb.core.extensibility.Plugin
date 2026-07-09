@@ -5,3 +5,4 @@ org.flywaydb.database.sqlserver.babelfish.BabelfishDatabaseType
 org.flywaydb.database.sqlserver.SQLServerConfigurationExtension
 org.flywaydb.clean.CleanModeCommandExtension
 org.flywaydb.clean.database.SQLServerCleanModePlugin
+org.flywaydb.database.sqlserver.SQLServerKerberosSupportStub

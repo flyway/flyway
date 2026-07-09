@@ -55,17 +55,18 @@ public class SqlScriptCallbackFactory<E extends CallbackEvent<E>> {
      *
      * @param resourceProvider The resource provider.
      * @param sqlScriptFactory The SQL statement factory.
-     * @param configuration The Flyway configuration.
+     * @param configuration    The Flyway configuration.
      */
     public SqlScriptCallbackFactory(final ResourceProvider resourceProvider,
-                                    final SqlScriptExecutorFactory sqlScriptExecutorFactory,
-                                    final SqlScriptFactory sqlScriptFactory,
-                                    final Configuration configuration,
-                                    final ParseCallbackEvent<E> parseCallbackEvent) {
+        final SqlScriptExecutorFactory sqlScriptExecutorFactory,
+        final SqlScriptFactory sqlScriptFactory,
+        final Configuration configuration,
+        final ParseCallbackEvent<E> parseCallbackEvent) {
         final Map<String, SqlScript> callbacksFound = new HashMap<>();
 
         LOG.debug("Scanning for SQL callbacks ...");
-        final Collection<LoadableResource> resources = resourceProvider.getResources("", configuration.getSqlMigrationSuffixes());
+        final Collection<LoadableResource> resources = resourceProvider.getResources("",
+            configuration.getSqlMigrationSuffixes());
         final ResourceNameParser resourceNameParser = new ResourceNameParser(configuration);
 
         for (final LoadableResource resource : resources) {
@@ -79,17 +80,28 @@ public class SqlScriptCallbackFactory<E extends CallbackEvent<E>> {
             if (maybeEvent.isPresent()) {
                 final SqlScript existing = callbacksFound.get(name);
                 if (existing != null) {
-                    throw new FlywayException("Found more than 1 SQL callback script called " + name + "!\n" +
-                                                      "Offenders:\n" +
-                                                      "-> " + existing.getResource().getAbsolutePathOnDisk() + "\n" +
-                                                      "-> " + resource.getAbsolutePathOnDisk());
+                    throw new FlywayException("Found more than 1 SQL callback script called "
+                        + name
+                        + "!\n"
+                        + "Offenders:\n"
+                        + "-> "
+                        + existing.getResource().getAbsolutePathOnDisk()
+                        + "\n"
+                        + "-> "
+                        + resource.getAbsolutePathOnDisk());
                 }
-                final SqlScript sqlScript = sqlScriptFactory.createSqlScript(resource, configuration.isMixed(), resourceProvider);
+                final SqlScript sqlScript = sqlScriptFactory.createSqlScript(resource,
+                    configuration.isMixed(),
+                    resourceProvider);
                 callbacksFound.put(name, sqlScript);
 
                 final boolean batch = configuration.isBatch();
 
-                callbacks.add(new SqlScriptCallback<>(maybeEvent.get(), parsedName.getDescription(), sqlScriptExecutorFactory, sqlScript, batch));
+                callbacks.add(new SqlScriptCallback<>(maybeEvent.get(),
+                    parsedName.getDescription(),
+                    sqlScriptExecutorFactory,
+                    sqlScript,
+                    batch));
             }
         }
         Collections.sort(callbacks);
@@ -100,7 +112,8 @@ public class SqlScriptCallbackFactory<E extends CallbackEvent<E>> {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static class SqlScriptCallback<E extends CallbackEvent<E>> implements GenericCallback<E>, Comparable<SqlScriptCallback<E>> {
+    private static class SqlScriptCallback<E extends CallbackEvent<E>> implements GenericCallback<E>,
+                                                                                  Comparable<SqlScriptCallback<E>> {
         private final E event;
         private final String description;
         private final SqlScriptExecutorFactory sqlScriptExecutorFactory;
@@ -120,17 +133,21 @@ public class SqlScriptCallbackFactory<E extends CallbackEvent<E>> {
         @Override
         public void handle(final E event, final Context context) {
             if (!sqlScript.shouldExecute()) {
-                LOG.debug("Not executing SQL callback: " + event.getId() + (description == null ? "" : " - " + description));
+                LOG.debug("Not executing SQL callback: " + event.getId() + (description == null
+                    ? ""
+                    : " - " + description));
                 return;
             }
 
-            LOG.info("Executing SQL callback: " + event.getId()
-                             + (description == null ? "" : " - " + description)
-                             + (sqlScript.executeInTransaction() ? "" : " [non-transactional]"));
+            LOG.info("Executing SQL callback: " + event.getId() + (description == null ? "" : " - " + description) + (
+                sqlScript.executeInTransaction()
+                    ? ""
+                    : " [non-transactional]"));
 
             final boolean outputQueryResults = context.getConfiguration().isOutputQueryResults();
 
-            sqlScriptExecutorFactory.createSqlScriptExecutor(context.getConnection(), false, batch, outputQueryResults).execute(sqlScript, context.getConfiguration());
+            sqlScriptExecutorFactory.createSqlScriptExecutor(context.getConnection(), false, batch, outputQueryResults)
+                .execute(sqlScript, context.getConfiguration());
         }
 
         @Override

@@ -28,21 +28,22 @@ import java.util.Map;
 public interface ConfigurationExtension extends Plugin {
     @JsonIgnore
     String getNamespace();
+
     @Deprecated
-    default void extractParametersFromConfiguration(Map<String, String> configuration) {
+    default void extractParametersFromConfiguration(final Map<String, String> configuration) {
         // Do nothing
     }
-    default String getConfigurationParameterFromEnvironmentVariable(String environmentVariable) {
+
+    default String getConfigurationParameterFromEnvironmentVariable(final String environmentVariable) {
         return null;
     }
 
     @Override
     default Plugin copy() {
-        ObjectMapper objectMapper = new ObjectMapper();
+        final ObjectMapper objectMapper = new ObjectMapper();
         try {
             return objectMapper.readValue(objectMapper.writeValueAsString(this), this.getClass());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new FlywayException(e);
         }
     }

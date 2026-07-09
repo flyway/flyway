@@ -23,7 +23,8 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.MigrationType;
 import org.flywaydb.core.extensibility.Plugin;
 
-public interface MigrationTypeResolver extends Plugin  {
+public interface MigrationTypeResolver extends Plugin {
     MigrationType resolveMigrationType(String filename, Configuration configuration);
+
     MigrationType resolveMigrationTypeFromName(String name, Configuration configuration);
 }

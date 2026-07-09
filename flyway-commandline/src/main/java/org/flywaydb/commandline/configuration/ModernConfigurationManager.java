@@ -308,11 +308,11 @@ public class ModernConfigurationManager implements ConfigurationManager {
                     if (value instanceof String s) {
                         field.set(model, context.resolveValue(s, new ProgressLoggerEmpty()));
                     } else if (value instanceof List<?> list) {
-                        field.set(model, new ArrayList<>(list.stream()
-                            .map(item -> item instanceof String str
-                                ? (Object) context.resolveValue(str, new ProgressLoggerEmpty())
-                                : item)
-                            .toList()));
+                        field.set(model,
+                            new ArrayList<>(list.stream()
+                                .map(item -> item instanceof String str ? (Object) context.resolveValue(str,
+                                    new ProgressLoggerEmpty()) : item)
+                                .toList()));
                     } else if (value instanceof Map<?, ?> map) {
                         final Map<String, Object> resolved = new HashMap<>();
                         map.forEach((k, v) -> resolved.put(String.valueOf(k),
@@ -326,7 +326,9 @@ public class ModernConfigurationManager implements ConfigurationManager {
         }
     }
 
-    private void configurePlugins(final ConfigurationModel config, final Configuration cfg, final boolean ignoreUnrecognizedParameters) {
+    private void configurePlugins(final ConfigurationModel config,
+        final Configuration cfg,
+        final boolean ignoreUnrecognizedParameters) {
         final List<String> configuredPluginParameters = new ArrayList<>();
         for (final ConfigurationExtension configurationExtension : cfg.getPluginRegister()
             .getInstancesOf(ConfigurationExtension.class)) {
@@ -579,7 +581,8 @@ public class ModernConfigurationManager implements ConfigurationManager {
             .allMatch(ex -> ex.getErrorCode() == CoreErrorCode.CONFIGURATION_RECOVERABLE);
 
         final FlywayException flywayException = allRecoverable
-            ? new ObsoleteConfigurationParametersException(exceptionMessage.toString(), mergeObsoleteParameters(configurationExceptions))
+            ? new ObsoleteConfigurationParametersException(exceptionMessage.toString(),
+            mergeObsoleteParameters(configurationExceptions))
             : new FlywayException(exceptionMessage.toString(), CoreErrorCode.CONFIGURATION);
         configurationExceptions.forEach(flywayException::addSuppressed);
         throw flywayException;
@@ -619,7 +622,10 @@ public class ModernConfigurationManager implements ConfigurationManager {
             final String namespace = entry.getKey();
             final List<String> unknownParams = entry.getValue();
             for (final String param : unknownParams) {
-                final UnknownParameterModel unknownParameterModel = resolveUnknownParameter(model, namespace, param, prefix);
+                final UnknownParameterModel unknownParameterModel = resolveUnknownParameter(model,
+                    namespace,
+                    param,
+                    prefix);
                 if (unknownParameterModel.kind() == Kind.UNKNOWN) {
                     errorCode = CoreErrorCode.CONFIGURATION;
                 } else {
@@ -646,7 +652,8 @@ public class ModernConfigurationManager implements ConfigurationManager {
                 ObsoleteParameter.Kind.REMOVED,
                 null,
                 unknownParameterModel.reason());
-            case UNKNOWN -> throw new IllegalStateException("UNKNOWN parameters should not be converted to ObsoleteParameter");
+            case UNKNOWN ->
+                throw new IllegalStateException("UNKNOWN parameters should not be converted to ObsoleteParameter");
         };
     }
 }

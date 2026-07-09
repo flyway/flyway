@@ -30,7 +30,7 @@ import java.sql.SQLException;
  * HSQLDB connection.
  */
 public class HSQLDBConnection extends Connection<HSQLDBDatabase> {
-    HSQLDBConnection(HSQLDBDatabase database, java.sql.Connection connection) {
+    HSQLDBConnection(final HSQLDBDatabase database, final java.sql.Connection connection) {
         super(database, connection);
     }
 
@@ -55,12 +55,12 @@ public class HSQLDBConnection extends Connection<HSQLDBDatabase> {
     }
 
     @Override
-    public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
+    public void doChangeCurrentSchemaOrSearchPathTo(final String schema) throws SQLException {
         jdbcTemplate.execute("SET SCHEMA " + database.quote(schema));
     }
 
     @Override
-    public Schema getSchema(String name) {
+    public Schema getSchema(final String name) {
         return new HSQLDBSchema(jdbcTemplate, database, name);
     }
 }

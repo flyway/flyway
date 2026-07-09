@@ -32,10 +32,11 @@ import java.util.List;
 @CustomLog
 @ExtensionMethod(Tier.class)
 public class LicenseGuard {
-    public static void guard(Configuration configuration, List<Tier> editions, String featureName) {
-        FlywayPermit flywayPermit = getPermit(configuration);
-        if ((flywayPermit.getPermitExpiry() != null && flywayPermit.getPermitExpiry().before(new Date())) ||
-                (flywayPermit.getContractExpiry() != null && flywayPermit.getContractExpiry().before(new Date()))) {
+    public static void guard(final Configuration configuration, final List<Tier> editions, final String featureName) {
+        final FlywayPermit flywayPermit = getPermit(configuration);
+        if ((flywayPermit.getPermitExpiry() != null && flywayPermit.getPermitExpiry().before(new Date())) || (
+            flywayPermit.getContractExpiry() != null
+                && flywayPermit.getContractExpiry().before(new Date()))) {
             if (flywayPermit.isTrial()) {
                 throw new FlywayTrialExpiredException(flywayPermit.getTier(), featureName);
             } else {
@@ -43,7 +44,7 @@ public class LicenseGuard {
             }
         }
 
-        for (Tier tier : editions) {
+        for (final Tier tier : editions) {
             if (flywayPermit.getTier() == tier) {
                 return;
             }
@@ -52,14 +53,15 @@ public class LicenseGuard {
         throw new FlywayEditionUpgradeRequiredException(flywayPermit.getTier(), featureName);
     }
 
-    public static boolean isLicensed(Configuration configuration, List<Tier> editions) {
-        FlywayPermit flywayPermit = getPermit(configuration);
-        if ((flywayPermit.getPermitExpiry() != null && flywayPermit.getPermitExpiry().before(new Date())) ||
-                (flywayPermit.getContractExpiry() != null && flywayPermit.getContractExpiry().before(new Date()))) {
+    public static boolean isLicensed(final Configuration configuration, final List<Tier> editions) {
+        final FlywayPermit flywayPermit = getPermit(configuration);
+        if ((flywayPermit.getPermitExpiry() != null && flywayPermit.getPermitExpiry().before(new Date())) || (
+            flywayPermit.getContractExpiry() != null
+                && flywayPermit.getContractExpiry().before(new Date()))) {
             return false;
         }
 
-        for (Tier tier : editions) {
+        for (final Tier tier : editions) {
             if (flywayPermit.getTier() == tier) {
                 return true;
             }
@@ -68,31 +70,37 @@ public class LicenseGuard {
         return false;
     }
 
-    public static void submitPur(Configuration configuration, String eventType, Database database) {
-        configuration.getPluginRegister().getInstanceOf(LicenseSupport.class).submitPur(configuration, eventType, database);
+    public static void submitPur(final Configuration configuration, final String eventType, final Database database) {
+        configuration.getPluginRegister()
+            .getInstanceOf(LicenseSupport.class)
+            .submitPur(configuration, eventType, database);
     }
 
-    public static FlywayPermit getPermit(Configuration configuration) {
+    public static FlywayPermit getPermit(final Configuration configuration) {
         return getPermit(configuration, true);
     }
 
-    public static FlywayPermit getPermitNoCache(Configuration configuration) {
+    public static FlywayPermit getPermitNoCache(final Configuration configuration) {
         return getPermit(configuration, false);
     }
 
-    public static Tier getTier(Configuration configuration) {
+    public static Tier getTier(final Configuration configuration) {
         return getPermit(configuration).getTier();
     }
 
-    public static String getTierAsString(Configuration configuration) {
+    public static String getTierAsString(final Configuration configuration) {
         return getPermit(configuration).getTier().asString();
     }
 
-    private static FlywayPermit getPermit(Configuration configuration, boolean fromCache) {
-        return configuration.getPluginRegister().getInstanceOf(LicenseSupport.class).getPermit(configuration, fromCache);
+    private static FlywayPermit getPermit(final Configuration configuration, final boolean fromCache) {
+        return configuration.getPluginRegister()
+            .getInstanceOf(LicenseSupport.class)
+            .getPermit(configuration, fromCache);
     }
 
-    public static List<String> consumeDeferredWarnings(Configuration configuration) {
-        return configuration.getPluginRegister().getInstanceOf(LicenseSupport.class).consumeDeferredWarnings(configuration);
+    public static List<String> consumeDeferredWarnings(final Configuration configuration) {
+        return configuration.getPluginRegister()
+            .getInstanceOf(LicenseSupport.class)
+            .consumeDeferredWarnings(configuration);
     }
 }

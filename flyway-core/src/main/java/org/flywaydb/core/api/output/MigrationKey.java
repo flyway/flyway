@@ -27,22 +27,22 @@ public class MigrationKey implements Comparable<MigrationKey> {
     public MigrationKey(final MigrationInfo migrationInfo) {
         value = createMigrationInfoKey(migrationInfo);
     }
-    
+
     @Override
     public int compareTo(final MigrationKey o) {
         return value.compareTo(o.value);
     }
-    
+
     @Override
     public boolean equals(final Object o) {
         return o instanceof MigrationKey && value.equals(((MigrationKey) o).value);
     }
-    
+
     @Override
     public int hashCode() {
         return value.hashCode();
     }
-    
+
     private String createMigrationInfoKey(final MigrationInfo migrationInfo) {
         if (migrationInfo.isVersioned()) {
             return migrationInfo.getVersion().toString();

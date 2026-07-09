@@ -33,38 +33,112 @@ public class BigQueryParser extends Parser {
     private static final String TRIPLE_STRING_LITERAL_SINGLE_QUOTE = "'''";
     private static final String TRIPLE_STRING_LITERAL_DOUBLE_QUOTE = "\"\"\"";
 
-    public BigQueryParser(Configuration configuration, ParsingContext parsingContext) {
+    public BigQueryParser(final Configuration configuration, final ParsingContext parsingContext) {
         super(configuration, parsingContext, 3);
     }
 
     @Override
     protected Set<String> getValidKeywords() {
         // https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#reserved_keywords
-        return new HashSet<>(Arrays.asList(
-                "ALL", "AND", "ANY", "ARRAY", "AS", "ASC", "ASSERT_ROWS_MODIFIED", "AT",
-                "BEGIN", "BETWEEN", "BY",
-                "CASE", "CAST", "COLLATE", "CONTAINS", "CREATE", "CROSS", "CUBE", "CURRENT",
-                "DEFAULT", "DEFINE", "DESC", "DISTINCT",
-                "ELSE", "END", "ENUM", "ESCAPE", "EXCEPT", "EXCLUDE", "EXISTS", "EXTRACT",
-                "FALSE", "FETCH", "FOLLOWING", "FOR", "FROM", "FULL",
-                "GROUP", "GROUPING", "GROUPS",
-                "HASH", "HAVING",
-                "IF", "IGNORE", "IN", "INNER",
-                "INTERSECT", "INTERVAL", "INTO", "IS",
-                "JOIN",
-                "LATERAL", "LEFT", "LIKE", "LIMIT", "LOOKUP", "LOOP",
-                "MERGE",
-                "NATURAL", "NEW", "NO",
-                "NOT", "NULL", "NULLS",
-                "OF", "ON", "OR",
-                "ORDER", "OUTER", "OVER",
-                "PARTITION", "PRECEDING", "PROTO",
-                "RANGE", "RECURSIVE", "RESPECT", "RIGHT", "ROLLUP", "ROWS",
-                "SELECT", "SET", "SOME", "STRUCT",
-                "TABLESAMPLE", "THEN", "TO", "TRANSACTION", "TREAT", "TRUE",
-                "UNBOUNDED", "UNION", "UNNEST", "USING",
-                "WHEN", "WHERE", "WHILE", "WINDOW", "WITH", "WITHIN"
-                                          ));
+        return new HashSet<>(Arrays.asList("ALL",
+            "AND",
+            "ANY",
+            "ARRAY",
+            "AS",
+            "ASC",
+            "ASSERT_ROWS_MODIFIED",
+            "AT",
+            "BEGIN",
+            "BETWEEN",
+            "BY",
+            "CASE",
+            "CAST",
+            "COLLATE",
+            "CONTAINS",
+            "CREATE",
+            "CROSS",
+            "CUBE",
+            "CURRENT",
+            "DEFAULT",
+            "DEFINE",
+            "DESC",
+            "DISTINCT",
+            "ELSE",
+            "END",
+            "ENUM",
+            "ESCAPE",
+            "EXCEPT",
+            "EXCLUDE",
+            "EXISTS",
+            "EXTRACT",
+            "FALSE",
+            "FETCH",
+            "FOLLOWING",
+            "FOR",
+            "FROM",
+            "FULL",
+            "GROUP",
+            "GROUPING",
+            "GROUPS",
+            "HASH",
+            "HAVING",
+            "IF",
+            "IGNORE",
+            "IN",
+            "INNER",
+            "INTERSECT",
+            "INTERVAL",
+            "INTO",
+            "IS",
+            "JOIN",
+            "LATERAL",
+            "LEFT",
+            "LIKE",
+            "LIMIT",
+            "LOOKUP",
+            "LOOP",
+            "MERGE",
+            "NATURAL",
+            "NEW",
+            "NO",
+            "NOT",
+            "NULL",
+            "NULLS",
+            "OF",
+            "ON",
+            "OR",
+            "ORDER",
+            "OUTER",
+            "OVER",
+            "PARTITION",
+            "PRECEDING",
+            "PROTO",
+            "RANGE",
+            "RECURSIVE",
+            "RESPECT",
+            "RIGHT",
+            "ROLLUP",
+            "ROWS",
+            "SELECT",
+            "SET",
+            "SOME",
+            "STRUCT",
+            "TABLESAMPLE",
+            "THEN",
+            "TO",
+            "TRANSACTION",
+            "TREAT",
+            "TRUE",
+            "UNBOUNDED",
+            "UNION",
+            "UNNEST",
+            "USING",
+            "WHEN",
+            "WHERE",
+            "WHILE",
+            "WINDOW",
+            "WITH",
+            "WITHIN"));
     }
 
     @Override
@@ -78,18 +152,21 @@ public class BigQueryParser extends Parser {
     }
 
     @Override
-    protected boolean isSingleLineComment(String peek, ParserContext context, int col) {
-        return super.isSingleLineComment(peek, context, col)
-                || peek.startsWith(ALTERNATIVE_SINGLE_LINE_COMMENT);
+    protected boolean isSingleLineComment(final String peek, final ParserContext context, final int col) {
+        return super.isSingleLineComment(peek, context, col) || peek.startsWith(ALTERNATIVE_SINGLE_LINE_COMMENT);
     }
 
     @Override
-    protected Boolean detectCanExecuteInTransaction(String simplifiedStatement, List<Token> keywords) {
+    protected Boolean detectCanExecuteInTransaction(final String simplifiedStatement, final List<Token> keywords) {
         return false;
     }
 
     @Override
-    protected Token handleStringLiteral(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
+    protected Token handleStringLiteral(final PeekingReader reader,
+        final ParserContext context,
+        final int pos,
+        final int line,
+        final int col) throws IOException {
         // BigQuery also supports ''' to quote string.
         handleAmbiguityStringLiteral(reader, '\'', TRIPLE_STRING_LITERAL_SINGLE_QUOTE);
         return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
@@ -97,13 +174,19 @@ public class BigQueryParser extends Parser {
 
     @SuppressWarnings("Duplicates")
     @Override
-    protected Token handleAlternativeStringLiteral(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
+    protected Token handleAlternativeStringLiteral(final PeekingReader reader,
+        final ParserContext context,
+        final int pos,
+        final int line,
+        final int col) throws IOException {
         // BigQuery also supports """ to quote string.
         handleAmbiguityStringLiteral(reader, '"', TRIPLE_STRING_LITERAL_DOUBLE_QUOTE);
         return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
     }
 
-    private void handleAmbiguityStringLiteral(PeekingReader reader, char singleQuote, String tripleQuote) throws IOException {
+    private void handleAmbiguityStringLiteral(final PeekingReader reader,
+        final char singleQuote,
+        final String tripleQuote) throws IOException {
         if (reader.peek(tripleQuote)) {
             reader.swallow(tripleQuote.length());
             reader.swallowUntilExcluding(tripleQuote);
@@ -115,13 +198,13 @@ public class BigQueryParser extends Parser {
     }
 
     @Override
-    protected boolean shouldAdjustBlockDepth(ParserContext context, List<Token> tokens, Token token) {
-        TokenType tokenType = token.getType();
+    protected boolean shouldAdjustBlockDepth(final ParserContext context, final List<Token> tokens, final Token token) {
+        final TokenType tokenType = token.getType();
         if (TokenType.EOF.equals(tokenType) || TokenType.DELIMITER.equals(tokenType) || ";".equals(token.getText())) {
             return true;
         }
 
-        Token lastToken = getPreviousToken(tokens, context.getParensDepth());
+        final Token lastToken = getPreviousToken(tokens, context.getParensDepth());
         if (lastToken != null && lastToken.getType() == TokenType.KEYWORD) {
             return true;
         }
@@ -130,32 +213,33 @@ public class BigQueryParser extends Parser {
     }
 
     @Override
-    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) {
-        String keywordText = keyword.getText();
-        int parensDepth = keyword.getParensDepth();
+    protected void adjustBlockDepth(final ParserContext context,
+        final List<Token> tokens,
+        final Token keyword,
+        final PeekingReader reader) {
+        final String keywordText = keyword.getText();
+        final int parensDepth = keyword.getParensDepth();
 
         if ("BEGIN".equalsIgnoreCase(keywordText)) {
             context.increaseBlockDepth(keywordText);
         }
 
-        if ("THEN".equalsIgnoreCase(keywordText) 
-            && !tokens.isEmpty() 
-            && tokens.stream().anyMatch(x -> "IF".equalsIgnoreCase(x.getText()))) {
+        if ("THEN".equalsIgnoreCase(keywordText) && !tokens.isEmpty() && tokens.stream()
+            .anyMatch(x -> "IF".equalsIgnoreCase(x.getText()))) {
             context.increaseBlockDepth(keywordText);
         }
 
-        if (lastTokenIs(tokens, parensDepth, "BEGIN") &&
-                ("TRANSACTION".equalsIgnoreCase(keywordText) || ";".equalsIgnoreCase(keywordText))
-                && context.getBlockDepth() > 0) {
+        if (lastTokenIs(tokens, parensDepth, "BEGIN") && ("TRANSACTION".equalsIgnoreCase(keywordText)
+            || ";".equalsIgnoreCase(keywordText)) && context.getBlockDepth() > 0) {
             context.decreaseBlockDepth();
         }
 
         if (lastTokenIs(tokens, parensDepth, "END")
-                && !"WHILE".equalsIgnoreCase(keywordText)
-                && !"LOOP".equalsIgnoreCase(keywordText)
-                && !"AS".equalsIgnoreCase(keywordText)
-                && !"CASE".equalsIgnoreCase(keywordText)
-                && context.getBlockDepth() > 0) {
+            && !"WHILE".equalsIgnoreCase(keywordText)
+            && !"LOOP".equalsIgnoreCase(keywordText)
+            && !"AS".equalsIgnoreCase(keywordText)
+            && !"CASE".equalsIgnoreCase(keywordText)
+            && context.getBlockDepth() > 0) {
             context.decreaseBlockDepth();
         }
     }

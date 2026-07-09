@@ -30,7 +30,7 @@ public class MavenLogCreator implements LogCreator {
 
     private final AbstractMojo mojo;
 
-    public Log createLogger(Class<?> clazz) {
+    public Log createLogger(final Class<?> clazz) {
         return new MavenLog(mojo.getLog());
     }
 }

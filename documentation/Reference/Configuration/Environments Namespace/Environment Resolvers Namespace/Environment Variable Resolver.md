@@ -9,7 +9,7 @@ This works consistently across all Flyway namespace parameters and environment p
 
 ### Flyway Desktop
 
-This can't be set in a config file via Flyway Desktop, although it will be honoured.
+This can't be set in a config file via Flyway Desktop, although it will be honored.
 
 ### TOML Configuration File
 

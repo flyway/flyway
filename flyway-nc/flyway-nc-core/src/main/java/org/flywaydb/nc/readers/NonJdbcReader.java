@@ -43,9 +43,9 @@ public class NonJdbcReader implements Reader<NonJdbcExecutorExecutionUnit> {
         final ParsingContext parsingContext,
         final LoadableResource loadableResource,
         final SqlScriptMetadata metadata) {
-        final Charset encoding = metadata != null && metadata.encoding() != null ?
-            Charset.forName(metadata.encoding()) :
-            configuration.getEncoding();
+        final Charset encoding = metadata != null && metadata.encoding() != null
+            ? Charset.forName(metadata.encoding())
+            : configuration.getEncoding();
         final String contextPath = getParentDir(loadableResource.getAbsolutePath());
 
         final BiFunction<Configuration, ParsingContext, Parser> parserFactory = database.getParser();
@@ -53,10 +53,7 @@ public class NonJdbcReader implements Reader<NonJdbcExecutorExecutionUnit> {
             final Parser parser = parserFactory.apply(configuration, parsingContext);
             final Iterable<SqlStatement> iterable = () -> parser.parse(loadableResource, metadata);
             return StreamSupport.stream(iterable.spliterator(), false)
-                .map(stmt -> new NonJdbcExecutorExecutionUnit(
-                    stmt.getSql(),
-                    contextPath,
-                    encoding));
+                .map(stmt -> new NonJdbcExecutorExecutionUnit(stmt.getSql(), contextPath, encoding));
         }
 
         final String content = FileReadingWithPlaceholderReplacement.readFile(configuration,

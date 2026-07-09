@@ -27,14 +27,14 @@ public class RecordingReader extends FilterReader {
     private boolean paused;
     private final Recorder recorder;
 
-    RecordingReader(Recorder recorder, Reader in) {
+    RecordingReader(final Recorder recorder, final Reader in) {
         super(in);
         this.recorder = recorder;
     }
 
     @Override
     public int read() throws IOException {
-        int read = super.read();
+        final int read = super.read();
         if (read != -1 && !paused) {
             recorder.record((char) read);
         }
@@ -42,7 +42,7 @@ public class RecordingReader extends FilterReader {
     }
 
     @Override
-    public void mark(int readAheadLimit) throws IOException {
+    public void mark(final int readAheadLimit) throws IOException {
         paused = true;
         super.mark(readAheadLimit);
     }

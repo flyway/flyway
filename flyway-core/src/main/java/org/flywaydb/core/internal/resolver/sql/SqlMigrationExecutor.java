@@ -19,10 +19,7 @@
  */
 package org.flywaydb.core.internal.resolver.sql;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.executor.Context;
 import org.flywaydb.core.api.executor.MigrationExecutor;
@@ -59,19 +56,23 @@ public class SqlMigrationExecutor implements MigrationExecutor {
 
     @Override
     public List<Results> execute(final Context context) throws SQLException {
-        DatabaseType databaseType = DatabaseTypeRegister.getDatabaseTypeForConnection(context.getConnection(), context.getConfiguration());
+        final DatabaseType databaseType = DatabaseTypeRegister.getDatabaseTypeForConnection(context.getConnection(),
+            context.getConfiguration());
 
-        DatabaseExecutionStrategy strategy = databaseType.createExecutionStrategy(context.getConnection());
+        final DatabaseExecutionStrategy strategy = databaseType.createExecutionStrategy(context.getConnection());
         return strategy.execute(() -> {
             return executeOnce(context);
         });
     }
 
-    private List<Results> executeOnce(Context context) {
+    private List<Results> executeOnce(final Context context) {
 
-        boolean outputQueryResults = context.getConfiguration().isOutputQueryResults();
+        final boolean outputQueryResults = context.getConfiguration().isOutputQueryResults();
 
-        var executorFactory = sqlScriptExecutorFactory.createSqlScriptExecutor(context.getConnection(), undo, batch, outputQueryResults);
+        final var executorFactory = sqlScriptExecutorFactory.createSqlScriptExecutor(context.getConnection(),
+            undo,
+            batch,
+            outputQueryResults);
         return executorFactory.execute(sqlScript, context.getConfiguration());
     }
 

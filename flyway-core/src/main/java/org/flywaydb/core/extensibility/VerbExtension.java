@@ -31,15 +31,15 @@ public interface VerbExtension extends CommandExtension<OperationResult> {
     String getCommand();
 
     @Override
-    default boolean handlesCommand(String command) {
+    default boolean handlesCommand(final String command) {
         return getCommand().equals(command);
     }
 
-    default boolean handlesParameter(String parameter) {
+    default boolean handlesParameter(final String parameter) {
         return false;
     }
 
-    default OperationResult handle(Configuration config, List<String> flags) throws FlywayException {
+    default OperationResult handle(final Configuration config, final List<String> flags) throws FlywayException {
         if (flags != null && !flags.isEmpty()) {
             throw new FlywayException("VerbExtension does not accept flags: " + flags);
         }

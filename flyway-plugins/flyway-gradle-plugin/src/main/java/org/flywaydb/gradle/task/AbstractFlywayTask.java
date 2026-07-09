@@ -819,14 +819,12 @@ public abstract class AbstractFlywayTask extends DefaultTask {
 
         if (extensionPluginConfiguration != null) {
             for (final String key : extensionPluginConfiguration.keySet()) {
-                conf.put("flyway." + key,
-                    extensionPluginConfiguration.get(key));
+                conf.put("flyway." + key, extensionPluginConfiguration.get(key));
             }
         }
         if (pluginConfiguration != null) {
             for (final String key : pluginConfiguration.keySet()) {
-                conf.put("flyway." + key,
-                    pluginConfiguration.get(key));
+                conf.put("flyway." + key, pluginConfiguration.get(key));
             }
         }
 
@@ -983,8 +981,8 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         }
 
         if (flywayProjectProperties.containsKey(ConfigUtils.CONFIG_FILES)) {
-            for (final String file : StringUtils.tokenizeToStringArray(
-                flywayProjectProperties.get(ConfigUtils.CONFIG_FILES), ",")) {
+            for (final String file : StringUtils.tokenizeToStringArray(flywayProjectProperties.get(ConfigUtils.CONFIG_FILES),
+                ",")) {
                 configFiles.add(toFile(workingDirectory, file));
             }
             return configFiles;

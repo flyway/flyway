@@ -37,10 +37,10 @@ public class DerbySchema extends Schema<DerbyDatabase, DerbyTable> {
      * Creates a new Derby schema.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database The database-specific support.
-     * @param name The name of the schema.
+     * @param database     The database-specific support.
+     * @param name         The name of the schema.
      */
-    public DerbySchema(JdbcTemplate jdbcTemplate, DerbyDatabase database, String name) {
+    public DerbySchema(final JdbcTemplate jdbcTemplate, final DerbyDatabase database, final String name) {
         super(jdbcTemplate, database, name);
     }
 
@@ -67,26 +67,26 @@ public class DerbySchema extends Schema<DerbyDatabase, DerbyTable> {
 
     @Override
     protected void doClean() throws SQLException {
-        List<String> triggerNames = listObjectNames("TRIGGER", "");
-        for (String statement : generateDropStatements("TRIGGER", triggerNames, "")) {
+        final List<String> triggerNames = listObjectNames("TRIGGER", "");
+        for (final String statement : generateDropStatements("TRIGGER", triggerNames, "")) {
             jdbcTemplate.execute(statement);
         }
 
-        for (String statement : generateDropStatementsForConstraints()) {
+        for (final String statement : generateDropStatementsForConstraints()) {
             jdbcTemplate.execute(statement);
         }
 
-        List<String> viewNames = listObjectNames("TABLE", "TABLETYPE='V'");
-        for (String statement : generateDropStatements("VIEW", viewNames, "")) {
+        final List<String> viewNames = listObjectNames("TABLE", "TABLETYPE='V'");
+        for (final String statement : generateDropStatements("VIEW", viewNames, "")) {
             jdbcTemplate.execute(statement);
         }
 
-        for (Table table : allTables()) {
+        for (final Table table : allTables()) {
             table.drop();
         }
 
-        List<String> sequenceNames = listObjectNames("SEQUENCE", "");
-        for (String statement : generateDropStatements("SEQUENCE", sequenceNames, "RESTRICT")) {
+        final List<String> sequenceNames = listObjectNames("SEQUENCE", "");
+        for (final String statement : generateDropStatements("SEQUENCE", sequenceNames, "RESTRICT")) {
             jdbcTemplate.execute(statement);
         }
     }
@@ -98,15 +98,19 @@ public class DerbySchema extends Schema<DerbyDatabase, DerbyTable> {
      * @throws SQLException when the statements could not be generated.
      */
     private List<String> generateDropStatementsForConstraints() throws SQLException {
-        List<Map<String, String>> results = jdbcTemplate.queryForList("SELECT c.constraintname, t.tablename FROM sys.sysconstraints c" +
-                                                                              " INNER JOIN sys.systables t ON c.tableid = t.tableid" +
-                                                                              " INNER JOIN sys.sysschemas s ON c.schemaid = s.schemaid" +
-                                                                              " WHERE c.type = 'F' AND s.schemaname = ?", name);
+        final List<Map<String, String>> results = jdbcTemplate.queryForList(
+            "SELECT c.constraintname, t.tablename FROM sys.sysconstraints c"
+                + " INNER JOIN sys.systables t ON c.tableid = t.tableid"
+                + " INNER JOIN sys.sysschemas s ON c.schemaid = s.schemaid"
+                + " WHERE c.type = 'F' AND s.schemaname = ?",
+            name);
 
-        List<String> statements = new ArrayList<>();
-        for (Map<String, String> result : results) {
-            String dropStatement = "ALTER TABLE " + database.quote(name, result.get("TABLENAME"))
-                    + " DROP CONSTRAINT " + database.quote(result.get("CONSTRAINTNAME"));
+        final List<String> statements = new ArrayList<>();
+        for (final Map<String, String> result : results) {
+            final String dropStatement = "ALTER TABLE "
+                + database.quote(name, result.get("TABLENAME"))
+                + " DROP CONSTRAINT "
+                + database.quote(result.get("CONSTRAINTNAME"));
 
             statements.add(dropStatement);
         }
@@ -116,16 +120,22 @@ public class DerbySchema extends Schema<DerbyDatabase, DerbyTable> {
     /**
      * Generate the statements for dropping all the objects of this type in this schema.
      *
-     * @param objectType The type of object to drop (Sequence, constant, ...)
-     * @param objectNames The names of the objects to drop.
+     * @param objectType          The type of object to drop (Sequence, constant, ...)
+     * @param objectNames         The names of the objects to drop.
      * @param dropStatementSuffix Suffix to append to the statement for dropping the objects.
      * @return The list of statements.
      */
-    private List<String> generateDropStatements(String objectType, List<String> objectNames, String dropStatementSuffix) {
-        List<String> statements = new ArrayList<>();
-        for (String objectName : objectNames) {
-            String dropStatement =
-                    "DROP " + objectType + " " + database.quote(name, objectName) + " " + dropStatementSuffix;
+    private List<String> generateDropStatements(final String objectType,
+        final List<String> objectNames,
+        final String dropStatementSuffix) {
+        final List<String> statements = new ArrayList<>();
+        for (final String objectName : objectNames) {
+            final String dropStatement = "DROP "
+                + objectType
+                + " "
+                + database.quote(name, objectName)
+                + " "
+                + dropStatementSuffix;
 
             statements.add(dropStatement);
         }
@@ -134,9 +144,9 @@ public class DerbySchema extends Schema<DerbyDatabase, DerbyTable> {
 
     @Override
     protected DerbyTable[] doAllTables() throws SQLException {
-        List<String> tableNames = listObjectNames("TABLE", "TABLETYPE='T'");
+        final List<String> tableNames = listObjectNames("TABLE", "TABLETYPE='T'");
 
-        DerbyTable[] tables = new DerbyTable[tableNames.size()];
+        final DerbyTable[] tables = new DerbyTable[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new DerbyTable(jdbcTemplate, database, this, tableNames.get(i));
         }
@@ -146,13 +156,17 @@ public class DerbySchema extends Schema<DerbyDatabase, DerbyTable> {
     /**
      * List the names of the objects of this type in this schema.
      *
-     * @param objectType The type of objects to list (Sequence, constant, ...)
+     * @param objectType  The type of objects to list (Sequence, constant, ...)
      * @param querySuffix Suffix to append to the query to find the objects to list.
      * @return The names of the objects.
      * @throws SQLException when the object names could not be listed.
      */
-    private List<String> listObjectNames(String objectType, String querySuffix) throws SQLException {
-        String query = "SELECT " + objectType + "name FROM sys.sys" + objectType + "s WHERE schemaid in (SELECT schemaid FROM sys.sysschemas where schemaname = ?)";
+    private List<String> listObjectNames(final String objectType, final String querySuffix) throws SQLException {
+        String query = "SELECT "
+            + objectType
+            + "name FROM sys.sys"
+            + objectType
+            + "s WHERE schemaid in (SELECT schemaid FROM sys.sysschemas where schemaname = ?)";
         if (StringUtils.hasLength(querySuffix)) {
             query += " AND " + querySuffix;
         }
@@ -161,7 +175,7 @@ public class DerbySchema extends Schema<DerbyDatabase, DerbyTable> {
     }
 
     @Override
-    public Table getTable(String tableName) {
+    public Table getTable(final String tableName) {
         return new DerbyTable(jdbcTemplate, database, this, tableName);
     }
 }

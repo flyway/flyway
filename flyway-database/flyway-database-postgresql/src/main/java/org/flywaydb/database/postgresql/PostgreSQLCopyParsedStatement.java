@@ -50,27 +50,33 @@ public class PostgreSQLCopyParsedStatement extends ParsedSqlStatement {
     /**
      * Creates a new PostgreSQL COPY ... FROM STDIN statement.
      */
-    public PostgreSQLCopyParsedStatement(int pos, int line, int col, String sql, String copyData) {
+    public PostgreSQLCopyParsedStatement(final int pos,
+        final int line,
+        final int col,
+        final String sql,
+        final String copyData) {
         super(pos, line, col, sql, COPY_DELIMITER, true, false);
         this.copyData = copyData;
     }
 
     @Override
-    public Results execute(JdbcTemplate jdbcTemplate, SqlScriptExecutor sqlScriptExecutor, Configuration config) {
+    public Results execute(final JdbcTemplate jdbcTemplate,
+        final SqlScriptExecutor sqlScriptExecutor,
+        final Configuration config) {
         // #2355: Use reflection to ensure this works in cases where the PostgreSQL driver classes were loaded in a
         //        child URLClassLoader instead of the system classloader.
         Object baseConnection;
         Object copyManager;
         Method copyManagerCopyInMethod;
         try {
-            Connection connection = jdbcTemplate.getConnection();
-            ClassLoader classLoader = connection.getClass().getClassLoader();
+            final Connection connection = jdbcTemplate.getConnection();
+            final ClassLoader classLoader = connection.getClass().getClassLoader();
 
-            Class<?> baseConnectionClass = classLoader.loadClass("org.postgresql.core.BaseConnection");
+            final Class<?> baseConnectionClass = classLoader.loadClass("org.postgresql.core.BaseConnection");
             baseConnection = connection.unwrap(baseConnectionClass);
 
-            Class<?> copyManagerClass = classLoader.loadClass("org.postgresql.copy.CopyManager");
-            Constructor<?> copyManagerConstructor = copyManagerClass.getConstructor(baseConnectionClass);
+            final Class<?> copyManagerClass = classLoader.loadClass("org.postgresql.copy.CopyManager");
+            final Constructor<?> copyManagerConstructor = copyManagerClass.getConstructor(baseConnectionClass);
             copyManagerCopyInMethod = copyManagerClass.getMethod("copyIn", String.class, Reader.class);
 
             copyManager = copyManagerConstructor.newInstance(baseConnection);
@@ -78,10 +84,12 @@ public class PostgreSQLCopyParsedStatement extends ParsedSqlStatement {
             throw new FlywayException("Unable to find PostgreSQL CopyManager class", e);
         }
 
-        Results results = new Results();
+        final Results results = new Results();
         try {
             try {
-                Long updateCount = (Long) copyManagerCopyInMethod.invoke(copyManager, getSql(), new StringReader(copyData));
+                final Long updateCount = (Long) copyManagerCopyInMethod.invoke(copyManager,
+                    getSql(),
+                    new StringReader(copyData));
                 results.addResult(new Result(updateCount, null, null, getSql()));
             } catch (IllegalAccessException | InvocationTargetException e) {
                 throw new SQLException("Unable to execute COPY operation", e);

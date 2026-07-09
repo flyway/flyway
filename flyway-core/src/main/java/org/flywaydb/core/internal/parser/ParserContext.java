@@ -33,7 +33,7 @@ public class ParserContext {
     private Delimiter delimiter;
     private StatementType statementType;
 
-    public ParserContext(Delimiter delimiter) {
+    public ParserContext(final Delimiter delimiter) {
         this.delimiter = delimiter;
     }
 
@@ -55,7 +55,7 @@ public class ParserContext {
         return lastClosedBlockInitiator;
     }
 
-    public void increaseBlockDepth(String blockInitiator) {
+    public void increaseBlockDepth(final String blockInitiator) {
         blockInitiators.push(blockInitiator);
         blockDepth++;
     }
@@ -80,7 +80,7 @@ public class ParserContext {
         return delimiter;
     }
 
-    public void setDelimiter(Delimiter delimiter) {
+    public void setDelimiter(final Delimiter delimiter) {
         this.delimiter = delimiter;
     }
 
@@ -88,14 +88,14 @@ public class ParserContext {
         return statementType;
     }
 
-    public void setStatementType(StatementType statementType) {
+    public void setStatementType(final StatementType statementType) {
         if (statementType == null) {
             throw new InvalidParameterException("statementType must be non-null");
         }
         this.statementType = statementType;
     }
 
-    public boolean isLetter(char c) {
+    public boolean isLetter(final char c) {
         if (Character.isLetter(c)) {
             return true;
         }

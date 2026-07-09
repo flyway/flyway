@@ -35,7 +35,7 @@ _note:_ If you want Flyway to pick up a default file then it needs to be named e
 
 ### Flyway Desktop
 
-This can't be set in a config file via Flyway Desktop, although it will be honoured, and it can be configured as an advanced parameter in operations on the Migrations page.
+This can't be set in a config file via Flyway Desktop, although it will be honored, and it can be configured as an advanced parameter in operations on the Migrations page.
 
 ### Command-line
 

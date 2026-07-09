@@ -43,18 +43,24 @@ import java.util.stream.Collectors;
 @CustomLog
 public class BaselineMigrationResolver implements MigrationResolver {
 
-    protected static boolean isSqlCallback(ResourceName result) {
+    protected static boolean isSqlCallback(final ResourceName result) {
         return Event.fromId(result.getPrefix()) != null;
     }
 
     @Override
-    public Collection<ResolvedMigration> resolveMigrations(Context context) {
-        List<ResolvedMigration> migrations = new ArrayList<>();
+    public Collection<ResolvedMigration> resolveMigrations(final Context context) {
+        final List<ResolvedMigration> migrations = new ArrayList<>();
 
-        BaselineMigrationConfigurationExtension configurationExtension = context.configuration.getPluginRegister().getExact(BaselineMigrationConfigurationExtension.class);
-        Configuration configuration = context.configuration;
+        final BaselineMigrationConfigurationExtension configurationExtension = context.configuration.getPluginRegister()
+            .getExact(BaselineMigrationConfigurationExtension.class);
+        final Configuration configuration = context.configuration;
 
-        addMigrations(migrations, configurationExtension.getBaselineMigrationPrefix(), configuration, context.resourceProvider, context.sqlScriptFactory, context.sqlScriptExecutorFactory);
+        addMigrations(migrations,
+            configurationExtension.getBaselineMigrationPrefix(),
+            configuration,
+            context.resourceProvider,
+            context.sqlScriptFactory,
+            context.sqlScriptExecutorFactory);
 
         migrations.sort(new ResolvedMigrationComparator());
         return migrations;
@@ -66,57 +72,63 @@ public class BaselineMigrationResolver implements MigrationResolver {
     }
 
     @Override
-    public String getPrefix(Configuration configuration) {
-        return configuration.getPluginRegister().getExact(BaselineMigrationConfigurationExtension.class).getBaselineMigrationPrefix();
+    public String getPrefix(final Configuration configuration) {
+        return configuration.getPluginRegister()
+            .getExact(BaselineMigrationConfigurationExtension.class)
+            .getBaselineMigrationPrefix();
     }
 
-    private void addMigrations(List<ResolvedMigration> migrations,
-                               String prefix,
-                               Configuration configuration,
-                               ResourceProvider resourceProvider,
-                               SqlScriptFactory sqlScriptFactory,
-                               SqlScriptExecutorFactory sqlScriptExecutorFactory) {
-        ResourceNameParser resourceNameParser = new ResourceNameParser(configuration);
+    private void addMigrations(final List<ResolvedMigration> migrations,
+        final String prefix,
+        final Configuration configuration,
+        final ResourceProvider resourceProvider,
+        final SqlScriptFactory sqlScriptFactory,
+        final SqlScriptExecutorFactory sqlScriptExecutorFactory) {
+        final ResourceNameParser resourceNameParser = new ResourceNameParser(configuration);
 
-        for (LoadableResource resource : resourceProvider.getResources(prefix, configuration.getSqlMigrationSuffixes())) {
-            String filename = resource.getFilename();
-            ResourceName result = resourceNameParser.parse(filename);
+        for (final LoadableResource resource : resourceProvider.getResources(prefix,
+            configuration.getSqlMigrationSuffixes())) {
+            final String filename = resource.getFilename();
+            final ResourceName result = resourceNameParser.parse(filename);
             if (!result.isValid() || isSqlCallback(result) || !prefix.equals(result.getPrefix())) {
                 continue;
             }
 
-            SqlScript sqlScript = sqlScriptFactory.createSqlScript(resource, configuration.isMixed(), resourceProvider);
+            final SqlScript sqlScript = sqlScriptFactory.createSqlScript(resource,
+                configuration.isMixed(),
+                resourceProvider);
 
-            List<LoadableResource> resources = new ArrayList<>();
+            final List<LoadableResource> resources = new ArrayList<>();
             resources.add(resource);
 
             if (sqlScript.includeReferencedScriptsInChecksum()) {
-                SortedSet<LoadableResource> referencedResources = new TreeSet<>();
-                for (SqlScript referencedSqlScript : sqlScript.getReferencedSqlScripts()) {
+                final SortedSet<LoadableResource> referencedResources = new TreeSet<>();
+                for (final SqlScript referencedSqlScript : sqlScript.getReferencedSqlScripts()) {
                     referencedResources.add(referencedSqlScript.getResource());
                 }
                 if (!referencedResources.isEmpty()) {
-                    LOG.debug("Calculating checksum for '" + filename + "' using the following referenced scripts: " +
-                        referencedResources.stream().map(Resource::getFilename).collect(Collectors.joining(",")));
+                    LOG.debug("Calculating checksum for '"
+                        + filename
+                        + "' using the following referenced scripts: "
+                        + referencedResources.stream().map(Resource::getFilename).collect(Collectors.joining(",")));
                 }
                 resources.addAll(referencedResources);
             }
 
-            Integer checksum = getChecksumForLoadableResource(resources);
+            final Integer checksum = getChecksumForLoadableResource(resources);
 
-            migrations.add(new BaselineResolvedMigration(
-                    result.getVersion(),
-                    result.getDescription(),
-                    resource.getRelativePath(),
-                    checksum,
-                    null,
-                    resource.getAbsolutePathOnDisk(),
-                    new SqlMigrationExecutor(sqlScriptExecutorFactory, sqlScript, false, configuration.isBatch()),
-                    configuration));
+            migrations.add(new BaselineResolvedMigration(result.getVersion(),
+                result.getDescription(),
+                resource.getRelativePath(),
+                checksum,
+                null,
+                resource.getAbsolutePathOnDisk(),
+                new SqlMigrationExecutor(sqlScriptExecutorFactory, sqlScript, false, configuration.isBatch()),
+                configuration));
         }
     }
 
-    private Integer getChecksumForLoadableResource(List<LoadableResource> loadableResources) {
+    private Integer getChecksumForLoadableResource(final List<LoadableResource> loadableResources) {
         return ChecksumCalculator.calculate(loadableResources.toArray(LoadableResource[]::new));
     }
 }

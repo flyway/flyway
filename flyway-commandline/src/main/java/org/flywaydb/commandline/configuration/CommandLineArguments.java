@@ -375,12 +375,12 @@ public class CommandLineArguments {
         return fileLocations == null
             ? new ArrayList<>()
             : Arrays.stream(fileLocations)
-              .filter(loadToml ? f -> f.endsWith(".toml") : f -> !f.endsWith(".toml"))
-              .map(File::new)
-              .map(file -> !file.isAbsolute() && workingDirectory != null
-                           ? new File(workingDirectory, file.getPath())
-                  : file)
-              .collect(Collectors.toList());
+                .filter(loadToml ? f -> f.endsWith(".toml") : f -> !f.endsWith(".toml"))
+                .map(File::new)
+                .map(file -> !file.isAbsolute() && workingDirectory != null
+                    ? new File(workingDirectory, file.getPath())
+                    : file)
+                .collect(Collectors.toList());
     }
 
     public String getOutputFile() {
@@ -472,7 +472,6 @@ public class CommandLineArguments {
 
     public boolean skipCheckForUpdate() {
         return isFlagSet(args, SKIP_CHECK_FOR_UPDATE_FLAG) || hasOperation(McpCommandExtension.MCP_VERB);
-
     }
 
     public Color getColor() {
@@ -497,8 +496,8 @@ public class CommandLineArguments {
             .collect(Collectors.toMap(p -> (Arrays.stream((EnvironmentModel.class).getDeclaredFields())
                 .anyMatch(x -> x.getName().equals(getConfigurationOptionNameFromArg(p))) && isModernConfig ?
                 "environments."
-                + ClassicConfiguration.TEMP_ENVIRONMENT_NAME
-                + "." : rootNamespaces.contains(getTopNamespaceFromArg(p)) ? "" : "flyway.")
+                    + ClassicConfiguration.TEMP_ENVIRONMENT_NAME
+                    + "." : rootNamespaces.contains(getTopNamespaceFromArg(p)) ? "" : "flyway.")
                 + getConfigurationOptionNameFromArg(p), CommandLineArguments::parseConfigurationOptionValueFromArg));
     }
 
@@ -550,7 +549,7 @@ public class CommandLineArguments {
     public boolean shouldIgnoreUnrecognizedParameters() {
         // The `init` command can update an existing TOML file to fix configuration errors.
         // Only allow this when `init` is run on its own; if it is chained with other commands, do not allow it.
-        List<String> operations = getOperations();
+        final List<String> operations = getOperations();
         return operations.contains("init") && operations.size() == 1;
     }
 

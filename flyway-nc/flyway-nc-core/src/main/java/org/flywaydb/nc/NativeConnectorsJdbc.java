@@ -120,16 +120,9 @@ public abstract class NativeConnectorsJdbc extends AbstractNativeConnectorsDatab
         final DatabaseVersion version = new DatabaseVersionImpl(JdbcUtils.getDatabaseVersion(databaseMetaData));
         final String databaseType = getDatabaseType();
 
-        final String databaseName = supportsCatalog() ? getCatalog()
-            : supportsSchema() ? getCurrentSchema() : null;
+        final String databaseName = supportsCatalog() ? getCatalog() : supportsSchema() ? getCurrentSchema() : null;
 
-
-        return new MetaData(databaseType,
-            productName,
-            version,
-            productVersion,
-            databaseName,
-            connectionType);
+        return new MetaData(databaseType, productName, version, productVersion, databaseName, connectionType);
     }
 
     @Override
@@ -180,7 +173,8 @@ public abstract class NativeConnectorsJdbc extends AbstractNativeConnectorsDatab
         return result;
     }
 
-    private void parseResults(boolean hasResults, final Statement statement, final boolean outputQueryResult) throws SQLException {
+    private void parseResults(boolean hasResults, final Statement statement, final boolean outputQueryResult)
+        throws SQLException {
         if (outputQueryResult) {
             while (hasResults || (statement.getUpdateCount()) != -1) {
                 final List<String> columns;
@@ -213,28 +207,40 @@ public abstract class NativeConnectorsJdbc extends AbstractNativeConnectorsDatab
 
     private void outputResult(final Result result) {
         if (result.columns() != null && !result.columns().isEmpty()) {
-            LOG.info(new AsciiTable(result.columns(), result.data(),
-                true, "", "No rows returned").render());
+            LOG.info(new AsciiTable(result.columns(), result.data(), true, "", "No rows returned").render());
         }
     }
 
     @Override
     public SchemaHistoryModel getSchemaHistoryModel(final String table) {
         try (final Statement statement = connection.createStatement()) {
-            final String querySql = "SELECT " + doQuote("installed_rank")
-                + ", " + doQuote("version")
-                + ", " + doQuote("description")
-                + ", " + doQuote("type")
-                + ", " + doQuote("script")
-                + ", " + doQuote("checksum")
-                + ", " + doQuote("installed_on")
-                + ", " + doQuote("installed_by")
-                + ", " + doQuote("execution_time")
-                + ", " + doQuote("success")
+            final String querySql = "SELECT "
+                + doQuote("installed_rank")
+                + ", "
+                + doQuote("version")
+                + ", "
+                + doQuote("description")
+                + ", "
+                + doQuote("type")
+                + ", "
+                + doQuote("script")
+                + ", "
+                + doQuote("checksum")
+                + ", "
+                + doQuote("installed_on")
+                + ", "
+                + doQuote("installed_by")
+                + ", "
+                + doQuote("execution_time")
+                + ", "
+                + doQuote("success")
                 + " FROM "
                 + getTableNameWithSchema(table)
-                + " WHERE "+ doQuote("installed_rank") + " >= 0"
-                + " ORDER BY " + doQuote("installed_rank");
+                + " WHERE "
+                + doQuote("installed_rank")
+                + " >= 0"
+                + " ORDER BY "
+                + doQuote("installed_rank");
             final ResultSet resultSet = statement.executeQuery(querySql);
             final ArrayList<SchemaHistoryItem> items = new ArrayList<>();
             while (resultSet.next()) {
@@ -263,16 +269,26 @@ public abstract class NativeConnectorsJdbc extends AbstractNativeConnectorsDatab
             final String createSql = "CREATE TABLE "
                 + getTableNameWithSchema(configuration.getTable())
                 + " (\n"
-                + doQuote("installed_rank") + " INT NOT NULL PRIMARY KEY,\n"
-                + doQuote("version") + " VARCHAR(50),\n"
-                + doQuote("description") + " VARCHAR(200) NOT NULL,\n"
-                + doQuote("type") + " VARCHAR(20) NOT NULL,\n"
-                + doQuote("script") + " VARCHAR(1000) NOT NULL,\n"
-                + doQuote("checksum") + " INT,\n"
-                + doQuote("installed_by") + " VARCHAR(100) NOT NULL,\n"
-                + doQuote("installed_on") + " TEXT NOT NULL DEFAULT (strftime('%Y-%m-%d %H:%M:%f','now')),\n"
-                + doQuote("execution_time") + " INT NOT NULL,\n"
-                + doQuote("success") + " BOOLEAN NOT NULL\n"
+                + doQuote("installed_rank")
+                + " INT NOT NULL PRIMARY KEY,\n"
+                + doQuote("version")
+                + " VARCHAR(50),\n"
+                + doQuote("description")
+                + " VARCHAR(200) NOT NULL,\n"
+                + doQuote("type")
+                + " VARCHAR(20) NOT NULL,\n"
+                + doQuote("script")
+                + " VARCHAR(1000) NOT NULL,\n"
+                + doQuote("checksum")
+                + " INT,\n"
+                + doQuote("installed_by")
+                + " VARCHAR(100) NOT NULL,\n"
+                + doQuote("installed_on")
+                + " TEXT NOT NULL DEFAULT (strftime('%Y-%m-%d %H:%M:%f','now')),\n"
+                + doQuote("execution_time")
+                + " INT NOT NULL,\n"
+                + doQuote("success")
+                + " BOOLEAN NOT NULL\n"
                 + " );\n";
             statement.executeUpdate(createSql);
         } catch (SQLException e) {
@@ -286,20 +302,18 @@ public abstract class NativeConnectorsJdbc extends AbstractNativeConnectorsDatab
             final StringBuilder insertSql = new StringBuilder().append("INSERT INTO ")
                 .append(getTableNameWithSchema(tableName))
                 .append(" (")
-                .append(doQuote("installed_rank")  + ", ")
+                .append(doQuote("installed_rank") + ", ")
                 .append(item.getVersion() == null ? "" : doQuote("version") + ", ")
-                .append(doQuote("description")  + ", ")
-                .append(doQuote("type")  + ", ")
-                .append(doQuote("script")  + ", ")
-                .append(doQuote("checksum")  + ", ")
-                .append(doQuote("installed_by")  + ", ")
-                .append(doQuote("execution_time")  + ", ")
+                .append(doQuote("description") + ", ")
+                .append(doQuote("type") + ", ")
+                .append(doQuote("script") + ", ")
+                .append(doQuote("checksum") + ", ")
+                .append(doQuote("installed_by") + ", ")
+                .append(doQuote("execution_time") + ", ")
                 .append(doQuote("success"))
                 .append(")");
 
-            insertSql.append(" VALUES (")
-                .append(item.getInstalledRank())
-                .append(", ");
+            insertSql.append(" VALUES (").append(item.getInstalledRank()).append(", ");
             if (item.getVersion() != null) {
                 insertSql.append("'").append(item.getVersion()).append("', ");
             }
@@ -331,7 +345,11 @@ public abstract class NativeConnectorsJdbc extends AbstractNativeConnectorsDatab
     public void removeFailedSchemaHistoryItems(final String tableName) {
         try {
             try (final Statement statement = connection.createStatement()) {
-                statement.execute("DELETE FROM " + getTableNameWithSchema(tableName) + " WHERE " + doQuote("success") + " = 0");
+                statement.execute("DELETE FROM "
+                    + getTableNameWithSchema(tableName)
+                    + " WHERE "
+                    + doQuote("success")
+                    + " = 0");
             }
         } catch (SQLException e) {
             throw new FlywayException(e);

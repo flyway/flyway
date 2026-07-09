@@ -29,7 +29,6 @@ import org.flywaydb.core.extensibility.AppliedMigration;
 import org.flywaydb.core.extensibility.MigrationType;
 import org.flywaydb.core.internal.info.MigrationInfoContext;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Objects;
 
@@ -47,16 +46,16 @@ public class BaseAppliedMigration implements AppliedMigration {
     protected int executionTime;
     protected boolean success;
 
-    public BaseAppliedMigration(int installedRank,
-                                MigrationVersion version,
-                                String description,
-                                String type,
-                                String script,
-                                Integer checksum,
-                                Date installedOn,
-                                String installedBy,
-                                int executionTime,
-                                boolean success) {
+    public BaseAppliedMigration(final int installedRank,
+        final MigrationVersion version,
+        final String description,
+        final String type,
+        final String script,
+        final Integer checksum,
+        final Date installedOn,
+        final String installedBy,
+        final int executionTime,
+        final boolean success) {
         this.installedRank = installedRank;
         this.version = version;
         this.description = description;
@@ -120,28 +119,42 @@ public class BaseAppliedMigration implements AppliedMigration {
     }
 
     @Override
-    public boolean handlesType(String type) {
-        return Arrays.stream(CoreMigrationType.values())
-                .map(Enum::toString)
-                .anyMatch(t -> t.equalsIgnoreCase(type));
+    public boolean handlesType(final String type) {
+        try {
+            CoreMigrationType.fromString(type.toUpperCase(java.util.Locale.ROOT));
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 
     @Override
-    public AppliedMigration create(int installedRank,
-                                   MigrationVersion version,
-                                   String description,
-                                   String type,
-                                   String script,
-                                   Integer checksum,
-                                   Date installedOn,
-                                   String installedBy,
-                                   int executionTime,
-                                   boolean success) {
-        return new BaseAppliedMigration(installedRank, version, description, type, script, checksum, installedOn, installedBy, executionTime, success);
+    public AppliedMigration create(final int installedRank,
+        final MigrationVersion version,
+        final String description,
+        final String type,
+        final String script,
+        final Integer checksum,
+        final Date installedOn,
+        final String installedBy,
+        final int executionTime,
+        final boolean success) {
+        return new BaseAppliedMigration(installedRank,
+            version,
+            description,
+            type,
+            script,
+            checksum,
+            installedOn,
+            installedBy,
+            executionTime,
+            success);
     }
 
     @Override
-    public MigrationState getState(MigrationInfoContext context, boolean outOfOrder, ResolvedMigration resolvedMigration) {
+    public MigrationState getState(final MigrationInfoContext context,
+        final boolean outOfOrder,
+        final ResolvedMigration resolvedMigration) {
         if (CoreMigrationType.DELETE == getType()) {
             return MigrationState.SUCCESS;
         }
@@ -150,12 +163,14 @@ public class BaseAppliedMigration implements AppliedMigration {
             return MigrationState.BASELINE;
         }
 
-        MigrationState missingState = getMissingState(context, resolvedMigration);
+        final MigrationState missingState = getMissingState(context, resolvedMigration);
         if (missingState != null) {
             return missingState;
         }
 
-        MigrationState cherryPickState = context.cherryPickSupport.getStateOverride(context.cherryPick, version, description);
+        final MigrationState cherryPickState = context.cherryPickSupport.getStateOverride(context.cherryPick,
+            version,
+            description);
         if (cherryPickState != null) {
             return cherryPickState;
         }
@@ -168,7 +183,7 @@ public class BaseAppliedMigration implements AppliedMigration {
             return MigrationState.SUCCESS;
         }
 
-        MigrationState repeatableState = getRepeatableState(context, resolvedMigration);
+        final MigrationState repeatableState = getRepeatableState(context, resolvedMigration);
         if (repeatableState != null) {
             return repeatableState;
         }
@@ -180,7 +195,8 @@ public class BaseAppliedMigration implements AppliedMigration {
         return MigrationState.SUCCESS;
     }
 
-    private MigrationState getRepeatableState(MigrationInfoContext context, ResolvedMigration resolvedMigration) {
+    private MigrationState getRepeatableState(final MigrationInfoContext context,
+        final ResolvedMigration resolvedMigration) {
         if (getVersion() == null) {
             if (getInstalledRank() == context.latestRepeatableRuns.get(getDescription())) {
                 if (resolvedMigration != null && resolvedMigration.checksumMatches(getChecksum())) {
@@ -193,9 +209,12 @@ public class BaseAppliedMigration implements AppliedMigration {
         return null;
     }
 
-    protected MigrationState getMissingState(MigrationInfoContext context, ResolvedMigration resolvedMigration) {
+    protected MigrationState getMissingState(final MigrationInfoContext context,
+        final ResolvedMigration resolvedMigration) {
         if (resolvedMigration == null && isRepeatableLatest(context)) {
-            MigrationState missingCherryPickState = context.cherryPickSupport.getStateOverride(context.cherryPick, version, description);
+            final MigrationState missingCherryPickState = context.cherryPickSupport.getStateOverride(context.cherryPick,
+                version,
+                description);
             if (missingCherryPickState != null) {
                 return missingCherryPickState;
             }
@@ -219,18 +238,18 @@ public class BaseAppliedMigration implements AppliedMigration {
         return null;
     }
 
-    private boolean isRepeatableLatest(MigrationInfoContext context) {
+    private boolean isRepeatableLatest(final MigrationInfoContext context) {
         if (getVersion() != null) {
             return true;
         }
 
-        Integer latestRepeatableRank = context.latestRepeatableRuns.get(getDescription());
+        final Integer latestRepeatableRank = context.latestRepeatableRuns.get(getDescription());
         return latestRepeatableRank == null || getInstalledRank() == latestRepeatableRank;
     }
 
     @SuppressWarnings("SimplifiableIfStatement")
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }
@@ -238,7 +257,7 @@ public class BaseAppliedMigration implements AppliedMigration {
             return false;
         }
 
-        BaseAppliedMigration that = (BaseAppliedMigration) o;
+        final BaseAppliedMigration that = (BaseAppliedMigration) o;
 
         if (executionTime != that.executionTime) {
             return false;

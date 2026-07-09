@@ -82,10 +82,8 @@ public final class PreparationContext implements Plugin {
 
             if (configuration.getCallbackLocations().length > 0) {
                 final Location[] callbackLocations = filterOutNonExistentCallbackLocations(configuration.getCallbackLocations());
-                final Future<Collection<LoadableResourceMetadata>> callbackResourcesFuture = CompletableFuture.supplyAsync(() -> VerbUtils.scanForResources(
-                    configuration,
-                    parsingContext,
-                    callbackLocations));
+                final Future<Collection<LoadableResourceMetadata>> callbackResourcesFuture = CompletableFuture.supplyAsync(
+                    () -> VerbUtils.scanForResources(configuration, parsingContext, callbackLocations));
 
                 callbackResources = (Collection<LoadableResourceMetadata>) getFromFuture(callbackResourcesFuture);
             } else {
@@ -93,9 +91,12 @@ public final class PreparationContext implements Plugin {
             }
 
             if (configuration.getInitSql() != null) {
-                throw new FlywayException("InitSql is not supported in Native Connectors. Please use the afterConnect callback instead");
+                throw new FlywayException(
+                    "InitSql is not supported in Native Connectors. Please use the afterConnect callback instead");
             }
-            final CallbackManager callbackManager = new CallbackManager(configuration, callbackResources, Event::fromId);
+            final CallbackManager callbackManager = new CallbackManager(configuration,
+                callbackResources,
+                Event::fromId);
             callbackManager.handleEvent(Event.AFTER_CONNECT, database, configuration, parsingContext);
 
             final CompletableFuture<SchemaHistoryModel> schemaHistoryModelFuture = CompletableFuture.supplyAsync(() -> VerbUtils.getSchemaHistoryModel(
@@ -104,8 +105,8 @@ public final class PreparationContext implements Plugin {
 
             schemaHistoryModel = (SchemaHistoryModel) getFromFuture(schemaHistoryModelFuture);
 
-            CompletableFuture.runAsync(() -> logNativeConnectorsDataTelemetry(getTelemetryManager(
-                configuration), database.getDatabaseMetaData()));
+            CompletableFuture.runAsync(() -> logNativeConnectorsDataTelemetry(getTelemetryManager(configuration),
+                database.getDatabaseMetaData()));
 
             cacheString = getCacheString(configuration);
 
@@ -158,16 +159,14 @@ public final class PreparationContext implements Plugin {
     }
 
     private static Location[] filterOutNonExistentCallbackLocations(final Location[] callbackLocations) {
-        return Arrays.stream(callbackLocations)
-            .filter(location -> {
-                if (CoreLocationPrefix.FILESYSTEM_PREFIX.equals(location.getPrefix())
-                    && !Files.exists(Path.of(location.getRootPath()))) {
-                    LOG.info("Skipping callback location " + location.getRootPath() + " as it does not exist");
-                    return false;
-                }
-                return true;
-            })
-            .toArray(Location[]::new);
+        return Arrays.stream(callbackLocations).filter(location -> {
+            if (CoreLocationPrefix.FILESYSTEM_PREFIX.equals(location.getPrefix())
+                && !Files.exists(Path.of(location.getRootPath()))) {
+                LOG.info("Skipping callback location " + location.getRootPath() + " as it does not exist");
+                return false;
+            }
+            return true;
+        }).toArray(Location[]::new);
     }
 
     private Object getFromFuture(final Future<?> future) {

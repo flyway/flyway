@@ -41,7 +41,8 @@ public class ReportsDeserializer extends ValueDeserializer<HtmlResult> {
         final JsonNode reportElement = ctxt.readTree(p);
         if (reportElement.has("operation")) {
             final String operation = reportElement.get("operation").asString();
-            @SuppressWarnings("unchecked") final List<HtmlResultDeserializer<HtmlResult>> deserializers = pluginRegister.getInstancesOf(
+            @SuppressWarnings("unchecked")
+            final List<HtmlResultDeserializer<HtmlResult>> deserializers = pluginRegister.getInstancesOf(
                 HtmlResultDeserializer.class).stream().map(x -> (HtmlResultDeserializer<HtmlResult>) x).toList();
             final HtmlResultDeserializer<HtmlResult> matchedDeserializer = deserializers.stream()
                 .filter(x -> x.operationKey().equals(operation))

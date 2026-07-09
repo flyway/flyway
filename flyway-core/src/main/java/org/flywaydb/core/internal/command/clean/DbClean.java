@@ -28,7 +28,6 @@ import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.CleanResult;
 import org.flywaydb.core.api.output.CommandResultFactory;
-import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.command.clean.CleanModel.Mode;
 import org.flywaydb.core.internal.database.base.Connection;
@@ -37,8 +36,6 @@ import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
-
-import java.util.Collections;
 
 @CustomLog
 public class DbClean {
@@ -50,7 +47,12 @@ public class DbClean {
     protected final CallbackExecutor<Event> callbackExecutor;
     protected final Configuration configuration;
 
-    public DbClean(Database database, SchemaHistory schemaHistory, Schema defaultSchema, Schema[] schemas, CallbackExecutor<Event> callbackExecutor, Configuration configuration) {
+    public DbClean(final Database database,
+        final SchemaHistory schemaHistory,
+        final Schema defaultSchema,
+        final Schema[] schemas,
+        final CallbackExecutor<Event> callbackExecutor,
+        final Configuration configuration) {
         this.schemaHistory = schemaHistory;
         this.defaultSchema = defaultSchema;
         this.schemas = schemas;
@@ -62,17 +64,20 @@ public class DbClean {
 
     public CleanResult clean() throws FlywayException {
         if (configuration.isCleanDisabled()) {
-            throw new FlywayException("Unable to execute clean as it has been disabled with the 'flyway.cleanDisabled' property.");
+            throw new FlywayException(
+                "Unable to execute clean as it has been disabled with the 'flyway.cleanDisabled' property.");
         }
 
         callbackExecutor.onEvent(Event.BEFORE_CLEAN);
 
-        String command = toCommand(ConfigUtils.getCleanModel(configuration).getMode());
+        final String command = toCommand(ConfigUtils.getCleanModel(configuration).getMode());
         CleanResult cleanResult;
 
         if ("clean".equals(command)) {
             cleanResult = CommandResultFactory.createCleanResult(database.getCatalog());
-            new CleanExecutor(connection, database, schemaHistory, callbackExecutor).clean(defaultSchema, schemas, cleanResult);
+            new CleanExecutor(connection, database, schemaHistory, callbackExecutor).clean(defaultSchema,
+                schemas,
+                cleanResult);
         } else {
             cleanResult = (CleanResult) runCommandExtension(configuration, command, new ArrayList<>());
         }
@@ -84,9 +89,9 @@ public class DbClean {
         return cleanResult;
     }
 
-    public static String toCommand(String mode) {
-        if(!StringUtils.hasText(mode)) {
-            return  "clean";
+    public static String toCommand(final String mode) {
+        if (!StringUtils.hasText(mode)) {
+            return "clean";
         }
 
         try {

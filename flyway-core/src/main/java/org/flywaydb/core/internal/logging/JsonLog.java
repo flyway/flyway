@@ -26,22 +26,22 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.util.JsonUtils;
 
-
 public class JsonLog implements Log {
     private JsonMapper mapper;
 
     private JsonMapper getJsonMapper() {
         if (mapper == null) {
-            mapper = JsonUtils.getJsonMapper().rebuild()
+            mapper = JsonUtils.getJsonMapper()
+                .rebuild()
                 .disable(tools.jackson.databind.SerializationFeature.INDENT_OUTPUT)
                 .build();
         }
         return mapper;
     }
 
-    private void write(String message, LogLevel level) throws JacksonException {
-        String[] lines = message.split("\n");
-        for (String line : lines) {
+    private void write(final String message, final LogLevel level) throws JacksonException {
+        final String[] lines = message.split("\n");
+        for (final String line : lines) {
             System.err.println(getJsonMapper().writeValueAsString(new JsonLogModel(level, line)));
         }
     }

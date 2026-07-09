@@ -22,7 +22,6 @@ package org.flywaydb.database.snowflake;
 import static org.flywaydb.core.internal.database.base.DatabaseConstants.DATABASE_HOSTING_AWS_SNOWFLAKE;
 import static org.flywaydb.core.internal.database.base.DatabaseConstants.DATABASE_HOSTING_AZURE_SNOWFLAKE;
 import static org.flywaydb.core.internal.database.base.DatabaseConstants.DATABASE_HOSTING_GCP_SNOWFLAKE;
-import static org.flywaydb.core.internal.database.base.DatabaseConstants.DATABASE_HOSTING_LOCAL;
 
 import lombok.CustomLog;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -48,7 +47,9 @@ public class SnowflakeDatabase extends Database<SnowflakeConnection> {
      */
     private final boolean quotedIdentifiersIgnoreCase;
 
-    public SnowflakeDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+    public SnowflakeDatabase(final Configuration configuration,
+        final JdbcConnectionFactory jdbcConnectionFactory,
+        final StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
 
         // There will be issues if the Flyway schema history table was created while this option was set false
@@ -57,11 +58,12 @@ public class SnowflakeDatabase extends Database<SnowflakeConnection> {
         LOG.info("QUOTED_IDENTIFIERS_IGNORE_CASE option is " + quotedIdentifiersIgnoreCase);
     }
 
-    private static boolean getQuotedIdentifiersIgnoreCase(JdbcTemplate jdbcTemplate) {
+    private static boolean getQuotedIdentifiersIgnoreCase(final JdbcTemplate jdbcTemplate) {
         try {
             // Attempt query
-            List<Map<String, String>> result = jdbcTemplate.queryForList("SHOW PARAMETERS LIKE 'QUOTED_IDENTIFIERS_IGNORE_CASE'");
-            Map<String, String> row = result.get(0);
+            final List<Map<String, String>> result = jdbcTemplate.queryForList(
+                "SHOW PARAMETERS LIKE 'QUOTED_IDENTIFIERS_IGNORE_CASE'");
+            final Map<String, String> row = result.get(0);
             return "TRUE".equals(row.get("value").toUpperCase(Locale.ENGLISH));
         } catch (SQLException e) {
             LOG.warn("Could not query for parameter QUOTED_IDENTIFIERS_IGNORE_CASE.");
@@ -70,12 +72,12 @@ public class SnowflakeDatabase extends Database<SnowflakeConnection> {
     }
 
     @Override
-    protected SnowflakeConnection doGetConnection(Connection connection) {
+    protected SnowflakeConnection doGetConnection(final Connection connection) {
         return new SnowflakeConnection(this, connection);
     }
 
     @Override
-    public void ensureSupported(Configuration configuration) {
+    public void ensureSupported(final Configuration configuration) {
         ensureDatabaseIsRecentEnough("3.0");
 
         ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("3", Tier.PREMIUM, configuration);
@@ -84,60 +86,99 @@ public class SnowflakeDatabase extends Database<SnowflakeConnection> {
     }
 
     @Override
-    public String getRawCreateScript(Table table, boolean baseline) {
+    public String getRawCreateScript(final Table table, final boolean baseline) {
         // CAUTION: Quotes are optional around column names without underscores; but without them, Snowflake will
         // uppercase the column name leading to SELECTs failing.
-        return "CREATE TABLE " + table + " (\n" +
-                quote("installed_rank") + " NUMBER(38,0) NOT NULL,\n" +
-                quote("version") + " VARCHAR(50),\n" +
-                quote("description") + " VARCHAR(200),\n" +
-                quote("type") + " VARCHAR(20) NOT NULL,\n" +
-                quote("script") + " VARCHAR(1000) NOT NULL,\n" +
-                quote("checksum") + " NUMBER(38,0),\n" +
-                quote("installed_by") + " VARCHAR(100) NOT NULL,\n" +
-                quote("installed_on") + " TIMESTAMP_LTZ(9) NOT NULL DEFAULT CURRENT_TIMESTAMP(),\n" +
-                quote("execution_time") + " NUMBER(38,0) NOT NULL,\n" +
-                quote("success") + " BOOLEAN NOT NULL,\n" +
-                "primary key (" + quote("installed_rank") + "));\n" +
+        return "CREATE TABLE "
+            + table
+            + " (\n"
+            + quote("installed_rank")
+            + " NUMBER(38,0) NOT NULL,\n"
+            + quote("version")
+            + " VARCHAR(50),\n"
+            + quote("description")
+            + " VARCHAR(200),\n"
+            + quote("type")
+            + " VARCHAR(20) NOT NULL,\n"
+            + quote("script")
+            + " VARCHAR(1000) NOT NULL,\n"
+            + quote("checksum")
+            + " NUMBER(38,0),\n"
+            + quote("installed_by")
+            + " VARCHAR(100) NOT NULL,\n"
+            + quote("installed_on")
+            + " TIMESTAMP_LTZ(9) NOT NULL DEFAULT CURRENT_TIMESTAMP(),\n"
+            + quote("execution_time")
+            + " NUMBER(38,0) NOT NULL,\n"
+            + quote("success")
+            + " BOOLEAN NOT NULL,\n"
+            + "primary key ("
+            + quote("installed_rank")
+            + "));\n"
+            +
 
-                (baseline ? getBaselineStatement(table) + ";\n" : "");
+            (baseline ? getBaselineStatement(table) + ";\n" : "");
     }
 
     @Override
-    public String getSelectStatement(Table table) {
+    public String getSelectStatement(final Table table) {
         // CAUTION: Quotes are optional around column names without underscores; but without them, Snowflake will
         // uppercase the column name. In data readers, the column name is case sensitive.
-        return "SELECT " + quote("installed_rank")
-                + "," + quote("version")
-                + "," + quote("description")
-                + "," + quote("type")
-                + "," + quote("script")
-                + "," + quote("checksum")
-                + "," + quote("installed_on")
-                + "," + quote("installed_by")
-                + "," + quote("execution_time")
-                + "," + quote("success")
-                + " FROM " + table
-                + " WHERE " + quote("installed_rank") + " > ?"
-                + " ORDER BY " + quote("installed_rank");
+        return "SELECT "
+            + quote("installed_rank")
+            + ","
+            + quote("version")
+            + ","
+            + quote("description")
+            + ","
+            + quote("type")
+            + ","
+            + quote("script")
+            + ","
+            + quote("checksum")
+            + ","
+            + quote("installed_on")
+            + ","
+            + quote("installed_by")
+            + ","
+            + quote("execution_time")
+            + ","
+            + quote("success")
+            + " FROM "
+            + table
+            + " WHERE "
+            + quote("installed_rank")
+            + " > ?"
+            + " ORDER BY "
+            + quote("installed_rank");
     }
 
     @Override
-    public String getInsertStatement(Table table) {
+    public String getInsertStatement(final Table table) {
         // CAUTION: Quotes are optional around column names without underscores; but without them, Snowflake will
         // uppercase the column name.
-        return "INSERT INTO " + table
-                + " (" + quote("installed_rank")
-                + ", " + quote("version")
-                + ", " + quote("description")
-                + ", " + quote("type")
-                + ", " + quote("script")
-                + ", " + quote("checksum")
-                + ", " + quote("installed_by")
-                + ", " + quote("execution_time")
-                + ", " + quote("success")
-                + ")"
-                + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        return "INSERT INTO "
+            + table
+            + " ("
+            + quote("installed_rank")
+            + ", "
+            + quote("version")
+            + ", "
+            + quote("description")
+            + ", "
+            + quote("type")
+            + ", "
+            + quote("script")
+            + ", "
+            + quote("checksum")
+            + ", "
+            + quote("installed_by")
+            + ", "
+            + quote("execution_time")
+            + ", "
+            + quote("success")
+            + ")"
+            + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     }
 
     @Override
@@ -162,7 +203,7 @@ public class SnowflakeDatabase extends Database<SnowflakeConnection> {
 
     @Override
     public String getDatabaseHosting() {
-        String url = configuration.getUrl();
+        final String url = configuration.getUrl();
 
         if (url.contains("azure.snowflakecomputing.com")) {
             return DATABASE_HOSTING_AZURE_SNOWFLAKE;
@@ -180,9 +221,15 @@ public class SnowflakeDatabase extends Database<SnowflakeConnection> {
     }
 
     private void informVersionUntested(final int newestSupportedVersion) {
-        final String message = databaseType + " " + computeVersionDisplayName(getVersion())
-            + " is newer than the latest major version tested with this version of Flyway: Snowflake " + newestSupportedVersion + ".x ."
-            + "\nCheck here: " + FlywayDbWebsiteLinks.SNOWFLAKE + " to see if your version is supported in the latest Flyway release";
+        final String message = databaseType
+            + " "
+            + computeVersionDisplayName(getVersion())
+            + " is newer than the latest major version tested with this version of Flyway: Snowflake "
+            + newestSupportedVersion
+            + ".x ."
+            + "\nCheck here: "
+            + FlywayDbWebsiteLinks.SNOWFLAKE
+            + " to see if your version is supported in the latest Flyway release";
         LOG.info(message);
     }
 }

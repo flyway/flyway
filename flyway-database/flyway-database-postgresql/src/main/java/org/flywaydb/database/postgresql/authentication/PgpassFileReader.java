@@ -35,9 +35,9 @@ public class PgpassFileReader implements ExternalAuthFileReader {
 
     @Override
     public List<String> getAllContents() {
-        List<String> fileContents = new ArrayList<>();
+        final List<String> fileContents = new ArrayList<>();
 
-        String pgpassFilePath = getPgpassFilePath();
+        final String pgpassFilePath = getPgpassFilePath();
         if (pgpassFilePath == null) {
             return fileContents;
         }
@@ -54,13 +54,13 @@ public class PgpassFileReader implements ExternalAuthFileReader {
 
     public String getPgpassFilePath() {
         // Priority for the pgpass file goes to the environment variable
-        String pgpassEnvPath = System.getenv("PGPASSFILE");
+        final String pgpassEnvPath = System.getenv("PGPASSFILE");
         if (pgpassEnvPath != null) {
             return pgpassEnvPath;
         }
 
         File pgpassFile;
-        boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("win");
+        final boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("win");
         // The pgpass file is under 'APPDATA' in windows and the user's home directory otherwise
         if (isWindows) {
             pgpassFile = new File(System.getenv("APPDATA"), "postgresql\\pgpass.conf");

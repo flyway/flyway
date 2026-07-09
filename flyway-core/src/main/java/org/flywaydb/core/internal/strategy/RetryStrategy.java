@@ -49,7 +49,7 @@ public class RetryStrategy {
      *
      * @param retries The number of retries to attempt. To try forever, use -1.
      */
-    public static void setNumberOfRetries(int retries) {
+    public static void setNumberOfRetries(final int retries) {
         numberOfRetries = retries;
         unlimitedRetries = (retries < 0);
     }
@@ -69,17 +69,17 @@ public class RetryStrategy {
     }
 
     /**
-     * Keep retrying a Callable with a potentially varying wait on each iteration, until one of the following happens:
-     * - the callable returns {@code true};
-     * - an InterruptedException happens
-     * - the number of retries is exceeded.
+     * Keep retrying a Callable with a potentially varying wait on each iteration, until one of the following happens: -
+     * the callable returns {@code true}; - an InterruptedException happens - the number of retries is exceeded.
      *
-     * @param callable The callable to retry
-     * @param interruptionMessage The message to relay if interruption happens
+     * @param callable               The callable to retry
+     * @param interruptionMessage    The message to relay if interruption happens
      * @param retriesExceededMessage The message to relay if the number of retries is exceeded
      * @throws SQLException
      */
-    public void doWithRetries(SqlCallable<Boolean> callable, String interruptionMessage, String retriesExceededMessage) throws SQLException {
+    public void doWithRetries(final SqlCallable<Boolean> callable,
+        final String interruptionMessage,
+        final String retriesExceededMessage) throws SQLException {
         while (!callable.call()) {
             try {
                 Thread.sleep(nextWaitInMilliseconds());

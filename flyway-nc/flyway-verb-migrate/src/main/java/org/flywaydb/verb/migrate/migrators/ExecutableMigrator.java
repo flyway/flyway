@@ -75,7 +75,8 @@ public class ExecutableMigrator extends Migrator<NativeConnectorsDatabase> {
             database.startTransaction();
         }
 
-        doIndividualMigration(executionGroup.migrations().get(0), database,
+        doIndividualMigration(executionGroup.migrations().get(0),
+            database,
             configuration,
             migrateResult,
             installedRank,
@@ -100,7 +101,8 @@ public class ExecutableMigrator extends Migrator<NativeConnectorsDatabase> {
         final boolean outOfOrder = migrationInfo.getState() == MigrationState.OUT_OF_ORDER
             && configuration.isOutOfOrder();
         final String migrationText = toMigrationText(migrationInfo, false, database, outOfOrder);
-        final Executor<NonJdbcExecutorExecutionUnit, NativeConnectorsDatabase> executor = ExecutorFactory.getExecutor(database,
+        final Executor<NonJdbcExecutorExecutionUnit, NativeConnectorsDatabase> executor = ExecutorFactory.getExecutor(
+            database,
             configuration);
         final Reader<NonJdbcExecutorExecutionUnit> reader = ReaderFactory.getReader(database, configuration);
 
@@ -111,11 +113,10 @@ public class ExecutableMigrator extends Migrator<NativeConnectorsDatabase> {
             } else {
                 LOG.debug("Starting migration of " + migrationText + " ...");
                 progress.log("Starting migration of " + migrationInfo.getScript() + " ...");
-                final Event beforeEach = migrationInfo.getType().isUndo() ? Event.BEFORE_EACH_UNDO : Event.BEFORE_EACH_MIGRATE;
-                callbackManager.handleEvent(beforeEach,
-                    database,
-                    configuration,
-                    parsingContext);
+                final Event beforeEach = migrationInfo.getType().isUndo()
+                    ? Event.BEFORE_EACH_UNDO
+                    : Event.BEFORE_EACH_MIGRATE;
+                callbackManager.handleEvent(beforeEach, database, configuration, parsingContext);
 
                 if (!migrationInfo.getType().isUndo()) {
                     LOG.info("Migrating " + migrationText);
@@ -134,11 +135,10 @@ public class ExecutableMigrator extends Migrator<NativeConnectorsDatabase> {
                     executor.finishExecution(database, configuration);
                 }
 
-                final Event afterEach = migrationInfo.getType().isUndo() ? Event.AFTER_EACH_UNDO : Event.AFTER_EACH_MIGRATE;
-                callbackManager.handleEvent(afterEach,
-                    database,
-                    configuration,
-                    parsingContext);
+                final Event afterEach = migrationInfo.getType().isUndo()
+                    ? Event.AFTER_EACH_UNDO
+                    : Event.AFTER_EACH_MIGRATE;
+                callbackManager.handleEvent(afterEach, database, configuration, parsingContext);
             }
         } catch (final Exception e) {
             watch.stop();
@@ -203,11 +203,10 @@ public class ExecutableMigrator extends Migrator<NativeConnectorsDatabase> {
             database.getInstalledBy(configuration),
             false);
 
-        final Event afterEach = migrationInfo.getType().isUndo() ? Event.AFTER_EACH_UNDO_ERROR : Event.AFTER_EACH_MIGRATE_ERROR;
-        callbackManager.handleEvent(afterEach,
-            database,
-            configuration,
-            context);
+        final Event afterEach = migrationInfo.getType().isUndo()
+            ? Event.AFTER_EACH_UNDO_ERROR
+            : Event.AFTER_EACH_MIGRATE_ERROR;
+        callbackManager.handleEvent(afterEach, database, configuration, context);
 
         final String message = database.redactUrl(e.getMessage());
         throw new FlywayMigrateException(migrationInfo,

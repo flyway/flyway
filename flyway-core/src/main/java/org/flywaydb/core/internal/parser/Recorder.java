@@ -24,7 +24,7 @@ public class Recorder {
     private boolean recorderPaused = false;
     private int recorderConfirmedPos = 0;
 
-    public void record(char c) {
+    public void record(final char c) {
         if (isRunning()) {
             recorder.append(c);
         }
@@ -34,7 +34,7 @@ public class Recorder {
         return recorder.length();
     }
 
-    public void truncate(int length) {
+    public void truncate(final int length) {
         if (isRunning()) {
             recorder.delete(length, recorder.length());
         }
@@ -54,7 +54,7 @@ public class Recorder {
         recorderPaused = true;
     }
 
-    public void record(String str) {
+    public void record(final String str) {
         recorder.append(str);
         confirm();
     }
@@ -67,7 +67,7 @@ public class Recorder {
         // Drop unconfirmed parts of recording
         recorder.delete(recorderConfirmedPos, recorder.length());
 
-        String result = recorder.toString();
+        final String result = recorder.toString();
         recorder = null;
         return result;
     }

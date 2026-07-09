@@ -35,7 +35,7 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTa
     final boolean cockroachDB1;
     final boolean hasSchemaSupport;
 
-    public CockroachDBSchema(JdbcTemplate jdbcTemplate, CockroachDBDatabase database, String name) {
+    public CockroachDBSchema(final JdbcTemplate jdbcTemplate, final CockroachDBDatabase database, final String name) {
         super(jdbcTemplate, database, name);
         cockroachDB1 = !database.getVersion().isAtLeast("2");
         hasSchemaSupport = database.supportsSchemas();
@@ -48,7 +48,9 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTa
 
     private boolean doExistsOnce() throws SQLException {
         if (hasSchemaSupport) {
-            return jdbcTemplate.queryForBoolean("SELECT EXISTS ( SELECT 1 FROM information_schema.schemata WHERE schema_name=? )", name);
+            return jdbcTemplate.queryForBoolean(
+                "SELECT EXISTS ( SELECT 1 FROM information_schema.schemata WHERE schema_name=? )",
+                name);
         }
         return jdbcTemplate.queryForBoolean("SELECT EXISTS ( SELECT 1 FROM pg_database WHERE datname=? )", name);
     }
@@ -60,36 +62,36 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTa
 
     private boolean doEmptyOnce() throws SQLException {
         if (cockroachDB1) {
-            return !jdbcTemplate.queryForBoolean("SELECT EXISTS (" +
-                                                         "  SELECT 1" +
-                                                         "  FROM information_schema.tables" +
-                                                         "  WHERE table_schema=?" +
-                                                         "  AND table_type='BASE TABLE'" +
-                                                         ")", name);
+            return !jdbcTemplate.queryForBoolean("SELECT EXISTS ("
+                + "  SELECT 1"
+                + "  FROM information_schema.tables"
+                + "  WHERE table_schema=?"
+                + "  AND table_type='BASE TABLE'"
+                + ")", name);
         } else if (!hasSchemaSupport) {
-            return !jdbcTemplate.queryForBoolean("SELECT EXISTS (" +
-                                                         "  SELECT 1" +
-                                                         "  FROM information_schema.tables " +
-                                                         "  WHERE table_catalog=?" +
-                                                         "  AND table_schema='public'" +
-                                                         "  AND table_type='BASE TABLE'" +
-                                                         " UNION ALL" +
-                                                         "  SELECT 1" +
-                                                         "  FROM information_schema.sequences " +
-                                                         "  WHERE sequence_catalog=?" +
-                                                         "  AND sequence_schema='public'" +
-                                                         ")", name, name);
+            return !jdbcTemplate.queryForBoolean("SELECT EXISTS ("
+                + "  SELECT 1"
+                + "  FROM information_schema.tables "
+                + "  WHERE table_catalog=?"
+                + "  AND table_schema='public'"
+                + "  AND table_type='BASE TABLE'"
+                + " UNION ALL"
+                + "  SELECT 1"
+                + "  FROM information_schema.sequences "
+                + "  WHERE sequence_catalog=?"
+                + "  AND sequence_schema='public'"
+                + ")", name, name);
         } else {
-            return !jdbcTemplate.queryForBoolean("SELECT EXISTS (" +
-                                                         "  SELECT 1" +
-                                                         "  FROM information_schema.tables " +
-                                                         "  WHERE table_schema=?" +
-                                                         "  AND table_type='BASE TABLE'" +
-                                                         " UNION ALL" +
-                                                         "  SELECT 1" +
-                                                         "  FROM information_schema.sequences " +
-                                                         "  WHERE sequence_schema=?" +
-                                                         ")", name, name);
+            return !jdbcTemplate.queryForBoolean("SELECT EXISTS ("
+                + "  SELECT 1"
+                + "  FROM information_schema.tables "
+                + "  WHERE table_schema=?"
+                + "  AND table_type='BASE TABLE'"
+                + " UNION ALL"
+                + "  SELECT 1"
+                + "  FROM information_schema.sequences "
+                + "  WHERE sequence_schema=?"
+                + ")", name, name);
         }
     }
 
@@ -134,30 +136,28 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTa
     }
 
     protected void doCleanOnce() throws SQLException {
-        for (String statement : generateDropStatementsForViews()) {
+        for (final String statement : generateDropStatementsForViews()) {
             jdbcTemplate.execute(statement);
         }
 
-        for (Table table : allTables()) {
+        for (final Table table : allTables()) {
             table.drop();
         }
 
-        for (String statement : generateDropStatementsForSequences()) {
+        for (final String statement : generateDropStatementsForSequences()) {
             jdbcTemplate.execute(statement);
         }
     }
 
     private List<String> generateDropStatementsForViews() throws SQLException {
-        List<String> names = hasSchemaSupport ?
-                jdbcTemplate.queryForStringList(
-                        "SELECT table_name FROM information_schema.views" +
-                                " WHERE table_schema=?", name)
-                :
-                jdbcTemplate.queryForStringList(
-                        "SELECT table_name FROM information_schema.views" +
-                                " WHERE table_catalog=? AND table_schema='public'", name);
-        List<String> statements = new ArrayList<>();
-        for (String name : names) {
+        final List<String> names = hasSchemaSupport
+            ? jdbcTemplate.queryForStringList("SELECT table_name FROM information_schema.views"
+                + " WHERE table_schema=?",
+            name)
+            : jdbcTemplate.queryForStringList("SELECT table_name FROM information_schema.views"
+                + " WHERE table_catalog=? AND table_schema='public'", name);
+        final List<String> statements = new ArrayList<>();
+        for (final String name : names) {
             statements.add("DROP VIEW IF EXISTS " + database.quote(this.name, name) + " CASCADE");
         }
 
@@ -165,16 +165,14 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTa
     }
 
     private List<String> generateDropStatementsForSequences() throws SQLException {
-        List<String> names = hasSchemaSupport ?
-                jdbcTemplate.queryForStringList(
-                        "SELECT sequence_name FROM information_schema.sequences" +
-                                " WHERE sequence_schema=?", name)
-                :
-                jdbcTemplate.queryForStringList(
-                        "SELECT sequence_name FROM information_schema.sequences" +
-                                " WHERE sequence_catalog=? AND sequence_schema='public'", name);
-        List<String> statements = new ArrayList<>();
-        for (String name : names) {
+        final List<String> names = hasSchemaSupport
+            ? jdbcTemplate.queryForStringList("SELECT sequence_name FROM information_schema.sequences"
+                + " WHERE sequence_schema=?",
+            name)
+            : jdbcTemplate.queryForStringList("SELECT sequence_name FROM information_schema.sequences"
+                + " WHERE sequence_catalog=? AND sequence_schema='public'", name);
+        final List<String> statements = new ArrayList<>();
+        for (final String name : names) {
             statements.add("DROP SEQUENCE IF EXISTS " + database.quote(this.name, name) + " CASCADE");
         }
 
@@ -186,27 +184,26 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTa
         String query;
         if (cockroachDB1 || hasSchemaSupport) {
             query =
-                    //Search for all the table names
-                    "SELECT table_name FROM information_schema.tables" +
-                            //in this schema
-                            " WHERE table_schema=?" +
-                            //that are real tables (as opposed to views)
-                            " AND table_type='BASE TABLE'";
+                //Search for all the table names
+                "SELECT table_name FROM information_schema.tables" +
+                    //in this schema
+                    " WHERE table_schema=?" +
+                    //that are real tables (as opposed to views)
+                    " AND table_type='BASE TABLE'";
         } else {
             query =
-                    //Search for all the table names
-                    "SELECT table_name FROM information_schema.tables" +
-                            //in this database
-                            " WHERE table_catalog=?" +
-                            " AND table_schema='public'" +
-                            //that are real tables (as opposed to views)
-                            " AND table_type='BASE TABLE'";
+                //Search for all the table names
+                "SELECT table_name FROM information_schema.tables" +
+                    //in this database
+                    " WHERE table_catalog=?" + " AND table_schema='public'" +
+                    //that are real tables (as opposed to views)
+                    " AND table_type='BASE TABLE'";
         }
 
-        List<String> tableNames = jdbcTemplate.queryForStringList(query, name);
+        final List<String> tableNames = jdbcTemplate.queryForStringList(query, name);
         //Views and child tables are excluded as they are dropped with the parent table when using cascade.
 
-        CockroachDBTable[] tables = new CockroachDBTable[tableNames.size()];
+        final CockroachDBTable[] tables = new CockroachDBTable[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new CockroachDBTable(jdbcTemplate, database, this, tableNames.get(i));
         }
@@ -214,7 +211,7 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTa
     }
 
     @Override
-    public Table getTable(String tableName) {
+    public Table getTable(final String tableName) {
         return new CockroachDBTable(jdbcTemplate, database, this, tableName);
     }
 }

@@ -37,24 +37,24 @@ import java.util.TreeSet;
  */
 @CustomLog
 public class JBossVFSv3ClassPathLocationScanner implements ClassPathLocationScanner {
-    public Set<String> findResourceNames(String location, URL locationUrl) {
-        String filePath = UrlUtils.toFilePath(locationUrl);
+    public Set<String> findResourceNames(final String location, final URL locationUrl) {
+        final String filePath = UrlUtils.toFilePath(locationUrl);
         String classPathRootOnDisk = filePath.substring(0, filePath.length() - location.length());
         if (!classPathRootOnDisk.endsWith("/")) {
             classPathRootOnDisk = classPathRootOnDisk + "/";
         }
         LOG.debug("Scanning starting at classpath root on JBoss VFS: " + classPathRootOnDisk);
 
-        Set<String> resourceNames = new TreeSet<String>();
+        final Set<String> resourceNames = new TreeSet<String>();
 
         List<VirtualFile> files;
         try {
             files = VFS.getChild(filePath).getChildrenRecursively(new VirtualFileFilter() {
-                public boolean accepts(VirtualFile file) {
+                public boolean accepts(final VirtualFile file) {
                     return file.isFile();
                 }
             });
-            for (VirtualFile file : files) {
+            for (final VirtualFile file : files) {
                 resourceNames.add(file.getPathName().substring(classPathRootOnDisk.length()));
             }
         } catch (IOException e) {
@@ -63,5 +63,4 @@ public class JBossVFSv3ClassPathLocationScanner implements ClassPathLocationScan
 
         return resourceNames;
     }
-
 }

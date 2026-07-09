@@ -39,7 +39,8 @@ import java.util.regex.Pattern;
 public class BigQueryDatabaseType extends BaseDatabaseType {
     private static final String BIGQUERY_JDBC42_DRIVER = "com.simba.googlebigquery.jdbc42.Driver";
     private static final String BIGQUERY_JDBC_DRIVER = "com.simba.googlebigquery.jdbc.Driver";
-    private static final Pattern OAUTH_CREDENTIALS_PATTERN = Pattern.compile("OAuth\\w+=([^;]*)", Pattern.CASE_INSENSITIVE);
+    private static final Pattern OAUTH_CREDENTIALS_PATTERN = Pattern.compile("OAuth\\w+=([^;]*)",
+        Pattern.CASE_INSENSITIVE);
 
     @Override
     public String getName() {
@@ -57,17 +58,17 @@ public class BigQueryDatabaseType extends BaseDatabaseType {
     }
 
     @Override
-    public boolean handlesJDBCUrl(String url) {
+    public boolean handlesJDBCUrl(final String url) {
         return url.startsWith("jdbc:bigquery:");
     }
 
     @Override
-    public String getDriverClass(String url, ClassLoader classLoader) {
+    public String getDriverClass(final String url, final ClassLoader classLoader) {
         return BIGQUERY_JDBC42_DRIVER;
     }
 
     @Override
-    public String getBackupDriverClass(String url, ClassLoader classLoader) {
+    public String getBackupDriverClass(final String url, final ClassLoader classLoader) {
         if (ClassUtils.isPresent(BIGQUERY_JDBC_DRIVER, classLoader)) {
             return BIGQUERY_JDBC_DRIVER;
         }
@@ -75,22 +76,28 @@ public class BigQueryDatabaseType extends BaseDatabaseType {
     }
 
     @Override
-    public boolean handlesDatabaseProductNameAndVersion(String databaseProductName, String databaseProductVersion, Connection connection) {
+    public boolean handlesDatabaseProductNameAndVersion(final String databaseProductName,
+        final String databaseProductVersion,
+        final Connection connection) {
         // https://cloud.google.com/bigquery/docs/reference/odbc-jdbc-drivers
         // databaseProductName: Google BigQuery 2.0, databaseProductVersion: 2.0
         return databaseProductName.toLowerCase().contains("bigquery");
     }
 
     @Override
-    public void setOverridingConnectionProps(Map<String, String> props) { }
+    public void setOverridingConnectionProps(final Map<String, String> props) {}
 
     @Override
-    public Database createDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+    public Database createDatabase(final Configuration configuration,
+        final JdbcConnectionFactory jdbcConnectionFactory,
+        final StatementInterceptor statementInterceptor) {
         return new BigQueryDatabase(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
     @Override
-    public Parser createParser(Configuration configuration, ResourceProvider resourceProvider, ParsingContext parsingContext) {
+    public Parser createParser(final Configuration configuration,
+        final ResourceProvider resourceProvider,
+        final ParsingContext parsingContext) {
         return new BigQueryParser(configuration, parsingContext);
     }
 

@@ -26,7 +26,7 @@ public class BufferedLogCreator implements LogCreator {
     private static final BufferedLog bufferedLog = new BufferedLog();
 
     @Override
-    public Log createLogger(Class<?> clazz) {
+    public Log createLogger(final Class<?> clazz) {
         return bufferedLog;
     }
 }

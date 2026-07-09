@@ -32,20 +32,26 @@ public class MySQLParser extends Parser {
     private static final char ALTERNATIVE_SINGLE_LINE_COMMENT = '#';
 
     private static final Pattern STORED_PROGRAM_REGEX = Pattern.compile(
-            "^CREATE\\s(((DEFINER\\s(\\w+\\s)?@\\s(\\w+\\s)?)?(PROCEDURE|FUNCTION|EVENT))|TRIGGER)", Pattern.CASE_INSENSITIVE);
+        "^CREATE\\s(((DEFINER\\s(\\w+\\s)?@\\s(\\w+\\s)?)?(PROCEDURE|FUNCTION|EVENT))|TRIGGER)",
+        Pattern.CASE_INSENSITIVE);
     private static final StatementType STORED_PROGRAM_STATEMENT = new StatementType();
 
-    public MySQLParser(Configuration configuration, ParsingContext parsingContext) {
+    public MySQLParser(final Configuration configuration, final ParsingContext parsingContext) {
         super(configuration, parsingContext, 8);
     }
 
     @Override
-    protected void resetDelimiter(ParserContext context) {
+    protected void resetDelimiter(final ParserContext context) {
         // Do not reset delimiter as delimiter changes survive beyond a single statement
     }
 
     @Override
-    protected Token handleKeyword(PeekingReader reader, ParserContext context, int pos, int line, int col, String keyword) throws IOException {
+    protected Token handleKeyword(final PeekingReader reader,
+        final ParserContext context,
+        final int pos,
+        final int line,
+        final int col,
+        final String keyword) throws IOException {
         if ("DELIMITER".equalsIgnoreCase(keyword)) {
             String text = "";
             while (text.isEmpty()) {
@@ -68,49 +74,57 @@ public class MySQLParser extends Parser {
     }
 
     @Override
-    protected boolean isSingleLineComment(String peek, ParserContext context, int col) {
+    protected boolean isSingleLineComment(final String peek, final ParserContext context, final int col) {
         return (super.isSingleLineComment(peek, context, col)
-                // Normally MySQL treats # as a comment, but this may have been overridden by DELIMITER # directive
-                || (peek.charAt(0) == ALTERNATIVE_SINGLE_LINE_COMMENT && !isDelimiter(peek, context, col, 0)));
+            // Normally MySQL treats # as a comment, but this may have been overridden by DELIMITER # directive
+            || (peek.charAt(0) == ALTERNATIVE_SINGLE_LINE_COMMENT && !isDelimiter(peek, context, col, 0)));
     }
 
     @Override
-    protected Token handleStringLiteral(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
+    protected Token handleStringLiteral(final PeekingReader reader,
+        final ParserContext context,
+        final int pos,
+        final int line,
+        final int col) throws IOException {
         reader.swallow();
         reader.swallowUntilIncludingWithEscape('\'', true, '\\');
         return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
     }
 
     @Override
-    protected Token handleAlternativeStringLiteral(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
+    protected Token handleAlternativeStringLiteral(final PeekingReader reader,
+        final ParserContext context,
+        final int pos,
+        final int line,
+        final int col) throws IOException {
         reader.swallow();
         reader.swallowUntilIncludingWithEscape('"', true, '\\');
         return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
     }
 
     @Override
-    protected Token handleCommentDirective(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
+    protected Token handleCommentDirective(final PeekingReader reader,
+        final ParserContext context,
+        final int pos,
+        final int line,
+        final int col) throws IOException {
         reader.swallow(2);
-        String text = reader.readUntilExcluding("*/");
+        final String text = reader.readUntilExcluding("*/");
         reader.swallow(2);
         return new Token(TokenType.MULTI_LINE_COMMENT_DIRECTIVE, pos, line, col, text, text, context.getParensDepth());
     }
 
     @Override
-    protected boolean isCommentDirective(String text) {
-        return text.length() >= 8
-                && text.charAt(0) == '/'
-                && text.charAt(1) == '*'
-                && text.charAt(2) == '!'
-                && isDigit(text.charAt(3))
-                && isDigit(text.charAt(4))
-                && isDigit(text.charAt(5))
-                && isDigit(text.charAt(6))
-                && isDigit(text.charAt(7));
+    protected boolean isCommentDirective(final String text) {
+        return text.length() >= 8 && text.charAt(0) == '/' && text.charAt(1) == '*' && text.charAt(2) == '!' && isDigit(
+            text.charAt(3)) && isDigit(text.charAt(4)) && isDigit(text.charAt(5)) && isDigit(text.charAt(6)) && isDigit(
+            text.charAt(7));
     }
 
     @Override
-    protected StatementType detectStatementType(String simplifiedStatement, ParserContext context, PeekingReader reader) {
+    protected StatementType detectStatementType(final String simplifiedStatement,
+        final ParserContext context,
+        final PeekingReader reader) {
         if (STORED_PROGRAM_REGEX.matcher(simplifiedStatement).matches()) {
             return STORED_PROGRAM_STATEMENT;
         }
@@ -119,17 +133,20 @@ public class MySQLParser extends Parser {
     }
 
     @Override
-    protected boolean shouldAdjustBlockDepth(ParserContext context, List<Token> tokens, Token token) {
+    protected boolean shouldAdjustBlockDepth(final ParserContext context, final List<Token> tokens, final Token token) {
         // we assume that any blocks opened or closed inside some parens
         // can't affect block depth outside those parens
         return token.getParensDepth() == 0;
     }
 
     @Override
-    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) {
-        String keywordText = keyword.getText();
+    protected void adjustBlockDepth(final ParserContext context,
+        final List<Token> tokens,
+        final Token keyword,
+        final PeekingReader reader) {
+        final String keywordText = keyword.getText();
 
-        int parensDepth = keyword.getParensDepth();
+        final int parensDepth = keyword.getParensDepth();
 
         // Only apply keyword-specific block depth changes for actual keywords, not for
         // backtick-quoted identifiers that happen to share a name with a keyword (e.g. `case`, `begin`).

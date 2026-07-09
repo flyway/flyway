@@ -326,16 +326,13 @@ public class FlywayExecutor {
     }
 
     private static Location[] filterOutNonExistentCallbackLocations(final Location[] callbackLocations) {
-        return Arrays.stream(callbackLocations)
-            .filter(location -> {
-                if (CoreLocationPrefix.isFileSystem(location)
-                    && !Files.exists(Path.of(location.getRootPath()))) {
-                    LOG.info("Skipping callback location " + location.getRootPath() + " as it does not exist");
-                    return false;
-                }
-                return true;
-            })
-            .toArray(Location[]::new);
+        return Arrays.stream(callbackLocations).filter(location -> {
+            if (CoreLocationPrefix.isFileSystem(location) && !Files.exists(Path.of(location.getRootPath()))) {
+                LOG.info("Skipping callback location " + location.getRootPath() + " as it does not exist");
+                return false;
+            }
+            return true;
+        }).toArray(Location[]::new);
     }
 
     private List<GenericCallback<Event>> prepareCallbacks(final Database database,
@@ -370,7 +367,7 @@ public class FlywayExecutor {
             configuration,
             parsingContext,
             statementInterceptor);
-        scriptMigrationResolver.resolveCallbacks((String id) -> Optional.ofNullable(Event.fromId(id)));
+        scriptMigrationResolver.resolveCallbacks((final String id) -> Optional.ofNullable(Event.fromId(id)));
         effectiveCallbacks.addAll(scriptMigrationResolver.scriptCallbacks);
 
         if (!configuration.isSkipDefaultCallbacks()) {
@@ -381,7 +378,7 @@ public class FlywayExecutor {
                 sqlScriptExecutorFactory,
                 sqlScriptFactory,
                 configuration,
-                (String id) -> Optional.ofNullable(Event.fromId(id))).getCallbacks());
+                (final String id) -> Optional.ofNullable(Event.fromId(id))).getCallbacks());
         }
 
         if (!(errorOverride.getCallback() instanceof NoopCallback)) {

@@ -22,9 +22,13 @@ package org.flywaydb.core.internal.license;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
 public class FlywayUpgradeMessage {
-    public static String generate(String detectedFeature, String usageMessage) {
-        return "Detected " + detectedFeature + ". " +
-            "Upgrade to " + usageMessage + ". Try Redgate Edition for free: "
+    public static String generate(final String detectedFeature, final String usageMessage) {
+        return "Detected "
+            + detectedFeature
+            + ". "
+            + "Upgrade to "
+            + usageMessage
+            + ". Try Redgate Edition for free: "
             + FlywayDbWebsiteLinks.REDGATE_EDITION_DOWNLOAD;
     }
 }

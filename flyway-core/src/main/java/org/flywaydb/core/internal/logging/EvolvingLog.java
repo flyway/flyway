@@ -44,37 +44,37 @@ public class EvolvingLog implements Log {
     }
 
     @Override
-    public void debug(String message) {
+    public void debug(final String message) {
         updateLog();
         log.debug(message);
     }
 
     @Override
-    public void info(String message) {
+    public void info(final String message) {
         updateLog();
         log.info(message);
     }
 
     @Override
-    public void warn(String message) {
+    public void warn(final String message) {
         updateLog();
         log.warn(message);
     }
 
     @Override
-    public void error(String message) {
+    public void error(final String message) {
         updateLog();
         log.error(message);
     }
 
     @Override
-    public void error(String message, Exception e) {
+    public void error(final String message, final Exception e) {
         updateLog();
         log.error(message, e);
     }
 
     @Override
-    public void notice(String message) {
+    public void notice(final String message) {
         updateLog();
         log.notice(message);
     }

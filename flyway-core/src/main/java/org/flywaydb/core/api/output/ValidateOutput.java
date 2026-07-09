@@ -28,5 +28,4 @@ public class ValidateOutput {
     public final String description;
     public final String filepath;
     public final ErrorDetails errorDetails;
-
 }

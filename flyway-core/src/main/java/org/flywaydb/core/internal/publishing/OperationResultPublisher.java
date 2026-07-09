@@ -26,6 +26,6 @@ import org.flywaydb.core.internal.reports.ReportDetails;
 
 public interface OperationResultPublisher extends Plugin {
     void publish(Configuration configuration, OperationResult operationResult);
-    
+
     void publishReport(Configuration configuration, ReportDetails reportDetails);
 }

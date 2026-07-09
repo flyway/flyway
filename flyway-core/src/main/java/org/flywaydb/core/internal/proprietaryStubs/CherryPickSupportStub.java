@@ -34,22 +34,31 @@ import org.flywaydb.core.extensibility.CherryPickSupport;
 public class CherryPickSupportStub implements CherryPickSupport {
 
     @Override
-    public MigrationState getStateOverride(MigrationPattern[] patterns, MigrationVersion version, String description) {
+    public MigrationState getStateOverride(final MigrationPattern[] patterns,
+        final MigrationVersion version,
+        final String description) {
         return null;
     }
 
     @Override
-    public boolean shouldSkipValidation(MigrationPattern[] patterns, MigrationVersion version, String description) {
+    public boolean shouldSkipValidation(final MigrationPattern[] patterns,
+        final MigrationVersion version,
+        final String description) {
         return false;
     }
 
     @Override
-    public OptionalInt compareByPickOrder(MigrationPattern[] patterns, MigrationInfo a, MigrationInfo b) {
+    public OptionalInt compareByPickOrder(final MigrationPattern[] patterns,
+        final MigrationInfo a,
+        final MigrationInfo b) {
         return OptionalInt.empty();
     }
 
     @Override
-    public void validatePatterns(MigrationPattern[] patterns, Collection<ResolvedMigration> resolved, List<? extends AppliedMigration> applied, Configuration config) {
+    public void validatePatterns(final MigrationPattern[] patterns,
+        final Collection<ResolvedMigration> resolved,
+        final List<? extends AppliedMigration> applied,
+        final Configuration config) {
     }
 
     @Override

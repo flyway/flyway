@@ -32,11 +32,11 @@ public class DB2Type extends Type<DB2Database, DB2Schema> {
      * Creates a new Db2 type.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database The database-specific support.
-     * @param schema The schema this type lives in.
-     * @param name The name of the type.
+     * @param database     The database-specific support.
+     * @param schema       The schema this type lives in.
+     * @param name         The name of the type.
      */
-    DB2Type(JdbcTemplate jdbcTemplate, DB2Database database, DB2Schema schema, String name) {
+    DB2Type(final JdbcTemplate jdbcTemplate, final DB2Database database, final DB2Schema schema, final String name) {
         super(jdbcTemplate, database, schema, name);
     }
 

@@ -28,6 +28,8 @@ import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
 import org.flywaydb.core.internal.util.Pair;
 
-public interface NativeConnectorsMigrationScanner extends Plugin  {
-    Collection<Pair<LoadableResource, SqlScriptMetadata>> scan(Location location, Configuration configuration, ParsingContext parsingContext);
+public interface NativeConnectorsMigrationScanner extends Plugin {
+    Collection<Pair<LoadableResource, SqlScriptMetadata>> scan(Location location,
+        Configuration configuration,
+        ParsingContext parsingContext);
 }

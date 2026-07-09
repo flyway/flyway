@@ -60,14 +60,16 @@ public class JdbcConnectionFactory implements Closeable {
     private final boolean supportsBatch;
 
     /**
-     * Creates a new JDBC connection factory. This automatically opens a first connection which can be obtained via
-     * a call to getConnection and which must be closed again to avoid leaking it.
+     * Creates a new JDBC connection factory. This automatically opens a first connection which can be obtained via a
+     * call to getConnection and which must be closed again to avoid leaking it.
      *
-     * @param dataSource The DataSource to obtain the connection from.
-     * @param configuration The Flyway configuration.
+     * @param dataSource           The DataSource to obtain the connection from.
+     * @param configuration        The Flyway configuration.
      * @param statementInterceptor The statement interceptor. {@code null} if none.
      */
-    public JdbcConnectionFactory(DataSource dataSource, Configuration configuration, StatementInterceptor statementInterceptor) {
+    public JdbcConnectionFactory(final DataSource dataSource,
+        final Configuration configuration,
+        final StatementInterceptor statementInterceptor) {
         this.dataSource = dataSource;
         this.connectRetries = configuration.getConnectRetries();
         this.connectRetriesInterval = configuration.getConnectRetriesInterval();
@@ -85,11 +87,11 @@ public class JdbcConnectionFactory implements Closeable {
         firstConnection = this.databaseType.alterConnectionAsNeeded(firstConnection, configuration);
     }
 
-    public void setConnectionInitializer(ConnectionInitializer connectionInitializer) {
+    public void setConnectionInitializer(final ConnectionInitializer connectionInitializer) {
         this.connectionInitializer = connectionInitializer;
     }
 
-    private boolean determineBatchSupport(DatabaseMetaData databaseMetaData) {
+    private boolean determineBatchSupport(final DatabaseMetaData databaseMetaData) {
         try {
             return databaseMetaData.supportsBatchUpdates();
         } catch (SQLException e) {
@@ -99,7 +101,9 @@ public class JdbcConnectionFactory implements Closeable {
     }
 
     public Connection openConnection() throws FlywayException {
-        Connection connection = firstConnection == null ? JdbcUtils.openConnection(dataSource, connectRetries, connectRetriesInterval) : firstConnection;
+        Connection connection = firstConnection == null ? JdbcUtils.openConnection(dataSource,
+            connectRetries,
+            connectRetriesInterval) : firstConnection;
         firstConnection = null;
 
         if (connectionInitializer != null) {
@@ -135,7 +139,7 @@ public class JdbcConnectionFactory implements Closeable {
         void initialize(JdbcConnectionFactory jdbcConnectionFactory, Connection connection);
     }
 
-    private static String getJdbcUrl(DatabaseMetaData databaseMetaData) {
+    private static String getJdbcUrl(final DatabaseMetaData databaseMetaData) {
         String url;
         try {
             url = databaseMetaData.getURL();
@@ -148,7 +152,7 @@ public class JdbcConnectionFactory implements Closeable {
         return url;
     }
 
-    private static String getDriverInfo(DatabaseMetaData databaseMetaData) {
+    private static String getDriverInfo(final DatabaseMetaData databaseMetaData) {
         try {
             return databaseMetaData.getDriverName() + " " + databaseMetaData.getDriverVersion();
         } catch (SQLException e) {

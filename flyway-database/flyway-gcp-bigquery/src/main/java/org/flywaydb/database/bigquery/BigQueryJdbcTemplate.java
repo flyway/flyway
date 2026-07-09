@@ -21,8 +21,6 @@ package org.flywaydb.database.bigquery;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.database.DatabaseType;
-import org.flywaydb.core.internal.database.DatabaseTypeRegister;
-import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.jdbc.JdbcNullTypes;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
@@ -33,13 +31,13 @@ import java.sql.Types;
 
 public class BigQueryJdbcTemplate extends JdbcTemplate {
 
-    public BigQueryJdbcTemplate(Connection connection, DatabaseType databaseType) {
+    public BigQueryJdbcTemplate(final Connection connection, final DatabaseType databaseType) {
         super(connection, databaseType);
     }
 
     @Override
-    protected PreparedStatement prepareStatement(String sql, Object[] params) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement(sql);
+    protected PreparedStatement prepareStatement(final String sql, final Object[] params) throws SQLException {
+        final PreparedStatement statement = connection.prepareStatement(sql);
         // Spanner requires specific types for NULL according to the column.
         // This is unlike other databases which have a single "null type".
         for (int i = 0; i < params.length; i++) {

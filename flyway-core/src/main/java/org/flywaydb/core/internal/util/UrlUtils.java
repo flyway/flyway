@@ -49,8 +49,8 @@ public class UrlUtils {
      * @param url The URL to get the file path for.
      * @return The file path.
      */
-    public static String toFilePath(URL url) {
-        String filePath = new File(decodeURLSafe(url.getPath())).getAbsolutePath();
+    public static String toFilePath(final URL url) {
+        final String filePath = new File(decodeURLSafe(url.getPath())).getAbsolutePath();
         if (filePath.endsWith("/")) {
             return filePath.substring(0, filePath.length() - 1);
         }
@@ -59,13 +59,13 @@ public class UrlUtils {
 
     /**
      * Decodes this UTF-8 encoded URL.
-     *
+     * <p>
      * Shall be made private, new code shall always call decodeURLSafe() instead.
      *
      * @param url The url to decode.
      * @return The decoded URL.
      */
-    public static String decodeURL(String url) {
+    public static String decodeURL(final String url) {
         try {
             return URLDecoder.decode(url, "UTF-8");
         } catch (UnsupportedEncodingException e) {
@@ -73,8 +73,8 @@ public class UrlUtils {
         }
     }
 
-    public static String decodeURLSafe(String url) {
-       return decodeURL(url.replace("+", "%2b"));
+    public static String decodeURLSafe(final String url) {
+        return decodeURL(url.replace("+", "%2b"));
     }
 
     public static void guardJdbcSecretsManagerURL(final String url) {
@@ -101,25 +101,25 @@ public class UrlUtils {
     public static Map<String, String> extractQueryParams(String uri) {
         uri = uri.replace('\\', '/');
         try {
-            int queryIndex = uri.indexOf("?");
+            final int queryIndex = uri.indexOf("?");
 
             // No query parameters detected in the connection string
             if (queryIndex == -1) {
                 return Collections.emptyMap();
             }
 
-            String baseUri = uri.substring(0, queryIndex);
-            String queryPart = uri.substring(queryIndex + 1);
+            final String baseUri = uri.substring(0, queryIndex);
+            final String queryPart = uri.substring(queryIndex + 1);
 
-            String encodedQuery = URLEncoder.encode(queryPart, StandardCharsets.UTF_8);
-            URI parsedUri = new URI(baseUri + "?" + encodedQuery);
-            String query = parsedUri.getQuery();
-            Map<String, String> queryParams = new HashMap<>();
+            final String encodedQuery = URLEncoder.encode(queryPart, StandardCharsets.UTF_8);
+            final URI parsedUri = new URI(baseUri + "?" + encodedQuery);
+            final String query = parsedUri.getQuery();
+            final Map<String, String> queryParams = new HashMap<>();
 
             if (query != null) {
-                String[] pairs = query.split("&");
-                for (String pair : pairs) {
-                    String[] keyValue = pair.split("=", 2);
+                final String[] pairs = query.split("&");
+                for (final String pair : pairs) {
+                    final String[] keyValue = pair.split("=", 2);
                     if (keyValue.length == 2) {
                         queryParams.put(keyValue[0], keyValue[1]);
                     }

@@ -64,21 +64,22 @@ public interface JavaMigration {
      */
     Integer getChecksum();
 
-    default ResolvedMigration getResolvedMigration(Configuration config, StatementInterceptor statementInterceptor) {
+    default ResolvedMigration getResolvedMigration(final Configuration config,
+        final StatementInterceptor statementInterceptor) {
         return new ResolvedMigrationImpl(getVersion(),
-                                         getDescription(),
-                                         getClass().getName(),
-                                         getChecksum(),
-                                         null,
-                                         getType(),
-                                         ClassUtils.getLocationOnDisk(getClass()),
-                                         new JavaMigrationExecutor(this, statementInterceptor));
+            getDescription(),
+            getClass().getName(),
+            getChecksum(),
+            null,
+            getType(),
+            ClassUtils.getLocationOnDisk(getClass()),
+            new JavaMigrationExecutor(this, statementInterceptor));
     }
 
     /**
-     * Whether the execution should take place inside a transaction. Almost all implementations should return {@code true}.
-     * This however makes it possible to execute certain migrations outside a transaction. This is useful for databases
-     * like PostgreSQL and SQL Server where certain statement can only execute outside a transaction.
+     * Whether the execution should take place inside a transaction. Almost all implementations should return
+     * {@code true}. This however makes it possible to execute certain migrations outside a transaction. This is useful
+     * for databases like PostgreSQL and SQL Server where certain statement can only execute outside a transaction.
      *
      * @return {@code true} if a transaction should be used (highly recommended), or {@code false} if not.
      */
@@ -89,7 +90,7 @@ public interface JavaMigration {
      * database supports it and the canExecuteInTransaction returns {@code true}.
      *
      * @param context The context relevant for this migration, containing things like the JDBC connection to use and the
-     * current Flyway configuration.
+     *                current Flyway configuration.
      * @throws Exception when the migration failed.
      */
     void migrate(Context context) throws Exception;

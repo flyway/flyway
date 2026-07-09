@@ -147,7 +147,7 @@ public class NativeConnectorsSqlite extends NativeConnectorsJdbc {
     }
 
     @Override
-    public void doCleanSchema(String schema) {
+    public void doCleanSchema(final String schema) {
         final boolean foreignKeysEnabled = queryBoolean("PRAGMA foreign_keys");
 
         // Get all tables and views

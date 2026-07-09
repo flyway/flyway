@@ -48,12 +48,12 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
     @Getter
     private final boolean awsRds;
 
-    public MySQLConnection(MySQLDatabase database, java.sql.Connection connection) {
+    public MySQLConnection(final MySQLDatabase database, final java.sql.Connection connection) {
         super(database, connection);
 
-        userVariablesQuery = "SELECT variable_name FROM "
-                + (database.isMariaDB() ? USER_VARIABLES_TABLE_MARIADB : USER_VARIABLES_TABLE_MYSQL)
-                + " WHERE variable_value IS NOT NULL";
+        userVariablesQuery = "SELECT variable_name FROM " + (database.isMariaDB()
+            ? USER_VARIABLES_TABLE_MARIADB
+            : USER_VARIABLES_TABLE_MYSQL) + " WHERE variable_value IS NOT NULL";
         canResetUserVariables = hasUserVariableResetCapability();
 
         originalForeignKeyChecks = getIntVariableValue(FOREIGN_KEY_CHECKS);
@@ -61,7 +61,7 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
         awsRds = rdsAdminExists();
     }
 
-    private int getIntVariableValue(String varName) {
+    private int getIntVariableValue(final String varName) {
         try {
             return jdbcTemplate.queryForInt("SELECT @@" + varName);
         } catch (SQLException e) {
@@ -85,8 +85,14 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
             return true;
         } catch (SQLException e) {
             LOG.debug("Disabled user variable reset as "
-                              + (database.isMariaDB() ? USER_VARIABLES_TABLE_MARIADB : USER_VARIABLES_TABLE_MYSQL)
-                              + " cannot be queried (SQL State: " + e.getSQLState() + ", Error Code: " + e.getErrorCode() + ")");
+                + (database.isMariaDB()
+                ? USER_VARIABLES_TABLE_MARIADB
+                : USER_VARIABLES_TABLE_MYSQL)
+                + " cannot be queried (SQL State: "
+                + e.getSQLState()
+                + ", Error Code: "
+                + e.getErrorCode()
+                + ")");
             return false;
         }
     }
@@ -95,17 +101,18 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
     protected void doRestoreOriginalState() throws SQLException {
         resetUserVariables();
         jdbcTemplate.execute("SET " + FOREIGN_KEY_CHECKS + "=?, " + SQL_SAFE_UPDATES + "=?",
-                             originalForeignKeyChecks, originalSqlSafeUpdates);
+            originalForeignKeyChecks,
+            originalSqlSafeUpdates);
     }
 
     // #2197: prevent user-defined variables from leaking beyond the scope of a migration
     private void resetUserVariables() throws SQLException {
         if (canResetUserVariables) {
-            List<String> userVariables = jdbcTemplate.queryForStringList(userVariablesQuery);
+            final List<String> userVariables = jdbcTemplate.queryForStringList(userVariablesQuery);
             if (!userVariables.isEmpty()) {
                 boolean first = true;
-                StringBuilder setStatement = new StringBuilder("SET ");
-                for (String userVariable : userVariables) {
+                final StringBuilder setStatement = new StringBuilder("SET ");
+                for (final String userVariable : userVariables) {
                     if (first) {
                         first = false;
                     } else {
@@ -124,13 +131,13 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
     }
 
     @Override
-    public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
+    public void doChangeCurrentSchemaOrSearchPathTo(final String schema) throws SQLException {
         if (StringUtils.hasLength(schema)) {
             jdbcTemplate.getConnection().setCatalog(schema);
         } else {
             try {
                 // Weird hack to switch back to no database selected...
-                String newDb = database.quote(UUID.randomUUID().toString());
+                final String newDb = database.quote(UUID.randomUUID().toString());
                 jdbcTemplate.execute("CREATE SCHEMA " + newDb);
                 jdbcTemplate.execute("USE " + newDb);
                 jdbcTemplate.execute("DROP SCHEMA " + newDb);
@@ -142,19 +149,19 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
 
     @Override
     protected Schema doGetCurrentSchema() throws SQLException {
-        String schemaName = getCurrentSchemaNameOrSearchPath();
+        final String schemaName = getCurrentSchemaNameOrSearchPath();
 
         // #2206: MySQL and MariaDB can have URLs where no current schema is set, so we must handle this case explicitly.
         return schemaName == null ? null : getSchema(schemaName);
     }
 
     @Override
-    public Schema getSchema(String name) {
+    public Schema getSchema(final String name) {
         return new MySQLSchema(jdbcTemplate, database, name);
     }
 
     @Override
-    public <T> T lock(Table table, Callable<T> callable) {
+    public <T> T lock(final Table table, final Callable<T> callable) {
         if (canUseNamedLockTemplate()) {
             return new MySQLNamedLockTemplate(jdbcTemplate, table.toString().hashCode()).execute(callable);
         }

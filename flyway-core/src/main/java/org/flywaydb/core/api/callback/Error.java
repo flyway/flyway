@@ -44,8 +44,8 @@ public interface Error {
     /**
      * Checks whether this error has already been handled.
      *
-     * @return {@code true} {@code true} if this error has already be handled or {@code false} if it should flow
-     * via the default error handler.
+     * @return {@code true} {@code true} if this error has already be handled or {@code false} if it should flow via the
+     * default error handler.
      */
     boolean isHandled();
 
@@ -53,7 +53,7 @@ public interface Error {
      * Sets whether this error has already been handled.
      *
      * @param handled {@code true} if this error has already be handled or {@code false} if it should flow via the
-     * default error handler.
+     *                default error handler.
      */
     void setHandled(boolean handled, Configuration config);
 }

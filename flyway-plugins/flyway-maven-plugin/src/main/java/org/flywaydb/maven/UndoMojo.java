@@ -28,16 +28,14 @@ import org.flywaydb.core.api.MigrationInfo;
  * Undoes the most recently applied versioned migration.
  * <p><i>Flyway Teams only</i></p>
  */
-@SuppressWarnings({"UnusedDeclaration", "JavaDoc"})
-@Mojo(name = "undo",
-        requiresDependencyResolution = ResolutionScope.TEST,
-        threadSafe = true)
+@SuppressWarnings({ "UnusedDeclaration", "JavaDoc" })
+@Mojo(name = "undo", requiresDependencyResolution = ResolutionScope.TEST, threadSafe = true)
 public class UndoMojo extends AbstractFlywayMojo {
     @Override
-    protected void doExecute(Flyway flyway) {
+    protected void doExecute(final Flyway flyway) {
         flyway.undo();
 
-        MigrationInfo current = flyway.info().current();
+        final MigrationInfo current = flyway.info().current();
         if (current != null && current.getVersion() != null) {
             mavenProject.getProperties().setProperty("flyway.current", current.getVersion().toString());
         }

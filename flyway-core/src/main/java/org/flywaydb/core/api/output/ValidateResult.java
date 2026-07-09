@@ -30,14 +30,13 @@ public class ValidateResult extends OperationResultBase {
     public final boolean validationSuccessful;
     public final int validateCount;
 
-    public ValidateResult(
-            String flywayVersion,
-            String database,
-            ErrorDetails errorDetails,
-            boolean validationSuccessful,
-            int validateCount,
-            List<ValidateOutput> invalidMigrations,
-            List<String> warnings) {
+    public ValidateResult(final String flywayVersion,
+        final String database,
+        final ErrorDetails errorDetails,
+        final boolean validationSuccessful,
+        final int validateCount,
+        final List<ValidateOutput> invalidMigrations,
+        final List<String> warnings) {
         this.flywayVersion = flywayVersion;
         this.database = database;
         this.errorDetails = errorDetails;

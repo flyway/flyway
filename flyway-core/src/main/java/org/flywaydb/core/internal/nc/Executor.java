@@ -22,7 +22,7 @@ package org.flywaydb.core.internal.nc;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.Plugin;
 
-public interface Executor<T,  DB extends NativeConnectorsDatabase> extends Plugin {
+public interface Executor<T, DB extends NativeConnectorsDatabase> extends Plugin {
 
     void execute(DB database, T executionUnit, Configuration configuration);
 

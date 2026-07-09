@@ -27,17 +27,17 @@ public class PositionTrackingReader extends FilterReader {
     private final PositionTracker tracker;
     private boolean paused;
 
-    PositionTrackingReader(PositionTracker tracker, Reader in) {
+    PositionTrackingReader(final PositionTracker tracker, final Reader in) {
         super(in);
         this.tracker = tracker;
     }
 
     @Override
     public int read() throws IOException {
-        int read = super.read();
+        final int read = super.read();
         if (read != -1 && !paused) {
             tracker.nextPos();
-            char c = (char) read;
+            final char c = (char) read;
             if (c == '\n') {
                 tracker.linefeed();
             } else if (c == '\r') {
@@ -53,7 +53,7 @@ public class PositionTrackingReader extends FilterReader {
     }
 
     @Override
-    public void mark(int readAheadLimit) throws IOException {
+    public void mark(final int readAheadLimit) throws IOException {
         paused = true;
         super.mark(readAheadLimit);
     }

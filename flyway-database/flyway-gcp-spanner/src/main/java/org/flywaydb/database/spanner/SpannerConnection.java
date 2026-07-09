@@ -19,15 +19,11 @@
  */
 package org.flywaydb.database.spanner;
 
-import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
-import org.flywaydb.core.internal.database.base.Table;
-
-import java.util.concurrent.Callable;
 
 public class SpannerConnection extends Connection<SpannerDatabase> {
-    protected SpannerConnection(SpannerDatabase database, java.sql.Connection connection) {
+    protected SpannerConnection(final SpannerDatabase database, final java.sql.Connection connection) {
         super(database, connection);
         this.jdbcTemplate = new SpannerJdbcTemplate(connection, database.getDatabaseType());
     }
@@ -38,7 +34,7 @@ public class SpannerConnection extends Connection<SpannerDatabase> {
     }
 
     @Override
-    public Schema getSchema(String name) {
+    public Schema getSchema(final String name) {
         return new SpannerSchema(jdbcTemplate, database, name);
     }
 }

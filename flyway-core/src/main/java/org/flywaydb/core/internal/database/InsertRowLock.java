@@ -40,13 +40,13 @@ import java.util.function.BiPredicate;
  * Distributed locking mechanism using row insertion in the Flyway schema history table.
  *
  * <p>This class implements a database-based locking strategy to prevent multiple Flyway instances
- * from simultaneously migrating the same database. The lock is implemented by inserting a special
- * row into the schema history table with a fixed installed_rank value (-100). The primary key
- * constraint on installed_rank ensures only one instance can hold the lock at a time.</p>
+ * from simultaneously migrating the same database. The lock is implemented by inserting a special row into the schema
+ * history table with a fixed installed_rank value (-100). The primary key constraint on installed_rank ensures only one
+ * instance can hold the lock at a time.</p>
  *
  * <p>The lock is kept alive by a background thread that periodically updates the lock row's timestamp.
- * Locks that haven't been updated within {@link #LOCK_TIMEOUT_MINS} are considered expired and can be
- * cleaned up by other instances attempting to acquire the lock.</p>
+ * Locks that haven't been updated within {@link #LOCK_TIMEOUT_MINS} are considered expired and can be cleaned up by
+ * other instances attempting to acquire the lock.</p>
  */
 @CustomLog
 public class InsertRowLock {
@@ -66,7 +66,7 @@ public class InsertRowLock {
      */
     public static String FLYWAY_LOCK_STRING = "flyway-lock";
 
-    public InsertRowLock(JdbcTemplate jdbcTemplate) {
+    public InsertRowLock(final JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
         this.executor = createScheduledExecutor();
     }
@@ -84,23 +84,35 @@ public class InsertRowLock {
      * Acquires a lock on the schema history table using primary key constraint.
      *
      * <p>This method assumes the database supports primary key constraints on 'installed_rank'.
-     * The lock is acquired by inserting a row with installed_rank = -100. If another instance
-     * already holds the lock, this method will retry every second until the lock becomes available.</p>
+     * The lock is acquired by inserting a row with installed_rank = -100. If another instance already holds the lock,
+     * this method will retry every second until the lock becomes available.</p>
      *
-     * @param insertStatementTemplate    template for INSERT statement with placeholders ({@link org.flywaydb.core.internal.database.base.Database#getInsertStatement(Table)})
-     * @param updateLockStatement        SQL statement to update the lock timestamp, takes a single '?' placeholder for the 'version' column that will be replaced with {@link #tableLockString}
-     * @param deleteExpiredLockStatement SQL statement to delete expired locks, takes a single '?' placeholder that will be replaced with a timestamp to remove locks older than the cutoff
+     * @param insertStatementTemplate    template for INSERT statement with placeholders
+     *                                   ({@link
+     *                                   org.flywaydb.core.internal.database.base.Database#getInsertStatement(Table)})
+     * @param updateLockStatement        SQL statement to update the lock timestamp, takes a single '?' placeholder for
+     *                                   the 'version' column that will be replaced with {@link #tableLockString}
+     * @param deleteExpiredLockStatement SQL statement to delete expired locks, takes a single '?' placeholder that will
+     *                                   be replaced with a timestamp to remove locks older than the cutoff
      * @param booleanTrue                database-specific representation of boolean true value
      * @throws SQLException if a database error occurs
      */
-    public void doLock(String insertStatementTemplate, String updateLockStatement, String deleteExpiredLockStatement, String booleanTrue) throws SQLException {
-        doLock(insertStatementTemplate, updateLockStatement, deleteExpiredLockStatement, "0", booleanTrue, (jdbcTemplate, insertStatement) -> {
-            // Insert the locking row - the primary key-ness of 'installed_rank' will prevent us having two
-            Results results = jdbcTemplate.executeStatement(insertStatement);
+    public void doLock(final String insertStatementTemplate,
+        final String updateLockStatement,
+        final String deleteExpiredLockStatement,
+        final String booleanTrue) throws SQLException {
+        doLock(insertStatementTemplate,
+            updateLockStatement,
+            deleteExpiredLockStatement,
+            "0",
+            booleanTrue,
+            (jdbcTemplate, insertStatement) -> {
+                // Insert the locking row - the primary key-ness of 'installed_rank' will prevent us having two
+                final Results results = jdbcTemplate.executeStatement(insertStatement);
 
-            // Succeed if there were no errors
-            return results.getException() == null;
-        });
+                // Succeed if there were no errors
+                return results.getException() == null;
+            });
     }
 
     /**
@@ -115,34 +127,42 @@ public class InsertRowLock {
      *   <li>If unsuccessful, retry every second (up to 50 retries with debug logging, then error logging)</li>
      * </ol>
      *
-     * @param insertStatementTemplate    template for INSERT statement with placeholders ({@link org.flywaydb.core.internal.database.base.Database#getInsertStatement(Table)})
-     * @param updateLockStatement        SQL statement to update the lock timestamp, takes a single '?' placeholder for the 'version' column that will be replaced with {@link #tableLockString}
-     * @param deleteExpiredLockStatement SQL statement to delete expired locks, takes a single '?' placeholder that will be replaced with a timestamp to remove locks older than the cutoff
+     * @param insertStatementTemplate    template for INSERT statement with placeholders
+     *                                   ({@link
+     *                                   org.flywaydb.core.internal.database.base.Database#getInsertStatement(Table)})
+     * @param updateLockStatement        SQL statement to update the lock timestamp, takes a single '?' placeholder for
+     *                                   the 'version' column that will be replaced with {@link #tableLockString}
+     * @param deleteExpiredLockStatement SQL statement to delete expired locks, takes a single '?' placeholder that will
+     *                                   be replaced with a timestamp to remove locks older than the cutoff
      * @param checksumValue              checksum value to use in the lock row
      * @param booleanTrue                database-specific representation of boolean true value
-     * @param lockStrategy               predicate that attempts to acquire the lock and returns true on success. Takes (JdbcTemplate, String insertStatement) where the statement is the formatted INSERT for the lock row
+     * @param lockStrategy               predicate that attempts to acquire the lock and returns true on success. Takes
+     *                                   (JdbcTemplate, String insertStatement) where the statement is the formatted
+     *                                   INSERT for the lock row
      * @throws SQLException if a database error occurs
      */
-    public void doLock(String insertStatementTemplate,
-                       String updateLockStatement,
-                       String deleteExpiredLockStatement,
-                       String checksumValue,
-                       String booleanTrue,
-                       BiPredicate<JdbcTemplate, String> lockStrategy) throws SQLException {
+    public void doLock(final String insertStatementTemplate,
+        final String updateLockStatement,
+        final String deleteExpiredLockStatement,
+        final String checksumValue,
+        final String booleanTrue,
+        final BiPredicate<JdbcTemplate, String> lockStrategy) throws SQLException {
         int retryCount = 0;
         while (true) {
             try {
                 jdbcTemplate.execute(generateDeleteExpiredLockStatement(deleteExpiredLockStatement));
                 if (insertLockingRow(insertStatementTemplate, checksumValue, booleanTrue, lockStrategy)) {
-                    scheduledFuture = startLockWatchingThread(String.format(updateLockStatement.replace("?", "%s"), tableLockString));
+                    scheduledFuture = startLockWatchingThread(String.format(updateLockStatement.replace("?", "%s"),
+                        tableLockString));
                     return;
                 }
                 if (retryCount < 50) {
                     retryCount++;
                     LOG.debug("Waiting for lock on Flyway schema history table");
                 } else {
-                    LOG.error("Waiting for lock on Flyway schema history table. Application may be deadlocked. Lock row may require manual removal " +
-                                      "from the schema history table.");
+                    LOG.error(
+                        "Waiting for lock on Flyway schema history table. Application may be deadlocked. Lock row may require manual removal "
+                            + "from the schema history table.");
                 }
                 Thread.sleep(1000);
             } catch (InterruptedException ex) {
@@ -151,30 +171,32 @@ public class InsertRowLock {
         }
     }
 
-    private String generateDeleteExpiredLockStatement(String deleteExpiredLockStatementTemplate) {
-        LocalDateTime zonedDateTime = LocalDateTime.now(ZoneOffset.UTC).minusMinutes(LOCK_TIMEOUT_MINS);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+    private String generateDeleteExpiredLockStatement(final String deleteExpiredLockStatementTemplate) {
+        final LocalDateTime zonedDateTime = LocalDateTime.now(ZoneOffset.UTC).minusMinutes(LOCK_TIMEOUT_MINS);
+        final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
         return String.format(deleteExpiredLockStatementTemplate.replace("?", "%s"), zonedDateTime.format(formatter));
     }
 
-    private boolean insertLockingRow(String insertStatementTemplate, String checksumValue, String booleanTrue, BiPredicate<JdbcTemplate, String> lockStrategy) {
-        String insertStatement = String.format(insertStatementTemplate.replace("?", "%s"),
-                                               -100,
-                                               "'" + tableLockString + "'",
-                                               "'" + FLYWAY_LOCK_STRING + "'",
-                                               "''",
-                                               "''",
-                                               checksumValue,
-                                               "''",
-                                               0,
-                                               booleanTrue
-        );
+    private boolean insertLockingRow(final String insertStatementTemplate,
+        final String checksumValue,
+        final String booleanTrue,
+        final BiPredicate<JdbcTemplate, String> lockStrategy) {
+        final String insertStatement = String.format(insertStatementTemplate.replace("?", "%s"),
+            -100,
+            "'" + tableLockString + "'",
+            "'" + FLYWAY_LOCK_STRING + "'",
+            "''",
+            "''",
+            checksumValue,
+            "''",
+            0,
+            booleanTrue);
         return lockStrategy.test(jdbcTemplate, insertStatement);
     }
 
-    public void doUnlock(String deleteLockTemplate) throws SQLException {
+    public void doUnlock(final String deleteLockTemplate) throws SQLException {
         stopLockWatchingThread();
-        String deleteLockStatement = String.format(deleteLockTemplate.replace("?", "%s"), tableLockString);
+        final String deleteLockStatement = String.format(deleteLockTemplate.replace("?", "%s"), tableLockString);
         jdbcTemplate.execute(deleteLockStatement);
     }
 
@@ -184,14 +206,14 @@ public class InsertRowLock {
 
     private ScheduledExecutorService createScheduledExecutor() {
         return Executors.newScheduledThreadPool(NUM_THREADS, r -> {
-            Thread t = Executors.defaultThreadFactory().newThread(r);
+            final Thread t = Executors.defaultThreadFactory().newThread(r);
             t.setDaemon(true);
             return t;
         });
     }
 
-    private ScheduledFuture<?> startLockWatchingThread(String updateLockStatement) {
-        Runnable lockUpdatingTask = () -> {
+    private ScheduledFuture<?> startLockWatchingThread(final String updateLockStatement) {
+        final Runnable lockUpdatingTask = () -> {
             LOG.debug("Updating lock in Flyway schema history table");
             jdbcTemplate.executeStatement(updateLockStatement);
         };

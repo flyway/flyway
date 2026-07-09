@@ -35,7 +35,7 @@ public class SnowflakeConnection extends Connection<SnowflakeDatabase> {
 
     private final String originalRole;
 
-    SnowflakeConnection(SnowflakeDatabase database, java.sql.Connection connection) {
+    SnowflakeConnection(final SnowflakeDatabase database, final java.sql.Connection connection) {
         super(database, connection);
         try {
             this.originalRole = jdbcTemplate.queryForString("SELECT CURRENT_ROLE()");
@@ -47,7 +47,7 @@ public class SnowflakeConnection extends Connection<SnowflakeDatabase> {
     @Override
     protected void doRestoreOriginalState() throws SQLException {
         // Snowflake Native Apps can't change roles, so check the role before attempting to change it.
-        String currentRole = jdbcTemplate.queryForString("SELECT CURRENT_ROLE()");
+        final String currentRole = jdbcTemplate.queryForString("SELECT CURRENT_ROLE()");
         if (!originalRole.equals(currentRole)) {
             // Reset the role to its original value in case a migration or callback changed it
             jdbcTemplate.execute("USE ROLE " + database.doQuote(originalRole));
@@ -56,7 +56,7 @@ public class SnowflakeConnection extends Connection<SnowflakeDatabase> {
 
     @Override
     protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
-        String schemaName = jdbcTemplate.queryForString("SELECT CURRENT_SCHEMA()");
+        final String schemaName = jdbcTemplate.queryForString("SELECT CURRENT_SCHEMA()");
         if (schemaName != null) {
             return schemaName;
         }
@@ -65,12 +65,12 @@ public class SnowflakeConnection extends Connection<SnowflakeDatabase> {
 
     @Override
     protected Schema doGetCurrentSchema() throws SQLException {
-        String schemaName = getCurrentSchemaNameOrSearchPath();
+        final String schemaName = getCurrentSchemaNameOrSearchPath();
         return schemaName != null ? getSchema(schemaName) : null;
     }
 
     @Override
-    public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
+    public void doChangeCurrentSchemaOrSearchPathTo(final String schema) throws SQLException {
         if (schema == null || schema.isEmpty()) {
             return;
         }
@@ -78,7 +78,7 @@ public class SnowflakeConnection extends Connection<SnowflakeDatabase> {
     }
 
     @Override
-    public Schema getSchema(String name) {
+    public Schema getSchema(final String name) {
         return new SnowflakeSchema(jdbcTemplate, database, name);
     }
 }

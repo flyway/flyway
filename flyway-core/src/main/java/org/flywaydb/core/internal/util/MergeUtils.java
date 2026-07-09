@@ -25,32 +25,33 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.CustomLog;
 
 @CustomLog
 public class MergeUtils {
 
-    public static <T> T merge(T a, T b) {
+    public static <T> T merge(final T a, final T b) {
         return b != null ? b : a;
     }
 
-    public static <E, T extends Collection<E>> T merge(T a, T b) {
+    public static <E, T extends Collection<E>> T merge(final T a, final T b) {
         return a == null ? b : (b != null && !b.isEmpty() ? b : a);
     }
 
-    public static <K, V> Map<K, V> merge(Map<K, V> primary, Map<K, V> overrides, BiFunction<V, V, V> mergeFn) {
+    public static <K, V> Map<K, V> merge(final Map<K, V> primary,
+        final Map<K, V> overrides,
+        final BiFunction<V, V, V> mergeFn) {
         if (primary == null) {
             return overrides;
         }
 
-        Map<K, V> result = new HashMap<>(primary);
+        final Map<K, V> result = new HashMap<>(primary);
 
         if (overrides != null) {
-            for (K key : overrides.keySet()) {
+            for (final K key : overrides.keySet()) {
                 if (primary.containsKey(key)) {
-                    V mergedValue = mergeFn.apply(primary.get(key), overrides.get(key));
+                    final V mergedValue = mergeFn.apply(primary.get(key), overrides.get(key));
                     result.replace(key, mergedValue);
                 } else {
                     result.put(key, mergeFn.apply(overrides.get(key), overrides.get(key)));
@@ -77,32 +78,30 @@ public class MergeUtils {
 
         final Map<Object, Object> result = new HashMap<>();
 
-        Stream.concat(primary.keySet().stream(), overrides.keySet().stream())
-            .distinct()
-            .forEach(key -> {
-                final Object primaryValue = primary.get(key);
-                final Object overrideValue = overrides.get(key);
+        Stream.concat(primary.keySet().stream(), overrides.keySet().stream()).distinct().forEach(key -> {
+            final Object primaryValue = primary.get(key);
+            final Object overrideValue = overrides.get(key);
 
-                if (primaryValue instanceof Map && overrideValue instanceof Map) {
-                    result.put(key, mergeMaps((Map<?, ?>) primaryValue, (Map<?, ?>) overrideValue));
-                } else {
-                    result.put(key, overrideValue != null ? overrideValue : primaryValue);
-                }
-            });
+            if (primaryValue instanceof Map && overrideValue instanceof Map) {
+                result.put(key, mergeMaps((Map<?, ?>) primaryValue, (Map<?, ?>) overrideValue));
+            } else {
+                result.put(key, overrideValue != null ? overrideValue : primaryValue);
+            }
+        });
 
         return result;
     }
 
-    public static <T> void mergeModel(T source, T target) {
-        Class<?> clas = source.getClass();
-        Field[] fields = clas.getDeclaredFields();
+    public static <T> void mergeModel(final T source, final T target) {
+        final Class<?> clas = source.getClass();
+        final Field[] fields = clas.getDeclaredFields();
         try {
-            for (Field field : fields) {
+            for (final Field field : fields) {
                 if (!Modifier.isFinal(field.getModifiers())) {
                     field.setAccessible(true);
-                    Object sourceValue = field.get(source);
-                    Object targetValue = field.get(target);
-                    Object value = (sourceValue != null) ? sourceValue : targetValue;
+                    final Object sourceValue = field.get(source);
+                    final Object targetValue = field.get(target);
+                    final Object value = (sourceValue != null) ? sourceValue : targetValue;
                     field.set(target, value);
                 }
             }

@@ -39,17 +39,19 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
     private String databaseName = null;
     private boolean supportsMultiStatementTransactions = false;
 
-    public SybaseASEDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+    public SybaseASEDatabase(final Configuration configuration,
+        final JdbcConnectionFactory jdbcConnectionFactory,
+        final StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
     @Override
-    protected SybaseASEConnection doGetConnection(Connection connection) {
+    protected SybaseASEConnection doGetConnection(final Connection connection) {
         return new SybaseASEConnection(this, connection);
     }
 
     @Override
-    public void ensureSupported(Configuration configuration) {
+    public void ensureSupported(final Configuration configuration) {
         ensureDatabaseIsRecentEnough("15.7");
 
         ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("16.3", Tier.PREMIUM, configuration);
@@ -58,25 +60,31 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
     }
 
     @Override
-    public String getRawCreateScript(Table table, boolean baseline) {
-        return "CREATE TABLE " + table.getName() + " (\n" +
-                "    installed_rank INT NOT NULL,\n" +
-                "    version VARCHAR(50) NULL,\n" +
-                "    description VARCHAR(200) NOT NULL,\n" +
-                "    type VARCHAR(20) NOT NULL,\n" +
-                "    script VARCHAR(1000) NOT NULL,\n" +
-                "    checksum INT NULL,\n" +
-                "    installed_by VARCHAR(100) NOT NULL,\n" +
-                "    installed_on datetime DEFAULT getDate() NOT NULL,\n" +
-                "    execution_time INT NOT NULL,\n" +
-                "    success decimal NOT NULL,\n" +
-                "    PRIMARY KEY (installed_rank)\n" +
-                ")\n" +
-                "lock datarows on 'default'\n" +
-                (baseline ? getBaselineStatement(table) + "\n" : "") +
-                "go\n" +
-                "CREATE INDEX " + table.getName() + "_s_idx ON " + table.getName() + " (success)\n" +
-                "go\n";
+    public String getRawCreateScript(final Table table, final boolean baseline) {
+        return "CREATE TABLE "
+            + table.getName()
+            + " (\n"
+            + "    installed_rank INT NOT NULL,\n"
+            + "    version VARCHAR(50) NULL,\n"
+            + "    description VARCHAR(200) NOT NULL,\n"
+            + "    type VARCHAR(20) NOT NULL,\n"
+            + "    script VARCHAR(1000) NOT NULL,\n"
+            + "    checksum INT NULL,\n"
+            + "    installed_by VARCHAR(100) NOT NULL,\n"
+            + "    installed_on datetime DEFAULT getDate() NOT NULL,\n"
+            + "    execution_time INT NOT NULL,\n"
+            + "    success decimal NOT NULL,\n"
+            + "    PRIMARY KEY (installed_rank)\n"
+            + ")\n"
+            + "lock datarows on 'default'\n"
+            + (baseline ? getBaselineStatement(table) + "\n" : "")
+            + "go\n"
+            + "CREATE INDEX "
+            + table.getName()
+            + "_s_idx ON "
+            + table.getName()
+            + " (success)\n"
+            + "go\n";
     }
 
     @Override
@@ -140,15 +148,14 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
      *      - Never check ddl in tran again
      *  - If ddl in tran is false, return false
      *      - Check ddl in tran again on the next call
-     */
-    public boolean supportsMultiStatementTransactions() {
+     */ public boolean supportsMultiStatementTransactions() {
         if (supportsMultiStatementTransactions) {
-            LOG.debug("ddl in tran was found to be true at some point during execution." +
-                              "Therefore multi statement transaction support is assumed.");
+            LOG.debug("ddl in tran was found to be true at some point during execution."
+                + "Therefore multi statement transaction support is assumed.");
             return true;
         }
 
-        boolean ddlInTran = getDdlInTranOption();
+        final boolean ddlInTran = getDdlInTranOption();
 
         if (ddlInTran) {
             LOG.debug("ddl in tran is true. Multi statement transaction support is now assumed.");
@@ -161,17 +168,17 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
     boolean getDdlInTranOption() {
         try {
             // http://infocenter.sybase.com/help/index.jsp?topic=/com.sybase.infocenter.dc36273.1600/doc/html/san1393052037182.html
-            String databaseName = getDatabaseName();
+            final String databaseName = getDatabaseName();
             // The Sybase driver (v7.07) concatenates "null" to this query and we can't see why. By adding a one-line
             // comment marker we can at least prevent this causing us problems until we get a resolution.
-            String getDatabaseMetadataQuery = "sp_helpdb " + databaseName + " -- ";
-            Results results = getMainConnection().getJdbcTemplate().executeStatement(getDatabaseMetadataQuery);
+            final String getDatabaseMetadataQuery = "sp_helpdb " + databaseName + " -- ";
+            final Results results = getMainConnection().getJdbcTemplate().executeStatement(getDatabaseMetadataQuery);
             for (int resultsIndex = 0; resultsIndex < results.getResults().size(); resultsIndex++) {
-                List<String> columns = results.getResults().get(resultsIndex).columns();
+                final List<String> columns = results.getResults().get(resultsIndex).columns();
                 if (columns != null) {
-                    int statusIndex = getStatusIndex(columns);
+                    final int statusIndex = getStatusIndex(columns);
                     if (statusIndex > -1) {
-                        String options = results.getResults().get(resultsIndex).data().get(0).get(statusIndex);
+                        final String options = results.getResults().get(resultsIndex).data().get(0).get(statusIndex);
                         return options.contains("ddl in tran");
                     }
                 }
@@ -182,7 +189,7 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
         }
     }
 
-    private int getStatusIndex(List<String> columns) {
+    private int getStatusIndex(final List<String> columns) {
         for (int statusIndex = 0; statusIndex < columns.size(); statusIndex++) {
             if ("status".equals(columns.get(statusIndex))) {
                 return statusIndex;

@@ -31,20 +31,20 @@ public class DockerUtils {
     private static final String NOT_CONTAINER = "Not container";
     private static final String REDGATE_DOCKER = "Redgate Docker";
 
-    public static String getContainerType(final java.util.function.Function<String, Path> getPath){
+    public static String getContainerType(final java.util.function.Function<String, Path> getPath) {
         final var redgateDocker = System.getenv("REDGATE_DOCKER");
-        if("true".equals(redgateDocker)) {
+        if ("true".equals(redgateDocker)) {
             return REDGATE_DOCKER;
         }
 
         final var osName = System.getProperty("os.name", "generic");
-        if(osName.startsWith("Windows")) {
+        if (osName.startsWith("Windows")) {
             return NOT_CONTAINER;
         }
 
         // https://www.baeldung.com/linux/is-process-running-inside-container
         final var cgroupPath = getPath.apply("/proc/1/cgroup");
-        if(Files.exists(cgroupPath)) {
+        if (Files.exists(cgroupPath)) {
             try (final var lines = Files.lines(cgroupPath)) {
                 final var groups = lines.map(x -> x.split(":")[2]).toList();
                 if (groups.stream().anyMatch(line -> line.startsWith("/docker"))) {
@@ -59,8 +59,8 @@ public class DockerUtils {
         }
 
         final var schedPath = getPath.apply("/proc/1/sched");
-        if(Files.exists(schedPath)) {
-            try (final var lines = Files.lines(schedPath)){
+        if (Files.exists(schedPath)) {
+            try (final var lines = Files.lines(schedPath)) {
                 final var firstLine = lines.findFirst();
                 if (firstLine.isPresent()) {
                     if (firstLine.get().contains("init") || firstLine.get().contains("system")) {

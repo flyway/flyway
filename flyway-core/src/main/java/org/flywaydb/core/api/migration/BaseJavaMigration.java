@@ -19,16 +19,15 @@
  */
 package org.flywaydb.core.api.migration;
 
-import org.flywaydb.core.api.CoreMigrationType;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.extensibility.MigrationType;
 import org.flywaydb.core.internal.resolver.MigrationInfoHelper;
 import org.flywaydb.core.internal.util.Pair;
 
 /**
  * <p>This is the recommended class to extend for implementing Java-based Migrations.</p>
- * <p>Subclasses should follow the default Flyway naming convention of having a class name with the following structure:</p>
+ * <p>Subclasses should follow the default Flyway naming convention of having a class name with the following
+ * structure:</p>
  * <ul>
  * <li><strong>Versioned Migrations:</strong> V2__Add_new_table</li>
  * <li><strong>Undo Migrations:</strong> U2__Add_new_table</li>
@@ -58,24 +57,29 @@ public abstract class BaseJavaMigration implements JavaMigration {
     }
 
     protected void init() {
-        String shortName = getClass().getSimpleName();
+        final String shortName = getClass().getSimpleName();
         String prefix = null;
 
-        boolean repeatable = shortName.startsWith("R");
+        final boolean repeatable = shortName.startsWith("R");
 
         if (shortName.startsWith("V") || repeatable) {
             prefix = shortName.substring(0, 1);
         }
         if (prefix == null) {
-            throw new FlywayException("Invalid Java-based migration class name: " + getClass().getName() +
-                                              " => ensure it starts with V or R" +
-                                              " or implement org.flywaydb.core.api.migration.JavaMigration directly for non-default naming");
+            throw new FlywayException("Invalid Java-based migration class name: "
+                + getClass().getName()
+                + " => ensure it starts with V or R"
+                + " or implement org.flywaydb.core.api.migration.JavaMigration directly for non-default naming");
         }
         extractVersionAndDescription(shortName, prefix, repeatable);
     }
 
-    protected void extractVersionAndDescription(String shortName, String prefix, boolean repeatable) {
-        Pair<MigrationVersion, String> info = MigrationInfoHelper.extractVersionAndDescription(shortName, prefix, "__", new String[] {""}, repeatable);
+    protected void extractVersionAndDescription(final String shortName, final String prefix, final boolean repeatable) {
+        final Pair<MigrationVersion, String> info = MigrationInfoHelper.extractVersionAndDescription(shortName,
+            prefix,
+            "__",
+            new String[] { "" },
+            repeatable);
         version = info.getLeft();
         description = info.getRight();
     }

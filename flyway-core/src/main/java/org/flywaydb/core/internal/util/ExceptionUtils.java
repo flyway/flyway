@@ -28,10 +28,11 @@ import org.flywaydb.core.api.FlywayException;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ExceptionUtils {
     public static final String CONTACT_EMAIL = "DatabaseDevOps@red-gate.com";
+
     /**
      * @return The root cause or the throwable itself if it doesn't have a cause.
      */
-    public static Throwable getRootCause(Throwable throwable) {
+    public static Throwable getRootCause(final Throwable throwable) {
         if (throwable == null) {
             return null;
         }
@@ -48,31 +49,39 @@ public class ExceptionUtils {
     /**
      * Retrieves the exact location where this exception was thrown.
      */
-    public static String getThrowLocation(Throwable e) {
-        StackTraceElement element = e.getStackTrace()[0];
-        int lineNumber = element.getLineNumber();
-        return element.getClassName() + "." + element.getMethodName()
-                + (lineNumber < 0 ? "" : ":" + lineNumber)
-                + (element.isNativeMethod() ? " [native]" : "");
+    public static String getThrowLocation(final Throwable e) {
+        final StackTraceElement element = e.getStackTrace()[0];
+        final int lineNumber = element.getLineNumber();
+        return element.getClassName() + "." + element.getMethodName() + (lineNumber < 0 ? "" : ":" + lineNumber) + (
+            element.isNativeMethod()
+                ? " [native]"
+                : "");
     }
 
     /**
      * Transforms the details of this SQLException into a nice readable message.
      */
-    public static String toMessage(SQLException e) {
+    public static String toMessage(final SQLException e) {
         SQLException cause = e;
         while (cause.getNextException() != null) {
             cause = cause.getNextException();
         }
 
-        String message = "SQL State  : " + cause.getSQLState() + "\n"
-                + "Error Code : " + cause.getErrorCode() + "\n";
+        String message = "";
+        if (!isOracleError(cause)) {
+            message = "SQL State  : " + cause.getSQLState() + "\n" + "Error Code : " + cause.getErrorCode() + "\n";
+        }
         if (cause.getMessage() != null) {
             message += "Message    : " + cause.getMessage().trim() + "\n";
         }
 
         return message;
+    }
 
+    private static boolean isOracleError(final SQLException cause) {
+        return Optional.ofNullable(cause.getMessage())
+            .map(message -> message.matches(".*ORA-\\d{4,5}.*"))
+            .orElse(false);
     }
 
     /**

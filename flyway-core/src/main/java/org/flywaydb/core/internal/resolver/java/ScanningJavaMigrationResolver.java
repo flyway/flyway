@@ -39,11 +39,11 @@ public class ScanningJavaMigrationResolver implements MigrationResolver {
     private final Configuration configuration;
 
     @Override
-    public List<ResolvedMigration> resolveMigrations(Context context) {
-        List<ResolvedMigration> migrations = new ArrayList<>();
+    public List<ResolvedMigration> resolveMigrations(final Context context) {
+        final List<ResolvedMigration> migrations = new ArrayList<>();
 
-        for (Class<?> clazz : classProvider.getClasses()) {
-            JavaMigration javaMigration = ClassUtils.instantiate(clazz.getName(), configuration.getClassLoader());
+        for (final Class<?> clazz : classProvider.getClasses()) {
+            final JavaMigration javaMigration = ClassUtils.instantiate(clazz.getName(), configuration.getClassLoader());
             migrations.add(javaMigration.getResolvedMigration(configuration, context.statementInterceptor));
         }
 

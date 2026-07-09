@@ -67,15 +67,17 @@ public class MySQLDatabaseType extends BaseDatabaseType {
     }
 
     @Override
-    public boolean handlesJDBCUrl(String url) {
+    public boolean handlesJDBCUrl(final String url) {
         return isSecretManagerUrl(url, "mysql")
-            || url.startsWith("jdbc:mysql:") || url.startsWith("jdbc:google:")
-            || url.startsWith("jdbc:p6spy:mysql:") || url.startsWith("jdbc:p6spy:google:")
+            || url.startsWith("jdbc:mysql:")
+            || url.startsWith("jdbc:google:")
+            || url.startsWith("jdbc:p6spy:mysql:")
+            || url.startsWith("jdbc:p6spy:google:")
             || isAwsWrapperUrl(url, "mysql");
     }
 
     @Override
-    public String getDriverClass(String url, ClassLoader classLoader) {
+    public String getDriverClass(final String url, final ClassLoader classLoader) {
         if (url.startsWith("jdbc:p6spy:mysql:") || url.startsWith("jdbc:p6spy:google:")) {
             return "com.p6spy.engine.spy.P6SpyDriver";
         }
@@ -90,7 +92,7 @@ public class MySQLDatabaseType extends BaseDatabaseType {
     }
 
     @Override
-    public String getBackupDriverClass(String url, ClassLoader classLoader) {
+    public String getBackupDriverClass(final String url, final ClassLoader classLoader) {
         if (ClassUtils.isPresent(MYSQL_LEGACY_JDBC_DRIVER, classLoader)) {
             return MYSQL_LEGACY_JDBC_DRIVER;
         }
@@ -103,24 +105,30 @@ public class MySQLDatabaseType extends BaseDatabaseType {
     }
 
     @Override
-    public boolean handlesDatabaseProductNameAndVersion(String databaseProductName, String databaseProductVersion, Connection connection) {
+    public boolean handlesDatabaseProductNameAndVersion(final String databaseProductName,
+        final String databaseProductVersion,
+        final Connection connection) {
         // Google Cloud SQL returns different names depending on the environment and the SDK version.
         //   ex.: Google SQL Service/MySQL
         return databaseProductName.contains("MySQL");
     }
 
     @Override
-    public Database createDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+    public Database createDatabase(final Configuration configuration,
+        final JdbcConnectionFactory jdbcConnectionFactory,
+        final StatementInterceptor statementInterceptor) {
         return new MySQLDatabase(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
     @Override
-    public Parser createParser(Configuration configuration, ResourceProvider resourceProvider, ParsingContext parsingContext) {
+    public Parser createParser(final Configuration configuration,
+        final ResourceProvider resourceProvider,
+        final ParsingContext parsingContext) {
         return new MySQLParser(configuration, parsingContext);
     }
 
     @Override
-    public void setDefaultConnectionProps(String url, Properties props, ClassLoader classLoader) {
+    public void setDefaultConnectionProps(final String url, final Properties props, final ClassLoader classLoader) {
         props.put("connectionAttributes", "program_name:" + APPLICATION_NAME);
     }
 
@@ -136,14 +144,14 @@ public class MySQLDatabaseType extends BaseDatabaseType {
 
 
     @Override
-    public Properties getExternalAuthProperties(String url, String username) {
-        MySQLOptionFileReader mySQLOptionFileReader = new MySQLOptionFileReader();
+    public Properties getExternalAuthProperties(final String url, final String username) {
+        final MySQLOptionFileReader mySQLOptionFileReader = new MySQLOptionFileReader();
 
-        mySQLOptionFileReader.populateOptionFiles();
-        if (!mySQLOptionFileReader.optionFiles.isEmpty()) {
-            LOG.info(org.flywaydb.core.internal.license.FlywayUpgradeMessage.generate("a MySQL option file", "use this for database authentication"));
-        }
-        return super.getExternalAuthProperties(url, username);
+                mySQLOptionFileReader.populateOptionFiles();
+                if (!mySQLOptionFileReader.optionFiles.isEmpty()) {
+                    LOG.info(org.flywaydb.core.internal.license.FlywayUpgradeMessage.generate("a MySQL option file", "use this for database authentication"));
+                }
+                return super.getExternalAuthProperties(url, username);
 
 
 

@@ -51,7 +51,8 @@ public class NativeConnectorsSupportImpl implements NativeConnectorsSupport {
             return false;
         }
 
-        final boolean canUseNativeConnectors = isNativeConnectorsTurnedOn() || database.get().isOnByDefault(configuration);
+        final boolean canUseNativeConnectors = isNativeConnectorsTurnedOn() || database.get()
+            .isOnByDefault(configuration);
 
         if (canUseNativeConnectors && useLegacyAsDryRunSet(configuration)) {
             if (database.get() instanceof NativeConnectorsNonJdbc) {
@@ -75,13 +76,14 @@ public class NativeConnectorsSupportImpl implements NativeConnectorsSupport {
             return true;
         }
 
-        Optional<NativeConnectorsDatabase> database = resolveNativeConnectorsDatabasePlugin(configuration);
+        final Optional<NativeConnectorsDatabase> database = resolveNativeConnectorsDatabasePlugin(configuration);
 
         if (database.isEmpty()) {
             return true;
         }
 
-        final boolean canUseNativeConnectors = isNativeConnectorsTurnedOn() || database.get().isOnByDefault(configuration);
+        final boolean canUseNativeConnectors = isNativeConnectorsTurnedOn() || database.get()
+            .isOnByDefault(configuration);
 
         if (canUseNativeConnectors) {
             return database.get().canCreateJdbcDataSource();

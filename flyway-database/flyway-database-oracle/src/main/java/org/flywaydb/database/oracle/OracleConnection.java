@@ -30,7 +30,7 @@ public class OracleConnection extends Connection<OracleDatabase> {
     @Getter
     private final boolean awsRds;
 
-    OracleConnection(OracleDatabase database, java.sql.Connection connection) {
+    OracleConnection(final OracleDatabase database, final java.sql.Connection connection) {
         super(database, connection);
 
         awsRds = rdsAdminExists();
@@ -42,18 +42,19 @@ public class OracleConnection extends Connection<OracleDatabase> {
     }
 
     @Override
-    public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
+    public void doChangeCurrentSchemaOrSearchPathTo(final String schema) throws SQLException {
         jdbcTemplate.execute("ALTER SESSION SET CURRENT_SCHEMA=" + database.quote(schema));
     }
 
     @Override
-    public Schema getSchema(String name) {
+    public Schema getSchema(final String name) {
         return new OracleSchema(jdbcTemplate, database, name);
     }
 
     private boolean rdsAdminExists() {
         try {
-            return StringUtils.hasText(jdbcTemplate.queryForString("SELECT username FROM all_users WHERE UPPER(username) = 'RDSADMIN'"));
+            return StringUtils.hasText(jdbcTemplate.queryForString(
+                "SELECT username FROM all_users WHERE UPPER(username) = 'RDSADMIN'"));
         } catch (Exception e) {
             return false;
         }

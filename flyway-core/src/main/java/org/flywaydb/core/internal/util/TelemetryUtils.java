@@ -35,20 +35,19 @@ import java.util.List;
 public class TelemetryUtils {
     /**
      * @param infos a List of InfoOutput
-     *
-     * @return the oldest migration date as UTC String
-     * If no applied migration found, returns an empty string.
+     * @return the oldest migration date as UTC String If no applied migration found, returns an empty string.
      */
-    public static String getOldestMigration(List<InfoOutput> infos) {
+    public static String getOldestMigration(final List<InfoOutput> infos) {
 
         if (infos == null) {
             return "";
         }
 
-        List<String> migrationDates = new ArrayList<>();
+        final List<String> migrationDates = new ArrayList<>();
 
-        infos.stream().filter(output -> StringUtils.hasText(output.installedOnUTC))
-             .forEach(output -> migrationDates.add(output.installedOnUTC));
+        infos.stream()
+            .filter(output -> StringUtils.hasText(output.installedOnUTC))
+            .forEach(output -> migrationDates.add(output.installedOnUTC));
 
         if (!migrationDates.isEmpty()) {
             migrationDates.sort(Comparator.naturalOrder());
@@ -59,6 +58,8 @@ public class TelemetryUtils {
     }
 
     public static FlywayTelemetryManager getTelemetryManager(final Configuration configuration) {
-        return configuration != null ? configuration.getPluginRegister().getInstanceOf(FlywayTelemetryManager.class) : null;
+        return configuration != null
+            ? configuration.getPluginRegister().getInstanceOf(FlywayTelemetryManager.class)
+            : null;
     }
 }

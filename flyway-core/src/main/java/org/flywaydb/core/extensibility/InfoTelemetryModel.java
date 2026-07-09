@@ -30,7 +30,7 @@ public class InfoTelemetryModel extends EventTelemetryModel {
     private int numberOfPendingMigrations;
     private String oldestMigrationInstalledOnUTC;
 
-    public InfoTelemetryModel(FlywayTelemetryManager flywayTelemetryManager){
+    public InfoTelemetryModel(final FlywayTelemetryManager flywayTelemetryManager) {
         super("info", flywayTelemetryManager);
     }
 }

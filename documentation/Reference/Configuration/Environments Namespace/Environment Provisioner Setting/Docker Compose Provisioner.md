@@ -7,6 +7,10 @@ subtitle: Docker Compose Provisioner
 {% include enterprise.html %}
 
 > **Note:** This provisioner was previously named `docker`. The new [`docker` provisioner](<Configuration/Environments Namespace/Environment Provisioner Setting/Docker Provisioner>) is auto-detecting and requires minimal configuration; use `docker-compose` when you need full control over the container via a compose file. To migrate, change `provisioner = "docker"` to `provisioner = "docker-compose"` and rename the `[environments.<name>.resolvers.docker]` section to `[environments.<name>.resolvers.docker-compose]`.
+>
+> **Deprecation:** A `docker` provisioner set up with only compose-file keys (`composeFile`, `services`) still works. Flyway forwards it to `docker-compose` and logs a warning on each run. This forwarding will be removed in a future release, so switch the provisioner to `docker-compose`.
+>
+> Do not mix compose-file keys with the smart Docker keys (`sourceEnvironment`, `databaseEngine`, `databaseEngineVersion`, `keepAlive`, `iAgreeToTheDBVendorsEula`) in one `docker` section. That combination is unsupported and fails with an error.
 
 This [provisioner](https://documentation.red-gate.com/flyway/flyway-concepts/environments/provisioning) allows for the provisioning and re-provisioning of databases using Docker, specifically leveraging the Docker compose functionality
 

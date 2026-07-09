@@ -34,12 +34,13 @@ public abstract class BaselineJavaMigration extends BaseJavaMigration {
 
     @Override
     protected void init() {
-        String shortName = getClass().getSimpleName();
+        final String shortName = getClass().getSimpleName();
         if (!shortName.startsWith(BASELINE_MIGRATION_PREFIX)) {
-            throw new FlywayException("Invalid baseline Java migration class name: " + getClass().getName() +
-                                              " => ensure it starts with " +
-                                              BASELINE_MIGRATION_PREFIX +
-                                              " or implement org.flywaydb.core.api.migration.JavaMigration directly for non-default naming");
+            throw new FlywayException("Invalid baseline Java migration class name: "
+                + getClass().getName()
+                + " => ensure it starts with "
+                + BASELINE_MIGRATION_PREFIX
+                + " or implement org.flywaydb.core.api.migration.JavaMigration directly for non-default naming");
         }
         extractVersionAndDescription(shortName, BASELINE_MIGRATION_PREFIX, false);
     }
@@ -50,15 +51,16 @@ public abstract class BaselineJavaMigration extends BaseJavaMigration {
     }
 
     @Override
-    public ResolvedMigration getResolvedMigration(Configuration config, StatementInterceptor statementInterceptor) {
+    public ResolvedMigration getResolvedMigration(final Configuration config,
+        final StatementInterceptor statementInterceptor) {
         return new BaselineResolvedMigration(getVersion(),
-                                             getDescription(),
-                                             getClass().getName(),
-                                             getChecksum(),
-                                             null,
-                                             getType(),
-                                             ClassUtils.getLocationOnDisk(getClass()),
-                                             new JavaMigrationExecutor(this, statementInterceptor),
-                                             config);
+            getDescription(),
+            getClass().getName(),
+            getChecksum(),
+            null,
+            getType(),
+            ClassUtils.getLocationOnDisk(getClass()),
+            new JavaMigrationExecutor(this, statementInterceptor),
+            config);
     }
 }

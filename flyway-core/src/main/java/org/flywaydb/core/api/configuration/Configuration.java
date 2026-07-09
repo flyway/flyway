@@ -46,7 +46,8 @@ public interface Configuration {
     /**
      * Retrieves the ClassLoader to use for loading migrations, resolvers, etc. from the classpath.
      *
-     * @return The ClassLoader to use for loading migrations, resolvers, etc. from the classpath. (default: Thread.currentThread().getContextClassLoader() )
+     * @return The ClassLoader to use for loading migrations, resolvers, etc. from the classpath. (default:
+     * Thread.currentThread().getContextClassLoader() )
      */
     ClassLoader getClassLoader();
 
@@ -65,6 +66,7 @@ public interface Configuration {
 
     /**
      * Get the filename of generated reports
+     *
      * @return report filename;
      */
     String getReportFilename();
@@ -76,8 +78,8 @@ public interface Configuration {
     boolean isReportEnabled();
 
     /**
-     * Retrieves the url used to construct the dataSource. May be null if the dataSource was passed in directly.
-     * This method will trigger an environment resolution operation if no environment has been resolved yet.
+     * Retrieves the url used to construct the dataSource. May be null if the dataSource was passed in directly. This
+     * method will trigger an environment resolution operation if no environment has been resolved yet.
      *
      * @return The url used to construct the dataSource. May be null if the dataSource was passed in directly.
      */
@@ -86,16 +88,20 @@ public interface Configuration {
     String getWorkingDirectory();
 
     /**
-     * Retrieves the user used to construct the dataSource. May be null if the dataSource was passed in directly, or if dataSource did not need a user.
+     * Retrieves the user used to construct the dataSource. May be null if the dataSource was passed in directly, or if
+     * dataSource did not need a user.
      *
-     * @return The user used to construct the dataSource. May be null if the dataSource was passed in directly, or if dataSource did not need a user.
+     * @return The user used to construct the dataSource. May be null if the dataSource was passed in directly, or if
+     * dataSource did not need a user.
      */
     String getUser();
 
     /**
-     * Retrieves the password used to construct the dataSource. May be null if the dataSource was passed in directly, or if dataSource did not need a password.
+     * Retrieves the password used to construct the dataSource. May be null if the dataSource was passed in directly, or
+     * if dataSource did not need a password.
      *
-     * @return The password used to construct the dataSource. May be null if the dataSource was passed in directly, or if dataSource did not need a password.
+     * @return The password used to construct the dataSource. May be null if the dataSource was passed in directly, or
+     * if dataSource did not need a password.
      */
     String getPassword();
 
@@ -116,8 +122,8 @@ public interface Configuration {
     int getConnectRetries();
 
     /**
-     * The maximum time between retries when attempting to connect to the database in seconds. This will cap the interval
-     * between connect retry to the value provided.
+     * The maximum time between retries when attempting to connect to the database in seconds. This will cap the
+     * interval between connect retry to the value provided.
      *
      * @return The maximum time between retries in seconds (default: 120)
      */
@@ -140,14 +146,17 @@ public interface Configuration {
     /**
      * Retrieves the description to tag an existing schema with when executing baseline.
      *
-     * @return The description to tag an existing schema with when executing baseline. (default: &lt;&lt; Flyway Baseline &gt;&gt;)
+     * @return The description to tag an existing schema with when executing baseline. (default: &lt;&lt; Flyway
+     * Baseline &gt;&gt;)
      */
     String getBaselineDescription();
 
     /**
-     * Retrieves the custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
+     * Retrieves the custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to
+     * apply.
      *
-     * @return The custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply. An empty array if none. (default: none)
+     * @return The custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to
+     * apply. An empty array if none. (default: none)
      */
     MigrationResolver[] getResolvers();
 
@@ -173,9 +182,9 @@ public interface Configuration {
     boolean isSkipDefaultCallbacks();
 
     /**
-     * The file name prefix for versioned SQL migrations.
-     * Versioned SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
-     * which using the defaults translates to V1.1__My_description.sql
+     * The file name prefix for versioned SQL migrations. Versioned SQL migrations have the following file name
+     * structure: prefixVERSIONseparatorDESCRIPTIONsuffix, which using the defaults translates to
+     * V1.1__My_description.sql
      *
      * @return The file name prefix for sql migrations. (default: V)
      */
@@ -189,29 +198,26 @@ public interface Configuration {
     boolean isExecuteInTransaction();
 
     /**
-     * Retrieves the file name prefix for repeatable SQL migrations.
-     * Repeatable SQL migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix,
-     * which using the defaults translates to R__My_description.sql<
+     * Retrieves the file name prefix for repeatable SQL migrations. Repeatable SQL migrations have the following file
+     * name structure: prefixSeparatorDESCRIPTIONsuffix, which using the defaults translates to R__My_description.sql<
      *
      * @return The file name prefix for repeatable sql migrations. (default: R)
      */
     String getRepeatableSqlMigrationPrefix();
 
     /**
-     * Retrieves the file name separator for sql migrations.
-     * SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
-     * which using the defaults translates to V1_1__My_description.sql
+     * Retrieves the file name separator for sql migrations. SQL migrations have the following file name structure:
+     * prefixVERSIONseparatorDESCRIPTIONsuffix, which using the defaults translates to V1_1__My_description.sql
      *
      * @return The file name separator for sql migrations. (default: __)
      */
     String getSqlMigrationSeparator();
 
     /**
-     * The file name suffixes for SQL migrations. (default: .sql)
-     * SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
-     * which using the defaults translates to V1_1__My_description.sql
-     * Multiple suffixes (like .sql,.pkg,.pkb) can be specified for easier compatibility with other tools such as
-     * editors with specific file associations.
+     * The file name suffixes for SQL migrations. (default: .sql) SQL migrations have the following file name structure:
+     * prefixVERSIONseparatorDESCRIPTIONsuffix, which using the defaults translates to V1_1__My_description.sql Multiple
+     * suffixes (like .sql,.pkg,.pkb) can be specified for easier compatibility with other tools such as editors with
+     * specific file associations.
      *
      * @return The file name suffixes for SQL migrations.
      */
@@ -219,9 +225,9 @@ public interface Configuration {
 
     /**
      * The manually added Java-based migrations. These are not Java-based migrations discovered through classpath
-     * scanning and instantiated by Flyway. Instead these are manually added instances of JavaMigration.
-     * This is particularly useful when working with a dependency injection container, where you may want the DI
-     * container to instantiate the class and wire up its dependencies for you.
+     * scanning and instantiated by Flyway. Instead these are manually added instances of JavaMigration. This is
+     * particularly useful when working with a dependency injection container, where you may want the DI container to
+     * instantiate the class and wire up its dependencies for you.
      *
      * @return The manually added Java-based migrations. An empty array if none. (default: none)
      */
@@ -284,9 +290,8 @@ public interface Configuration {
     Map<String, String> getPlaceholders();
 
     /**
-     * Gets the target version up to which Flyway should consider migrations.
-     * Migrations with a higher version number will be ignored.
-     * Special values:
+     * Gets the target version up to which Flyway should consider migrations. Migrations with a higher version number
+     * will be ignored. Special values:
      * <ul>
      * <li>{@code current}: Designates the current version of the schema</li>
      * <li>{@code latest}: The latest version of the schema, as defined by the migration with the highest version</li>
@@ -308,8 +313,8 @@ public interface Configuration {
     boolean isFailOnMissingTarget();
 
     /**
-     * Gets the migrations that Flyway should consider when migrating or undoing. Leave empty to consider all available migrations.
-     * Migrations not in this list will be ignored.
+     * Gets the migrations that Flyway should consider when migrating or undoing. Leave empty to consider all available
+     * migrations. Migrations not in this list will be ignored.
      * <i>Flyway Teams only</i>
      *
      * @return The migrations that Flyway should consider when migrating or undoing.
@@ -317,19 +322,20 @@ public interface Configuration {
     MigrationPattern[] getCherryPick();
 
     /**
-     * Retrieves the name of the schema history table that will be used by Flyway.
-     * By default, (single-schema mode) the schema history table is placed in the default schema for the connection provided by the datasource.
-     * When the <i>flyway.schemas</i> property is set (multi-schema mode), the schema history table is placed in the first schema of the list,
-     * or in the schema specified to <i>flyway.defaultSchema</i>.
+     * Retrieves the name of the schema history table that will be used by Flyway. By default, (single-schema mode) the
+     * schema history table is placed in the default schema for the connection provided by the datasource. When the
+     * <i>flyway.schemas</i> property is set (multi-schema mode), the schema history table is placed in the first
+     * schema
+     * of the list, or in the schema specified to <i>flyway.defaultSchema</i>.
      *
      * @return The name of the schema history table that will be used by Flyway. (default: flyway_schema_history)
      */
     String getTable();
 
     /**
-     * The tablespace where to create the schema history table that will be used by Flyway.
-     * If not specified, Flyway uses the default tablespace for the database connection.
-     * This setting is only relevant for databases that do support the notion of tablespace. Its value is simply ignored for all others.
+     * The tablespace where to create the schema history table that will be used by Flyway. If not specified, Flyway
+     * uses the default tablespace for the database connection. This setting is only relevant for databases that do
+     * support the notion of tablespace. Its value is simply ignored for all others.
      *
      * @return The tablespace where to create the schema history table that will be used by Flyway.
      */
@@ -337,22 +343,23 @@ public interface Configuration {
 
     /**
      * The default schema managed by Flyway. This schema name is case-sensitive. If not specified, but <i>schemas</i>
-     * is, Flyway uses the first schema in that list. If that is also not specified, Flyway uses the default schema for the
-     * database connection.
+     * is, Flyway uses the first schema in that list. If that is also not specified, Flyway uses the default schema for
+     * the database connection.
      * <p>Consequences:</p>
      * <ul>
      * <li>This schema will be the one containing the schema history table.</li>
      * <li>This schema will be the default for the database connection (provided the database supports this concept).</li>
      * </ul>
      *
-     * @return The default schema managed by Flyway, which is where the schema history table will reside. (default: The first schema specified in getSchemas(), and failing that the default schema for the database connection)
+     * @return The default schema managed by Flyway, which is where the schema history table will reside. (default: The
+     * first schema specified in getSchemas(), and failing that the default schema for the database connection)
      */
     String getDefaultSchema();
 
     /**
-     * The schemas managed by Flyway. These schema names are case-sensitive. If not specified, Flyway uses
-     * the default schema for the database connection. If <i>defaultSchema</i> is not specified, then the first of
-     * this list also acts as the default schema.
+     * The schemas managed by Flyway. These schema names are case-sensitive. If not specified, Flyway uses the default
+     * schema for the database connection. If <i>defaultSchema</i> is not specified, then the first of this list also
+     * acts as the default schema.
      * <p>Consequences:</p>
      * <ul>
      * <li>Flyway will automatically attempt to create all these schemas, unless they already exist.</li>
@@ -380,12 +387,10 @@ public interface Configuration {
     boolean isDetectEncoding();
 
     /**
-     * Retrieves the locations to scan recursively for migrations.
-     * The location type is determined by its prefix.
+     * Retrieves the locations to scan recursively for migrations. The location type is determined by its prefix.
      * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
-     * contain both SQL and Java-based migrations.
-     * Locations starting with {@code filesystem:} point to a directory on the filesystem, may only
-     * contain SQL migrations and are only scanned recursively down non-hidden directories.
+     * contain both SQL and Java-based migrations. Locations starting with {@code filesystem:} point to a directory on
+     * the filesystem, may only contain SQL migrations and are only scanned recursively down non-hidden directories.
      *
      * @return Locations to scan recursively for migrations. (default: classpath:db/migration)
      */
@@ -402,49 +407,51 @@ public interface Configuration {
     Location[] getCallbackLocations();
 
     /**
-     * Whether to automatically call baseline when migrate is executed against a non-empty schema with no schema history table.
-     * This schema will then be initialized with the {@code baselineVersion} before executing the migrations.
+     * Whether to automatically call baseline when migrate is executed against a non-empty schema with no schema history
+     * table. This schema will then be initialized with the {@code baselineVersion} before executing the migrations.
      * Only migrations above {@code baselineVersion} will then be applied.
-     *
+     * <p>
      * This is useful for initial Flyway production deployments on projects with an existing DB.
+     * <p>
+     * Be careful when enabling this as it removes the safety net that ensures Flyway does not migrate the wrong
+     * database in case of a configuration mistake!
      *
-     * Be careful when enabling this as it removes the safety net that ensures Flyway does not migrate the wrong database in case of a configuration mistake!
-     *
-     * @return {@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})
+     * @return {@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not.
+     * (default: {@code false})
      */
     boolean isBaselineOnMigrate();
 
     /**
-     * Whether Flyway should skip actually executing the contents of the migrations and only update the schema history table.
-     * This should be used when you have applied a migration manually (via executing the sql yourself, or via an ide), and
-     * just want the schema history table to reflect this.
-     *
+     * Whether Flyway should skip actually executing the contents of the migrations and only update the schema history
+     * table. This should be used when you have applied a migration manually (via executing the sql yourself, or via an
+     * ide), and just want the schema history table to reflect this.
+     * <p>
      * Use in conjunction with {@code cherryPick} to skip specific migrations instead of all pending ones.
      *
-     * @return {@code true} if executing the migrations should be skipped on migrate, {@code false} if not. (default: {@code false})
+     * @return {@code true} if executing the migrations should be skipped on migrate, {@code false} if not. (default:
+     * {@code false})
      */
     boolean isSkipExecutingMigrations();
 
     /**
-     * Allows migrations to be run "out of order".
-     * If you already have versions 1 and 3 applied, and now a version 2 is found, it will be applied too instead of being ignored.
+     * Allows migrations to be run "out of order". If you already have versions 1 and 3 applied, and now a version 2 is
+     * found, it will be applied too instead of being ignored.
      *
      * @return {@code true} if outOfOrder migrations should be applied, {@code false} if not. (default: {@code false})
      */
     boolean isOutOfOrder();
 
     /**
-     * Ignore migrations that match this comma-separated list of patterns when validating migrations.
-     * Each pattern is of the form <migration_type>:<migration_state>
-     * See https://documentation.red-gate.com/flyway/reference/configuration/flyway-namespace/flyway-ignore-migration-patterns-setting for full details
-     * Example: repeatable:missing,versioned:pending,*:failed
-     * (default: *:future)
+     * Ignore migrations that match this comma-separated list of patterns when validating migrations. Each pattern is of
+     * the form <migration_type>:<migration_state> See
+     * https://documentation.red-gate.com/flyway/reference/configuration/flyway-namespace/flyway-ignore-migration-patterns-setting
+     * for full details Example: repeatable:missing,versioned:pending,*:failed (default: *:future)
      */
     ValidatePattern[] getIgnoreMigrationPatterns();
 
     /**
-     * Whether to validate migrations and callbacks whose scripts do not obey the correct naming convention. A failure can be
-     * useful to check that errors such as case sensitivity in migration prefixes have been corrected.
+     * Whether to validate migrations and callbacks whose scripts do not obey the correct naming convention. A failure
+     * can be useful to check that errors such as case sensitivity in migration prefixes have been corrected.
      *
      * @return {@code false} to continue normally, {@code true} to fail fast with an exception. (default: {@code false})
      */
@@ -458,40 +465,42 @@ public interface Configuration {
     boolean isValidateOnMigrate();
 
     /**
-     * Whether to disable clean.
-     * This is especially useful for production environments where running clean can be a career limiting move.
+     * Whether to disable clean. This is especially useful for production environments where running clean can be a
+     * career limiting move.
      *
      * @return {@code true} to disable clean. {@code false} to be able to clean. (default: {@code true})
      */
     boolean isCleanDisabled();
 
-
     /**
-     * Whether to disable community database support.
-     * This is especially useful for production environments where using community databases is undesirable.
+     * Whether to disable community database support. This is especially useful for production environments where using
+     * community databases is undesirable.
      *
-     * @return {@code true} to disable community database support. {@code false} to be able to use community database support. (default: {@code false})
+     * @return {@code true} to disable community database support. {@code false} to be able to use community database
+     * support. (default: {@code false})
      */
     boolean isCommunityDBSupportEnabled();
 
     /**
      * Whether to allow mixing transactional and non-transactional statements within the same migration. Enabling this
      * automatically causes the entire affected migration to be run without a transaction.
-     *
+     * <p>
      * Note that this is only applicable for PostgreSQL, Aurora PostgreSQL, SQL Server and SQLite which all have
-     * statements that do not run at all within a transaction.
-     * This is not to be confused with implicit transaction, as they occur in MySQL or Oracle, where even though a
-     * DDL statement was run within a transaction, the database will issue an implicit commit before and after
-     * its execution.
+     * statements that do not run at all within a transaction. This is not to be confused with implicit transaction, as
+     * they occur in MySQL or Oracle, where even though a DDL statement was run within a transaction, the database will
+     * issue an implicit commit before and after its execution.
      *
-     * @return {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
+     * @return {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead.
+     * (default: {@code false})
      */
     boolean isMixed();
 
     /**
-     * Whether to group all pending migrations together in the same transaction when applying them (only recommended for databases with support for DDL transactions).
+     * Whether to group all pending migrations together in the same transaction when applying them (only recommended for
+     * databases with support for DDL transactions).
      *
-     * @return {@code true} if migrations should be grouped. {@code false} if they should be applied individually instead. (default: {@code false})
+     * @return {@code true} if migrations should be grouped. {@code false} if they should be applied individually
+     * instead. (default: {@code false})
      */
     boolean isGroup();
 
@@ -506,9 +515,8 @@ public interface Configuration {
      * Rules for the built-in error handler that let you override specific SQL states and errors codes in order to force
      * specific errors or warnings to be treated as debug messages, info messages, warnings or errors.
      * <p>Each error override has the following format: {@code STATE:12345:W}.
-     * It is a 5 character SQL state (or * to match all SQL states), a colon,
-     * the SQL error code (or * to match all SQL error codes), a colon and finally
-     * the desired behavior that should override the initial one.</p>
+     * It is a 5 character SQL state (or * to match all SQL states), a colon, the SQL error code (or * to match all SQL
+     * error codes), a colon and finally the desired behavior that should override the initial one.</p>
      * <p>The following behaviors are accepted:</p>
      * <ul>
      * <li>{@code D} to force a debug message</li>
@@ -533,8 +541,8 @@ public interface Configuration {
     String[] getErrorOverrides();
 
     /**
-     * The stream where to output the SQL statements of a migration dry run. {@code null} if the SQL statements
-     * are executed against the database directly.
+     * The stream where to output the SQL statements of a migration dry run. {@code null} if the SQL statements are
+     * executed against the database directly.
      * <i>Flyway Teams only</i>
      *
      * @return The stream or {@code null} if the SQL statements are executed against the database directly.
@@ -547,7 +555,8 @@ public interface Configuration {
      * composed of multiple MB or even GB of reference data, as this dramatically reduces Flyway's memory consumption.
      * <i>Flyway Teams only</i>
      *
-     * @return {@code true} to stream SQL migrations. {@code false} to fully loaded them in memory instead. (default: {@code false})
+     * @return {@code true} to stream SQL migrations. {@code false} to fully loaded them in memory instead. (default:
+     * {@code false})
      */
     boolean isStream();
 
@@ -559,7 +568,8 @@ public interface Configuration {
      * DELETE, MERGE and UPSERT statements. All other statements are automatically executed without batching.
      * <i>Flyway Teams only</i>
      *
-     * @return {@code true} to batch SQL statements. {@code false} to execute them individually instead. (default: {@code false})
+     * @return {@code true} to batch SQL statements. {@code false} to execute them individually instead. (default:
+     * {@code false})
      */
     boolean isBatch();
 
@@ -579,14 +589,16 @@ public interface Configuration {
     boolean isOutputQueryResults();
 
     /**
-     * Retrieves the custom ResourceProvider to be used to look up resources. If not set, the default strategy will be used.
+     * Retrieves the custom ResourceProvider to be used to look up resources. If not set, the default strategy will be
+     * used.
      *
      * @return The custom ResourceProvider to be used to look up resources (default: null)
      */
     ResourceProvider getResourceProvider();
 
     /**
-     * Retrieves the custom ClassProvider to be used to look up {@link JavaMigration} classes. If not set, the default strategy will be used.
+     * Retrieves the custom ClassProvider to be used to look up {@link JavaMigration} classes. If not set, the default
+     * strategy will be used.
      *
      * @return The custom ClassProvider to be used to look up {@link JavaMigration} classes (default: null)
      */
@@ -630,7 +642,7 @@ public interface Configuration {
      *     <li>log4j2: Use the log4j2 logger</li>
      *     <li>apache-commons: Use the Apache Commons logger</li>
      * </ul>
-     *
+     * <p>
      * Alternatively you can provide the fully qualified class name for any other logger to use that.
      */
     String[] getLoggers();
@@ -641,21 +653,25 @@ public interface Configuration {
     String getDriver();
 
     /**
-     *  Gets the connection environments that have already been resolved from this configuration
+     * Gets the connection environments that have already been resolved from this configuration
      */
     Map<String, ResolvedEnvironment> getCachedResolvedEnvironments();
 
     /**
-     *  Gets DataSources for all the environments
+     * Gets DataSources for all the environments
      */
     Map<String, DataSourceModel> getCachedDataSources();
 
     /**
-     *  Get the name of the current environment
+     * Get the name of the current environment
      */
     String getCurrentEnvironmentName();
 
     ProgressLogger createProgress(String operationName);
 
-    ResolvedEnvironment getResolvedEnvironment(String envName, ProvisionerMode provisionerMode, ProgressLogger progress);
+    ResolvedEnvironment getResolvedEnvironment(String envName,
+        ProvisionerMode provisionerMode,
+        ProgressLogger progress);
+
+    void resolveCurrentEnvironment(ProgressLogger progress);
 }

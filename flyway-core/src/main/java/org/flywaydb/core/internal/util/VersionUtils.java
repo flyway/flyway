@@ -22,23 +22,22 @@ package org.flywaydb.core.internal.util;
 import java.lang.module.ModuleDescriptor.Version;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.flywaydb.core.internal.license.VersionPrinter;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class VersionUtils {
-    public static boolean isLowerThan(final Version x, final Version y){
+    public static boolean isLowerThan(final Version x, final Version y) {
         return x.compareTo(y) < 0;
     }
-    
-    public static boolean isHigherThan(final Version x, final Version y){
+
+    public static boolean isHigherThan(final Version x, final Version y) {
         return x.compareTo(y) > 0;
     }
-    
-    public static boolean isEquivalentTo(final Version x, final Version y){
+
+    public static boolean isEquivalentTo(final Version x, final Version y) {
         return x.compareTo(y) == 0;
     }
 
-    public static boolean isHigherThanOrEquivalentTo (final Version x, final Version y) {
+    public static boolean isHigherThanOrEquivalentTo(final Version x, final Version y) {
         return isHigherThan(x, y) || isEquivalentTo(x, y);
     }
 

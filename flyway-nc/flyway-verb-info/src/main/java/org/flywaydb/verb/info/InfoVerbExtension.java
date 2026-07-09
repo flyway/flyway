@@ -19,12 +19,14 @@
  */
 package org.flywaydb.verb.info;
 
+import java.util.List;
 import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
+import org.flywaydb.core.extensibility.ConfigurationParameter;
 import org.flywaydb.core.extensibility.VerbExtension;
 import org.flywaydb.nc.callbacks.CallbackManager;
 import org.flywaydb.nc.utils.VerbUtils;
@@ -46,12 +48,41 @@ public class InfoVerbExtension implements VerbExtension {
     }
 
     @Override
+    public List<ConfigurationParameter> getConfigurationParameters() {
+        return List.of(new ConfigurationParameter("infoSinceDate",
+                "Limits info to show only migrations applied after this date, and any pending migrations. Must be in the format dd/MM/yyyy HH:mm (e.g. 01/12/2020 13:00)",
+                false),
+            new ConfigurationParameter("infoUntilDate",
+                "Limits info to show only migrations applied before this date. Must be in the format dd/MM/yyyy HH:mm (e.g. 01/12/2020 13:00)",
+                false),
+            new ConfigurationParameter("infoSinceVersion",
+                "Limits info to show only migrations greater than or equal to this version, and any repeatable migrations",
+                false),
+            new ConfigurationParameter("infoUntilVersion",
+                "Limits info to show only migrations less than or equal to this version, and any repeatable migrations",
+                false),
+            new ConfigurationParameter("infoOfState",
+                "Limits info to show only migrations of the provided states. This is a case insensitive, comma-separated list",
+                false),
+            new ConfigurationParameter("migrationIds",
+                "Suppresses all other output and displays a comma-separated list of migration versions for versioned migrations and descriptions for repeatable migrations",
+                false));
+    }
+
+    @Override
+    public String getExample() {
+        return "flyway info -infoSinceDate=\"01/12/2020 13:00\"";
+    }
+
+    @Override
     public OperationResult executeVerb(final Configuration configuration) {
 
         final PreparationContext context = PreparationContext.get(configuration, false);
 
         final NativeConnectorsDatabase<?> database = context.getDatabase();
-        final CallbackManager callbackManager = new CallbackManager(configuration, context.getCallbackResources(), Event::fromId);
+        final CallbackManager callbackManager = new CallbackManager(configuration,
+            context.getCallbackResources(),
+            Event::fromId);
 
         callbackManager.handleEvent(Event.BEFORE_INFO, database, configuration, context.getParsingContext());
 
@@ -68,8 +99,6 @@ public class InfoVerbExtension implements VerbExtension {
                 database.getName(),
                 database.allSchemasEmpty(VerbUtils.getAllSchemas(configuration.getSchemas(),
                     database.getCurrentSchema())));
-
-
         } catch (final FlywayException e) {
             callbackManager.handleEvent(Event.AFTER_INFO_ERROR, database, configuration, context.getParsingContext());
             throw e;

@@ -31,12 +31,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * OSGi specific scanner that performs the migration search in
- * the current bundle's classpath.
+ * OSGi specific scanner that performs the migration search in the current bundle's classpath.
  *
  * <p>
- * The resources that this scanner returns can only be loaded if
- * Flyway's ClassLoader has access to the bundle that contains the migrations.
+ * The resources that this scanner returns can only be loaded if Flyway's ClassLoader has access to the bundle that
+ * contains the migrations.
  * </p>
  */
 public class OsgiClassPathLocationScanner implements ClassPathLocationScanner {
@@ -46,16 +45,16 @@ public class OsgiClassPathLocationScanner implements ClassPathLocationScanner {
     // #2198: Felix 6.0+ uses a "host" like e3a74e5a-af1f-46f0-bb53-bc5fee1b4a57_145.0 instead, where 145 is the bundle id.
     private static final Pattern FELIX_BUNDLE_ID_PATTERN = Pattern.compile("^[0-9a-f\\-]{36}_(\\d+)\\.\\d+");
 
-    public Set<String> findResourceNames(String location, URL locationUrl) {
-        Set<String> resourceNames = new TreeSet<>();
+    public Set<String> findResourceNames(final String location, final URL locationUrl) {
+        final Set<String> resourceNames = new TreeSet<>();
 
-        Bundle bundle = getTargetBundleFromContextOrCurrent(FrameworkUtil.getBundle(getClass()), locationUrl);
-        Enumeration<URL> entries = bundle.findEntries(locationUrl.getPath(), "*", true);
+        final Bundle bundle = getTargetBundleFromContextOrCurrent(FrameworkUtil.getBundle(getClass()), locationUrl);
+        final Enumeration<URL> entries = bundle.findEntries(locationUrl.getPath(), "*", true);
 
         if (entries != null) {
             while (entries.hasMoreElements()) {
-                URL entry = entries.nextElement();
-                String resourceName = getPathWithoutLeadingSlash(entry);
+                final URL entry = entries.nextElement();
+                final String resourceName = getPathWithoutLeadingSlash(entry);
 
                 resourceNames.add(resourceName);
             }
@@ -64,7 +63,7 @@ public class OsgiClassPathLocationScanner implements ClassPathLocationScanner {
         return resourceNames;
     }
 
-    private Bundle getTargetBundleFromContextOrCurrent(Bundle current, URL locationUrl) {
+    private Bundle getTargetBundleFromContextOrCurrent(final Bundle current, final URL locationUrl) {
         Bundle target;
         try {
             target = current.getBundleContext().getBundle(hostToBundleId(locationUrl.getHost()));
@@ -74,7 +73,7 @@ public class OsgiClassPathLocationScanner implements ClassPathLocationScanner {
         return target != null ? target : current;
     }
 
-    static long hostToBundleId(String host) {
+    static long hostToBundleId(final String host) {
         Matcher m = FELIX_BUNDLE_ID_PATTERN.matcher(host);
         if (m.find()) {
             return Double.valueOf(m.group(1)).longValue();
@@ -87,7 +86,7 @@ public class OsgiClassPathLocationScanner implements ClassPathLocationScanner {
         throw new FlywayException("There's no bundleId in passed URL");
     }
 
-    private String getPathWithoutLeadingSlash(URL entry) {
+    private String getPathWithoutLeadingSlash(final URL entry) {
         final String path = entry.getPath();
 
         return path.startsWith("/") ? path.substring(1) : path;

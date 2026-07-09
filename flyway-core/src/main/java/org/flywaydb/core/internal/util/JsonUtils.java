@@ -93,7 +93,6 @@ public class JsonUtils {
             return null;
         }
 
-
         final var factory = JsonFactory.builder().build();
         try (final var parser = factory.createParser(ObjectReadContext.empty(), json)) {
             parser.nextToken();

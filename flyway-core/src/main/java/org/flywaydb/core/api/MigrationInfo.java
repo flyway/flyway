@@ -73,8 +73,8 @@ public interface MigrationInfo extends Comparable<MigrationInfo> {
     String getInstalledBy();
 
     /**
-     * @return The rank of this installed migration. This is the most precise way to sort applied migrations by installation order.
-     * Migrations that were applied later have a higher rank. (Only for applied migrations)
+     * @return The rank of this installed migration. This is the most precise way to sort applied migrations by
+     * installation order. Migrations that were applied later have a higher rank. (Only for applied migrations)
      */
     Integer getInstalledRank();
 
@@ -96,19 +96,23 @@ public interface MigrationInfo extends Comparable<MigrationInfo> {
     /**
      * @return The shouldExecute expression if present and supported by the migration type. Otherwise {@code null}.
      */
-    default String getShouldExecuteExpression() { return null; }
+    default String getShouldExecuteExpression() {return null;}
 
-    default boolean isShouldExecute() {return true; }
-    
-    default boolean isRepeatable() { return getVersion() == null; }
-    
+    default boolean isShouldExecute() {return true;}
+
+    default boolean isRepeatable() {return getVersion() == null;}
+
     default boolean isChecksumMatching() {
-        return getResolvedChecksum() == null || getAppliedChecksum() == null || getResolvedChecksum().equals(getAppliedChecksum());
+        return getResolvedChecksum() == null || getAppliedChecksum() == null || getResolvedChecksum().equals(
+            getAppliedChecksum());
     }
-    
+
     default boolean isDescriptionMatching() {
-        return getResolvedDescription() == null || getAppliedDescription() == null || getResolvedDescription().equals(getAppliedDescription())
-            || SchemaHistory.NO_DESCRIPTION_MARKER.equals(getAppliedDescription()) && getResolvedDescription().isEmpty();
+        return getResolvedDescription() == null
+            || getAppliedDescription() == null
+            || getResolvedDescription().equals(getAppliedDescription())
+            || SchemaHistory.NO_DESCRIPTION_MARKER.equals(getAppliedDescription())
+            && getResolvedDescription().isEmpty();
     }
 
     default boolean isTypeMatching() {
@@ -119,14 +123,17 @@ public interface MigrationInfo extends Comparable<MigrationInfo> {
         return true;
     }
 
-    default Integer getResolvedChecksum() { return null; }
-    default Integer getAppliedChecksum() { return null; }
-    
-    default String getResolvedDescription() { return null; }
-    default String getAppliedDescription() { return null; }
+    default Integer getResolvedChecksum() {return null;}
 
-    default MigrationType getResolvedType() { return null; }
-    default MigrationType getAppliedType() { return null; }
+    default Integer getAppliedChecksum() {return null;}
+
+    default String getResolvedDescription() {return null;}
+
+    default String getAppliedDescription() {return null;}
+
+    default MigrationType getResolvedType() {return null;}
+
+    default MigrationType getAppliedType() {return null;}
 
     default boolean isApplied() {
         return getInstalledRank() != null;

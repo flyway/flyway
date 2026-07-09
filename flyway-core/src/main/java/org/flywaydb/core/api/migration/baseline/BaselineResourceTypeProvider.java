@@ -38,9 +38,11 @@ public class BaselineResourceTypeProvider implements ResourceTypeProvider {
     }
 
     @Override
-    public List<Pair<String, ResourceType>> getPrefixTypePairs(Configuration configuration) {
-        List<Pair<String, ResourceType>> pairs = new ArrayList<>();
-        pairs.add(Pair.of(configuration.getPluginRegister().getExact(BaselineMigrationConfigurationExtension.class).getBaselineMigrationPrefix(), BaselineResourceType.BASELINE_MIGRATION));
+    public List<Pair<String, ResourceType>> getPrefixTypePairs(final Configuration configuration) {
+        final List<Pair<String, ResourceType>> pairs = new ArrayList<>();
+        pairs.add(Pair.of(configuration.getPluginRegister()
+            .getExact(BaselineMigrationConfigurationExtension.class)
+            .getBaselineMigrationPrefix(), BaselineResourceType.BASELINE_MIGRATION));
         return pairs;
     }
 }

@@ -29,8 +29,8 @@ public interface Resource {
     String getAbsolutePath();
 
     /**
-     * @return The absolute path and filename of this resource on disk, regardless of whether this resources
-     * points at the classpath or filesystem.
+     * @return The absolute path and filename of this resource on disk, regardless of whether this resources points at
+     * the classpath or filesystem.
      */
     String getAbsolutePathOnDisk();
 
@@ -40,8 +40,8 @@ public interface Resource {
     String getFilename();
 
     /**
-     * @return The filename of this resource, as well as the path relative to the location where the resource was
-     * loaded from.
+     * @return The filename of this resource, as well as the path relative to the location where the resource was loaded
+     * from.
      */
     String getRelativePath();
 }

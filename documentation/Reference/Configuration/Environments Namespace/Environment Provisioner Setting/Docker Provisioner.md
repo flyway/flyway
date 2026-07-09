@@ -23,6 +23,8 @@ To configure this provisioner:
     - `keepAlive` - (Optional) When set to `true`, the container is kept running after Flyway exits so that subsequent Flyway commands can reuse it. Defaults to `true`.
     - `iAgreeToTheDBVendorsEula` - (Optional) Must be set to `true` to provision database engines that require acceptance of the vendor's EULA (SQL Server and Oracle). See [EULA acceptance](#eula-acceptance) below.
 
+> **Note:** The `composeFile` and `services` keys belong to the [`docker-compose` provisioner](<Configuration/Environments Namespace/Environment Provisioner Setting/Docker Compose Provisioner>). For backward compatibility, a `docker` configuration that sets only those keys is forwarded to `docker-compose` with a deprecation warning, but combining them with any of the keys above is not supported and results in an error. Use `docker-compose` for compose-file based provisioning and `docker` for the auto-detecting behavior described here.
+
 ## Engine and version resolution
 
 The provisioner resolves the database engine and version using the following precedence:

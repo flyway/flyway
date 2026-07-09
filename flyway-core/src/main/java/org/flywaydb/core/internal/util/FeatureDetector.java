@@ -36,7 +36,7 @@ public final class FeatureDetector {
     private Boolean awsAvailable;
     private Boolean gcsAvailable;
 
-    public FeatureDetector(ClassLoader classLoader) {
+    public FeatureDetector(final ClassLoader classLoader) {
         this.classLoader = classLoader;
     }
 
@@ -61,10 +61,10 @@ public final class FeatureDetector {
             // We need to ensure there's an actual implementation; AWS SDK pulls in the Logger interface but doesn't
             // provide any implementation, causing SLF4J to drop what we want to be console output on the floor.
             // Versions up to 1.7 have a StaticLoggerBinder
-            slf4jAvailable = ClassUtils.isPresent("org.slf4j.Logger", classLoader)
-                    && ClassUtils.isPresent("org.slf4j.impl.StaticLoggerBinder", classLoader)
-                    && !StreamSupport.stream(ServiceLoader.load(org.slf4j.Logger.class, classLoader)
-                            .spliterator(), false).allMatch(logger -> logger instanceof org.slf4j.helpers.NOPLogger);
+            slf4jAvailable = ClassUtils.isPresent("org.slf4j.Logger", classLoader) && ClassUtils.isPresent(
+                "org.slf4j.impl.StaticLoggerBinder",
+                classLoader) && !StreamSupport.stream(ServiceLoader.load(org.slf4j.Logger.class, classLoader)
+                .spliterator(), false).allMatch(logger -> logger instanceof org.slf4j.helpers.NOPLogger);
             // Versions 1.8 and later use a ServiceLocator to bind to the implementation
             slf4jAvailable |= ClassUtils.isImplementationPresent("org.slf4j.spi.SLF4JServiceProvider", classLoader);
         }
@@ -93,7 +93,7 @@ public final class FeatureDetector {
     public boolean isOsgiFrameworkAvailable() {
         if (osgiFrameworkAvailable == null) {
             // Use this class' classloader to detect the OSGi framework
-            ClassLoader classLoader = FeatureDetector.class.getClassLoader();
+            final ClassLoader classLoader = FeatureDetector.class.getClassLoader();
             osgiFrameworkAvailable = ClassUtils.isPresent("org.osgi.framework.Bundle", classLoader);
             LOG.debug("OSGi framework available: " + osgiFrameworkAvailable);
         }

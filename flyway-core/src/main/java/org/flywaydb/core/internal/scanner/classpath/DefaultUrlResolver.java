@@ -25,7 +25,7 @@ import java.net.URL;
  * Default implementation of UrlResolver.
  */
 public class DefaultUrlResolver implements UrlResolver {
-    public URL toStandardJavaUrl(URL url) {
+    public URL toStandardJavaUrl(final URL url) {
         return url;
     }
 }

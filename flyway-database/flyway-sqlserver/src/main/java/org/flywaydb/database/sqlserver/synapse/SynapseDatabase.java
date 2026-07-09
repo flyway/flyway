@@ -32,17 +32,19 @@ import java.util.Date;
 
 public class SynapseDatabase extends SQLServerDatabase {
 
-    public SynapseDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+    public SynapseDatabase(final Configuration configuration,
+        final JdbcConnectionFactory jdbcConnectionFactory,
+        final StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
     @Override
-    protected SQLServerConnection doGetConnection(Connection connection) {
+    protected SQLServerConnection doGetConnection(final Connection connection) {
         return new SynapseConnection(this, connection);
     }
 
     @Override
-    protected String computeVersionDisplayName(MigrationVersion version) {
+    protected String computeVersionDisplayName(final MigrationVersion version) {
         return "Azure Synapse v" + getVersion().getMajorAsString();
     }
 
@@ -102,42 +104,65 @@ public class SynapseDatabase extends SQLServerDatabase {
     }
 
     @Override
-    public String getRawCreateScript(Table table, boolean baseline) {
+    public String getRawCreateScript(final Table table, final boolean baseline) {
 
-        return "CREATE TABLE " + table + " (\n" +
-                "    [installed_rank] INT NOT NULL,\n" +
-                "    [" + "version] NVARCHAR(50),\n" +
-                "    [description] NVARCHAR(200),\n" +
-                "    [type] NVARCHAR(20) NOT NULL,\n" +
-                "    [script] NVARCHAR(1000) NOT NULL,\n" +
-                "    [checksum] INT,\n" +
-                "    [installed_by] NVARCHAR(100) NOT NULL,\n" +
-                "    [installed_on] DATETIME NOT NULL,\n" +
-                "    [execution_time] INT NOT NULL,\n" +
-                "    [success] BIT NOT NULL\n" +
-                ");\n" +
-                (baseline ? getBaselineStatement(table) + ";\n" : "") +
-                "ALTER TABLE " + table + " ADD CONSTRAINT [" + table.getName() + "_pk] PRIMARY KEY NONCLUSTERED (installed_rank) NOT ENFORCED;\n" +
-                "CREATE INDEX [" + table.getName() + "_s_idx] ON " + table + " ([success]);\n" +
-                "GO\n";
+        return "CREATE TABLE "
+            + table
+            + " (\n"
+            + "    [installed_rank] INT NOT NULL,\n"
+            + "    ["
+            + "version] NVARCHAR(50),\n"
+            + "    [description] NVARCHAR(200),\n"
+            + "    [type] NVARCHAR(20) NOT NULL,\n"
+            + "    [script] NVARCHAR(1000) NOT NULL,\n"
+            + "    [checksum] INT,\n"
+            + "    [installed_by] NVARCHAR(100) NOT NULL,\n"
+            + "    [installed_on] DATETIME NOT NULL,\n"
+            + "    [execution_time] INT NOT NULL,\n"
+            + "    [success] BIT NOT NULL\n"
+            + ");\n"
+            + (baseline ? getBaselineStatement(table) + ";\n" : "")
+            + "ALTER TABLE "
+            + table
+            + " ADD CONSTRAINT ["
+            + table.getName()
+            + "_pk] PRIMARY KEY NONCLUSTERED (installed_rank) NOT ENFORCED;\n"
+            + "CREATE INDEX ["
+            + table.getName()
+            + "_s_idx] ON "
+            + table
+            + " ([success]);\n"
+            + "GO\n";
     }
 
     @Override
-    public String getInsertStatement(Table table) {
-        String currentDateTime = new java.sql.Timestamp(new Date().getTime()).toString();
-        return "INSERT INTO " + table
-                + " (" + quote("installed_rank")
-                + ", " + quote("version")
-                + ", " + quote("description")
-                + ", " + quote("type")
-                + ", " + quote("script")
-                + ", " + quote("checksum")
-                + ", " + quote("installed_by")
-                + ", " + quote("installed_on")
-                + ", " + quote("execution_time")
-                + ", " + quote("success")
-                + ")"
-                + " VALUES (?, ?, ?, ?, ?, ?, ?, '" + currentDateTime + "', ?, ?)";
+    public String getInsertStatement(final Table table) {
+        final String currentDateTime = new java.sql.Timestamp(new Date().getTime()).toString();
+        return "INSERT INTO "
+            + table
+            + " ("
+            + quote("installed_rank")
+            + ", "
+            + quote("version")
+            + ", "
+            + quote("description")
+            + ", "
+            + quote("type")
+            + ", "
+            + quote("script")
+            + ", "
+            + quote("checksum")
+            + ", "
+            + quote("installed_by")
+            + ", "
+            + quote("installed_on")
+            + ", "
+            + quote("execution_time")
+            + ", "
+            + quote("success")
+            + ")"
+            + " VALUES (?, ?, ?, ?, ?, ?, ?, '"
+            + currentDateTime
+            + "', ?, ?)";
     }
-
 }

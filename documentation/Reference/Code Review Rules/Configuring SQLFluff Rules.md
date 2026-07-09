@@ -36,7 +36,7 @@ Whether Flyway will fail or not if there is an error is governed by the [`check.
 | Disabled      | Add the rule or group to the [`[sqlfluff].exclude_rules`](https://docs.sqlfluff.com/en/stable/configuration/rule_configuration.html#downgrading-rules-to-warnings) section |
 
 ### Parameters
-Many rules have configurable options that allow you to customize their behavior. For the [standard SQLFluff rules](https://docs.sqlfluff.com/en/stable/reference/rules.html) you will see these defined in each rule in a section labelled "Configuration"
+Many rules have configurable options that allow you to customize their behavior. For the [standard SQLFluff rules](https://docs.sqlfluff.com/en/stable/reference/rules.html) you will see these defined in each rule in a section labeled "Configuration"
 
 For the [Redgate SQLFluff rules Library](<Code Review Rules/Redgate SQLFluff Rules Library>) you will also find a "Configuration" section for rules where this is applicable.
 

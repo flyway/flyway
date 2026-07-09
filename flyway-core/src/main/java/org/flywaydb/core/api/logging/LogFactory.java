@@ -39,32 +39,30 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 /**
- * Factory for loggers. Custom MigrationResolver, MigrationExecutor, Callback and JavaMigration
- * implementations should use this to obtain a logger that will work with any logging framework across all environments
- * (API, Maven, Gradle, CLI, etc.).
+ * Factory for loggers. Custom MigrationResolver, MigrationExecutor, Callback and JavaMigration implementations should
+ * use this to obtain a logger that will work with any logging framework across all environments (API, Maven, Gradle,
+ * CLI, etc.).
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LogFactory {
     /**
-     * Factory for implementation-specific loggers.
-     * -- SETTER --
-     * Sets the LogCreator that will be used. This will effectively override Flyway's default LogCreator auto-detection
-     * logic and force Flyway to always use this LogCreator regardless of which log libraries are present on the
-     * classpath.
-     *
-     * This is primarily meant for integrating Flyway into environments with their own logging system (like Ant,
-     * Gradle, Maven, ...). This ensures Flyway is a good citizen in those environments and sends its logs through the
-     * expected pipeline.
+     * Factory for implementation-specific loggers. -- SETTER -- Sets the LogCreator that will be used. This will
+     * effectively override Flyway's default LogCreator auto-detection logic and force Flyway to always use this
+     * LogCreator regardless of which log libraries are present on the classpath.
+     * <p>
+     * This is primarily meant for integrating Flyway into environments with their own logging system (like Ant, Gradle,
+     * Maven, ...). This ensures Flyway is a good citizen in those environments and sends its logs through the expected
+     * pipeline.
      *
      * @param logCreator The factory for implementation-specific loggers.
      */
     @Setter(onMethod = @__(@Synchronized))
     private static volatile LogCreator logCreator;
     /**
-     * The factory for implementation-specific loggers to be used as a fallback when no other suitable loggers were found.
-     * -- SETTER --
-     * Sets the fallback LogCreator. This LogCreator will be used as a fallback solution when the default LogCreator
-     * auto-detection logic fails to detect a suitable LogCreator based on the log libraries present on the classpath.
+     * The factory for implementation-specific loggers to be used as a fallback when no other suitable loggers were
+     * found. -- SETTER -- Sets the fallback LogCreator. This LogCreator will be used as a fallback solution when the
+     * default LogCreator auto-detection logic fails to detect a suitable LogCreator based on the log libraries present
+     * on the classpath.
      *
      * @param fallbackLogCreator The factory for implementation-specific loggers to be used as a fallback when no other
      * suitable loggers were found.
@@ -89,7 +87,7 @@ public class LogFactory {
     }
 
     @Synchronized
-    public static void setConfiguration(Configuration configuration) {
+    public static void setConfiguration(final Configuration configuration) {
         LogFactory.configuration = configuration;
         logCreator = null;
     }
@@ -101,7 +99,7 @@ public class LogFactory {
      * @return The logger.
      */
     @Synchronized
-    public static Log getLog(Class<?> clazz) {
+    public static Log getLog(final Class<?> clazz) {
         if (logCreator == null) {
             logCreator = getLogCreator(LogFactory.class.getClassLoader(), fallbackLogCreator);
         }
@@ -110,7 +108,7 @@ public class LogFactory {
     }
 
     @Synchronized
-    private static LogCreator getLogCreator(ClassLoader classLoader, LogCreator fallbackLogCreator) {
+    private static LogCreator getLogCreator(final ClassLoader classLoader, final LogCreator fallbackLogCreator) {
         if (configuration == null) {
             return new BufferedLogCreator();
         }
@@ -126,8 +124,8 @@ public class LogFactory {
     }
 
     @Synchronized
-    private static LogCreator autoDetectLogCreator(ClassLoader classLoader, LogCreator fallbackLogCreator) {
-        FeatureDetector featureDetector = new FeatureDetector(classLoader);
+    private static LogCreator autoDetectLogCreator(final ClassLoader classLoader, final LogCreator fallbackLogCreator) {
+        final FeatureDetector featureDetector = new FeatureDetector(classLoader);
         if (featureDetector.isSlf4jAvailable()) {
             return ClassUtils.instantiate(Slf4jLogCreator.class.getName(), classLoader);
         }

@@ -37,14 +37,13 @@ public class OracleConfigurationExtension implements ConfigurationExtension {
     private String walletLocation;
     private Boolean checksumIncludeReferencedScripts = true;
 
-
     @Override
     public String getNamespace() {
         return "oracle";
     }
 
     @Override
-    public String getConfigurationParameterFromEnvironmentVariable(String environmentVariable) {
+    public String getConfigurationParameterFromEnvironmentVariable(final String environmentVariable) {
         switch (environmentVariable) {
             case "FLYWAY_ORACLE_KERBEROS_CACHE_FILE":
                 return ORACLE_KERBEROS_CACHE_FILE;

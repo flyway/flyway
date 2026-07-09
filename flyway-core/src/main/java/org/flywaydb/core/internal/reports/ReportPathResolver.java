@@ -42,7 +42,8 @@ public class ReportPathResolver {
         final String sarifFilename = baseFilename + "-code-review" + SARIF_REPORT_EXTENSION;
 
         return new ResolvedReportPaths(Path.of(ConfigUtils.getFilenameWithWorkingDirectory(jsonFilename,
-            configuration)), Path.of(ConfigUtils.getFilenameWithWorkingDirectory(htmlFilename, configuration)),
+            configuration)),
+            Path.of(ConfigUtils.getFilenameWithWorkingDirectory(htmlFilename, configuration)),
             Path.of(ConfigUtils.getFilenameWithWorkingDirectory(sarifFilename, configuration)));
     }
 

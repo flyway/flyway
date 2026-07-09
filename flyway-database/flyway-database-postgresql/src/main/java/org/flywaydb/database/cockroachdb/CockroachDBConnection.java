@@ -32,26 +32,27 @@ import java.util.Arrays;
 
 @CustomLog
 public class CockroachDBConnection extends Connection<CockroachDBDatabase> {
-    public CockroachDBConnection(CockroachDBDatabase database, java.sql.Connection connection) {
+    public CockroachDBConnection(final CockroachDBDatabase database, final java.sql.Connection connection) {
         super(database, connection);
     }
 
     @Override
-    public Schema getSchema(String name) {
+    public Schema getSchema(final String name) {
         return new CockroachDBSchema(jdbcTemplate, database, name);
     }
 
     @Override
     public Schema doGetCurrentSchema() throws SQLException {
         if (database.supportsSchemas()) {
-            String currentSchema = jdbcTemplate.queryForString("SELECT current_schema");
+            final String currentSchema = jdbcTemplate.queryForString("SELECT current_schema");
             if (StringUtils.hasText(currentSchema)) {
                 return getSchema(currentSchema);
             }
 
-            String searchPath = getCurrentSchemaNameOrSearchPath();
+            final String searchPath = getCurrentSchemaNameOrSearchPath();
             if (!StringUtils.hasText(searchPath)) {
-                throw new FlywayException("Unable to determine current schema as search_path is empty. Set the current schema in currentSchema parameter of the JDBC URL or in Flyway's schemas property.");
+                throw new FlywayException(
+                    "Unable to determine current schema as search_path is empty. Set the current schema in currentSchema parameter of the JDBC URL or in Flyway's schemas property.");
             }
         }
         return super.doGetCurrentSchema();
@@ -66,7 +67,7 @@ public class CockroachDBConnection extends Connection<CockroachDBDatabase> {
             // but in dry runs the produced script will be invalid and error when you run it.
             if (sp.contains("$user")) {
                 LOG.debug("Search path contains $user; removing...");
-                ArrayList<String> paths = new ArrayList<>(Arrays.asList(sp.split(",")));
+                final ArrayList<String> paths = new ArrayList<>(Arrays.asList(sp.split(",")));
                 paths.remove("$user");
                 sp = String.join(",", paths);
             }
@@ -77,7 +78,7 @@ public class CockroachDBConnection extends Connection<CockroachDBDatabase> {
     }
 
     @Override
-    public void changeCurrentSchemaTo(Schema schema) {
+    public void changeCurrentSchemaTo(final Schema schema) {
         try {
             // Avoid unnecessary schema changes as this trips up CockroachDB
             if (schema.getName().equals(originalSchemaNameOrSearchPath) || !schema.exists()) {

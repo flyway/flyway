@@ -32,7 +32,7 @@ public class BackoffStrategy {
      * @return The current value of the counter and immediately updates it with the next value
      */
     public int next() {
-        int temp = current;
+        final int temp = current;
         current = Math.min(current * exponent, interval);
         return temp;
     }

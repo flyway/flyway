@@ -48,7 +48,7 @@ public class ResolvedEnvironment {
     public ResolvedEnvironment() {}
 
     public EnvironmentModel toEnvironmentModel() {
-        EnvironmentModel result = new EnvironmentModel();
+        final EnvironmentModel result = new EnvironmentModel();
         result.setUrl(url);
         result.setPassword(password);
         result.setUser(user);

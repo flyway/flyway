@@ -32,14 +32,14 @@ public interface Statement {
     String getSql();
 
     /**
-     * @return The warnings that were raised during the execution of the statement.
-     * {@code null} if the statement hasn't been executed yet.
+     * @return The warnings that were raised during the execution of the statement. {@code null} if the statement hasn't
+     * been executed yet.
      */
     List<Warning> getWarnings();
 
     /**
-     * @return The errors that were thrown during the execution of the statement.
-     * {@code null} if the statement hasn't been executed yet.
+     * @return The errors that were thrown during the execution of the statement. {@code null} if the statement hasn't
+     * been executed yet.
      */
     List<Error> getErrors();
 }

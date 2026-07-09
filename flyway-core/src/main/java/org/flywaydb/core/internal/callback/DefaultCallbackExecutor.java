@@ -74,7 +74,8 @@ public class DefaultCallbackExecutor<E extends CallbackEvent<E>> implements Call
         this.flywayTelemetryManager = flywayTelemetryManager;
 
         this.callbacks = new ArrayList<>(callbacks);
-        this.callbacks.sort(Comparator.comparing(GenericCallback::getCallbackName, Comparator.nullsLast(Comparator.naturalOrder())));
+        this.callbacks.sort(Comparator.comparing(GenericCallback::getCallbackName,
+            Comparator.nullsLast(Comparator.naturalOrder())));
     }
 
     @Override

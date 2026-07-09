@@ -58,8 +58,7 @@ public class JdbcUtils {
 
     public static Connection openConnection(final DataSource dataSource,
         final int connectRetries,
-        final int connectRetriesInterval)
-        throws FlywayException {
+        final int connectRetriesInterval) throws FlywayException {
         final BackoffStrategy backoffStrategy = new BackoffStrategy(1, 2, connectRetriesInterval);
 
         final Properties systemProperties = System.getProperties();

@@ -28,7 +28,7 @@ import java.sql.SQLException;
  * Derby connection.
  */
 public class DerbyConnection extends Connection<DerbyDatabase> {
-    DerbyConnection(DerbyDatabase database, java.sql.Connection connection) {
+    DerbyConnection(final DerbyDatabase database, final java.sql.Connection connection) {
         super(database, connection);
     }
 
@@ -38,12 +38,12 @@ public class DerbyConnection extends Connection<DerbyDatabase> {
     }
 
     @Override
-    public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
+    public void doChangeCurrentSchemaOrSearchPathTo(final String schema) throws SQLException {
         jdbcTemplate.execute("SET SCHEMA " + database.quote(schema));
     }
 
     @Override
-    public Schema getSchema(String name) {
+    public Schema getSchema(final String name) {
         return new DerbySchema(jdbcTemplate, database, name);
     }
 }

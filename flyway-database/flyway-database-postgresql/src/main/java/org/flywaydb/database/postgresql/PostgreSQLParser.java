@@ -32,9 +32,11 @@ import java.util.regex.Pattern;
 @CustomLog
 public class PostgreSQLParser extends Parser {
     private static final Pattern COPY_FROM_STDIN_REGEX = Pattern.compile("^COPY( .*)? FROM STDIN");
-    private static final Pattern CREATE_DATABASE_TABLESPACE_SUBSCRIPTION_REGEX = Pattern.compile("^(CREATE|DROP) (DATABASE|TABLESPACE|SUBSCRIPTION)");
+    private static final Pattern CREATE_DATABASE_TABLESPACE_SUBSCRIPTION_REGEX = Pattern.compile(
+        "^(CREATE|DROP) (DATABASE|TABLESPACE|SUBSCRIPTION)");
     private static final Pattern ALTER_SYSTEM_REGEX = Pattern.compile("^ALTER SYSTEM");
-    private static final Pattern CREATE_INDEX_CONCURRENTLY_REGEX = Pattern.compile("^(CREATE|DROP)( UNIQUE)? INDEX CONCURRENTLY");
+    private static final Pattern CREATE_INDEX_CONCURRENTLY_REGEX = Pattern.compile(
+        "^(CREATE|DROP)( UNIQUE)? INDEX CONCURRENTLY");
     private static final Pattern REINDEX_REGEX = Pattern.compile("^REINDEX( VERBOSE)? (SCHEMA|DATABASE|SYSTEM)");
     private static final Pattern VACUUM_REGEX = Pattern.compile("^VACUUM");
     private static final Pattern DISCARD_ALL_REGEX = Pattern.compile("^DISCARD ALL");
@@ -42,7 +44,7 @@ public class PostgreSQLParser extends Parser {
 
     private static final StatementType COPY = new StatementType();
 
-    public PostgreSQLParser(Configuration configuration, ParsingContext parsingContext) {
+    public PostgreSQLParser(final Configuration configuration, final ParsingContext parsingContext) {
         super(configuration, parsingContext, 3);
     }
 
@@ -52,24 +54,50 @@ public class PostgreSQLParser extends Parser {
     }
 
     @Override
-    protected ParsedSqlStatement createStatement(PeekingReader reader, Recorder recorder,
-        int statementPos, int statementLine, int statementCol, int nonCommentPartPos, int nonCommentPartLine,
-        int nonCommentPartCol, StatementType statementType, boolean canExecuteInTransaction, Delimiter delimiter,
-        String sql, List<Token> tokens, boolean batchable) throws IOException {
+    protected ParsedSqlStatement createStatement(final PeekingReader reader,
+        final Recorder recorder,
+        final int statementPos,
+        final int statementLine,
+        final int statementCol,
+        final int nonCommentPartPos,
+        final int nonCommentPartLine,
+        final int nonCommentPartCol,
+        final StatementType statementType,
+        final boolean canExecuteInTransaction,
+        final Delimiter delimiter,
+        final String sql,
+        final List<Token> tokens,
+        final boolean batchable) throws IOException {
 
         if (statementType == COPY) {
-            return new PostgreSQLCopyParsedStatement(nonCommentPartPos, nonCommentPartLine, nonCommentPartCol,
-                                                     sql.substring(nonCommentPartPos - statementPos),
-                                                     readCopyData(reader, recorder));
+            return new PostgreSQLCopyParsedStatement(nonCommentPartPos,
+                nonCommentPartLine,
+                nonCommentPartCol,
+                sql.substring(nonCommentPartPos - statementPos),
+                readCopyData(reader, recorder));
         }
-        return super.createStatement(reader, recorder, statementPos, statementLine, statementCol, nonCommentPartPos,
-            nonCommentPartLine, nonCommentPartCol, statementType, canExecuteInTransaction, delimiter, sql, tokens,
+        return super.createStatement(reader,
+            recorder,
+            statementPos,
+            statementLine,
+            statementCol,
+            nonCommentPartPos,
+            nonCommentPartLine,
+            nonCommentPartCol,
+            statementType,
+            canExecuteInTransaction,
+            delimiter,
+            sql,
+            tokens,
             batchable);
     }
 
     @Override
-    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) {
-        String keywordText = keyword.getText();
+    protected void adjustBlockDepth(final ParserContext context,
+        final List<Token> tokens,
+        final Token keyword,
+        final PeekingReader reader) {
+        final String keywordText = keyword.getText();
 
         if (lastTokenIs(tokens, context.getParensDepth(), "BEGIN") && "ATOMIC".equalsIgnoreCase(keywordText)) {
             context.increaseBlockDepth("ATOMIC");
@@ -78,20 +106,21 @@ public class PostgreSQLParser extends Parser {
             context.increaseBlockDepth("CASE");
         }
 
-        if (context.getBlockDepth() > 0 &&  "END".equalsIgnoreCase(keywordText) &&
-            ("ATOMIC".equals(context.getBlockInitiator()) || "CASE".equals(context.getBlockInitiator()))) {
+        if (context.getBlockDepth() > 0
+            && "END".equalsIgnoreCase(keywordText)
+            && ("ATOMIC".equals(context.getBlockInitiator()) || "CASE".equals(context.getBlockInitiator()))) {
             context.decreaseBlockDepth();
         }
     }
 
-    private String readCopyData(PeekingReader reader, Recorder recorder) throws IOException {
+    private String readCopyData(final PeekingReader reader, final Recorder recorder) throws IOException {
         // Skip end of current line after ;
         reader.readUntilIncluding('\n');
 
         recorder.start();
         boolean done = false;
         do {
-            String line = reader.readUntilIncluding('\n');
+            final String line = reader.readUntilIncluding('\n');
             if ("\\.".equals(line.trim())) {
                 done = true;
             } else {
@@ -103,7 +132,9 @@ public class PostgreSQLParser extends Parser {
     }
 
     @Override
-    protected StatementType detectStatementType(String simplifiedStatement, ParserContext context, PeekingReader reader) {
+    protected StatementType detectStatementType(final String simplifiedStatement,
+        final ParserContext context,
+        final PeekingReader reader) {
         if (COPY_FROM_STDIN_REGEX.matcher(simplifiedStatement).matches()) {
             return COPY;
         }
@@ -112,13 +143,13 @@ public class PostgreSQLParser extends Parser {
     }
 
     @Override
-    protected Boolean detectCanExecuteInTransaction(String simplifiedStatement, List<Token> keywords) {
+    protected Boolean detectCanExecuteInTransaction(final String simplifiedStatement, final List<Token> keywords) {
         if (CREATE_DATABASE_TABLESPACE_SUBSCRIPTION_REGEX.matcher(simplifiedStatement).matches()
-                || ALTER_SYSTEM_REGEX.matcher(simplifiedStatement).matches()
-                || CREATE_INDEX_CONCURRENTLY_REGEX.matcher(simplifiedStatement).matches()
-                || REINDEX_REGEX.matcher(simplifiedStatement).matches()
-                || VACUUM_REGEX.matcher(simplifiedStatement).matches()
-                || DISCARD_ALL_REGEX.matcher(simplifiedStatement).matches()) {
+            || ALTER_SYSTEM_REGEX.matcher(simplifiedStatement).matches()
+            || CREATE_INDEX_CONCURRENTLY_REGEX.matcher(simplifiedStatement).matches()
+            || REINDEX_REGEX.matcher(simplifiedStatement).matches()
+            || VACUUM_REGEX.matcher(simplifiedStatement).matches()
+            || DISCARD_ALL_REGEX.matcher(simplifiedStatement).matches()) {
             return false;
         }
 
@@ -138,10 +169,14 @@ public class PostgreSQLParser extends Parser {
 
     @SuppressWarnings("Duplicates")
     @Override
-    protected Token handleAlternativeStringLiteral(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
+    protected Token handleAlternativeStringLiteral(final PeekingReader reader,
+        final ParserContext context,
+        final int pos,
+        final int line,
+        final int col) throws IOException {
         // dollarQuote is required because in Postgres, literals encased in $$ can be given a label, as in:
         // $label$This is a string literal$label$
-        String dollarQuote = (char) reader.read() + reader.readUntilIncluding('$');
+        final String dollarQuote = (char) reader.read() + reader.readUntilIncluding('$');
         reader.swallowUntilExcluding(dollarQuote);
         reader.swallow(dollarQuote.length());
         return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());

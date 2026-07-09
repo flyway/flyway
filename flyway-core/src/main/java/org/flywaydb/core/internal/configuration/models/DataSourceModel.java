@@ -31,7 +31,7 @@ public class DataSourceModel {
     private boolean dataSourceGenerated;
     private DatabaseType databaseType;
 
-    public DataSourceModel(DataSource dataSource, boolean dataSourceGenerated) {
+    public DataSourceModel(final DataSource dataSource, final boolean dataSourceGenerated) {
         this.dataSource = dataSource;
         this.dataSourceGenerated = dataSourceGenerated;
         this.databaseType = null;

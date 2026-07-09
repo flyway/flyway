@@ -30,17 +30,17 @@ public enum NoopCallback implements Callback {
     INSTANCE;
 
     @Override
-    public boolean supports(Event event, Context context) {
+    public boolean supports(final Event event, final Context context) {
         return false;
     }
 
     @Override
-    public boolean canHandleInTransaction(Event event, Context context) {
+    public boolean canHandleInTransaction(final Event event, final Context context) {
         return true;
     }
 
     @Override
-    public void handle(Event event, Context context) {
+    public void handle(final Event event, final Context context) {
     }
 
     @Override

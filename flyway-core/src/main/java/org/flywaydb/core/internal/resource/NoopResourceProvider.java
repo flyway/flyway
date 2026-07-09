@@ -32,18 +32,18 @@ public enum NoopResourceProvider implements ResourceProvider {
     INSTANCE;
 
     @Override
-    public LoadableResource getResource(String name) {
+    public LoadableResource getResource(final String name) {
         return null;
     }
 
     /**
      * Retrieve all resources whose name begins with this prefix and ends with any of these suffixes.
      *
-     * @param prefix The prefix.
+     * @param prefix   The prefix.
      * @param suffixes The suffixes.
      * @return The matching resources.
      */
-    public Collection<LoadableResource> getResources(String prefix, String[] suffixes) {
+    public Collection<LoadableResource> getResources(final String prefix, final String[] suffixes) {
         return Collections.emptyList();
     }
 }

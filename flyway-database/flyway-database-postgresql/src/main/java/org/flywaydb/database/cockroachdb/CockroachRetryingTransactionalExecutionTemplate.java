@@ -28,8 +28,8 @@ import java.sql.SQLException;
 import java.util.concurrent.Callable;
 
 /**
- * Spring-like template for executing transactions. Cockroach always operates with transaction isolation
- * level SERIALIZABLE and needs a retrying pattern.
+ * Spring-like template for executing transactions. Cockroach always operates with transaction isolation level
+ * SERIALIZABLE and needs a retrying pattern.
  */
 @CustomLog
 public class CockroachRetryingTransactionalExecutionTemplate extends TransactionalExecutionTemplate {
@@ -39,10 +39,10 @@ public class CockroachRetryingTransactionalExecutionTemplate extends Transaction
     /**
      * Creates a new transaction template for this connection.
      *
-     * @param connection The connection for the transaction.
+     * @param connection          The connection for the transaction.
      * @param rollbackOnException Whether to roll back the transaction when an exception is thrown.
      */
-    CockroachRetryingTransactionalExecutionTemplate(Connection connection, boolean rollbackOnException) {
+    CockroachRetryingTransactionalExecutionTemplate(final Connection connection, final boolean rollbackOnException) {
         super(connection, rollbackOnException);
     }
 
@@ -53,7 +53,7 @@ public class CockroachRetryingTransactionalExecutionTemplate extends Transaction
      * @return The result of the transaction code.
      */
     @Override
-    public <T> T execute(Callable<T> transactionCallback) {
+    public <T> T execute(final Callable<T> transactionCallback) {
         // Similar in approach to the CockroachDBRetryingStrategy pattern
         int retryCount = 0;
         while (true) {

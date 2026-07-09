@@ -40,11 +40,14 @@ public class SQLiteTable extends Table<SQLiteDatabase, SQLiteSchema> {
      * Creates a new SQLite table.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database The database-specific support.
-     * @param schema The schema this table lives in.
-     * @param name The name of the table.
+     * @param database     The database-specific support.
+     * @param schema       The schema this table lives in.
+     * @param name         The name of the table.
      */
-    public SQLiteTable(JdbcTemplate jdbcTemplate, SQLiteDatabase database, SQLiteSchema schema, String name) {
+    public SQLiteTable(final JdbcTemplate jdbcTemplate,
+        final SQLiteDatabase database,
+        final SQLiteSchema schema,
+        final String name) {
         super(jdbcTemplate, database, schema, name);
         undroppable = SQLITE_SEQUENCE.equals(name);
     }
@@ -66,7 +69,10 @@ public class SQLiteTable extends Table<SQLiteDatabase, SQLiteSchema> {
     @Override
     protected boolean doExists() throws SQLException {
         return jdbcTemplate.queryForInt("SELECT count(tbl_name) FROM "
-                                                + database.quote(schema.getName()) + ".sqlite_master WHERE type='table' AND tbl_name='" + name + "'") > 0;
+            + database.quote(schema.getName())
+            + ".sqlite_master WHERE type='table' AND tbl_name='"
+            + name
+            + "'") > 0;
     }
 
     @Override

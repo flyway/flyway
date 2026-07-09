@@ -20,13 +20,10 @@
 package org.flywaydb.database.sqlserver.fabricDataWarehouse;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.database.sqlserver.SQLServerDatabase;
 import org.flywaydb.database.sqlserver.SQLServerSchema;
-import org.flywaydb.database.sqlserver.SQLServerTable;
 
 /**
  * Synapse implementation of Schema.
@@ -37,11 +34,14 @@ public class FabricDataWarehouseSchema extends SQLServerSchema {
      * Creates a new Synapse schema.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database The database-specific support.
+     * @param database     The database-specific support.
      * @param databaseName The database name.
-     * @param name The name of the schema.
+     * @param name         The name of the schema.
      */
-    FabricDataWarehouseSchema(JdbcTemplate jdbcTemplate, SQLServerDatabase database, String databaseName, String name) {
+    FabricDataWarehouseSchema(final JdbcTemplate jdbcTemplate,
+        final SQLServerDatabase database,
+        final String databaseName,
+        final String name) {
         super(jdbcTemplate, database, databaseName, name);
     }
 
@@ -53,21 +53,33 @@ public class FabricDataWarehouseSchema extends SQLServerSchema {
     }
 
     @Override
-    public Table getTable(String tableName) {
+    public Table getTable(final String tableName) {
         return new FabricDataWarehouseTable(jdbcTemplate, database, databaseName, this, tableName);
     }
 
     @Override
     protected StringBuilder getObjectWithParentQuery() {
-        return new StringBuilder("SELECT obj.object_id, obj.name FROM sys.objects AS obj " +
-            "LEFT JOIN sys.extended_properties AS eps " +
-            "ON obj.object_id = eps.major_id " +
-            "AND eps.class = 1 " +    // Class 1 = objects and columns (we are only interested in objects).
-            "AND eps.minor_id = 0 " + // Minor ID, always 0 for objects.
-            "AND eps.name='microsoft_database_tools_support' " + // Select all objects generated from MS database tools.
-            "WHERE SCHEMA_NAME(obj.schema_id) = '" + name + "' " +
-            "AND eps.major_id IS NULL " + // Left Excluding JOIN (we are only interested in user defined entries).
-            "AND obj.is_ms_shipped = 0 " + // Make sure we do not return anything MS shipped.
+        return new StringBuilder("SELECT obj.object_id, obj.name FROM sys.objects AS obj "
+            + "LEFT JOIN sys.extended_properties AS eps "
+            + "ON obj.object_id = eps.major_id "
+            + "AND eps.class = 1 "
+            +
+            // Class 1 = objects and columns (we are only interested in objects).
+            "AND eps.minor_id = 0 "
+            +
+            // Minor ID, always 0 for objects.
+            "AND eps.name='microsoft_database_tools_support' "
+            +
+            // Select all objects generated from MS database tools.
+            "WHERE SCHEMA_NAME(obj.schema_id) = '"
+            + name
+            + "' "
+            + "AND eps.major_id IS NULL "
+            +
+            // Left Excluding JOIN (we are only interested in user defined entries).
+            "AND obj.is_ms_shipped = 0 "
+            +
+            // Make sure we do not return anything MS shipped.
             "AND obj.type IN (" // Select the object types.
         );
     }

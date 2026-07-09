@@ -21,5 +21,4 @@ package org.flywaydb.core.internal.nc;
 
 public interface DatabaseVersion {
     boolean isAtLeast(final String expected);
-
 }

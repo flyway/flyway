@@ -10,7 +10,7 @@ Configure this environment variable with any non-empty value to disable Flyway's
 
 ### Flyway Desktop
 
-This can't be configured via Flyway Desktop, although it will be honoured.
+This can't be configured via Flyway Desktop, although it will be honored.
 
 ### Environment Variable
 

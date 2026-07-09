@@ -29,9 +29,9 @@ import org.flywaydb.core.api.logging.LogCreator;
 public class ConsoleLogCreator implements LogCreator {
     private final CommandLineArguments commandLineArguments;
 
-    public Log createLogger(Class<?> clazz) {
-        ConsoleLog log = new ConsoleLog();
-        Color color = commandLineArguments.getColor();
+    public Log createLogger(final Class<?> clazz) {
+        final ConsoleLog log = new ConsoleLog();
+        final Color color = commandLineArguments.getColor();
 
         if (Color.NEVER.equals(color) || (Color.AUTO.equals(color) && System.console() == null)) {
             return log;

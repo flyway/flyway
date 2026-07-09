@@ -30,15 +30,15 @@ public class LicenseSupportStub implements LicenseSupport {
     private static final FlywayPermit OSS_PERMIT = new FlywayPermit();
 
     @Override
-    public FlywayPermit getPermit(Configuration configuration, boolean fromCache) {
+    public FlywayPermit getPermit(final Configuration configuration, final boolean fromCache) {
         return OSS_PERMIT;
     }
 
     @Override
-    public void submitPur(Configuration configuration, String eventType, Database database) { }
+    public void submitPur(final Configuration configuration, final String eventType, final Database database) {}
 
     @Override
-    public List<String> consumeDeferredWarnings(Configuration configuration) {
+    public List<String> consumeDeferredWarnings(final Configuration configuration) {
         return Collections.emptyList();
     }
 
@@ -51,5 +51,4 @@ public class LicenseSupportStub implements LicenseSupport {
     public int getPriority() {
         return -100;
     }
-
 }

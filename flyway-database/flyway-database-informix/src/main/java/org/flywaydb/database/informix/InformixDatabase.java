@@ -33,43 +33,61 @@ import java.sql.SQLException;
  */
 public class InformixDatabase extends Database<InformixConnection> {
 
-    public InformixDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+    public InformixDatabase(final Configuration configuration,
+        final JdbcConnectionFactory jdbcConnectionFactory,
+        final StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
     @Override
-    protected InformixConnection doGetConnection(Connection connection) {
+    protected InformixConnection doGetConnection(final Connection connection) {
         return new InformixConnection(this, connection);
     }
 
     @Override
-    public void ensureSupported(Configuration configuration) {
+    public void ensureSupported(final Configuration configuration) {
         ensureDatabaseIsRecentEnough("12.10");
         recommendFlywayUpgradeIfNecessary("12.10");
     }
 
     @Override
-    public String getRawCreateScript(Table table, boolean baseline) {
-        String tablespace = configuration.getTablespace() == null
-                ? ""
-                : " IN \"" + configuration.getTablespace() + "\"";
+    public String getRawCreateScript(final Table table, final boolean baseline) {
+        final String tablespace = configuration.getTablespace() == null
+            ? ""
+            : " IN \"" + configuration.getTablespace() + "\"";
 
-        return "CREATE TABLE " + table + " (\n" +
-                "    installed_rank INT NOT NULL,\n" +
-                "    version VARCHAR(50),\n" +
-                "    description VARCHAR(200) NOT NULL,\n" +
-                "    type VARCHAR(20) NOT NULL,\n" +
-                "    script LVARCHAR(1000) NOT NULL,\n" +
-                "    checksum INT,\n" +
-                "    installed_by VARCHAR(100) NOT NULL,\n" +
-                "    installed_on DATETIME YEAR TO FRACTION(3) DEFAULT CURRENT YEAR TO FRACTION(3) NOT NULL,\n" +
-                "    execution_time INT NOT NULL,\n" +
-                "    success SMALLINT NOT NULL\n" +
-                ")" + tablespace + ";\n" +
-                (baseline ? getBaselineStatement(table) + ";\n" : "") +
-                "ALTER TABLE " + table + " ADD CONSTRAINT CHECK (success in (0,1)) CONSTRAINT " + table.getName() + "_s;\n" +
-                "ALTER TABLE " + table + " ADD CONSTRAINT PRIMARY KEY (installed_rank) CONSTRAINT " + table.getName() + "_pk;\n" +
-                "CREATE INDEX " + table.getName() + "_s_idx ON " + table + " (success);";
+        return "CREATE TABLE "
+            + table
+            + " (\n"
+            + "    installed_rank INT NOT NULL,\n"
+            + "    version VARCHAR(50),\n"
+            + "    description VARCHAR(200) NOT NULL,\n"
+            + "    type VARCHAR(20) NOT NULL,\n"
+            + "    script LVARCHAR(1000) NOT NULL,\n"
+            + "    checksum INT,\n"
+            + "    installed_by VARCHAR(100) NOT NULL,\n"
+            + "    installed_on DATETIME YEAR TO FRACTION(3) DEFAULT CURRENT YEAR TO FRACTION(3) NOT NULL,\n"
+            + "    execution_time INT NOT NULL,\n"
+            + "    success SMALLINT NOT NULL\n"
+            + ")"
+            + tablespace
+            + ";\n"
+            + (baseline ? getBaselineStatement(table) + ";\n" : "")
+            + "ALTER TABLE "
+            + table
+            + " ADD CONSTRAINT CHECK (success in (0,1)) CONSTRAINT "
+            + table.getName()
+            + "_s;\n"
+            + "ALTER TABLE "
+            + table
+            + " ADD CONSTRAINT PRIMARY KEY (installed_rank) CONSTRAINT "
+            + table.getName()
+            + "_pk;\n"
+            + "CREATE INDEX "
+            + table.getName()
+            + "_s_idx ON "
+            + table
+            + " (success);";
     }
 
     @Override

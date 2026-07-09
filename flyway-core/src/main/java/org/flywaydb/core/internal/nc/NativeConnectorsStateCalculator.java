@@ -27,9 +27,8 @@ import org.flywaydb.core.internal.nc.schemahistory.ResolvedSchemaHistoryItem;
 import org.flywaydb.core.extensibility.Plugin;
 import org.flywaydb.core.internal.util.Pair;
 
-public interface NativeConnectorsStateCalculator extends Plugin  {
-    MigrationState calculateState(
-        final Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata> migration,
+public interface NativeConnectorsStateCalculator extends Plugin {
+    MigrationState calculateState(final Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata> migration,
         final Collection<? extends Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> allMigrations,
-        final Configuration configuration);    
+        final Configuration configuration);
 }

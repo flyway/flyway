@@ -38,8 +38,8 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
      */
     private final String script;
     /**
-     * The equivalent checksum of the migration. For versioned migrations, this is the same as the checksum.
-     * For repeatable migrations, it is the checksum calculated prior to placeholder replacement.
+     * The equivalent checksum of the migration. For versioned migrations, this is the same as the checksum. For
+     * repeatable migrations, it is the checksum calculated prior to placeholder replacement.
      */
     @Getter(AccessLevel.NONE)
     private final Integer equivalentChecksum;
@@ -50,9 +50,14 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
     private final String physicalLocation;
     private final MigrationExecutor executor;
 
-    public ResolvedMigrationImpl(MigrationVersion version, String description, String script, Integer checksum,
-                                 Integer equivalentChecksum, MigrationType type, String physicalLocation,
-                                 MigrationExecutor executor) {
+    public ResolvedMigrationImpl(final MigrationVersion version,
+        final String description,
+        final String script,
+        final Integer checksum,
+        final Integer equivalentChecksum,
+        final MigrationType type,
+        final String physicalLocation,
+        final MigrationExecutor executor) {
         this.version = version;
         this.description = description;
         this.script = script;
@@ -70,13 +75,13 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
         return checksum == null ? equivalentChecksum : checksum;
     }
 
-    public int compareTo(ResolvedMigrationImpl o) {
+    public int compareTo(final ResolvedMigrationImpl o) {
         return version.compareTo(o.version);
     }
 
     @SuppressWarnings("SimplifiableIfStatement")
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }
@@ -84,12 +89,14 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
             return false;
         }
 
-        ResolvedMigrationImpl migration = (ResolvedMigrationImpl) o;
+        final ResolvedMigrationImpl migration = (ResolvedMigrationImpl) o;
 
         if (checksum != null ? !checksum.equals(migration.checksum) : migration.checksum != null) {
             return false;
         }
-        if (equivalentChecksum != null ? !equivalentChecksum.equals(migration.equivalentChecksum) : migration.equivalentChecksum != null) {
+        if (equivalentChecksum != null
+            ? !equivalentChecksum.equals(migration.equivalentChecksum)
+            : migration.equivalentChecksum != null) {
             return false;
         }
         if (description != null ? !description.equals(migration.description) : migration.description != null) {
@@ -117,25 +124,35 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
 
     @Override
     public String toString() {
-        return "ResolvedMigrationImpl{" +
-                "version=" + version +
-                ", description='" + description + '\'' +
-                ", script='" + script + '\'' +
-                ", checksum=" + getChecksum() +
-                ", type=" + type +
-                ", physicalLocation='" + physicalLocation + '\'' +
-                ", executor=" + executor +
-                '}';
+        return "ResolvedMigrationImpl{"
+            + "version="
+            + version
+            + ", description='"
+            + description
+            + '\''
+            + ", script='"
+            + script
+            + '\''
+            + ", checksum="
+            + getChecksum()
+            + ", type="
+            + type
+            + ", physicalLocation='"
+            + physicalLocation
+            + '\''
+            + ", executor="
+            + executor
+            + '}';
     }
 
     @Override
-    public boolean checksumMatches(Integer checksum) {
-        return Objects.equals(checksum, this.checksum) ||
-                (Objects.equals(checksum, this.equivalentChecksum) && this.equivalentChecksum != null);
+    public boolean checksumMatches(final Integer checksum) {
+        return Objects.equals(checksum, this.checksum) || (Objects.equals(checksum, this.equivalentChecksum)
+            && this.equivalentChecksum != null);
     }
 
     @Override
-    public boolean checksumMatchesWithoutBeingIdentical(Integer checksum) {
+    public boolean checksumMatchesWithoutBeingIdentical(final Integer checksum) {
         // The checksum in the database matches the one calculated without replacement, but not the one with.
         // That is, the script has placeholders and the checksum was originally calculated ignoring their values.
         return Objects.equals(checksum, this.equivalentChecksum) && !Objects.equals(checksum, this.checksum);

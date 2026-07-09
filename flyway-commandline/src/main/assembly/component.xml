@@ -171,6 +171,7 @@
         <include>org.reactivestreams:reactive-streams</include>
       </includes>
       <excludes>
+        <exclude>com.fasterxml.jackson.core:jackson-databind</exclude>
         <exclude>com.microsoft.azure:msal4j-persistence-extension</exclude>
         <exclude>io.netty:netty-*</exclude>
         <exclude>net.minidev:json-smart</exclude>
@@ -268,9 +269,8 @@
       <excludes>
         <exclude>org.reactivestreams</exclude>
         <exclude>io.netty:netty-*</exclude>
-        <exclude>com.fasterxml.jackson.core:jackson-core</exclude>
-        <exclude>com.fasterxml.jackson.core:jackson-databind</exclude>
-        <exclude>com.fasterxml.jackson.datatype:jackson-datatype-jsr310</exclude>
+        <exclude>tools.jackson.core:jackson-core</exclude>
+        <exclude>tools.jackson.core:jackson-databind</exclude>
         <exclude>commons-logging:commons-logging</exclude>
       </excludes>
     </dependencySet>

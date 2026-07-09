@@ -34,17 +34,19 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
-    public PostgreSQLDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+    public PostgreSQLDatabase(final Configuration configuration,
+        final JdbcConnectionFactory jdbcConnectionFactory,
+        final StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
     @Override
-    protected PostgreSQLConnection doGetConnection(Connection connection) {
+    protected PostgreSQLConnection doGetConnection(final Connection connection) {
         return new PostgreSQLConnection(this, connection);
     }
 
     @Override
-    public void ensureSupported(Configuration configuration) {
+    public void ensureSupported(final Configuration configuration) {
         ensureDatabaseIsRecentEnough("9.0");
 
         ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("10", Tier.PREMIUM, configuration);
@@ -53,26 +55,42 @@ public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
     }
 
     @Override
-    public String getRawCreateScript(Table table, boolean baseline) {
-        String tablespace = configuration.getTablespace() == null
-                ? ""
-                : " TABLESPACE \"" + configuration.getTablespace() + "\"";
+    public String getRawCreateScript(final Table table, final boolean baseline) {
+        final String tablespace = configuration.getTablespace() == null
+            ? ""
+            : " TABLESPACE \"" + configuration.getTablespace() + "\"";
 
-        return "CREATE TABLE " + table + " (\n" +
-                "    \"installed_rank\" INT NOT NULL,\n" +
-                "    \"version\" VARCHAR(50),\n" +
-                "    \"description\" VARCHAR(200) NOT NULL,\n" +
-                "    \"type\" VARCHAR(20) NOT NULL,\n" +
-                "    \"script\" VARCHAR(1000) NOT NULL,\n" +
-                "    \"checksum\" INTEGER,\n" +
-                "    \"installed_by\" VARCHAR(100) NOT NULL,\n" +
-                "    \"installed_on\" TIMESTAMP NOT NULL DEFAULT now(),\n" +
-                "    \"execution_time\" INTEGER NOT NULL,\n" +
-                "    \"success\" BOOLEAN NOT NULL\n" +
-                ")" + tablespace + ";\n" +
-                (baseline ? getBaselineStatement(table) + ";\n" : "") +
-                "ALTER TABLE " + table + " ADD CONSTRAINT \"" + table.getName() + "_pk\" PRIMARY KEY (\"installed_rank\")" + (configuration.getTablespace() != null ? " USING INDEX" + tablespace : "" ) + ";\n" +
-                "CREATE INDEX \"" + table.getName() + "_s_idx\" ON " + table + " (\"success\")" + tablespace + ";";
+        return "CREATE TABLE "
+            + table
+            + " (\n"
+            + "    \"installed_rank\" INT NOT NULL,\n"
+            + "    \"version\" VARCHAR(50),\n"
+            + "    \"description\" VARCHAR(200) NOT NULL,\n"
+            + "    \"type\" VARCHAR(20) NOT NULL,\n"
+            + "    \"script\" VARCHAR(1000) NOT NULL,\n"
+            + "    \"checksum\" INTEGER,\n"
+            + "    \"installed_by\" VARCHAR(100) NOT NULL,\n"
+            + "    \"installed_on\" TIMESTAMP NOT NULL DEFAULT now(),\n"
+            + "    \"execution_time\" INTEGER NOT NULL,\n"
+            + "    \"success\" BOOLEAN NOT NULL\n"
+            + ")"
+            + tablespace
+            + ";\n"
+            + (baseline ? getBaselineStatement(table) + ";\n" : "")
+            + "ALTER TABLE "
+            + table
+            + " ADD CONSTRAINT \""
+            + table.getName()
+            + "_pk\" PRIMARY KEY (\"installed_rank\")"
+            + (configuration.getTablespace() != null ? " USING INDEX" + tablespace : "")
+            + ";\n"
+            + "CREATE INDEX \""
+            + table.getName()
+            + "_s_idx\" ON "
+            + table
+            + " (\"success\")"
+            + tablespace
+            + ";";
     }
 
     @Override
@@ -96,8 +114,10 @@ public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
     }
 
     @Override
-    public String doQuote(String identifier) {
-        return getOpenQuote() + StringUtils.replaceAll(identifier, getCloseQuote(), getEscapedQuote()) + getCloseQuote();
+    public String doQuote(final String identifier) {
+        return getOpenQuote()
+            + StringUtils.replaceAll(identifier, getCloseQuote(), getEscapedQuote())
+            + getCloseQuote();
     }
 
     @Override
@@ -112,35 +132,51 @@ public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
 
     @Override
     public boolean useSingleConnection() {
-        PostgreSQLConfigurationExtension configurationExtension = configuration.getPluginRegister().getExact(PostgreSQLConfigurationExtension.class);
+        final PostgreSQLConfigurationExtension configurationExtension = configuration.getPluginRegister()
+            .getExact(PostgreSQLConfigurationExtension.class);
         return !configurationExtension.isTransactionalLock();
     }
 
     /**
-     * This exists to fix this issue: https://github.com/flyway/flyway/issues/2638
-     * See https://www.pgpool.net/docs/latest/en/html/runtime-config-load-balancing.html
+     * This exists to fix this issue: https://github.com/flyway/flyway/issues/2638 See
+     * https://www.pgpool.net/docs/latest/en/html/runtime-config-load-balancing.html
      */
     @Override
-    public String getSelectStatement(Table table) {
+    public String getSelectStatement(final Table table) {
         return "/*NO LOAD BALANCE*/\n"
-                + "SELECT " + quote("installed_rank")
-                + "," + quote("version")
-                + "," + quote("description")
-                + "," + quote("type")
-                + "," + quote("script")
-                + "," + quote("checksum")
-                + "," + quote("installed_on")
-                + "," + quote("installed_by")
-                + "," + quote("execution_time")
-                + "," + quote("success")
-                + " FROM " + table
-                + " WHERE " + quote("installed_rank") + " > ?"
-                + " ORDER BY " + quote("installed_rank");
+            + "SELECT "
+            + quote("installed_rank")
+            + ","
+            + quote("version")
+            + ","
+            + quote("description")
+            + ","
+            + quote("type")
+            + ","
+            + quote("script")
+            + ","
+            + quote("checksum")
+            + ","
+            + quote("installed_on")
+            + ","
+            + quote("installed_by")
+            + ","
+            + quote("execution_time")
+            + ","
+            + quote("success")
+            + " FROM "
+            + table
+            + " WHERE "
+            + quote("installed_rank")
+            + " > ?"
+            + " ORDER BY "
+            + quote("installed_rank");
     }
 
     @Override
     public String getDatabaseHosting() {
-        if (getMainConnection().isAwsRds() || DATABASE_HOSTING_RDS_URL_IDENTIFIER.matcher(configuration.getUrl()).find()) {
+        if (getMainConnection().isAwsRds() || DATABASE_HOSTING_RDS_URL_IDENTIFIER.matcher(configuration.getUrl())
+            .find()) {
             return DATABASE_HOSTING_AWS_RDS;
         } else {
             return super.getDatabaseHosting();

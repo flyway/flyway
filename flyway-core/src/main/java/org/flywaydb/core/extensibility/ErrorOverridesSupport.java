@@ -26,5 +26,6 @@ import org.flywaydb.core.internal.sqlscript.SqlStatement;
 
 public interface ErrorOverridesSupport extends Plugin {
     void handleException(Results results, SqlScript sqlScript, SqlStatement sqlStatement, Configuration config);
+
     void printWarnings(Results results, Configuration config);
 }

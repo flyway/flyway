@@ -67,7 +67,7 @@ filesystem:sql
 
 ### Flyway Desktop
 
-This can't be set in a config file via Flyway Desktop, although it will be honoured, and it can be configured as an advanced parameter in operations on the Migrations page.
+This can't be set in a config file via Flyway Desktop, although it will be honored, and it can be configured as an advanced parameter in operations on the Migrations page.
 
 ### Command-line
 
@@ -122,4 +122,4 @@ flyway {
 
 ## Related Reading
 
-- [Blog Post: Organising your migrations](https://www.red-gate.com/blog/organising-your-migrations)
+- [Blog Post: Organizing your migrations](https://www.red-gate.com/blog/organising-your-migrations)

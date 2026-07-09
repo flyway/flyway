@@ -32,16 +32,16 @@ import java.util.Date;
 
 @NoArgsConstructor
 public class BaselineAppliedMigration extends BaseAppliedMigration {
-    public BaselineAppliedMigration(int installedRank,
-                                    MigrationVersion version,
-                                    String description,
-                                    String type,
-                                    String script,
-                                    Integer checksum,
-                                    Date installedOn,
-                                    String installedBy,
-                                    int executionTime,
-                                    boolean success) {
+    public BaselineAppliedMigration(final int installedRank,
+        final MigrationVersion version,
+        final String description,
+        final String type,
+        final String script,
+        final Integer checksum,
+        final Date installedOn,
+        final String installedBy,
+        final int executionTime,
+        final boolean success) {
         this.installedRank = installedRank;
         this.version = version;
         this.description = description;
@@ -55,30 +55,41 @@ public class BaselineAppliedMigration extends BaseAppliedMigration {
     }
 
     @Override
-    public boolean handlesType(String type) {
+    public boolean handlesType(final String type) {
         return Arrays.stream(BaselineMigrationType.values())
-                .map(Enum::toString)
-                .anyMatch(t -> t.equalsIgnoreCase(type));
+            .map(Enum::toString)
+            .anyMatch(t -> t.equalsIgnoreCase(type));
     }
 
     @Override
-    public AppliedMigration create(int installedRank,
-                                   MigrationVersion version,
-                                   String description,
-                                   String type,
-                                   String script,
-                                   Integer checksum,
-                                   Date installedOn,
-                                   String installedBy,
-                                   int executionTime,
-                                   boolean success) {
-        return new BaselineAppliedMigration(installedRank, version, description, type, script, checksum, installedOn, installedBy, executionTime, success);
+    public AppliedMigration create(final int installedRank,
+        final MigrationVersion version,
+        final String description,
+        final String type,
+        final String script,
+        final Integer checksum,
+        final Date installedOn,
+        final String installedBy,
+        final int executionTime,
+        final boolean success) {
+        return new BaselineAppliedMigration(installedRank,
+            version,
+            description,
+            type,
+            script,
+            checksum,
+            installedOn,
+            installedBy,
+            executionTime,
+            success);
     }
 
     @Override
-    public MigrationState getState(MigrationInfoContext context, boolean outOfOrder, ResolvedMigration resolvedMigration) {
-        MigrationState migrationState = super.getState(context, outOfOrder, resolvedMigration);
-        MigrationState missingState = super.getMissingState(context, resolvedMigration);
+    public MigrationState getState(final MigrationInfoContext context,
+        final boolean outOfOrder,
+        final ResolvedMigration resolvedMigration) {
+        final MigrationState migrationState = super.getState(context, outOfOrder, resolvedMigration);
+        final MigrationState missingState = super.getMissingState(context, resolvedMigration);
         if (migrationState == MigrationState.BASELINE) {
             if (!isSuccess()) {
                 return MigrationState.FAILED;

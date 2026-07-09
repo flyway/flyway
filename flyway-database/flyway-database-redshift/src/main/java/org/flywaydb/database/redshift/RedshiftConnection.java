@@ -31,7 +31,7 @@ import java.sql.SQLException;
  * Redshift connection.
  */
 public class RedshiftConnection extends Connection<RedshiftDatabase> {
-    RedshiftConnection(RedshiftDatabase database, java.sql.Connection connection) {
+    RedshiftConnection(final RedshiftDatabase database, final java.sql.Connection connection) {
         super(database, connection);
     }
 
@@ -41,13 +41,15 @@ public class RedshiftConnection extends Connection<RedshiftDatabase> {
     }
 
     @Override
-    public void changeCurrentSchemaTo(Schema schema) {
+    public void changeCurrentSchemaTo(final Schema schema) {
         try {
-            if (schema.getName().equals(originalSchemaNameOrSearchPath) || originalSchemaNameOrSearchPath.startsWith(schema.getName() + ",") || !schema.exists()) {
+            if (schema.getName().equals(originalSchemaNameOrSearchPath) || originalSchemaNameOrSearchPath.startsWith(
+                schema.getName() + ",") || !schema.exists()) {
                 return;
             }
 
-            if (StringUtils.hasText(originalSchemaNameOrSearchPath) && !"unset".equals(originalSchemaNameOrSearchPath)) {
+            if (StringUtils.hasText(originalSchemaNameOrSearchPath)
+                && !"unset".equals(originalSchemaNameOrSearchPath)) {
                 doChangeCurrentSchemaOrSearchPathTo(schema.toString() + "," + originalSchemaNameOrSearchPath);
             } else {
                 doChangeCurrentSchemaOrSearchPathTo(schema.toString());
@@ -67,21 +69,21 @@ public class RedshiftConnection extends Connection<RedshiftDatabase> {
 
     @Override
     public Schema doGetCurrentSchema() throws SQLException {
-        String currentSchema = jdbcTemplate.queryForString("SELECT current_schema()");
-        String searchPath = getCurrentSchemaNameOrSearchPath();
+        final String currentSchema = jdbcTemplate.queryForString("SELECT current_schema()");
+        final String searchPath = getCurrentSchemaNameOrSearchPath();
 
         if (!StringUtils.hasText(currentSchema) && !StringUtils.hasText(searchPath)) {
-            throw new FlywayException("Unable to determine current schema as search_path is empty. " +
-                                              "Set the current schema in currentSchema parameter of the JDBC URL or in Flyway's schemas property.");
+            throw new FlywayException("Unable to determine current schema as search_path is empty. "
+                + "Set the current schema in currentSchema parameter of the JDBC URL or in Flyway's schemas property.");
         }
 
-        String schema = StringUtils.hasText(currentSchema) ? currentSchema : searchPath;
+        final String schema = StringUtils.hasText(currentSchema) ? currentSchema : searchPath;
 
         return getSchema(schema);
     }
 
     @Override
-    public Schema getSchema(String name) {
+    public Schema getSchema(final String name) {
         return new RedshiftSchema(jdbcTemplate, database, name);
     }
 }

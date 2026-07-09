@@ -95,9 +95,10 @@ public class EnvironmentResolver {
         result.setUser(context.resolveValue(environment.getUser(), resolveProgress));
         result.setUrl(context.resolveValue(environment.getUrl(), resolveProgress));
         result.setDriver(context.resolveValue(environment.getDriver(), resolveProgress));
-        result.setSchemas(environment.getSchemas() != null
-            ? environment.getSchemas().stream().map(s -> context.resolveValue(s, resolveProgress)).toList()
-            : null);
+        result.setSchemas(environment.getSchemas() != null ? environment.getSchemas()
+            .stream()
+            .map(s -> context.resolveValue(s, resolveProgress))
+            .toList() : null);
         result.setProvisionerMode(mode);
 
         if (mode == ProvisionerMode.Provision) {
@@ -130,8 +131,10 @@ public class EnvironmentResolver {
 
         if (environmentModel.getResolvers() != null) {
 
-            return environmentModel.getResolvers().keySet().stream().collect(Collectors.toMap(key -> key,
-                v -> getResolverConfig(environmentModel, pluginRegister, v)));
+            return environmentModel.getResolvers()
+                .keySet()
+                .stream()
+                .collect(Collectors.toMap(key -> key, v -> getResolverConfig(environmentModel, pluginRegister, v)));
         }
         return null;
     }
@@ -145,7 +148,8 @@ public class EnvironmentResolver {
             try {
                 final var data = environmentModel.getResolvers().get(key);
                 return (ConfigurationExtension) new ObjectMapper().rebuild()
-                    .configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false).build()
+                    .configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false)
+                    .build()
                     .convertValue(data, clazz);
             } catch (final IllegalArgumentException e) {
                 throw new FlywayException("Error reading resolver configuration for resolver " + key,
@@ -158,12 +162,18 @@ public class EnvironmentResolver {
     }
 
     private Class<? extends Plugin> getResolverClassFromKey(final PluginRegister pluginRegister, final String key) {
-        Plugin plugin = pluginRegister.getInstancesOf(EnvironmentProvisioner.class).stream()
-            .filter(p -> matchesNameOrAlias(p, key)).findFirst().orElse(null);
+        Plugin plugin = pluginRegister.getInstancesOf(EnvironmentProvisioner.class)
+            .stream()
+            .filter(p -> matchesNameOrAlias(p, key))
+            .findFirst()
+            .orElse(null);
 
         if (plugin == null) {
-            plugin = pluginRegister.getInstancesOf(PropertyResolver.class).stream()
-                .filter(p -> matchesNameOrAlias(p, key)).findFirst().orElse(null);
+            plugin = pluginRegister.getInstancesOf(PropertyResolver.class)
+                .stream()
+                .filter(p -> matchesNameOrAlias(p, key))
+                .findFirst()
+                .orElse(null);
         }
 
         if (plugin != null) {
@@ -173,15 +183,14 @@ public class EnvironmentResolver {
         throw new FlywayException("Unable to find resolver: " + key);
     }
 
-    private boolean matchesNameOrAlias(Plugin plugin, String key) {
+    private boolean matchesNameOrAlias(final Plugin plugin, final String key) {
         if (plugin.getName().equalsIgnoreCase(key)) {
             return true;
         }
 
         if (plugin instanceof PropertyResolver) {
-            PropertyResolver resolver = (PropertyResolver) plugin;
-            return resolver.getAliases().stream()
-                .anyMatch(alias -> alias.equalsIgnoreCase(key));
+            final PropertyResolver resolver = (PropertyResolver) plugin;
+            return resolver.getAliases().stream().anyMatch(alias -> alias.equalsIgnoreCase(key));
         }
 
         return false;

@@ -29,18 +29,19 @@ import java.util.regex.Pattern;
 public class SAPHANAParser extends Parser {
     private static final StatementType FUNCTION_OR_PROCEDURE_STATEMENT = new StatementType();
     private static final Pattern FUNCTION_OR_PROCEDURE_REGEX = Pattern.compile(
-            "^CREATE(\\sOR\\sREPLACE)?\\s(FUNCTION|PROCEDURE)");
+        "^CREATE(\\sOR\\sREPLACE)?\\s(FUNCTION|PROCEDURE)");
 
     private static final StatementType ANONYMOUS_BLOCK_STATEMENT = new StatementType();
-    private static final Pattern ANONYMOUS_BLOCK_REGEX = Pattern.compile(
-            "^DO.*BEGIN");
+    private static final Pattern ANONYMOUS_BLOCK_REGEX = Pattern.compile("^DO.*BEGIN");
 
-    public SAPHANAParser(Configuration configuration, ParsingContext parsingContext) {
+    public SAPHANAParser(final Configuration configuration, final ParsingContext parsingContext) {
         super(configuration, parsingContext, 2);
     }
 
     @Override
-    protected StatementType detectStatementType(String simplifiedStatement, ParserContext context, PeekingReader reader) {
+    protected StatementType detectStatementType(final String simplifiedStatement,
+        final ParserContext context,
+        final PeekingReader reader) {
         if (FUNCTION_OR_PROCEDURE_REGEX.matcher(simplifiedStatement).matches()) {
             return FUNCTION_OR_PROCEDURE_STATEMENT;
         }
@@ -52,10 +53,11 @@ public class SAPHANAParser extends Parser {
     }
 
     @Override
-    protected boolean shouldAdjustBlockDepth(ParserContext context, List<Token> tokens, Token token) {
-        TokenType tokenType = token.getType();
-        if ((context.getStatementType() == FUNCTION_OR_PROCEDURE_STATEMENT || context.getStatementType() == ANONYMOUS_BLOCK_STATEMENT) &&
-                (TokenType.EOF == tokenType || TokenType.DELIMITER == tokenType)) {
+    protected boolean shouldAdjustBlockDepth(final ParserContext context, final List<Token> tokens, final Token token) {
+        final TokenType tokenType = token.getType();
+        if ((context.getStatementType() == FUNCTION_OR_PROCEDURE_STATEMENT
+            || context.getStatementType() == ANONYMOUS_BLOCK_STATEMENT) && (TokenType.EOF == tokenType
+            || TokenType.DELIMITER == tokenType)) {
             return true;
         }
 
@@ -63,13 +65,19 @@ public class SAPHANAParser extends Parser {
     }
 
     @Override
-    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) throws IOException {
-        int parensDepth = keyword.getParensDepth();
+    protected void adjustBlockDepth(final ParserContext context,
+        final List<Token> tokens,
+        final Token keyword,
+        final PeekingReader reader) throws IOException {
+        final int parensDepth = keyword.getParensDepth();
 
         // BEGIN, CASE, DO and IF increases block depth
-        if ("BEGIN".equals(keyword.getText()) || "CASE".equals(keyword.getText()) || "DO".equals(keyword.getText()) || "IF".equals(keyword.getText())
-                // But not END IF
-                && !Parser.lastTokenIs(tokens, parensDepth, "END")) {
+        if ("BEGIN".equals(keyword.getText())
+            || "CASE".equals(keyword.getText())
+            || "DO".equals(keyword.getText())
+            || "IF".equals(keyword.getText())
+            // But not END IF
+            && !Parser.lastTokenIs(tokens, parensDepth, "END")) {
             context.increaseBlockDepth(keyword.getText());
         } else if (doTokensMatchPattern(tokens, keyword, FUNCTION_OR_PROCEDURE_REGEX)) {
             context.increaseBlockDepth("FUNCTION_OR_PROCEDURE_REGEX");
@@ -77,11 +85,12 @@ public class SAPHANAParser extends Parser {
             context.decreaseBlockDepth();
         }
 
-        TokenType tokenType = keyword.getType();
-        if ((context.getStatementType() == FUNCTION_OR_PROCEDURE_STATEMENT || context.getStatementType() == ANONYMOUS_BLOCK_STATEMENT) &&
-                (TokenType.EOF == tokenType || TokenType.DELIMITER == tokenType) &&
-                context.getBlockDepth() == 1 &&
-                Parser.lastTokenIs(tokens, parensDepth, "END")) {
+        final TokenType tokenType = keyword.getType();
+        if ((context.getStatementType() == FUNCTION_OR_PROCEDURE_STATEMENT
+            || context.getStatementType() == ANONYMOUS_BLOCK_STATEMENT) && (TokenType.EOF == tokenType
+            || TokenType.DELIMITER == tokenType) && context.getBlockDepth() == 1 && Parser.lastTokenIs(tokens,
+            parensDepth,
+            "END")) {
             context.decreaseBlockDepth();
             return;
         }

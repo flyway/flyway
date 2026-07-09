@@ -64,7 +64,8 @@ import java.util.regex.Pattern;
 public class OracleDatabaseType extends BaseDatabaseType {
     // Oracle usernames/passwords can be 1-30 chars, can only contain alphanumerics and # _ $
     // The first (and only) capture group represents the password
-    private static final Pattern usernamePasswordPattern = Pattern.compile("^jdbc:oracle:thin:[a-zA-Z0-9#_$]+/([a-zA-Z0-9#_$]+)@.*");
+    private static final Pattern usernamePasswordPattern = Pattern.compile(
+        "^jdbc:oracle:thin:[a-zA-Z0-9#_$]+/([a-zA-Z0-9#_$]+)@.*");
     private static final String TNS_ADMIN = "TNS_ADMIN";
     private static final String ORACLE_HOME = "ORACLE_HOME";
 
@@ -79,8 +80,10 @@ public class OracleDatabaseType extends BaseDatabaseType {
     }
 
     @Override
-    public boolean handlesJDBCUrl(String url) {
-        return isSecretManagerUrl(url, "oracle") || url.startsWith("jdbc:oracle") || url.startsWith("jdbc:p6spy:oracle");
+    public boolean handlesJDBCUrl(final String url) {
+        return isSecretManagerUrl(url, "oracle")
+            || url.startsWith("jdbc:oracle")
+            || url.startsWith("jdbc:p6spy:oracle");
     }
 
     @Override
@@ -89,7 +92,7 @@ public class OracleDatabaseType extends BaseDatabaseType {
     }
 
     @Override
-    public String getDriverClass(String url, ClassLoader classLoader) {
+    public String getDriverClass(final String url, final ClassLoader classLoader) {
         if (url.startsWith("jdbc:p6spy:oracle:")) {
             return "com.p6spy.engine.spy.P6SpyDriver";
         }
@@ -97,17 +100,25 @@ public class OracleDatabaseType extends BaseDatabaseType {
     }
 
     @Override
-    public boolean handlesDatabaseProductNameAndVersion(String databaseProductName, String databaseProductVersion, Connection connection) {
+    public boolean handlesDatabaseProductNameAndVersion(final String databaseProductName,
+        final String databaseProductVersion,
+        final Connection connection) {
         return databaseProductName.startsWith("Oracle");
     }
 
     @Override
-    public Database createDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+    public Database createDatabase(final Configuration configuration,
+        final JdbcConnectionFactory jdbcConnectionFactory,
+        final StatementInterceptor statementInterceptor) {
         return new OracleDatabase(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
     @Override
-    public Parser createParser(Configuration configuration, ResourceProvider resourceProvider, ParsingContext parsingContext) {
+    public Parser createParser(final Configuration configuration,
+        final ResourceProvider resourceProvider,
+        final ParsingContext parsingContext) {
+
+
 
 
 
@@ -128,9 +139,9 @@ public class OracleDatabaseType extends BaseDatabaseType {
     }
 
     @Override
-    public SqlScriptExecutorFactory createSqlScriptExecutorFactory(JdbcConnectionFactory jdbcConnectionFactory,
-                                                                   final CallbackExecutor<Event> callbackExecutor,
-                                                                   final StatementInterceptor statementInterceptor) {
+    public SqlScriptExecutorFactory createSqlScriptExecutorFactory(final JdbcConnectionFactory jdbcConnectionFactory,
+        final CallbackExecutor<Event> callbackExecutor,
+        final StatementInterceptor statementInterceptor) {
         final boolean supportsBatch = jdbcConnectionFactory.isSupportsBatch();
 
         final DatabaseType thisRef = this;
@@ -145,26 +156,39 @@ public class OracleDatabaseType extends BaseDatabaseType {
 
 
 
+
+
+
+
+
              return new DefaultSqlScriptExecutor(new JdbcTemplate(connection, thisRef), callbackExecutor, undo, batch, outputQueryResults, statementInterceptor);
 
         };
     }
 
     @Override
-    public void setDefaultConnectionProps(String url, Properties props, ClassLoader classLoader) {
-        String osUser = System.getProperty("user.name");
+    public void setDefaultConnectionProps(final String url, final Properties props, final ClassLoader classLoader) {
+        final String osUser = System.getProperty("user.name");
         props.put("v$session.osuser", osUser.substring(0, Math.min(osUser.length(), 30)));
         props.put("v$session.program", APPLICATION_NAME);
         props.put("oracle.net.keepAlive", "true");
 
-        String oobb = ClassUtils.getStaticFieldValue("oracle.jdbc.OracleConnection", "CONNECTION_PROPERTY_THIN_NET_DISABLE_OUT_OF_BAND_BREAK", classLoader);
+        final String oobb = ClassUtils.getStaticFieldValue("oracle.jdbc.OracleConnection",
+            "CONNECTION_PROPERTY_THIN_NET_DISABLE_OUT_OF_BAND_BREAK",
+            classLoader);
         props.put(oobb, "true");
     }
 
     @Override
-    public void setConfigConnectionProps(Configuration config, Properties props, ClassLoader classLoader) {
+    public void setConfigConnectionProps(final Configuration config,
+        final Properties props,
+        final ClassLoader classLoader) {
         if (config != null) {
-            OracleConfigurationExtension configurationExtension = config.getPluginRegister().getExact(OracleConfigurationExtension.class);
+            final OracleConfigurationExtension configurationExtension = config.getPluginRegister()
+                .getExact(OracleConfigurationExtension.class);
+
+
+
 
 
 
@@ -178,12 +202,13 @@ public class OracleDatabaseType extends BaseDatabaseType {
 
 
             if (configurationExtension.getWalletLocation() != null) {
-                throw new FlywayEditionUpgradeRequiredException(LicenseGuard.getTier(config), "oracle.net.wallet_location");
+                throw new FlywayEditionUpgradeRequiredException(LicenseGuard.getTier(config),
+                    "oracle.net.wallet_location");
             }
             if (!config.getKerberosConfigFile().isEmpty()) {
-                throw new FlywayEditionUpgradeRequiredException(LicenseGuard.getTier(config), "oracle.kerberos.config.file");
+                throw new FlywayEditionUpgradeRequiredException(LicenseGuard.getTier(config),
+                    "oracle.kerberos.config.file");
             }
-
         }
     }
 
@@ -210,9 +235,17 @@ public class OracleDatabaseType extends BaseDatabaseType {
 
 
 
+
+
+
+
+
+
+
+
     @Override
-    public Connection alterConnectionAsNeeded(Connection connection, Configuration configuration) {
-        Map<String, String> jdbcProperties = configuration.getJdbcProperties();
+    public Connection alterConnectionAsNeeded(final Connection connection, final Configuration configuration) {
+        final Map<String, String> jdbcProperties = configuration.getJdbcProperties();
 
         if (jdbcProperties != null && jdbcProperties.containsKey(OracleConnection.PROXY_USER_NAME)) {
             try {
@@ -225,14 +258,18 @@ public class OracleDatabaseType extends BaseDatabaseType {
                         // This includes com.zaxxer.HikariCP.HikariProxyConnection, potentially other unknown wrapper types
                         oracleConnection = connection.unwrap(OracleConnection.class);
                     } else {
-                        throw new FlywayException("Unable to extract Oracle connection type from '" + connection.getClass().getName() + "'");
+                        throw new FlywayException("Unable to extract Oracle connection type from '"
+                            + connection.getClass().getName()
+                            + "'");
                     }
                 } catch (SQLException e) {
-                    throw new FlywayException("Unable to unwrap connection type '" + connection.getClass().getName() + "'", e);
+                    throw new FlywayException("Unable to unwrap connection type '"
+                        + connection.getClass().getName()
+                        + "'", e);
                 }
 
                 if (!oracleConnection.isProxySession()) {
-                    Properties props = new Properties();
+                    final Properties props = new Properties();
                     props.putAll(configuration.getJdbcProperties());
                     oracleConnection.openProxySession(OracleConnection.PROXYTYPE_USER_NAME, props);
                 }
@@ -252,10 +289,10 @@ public class OracleDatabaseType extends BaseDatabaseType {
         // The underlying reason involves Flyway’s complicated LOG initialization process.
         System.setProperty("oracle.jdbc.Trace", "true");
 
-        
         // Using System.setProperty("java.util.logging.config.file", {filePath}) here has no effect.
         // Because the JVM initializes the logging configuration early during startup.
-        String loggingPropertiesFile = Paths.get(ClassUtils.getInstallDir(this.getClass()), "assets/logging.properties").toString();
+        final String loggingPropertiesFile = Paths.get(ClassUtils.getInstallDir(this.getClass()),
+            "assets/logging.properties").toString();
         if (new File(loggingPropertiesFile).exists()) {
             try (FileInputStream fis = new FileInputStream(loggingPropertiesFile)) {
                 LOG.debug("Initializing Java logging with custom properties file");
@@ -264,12 +301,13 @@ public class OracleDatabaseType extends BaseDatabaseType {
             }
         }
 
-        String oracleHome = System.getenv(ORACLE_HOME);
+        final String oracleHome = System.getenv(ORACLE_HOME);
 
         if (StringUtils.hasLength(oracleHome) && System.getenv(TNS_ADMIN) == null) {
             System.setProperty(TNS_ADMIN, oracleHome + "/network/admin");
         }
     }
+
 
 
 

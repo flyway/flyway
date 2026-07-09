@@ -51,10 +51,10 @@ public class ParsingContext {
     @Setter
     private Database database;
 
-    private String generateName(String name, Configuration configuration) {
+    private String generateName(final String name, final Configuration configuration) {
         return "flyway" + configuration.getPlaceholderSeparator() + name;
     }
-    
+
     public void populate(final NativeConnectorsDatabase database, final Configuration configuration) {
         String defaultSchemaName = configuration.getDefaultSchema();
         final String[] schemaNames = configuration.getSchemas();
@@ -65,29 +65,32 @@ public class ParsingContext {
         }
 
         if (defaultSchemaName != null) {
-            placeholders.put(generateName(DEFAULT_SCHEMA_PLACEHOLDER,configuration), defaultSchemaName);
+            placeholders.put(generateName(DEFAULT_SCHEMA_PLACEHOLDER, configuration), defaultSchemaName);
         }
 
         if (database.getDatabaseMetaData().databaseName() != null) {
-            placeholders.put(generateName(DATABASE_PLACEHOLDER,configuration), database.getDatabaseMetaData().databaseName());
+            placeholders.put(generateName(DATABASE_PLACEHOLDER, configuration),
+                database.getDatabaseMetaData().databaseName());
         }
 
-        placeholders.put(generateName(USER_PLACEHOLDER,configuration), database.getCurrentUser());
-        placeholders.put(generateName(TIMESTAMP_PLACEHOLDER,configuration), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-        placeholders.put(generateName(WORKING_DIRECTORY_PLACEHOLDER,configuration), System.getProperty("user.dir"));
-        placeholders.put(generateName(TABLE_PLACEHOLDER,configuration), configuration.getTable());
-        placeholders.put(generateName(ENVIRONMENT_PLACEHOLDER, configuration), configuration.getCurrentEnvironmentName());
+        placeholders.put(generateName(USER_PLACEHOLDER, configuration), database.getCurrentUser());
+        placeholders.put(generateName(TIMESTAMP_PLACEHOLDER, configuration),
+            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+        placeholders.put(generateName(WORKING_DIRECTORY_PLACEHOLDER, configuration), System.getProperty("user.dir"));
+        placeholders.put(generateName(TABLE_PLACEHOLDER, configuration), configuration.getTable());
+        placeholders.put(generateName(ENVIRONMENT_PLACEHOLDER, configuration),
+            configuration.getCurrentEnvironmentName());
     }
 
-    public void populate(Database database, Configuration configuration) {
+    public void populate(final Database database, final Configuration configuration) {
         setDatabase(database);
 
         String defaultSchemaName = configuration.getDefaultSchema();
-        String[] schemaNames = configuration.getSchemas();
+        final String[] schemaNames = configuration.getSchemas();
 
-        Schema currentSchema = getCurrentSchema(database);
-        String catalog = database.getCatalog();
-        String currentUser = getCurrentUser(database);
+        final Schema currentSchema = getCurrentSchema(database);
+        final String catalog = database.getCatalog();
+        final String currentUser = getCurrentUser(database);
 
         // cf. Flyway.prepareSchemas()
         if (defaultSchemaName == null) {
@@ -99,22 +102,27 @@ public class ParsingContext {
         }
 
         if (defaultSchemaName != null) {
-            placeholders.put(generateName(DEFAULT_SCHEMA_PLACEHOLDER,configuration), defaultSchemaName);
+            placeholders.put(generateName(DEFAULT_SCHEMA_PLACEHOLDER, configuration), defaultSchemaName);
         }
 
         if (catalog != null) {
-            placeholders.put(generateName(DATABASE_PLACEHOLDER,configuration), catalog);
+            placeholders.put(generateName(DATABASE_PLACEHOLDER, configuration), catalog);
         }
 
-        placeholders.put(generateName(USER_PLACEHOLDER,configuration), currentUser);
-        placeholders.put(generateName(TIMESTAMP_PLACEHOLDER,configuration), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-        placeholders.put(generateName(WORKING_DIRECTORY_PLACEHOLDER,configuration), configuration.getWorkingDirectory() != null ? configuration.getWorkingDirectory() :  System.getProperty("user.dir"));
-        placeholders.put(generateName(TABLE_PLACEHOLDER,configuration), configuration.getTable());
-        placeholders.put(generateName(ENVIRONMENT_PLACEHOLDER, configuration), configuration.getCurrentEnvironmentName());
+        placeholders.put(generateName(USER_PLACEHOLDER, configuration), currentUser);
+        placeholders.put(generateName(TIMESTAMP_PLACEHOLDER, configuration),
+            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+        placeholders.put(generateName(WORKING_DIRECTORY_PLACEHOLDER, configuration),
+            configuration.getWorkingDirectory() != null
+                ? configuration.getWorkingDirectory()
+                : System.getProperty("user.dir"));
+        placeholders.put(generateName(TABLE_PLACEHOLDER, configuration), configuration.getTable());
+        placeholders.put(generateName(ENVIRONMENT_PLACEHOLDER, configuration),
+            configuration.getCurrentEnvironmentName());
     }
 
-    public void updateFilenamePlaceholder(ResourceName resourceName, Configuration configuration) {
-        String filenamePlaceholder = generateName(FILENAME_PLACEHOLDER, configuration);
+    public void updateFilenamePlaceholder(final ResourceName resourceName, final Configuration configuration) {
+        final String filenamePlaceholder = generateName(FILENAME_PLACEHOLDER, configuration);
         if (resourceName.isValid()) {
             placeholders.put(filenamePlaceholder, resourceName.getFilename());
         } else {
@@ -122,7 +130,7 @@ public class ParsingContext {
         }
     }
 
-    private Schema getCurrentSchema(Database database) {
+    private Schema getCurrentSchema(final Database database) {
         try {
             return database.getMainConnection().getCurrentSchema();
         } catch (FlywayException e) {
@@ -131,7 +139,7 @@ public class ParsingContext {
         }
     }
 
-    private String getCurrentUser(Database database) {
+    private String getCurrentUser(final Database database) {
         try {
             return database.getCurrentUser();
         } catch (FlywayException e) {

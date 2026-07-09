@@ -32,9 +32,9 @@ public class ProgressModel {
     private String message;
     private String tag = "progress";
 
-    public void setStepAndTotal(int step) {
+    public void setStepAndTotal(final int step) {
         this.step = step;
-        if(totalSteps != null && step > totalSteps) {
+        if (totalSteps != null && step > totalSteps) {
             totalSteps = step;
         }
     }

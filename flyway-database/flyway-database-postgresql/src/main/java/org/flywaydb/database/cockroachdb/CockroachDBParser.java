@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.util.List;
 
 public class CockroachDBParser extends Parser {
-    public CockroachDBParser(Configuration configuration, ParsingContext parsingContext) {
+    public CockroachDBParser(final Configuration configuration, final ParsingContext parsingContext) {
         super(configuration, parsingContext, 3);
     }
 
@@ -37,15 +37,19 @@ public class CockroachDBParser extends Parser {
 
     @SuppressWarnings("Duplicates")
     @Override
-    protected Token handleAlternativeStringLiteral(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
-        String dollarQuote = (char) reader.read() + reader.readUntilIncluding('$');
+    protected Token handleAlternativeStringLiteral(final PeekingReader reader,
+        final ParserContext context,
+        final int pos,
+        final int line,
+        final int col) throws IOException {
+        final String dollarQuote = (char) reader.read() + reader.readUntilIncluding('$');
         reader.swallowUntilExcluding(dollarQuote);
         reader.swallow(dollarQuote.length());
         return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
     }
 
     @Override
-    protected Boolean detectCanExecuteInTransaction(String simplifiedStatement, List<Token> keywords) {
+    protected Boolean detectCanExecuteInTransaction(final String simplifiedStatement, final List<Token> keywords) {
         return false;
     }
 }

@@ -33,43 +33,43 @@ public class MultiLogger implements Log {
     private final List<Log> logs;
 
     @Override
-    public void debug(String message) {
-        for (Log log : logs) {
+    public void debug(final String message) {
+        for (final Log log : logs) {
             log.debug(message);
         }
     }
 
     @Override
-    public void info(String message) {
-        for (Log log : logs) {
+    public void info(final String message) {
+        for (final Log log : logs) {
             log.info(message);
         }
     }
 
     @Override
-    public void warn(String message) {
-        for (Log log : logs) {
+    public void warn(final String message) {
+        for (final Log log : logs) {
             log.warn(message);
         }
     }
 
     @Override
-    public void error(String message) {
-        for (Log log : logs) {
+    public void error(final String message) {
+        for (final Log log : logs) {
             log.error(message);
         }
     }
 
     @Override
-    public void error(String message, Exception e) {
-        for (Log log : logs) {
+    public void error(final String message, final Exception e) {
+        for (final Log log : logs) {
             log.error(message, e);
         }
     }
 
     @Override
-    public void notice(String message) {
-        for (Log log : logs) {
+    public void notice(final String message) {
+        for (final Log log : logs) {
             log.notice(message);
         }
     }

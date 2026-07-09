@@ -130,7 +130,7 @@ public class NativeConnectorsMigrationInfoService implements MigrationInfoServic
         return getInfoResult(all(filter));
     }
 
-    private InfoResult getInfoResult(MigrationInfo[] infos) {
+    private InfoResult getInfoResult(final MigrationInfo[] infos) {
         return CommandResultFactory.createInfoResult(configuration, databaseName, infos, current(), allSchemasEmpty);
     }
 }

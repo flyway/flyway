@@ -24,7 +24,7 @@ import lombok.Builder;
 import lombok.Value;
 
 @Value
-@Builder (toBuilder = true)
+@Builder(toBuilder = true)
 public class SchemaHistoryItem {
     int installedRank;
     String version;

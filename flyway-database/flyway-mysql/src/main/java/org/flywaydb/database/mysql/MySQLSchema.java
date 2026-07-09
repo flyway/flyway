@@ -31,34 +31,35 @@ import java.util.Map;
 
 public class MySQLSchema extends Schema<MySQLDatabase, MySQLTable> {
 
-    MySQLSchema(JdbcTemplate jdbcTemplate, MySQLDatabase database, String name) {
+    MySQLSchema(final JdbcTemplate jdbcTemplate, final MySQLDatabase database, final String name) {
         super(jdbcTemplate, database, name);
     }
 
     @Override
     protected boolean doExists() throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT COUNT(1) FROM information_schema.schemata WHERE schema_name=? LIMIT 1", name) > 0;
+        return jdbcTemplate.queryForInt("SELECT COUNT(1) FROM information_schema.schemata WHERE schema_name=? LIMIT 1",
+            name) > 0;
     }
 
     @Override
     protected boolean doEmpty() throws SQLException {
-        List<String> params = new ArrayList<>(Arrays.asList(name, name, name, name, name));
+        final List<String> params = new ArrayList<>(Arrays.asList(name, name, name, name, name));
         if (database.eventSchedulerQueryable) {
             params.add(name);
         }
 
         return jdbcTemplate.queryForInt("SELECT SUM(found) FROM ("
-                                                + "(SELECT 1 as found FROM information_schema.tables WHERE table_schema=?) UNION ALL "
-                                                + "(SELECT 1 as found FROM information_schema.views WHERE table_schema=? LIMIT 1) UNION ALL "
-                                                + "(SELECT 1 as found FROM information_schema.table_constraints WHERE table_schema=? LIMIT 1) UNION ALL "
-                                                + "(SELECT 1 as found FROM information_schema.triggers WHERE event_object_schema=?  LIMIT 1) UNION ALL "
-                                                + "(SELECT 1 as found FROM information_schema.routines WHERE routine_schema=? LIMIT 1)"
-                                                // #2410 Unlike MySQL, MariaDB 10.0 and newer don't allow the events table to be queried
-                                                // when the event scheduled is DISABLED or in some rare cases OFF
-                                                + (database.eventSchedulerQueryable ? " UNION ALL (SELECT 1 as found FROM information_schema.events WHERE event_schema=? LIMIT 1)" : "")
-                                                + ") as all_found",
-                                        params.toArray(String[]::new)
-                                       ) == 0;
+            + "(SELECT 1 as found FROM information_schema.tables WHERE table_schema=?) UNION ALL "
+            + "(SELECT 1 as found FROM information_schema.views WHERE table_schema=? LIMIT 1) UNION ALL "
+            + "(SELECT 1 as found FROM information_schema.table_constraints WHERE table_schema=? LIMIT 1) UNION ALL "
+            + "(SELECT 1 as found FROM information_schema.triggers WHERE event_object_schema=?  LIMIT 1) UNION ALL "
+            + "(SELECT 1 as found FROM information_schema.routines WHERE routine_schema=? LIMIT 1)"
+            // #2410 Unlike MySQL, MariaDB 10.0 and newer don't allow the events table to be queried
+            // when the event scheduled is DISABLED or in some rare cases OFF
+            + (database.eventSchedulerQueryable
+            ? " UNION ALL (SELECT 1 as found FROM information_schema.events WHERE event_schema=? LIMIT 1)"
+            : "")
+            + ") as all_found", params.toArray(String[]::new)) == 0;
     }
 
     @Override
@@ -74,79 +75,76 @@ public class MySQLSchema extends Schema<MySQLDatabase, MySQLTable> {
     @Override
     protected void doClean() throws SQLException {
         if (database.eventSchedulerQueryable) {
-            for (String statement : cleanEvents()) {
+            for (final String statement : cleanEvents()) {
                 jdbcTemplate.execute(statement);
             }
         }
 
-        for (String statement : cleanRoutines()) {
+        for (final String statement : cleanRoutines()) {
             jdbcTemplate.execute(statement);
         }
 
-        for (String statement : cleanViews()) {
+        for (final String statement : cleanViews()) {
             jdbcTemplate.execute(statement);
         }
 
         jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0");
-        for (Table table : allTables()) {
+        for (final Table table : allTables()) {
             table.drop();
         }
         jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1");
 
         // MariaDB 10.3 and newer only
-        for (String statement : cleanSequences()) {
+        for (final String statement : cleanSequences()) {
             jdbcTemplate.execute(statement);
         }
     }
 
     private List<String> cleanEvents() throws SQLException {
-        List<String> eventNames =
-                jdbcTemplate.queryForStringList(
-                        "SELECT event_name FROM information_schema.events WHERE event_schema=?",
-                        name);
+        final List<String> eventNames = jdbcTemplate.queryForStringList(
+            "SELECT event_name FROM information_schema.events WHERE event_schema=?",
+            name);
 
-        List<String> statements = new ArrayList<>();
-        for (String eventName : eventNames) {
+        final List<String> statements = new ArrayList<>();
+        for (final String eventName : eventNames) {
             statements.add("DROP EVENT " + database.quote(name, eventName));
         }
         return statements;
     }
 
     private List<String> cleanRoutines() throws SQLException {
-        List<Map<String, String>> routineNames =
-                jdbcTemplate.queryForList(
-                        "SELECT routine_name as 'N', routine_type as 'T' FROM information_schema.routines WHERE routine_schema=?",
-                        name);
+        final List<Map<String, String>> routineNames = jdbcTemplate.queryForList(
+            "SELECT routine_name as 'N', routine_type as 'T' FROM information_schema.routines WHERE routine_schema=?",
+            name);
 
-        List<String> statements = new ArrayList<>();
-        for (Map<String, String> row : routineNames) {
-            String routineName = row.get("N");
-            String routineType = row.get("T");
+        final List<String> statements = new ArrayList<>();
+        for (final Map<String, String> row : routineNames) {
+            final String routineName = row.get("N");
+            final String routineType = row.get("T");
             statements.add("DROP " + routineType + " " + database.quote(name, routineName));
         }
         return statements;
     }
 
     private List<String> cleanViews() throws SQLException {
-        List<String> viewNames =
-                jdbcTemplate.queryForStringList(
-                        "SELECT table_name FROM information_schema.views WHERE table_schema=?", name);
+        final List<String> viewNames = jdbcTemplate.queryForStringList(
+            "SELECT table_name FROM information_schema.views WHERE table_schema=?",
+            name);
 
-        List<String> statements = new ArrayList<>();
-        for (String viewName : viewNames) {
+        final List<String> statements = new ArrayList<>();
+        for (final String viewName : viewNames) {
             statements.add("DROP VIEW " + database.quote(name, viewName));
         }
         return statements;
     }
 
     private List<String> cleanSequences() throws SQLException {
-        List<String> names =
-                jdbcTemplate.queryForStringList(
-                        "SELECT table_name FROM information_schema.tables WHERE table_schema=?" +
-                                " AND table_type='SEQUENCE'", name);
+        final List<String> names = jdbcTemplate.queryForStringList(
+            "SELECT table_name FROM information_schema.tables WHERE table_schema=?" + " AND table_type='SEQUENCE'",
+            name);
 
-        List<String> statements = new ArrayList<>();
-        for (String name : names) {
+        final List<String> statements = new ArrayList<>();
+        for (final String name : names) {
             statements.add("DROP SEQUENCE " + database.quote(this.name, name));
         }
         return statements;
@@ -154,11 +152,12 @@ public class MySQLSchema extends Schema<MySQLDatabase, MySQLTable> {
 
     @Override
     protected MySQLTable[] doAllTables() throws SQLException {
-        List<String> tableNames = jdbcTemplate.queryForStringList(
-                "SELECT table_name FROM information_schema.tables WHERE table_schema=?" +
-                        " AND table_type IN ('BASE TABLE', 'SYSTEM VERSIONED')", name);
+        final List<String> tableNames = jdbcTemplate.queryForStringList(
+            "SELECT table_name FROM information_schema.tables WHERE table_schema=?"
+                + " AND table_type IN ('BASE TABLE', 'SYSTEM VERSIONED')",
+            name);
 
-        MySQLTable[] tables = new MySQLTable[tableNames.size()];
+        final MySQLTable[] tables = new MySQLTable[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new MySQLTable(jdbcTemplate, database, this, tableNames.get(i));
         }
@@ -166,7 +165,7 @@ public class MySQLSchema extends Schema<MySQLDatabase, MySQLTable> {
     }
 
     @Override
-    public Table getTable(String tableName) {
+    public Table getTable(final String tableName) {
         return new MySQLTable(jdbcTemplate, database, this, tableName);
     }
 }

@@ -37,13 +37,17 @@ public class AsciiTable {
     /**
      * Creates a new Ascii table.
      *
-     * @param columns The column titles.
-     * @param rows The data rows
+     * @param columns     The column titles.
+     * @param rows        The data rows
      * @param printHeader Whether to print the header row or not.
-     * @param nullText The text to use for a {@code null} value.
-     * @param emptyText The text to include in the table if it has no rows.
+     * @param nullText    The text to use for a {@code null} value.
+     * @param emptyText   The text to include in the table if it has no rows.
      */
-    public AsciiTable(List<String> columns, List<List<String>> rows, boolean printHeader, String nullText, String emptyText) {
+    public AsciiTable(final List<String> columns,
+        final List<List<String>> rows,
+        final boolean printHeader,
+        final String nullText,
+        final String emptyText) {
         this.columns = ensureValidColumns(columns);
         this.rows = rows;
         this.printHeader = printHeader;
@@ -51,9 +55,9 @@ public class AsciiTable {
         this.emptyText = emptyText;
     }
 
-    private static List<String> ensureValidColumns(List<String> columns) {
-        List<String> validColumns = new ArrayList<>();
-        for (String column : columns) {
+    private static List<String> ensureValidColumns(final List<String> columns) {
+        final List<String> validColumns = new ArrayList<>();
+        for (final String column : columns) {
             validColumns.add(column != null ? column : DEFAULT_COLUMN_NAME);
         }
         return validColumns;
@@ -63,27 +67,27 @@ public class AsciiTable {
      * @return The table rendered with column header and row data.
      */
     public String render() {
-        List<Integer> widths = new ArrayList<>();
-        for (String column : columns) {
+        final List<Integer> widths = new ArrayList<>();
+        for (final String column : columns) {
             widths.add(column.length());
         }
 
-        for (List<String> row : rows) {
+        for (final List<String> row : rows) {
             for (int i = 0; i < row.size(); i++) {
                 widths.set(i, Math.max(widths.get(i), getValue(row, i).length()));
             }
         }
 
-        StringBuilder ruler = new StringBuilder("+");
-        for (Integer width : widths) {
+        final StringBuilder ruler = new StringBuilder("+");
+        for (final Integer width : widths) {
             ruler.append("-").append(StringUtils.trimOrPad("", width, '-')).append("-+");
         }
         ruler.append("\n");
 
-        StringBuilder result = new StringBuilder();
+        final StringBuilder result = new StringBuilder();
 
         if (printHeader) {
-            StringBuilder header = new StringBuilder("|");
+            final StringBuilder header = new StringBuilder("|");
             for (int i = 0; i < widths.size(); i++) {
                 header.append(" ").append(StringUtils.trimOrPad(columns.get(i), widths.get(i), ' ')).append(" |");
             }
@@ -96,10 +100,12 @@ public class AsciiTable {
         result.append(ruler);
 
         if (rows.isEmpty()) {
-            result.append("| ").append(StringUtils.trimOrPad(emptyText, ruler.length() - Math.min(ruler.length(), 5))).append(" |\n");
+            result.append("| ")
+                .append(StringUtils.trimOrPad(emptyText, ruler.length() - Math.min(ruler.length(), 5)))
+                .append(" |\n");
         } else {
-            for (List<String> row : rows) {
-                StringBuilder r = new StringBuilder("|");
+            for (final List<String> row : rows) {
+                final StringBuilder r = new StringBuilder("|");
                 for (int i = 0; i < widths.size(); i++) {
                     r.append(" ").append(StringUtils.trimOrPad(getValue(row, i), widths.get(i), ' ')).append(" |");
                 }
@@ -112,7 +118,7 @@ public class AsciiTable {
         return result.toString();
     }
 
-    private String getValue(List<String> row, int i) {
+    private String getValue(final List<String> row, final int i) {
         String value = row.get(i);
         if (value == null) {
             value = nullText;

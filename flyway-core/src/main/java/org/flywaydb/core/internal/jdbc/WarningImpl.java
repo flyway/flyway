@@ -21,7 +21,6 @@ package org.flywaydb.core.internal.jdbc;
 
 import lombok.RequiredArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 import org.flywaydb.core.api.callback.Warning;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.LicenseGuard;
@@ -37,7 +36,7 @@ public class WarningImpl implements Warning {
     private boolean handled;
 
     @Override
-    public void setHandled(boolean handled, Configuration configuration) {
+    public void setHandled(final boolean handled, final Configuration configuration) {
         if (!LicenseGuard.isLicensed(configuration, Tier.PREMIUM)) {
             throw new FlywayEditionUpgradeRequiredException(LicenseGuard.getTier(configuration), "Warning handling");
         }

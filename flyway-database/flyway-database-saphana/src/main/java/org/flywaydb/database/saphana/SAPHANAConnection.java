@@ -29,21 +29,22 @@ import org.flywaydb.core.internal.util.StringUtils;
 public class SAPHANAConnection extends Connection<SAPHANADatabase> {
     private final boolean isCloud;
 
-    SAPHANAConnection(SAPHANADatabase database, java.sql.Connection connection) {
+    SAPHANAConnection(final SAPHANADatabase database, final java.sql.Connection connection) {
         super(database, connection);
         try {
             // If build_qrc_version not detected, it could be an On-premise version or an old Cloud version. So fall back to the previous way of checking build_branch
             // Cloud databases will be fa/CE<year>.<build> eg. fa/CE2020.48
             // On-premise will be fa/hana<version>sp<servicepack> eg. fa/hana2sp05
 
-            String buildQrcVersion = jdbcTemplate.queryForString("SELECT VALUE FROM M_HOST_INFORMATION WHERE KEY='build_qrc_version'");
+            final String buildQrcVersion = jdbcTemplate.queryForString(
+                "SELECT VALUE FROM M_HOST_INFORMATION WHERE KEY='build_qrc_version'");
             if (StringUtils.hasText(buildQrcVersion)) {
                 isCloud = true;
             } else {
-                String buildBranch = jdbcTemplate.queryForString("SELECT VALUE FROM M_HOST_INFORMATION WHERE KEY='build_branch'");
+                final String buildBranch = jdbcTemplate.queryForString(
+                    "SELECT VALUE FROM M_HOST_INFORMATION WHERE KEY='build_branch'");
                 isCloud = StringUtils.hasText(buildBranch) && buildBranch.startsWith("fa/CE");
             }
-
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine build edition", e);
         }
@@ -59,12 +60,12 @@ public class SAPHANAConnection extends Connection<SAPHANADatabase> {
     }
 
     @Override
-    public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
+    public void doChangeCurrentSchemaOrSearchPathTo(final String schema) throws SQLException {
         jdbcTemplate.execute("SET SCHEMA " + database.doQuote(schema));
     }
 
     @Override
-    public Schema getSchema(String name) {
+    public Schema getSchema(final String name) {
         return new SAPHANASchema(jdbcTemplate, database, name);
     }
 }

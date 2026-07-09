@@ -272,7 +272,7 @@ public class ClassicConfiguration implements Configuration {
         return getCurrentResolvedEnvironment(null);
     }
 
-    public ResolvedEnvironment getCurrentResolvedEnvironment(final ProgressLogger progress) {
+    private ResolvedEnvironment getCurrentResolvedEnvironment(final ProgressLogger progress) {
         final String envName = getCurrentEnvironmentName();
 
         final String envProvisionMode = getModernFlyway().getProvisionMode();
@@ -291,16 +291,12 @@ public class ClassicConfiguration implements Configuration {
         }
     }
 
-    public ResolvedEnvironment getResolvedEnvironment(final String envName) {
-        return getResolvedEnvironment(envName, ProvisionerMode.Provision, null);
-    }
-
     public ResolvedEnvironment getResolvedEnvironment(final String envName,
         final ProvisionerMode provisionerMode,
         final ProgressLogger progress) {
         if (environmentResolver == null) {
-            environmentResolver = new EnvironmentResolver(
-                createResolverMapWithAliases(pluginRegister.getInstancesOf(PropertyResolver.class)),
+            environmentResolver = new EnvironmentResolver(createResolverMapWithAliases(pluginRegister.getInstancesOf(
+                PropertyResolver.class)),
                 pluginRegister.getInstancesOf(EnvironmentProvisioner.class)
                     .stream()
                     .collect(Collectors.toMap(EnvironmentProvisioner::getName, x -> x)));
@@ -330,14 +326,17 @@ public class ClassicConfiguration implements Configuration {
         return resolved;
     }
 
-    private Map<String, PropertyResolver> createResolverMapWithAliases(
-            List<PropertyResolver> resolvers) {
-        Map<String, PropertyResolver> map = new HashMap<>();
-        for (PropertyResolver resolver : resolvers) {
+    public void resolveCurrentEnvironment(final ProgressLogger progress) {
+        getCurrentResolvedEnvironment(progress);
+    }
+
+    private Map<String, PropertyResolver> createResolverMapWithAliases(final List<PropertyResolver> resolvers) {
+        final Map<String, PropertyResolver> map = new HashMap<>();
+        for (final PropertyResolver resolver : resolvers) {
             // Register by primary name
             map.put(resolver.getName(), resolver);
             // Register by all aliases
-            for (String alias : resolver.getAliases()) {
+            for (final String alias : resolver.getAliases()) {
                 map.put(alias, resolver);
             }
         }
@@ -783,8 +782,7 @@ public class ClassicConfiguration implements Configuration {
         if (isOSS()) {
             throw new FlywayEditionUpgradeRequiredException(null, "dryRunOutput");
         }
-        pluginRegister.getInstanceOf(DryRunConfigurationExtensionStub.class)
-            .setOutputStream(dryRunOutput);
+        pluginRegister.getInstanceOf(DryRunConfigurationExtensionStub.class).setOutputStream(dryRunOutput);
     }
 
     @Override
@@ -1373,8 +1371,10 @@ public class ClassicConfiguration implements Configuration {
             getModernFlyway().setEnvironment(environment);
         } else {
             final Optional<String> suggestion = findCaseInsensitiveEnvironmentMatch(environment);
-            throw new FlywayException("Environment '" + environment + "' not found."
-                + suggestion.map(s -> " Did you mean '" + s + "'?").orElse(""));
+            throw new FlywayException("Environment '" + environment + "' not found." + suggestion.map(s ->
+                " Did you mean '"
+                    + s
+                    + "'?").orElse(""));
         }
     }
 
@@ -1656,8 +1656,7 @@ public class ClassicConfiguration implements Configuration {
 
             final List<ConfigurationExtension> configExtensions = pluginRegister.getInstancesOf(ConfigurationExtension.class)
                 .stream()
-                .filter(c -> c.getNamespace().isEmpty()
-                    || rootNamespace.equals(c.getNamespace()))
+                .filter(c -> c.getNamespace().isEmpty() || rootNamespace.equals(c.getNamespace()))
                 .toList();
 
             configExtensions.forEach(c -> {
@@ -1991,7 +1990,8 @@ public class ClassicConfiguration implements Configuration {
         }
         if (!modernConfig.getEnvironments().containsKey(envName) && !"-".equals(envName)) {
             final Optional<String> suggestion = findCaseInsensitiveEnvironmentMatch(envName);
-            throw new FlywayException("Environment '" + envName
+            throw new FlywayException("Environment '"
+                + envName
                 + "' not found. Check that this environment exists in your configuration."
                 + suggestion.map(s -> " Did you mean '" + s + "'?").orElse(""));
         }
@@ -2000,7 +2000,9 @@ public class ClassicConfiguration implements Configuration {
     }
 
     private Optional<String> findCaseInsensitiveEnvironmentMatch(final String envName) {
-        return modernConfig.getEnvironments().keySet().stream()
+        return modernConfig.getEnvironments()
+            .keySet()
+            .stream()
             .filter(key -> key.equalsIgnoreCase(envName))
             .findFirst();
     }

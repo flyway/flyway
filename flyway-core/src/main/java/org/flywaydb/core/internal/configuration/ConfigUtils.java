@@ -171,7 +171,7 @@ public class ConfigUtils {
         return environmentVariablesToPropertyMap(System.getenv());
     }
 
-    public static Map<String, String> environmentVariablesToPropertyMap(Map<String, String> envVars) {
+    public static Map<String, String> environmentVariablesToPropertyMap(final Map<String, String> envVars) {
         final Map<String, String> result = new HashMap<>();
 
         for (final Map.Entry<String, String> entry : envVars.entrySet()) {
@@ -1044,7 +1044,7 @@ public class ConfigUtils {
     }
 
     public static boolean isRedgate() {
-        LicenseSupport licenseSupport = STATIC_PLUGIN_REGISTER.getInstanceOf(LicenseSupport.class);
+        final LicenseSupport licenseSupport = STATIC_PLUGIN_REGISTER.getInstanceOf(LicenseSupport.class);
         return licenseSupport != null && licenseSupport.isRedgateEdition();
     }
 

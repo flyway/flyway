@@ -24,5 +24,6 @@ import org.flywaydb.core.extensibility.Plugin;
 
 public interface HtmlResultDeserializer<T extends HtmlResult> extends Plugin {
     Class<T> getDeserializingClass();
+
     String operationKey();
 }

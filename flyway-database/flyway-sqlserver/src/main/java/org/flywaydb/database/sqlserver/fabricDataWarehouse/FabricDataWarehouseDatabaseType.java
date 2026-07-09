@@ -48,12 +48,14 @@ public class FabricDataWarehouseDatabaseType extends SQLServerDatabaseType {
     }
 
     @Override
-    public boolean handlesDatabaseProductNameAndVersion(String databaseProductName, String databaseProductVersion, Connection connection) {
+    public boolean handlesDatabaseProductNameAndVersion(final String databaseProductName,
+        final String databaseProductVersion,
+        final Connection connection) {
         if (databaseProductName.startsWith("Microsoft SQL Server")) {
 
             try {
-                SQLServerEngineEdition engineEdition = SQLServerEngineEdition.fromCode(getJdbcTemplate(connection).queryForInt(
-                        "SELECT SERVERPROPERTY('engineedition')"));
+                final SQLServerEngineEdition engineEdition = SQLServerEngineEdition.fromCode(getJdbcTemplate(connection).queryForInt(
+                    "SELECT SERVERPROPERTY('engineedition')"));
                 return engineEdition == SQLServerEngineEdition.SYNAPSE_SERVERLESS_POOLS;
             } catch (SQLException e) {
                 throw new FlywaySqlException("Unable to determine database engine edition.'", e);
@@ -63,12 +65,14 @@ public class FabricDataWarehouseDatabaseType extends SQLServerDatabaseType {
         return false;
     }
 
-    private JdbcTemplate getJdbcTemplate(Connection connection) {
+    private JdbcTemplate getJdbcTemplate(final Connection connection) {
         return new JdbcTemplate(connection, this);
     }
 
     @Override
-    public Database createDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+    public Database createDatabase(final Configuration configuration,
+        final JdbcConnectionFactory jdbcConnectionFactory,
+        final StatementInterceptor statementInterceptor) {
         return new FabricDataWarehouseDatabase(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 }

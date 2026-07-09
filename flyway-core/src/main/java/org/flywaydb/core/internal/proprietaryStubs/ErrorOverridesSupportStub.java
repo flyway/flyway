@@ -32,13 +32,19 @@ import org.flywaydb.core.internal.sqlscript.SqlStatement;
 public class ErrorOverridesSupportStub implements ErrorOverridesSupport {
 
     @Override
-    public void handleException(Results results, SqlScript sqlScript, SqlStatement sqlStatement, Configuration config) {
-        throw new FlywaySqlScriptException(sqlScript.getResource(), sqlStatement, results.getException(), config.getCurrentEnvironmentName());
+    public void handleException(final Results results,
+        final SqlScript sqlScript,
+        final SqlStatement sqlStatement,
+        final Configuration config) {
+        throw new FlywaySqlScriptException(sqlScript.getResource(),
+            sqlStatement,
+            results.getException(),
+            config.getCurrentEnvironmentName());
     }
 
     @Override
-    public void printWarnings(Results results, Configuration config) {
-        for (Warning warning : results.getWarnings()) {
+    public void printWarnings(final Results results, final Configuration config) {
+        for (final Warning warning : results.getWarnings()) {
             printWarning(warning);
         }
     }
@@ -48,12 +54,17 @@ public class ErrorOverridesSupportStub implements ErrorOverridesSupport {
         return -100;
     }
 
-    protected void printWarning(Warning warning) {
+    protected void printWarning(final Warning warning) {
         if ("00000".equals(warning.getState())) {
             LOG.info("DB: " + warning.getMessage());
         } else {
-            LOG.warn("DB: " + warning.getMessage()
-                + " (SQL State: " + warning.getState() + " - Error Code: " + warning.getCode() + ")");
+            LOG.warn("DB: "
+                + warning.getMessage()
+                + " (SQL State: "
+                + warning.getState()
+                + " - Error Code: "
+                + warning.getCode()
+                + ")");
         }
     }
 }

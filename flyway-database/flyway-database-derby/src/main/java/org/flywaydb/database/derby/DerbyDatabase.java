@@ -38,17 +38,19 @@ public class DerbyDatabase extends Database<DerbyConnection> {
      *
      * @param configuration The Flyway configuration.
      */
-    public DerbyDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+    public DerbyDatabase(final Configuration configuration,
+        final JdbcConnectionFactory jdbcConnectionFactory,
+        final StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
     @Override
-    protected DerbyConnection doGetConnection(Connection connection) {
+    protected DerbyConnection doGetConnection(final Connection connection) {
         return new DerbyConnection(this, connection);
     }
 
     @Override
-    public void ensureSupported(Configuration configuration) {
+    public void ensureSupported(final Configuration configuration) {
         ensureDatabaseIsRecentEnough("10.11.1.1");
 
         ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("10.14", Tier.PREMIUM, configuration);
@@ -57,22 +59,34 @@ public class DerbyDatabase extends Database<DerbyConnection> {
     }
 
     @Override
-    public String getRawCreateScript(Table table, boolean baseline) {
-        return "CREATE TABLE " + table + " (\n" +
-                "    \"installed_rank\" INT NOT NULL,\n" +
-                "    \"version\" VARCHAR(50),\n" +
-                "    \"description\" VARCHAR(200) NOT NULL,\n" +
-                "    \"type\" VARCHAR(20) NOT NULL,\n" +
-                "    \"script\" VARCHAR(1000) NOT NULL,\n" +
-                "    \"checksum\" INT,\n" +
-                "    \"installed_by\" VARCHAR(100) NOT NULL,\n" +
-                "    \"installed_on\" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
-                "    \"execution_time\" INT NOT NULL,\n" +
-                "    \"success\" BOOLEAN NOT NULL\n" +
-                ");\n" +
-                (baseline ? getBaselineStatement(table) + ";\n" : "") +
-                "ALTER TABLE " + table + " ADD CONSTRAINT \"" + table.getName() + "_pk\" PRIMARY KEY (\"installed_rank\");\n" +
-                "CREATE INDEX \"" + table.getSchema().getName() + "\".\"" + table.getName() + "_s_idx\" ON " + table + " (\"success\");";
+    public String getRawCreateScript(final Table table, final boolean baseline) {
+        return "CREATE TABLE "
+            + table
+            + " (\n"
+            + "    \"installed_rank\" INT NOT NULL,\n"
+            + "    \"version\" VARCHAR(50),\n"
+            + "    \"description\" VARCHAR(200) NOT NULL,\n"
+            + "    \"type\" VARCHAR(20) NOT NULL,\n"
+            + "    \"script\" VARCHAR(1000) NOT NULL,\n"
+            + "    \"checksum\" INT,\n"
+            + "    \"installed_by\" VARCHAR(100) NOT NULL,\n"
+            + "    \"installed_on\" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n"
+            + "    \"execution_time\" INT NOT NULL,\n"
+            + "    \"success\" BOOLEAN NOT NULL\n"
+            + ");\n"
+            + (baseline ? getBaselineStatement(table) + ";\n" : "")
+            + "ALTER TABLE "
+            + table
+            + " ADD CONSTRAINT \""
+            + table.getName()
+            + "_pk\" PRIMARY KEY (\"installed_rank\");\n"
+            + "CREATE INDEX \""
+            + table.getSchema().getName()
+            + "\".\""
+            + table.getName()
+            + "_s_idx\" ON "
+            + table
+            + " (\"success\");";
     }
 
     @Override

@@ -39,10 +39,10 @@ public class FixedJavaMigrationResolver implements MigrationResolver {
     }
 
     @Override
-    public List<ResolvedMigration> resolveMigrations(Context context) {
-        List<ResolvedMigration> migrations = new ArrayList<>();
+    public List<ResolvedMigration> resolveMigrations(final Context context) {
+        final List<ResolvedMigration> migrations = new ArrayList<>();
 
-        for (JavaMigration javaMigration : javaMigrations) {
+        for (final JavaMigration javaMigration : javaMigrations) {
             migrations.add(javaMigration.getResolvedMigration(context.configuration, context.statementInterceptor));
         }
 

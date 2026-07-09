@@ -34,12 +34,16 @@ public class SQLServerTable extends Table<SQLServerDatabase, SQLServerSchema> {
      * Creates a new SQLServer table.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database The database-specific support.
+     * @param database     The database-specific support.
      * @param databaseName The database this table lives in.
-     * @param schema The schema this table lives in.
-     * @param name The name of the table.
+     * @param schema       The schema this table lives in.
+     * @param name         The name of the table.
      */
-    public SQLServerTable(JdbcTemplate jdbcTemplate, SQLServerDatabase database, String databaseName, SQLServerSchema schema, String name) {
+    public SQLServerTable(final JdbcTemplate jdbcTemplate,
+        final SQLServerDatabase database,
+        final String databaseName,
+        final SQLServerSchema schema,
+        final String name) {
         super(jdbcTemplate, database, schema, name);
         this.databaseName = databaseName;
     }
@@ -51,15 +55,15 @@ public class SQLServerTable extends Table<SQLServerDatabase, SQLServerSchema> {
 
     @Override
     protected boolean doExists() throws SQLException {
-        return jdbcTemplate.queryForBoolean(
-                "SELECT CAST(" +
-                        "CASE WHEN EXISTS(" +
-                        "  SELECT 1 FROM " + database.doQuote(databaseName) + ".INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA=? AND TABLE_NAME=?" +
-                        ") " +
-                        "THEN 1 ELSE 0 " +
-                        "END " +
-                        "AS BIT)",
-                schema.getName(), name);
+        return jdbcTemplate.queryForBoolean("SELECT CAST("
+            + "CASE WHEN EXISTS("
+            + "  SELECT 1 FROM "
+            + database.doQuote(databaseName)
+            + ".INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA=? AND TABLE_NAME=?"
+            + ") "
+            + "THEN 1 ELSE 0 "
+            + "END "
+            + "AS BIT)", schema.getName(), name);
     }
 
     @Override
@@ -73,7 +77,9 @@ public class SQLServerTable extends Table<SQLServerDatabase, SQLServerSchema> {
     void dropSystemVersioningIfPresent() throws SQLException {
         /* Column temporal_type only exists in SQL Server 2016+, so the query below won't run in other versions */
         if (database.supportsTemporalTables()) {
-            if (jdbcTemplate.queryForInt("SELECT temporal_type FROM sys.tables WHERE object_id = OBJECT_ID('" + this + "', 'U')") == 2) {
+            if (jdbcTemplate.queryForInt("SELECT temporal_type FROM sys.tables WHERE object_id = OBJECT_ID('"
+                + this
+                + "', 'U')") == 2) {
                 jdbcTemplate.execute("ALTER TABLE " + this + " SET (SYSTEM_VERSIONING = OFF)");
             }
         }

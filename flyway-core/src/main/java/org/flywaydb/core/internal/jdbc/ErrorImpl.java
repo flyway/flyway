@@ -27,8 +27,6 @@ import org.flywaydb.core.extensibility.LicenseGuard;
 import org.flywaydb.core.extensibility.Tier;
 import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
 
-import java.util.List;
-
 @RequiredArgsConstructor
 @Getter(onMethod = @__(@Override))
 public class ErrorImpl implements Error {
@@ -38,7 +36,7 @@ public class ErrorImpl implements Error {
     private boolean handled;
 
     @Override
-    public void setHandled(boolean handled, Configuration configuration) {
+    public void setHandled(final boolean handled, final Configuration configuration) {
         if (!LicenseGuard.isLicensed(configuration, Tier.PREMIUM)) {
             throw new FlywayEditionUpgradeRequiredException(LicenseGuard.getTier(configuration), "Error handling");
         }

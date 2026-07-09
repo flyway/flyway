@@ -33,7 +33,7 @@ import org.flywaydb.nc.callbacks.CallbackManager;
 import org.flywaydb.verb.migrate.MigrationExecutionGroup;
 
 @CustomLog
-public abstract class Migrator <DB extends NativeConnectorsDatabase> {
+public abstract class Migrator<DB extends NativeConnectorsDatabase> {
 
     public abstract List<MigrationExecutionGroup> createGroups(final MigrationInfo[] allPendingMigrations,
         final Configuration configuration,

@@ -34,18 +34,19 @@ public class PlainExecutionTemplate implements ExecutionTemplate {
         this.skipErrorLog = false;
     }
 
-    public PlainExecutionTemplate(boolean skipErrorLog) {
+    public PlainExecutionTemplate(final boolean skipErrorLog) {
         this.skipErrorLog = skipErrorLog;
     }
 
     @Override
-    public <T> T execute(Callable<T> callback) {
+    public <T> T execute(final Callable<T> callback) {
         try {
             LOG.debug("Performing operation in non-transactional context.");
             return callback.call();
         } catch (Exception e) {
             if (!skipErrorLog) {
-                LOG.error("Failed to execute operation in non-transactional context. Please restore backups and roll back database and code!");
+                LOG.error(
+                    "Failed to execute operation in non-transactional context. Please restore backups and roll back database and code!");
             }
 
             if (e instanceof SQLException) {

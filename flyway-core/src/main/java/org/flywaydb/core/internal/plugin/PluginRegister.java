@@ -103,31 +103,28 @@ public class PluginRegister {
     }
 
     public <T extends Plugin> T getExact(final Class<T> clazz) {
-        return (T) getMatchingProviders(clazz)
-                .stream()
-                .map(this::instantiate)
-                .filter(p -> p != null && p.getClass().getCanonicalName().equals(clazz.getCanonicalName()))
-                .findFirst()
-                .orElse(null);
+        return (T) getMatchingProviders(clazz).stream()
+            .map(this::instantiate)
+            .filter(p -> p != null && p.getClass().getCanonicalName().equals(clazz.getCanonicalName()))
+            .findFirst()
+            .orElse(null);
     }
 
     public <T extends Plugin> List<T> getInstancesOf(final Class<T> clazz) {
-        return (List<T>) getMatchingProviders(clazz)
-                .stream()
-                .map(this::instantiate)
-                .filter(p -> p != null && clazz.isInstance(p))
-                .sorted()
-                .collect(Collectors.toList());
+        return (List<T>) getMatchingProviders(clazz).stream()
+            .map(this::instantiate)
+            .filter(p -> p != null && clazz.isInstance(p))
+            .sorted()
+            .collect(Collectors.toList());
     }
 
     public <T extends Plugin> List<T> getLicensedInstancesOf(final Class<T> clazz, final Configuration configuration) {
-        return (List<T>) getMatchingProviders(clazz)
-                .stream()
-                .map(this::instantiate)
-                .filter(p -> p != null && clazz.isInstance(p))
-                .filter(p -> p.isLicensed(configuration))
-                .sorted()
-                .collect(Collectors.toList());
+        return (List<T>) getMatchingProviders(clazz).stream()
+            .map(this::instantiate)
+            .filter(p -> p != null && clazz.isInstance(p))
+            .filter(p -> p.isLicensed(configuration))
+            .sorted()
+            .collect(Collectors.toList());
     }
 
     public <T extends Plugin> T getLicensedInstanceOf(final Class<T> clazz, final Configuration configuration) {
@@ -135,18 +132,16 @@ public class PluginRegister {
     }
 
     public <T extends Plugin> T getLicensedExact(final String className, final Configuration configuration) {
-        return (T) getProviders()
-                .stream()
-                .filter(p -> p.type().getSimpleName().equals(className))
-                .map(this::instantiate)
-                .filter(p -> p != null && p.isLicensed(configuration))
-                .findFirst()
-                .orElse(null);
+        return (T) getProviders().stream()
+            .filter(p -> p.type().getSimpleName().equals(className))
+            .map(this::instantiate)
+            .filter(p -> p != null && p.isLicensed(configuration))
+            .findFirst()
+            .orElse(null);
     }
 
     public <T extends Plugin> T getExact(final String className) {
-        return (T) getProviders()
-            .stream()
+        return (T) getProviders().stream()
             .filter(p -> p.type().getSimpleName().equals(className))
             .map(this::instantiate)
             .filter(p -> p != null)
@@ -155,8 +150,7 @@ public class PluginRegister {
     }
 
     public <T extends Plugin> T getInstanceOf(final Class<T> clazz) {
-        return (T) getMatchingProviders(clazz)
-            .stream()
+        return (T) getMatchingProviders(clazz).stream()
             .map(this::instantiate)
             .filter(p -> p != null && clazz.isInstance(p))
             .sorted()
@@ -184,10 +178,7 @@ public class PluginRegister {
     }
 
     private <T extends Plugin> List<ServiceLoader.Provider<Plugin>> getMatchingProviders(final Class<T> clazz) {
-        return getProviders()
-            .stream()
-            .filter(p -> clazz.isAssignableFrom(p.type()))
-            .collect(Collectors.toList());
+        return getProviders().stream().filter(p -> clazz.isAssignableFrom(p.type())).collect(Collectors.toList());
     }
 
     void registerPlugins() {

@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BigQuerySchema extends Schema<BigQueryDatabase, BigQueryTable> {
-    BigQuerySchema(JdbcTemplate jdbcTemplate, BigQueryDatabase database, String name) {
+    BigQuerySchema(final JdbcTemplate jdbcTemplate, final BigQueryDatabase database, final String name) {
         super(jdbcTemplate, database, name);
     }
 
@@ -40,8 +40,9 @@ public class BigQuerySchema extends Schema<BigQueryDatabase, BigQueryTable> {
          * So we make a workaround to query the schema.INFORMATION_SCHEMA.TABLES view.
          */
         try {
-            return jdbcTemplate
-                    .queryForInt("SELECT COUNT(table_name) FROM " + database.quote(name) + ".INFORMATION_SCHEMA.TABLES") >= 0;
+            return jdbcTemplate.queryForInt("SELECT COUNT(table_name) FROM "
+                + database.quote(name)
+                + ".INFORMATION_SCHEMA.TABLES") >= 0;
         } catch (SQLException e) {
             if (e.getMessage().contains("NOT_FOUND")) {
                 return false;
@@ -54,10 +55,11 @@ public class BigQuerySchema extends Schema<BigQueryDatabase, BigQueryTable> {
     @Override
     protected boolean doEmpty() throws SQLException {
         // The TABLES table contains one record for each table, view, materialized view, and external table.
-        return doExists() &&
-                (jdbcTemplate.queryForInt("SELECT COUNT(table_name) FROM " + database.quote(name) + ".INFORMATION_SCHEMA.TABLES")
-                        + jdbcTemplate.queryForInt("SELECT COUNT(routine_name) FROM " + database.quote(name) + ".INFORMATION_SCHEMA.ROUTINES")
-                        == 0);
+        return doExists() && (jdbcTemplate.queryForInt("SELECT COUNT(table_name) FROM "
+            + database.quote(name)
+            + ".INFORMATION_SCHEMA.TABLES") + jdbcTemplate.queryForInt("SELECT COUNT(routine_name) FROM "
+            + database.quote(name)
+            + ".INFORMATION_SCHEMA.ROUTINES") == 0);
     }
 
     @Override
@@ -72,29 +74,29 @@ public class BigQuerySchema extends Schema<BigQueryDatabase, BigQueryTable> {
 
     @Override
     protected void doClean() throws SQLException {
-        for (String statement : generateDropStatements("BASE TABLE", "TABLE")) {
+        for (final String statement : generateDropStatements("BASE TABLE", "TABLE")) {
             jdbcTemplate.execute(statement);
         }
-        for (String statement : generateDropStatements("SNAPSHOT", "SNAPSHOT TABLE")) {
+        for (final String statement : generateDropStatements("SNAPSHOT", "SNAPSHOT TABLE")) {
             jdbcTemplate.execute(statement);
         }
-        for (String statement : generateDropStatements("CLONE", "TABLE")) {
+        for (final String statement : generateDropStatements("CLONE", "TABLE")) {
             jdbcTemplate.execute(statement);
         }
-        for (String statement : generateDropStatements("EXTERNAL", "EXTERNAL TABLE")) {
+        for (final String statement : generateDropStatements("EXTERNAL", "EXTERNAL TABLE")) {
             jdbcTemplate.execute(statement);
         }
-        for (String statement : generateDropStatements("VIEW", "VIEW")) {
+        for (final String statement : generateDropStatements("VIEW", "VIEW")) {
             jdbcTemplate.execute(statement);
         }
-        for (String statement : generateDropStatements("MATERIALIZED VIEW", "MATERIALIZED VIEW")) {
+        for (final String statement : generateDropStatements("MATERIALIZED VIEW", "MATERIALIZED VIEW")) {
             jdbcTemplate.execute(statement);
         }
 
-        for (String statement : generateDropStatementsForRoutines("FUNCTION")) {
+        for (final String statement : generateDropStatementsForRoutines("FUNCTION")) {
             jdbcTemplate.execute(statement);
         }
-        for (String statement : generateDropStatementsForRoutines("PROCEDURE")) {
+        for (final String statement : generateDropStatementsForRoutines("PROCEDURE")) {
             jdbcTemplate.execute(statement);
         }
     }
@@ -106,15 +108,13 @@ public class BigQuerySchema extends Schema<BigQueryDatabase, BigQueryTable> {
      * @return The drop statements.
      * @throws SQLException when the clean statements could not be generated.
      */
-    private List<String> generateDropStatementsForRoutines(String objType) throws SQLException {
-        List<String> objNames =
-                jdbcTemplate.queryForStringList(
-                        // Search for all functions
-                        "SELECT routine_name FROM " + database.quote(name) + ".INFORMATION_SCHEMA.ROUTINES WHERE routine_type=?",
-                        objType
-                                               );
-        List<String> statements = new ArrayList<>();
-        for (String objName : objNames) {
+    private List<String> generateDropStatementsForRoutines(final String objType) throws SQLException {
+        final List<String> objNames = jdbcTemplate.queryForStringList(
+            // Search for all functions
+            "SELECT routine_name FROM " + database.quote(name) + ".INFORMATION_SCHEMA.ROUTINES WHERE routine_type=?",
+            objType);
+        final List<String> statements = new ArrayList<>();
+        for (final String objName : objNames) {
             statements.add("DROP " + objType + " IF EXISTS " + database.quote(name, objName));
         }
         return statements;
@@ -123,20 +123,17 @@ public class BigQuerySchema extends Schema<BigQueryDatabase, BigQueryTable> {
     /**
      * Generates the statements for dropping the TABLE, EXTERNAL TABLE, VIEW, MATERIALIZED VIEW, in this schema.
      *
-     * @param type The object type, BASE TABLE, EXTERNAL, VIEW, or MATERIALIZED VIEW.
+     * @param type    The object type, BASE TABLE, EXTERNAL, VIEW, or MATERIALIZED VIEW.
      * @param objType The type of object for the DROP statement; TABLE, EXTERNAL TABLE, VIEW or MATERIALIZED VIEW.
      * @return The drop statements.
      * @throws SQLException when the clean statements could not be generated.
      */
-    private List<String> generateDropStatements(String type, String objType) throws SQLException {
-        List<String> names =
-                jdbcTemplate.queryForStringList(
-                        // Search for all views
-                        "SELECT table_name FROM " + database.quote(name) + ".INFORMATION_SCHEMA.TABLES WHERE table_type=?",
-                        type
-                                               );
-        List<String> statements = new ArrayList<>();
-        for (String domainName : names) {
+    private List<String> generateDropStatements(final String type, final String objType) throws SQLException {
+        final List<String> names = jdbcTemplate.queryForStringList(
+            // Search for all views
+            "SELECT table_name FROM " + database.quote(name) + ".INFORMATION_SCHEMA.TABLES WHERE table_type=?", type);
+        final List<String> statements = new ArrayList<>();
+        for (final String domainName : names) {
             statements.add("DROP " + objType + " IF EXISTS " + database.quote(name, domainName));
         }
         return statements;
@@ -145,11 +142,10 @@ public class BigQuerySchema extends Schema<BigQueryDatabase, BigQueryTable> {
     @Override
     protected BigQueryTable[] doAllTables() throws SQLException {
         // Search for all the table names
-        List<String> tableNames =
-                jdbcTemplate.queryForStringList(
-                        "SELECT table_name FROM " + database.quote(name) + ".INFORMATION_SCHEMA.TABLES WHERE table_type='BASE TABLE'"
-                                               );
-        BigQueryTable[] tables = new BigQueryTable[tableNames.size()];
+        final List<String> tableNames = jdbcTemplate.queryForStringList("SELECT table_name FROM "
+            + database.quote(name)
+            + ".INFORMATION_SCHEMA.TABLES WHERE table_type='BASE TABLE'");
+        final BigQueryTable[] tables = new BigQueryTable[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new BigQueryTable(jdbcTemplate, database, this, tableNames.get(i));
         }
@@ -157,7 +153,7 @@ public class BigQuerySchema extends Schema<BigQueryDatabase, BigQueryTable> {
     }
 
     @Override
-    public Table getTable(String tableName) {
+    public Table getTable(final String tableName) {
         return new BigQueryTable(jdbcTemplate, database, this, tableName);
     }
 }

@@ -23,11 +23,11 @@ public class CoreLocationPrefix {
     public static final String FILESYSTEM_PREFIX = "filesystem:";
     public static final String CLASSPATH_PREFIX = "classpath:";
 
-    public static boolean isClassPath(Location location) {
+    public static boolean isClassPath(final Location location) {
         return CLASSPATH_PREFIX.equals(location.getPrefix());
     }
 
-    public static boolean isFileSystem(Location location) {
+    public static boolean isFileSystem(final Location location) {
         return FILESYSTEM_PREFIX.equals(location.getPrefix());
     }
 }

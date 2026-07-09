@@ -149,7 +149,7 @@ custom rule Rule_RG99 rejected: rule code 'RG99' uses the prefix 'RG' which
 is reserved for stock SQLFluff or Redgate rules. Pick a code with a different prefix.
 ```
 
-The rule is dropped; the rest of the run continues. Pick a prefix that's distinctive to your organisation - e.g. company initials or a project tag.
+The rule is dropped; the rest of the run continues. Pick a prefix that's distinctive to your organization - e.g. company initials or a project tag.
 
 If your plugin loads but every rule is rejected (or `get_rules` simply returns nothing), Flyway emits a single informational warning:
 
@@ -204,7 +204,7 @@ Note that `help` is always `null` for custom rules. Flyway does not generate hel
 
 ## Flyway Desktop
 
-Flyway Desktop recognises `check.sqlfluffCustomRulesPath` and will pass the configured path through to `check -code` when running code analysis. The path is read from `flyway.toml` like any other check setting.
+Flyway Desktop recognizes `check.sqlfluffCustomRulesPath` and will pass the configured path through to `check -code` when running code analysis. The path is read from `flyway.toml` like any other check setting.
 
 ## Troubleshooting
 

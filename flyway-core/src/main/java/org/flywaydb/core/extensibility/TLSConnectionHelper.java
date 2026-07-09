@@ -24,15 +24,15 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.nc.ConnectionType;
 import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
 
-public interface TLSConnectionHelper extends Plugin{
+public interface TLSConnectionHelper extends Plugin {
     String SSL_AUTOCONFIGURATION_ENV = "FLYWAY_SSL_AUTOCONFIGURATION";
 
-    static List<TLSConnectionHelper> get(Configuration configuration) {
-        return configuration.getPluginRegister()
-            .getInstancesOf(TLSConnectionHelper.class)
-            .stream().toList();
+    static List<TLSConnectionHelper> get(final Configuration configuration) {
+        return configuration.getPluginRegister().getInstancesOf(TLSConnectionHelper.class).stream().toList();
     }
 
-    void prepareForTLSConnection(String connectionString, ConnectionType connectionType, NativeConnectorsDatabase database, Configuration configuration);
-
+    void prepareForTLSConnection(String connectionString,
+        ConnectionType connectionType,
+        NativeConnectorsDatabase database,
+        Configuration configuration);
 }

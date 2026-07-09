@@ -20,7 +20,6 @@
 package org.flywaydb.core.internal.jdbc;
 
 import org.flywaydb.core.internal.database.DatabaseType;
-import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
 
@@ -29,17 +28,19 @@ import java.sql.Connection;
 public class ExecutionTemplateFactory {
 
     /**
-     * Creates a new execution template for this connection.
-     * If possible, will attempt to roll back when an exception is thrown.
+     * Creates a new execution template for this connection. If possible, will attempt to roll back when an exception is
+     * thrown.
      *
      * @param connection The connection for execution.
-     * @param database The database
+     * @param database   The database
      */
-    public static ExecutionTemplate createExecutionTemplate(Connection connection, Database database) {
+    public static ExecutionTemplate createExecutionTemplate(final Connection connection, final Database database) {
         return createExecutionTemplate(connection, database, false);
     }
 
-    public static ExecutionTemplate createExecutionTemplate(Connection connection, Database database, boolean skipErrorLog) {
+    public static ExecutionTemplate createExecutionTemplate(final Connection connection,
+        final Database database,
+        final boolean skipErrorLog) {
         if (database.supportsMultiStatementTransactions() && database.getConfiguration().isExecuteInTransaction()) {
             return createTransactionalExecutionTemplate(connection, true, database.getDatabaseType());
         }
@@ -51,11 +52,16 @@ public class ExecutionTemplateFactory {
      * Creates a new execution template for this connection, which attempts to get exclusive access to the table
      *
      * @param connection The connection for execution.
-     * @param database The database
+     * @param database   The database
      */
-    public static ExecutionTemplate createTableExclusiveExecutionTemplate(Connection connection, Table table, Database database) {
+    public static ExecutionTemplate createTableExclusiveExecutionTemplate(final Connection connection,
+        final Table table,
+        final Database database) {
         if (database.supportsMultiStatementTransactions()) {
-            return new TableLockingExecutionTemplate(table, createTransactionalExecutionTemplate(connection, database.supportsDdlTransactions(), database.getDatabaseType()));
+            return new TableLockingExecutionTemplate(table,
+                createTransactionalExecutionTemplate(connection,
+                    database.supportsDdlTransactions(),
+                    database.getDatabaseType()));
         }
 
         return new TableLockingExecutionTemplate(table, new PlainExecutionTemplate());
@@ -64,10 +70,12 @@ public class ExecutionTemplateFactory {
     /**
      * Creates a new transactional execution template for this connection.
      *
-     * @param connection The connection for execution.
+     * @param connection          The connection for execution.
      * @param rollbackOnException Whether to attempt to roll back when an exception is thrown.
      */
-    private static ExecutionTemplate createTransactionalExecutionTemplate(Connection connection, boolean rollbackOnException, DatabaseType databaseType) {
+    private static ExecutionTemplate createTransactionalExecutionTemplate(final Connection connection,
+        final boolean rollbackOnException,
+        final DatabaseType databaseType) {
         return databaseType.createTransactionalExecutionTemplate(connection, rollbackOnException);
     }
 }

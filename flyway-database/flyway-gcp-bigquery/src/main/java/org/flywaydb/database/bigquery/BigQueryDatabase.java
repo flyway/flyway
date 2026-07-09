@@ -34,9 +34,7 @@ import org.flywaydb.core.internal.util.StringUtils;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
 
-import static org.flywaydb.core.internal.database.base.DatabaseConstants.DATABASE_HOSTING_AWS_RDS;
 import static org.flywaydb.core.internal.database.base.DatabaseConstants.DATABASE_HOSTING_GOOGLE_BIGQUERY;
 import static org.flywaydb.core.internal.util.DataUnits.GIGABYTE;
 
@@ -48,28 +46,39 @@ public class BigQueryDatabase extends Database<BigQueryConnection> {
     private static final long TEN_GB_DATABASE_SIZE_LIMIT = GIGABYTE.toBytes(10);
     private static final long NINE_GB_DATABASE_SIZE = GIGABYTE.toBytes(9);
 
-    public BigQueryDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+    public BigQueryDatabase(final Configuration configuration,
+        final JdbcConnectionFactory jdbcConnectionFactory,
+        final StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
     @Override
-    protected BigQueryConnection doGetConnection(Connection connection) {
+    protected BigQueryConnection doGetConnection(final Connection connection) {
         return new BigQueryConnection(this, connection);
     }
 
     @Override
-    public void ensureSupported(Configuration configuration) {
+    public void ensureSupported(final Configuration configuration) {
         if (!LicenseGuard.isLicensed(configuration, Tier.PREMIUM)) {
-            long databaseSize = getDatabaseSize();
+            final long databaseSize = getDatabaseSize();
             if (databaseSize > TEN_GB_DATABASE_SIZE_LIMIT) {
                 throw new FlywayEditionUpgradeRequiredException(LicenseGuard.getTier(configuration),
-                    "A Google BigQuery database that exceeds the 10 GB database size limit " +
-                    "(Calculated size: " + GIGABYTE.toHumanReadableString(databaseSize) + ")");
+                    "A Google BigQuery database that exceeds the 10 GB database size limit "
+                        + "(Calculated size: "
+                        + GIGABYTE.toHumanReadableString(databaseSize)
+                        + ")");
             }
 
-            String usageLimitMessage = "Google BigQuery databases have a 10 GB database size limit in " + Tier.COMMUNITY.getDisplayName() + ".\n" +
-                    "You have used " + GIGABYTE.toHumanReadableString(databaseSize) + " / 10 GB\n" +
-                    "Consider upgrading to " + Tier.ENTERPRISE.getDisplayName() + " for unlimited usage: " + FlywayDbWebsiteLinks.TEAMS_FEATURES_FOR_BIG_QUERY;
+            final String usageLimitMessage = "Google BigQuery databases have a 10 GB database size limit in "
+                + Tier.COMMUNITY.getDisplayName()
+                + ".\n"
+                + "You have used "
+                + GIGABYTE.toHumanReadableString(databaseSize)
+                + " / 10 GB\n"
+                + "Consider upgrading to "
+                + Tier.ENTERPRISE.getDisplayName()
+                + " for unlimited usage: "
+                + FlywayDbWebsiteLinks.TEAMS_FEATURES_FOR_BIG_QUERY;
 
             if (databaseSize >= NINE_GB_DATABASE_SIZE) {
                 LOG.warn(usageLimitMessage);
@@ -82,9 +91,10 @@ public class BigQueryDatabase extends Database<BigQueryConnection> {
     private long getDatabaseSize() {
         long totalDatabaseSize = 0;
         try {
-            ResultSet schemaRs = getJdbcMetaData().getSchemas();
+            final ResultSet schemaRs = getJdbcMetaData().getSchemas();
             while (schemaRs.next()) {
-                totalDatabaseSize += jdbcTemplate.queryForLong("select sum(size_bytes) from " + schemaRs.getString("TABLE_SCHEM") + ".__TABLES__");
+                totalDatabaseSize += jdbcTemplate.queryForLong("select sum(size_bytes) from " + schemaRs.getString(
+                    "TABLE_SCHEM") + ".__TABLES__");
             }
         } catch (SQLException ignored) {
         }
@@ -92,38 +102,53 @@ public class BigQueryDatabase extends Database<BigQueryConnection> {
     }
 
     @Override
-    public String getRawCreateScript(Table table, boolean baseline) {
-        return "CREATE TABLE " + table + " (\n" +
-                "    `installed_rank` INT64 NOT NULL,\n" +
-                "    `version` STRING,\n" +
-                "    `description` STRING NOT NULL,\n" +
-                "    `type` STRING NOT NULL,\n" +
-                "    `script` STRING NOT NULL,\n" +
-                "    `checksum` INT64,\n" +
-                "    `installed_by` STRING NOT NULL,\n" +
-                "    `installed_on` TIMESTAMP,\n" + // BigQuery does not support default value
-                "    `execution_time` INT64 NOT NULL,\n" +
-                "    `success` BOOL NOT NULL\n" +
-                ");\n" +
-                (baseline ? getBaselineStatement(table) + ";\n" : "");
+    public String getRawCreateScript(final Table table, final boolean baseline) {
+        return "CREATE TABLE "
+            + table
+            + " (\n"
+            + "    `installed_rank` INT64 NOT NULL,\n"
+            + "    `version` STRING,\n"
+            + "    `description` STRING NOT NULL,\n"
+            + "    `type` STRING NOT NULL,\n"
+            + "    `script` STRING NOT NULL,\n"
+            + "    `checksum` INT64,\n"
+            + "    `installed_by` STRING NOT NULL,\n"
+            + "    `installed_on` TIMESTAMP,\n"
+            +
+            // BigQuery does not support default value
+            "    `execution_time` INT64 NOT NULL,\n"
+            + "    `success` BOOL NOT NULL\n"
+            + ");\n"
+            + (baseline ? getBaselineStatement(table) + ";\n" : "");
     }
 
     @Override
-    public String getInsertStatement(Table table) {
+    public String getInsertStatement(final Table table) {
         // Explicitly set installed_on to CURRENT_TIMESTAMP().
-        return "INSERT INTO " + table
-                + " (" + quote("installed_rank")
-                + ", " + quote("version")
-                + ", " + quote("description")
-                + ", " + quote("type")
-                + ", " + quote("script")
-                + ", " + quote("checksum")
-                + ", " + quote("installed_by")
-                + ", " + quote("installed_on")
-                + ", " + quote("execution_time")
-                + ", " + quote("success")
-                + ")"
-                + " VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP(), ?, ?)";
+        return "INSERT INTO "
+            + table
+            + " ("
+            + quote("installed_rank")
+            + ", "
+            + quote("version")
+            + ", "
+            + quote("description")
+            + ", "
+            + quote("type")
+            + ", "
+            + quote("script")
+            + ", "
+            + quote("checksum")
+            + ", "
+            + quote("installed_by")
+            + ", "
+            + quote("installed_on")
+            + ", "
+            + quote("execution_time")
+            + ", "
+            + quote("success")
+            + ")"
+            + " VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP(), ?, ?)";
     }
 
     @Override
@@ -148,8 +173,10 @@ public class BigQueryDatabase extends Database<BigQueryConnection> {
     }
 
     @Override
-    public String doQuote(String identifier) {
-        return getOpenQuote() + StringUtils.replaceAll(identifier, getCloseQuote(), getEscapedQuote()) + getCloseQuote();
+    public String doQuote(final String identifier) {
+        return getOpenQuote()
+            + StringUtils.replaceAll(identifier, getCloseQuote(), getEscapedQuote())
+            + getCloseQuote();
     }
 
     @Override

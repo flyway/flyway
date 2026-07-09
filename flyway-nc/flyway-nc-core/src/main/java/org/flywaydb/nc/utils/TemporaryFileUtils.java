@@ -29,7 +29,7 @@ public class TemporaryFileUtils {
     public static String createTempFile(final String sqlContent) {
         return createTempFile(sqlContent, ".sql");
     }
-    
+
     public static String createTempFile(final String sqlContent, final String suffix) {
         try {
             final File tempFile = File.createTempFile("temp_sql_", suffix);

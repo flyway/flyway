@@ -29,25 +29,25 @@ public class ProgressLoggerSynchronized implements ProgressLogger {
 
     @Override
     @Synchronized
-    public ProgressLogger subTask(String operationName) {
+    public ProgressLogger subTask(final String operationName) {
         return new ProgressLoggerSynchronized(progressLogger.subTask(operationName));
     }
 
     @Override
     @Synchronized
-    public ProgressLogger pushSteps(int steps) {
+    public ProgressLogger pushSteps(final int steps) {
         return new ProgressLoggerSynchronized(progressLogger.pushSteps(steps));
     }
 
     @Override
     @Synchronized
-    public void log(String message) {
+    public void log(final String message) {
         progressLogger.log(message);
     }
 
     @Override
     @Synchronized
-    public void log(String message, int step) {
+    public void log(final String message, final int step) {
         progressLogger.log(message, step);
     }
 }

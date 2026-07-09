@@ -6,7 +6,7 @@ subtitle: 'Tutorial: Migrating from flyway-dev to flyway CLI'
 
 The V11 release of Flyway saw several new Flyway CLI verbs removed from preview and officially released. In this
 document we will explore how to migrate from `flyway-dev` to these new verbs, as `flyway-dev` will eventually be
-deprecated in favour of flyway CLI.
+deprecated in favor of flyway CLI.
 
 This document will go through the key `flyway-dev` commands and show how to achieve the same functionality using the
 new flyway CLI verbs.

@@ -20,7 +20,7 @@ One common use of this resolver is to automatically connect to a different devel
 
 ### Flyway Desktop
 
-This can't be set in a config file via Flyway Desktop, although it will be honoured.
+This can't be set in a config file via Flyway Desktop, although it will be honored.
 
 ### TOML Configuration File
 

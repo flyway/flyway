@@ -20,7 +20,7 @@ Values can be inlined in the environment configuration using `${vault.path/to/se
 
 ### Flyway Desktop
 
-This can't be set in a config file via Flyway Desktop, although it will be honoured.
+This can't be set in a config file via Flyway Desktop, although it will be honored.
 
 ### Command-line
 

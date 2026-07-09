@@ -46,40 +46,39 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 
-
 public class EncryptionUtils {
-    public static SecretKey getKeyFromPassword(String password, String salt)
-            throws NoSuchAlgorithmException, InvalidKeySpecException {
+    public static SecretKey getKeyFromPassword(final String password, final String salt)
+        throws NoSuchAlgorithmException, InvalidKeySpecException {
 
-        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-        KeySpec spec = new PBEKeySpec(password.toCharArray(), salt.getBytes(), 65536, 256);
-        SecretKey secret = new SecretKeySpec(factory.generateSecret(spec)
-                                                    .getEncoded(), "AES");
+        final SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+        final KeySpec spec = new PBEKeySpec(password.toCharArray(), salt.getBytes(), 65536, 256);
+        final SecretKey secret = new SecretKeySpec(factory.generateSecret(spec).getEncoded(), "AES");
         return secret;
     }
 
-    public static SealedObject encryptObject(String algorithm, Serializable object,
-                                             SecretKey key, IvParameterSpec iv) throws NoSuchPaddingException,
-            NoSuchAlgorithmException, InvalidAlgorithmParameterException,
-            InvalidKeyException, IOException, IllegalBlockSizeException {
+    public static SealedObject encryptObject(final String algorithm,
+        final Serializable object,
+        final SecretKey key,
+        final IvParameterSpec iv)
+        throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IOException, IllegalBlockSizeException {
 
-        Cipher cipher = Cipher.getInstance(algorithm);
+        final Cipher cipher = Cipher.getInstance(algorithm);
         cipher.init(Cipher.ENCRYPT_MODE, key, iv);
         return new SealedObject(object, cipher);
     }
 
-    public static Serializable decryptObject(String algorithm, SealedObject sealedObject,
-                                             SecretKey key, IvParameterSpec iv) throws NoSuchPaddingException,
-            NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException,
-            ClassNotFoundException, BadPaddingException, IllegalBlockSizeException,
-            IOException {
+    public static Serializable decryptObject(final String algorithm,
+        final SealedObject sealedObject,
+        final SecretKey key,
+        final IvParameterSpec iv)
+        throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, ClassNotFoundException, BadPaddingException, IllegalBlockSizeException, IOException {
 
-        Cipher cipher = Cipher.getInstance(algorithm);
+        final Cipher cipher = Cipher.getInstance(algorithm);
         cipher.init(Cipher.DECRYPT_MODE, key, iv);
         return (Serializable) sealedObject.getObject(cipher);
     }
 
-    public static byte[] toByteArray(SealedObject sealedObject) throws IOException {
+    public static byte[] toByteArray(final SealedObject sealedObject) throws IOException {
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
              ObjectOutputStream out = new ObjectOutputStream(bos)) {
             out.writeObject(sealedObject);
@@ -88,19 +87,19 @@ public class EncryptionUtils {
         }
     }
 
-    public static SealedObject fromByteArray(byte[] byteArray) throws IOException, ClassNotFoundException {
+    public static SealedObject fromByteArray(final byte[] byteArray) throws IOException, ClassNotFoundException {
         return (SealedObject) new ObjectInputStream(new ByteArrayInputStream(byteArray)).readObject();
     }
 
-    public static String hashString(String strInput, String hashInput) {
+    public static String hashString(final String strInput, final String hashInput) {
         if (strInput == null) {
             return null;
         }
         try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            final MessageDigest md = MessageDigest.getInstance("SHA-256");
             md.update(strInput.getBytes(StandardCharsets.UTF_8));
-            byte[] hash = md.digest(hashInput.getBytes(StandardCharsets.UTF_8));
-            BigInteger number = new BigInteger(1, hash);
+            final byte[] hash = md.digest(hashInput.getBytes(StandardCharsets.UTF_8));
+            final BigInteger number = new BigInteger(1, hash);
             String result = number.toString(16);
             while (result.length() < 64) {
                 result = "0" + result;

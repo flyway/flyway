@@ -37,7 +37,7 @@ import java.util.List;
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class LoggingUtils {
 
-    public static LogCreator getLogCreator(CommandLineArguments commandLineArguments) {
+    public static LogCreator getLogCreator(final CommandLineArguments commandLineArguments) {
         if (commandLineArguments.hasOperation(McpCommandExtension.MCP_VERB)) {
             return new McpServerLogCreator();
         }
@@ -51,7 +51,7 @@ public class LoggingUtils {
             return MultiLogCreator.empty();
         }
 
-        List<LogCreator> logCreators = new ArrayList<>();
+        final List<LogCreator> logCreators = new ArrayList<>();
         logCreators.add(new ConsoleLogCreator(commandLineArguments));
         if (commandLineArguments.isOutputFileSet()) {
             logCreators.add(new FileLogCreator(commandLineArguments));
@@ -60,7 +60,7 @@ public class LoggingUtils {
         return new MultiLogCreator(logCreators);
     }
 
-    public static Log initLogging(Class<?> clazz, CommandLineArguments commandLineArguments) {
+    public static Log initLogging(final Class<?> clazz, final CommandLineArguments commandLineArguments) {
         LogFactory.setFallbackLogCreator(getLogCreator(commandLineArguments));
         return LogFactory.getLog(clazz);
     }

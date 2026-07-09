@@ -39,14 +39,14 @@ public class ConfigurationModel {
     private Map<String, Object> rootConfigurations = new HashMap<>();
 
     public static ConfigurationModel defaults() {
-        ConfigurationModel model = new ConfigurationModel();
+        final ConfigurationModel model = new ConfigurationModel();
         model.flyway = FlywayModel.defaults();
         model.environments.put("default", new EnvironmentModel());
         return model;
     }
 
-    public ConfigurationModel merge(ConfigurationModel otherPojo) {
-        ConfigurationModel result = new ConfigurationModel();
+    public ConfigurationModel merge(final ConfigurationModel otherPojo) {
+        final ConfigurationModel result = new ConfigurationModel();
         result.id = MergeUtils.merge(id, otherPojo.id);
 
         result.flyway = flyway != null ? flyway.merge(otherPojo.flyway) : otherPojo.flyway;
@@ -57,8 +57,8 @@ public class ConfigurationModel {
         return result;
     }
 
-    public static ConfigurationModel clone(ConfigurationModel pojo) {
-        ConfigurationModel basePojo = new ConfigurationModel();
+    public static ConfigurationModel clone(final ConfigurationModel pojo) {
+        final ConfigurationModel basePojo = new ConfigurationModel();
         return basePojo.merge(pojo);
     }
 }

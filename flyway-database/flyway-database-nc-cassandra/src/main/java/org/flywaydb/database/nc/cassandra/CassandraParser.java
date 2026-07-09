@@ -24,7 +24,7 @@ import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
 
 public class CassandraParser extends Parser {
-    protected CassandraParser(Configuration configuration, ParsingContext parsingContext) {
+    protected CassandraParser(final Configuration configuration, final ParsingContext parsingContext) {
         super(configuration, parsingContext, 3);
     }
 }

@@ -23,10 +23,8 @@ import static org.flywaydb.core.internal.util.UrlUtils.isSecretManagerUrl;
 
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.extensibility.Tier;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.BaseDatabaseType;
-import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import org.flywaydb.core.internal.parser.Parser;
@@ -58,12 +56,13 @@ public class RedshiftDatabaseType extends BaseDatabaseType {
     }
 
     @Override
-    public boolean handlesJDBCUrl(String url) {
-        return isSecretManagerUrl(url, "redshift") || url.startsWith("jdbc:redshift:") || url.startsWith("jdbc:p6spy:redshift:");
+    public boolean handlesJDBCUrl(final String url) {
+        return isSecretManagerUrl(url, "redshift") || url.startsWith("jdbc:redshift:") || url.startsWith(
+            "jdbc:p6spy:redshift:");
     }
 
     @Override
-    public String getDriverClass(String url, ClassLoader classLoader) {
+    public String getDriverClass(final String url, final ClassLoader classLoader) {
         if (url.startsWith("jdbc:p6spy:redshift:")) {
             return "com.p6spy.engine.spy.P6SpyDriver";
         }
@@ -71,7 +70,7 @@ public class RedshiftDatabaseType extends BaseDatabaseType {
     }
 
     @Override
-    public String getBackupDriverClass(String url, ClassLoader classLoader) {
+    public String getBackupDriverClass(final String url, final ClassLoader classLoader) {
         if (ClassUtils.isPresent(REDSHIFT_JDBC41_DRIVER, classLoader)) {
             return REDSHIFT_JDBC41_DRIVER;
         }
@@ -79,9 +78,12 @@ public class RedshiftDatabaseType extends BaseDatabaseType {
     }
 
     @Override
-    public boolean handlesDatabaseProductNameAndVersion(String databaseProductName, String databaseProductVersion, Connection connection) {
+    public boolean handlesDatabaseProductNameAndVersion(final String databaseProductName,
+        final String databaseProductVersion,
+        final Connection connection) {
         if (databaseProductName.startsWith("PostgreSQL")) {
-            if (databaseProductName.startsWith("PostgreSQL 8") && BaseDatabaseType.getSelectVersionOutput(connection).contains("Redshift")) {
+            if (databaseProductName.startsWith("PostgreSQL 8") && BaseDatabaseType.getSelectVersionOutput(connection)
+                .contains("Redshift")) {
                 return true;
             }
         }
@@ -93,7 +95,7 @@ public class RedshiftDatabaseType extends BaseDatabaseType {
     }
 
     @Override
-    public void setOverridingConnectionProps(Map<String, String> props) {
+    public void setOverridingConnectionProps(final Map<String, String> props) {
         // Necessary because the Amazon v2 driver does not appear to respect the way Properties.get() handles defaults.
         // If not forced to false, the driver allows resultsets to be read on different threads and will throw if
         // connections are closed before all results are read.
@@ -101,12 +103,16 @@ public class RedshiftDatabaseType extends BaseDatabaseType {
     }
 
     @Override
-    public Database createDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+    public Database createDatabase(final Configuration configuration,
+        final JdbcConnectionFactory jdbcConnectionFactory,
+        final StatementInterceptor statementInterceptor) {
         return new RedshiftDatabase(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
     @Override
-    public Parser createParser(Configuration configuration, ResourceProvider resourceProvider, ParsingContext parsingContext) {
+    public Parser createParser(final Configuration configuration,
+        final ResourceProvider resourceProvider,
+        final ParsingContext parsingContext) {
         return new RedshiftParser(configuration, parsingContext);
     }
 }

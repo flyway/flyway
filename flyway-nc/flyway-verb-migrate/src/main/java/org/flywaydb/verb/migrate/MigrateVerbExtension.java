@@ -19,7 +19,6 @@
  */
 package org.flywaydb.verb.migrate;
 
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -42,6 +41,7 @@ import org.flywaydb.core.api.output.ValidateResult;
 import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.internal.Topic;
 import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
+import org.flywaydb.core.extensibility.ConfigurationParameter;
 import org.flywaydb.core.extensibility.VerbExtension;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
@@ -73,6 +73,39 @@ public class MigrateVerbExtension implements VerbExtension {
     }
 
     @Override
+    public List<ConfigurationParameter> getConfigurationParameters() {
+        return List.of(new ConfigurationParameter("target",
+                "Target version up to which Flyway should use migrations",
+                false),
+            new ConfigurationParameter("outOfOrder", "Allows migrations to be run \"out of order\"", false),
+            new ConfigurationParameter("baselineOnMigrate",
+                "Baseline on migrate against uninitialized non-empty schema",
+                false),
+            new ConfigurationParameter("validateOnMigrate", "Validate when running migrate", false),
+            new ConfigurationParameter("cherryPick",
+                "[teams] Comma separated list of migrations that Flyway should consider when migrating",
+                false),
+            new ConfigurationParameter("group",
+                "Whether to group all pending migrations together in the same transaction when applying them",
+                false),
+            new ConfigurationParameter("skipExecutingMigrations",
+                "Whether Flyway should skip actually executing the contents of the migrations",
+                false),
+            new ConfigurationParameter("createSchemas",
+                "Whether Flyway should attempt to create the schemas specified in the schemas property",
+                false),
+            new ConfigurationParameter("executeInTransaction",
+                "Whether SQL should execute within a transaction",
+                false),
+            new ConfigurationParameter("mixed", "Allow mixing transactional and non-transactional statements", false));
+    }
+
+    @Override
+    public String getExample() {
+        return "flyway migrate -target=2.0 -outOfOrder=true";
+    }
+
+    @Override
     public OperationResult executeVerb(final Configuration configuration) {
 
         final PreparationContext context = PreparationContext.get(configuration, false);
@@ -82,7 +115,7 @@ public class MigrateVerbExtension implements VerbExtension {
             context.refresh(configuration);
         }
 
-        NativeConnectorsDatabase database = context.getDatabase();
+        final NativeConnectorsDatabase database = context.getDatabase();
 
         if (configuration.isCreateSchemas()) {
             try {
@@ -104,15 +137,19 @@ public class MigrateVerbExtension implements VerbExtension {
 
         if (!database.schemaHistoryTableExists(configuration.getTable())) {
             final NativeConnectorsDatabase finalDatabase = database;
-            final List<String> populatedSchemas = Arrays.stream(VerbUtils.getAllSchemas(configuration.getSchemas(), database.getCurrentSchema()))
+            final List<String> populatedSchemas = Arrays.stream(VerbUtils.getAllSchemas(configuration.getSchemas(),
+                    database.getCurrentSchema()))
                 .filter(database::isSchemaExists)
                 .filter(x -> !finalDatabase.isSchemaEmpty(x))
                 .toList();
 
             if (populatedSchemas.isEmpty() && configuration.isBaselineOnMigrate()) {
-                LOG.info("All configured schemas are empty; a baseline marker will not be added to Flyway's schema history table. "
-                    + "A baseline or migration script with a lower version than the baseline version may execute if available. Check the Schemas parameter if this is not intended."
-                    + "See " + FlywayDbWebsiteLinks.getRedirectLinkFromTopic(Topic.BASELINE_ON_MIGRATE) + " for more info");
+                LOG.info(
+                    "All configured schemas are empty; a baseline marker will not be added to Flyway's schema history table. "
+                        + "A baseline or migration script with a lower version than the baseline version may execute if available. Check the Schemas parameter if this is not intended."
+                        + "See "
+                        + FlywayDbWebsiteLinks.getRedirectLinkFromTopic(Topic.BASELINE_ON_MIGRATE)
+                        + " for more info");
             }
 
             if (!populatedSchemas.isEmpty() && !configuration.isSkipExecutingMigrations()) {
@@ -131,7 +168,9 @@ public class MigrateVerbExtension implements VerbExtension {
             }
         }
 
-        final CallbackManager callbackManager = new CallbackManager(configuration, context.getCallbackResources(), Event::fromId);
+        final CallbackManager callbackManager = new CallbackManager(configuration,
+            context.getCallbackResources(),
+            Event::fromId);
 
         database.createSchemaHistoryTableIfNotExists(configuration);
 
@@ -146,7 +185,7 @@ public class MigrateVerbExtension implements VerbExtension {
             database.allSchemasEmpty(VerbUtils.getAllSchemas(configuration.getSchemas(), database.getCurrentSchema())));
 
         final MigrationInfo current = migrationInfoService.current();
-        MigrationVersion initialSchemaVersion = current != null && current.isVersioned()
+        final MigrationVersion initialSchemaVersion = current != null && current.isVersioned()
             ? current.getVersion()
             : MigrationVersion.EMPTY;
         migrateResult.initialSchemaVersion = initialSchemaVersion.getVersion();
@@ -165,8 +204,9 @@ public class MigrateVerbExtension implements VerbExtension {
         secondValidate(migrationInfoService, configuration, database.doQuote(database.getCurrentSchema()));
 
         if (configuration.isOutOfOrder()) {
-            LOG.info("outOfOrder mode is active. Migration of schema " + database.doQuote(
-                database.getCurrentSchema()) + " may not be reproducible.");
+            LOG.info("outOfOrder mode is active. Migration of schema "
+                + database.doQuote(database.getCurrentSchema())
+                + " may not be reproducible.");
         } else {
             allPendingMigrations = removeOutOfOrderPendingMigrations(allPendingMigrations);
         }
@@ -232,8 +272,10 @@ public class MigrateVerbExtension implements VerbExtension {
         }
     }
 
-    private static void secondValidate(MigrationInfoService infoService, Configuration configuration, String schema) {
-        List<MigrationInfo> failed = Arrays.stream(infoService.all())
+    private static void secondValidate(final MigrationInfoService infoService,
+        final Configuration configuration,
+        final String schema) {
+        final List<MigrationInfo> failed = Arrays.stream(infoService.all())
             .filter(migrationInfo -> migrationInfo.getState().isFailed())
             .toList();
 
@@ -271,10 +313,10 @@ public class MigrateVerbExtension implements VerbExtension {
             + " !");
     }
 
-    private MigrationInfo[] removeOutOfOrderPendingMigrations(MigrationInfo[] migrations) {
-        List<MigrationInfo> result = new ArrayList<>();
+    private MigrationInfo[] removeOutOfOrderPendingMigrations(final MigrationInfo[] migrations) {
+        final List<MigrationInfo> result = new ArrayList<>();
 
-        for (MigrationInfo migration : migrations) {
+        for (final MigrationInfo migration : migrations) {
             if (!migration.isVersioned() || result.isEmpty() || migration.getVersion()
                 .isNewerThan(result.get(result.size() - 1).getVersion())) {
                 result.add(migration);

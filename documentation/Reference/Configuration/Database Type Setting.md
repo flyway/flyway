@@ -4,7 +4,7 @@ subtitle: Database Type
 
 ## Description
 
-The primary database flavour being managed in the project.
+The primary database flavor being managed in the project.
 
 This is currently only used by Flyway Desktop.
 

@@ -29,9 +29,9 @@ import org.flywaydb.core.internal.nc.MigrationTypeResolver;
 public class CompositeMigrationTypeResolver implements MigrationTypeResolver {
     @Override
     public MigrationType resolveMigrationType(final String filename, final Configuration configuration) {
-        final List<MigrationTypeResolver> plugins = configuration.getPluginRegister().getInstancesOf(MigrationTypeResolver.class);
-        return plugins
-            .stream()
+        final List<MigrationTypeResolver> plugins = configuration.getPluginRegister()
+            .getInstancesOf(MigrationTypeResolver.class);
+        return plugins.stream()
             .map(plugin -> plugin.resolveMigrationType(filename, configuration))
             .filter(Objects::nonNull)
             .findFirst()
@@ -40,18 +40,14 @@ public class CompositeMigrationTypeResolver implements MigrationTypeResolver {
 
     @Override
     public MigrationType resolveMigrationTypeFromName(final String name, final Configuration configuration) {
-        final List<MigrationTypeResolver> plugins = configuration.getPluginRegister().getInstancesOf(MigrationTypeResolver.class);
-        return plugins
-            .stream()
-            .map(plugin -> {
-                try {
-                    return plugin.resolveMigrationTypeFromName(name, configuration);
-                } catch (IllegalArgumentException e) {
-                    return null;
-                }
-            })
-            .filter(Objects::nonNull)
-            .findFirst()
-            .orElseThrow(() -> new FlywayUnknownMigrationTypeException(name));
+        final List<MigrationTypeResolver> plugins = configuration.getPluginRegister()
+            .getInstancesOf(MigrationTypeResolver.class);
+        return plugins.stream().map(plugin -> {
+            try {
+                return plugin.resolveMigrationTypeFromName(name, configuration);
+            } catch (IllegalArgumentException e) {
+                return null;
+            }
+        }).filter(Objects::nonNull).findFirst().orElseThrow(() -> new FlywayUnknownMigrationTypeException(name));
     }
 }

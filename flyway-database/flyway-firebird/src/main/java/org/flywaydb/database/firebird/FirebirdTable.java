@@ -26,7 +26,10 @@ import java.sql.SQLException;
 
 public class FirebirdTable extends Table<FirebirdDatabase, FirebirdSchema> {
 
-    public FirebirdTable(JdbcTemplate jdbcTemplate, FirebirdDatabase database, FirebirdSchema schema, String name) {
+    public FirebirdTable(final JdbcTemplate jdbcTemplate,
+        final FirebirdDatabase database,
+        final FirebirdSchema schema,
+        final String name) {
         super(jdbcTemplate, database, schema, name);
     }
 
@@ -37,9 +40,9 @@ public class FirebirdTable extends Table<FirebirdDatabase, FirebirdSchema> {
 
     @Override
     protected boolean doExists() throws SQLException {
-        return jdbcTemplate.queryForInt("select count(*) from RDB$RELATIONS\n" +
-                                                "where RDB$RELATION_NAME = ?\n" +
-                                                "and RDB$VIEW_BLR is null", name) > 0;
+        return jdbcTemplate.queryForInt("select count(*) from RDB$RELATIONS\n"
+            + "where RDB$RELATION_NAME = ?\n"
+            + "and RDB$VIEW_BLR is null", name) > 0;
     }
 
     @Override
@@ -52,12 +55,14 @@ public class FirebirdTable extends Table<FirebirdDatabase, FirebirdSchema> {
          still possible as are selects that don't use 'with lock'.
         */
         jdbcTemplate.execute("execute block as\n"
-                                     + "declare tempvar integer;\n"
-                                     + "begin\n"
-                                     + "  for select 1 from " + this + " with lock into :tempvar do\n"
-                                     + "  begin\n"
-                                     + "  end\n"
-                                     + "end");
+            + "declare tempvar integer;\n"
+            + "begin\n"
+            + "  for select 1 from "
+            + this
+            + " with lock into :tempvar do\n"
+            + "  begin\n"
+            + "  end\n"
+            + "end");
     }
 
     @Override

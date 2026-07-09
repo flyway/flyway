@@ -21,6 +21,7 @@ package org.flywaydb.database.cassandra;
 
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
+
 import static org.flywaydb.core.internal.util.DeprecationUtils.DeprecatedFeatures.CASSANDRA_JDBC;
 import static org.flywaydb.core.internal.util.DeprecationUtils.printDeprecationNotice;
 
@@ -47,13 +48,12 @@ public class CassandraDatabaseType extends BaseDatabaseType {
         return Types.VARCHAR;
     }
 
-    public boolean handlesJDBCUrl(String url) {
+    public boolean handlesJDBCUrl(final String url) {
         return url.startsWith("jdbc:cassandra:") || url.startsWith("jdbc:p6spy:cassandra");
     }
 
-
     @Override
-    public String getDriverClass(String url, ClassLoader classLoader) {
+    public String getDriverClass(final String url, final ClassLoader classLoader) {
         if (url.startsWith("jdbc:p6spy:cassandra")) {
             return "com.p6spy.engine.spy.P6SpyDriver";
         }
@@ -62,7 +62,9 @@ public class CassandraDatabaseType extends BaseDatabaseType {
     }
 
     @Override
-    public boolean handlesDatabaseProductNameAndVersion(String databaseProductName, String databaseProductVersion, Connection connection) {
+    public boolean handlesDatabaseProductNameAndVersion(final String databaseProductName,
+        final String databaseProductVersion,
+        final Connection connection) {
         if (databaseProductName.startsWith("Cassandra")) {
             if (!deprecationLogged) {
                 printDeprecationNotice(CASSANDRA_JDBC);
@@ -74,13 +76,16 @@ public class CassandraDatabaseType extends BaseDatabaseType {
     }
 
     @Override
-    public Database createDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+    public Database createDatabase(final Configuration configuration,
+        final JdbcConnectionFactory jdbcConnectionFactory,
+        final StatementInterceptor statementInterceptor) {
         return new CassandraDatabase(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
     @Override
-    public Parser createParser(Configuration configuration, ResourceProvider resourceProvider, ParsingContext parsingContext) {
+    public Parser createParser(final Configuration configuration,
+        final ResourceProvider resourceProvider,
+        final ParsingContext parsingContext) {
         return new CassandraParser(configuration, parsingContext);
     }
-
 }

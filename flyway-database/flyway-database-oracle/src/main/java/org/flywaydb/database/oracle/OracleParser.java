@@ -84,10 +84,8 @@ public class OracleParser extends Parser {
     private static final Pattern PLSQL_WRAPPED_REGEX = Pattern.compile(
         "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\s(FUNCTION|PROCEDURE|TYPE)(\\s\\S*)?\\sWRAPPED(\\s\\S*)*");
 
-    private static final Pattern CREATE_IF_NOT_EXISTS = Pattern.compile(
-        ".*CREATE\\s(\\S+\\s){0,2}IF\\sNOT\\sEXISTS");
-    private static final Pattern DROP_IF_EXISTS = Pattern.compile(
-        ".*DROP\\s(\\S+\\s){0,2}IF\\sEXISTS");
+    private static final Pattern CREATE_IF_NOT_EXISTS = Pattern.compile(".*CREATE\\s(\\S+\\s){0,2}IF\\sNOT\\sEXISTS");
+    private static final Pattern DROP_IF_EXISTS = Pattern.compile(".*DROP\\s(\\S+\\s){0,2}IF\\sEXISTS");
 
     private static final StatementType PLSQL_WRAPPED_STATEMENT = new StatementType();
     private int initialWrappedBlockDepth = -1;
@@ -100,25 +98,25 @@ public class OracleParser extends Parser {
         return "^(" + StringUtils.arrayToDelimitedString("|", commands) + ")";
     }
 
-    public OracleParser(Configuration configuration, ParsingContext parsingContext) {
+    public OracleParser(final Configuration configuration, final ParsingContext parsingContext) {
         super(configuration, parsingContext, 3);
     }
 
     @Override
-    protected ParsedSqlStatement createStatement(PeekingReader reader,
-        Recorder recorder,
-        int statementPos,
-        int statementLine,
-        int statementCol,
-        int nonCommentPartPos,
-        int nonCommentPartLine,
-        int nonCommentPartCol,
-        StatementType statementType,
-        boolean canExecuteInTransaction,
-        Delimiter delimiter,
+    protected ParsedSqlStatement createStatement(final PeekingReader reader,
+        final Recorder recorder,
+        final int statementPos,
+        final int statementLine,
+        final int statementCol,
+        final int nonCommentPartPos,
+        final int nonCommentPartLine,
+        final int nonCommentPartCol,
+        final StatementType statementType,
+        final boolean canExecuteInTransaction,
+        final Delimiter delimiter,
         String sql,
-        List<Token> tokens,
-        boolean batchable) throws IOException {
+        final List<Token> tokens,
+        final boolean batchable) throws IOException {
 
         if (PLSQL_VIEW_STATEMENT == statementType) {
             sql = sql.trim();
@@ -146,9 +144,9 @@ public class OracleParser extends Parser {
     }
 
     @Override
-    protected StatementType detectStatementType(String simplifiedStatement,
-        ParserContext context,
-        PeekingReader reader) {
+    protected StatementType detectStatementType(final String simplifiedStatement,
+        final ParserContext context,
+        final PeekingReader reader) {
         if (PLSQL_PACKAGE_BODY_WRAPPED_REGEX.matcher(simplifiedStatement).matches()
             || PLSQL_PACKAGE_DEFINITION_WRAPPED_REGEX.matcher(simplifiedStatement).matches()
             || PLSQL_WRAPPED_REGEX.matcher(simplifiedStatement).matches()) {
@@ -165,7 +163,7 @@ public class OracleParser extends Parser {
         if (PLSQL_REGEX.matcher(simplifiedStatement).matches() || PLSQL_PACKAGE_DEFINITION_REGEX.matcher(
             simplifiedStatement).matches() || DECLARE_BEGIN_REGEX.matcher(simplifiedStatement).matches()) {
             try {
-                String wrappedKeyword = " WRAPPED";
+                final String wrappedKeyword = " WRAPPED";
                 if (!reader.peek(wrappedKeyword.length()).equalsIgnoreCase(wrappedKeyword)) {
                     return PLSQL_STATEMENT;
                 }
@@ -186,13 +184,13 @@ public class OracleParser extends Parser {
     }
 
     @Override
-    protected boolean shouldDiscard(Token token, boolean nonCommentPartSeen) {
+    protected boolean shouldDiscard(final Token token, final boolean nonCommentPartSeen) {
         // Discard dangling PL/SQL '/' delimiters
         return ("/".equals(token.getText()) && !nonCommentPartSeen) || super.shouldDiscard(token, nonCommentPartSeen);
     }
 
     @Override
-    protected void adjustDelimiter(ParserContext context, StatementType statementType) {
+    protected void adjustDelimiter(final ParserContext context, final StatementType statementType) {
         if (statementType == PLSQL_STATEMENT
             || statementType == PLSQL_VIEW_STATEMENT
             || statementType == PLSQL_JAVA_STATEMENT
@@ -204,9 +202,9 @@ public class OracleParser extends Parser {
     }
 
     @Override
-    protected boolean shouldAdjustBlockDepth(ParserContext context, List<Token> tokens, Token token) {
+    protected boolean shouldAdjustBlockDepth(final ParserContext context, final List<Token> tokens, final Token token) {
         // Package bodies can have an unbalanced BEGIN without END in the initialisation section.
-        TokenType tokenType = token.getType();
+        final TokenType tokenType = token.getType();
         if (context.getStatementType() == PLSQL_PACKAGE_BODY_STATEMENT && (TokenType.EOF == tokenType
             || TokenType.DELIMITER == tokenType)) {
             return true;
@@ -235,10 +233,13 @@ public class OracleParser extends Parser {
     private static final List<String> CONTROL_FLOW_KEYWORDS = Arrays.asList("IF", "LOOP", "CASE");
 
     @Override
-    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) {
-        TokenType tokenType = keyword.getType();
-        String keywordText = keyword.getText();
-        int parensDepth = keyword.getParensDepth();
+    protected void adjustBlockDepth(final ParserContext context,
+        final List<Token> tokens,
+        final Token keyword,
+        final PeekingReader reader) {
+        final TokenType tokenType = keyword.getType();
+        final String keywordText = keyword.getText();
+        final int parensDepth = keyword.getParensDepth();
 
         if (lastTokenIs(tokens, parensDepth, "GOTO")) {
             return;
@@ -296,10 +297,10 @@ public class OracleParser extends Parser {
         }
     }
 
-    private boolean precedingEndAttachesToThisKeyword(List<Token> tokens,
-        int parensDepth,
-        ParserContext context,
-        Token keyword) {
+    private boolean precedingEndAttachesToThisKeyword(final List<Token> tokens,
+        final int parensDepth,
+        final ParserContext context,
+        final Token keyword) {
         // Normally IF, LOOP and CASE all pair up with END IF, END LOOP, END CASE
         // However, CASE ... END is valid in expressions, so in code such as
         //      FOR i IN 1 .. CASE WHEN foo THEN 5 ELSE 6 END
@@ -313,20 +314,20 @@ public class OracleParser extends Parser {
     }
 
     @Override
-    protected boolean doTokensMatchPattern(List<Token> previousTokens, Token current, Pattern regex) {
+    protected boolean doTokensMatchPattern(final List<Token> previousTokens, final Token current, final Pattern regex) {
         if (regex == PLSQL_PACKAGE_DEFINITION_REGEX && previousTokens.stream()
             .anyMatch(t -> t.getType() == TokenType.KEYWORD && t.getText().equalsIgnoreCase("ACCESSIBLE"))) {
-            ArrayList<String> tokenStrings = new ArrayList<>();
+            final ArrayList<String> tokenStrings = new ArrayList<>();
             tokenStrings.add(current.getText());
 
             for (int i = previousTokens.size() - 1; i >= 0; i--) {
-                Token prevToken = previousTokens.get(i);
+                final Token prevToken = previousTokens.get(i);
                 if (prevToken.getType() == TokenType.KEYWORD) {
                     tokenStrings.add(prevToken.getText());
                 }
             }
 
-            StringBuilder builder = new StringBuilder();
+            final StringBuilder builder = new StringBuilder();
             for (int i = tokenStrings.size() - 1; i >= 0; i--) {
                 builder.append(tokenStrings.get(i));
                 if (i != 0) {
@@ -343,8 +344,11 @@ public class OracleParser extends Parser {
     }
 
     @Override
-    protected boolean isDelimiter(String peek, ParserContext context, int col, int colIgnoringWhitespace) {
-        Delimiter delimiter = context.getDelimiter();
+    protected boolean isDelimiter(final String peek,
+        final ParserContext context,
+        final int col,
+        final int colIgnoringWhitespace) {
+        final Delimiter delimiter = context.getDelimiter();
 
         if (peek.startsWith(delimiter.getEscape() + delimiter.getDelimiter())) {
             return true;
@@ -364,17 +368,23 @@ public class OracleParser extends Parser {
     }
 
     @Override
-    protected Token handleMultilineComment(PeekingReader reader, ParserContext context, int pos, int line, int col)
-        throws IOException {
+    protected Token handleMultilineComment(final PeekingReader reader,
+        final ParserContext context,
+        final int pos,
+        final int line,
+        final int col) throws IOException {
         reader.swallow("/*".length());
-        String text = reader.readUntilExcluding("*/");
+        final String text = reader.readUntilExcluding("*/");
         reader.swallow("*/".length());
         return new Token(TokenType.COMMENT, pos, line, col, text, text, context.getParensDepth());
     }
 
     @Override
-    protected Token handleDelimiter(PeekingReader reader, ParserContext context, int pos, int line, int col)
-        throws IOException {
+    protected Token handleDelimiter(final PeekingReader reader,
+        final ParserContext context,
+        final int pos,
+        final int line,
+        final int col) throws IOException {
         if (reader.peek('/')) {
             reader.swallow(1);
             return new Token(TokenType.DELIMITER, pos, line, col, "/", "/", context.getParensDepth());
@@ -384,30 +394,30 @@ public class OracleParser extends Parser {
     }
 
     @Override
-    protected boolean isAlternativeStringLiteral(String peek) {
+    protected boolean isAlternativeStringLiteral(final String peek) {
         if (peek.length() < 3) {
             return false;
         }
         // Oracle's quoted-literal syntax is introduced by q (case-insensitive) followed by a literal surrounded by
         // any of !!, [], {}, (), <> provided the selected pair do not appear in the literal string; the others may do.
-        char firstChar = peek.charAt(0);
+        final char firstChar = peek.charAt(0);
         return (firstChar == 'q' || firstChar == 'Q') && peek.charAt(1) == '\'';
     }
 
     @Override
-    protected Token handleAlternativeStringLiteral(PeekingReader reader,
-        ParserContext context,
-        int pos,
-        int line,
-        int col) throws IOException {
+    protected Token handleAlternativeStringLiteral(final PeekingReader reader,
+        final ParserContext context,
+        final int pos,
+        final int line,
+        final int col) throws IOException {
         reader.swallow(2);
-        String closeQuote = computeAlternativeCloseQuote((char) reader.read());
+        final String closeQuote = computeAlternativeCloseQuote((char) reader.read());
         reader.swallowUntilExcluding(closeQuote);
         reader.swallow(closeQuote.length());
         return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
     }
 
-    private String computeAlternativeCloseQuote(char specialChar) {
+    private String computeAlternativeCloseQuote(final char specialChar) {
         return switch (specialChar) {
             case '!' -> "!'";
             case '[' -> "]'";

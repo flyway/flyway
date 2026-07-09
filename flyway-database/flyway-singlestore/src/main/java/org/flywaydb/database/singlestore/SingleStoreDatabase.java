@@ -29,37 +29,42 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class SingleStoreDatabase extends Database<SingleStoreConnection> {
-    public SingleStoreDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+    public SingleStoreDatabase(final Configuration configuration,
+        final JdbcConnectionFactory jdbcConnectionFactory,
+        final StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
     @Override
-    public String getRawCreateScript(Table table, boolean baseline) {
-        return "CREATE " + (getVersion().isAtLeast("7.3") ? "ROWSTORE" : "") +
-                " TABLE " + table +
-                "(\n" +
-                "    `installed_rank` INT NOT NULL,\n" +
-                "    `version` VARCHAR(50),\n" +
-                "    `description` VARCHAR(200) NOT NULL,\n" +
-                "    `type` VARCHAR(20) NOT NULL,\n" +
-                "    `script` VARCHAR(1000) NOT NULL,\n" +
-                "    `checksum` INT,\n" +
-                "    `installed_by` VARCHAR(100) NOT NULL,\n" +
-                "    `installed_on` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
-                "    `execution_time` INT NOT NULL,\n" +
-                "    `success` BOOL NOT NULL,\n" +
-                "    PRIMARY KEY (`installed_rank`),\n" +
-                "    INDEX (`success`)\n" +
-                ");" + (baseline ? getBaselineStatement(table) : "");
+    public String getRawCreateScript(final Table table, final boolean baseline) {
+        return "CREATE "
+            + (getVersion().isAtLeast("7.3") ? "ROWSTORE" : "")
+            + " TABLE "
+            + table
+            + "(\n"
+            + "    `installed_rank` INT NOT NULL,\n"
+            + "    `version` VARCHAR(50),\n"
+            + "    `description` VARCHAR(200) NOT NULL,\n"
+            + "    `type` VARCHAR(20) NOT NULL,\n"
+            + "    `script` VARCHAR(1000) NOT NULL,\n"
+            + "    `checksum` INT,\n"
+            + "    `installed_by` VARCHAR(100) NOT NULL,\n"
+            + "    `installed_on` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n"
+            + "    `execution_time` INT NOT NULL,\n"
+            + "    `success` BOOL NOT NULL,\n"
+            + "    PRIMARY KEY (`installed_rank`),\n"
+            + "    INDEX (`success`)\n"
+            + ");"
+            + (baseline ? getBaselineStatement(table) : "");
     }
 
     @Override
-    protected SingleStoreConnection doGetConnection(Connection connection) {
+    protected SingleStoreConnection doGetConnection(final Connection connection) {
         return new SingleStoreConnection(this, connection);
     }
 
     @Override
-    public void ensureSupported(Configuration configuration) {
+    public void ensureSupported(final Configuration configuration) {
         ensureDatabaseIsRecentEnough("7.1");
     }
 

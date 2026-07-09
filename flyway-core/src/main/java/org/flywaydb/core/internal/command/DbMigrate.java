@@ -70,9 +70,12 @@ public class DbMigrate {
     private final List<ResolvedMigration> appliedResolvedMigrations = new ArrayList<>();
     private final ProgressLogger progress;
 
-    public DbMigrate(Database database,
-                     SchemaHistory schemaHistory, Schema schema, CompositeMigrationResolver migrationResolver,
-                     Configuration configuration, CallbackExecutor callbackExecutor) {
+    public DbMigrate(final Database database,
+        final SchemaHistory schemaHistory,
+        final Schema schema,
+        final CompositeMigrationResolver migrationResolver,
+        final Configuration configuration,
+        final CallbackExecutor callbackExecutor) {
         this.database = database;
         this.connectionUserObjects = database.getMigrationConnection();
         this.schemaHistory = schemaHistory;
@@ -90,24 +93,23 @@ public class DbMigrate {
         callbackExecutor.onMigrateOrUndoEvent(Event.BEFORE_MIGRATE);
 
         migrateResult = CommandResultFactory.createMigrateResult(database.getCatalog(),
-                                                                 database.getDatabaseType().getName(),
-                                                                 configuration);
+            database.getDatabaseType().getName(),
+            configuration);
 
         int count;
         try {
 
             count = configuration.isGroup() ?
-                    // When group is active, start the transaction boundary early to
-                    // ensure that all changes to the schema history table are either committed or rolled back atomically.
-                    schemaHistory.lock(this::migrateAll) :
-                    // For all regular cases, proceed with the migration as usual.
-                    migrateAll();
+                // When group is active, start the transaction boundary early to
+                // ensure that all changes to the schema history table are either committed or rolled back atomically.
+                schemaHistory.lock(this::migrateAll) :
+                // For all regular cases, proceed with the migration as usual.
+                migrateAll();
 
             migrateResult.targetSchemaVersion = getTargetVersion();
             migrateResult.migrationsExecuted = count;
 
             logSummary(count, migrateResult.getTotalMigrationTime(), migrateResult.targetSchemaVersion);
-
         } catch (FlywayException e) {
             callbackExecutor.onMigrateOrUndoEvent(Event.AFTER_MIGRATE_ERROR);
             throw e;
@@ -124,7 +126,7 @@ public class DbMigrate {
     private String getTargetVersion() {
         if (!migrateResult.migrations.isEmpty()) {
             for (int i = migrateResult.migrations.size() - 1; i >= 0; i--) {
-                String targetVersion = migrateResult.migrations.get(i).version;
+                final String targetVersion = migrateResult.migrations.get(i).version;
                 if (!targetVersion.isEmpty()) {
                     return targetVersion;
                 }
@@ -146,11 +148,11 @@ public class DbMigrate {
 
         while (true) {
             final boolean firstRun = total == 0;
-            int count = configuration.isGroup()
-                    // With group active a lock on the schema history table has already been acquired.
-                    ? migrateGroup(firstRun)
-                    // Otherwise acquire the lock now. The lock will be released at the end of each migration.
-                    : schemaHistory.lock(() -> migrateGroup(firstRun));
+            final int count = configuration.isGroup()
+                // With group active a lock on the schema history table has already been acquired.
+                ? migrateGroup(firstRun)
+                // Otherwise acquire the lock now. The lock will be released at the end of each migration.
+                : schemaHistory.lock(() -> migrateGroup(firstRun));
 
             migrateResult.migrationsExecuted += count;
             total += count;
@@ -176,18 +178,24 @@ public class DbMigrate {
      * @param firstRun Whether this is the first time this code runs in this migration run.
      * @return The number of newly applied migrations.
      */
-    private Integer migrateGroup(boolean firstRun) {
-        MigrationInfoServiceImpl infoService =
-                new MigrationInfoServiceImpl(migrationResolver, schemaHistory, database, configuration,
-                                             configuration.getTarget(), configuration.isOutOfOrder(), ValidatePatternUtils.getIgnoreAllPattern());
+    private Integer migrateGroup(final boolean firstRun) {
+        final MigrationInfoServiceImpl infoService = new MigrationInfoServiceImpl(migrationResolver,
+            schemaHistory,
+            database,
+            configuration,
+            configuration.getTarget(),
+            configuration.isOutOfOrder(),
+            ValidatePatternUtils.getIgnoreAllPattern());
         infoService.refresh();
 
-        MigrationInfo current = infoService.current();
-        MigrationVersion currentSchemaVersion = current == null ? MigrationVersion.EMPTY : current.getVersion();
+        final MigrationInfo current = infoService.current();
+        final MigrationVersion currentSchemaVersion = current == null ? MigrationVersion.EMPTY : current.getVersion();
         if (firstRun) {
             LOG.info("Current version of schema " + schema + ": " + currentSchemaVersion);
 
-            MigrationVersion schemaVersionToOutput = currentSchemaVersion == null ? MigrationVersion.EMPTY : currentSchemaVersion;
+            final MigrationVersion schemaVersionToOutput = currentSchemaVersion == null
+                ? MigrationVersion.EMPTY
+                : currentSchemaVersion;
             migrateResult.initialSchemaVersion = schemaVersionToOutput.getVersion();
 
             if (configuration.isOutOfOrder()) {
@@ -195,51 +203,72 @@ public class DbMigrate {
             }
         }
 
-        MigrationInfo[] future = infoService.future();
+        final MigrationInfo[] future = infoService.future();
         if (future.length > 0) {
-            List<MigrationInfo> resolved = Arrays.asList(infoService.resolved());
+            final List<MigrationInfo> resolved = Arrays.asList(infoService.resolved());
             Collections.reverse(resolved);
             if (resolved.isEmpty()) {
-                LOG.error("Schema " + schema + " has version " + currentSchemaVersion
-                                  + ", but no migration could be resolved in the configured locations !");
+                LOG.error("Schema "
+                    + schema
+                    + " has version "
+                    + currentSchemaVersion
+                    + ", but no migration could be resolved in the configured locations !");
             } else {
-                for (MigrationInfo migrationInfo : resolved) {
+                for (final MigrationInfo migrationInfo : resolved) {
                     // Only consider versioned migrations
                     if (migrationInfo.getVersion() != null) {
-                        LOG.warn("Schema " + schema + " has a version (" + currentSchemaVersion
-                                         + ") that is newer than the latest available migration ("
-                                         + migrationInfo.getVersion() + ") !");
+                        LOG.warn("Schema "
+                            + schema
+                            + " has a version ("
+                            + currentSchemaVersion
+                            + ") that is newer than the latest available migration ("
+                            + migrationInfo.getVersion()
+                            + ") !");
                         break;
                     }
                 }
             }
         }
 
-        MigrationInfoImpl[] failed = infoService.failed();
+        final MigrationInfoImpl[] failed = infoService.failed();
         if (failed.length > 0) {
             if ((failed.length == 1)
-                    && (failed[0].getState() == MigrationState.FUTURE_FAILED)
-                    && ValidatePatternUtils.isFutureIgnored(configuration.getIgnoreMigrationPatterns())) {
-                LOG.warn("Schema " + schema + " contains a failed future migration to version " + failed[0].getVersion() + " !");
+                && (failed[0].getState() == MigrationState.FUTURE_FAILED)
+                && ValidatePatternUtils.isFutureIgnored(configuration.getIgnoreMigrationPatterns())) {
+                LOG.warn("Schema "
+                    + schema
+                    + " contains a failed future migration to version "
+                    + failed[0].getVersion()
+                    + " !");
             } else {
                 final boolean inTransaction = failed[0].canExecuteInTransaction();
                 if (failed[0].getVersion() == null) {
-                    throw new FlywayMigrateException(failed[0], "Schema " + schema + " contains a failed repeatable migration (" + doQuote(failed[0].getDescription()) + ") !", inTransaction, migrateResult);
+                    throw new FlywayMigrateException(failed[0],
+                        "Schema "
+                            + schema
+                            + " contains a failed repeatable migration ("
+                            + doQuote(failed[0].getDescription())
+                            + ") !",
+                        inTransaction,
+                        migrateResult);
                 }
-                throw new FlywayMigrateException(failed[0], "Schema " + schema + " contains a failed migration to version " + failed[0].getVersion() + " !", inTransaction, migrateResult);
+                throw new FlywayMigrateException(failed[0],
+                    "Schema " + schema + " contains a failed migration to version " + failed[0].getVersion() + " !",
+                    inTransaction,
+                    migrateResult);
             }
         }
 
         Arrays.stream(infoService.pending()).forEach(migrateResult::putPendingMigration);
 
-        LinkedHashMap<MigrationInfoImpl, Boolean> group = new LinkedHashMap<>();
-        for (MigrationInfoImpl pendingMigration : infoService.pending()) {
+        final LinkedHashMap<MigrationInfoImpl, Boolean> group = new LinkedHashMap<>();
+        for (final MigrationInfoImpl pendingMigration : infoService.pending()) {
             if (appliedResolvedMigrations.contains(pendingMigration.getResolvedMigration())) {
                 continue;
             }
 
-            boolean isOutOfOrder = pendingMigration.getVersion() != null
-                    && pendingMigration.getVersion().compareTo(currentSchemaVersion) < 0;
+            final boolean isOutOfOrder = pendingMigration.getVersion() != null
+                && pendingMigration.getVersion().compareTo(currentSchemaVersion) < 0;
 
             group.put(pendingMigration, isOutOfOrder);
 
@@ -255,40 +284,52 @@ public class DbMigrate {
         return group.size();
     }
 
-    private void logSummary(int migrationSuccessCount, long executionTime, String targetVersion) {
+    private void logSummary(final int migrationSuccessCount, final long executionTime, final String targetVersion) {
         if (migrationSuccessCount == 0) {
             LOG.info("Schema " + schema + " is up to date. No migration necessary.");
             return;
         }
 
-        String targetText = (targetVersion != null) ? ", now at version v" + targetVersion : "";
+        final String targetText = (targetVersion != null) ? ", now at version v" + targetVersion : "";
 
-        String migrationText = "migration" + StringUtils.pluralizeSuffix(migrationSuccessCount);
+        final String migrationText = "migration" + StringUtils.pluralizeSuffix(migrationSuccessCount);
 
-        LOG.info("Successfully applied " + migrationSuccessCount + " " + migrationText + " to schema " + schema
-                         + targetText + " (execution time " + TimeFormat.format(executionTime) + ")");
+        LOG.info("Successfully applied "
+            + migrationSuccessCount
+            + " "
+            + migrationText
+            + " to schema "
+            + schema
+            + targetText
+            + " (execution time "
+            + TimeFormat.format(executionTime)
+            + ")");
     }
 
     /**
      * Applies this migration to the database. The migration state and the execution time are updated accordingly.
      */
-    private void applyMigrations(final LinkedHashMap<MigrationInfoImpl, Boolean> group, boolean skipExecutingMigrations) {
-        boolean executeGroupInTransaction = isExecuteGroupInTransaction(group);
+    private void applyMigrations(final LinkedHashMap<MigrationInfoImpl, Boolean> group,
+        final boolean skipExecutingMigrations) {
+        final boolean executeGroupInTransaction = isExecuteGroupInTransaction(group);
         final StopWatch stopWatch = new StopWatch();
         try {
             if (executeGroupInTransaction) {
-                ExecutionTemplateFactory.createExecutionTemplate(connectionUserObjects.getJdbcConnection(), database).execute(() -> {
-                    doMigrateGroup(group, stopWatch, skipExecutingMigrations, true);
-                    return null;
-                });
+                ExecutionTemplateFactory.createExecutionTemplate(connectionUserObjects.getJdbcConnection(), database)
+                    .execute(() -> {
+                        doMigrateGroup(group, stopWatch, skipExecutingMigrations, true);
+                        return null;
+                    });
             } else {
                 doMigrateGroup(group, stopWatch, skipExecutingMigrations, false);
             }
         } catch (FlywayMigrateException e) {
-            MigrationInfo migration = e.getMigration();
-            String failedMsg = "Migration of " + toMigrationText(migration, e.isExecutableInTransaction(), e.isOutOfOrder()) + " failed!";
+            final MigrationInfo migration = e.getMigration();
+            final String failedMsg = "Migration of " + toMigrationText(migration,
+                e.isExecutableInTransaction(),
+                e.isOutOfOrder()) + " failed!";
             stopWatch.stop();
-            int executionTime = (int) stopWatch.getTotalTimeMillis();
+            final int executionTime = (int) stopWatch.getTotalTimeMillis();
 
             migrateResult.putFailedMigration(migration, executionTime);
 
@@ -297,20 +338,25 @@ public class DbMigrate {
                 migrateResult.markAsRolledBack(group.keySet().stream().toList());
             } else {
                 LOG.error(failedMsg + " Please restore backups and roll back database and code!");
-                schemaHistory.addAppliedMigration(migration.getVersion(), migration.getDescription(),
-                                                  migration.getType(), migration.getScript(), migration.getChecksum(), executionTime, false);
+                schemaHistory.addAppliedMigration(migration.getVersion(),
+                    migration.getDescription(),
+                    migration.getType(),
+                    migration.getScript(),
+                    migration.getChecksum(),
+                    executionTime,
+                    false);
             }
             throw e;
         }
     }
 
-    private boolean isExecuteGroupInTransaction(LinkedHashMap<MigrationInfoImpl, Boolean> group) {
+    private boolean isExecuteGroupInTransaction(final LinkedHashMap<MigrationInfoImpl, Boolean> group) {
         boolean executeGroupInTransaction = true;
         boolean first = true;
 
-        for (Map.Entry<MigrationInfoImpl, Boolean> entry : group.entrySet()) {
-            ResolvedMigration resolvedMigration = entry.getKey().getResolvedMigration();
-            boolean inTransaction = resolvedMigration.getExecutor().canExecuteInTransaction();
+        for (final Map.Entry<MigrationInfoImpl, Boolean> entry : group.entrySet()) {
+            final ResolvedMigration resolvedMigration = entry.getKey().getResolvedMigration();
+            final boolean inTransaction = resolvedMigration.getExecutor().canExecuteInTransaction();
 
             if (first) {
                 executeGroupInTransaction = inTransaction;
@@ -320,13 +366,15 @@ public class DbMigrate {
 
             if (!configuration.isMixed() && executeGroupInTransaction != inTransaction) {
                 throw new FlywayMigrateException(entry.getKey(),
-                                                 "Detected both transactional and non-transactional migrations within the same migration group"
-                                                         + " (even though mixed is false). First offending migration: "
-                                                         + doQuote((resolvedMigration.getVersion() == null ? "" : resolvedMigration.getVersion())
-                                                                           + (StringUtils.hasLength(resolvedMigration.getDescription()) ? " " + resolvedMigration.getDescription() : ""))
-                                                         + (inTransaction ? "" : " [non-transactional]"),
-                                                 inTransaction,
-                                                 migrateResult);
+                    "Detected both transactional and non-transactional migrations within the same migration group"
+                        + " (even though mixed is false). First offending migration: "
+                        + doQuote((resolvedMigration.getVersion() == null ? "" : resolvedMigration.getVersion()) + (
+                        StringUtils.hasLength(resolvedMigration.getDescription())
+                            ? " " + resolvedMigration.getDescription()
+                            : ""))
+                        + (inTransaction ? "" : " [non-transactional]"),
+                    inTransaction,
+                    migrateResult);
             }
 
             executeGroupInTransaction &= inTransaction;
@@ -335,8 +383,11 @@ public class DbMigrate {
         return executeGroupInTransaction;
     }
 
-    private void doMigrateGroup(LinkedHashMap<MigrationInfoImpl, Boolean> group, StopWatch stopWatch, boolean skipExecutingMigrations, boolean isExecuteInTransaction) {
-        Context context = new Context() {
+    private void doMigrateGroup(final LinkedHashMap<MigrationInfoImpl, Boolean> group,
+        final StopWatch stopWatch,
+        final boolean skipExecutingMigrations,
+        final boolean isExecuteInTransaction) {
+        final Context context = new Context() {
             @Override
             public Configuration getConfiguration() {
                 return configuration;
@@ -349,9 +400,9 @@ public class DbMigrate {
         };
 
         progress.pushSteps(group.size());
-        for (Map.Entry<MigrationInfoImpl, Boolean> entry : group.entrySet()) {
+        for (final Map.Entry<MigrationInfoImpl, Boolean> entry : group.entrySet()) {
             final MigrationInfoImpl migration = entry.getKey();
-            boolean isOutOfOrder = entry.getValue();
+            final boolean isOutOfOrder = entry.getValue();
 
             final String migrationText = toMigrationText(migration, migration.canExecuteInTransaction(), isOutOfOrder);
 
@@ -382,7 +433,7 @@ public class DbMigrate {
 
                         // With single connection databases we need to manually disable the transaction for the
                         // migration as it is turned on for schema history changes
-                        boolean oldAutoCommit = context.getConnection().getAutoCommit();
+                        final boolean oldAutoCommit = context.getConnection().getAutoCommit();
                         if (database.useSingleConnection() && !isExecuteInTransaction) {
                             context.getConnection().setAutoCommit(true);
                         }
@@ -394,10 +445,18 @@ public class DbMigrate {
                         appliedResolvedMigrations.add(migration.getResolvedMigration());
                     } catch (FlywayException e) {
                         callbackExecutor.onEachMigrateOrUndoEvent(Event.AFTER_EACH_MIGRATE_ERROR);
-                        throw new FlywayMigrateException(migration, isOutOfOrder, e, migration.canExecuteInTransaction(), migrateResult);
+                        throw new FlywayMigrateException(migration,
+                            isOutOfOrder,
+                            e,
+                            migration.canExecuteInTransaction(),
+                            migrateResult);
                     } catch (SQLException e) {
                         callbackExecutor.onEachMigrateOrUndoEvent(Event.AFTER_EACH_MIGRATE_ERROR);
-                        throw new FlywayMigrateException(migration, isOutOfOrder, e, migration.canExecuteInTransaction(), migrateResult);
+                        throw new FlywayMigrateException(migration,
+                            isOutOfOrder,
+                            e,
+                            migration.canExecuteInTransaction(),
+                            migrateResult);
                     }
 
                     LOG.debug("Successfully completed migration of " + migrationText);
@@ -409,31 +468,41 @@ public class DbMigrate {
             }
 
             stopWatch.stop();
-            int executionTime = (int) stopWatch.getTotalTimeMillis();
+            final int executionTime = (int) stopWatch.getTotalTimeMillis();
 
             migrateResult.migrations.add(CommandResultFactory.createMigrateOutput(migration, executionTime, null));
             migrateResult.putSuccessfulMigration(migration, executionTime);
 
-            schemaHistory.addAppliedMigration(migration.getVersion(), migration.getDescription(), migration.getType(),
-                                              migration.getScript(), migration.getResolvedMigration().getChecksum(), executionTime, true);
+            schemaHistory.addAppliedMigration(migration.getVersion(),
+                migration.getDescription(),
+                migration.getType(),
+                migration.getScript(),
+                migration.getResolvedMigration().getChecksum(),
+                executionTime,
+                true);
         }
     }
 
-    private String toMigrationText(MigrationInfo migration, boolean canExecuteInTransaction, boolean isOutOfOrder) {
+    private String toMigrationText(final MigrationInfo migration,
+        final boolean canExecuteInTransaction,
+        final boolean isOutOfOrder) {
         final String migrationText;
         if (migration.getVersion() != null) {
             migrationText = "schema " + schema + " to version " + doQuote(migration.getVersion()
-                                                                                  + (StringUtils.hasLength(migration.getDescription()) ? " - " + migration.getDescription() : ""))
-                    + (isOutOfOrder ? " [out of order]" : "")
-                    + (canExecuteInTransaction ? "" : " [non-transactional]");
+                + (StringUtils.hasLength(migration.getDescription()) ? " - " + migration.getDescription() : "")) + (
+                isOutOfOrder
+                    ? " [out of order]"
+                    : "") + (canExecuteInTransaction ? "" : " [non-transactional]");
         } else {
-            migrationText = "schema " + schema + " with repeatable migration " + doQuote(migration.getDescription())
-                    + (canExecuteInTransaction ? "" : " [non-transactional]");
+            migrationText = "schema " + schema + " with repeatable migration " + doQuote(migration.getDescription()) + (
+                canExecuteInTransaction
+                    ? ""
+                    : " [non-transactional]");
         }
         return migrationText;
     }
 
-    private String doQuote(String text) {
+    private String doQuote(final String text) {
         return "\"" + text + "\"";
     }
 }

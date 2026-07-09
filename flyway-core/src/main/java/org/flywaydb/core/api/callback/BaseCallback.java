@@ -25,12 +25,12 @@ package org.flywaydb.core.api.callback;
  */
 public abstract class BaseCallback implements Callback {
     @Override
-    public boolean supports(Event event, Context context) {
+    public boolean supports(final Event event, final Context context) {
         return true;
     }
 
     @Override
-    public boolean canHandleInTransaction(Event event, Context context) {
+    public boolean canHandleInTransaction(final Event event, final Context context) {
         return true;
     }
 

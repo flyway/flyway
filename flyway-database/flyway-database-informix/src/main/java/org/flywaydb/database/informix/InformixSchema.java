@@ -34,10 +34,10 @@ public class InformixSchema extends Schema<InformixDatabase, InformixTable> {
      * Creates a new Informix schema.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database The database-specific support.
-     * @param name The name of the schema.
+     * @param database     The database-specific support.
+     * @param name         The name of the schema.
      */
-    InformixSchema(JdbcTemplate jdbcTemplate, InformixDatabase database, String name) {
+    InformixSchema(final JdbcTemplate jdbcTemplate, final InformixDatabase database, final String name) {
         super(jdbcTemplate, database, name);
     }
 
@@ -62,32 +62,37 @@ public class InformixSchema extends Schema<InformixDatabase, InformixTable> {
 
     @Override
     protected void doClean() throws SQLException {
-        List<String> procedures = jdbcTemplate.queryForStringList("SELECT t.procname FROM \"informix\".sysprocedures AS t" +
-                                                                          " WHERE t.owner=? AND t.mode='O' AND t.externalname IS NULL" +
-                                                                          " AND t.procname NOT IN (" +
-                                                                          // Exclude Informix TimeSeries procs
-                                                                          " 'tscontainerusage', 'tscontainertotalused', 'tscontainertotalpages'," +
-                                                                          " 'tscontainernelems', 'tscontainerpctused', 'tsl_flushstatus', 'tsmakenullstamp'" +
-                                                                          ")", name);
-        for (String procedure : procedures) {
+        final List<String> procedures = jdbcTemplate.queryForStringList(
+            "SELECT t.procname FROM \"informix\".sysprocedures AS t"
+                + " WHERE t.owner=? AND t.mode='O' AND t.externalname IS NULL"
+                + " AND t.procname NOT IN ("
+                +
+                // Exclude Informix TimeSeries procs
+                " 'tscontainerusage', 'tscontainertotalused', 'tscontainertotalpages',"
+                + " 'tscontainernelems', 'tscontainerpctused', 'tsl_flushstatus', 'tsmakenullstamp'"
+                + ")",
+            name);
+        for (final String procedure : procedures) {
             jdbcTemplate.execute("DROP PROCEDURE " + procedure);
         }
 
-        for (Table table : allTables()) {
+        for (final Table table : allTables()) {
             table.drop();
         }
 
-        List<String> sequences = jdbcTemplate.queryForStringList("SELECT t.tabname FROM \"informix\".systables AS t" +
-                                                                         " WHERE owner=? AND t.tabid > 99 AND t.tabtype='Q'" +
-                                                                         " AND t.tabname NOT IN ('iot_data_seq')", name);
-        for (String sequence : sequences) {
+        final List<String> sequences = jdbcTemplate.queryForStringList(
+            "SELECT t.tabname FROM \"informix\".systables AS t"
+                + " WHERE owner=? AND t.tabid > 99 AND t.tabtype='Q'"
+                + " AND t.tabname NOT IN ('iot_data_seq')",
+            name);
+        for (final String sequence : sequences) {
             jdbcTemplate.execute("DROP SEQUENCE " + sequence);
         }
     }
 
-    private InformixTable[] findTables(String sqlQuery, String... params) throws SQLException {
-        List<String> tableNames = jdbcTemplate.queryForStringList(sqlQuery, params);
-        InformixTable[] tables = new InformixTable[tableNames.size()];
+    private InformixTable[] findTables(final String sqlQuery, String... params) throws SQLException {
+        final List<String> tableNames = jdbcTemplate.queryForStringList(sqlQuery, params);
+        final InformixTable[] tables = new InformixTable[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new InformixTable(jdbcTemplate, database, this, tableNames.get(i));
         }
@@ -96,18 +101,19 @@ public class InformixSchema extends Schema<InformixDatabase, InformixTable> {
 
     @Override
     protected InformixTable[] doAllTables() throws SQLException {
-        return findTables("SELECT t.tabname FROM \"informix\".systables AS t" +
-                                  " WHERE owner=? AND t.tabid > 99 AND t.tabtype='T'" +
-                                  " AND t.tabname NOT IN (" +
-                                  // Exclude Informix TimeSeries tables
-                                  " 'calendarpatterns', 'calendartable'," +
-                                  " 'tscontainertable', 'tscontainerwindowtable', 'tsinstancetable', " +
-                                  " 'tscontainerusageactivewindowvti', 'tscontainerusagedormantwindowvti'" +
-                                  ")", name);
+        return findTables("SELECT t.tabname FROM \"informix\".systables AS t"
+            + " WHERE owner=? AND t.tabid > 99 AND t.tabtype='T'"
+            + " AND t.tabname NOT IN ("
+            +
+            // Exclude Informix TimeSeries tables
+            " 'calendarpatterns', 'calendartable',"
+            + " 'tscontainertable', 'tscontainerwindowtable', 'tsinstancetable', "
+            + " 'tscontainerusageactivewindowvti', 'tscontainerusagedormantwindowvti'"
+            + ")", name);
     }
 
     @Override
-    public Table getTable(String tableName) {
+    public Table getTable(final String tableName) {
         return new InformixTable(jdbcTemplate, database, this, tableName);
     }
 }

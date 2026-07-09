@@ -53,9 +53,8 @@ public class VersionPrinter {
 
     private static String readVersion() {
         try {
-            return FileUtils.copyToString(
-                    VersionPrinter.class.getClassLoader().getResourceAsStream("org/flywaydb/core/internal/version.txt"),
-                    StandardCharsets.UTF_8);
+            return FileUtils.copyToString(VersionPrinter.class.getClassLoader()
+                .getResourceAsStream("org/flywaydb/core/internal/version.txt"), StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new FlywayException("Unable to read Flyway version: " + e.getMessage(), e);
         }

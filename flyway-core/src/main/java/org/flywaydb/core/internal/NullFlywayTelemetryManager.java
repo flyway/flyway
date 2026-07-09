@@ -69,17 +69,17 @@ public class NullFlywayTelemetryManager implements FlywayTelemetryManager {
 
     }
 
-    public void notifyNativeConnectorsModeModeChanged(boolean nativeConnectorsMode) {
+    public void notifyNativeConnectorsModeModeChanged(final boolean nativeConnectorsMode) {
 
     }
 
     @Override
-    public void notifyUserIdChanged(String hashedUserId) {
+    public void notifyUserIdChanged(final String hashedUserId) {
 
     }
 
     @Override
-    public void notifyOrganizationIdChanged(String hashedOrgUuid) {
+    public void notifyOrganizationIdChanged(final String hashedOrgUuid) {
 
     }
 

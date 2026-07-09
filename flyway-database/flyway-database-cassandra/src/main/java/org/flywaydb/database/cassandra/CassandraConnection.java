@@ -24,13 +24,11 @@ import org.flywaydb.core.internal.database.base.Schema;
 
 import java.sql.SQLException;
 
-import static org.flywaydb.core.internal.logging.PreviewFeatureWarning.logPreviewFeature;
-
 public class CassandraConnection extends Connection<CassandraDatabase> {
 
     private static final String DEFAULT_KEYSPACE = "system";
 
-    protected CassandraConnection(CassandraDatabase database, java.sql.Connection connection) {
+    protected CassandraConnection(final CassandraDatabase database, final java.sql.Connection connection) {
         super(database, connection);
     }
 
@@ -40,12 +38,12 @@ public class CassandraConnection extends Connection<CassandraDatabase> {
     }
 
     @Override
-    public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
+    public void doChangeCurrentSchemaOrSearchPathTo(final String schema) throws SQLException {
         jdbcTemplate.execute("USE " + database.quote(schema));
     }
 
     @Override
-    public Schema getSchema(String name) {
+    public Schema getSchema(final String name) {
         return new CassandraSchema(jdbcTemplate, database, name);
     }
 }

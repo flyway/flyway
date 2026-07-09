@@ -42,7 +42,7 @@ public class MigrationInfoContext {
     public MigrationVersion lastApplied = MigrationVersion.EMPTY;
     public Map<String, Integer> latestRepeatableRuns = new HashMap<>();
 
-    public MigrationInfoContext(Configuration configuration) {
+    public MigrationInfoContext(final Configuration configuration) {
         this.cherryPick = configuration.getCherryPick();
         this.cherryPickSupport = configuration.getPluginRegister().getInstanceOf(CherryPickSupport.class);
     }
@@ -64,7 +64,7 @@ public class MigrationInfoContext {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }
@@ -72,7 +72,7 @@ public class MigrationInfoContext {
             return false;
         }
 
-        MigrationInfoContext that = (MigrationInfoContext) o;
+        final MigrationInfoContext that = (MigrationInfoContext) o;
 
         if (outOfOrder != that.outOfOrder) {
             return false;

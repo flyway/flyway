@@ -21,10 +21,8 @@ package org.flywaydb.core.internal.scanner;
 
 import org.flywaydb.core.internal.scanner.classpath.ClassPathLocationScanner;
 
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class LocationScannerCache {
 
@@ -33,15 +31,15 @@ public class LocationScannerCache {
      */
     private final Map<String, ClassPathLocationScanner> cache = new HashMap<>();
 
-    public boolean containsKey(String protocol) {
+    public boolean containsKey(final String protocol) {
         return cache.containsKey(protocol);
     }
 
-    public ClassPathLocationScanner get(String protocol) {
+    public ClassPathLocationScanner get(final String protocol) {
         return cache.get(protocol);
     }
 
-    public void put(String protocol, ClassPathLocationScanner scanner) {
+    public void put(final String protocol, final ClassPathLocationScanner scanner) {
         cache.put(protocol, scanner);
     }
 }

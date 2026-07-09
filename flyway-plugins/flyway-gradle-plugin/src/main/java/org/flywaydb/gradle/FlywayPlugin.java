@@ -27,7 +27,7 @@ import org.gradle.api.Project;
  * Registers the plugin's tasks.
  */
 public class FlywayPlugin implements Plugin<Project> {
-    public void apply(Project project) {
+    public void apply(final Project project) {
         project.getExtensions().create("flyway", FlywayExtension.class);
         project.getTasks().register("flywayClean", FlywayCleanTask.class);
         project.getTasks().register("flywayBaseline", FlywayBaselineTask.class);

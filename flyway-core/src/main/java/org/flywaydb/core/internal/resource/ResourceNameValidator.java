@@ -26,7 +26,6 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.api.resource.Resource;
 import org.flywaydb.core.internal.database.DatabaseType;
-import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.util.ArrayList;
@@ -38,23 +37,25 @@ public class ResourceNameValidator {
     /**
      * Validates the names of all SQL resources returned by the ResourceProvider
      *
-     * @param provider The ResourceProvider to validate
+     * @param provider      The ResourceProvider to validate
      * @param configuration The configuration to use
      */
-    public void validateSQLMigrationNaming(ResourceProvider provider, Configuration configuration, DatabaseType databaseType) {
+    public void validateSQLMigrationNaming(final ResourceProvider provider,
+        final Configuration configuration,
+        final DatabaseType databaseType) {
 
-        List<String> errorsFound = new ArrayList<>();
-        ResourceNameParser resourceNameParser = new ResourceNameParser(configuration);
+        final List<String> errorsFound = new ArrayList<>();
+        final ResourceNameParser resourceNameParser = new ResourceNameParser(configuration);
 
-        for (Resource resource : getAllSqlResources(provider, configuration)) {
-            String filename = resource.getFilename();
+        for (final Resource resource : getAllSqlResources(provider, configuration)) {
+            final String filename = resource.getFilename();
             LOG.debug("Validating " + filename);
             // Filter out special purpose files that the parser will not identify.
             if (isSpecialResourceFile(configuration, filename, databaseType)) {
                 continue;
             }
 
-            ResourceName result = resourceNameParser.parse(filename);
+            final ResourceName result = resourceNameParser.parse(filename);
             if (!result.isValid()) {
                 errorsFound.add(result.getValidityMessage());
             }
@@ -62,19 +63,25 @@ public class ResourceNameValidator {
 
         if (!errorsFound.isEmpty()) {
             if (configuration.isValidateMigrationNaming()) {
-                throw new FlywayException("Invalid SQL filenames found:\r\n" + StringUtils.collectionToDelimitedString(errorsFound, "\r\n"));
+                throw new FlywayException("Invalid SQL filenames found:\r\n" + StringUtils.collectionToDelimitedString(
+                    errorsFound,
+                    "\r\n"));
             } else {
-                LOG.info(errorsFound.size() + " SQL migrations were detected but not run because they did not follow the filename convention.");
+                LOG.info(errorsFound.size()
+                    + " SQL migrations were detected but not run because they did not follow the filename convention.");
                 LOG.info("Set 'validateMigrationNaming' to true to fail fast and see a list of the invalid file names.");
             }
         }
     }
 
-    private Collection<LoadableResource> getAllSqlResources(ResourceProvider provider, Configuration configuration) {
+    private Collection<LoadableResource> getAllSqlResources(final ResourceProvider provider,
+        final Configuration configuration) {
         return provider.getResources("", configuration.getSqlMigrationSuffixes());
     }
 
-    private boolean isSpecialResourceFile(Configuration configuration, String filename, DatabaseType databaseType) {
+    private boolean isSpecialResourceFile(final Configuration configuration,
+        final String filename,
+        final DatabaseType databaseType) {
         return databaseType != null && databaseType.getSpecialResourceFilenames(configuration)
             .contains(filename.toLowerCase());
     }

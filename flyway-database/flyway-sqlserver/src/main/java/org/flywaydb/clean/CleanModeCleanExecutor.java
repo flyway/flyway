@@ -36,12 +36,19 @@ import java.util.List;
 public class CleanModeCleanExecutor extends CleanExecutor {
     private final String cleanMode;
 
-    public CleanModeCleanExecutor(Connection connection, Database database, SchemaHistory schemaHistory, CallbackExecutor<Event> callbackExecutor, String cleanMode) {
+    public CleanModeCleanExecutor(final Connection connection,
+        final Database database,
+        final SchemaHistory schemaHistory,
+        final CallbackExecutor<Event> callbackExecutor,
+        final String cleanMode) {
         super(connection, database, schemaHistory, callbackExecutor);
         this.cleanMode = cleanMode;
     }
 
-    public void clean(Schema defaultSchema, Schema[] schemas, CleanResult cleanResult, List<String> dropSchemas) {
+    public void clean(final Schema defaultSchema,
+        final Schema[] schemas,
+        final CleanResult cleanResult,
+        final List<String> dropSchemas) {
         try {
             connection.changeCurrentSchemaTo(defaultSchema);
             clean(schemas, cleanResult, dropSchemas);
@@ -52,7 +59,7 @@ public class CleanModeCleanExecutor extends CleanExecutor {
     }
 
     @Override
-    protected void doCleanSchema(Schema schema) {
+    protected void doCleanSchema(final Schema schema) {
         if (Mode.ALL.name().equalsIgnoreCase(cleanMode)) {
             new PlainExecutionTemplate(true).execute(() -> {
                 schema.clean();

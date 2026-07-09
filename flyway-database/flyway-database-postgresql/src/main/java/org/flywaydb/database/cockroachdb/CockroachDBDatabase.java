@@ -40,41 +40,49 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
 
     private final MigrationVersion determinedVersion;
 
-    public CockroachDBDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+    public CockroachDBDatabase(final Configuration configuration,
+        final JdbcConnectionFactory jdbcConnectionFactory,
+        final StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
         this.determinedVersion = rawDetermineVersion(jdbcConnectionFactory.getDatabaseType());
     }
 
     @Override
-    protected CockroachDBConnection doGetConnection(Connection connection) {
+    protected CockroachDBConnection doGetConnection(final Connection connection) {
         return new CockroachDBConnection(this, connection);
     }
 
     @Override
-    public void ensureSupported(Configuration configuration) {
+    public void ensureSupported(final Configuration configuration) {
         ensureDatabaseIsRecentEnough("1.1");
         recommendFlywayUpgradeIfNecessary("26.1");
     }
 
     @Override
-    public String getRawCreateScript(Table table, boolean baseline) {
-        return "CREATE TABLE IF NOT EXISTS " + table + " (\n" +
-                "    \"installed_rank\" INT NOT NULL PRIMARY KEY,\n" +
-                "    \"version\" VARCHAR(50),\n" +
-                "    \"description\" VARCHAR(200) NOT NULL,\n" +
-                "    \"type\" VARCHAR(20) NOT NULL,\n" +
-                "    \"script\" VARCHAR(1000) NOT NULL,\n" +
-                "    \"checksum\" INTEGER,\n" +
-                "    \"installed_by\" VARCHAR(100) NOT NULL,\n" +
-                "    \"installed_on\" TIMESTAMP NOT NULL DEFAULT now(),\n" +
-                "    \"execution_time\" INTEGER NOT NULL,\n" +
-                "    \"success\" BOOLEAN NOT NULL\n" +
-                ");\n" +
-                (baseline ? getBaselineStatement(table) + ";\n" : "") +
-                "CREATE INDEX IF NOT EXISTS \"" + table.getName() + "_s_idx\" ON " + table + " (\"success\");";
+    public String getRawCreateScript(final Table table, final boolean baseline) {
+        return "CREATE TABLE IF NOT EXISTS "
+            + table
+            + " (\n"
+            + "    \"installed_rank\" INT NOT NULL PRIMARY KEY,\n"
+            + "    \"version\" VARCHAR(50),\n"
+            + "    \"description\" VARCHAR(200) NOT NULL,\n"
+            + "    \"type\" VARCHAR(20) NOT NULL,\n"
+            + "    \"script\" VARCHAR(1000) NOT NULL,\n"
+            + "    \"checksum\" INTEGER,\n"
+            + "    \"installed_by\" VARCHAR(100) NOT NULL,\n"
+            + "    \"installed_on\" TIMESTAMP NOT NULL DEFAULT now(),\n"
+            + "    \"execution_time\" INTEGER NOT NULL,\n"
+            + "    \"success\" BOOLEAN NOT NULL\n"
+            + ");\n"
+            + (baseline ? getBaselineStatement(table) + ";\n" : "")
+            + "CREATE INDEX IF NOT EXISTS \""
+            + table.getName()
+            + "_s_idx\" ON "
+            + table
+            + " (\"success\");";
     }
 
-    private MigrationVersion rawDetermineVersion(DatabaseType databaseType) {
+    private MigrationVersion rawDetermineVersion(final DatabaseType databaseType) {
         final String version;
         try {
             // Use rawMainJdbcConnection to avoid infinite recursion.
@@ -86,14 +94,13 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
                 throw new FlywayException("Unable to determine CockroachDB version");
             }
             version = matcher.group();
-
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine CockroachDB version", e);
         }
-        int firstDot = version.indexOf(".");
-        int majorVersion = Integer.parseInt(version.substring(1, firstDot));
-        String minorPatch = version.substring(firstDot + 1);
-        int minorVersion = Integer.parseInt(minorPatch.substring(0, minorPatch.indexOf(".")));
+        final int firstDot = version.indexOf(".");
+        final int majorVersion = Integer.parseInt(version.substring(1, firstDot));
+        final String minorPatch = version.substring(firstDot + 1);
+        final int minorVersion = Integer.parseInt(minorPatch.substring(0, minorPatch.indexOf(".")));
         return MigrationVersion.fromVersion(majorVersion + "." + minorVersion);
     }
 
@@ -124,8 +131,10 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
     }
 
     @Override
-    public String doQuote(String identifier) {
-        return getOpenQuote() + StringUtils.replaceAll(identifier, getCloseQuote(), getEscapedQuote()) + getCloseQuote();
+    public String doQuote(final String identifier) {
+        return getOpenQuote()
+            + StringUtils.replaceAll(identifier, getCloseQuote(), getEscapedQuote())
+            + getCloseQuote();
     }
 
     @Override

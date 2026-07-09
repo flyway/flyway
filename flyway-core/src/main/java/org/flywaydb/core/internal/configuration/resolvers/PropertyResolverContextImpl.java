@@ -59,8 +59,7 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
         this.resolverConfigurations = Optional.ofNullable(resolverConfigurations).orElseGet(Map::of);
     }
 
-    public PropertyResolverContextImpl(
-        final Configuration configuration,
+    public PropertyResolverContextImpl(final Configuration configuration,
         final Map<String, PropertyResolver> resolvers) {
         this.environmentName = null;
         this.configuration = configuration;
@@ -77,9 +76,9 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
     public ConfigurationExtension getResolverConfigurationOrThrow(final String resolverName) {
         return Optional.ofNullable(getResolverConfiguration(resolverName))
             .orElseThrow(() -> new FlywayException("Required configuration not defined for resolver/provisioner \""
-                + resolverName + "\""
-                + (environmentName != null ? " for environment " + environmentName : ""),
-                CoreErrorCode.CONFIGURATION));
+                + resolverName
+                + "\""
+                + (environmentName != null ? " for environment " + environmentName : ""), CoreErrorCode.CONFIGURATION));
     }
 
     @Override
@@ -95,7 +94,7 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
     @Override
     public String getWorkingDirectory() {
         final var workingDirectory = configuration.getWorkingDirectory();
-        if(workingDirectory == null) {
+        if (workingDirectory == null) {
             return System.getProperty("user.dir");
         } else {
             return workingDirectory;
@@ -118,14 +117,18 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
         if (hasNestedResolvers(value)) {
             throw new FlywayException("Resolvers cannot be nested: " + value, CoreErrorCode.CONFIGURATION);
         }
-        return RESOLVER_REGEX_PATTERN.matcher(value.strip()).replaceAll(m -> getPropertyResolverReplacement(m, progress));
+        return RESOLVER_REGEX_PATTERN.matcher(value.strip())
+            .replaceAll(m -> getPropertyResolverReplacement(m, progress));
     }
 
     @Override
     public String resolveValueOrThrow(final String input, final ProgressLogger progress, final String propertyName) {
         final var result = resolveValue(input, progress);
         if (result == null) {
-            throw new FlywayException("Configuration value " + propertyName + " not specified for environment " + environmentName, CoreErrorCode.CONFIGURATION);
+            throw new FlywayException("Configuration value "
+                + propertyName
+                + " not specified for environment "
+                + environmentName, CoreErrorCode.CONFIGURATION);
         }
         return result;
     }
@@ -142,11 +145,11 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
         return VERBATIM_REGEX_PATTERN.matcher(value.strip()).matches();
     }
 
-    private String getPropertyResolverReplacement(final MatchResult resolverMatchResult, final ProgressLogger progress) {
+    private String getPropertyResolverReplacement(final MatchResult resolverMatchResult,
+        final ProgressLogger progress) {
         // '\' are ignored by Matcher and '$' will break it so both need escaping with '\'.
         // See https://docs.oracle.com/javase/8/docs/api/java/util/regex/Matcher.html#replaceAll-java.lang.String-
-        return parsePropertyResolver(resolverMatchResult, progress)
-            .replaceAll("\\\\", "\\\\\\\\")
+        return parsePropertyResolver(resolverMatchResult, progress).replaceAll("\\\\", "\\\\\\\\")
             .replaceAll("\\$", "\\\\\\$");
     }
 
@@ -160,22 +163,24 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
         final String resolverName = resolverMatch.substring(2, resolverMatch.indexOf(".")).strip();
 
         // Find resolver case-insensitively
-        final PropertyResolver resolver = resolvers.entrySet().stream()
+        final PropertyResolver resolver = resolvers.entrySet()
+            .stream()
             .filter(entry -> entry.getKey().equalsIgnoreCase(resolverName))
             .map(Map.Entry::getValue)
             .findFirst()
             .orElse(null);
 
         if (resolver == null) {
-            throw new FlywayException("Unknown resolver '" + resolverName + "'"
-                + (environmentName != null ? " for environment " + environmentName : ""),
-                CoreErrorCode.CONFIGURATION);
+            throw new FlywayException("Unknown resolver '" + resolverName + "'" + (environmentName != null ?
+                " for environment "
+                    + environmentName : ""), CoreErrorCode.CONFIGURATION);
         }
 
         final String resolverParam;
         if (resolverMatch.contains(":")) {
             resolverParam = resolverMatch.substring(resolverMatch.indexOf(".") + 1, resolverMatch.indexOf(":")).strip();
-            final String filter = resolverMatch.substring(resolverMatch.indexOf(":") + 1, resolverMatch.length() - 1).strip();
+            final String filter = resolverMatch.substring(resolverMatch.indexOf(":") + 1, resolverMatch.length() - 1)
+                .strip();
             return filter(resolver.resolve(resolverParam, this, progress), filter);
         }
 
@@ -184,16 +189,19 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
     }
 
     static String filter(final String str, final String filter) {
-        return str.chars().filter(c -> isAllowed((char) c, filter))
-                  .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
-                  .toString();
+        return str.chars()
+            .filter(c -> isAllowed((char) c, filter))
+            .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+            .toString();
     }
 
     private static boolean isAllowed(final char c, final String filter) {
-        return (filter.contains("D") && Character.isDigit(c)) ||
-                (filter.contains("A") && Character.isLetter(c)) ||
-                (filter.contains("a") && Character.isLetter(c) && ASCII_ENCODER.canEncode(c)) ||
-                (filter.contains("d") && Character.isDigit(c) && ASCII_ENCODER.canEncode(c));
+        return (filter.contains("D") && Character.isDigit(c)) || (filter.contains("A") && Character.isLetter(c)) || (
+            filter.contains("a")
+                && Character.isLetter(c)
+                && ASCII_ENCODER.canEncode(c)) || (filter.contains("d")
+            && Character.isDigit(c)
+            && ASCII_ENCODER.canEncode(c));
     }
 
     private static boolean hasNestedResolvers(final String value) {

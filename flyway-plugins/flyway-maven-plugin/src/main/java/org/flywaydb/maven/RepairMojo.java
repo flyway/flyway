@@ -31,14 +31,11 @@ import org.flywaydb.core.Flyway;
  * <li>Realign the checksums, descriptions and types of the applied migrations with the ones of the available migrations</li>
  * </ul>
  */
-@SuppressWarnings({"UnusedDeclaration", "JavaDoc"})
-@Mojo(name = "repair",
-        requiresDependencyResolution = ResolutionScope.TEST,
-        defaultPhase = LifecyclePhase.PRE_INTEGRATION_TEST,
-        threadSafe = true)
+@SuppressWarnings({ "UnusedDeclaration", "JavaDoc" })
+@Mojo(name = "repair", requiresDependencyResolution = ResolutionScope.TEST, defaultPhase = LifecyclePhase.PRE_INTEGRATION_TEST, threadSafe = true)
 public class RepairMojo extends AbstractFlywayMojo {
     @Override
-    protected void doExecute(Flyway flyway) {
+    protected void doExecute(final Flyway flyway) {
         flyway.repair();
     }
 }

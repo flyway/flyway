@@ -43,12 +43,11 @@ public abstract class LoadableResource implements Resource, Comparable<LoadableR
     }
 
     @Override
-    public int compareTo(LoadableResource o) {
+    public int compareTo(final LoadableResource o) {
         return getRelativePath().compareTo(o.getRelativePath());
     }
 
-    public static LoadableResource createPlaceholderReplacingLoadableResource(
-        final LoadableResource loadableResource,
+    public static LoadableResource createPlaceholderReplacingLoadableResource(final LoadableResource loadableResource,
         final Configuration configuration,
         final ParsingContext parsingContext) {
 

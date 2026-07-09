@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.CustomLog;
+import org.flywaydb.core.ProgressLogger;
 import org.flywaydb.core.api.CoreMigrationType;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
@@ -61,7 +62,8 @@ public class VerbUtils {
     private static boolean databaseInfoPrinted;
 
     public static Collection<LoadableResourceMetadata> scanForResources(final Configuration configuration,
-        final ParsingContext parsingContext, final Location[] locations) {
+        final ParsingContext parsingContext,
+        final Location[] locations) {
         final MigrationScannerManager scannerManager = new MigrationScannerManager(configuration);
         return scannerManager.scan(configuration, parsingContext, locations);
     }
@@ -71,18 +73,15 @@ public class VerbUtils {
         return database.getSchemaHistoryModel(configuration.getTable());
     }
 
-    public static NativeConnectorsDatabase getNativeConnectorsDatabase(final Configuration configuration) throws SQLException {
-        final NativeConnectorsDatabase database = resolveAndVerifyNativeConnectorsDatabasePlugin(
-            configuration).orElseThrow(
+    public static NativeConnectorsDatabase getNativeConnectorsDatabase(final Configuration configuration)
+        throws SQLException {
+        final NativeConnectorsDatabase database = resolveAndVerifyNativeConnectorsDatabasePlugin(configuration).orElseThrow(
             () -> new FlywayException("No Native Connectors database plugin found for the designated database"));
 
-        database.initialize(getResolvedEnvironment(configuration), configuration);
+        database.initialize(getResolvedEnvironment(configuration, null), configuration);
         if (!databaseInfoPrinted) {
-            LOG.info("Database: "
-                + database.redactUrl(configuration.getUrl())
-                + " ("
-                + database.getDatabaseMetaData().productName()
-                + ")");
+            LOG.info("Database: " + database.redactUrl(configuration.getUrl()) + " (" + database.getDatabaseMetaData()
+                .productName() + ")");
             databaseInfoPrinted = true;
         }
         return database;
@@ -180,7 +179,7 @@ public class VerbUtils {
     private static LoadableResourceMetadata getTypedMigration(final Configuration configuration,
         final LoadableResourceMetadata sortedMigration) {
 
-        MigrationType migrationType = getMigrationType(sortedMigration.loadableResource(), configuration);
+        final MigrationType migrationType = getMigrationType(sortedMigration.loadableResource(), configuration);
 
         if (migrationType == null) {
             return null;
@@ -200,12 +199,13 @@ public class VerbUtils {
         return resolver.resolveMigrationType(resource.getFilename(), configuration);
     }
 
-    private static ResolvedEnvironment getResolvedEnvironment(final Configuration configuration) {
+    public static ResolvedEnvironment getResolvedEnvironment(final Configuration configuration,
+        final ProgressLogger progress) {
         final String envName = configuration.getCurrentEnvironmentName();
         final String envProvisionMode = configuration.getModernConfig().getFlyway().getProvisionMode();
         final ProvisionerMode provisionerMode = StringUtils.hasText(envProvisionMode) ? ProvisionerMode.fromString(
             envProvisionMode) : ProvisionerMode.Provision;
-        final ResolvedEnvironment resolved = configuration.getResolvedEnvironment(envName, provisionerMode, null);
+        final ResolvedEnvironment resolved = configuration.getResolvedEnvironment(envName, provisionerMode, progress);
         if (resolved == null) {
             throw new FlywayException("Environment '"
                 + envName
@@ -249,12 +249,12 @@ public class VerbUtils {
     private static void insertResolvedMigrations(final Iterable<LoadableResourceMetadata> resolvedMigrations,
         final List<Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> migrations) {
         resolvedMigrations.forEach(resolvedMigration -> {
-            List<Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> matchedMigrations = findMigrationsByResourceMetadata(
+            final List<Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> matchedMigrations = findMigrationsByResourceMetadata(
                 migrations,
                 resolvedMigration);
 
             if (!matchedMigrations.isEmpty()) {
-                for (Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata> migration : matchedMigrations) {
+                for (final Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata> migration : matchedMigrations) {
                     migrations.add(Pair.of(migration.getLeft(), resolvedMigration));
                     migrations.remove(migration);
                 }
@@ -329,5 +329,4 @@ public class VerbUtils {
                 .noneMatch(pattern -> pattern.matchesMigration(x.isVersioned(), x.getState())))
             .toList();
     }
-
 }

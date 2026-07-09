@@ -25,7 +25,7 @@ import org.flywaydb.core.internal.parser.*;
 import java.io.IOException;
 
 public class DerbyParser extends Parser {
-    public DerbyParser(Configuration configuration, ParsingContext parsingContext) {
+    public DerbyParser(final Configuration configuration, final ParsingContext parsingContext) {
         super(configuration, parsingContext, 3);
     }
 
@@ -36,7 +36,11 @@ public class DerbyParser extends Parser {
 
     @SuppressWarnings("Duplicates")
     @Override
-    protected Token handleAlternativeStringLiteral(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
+    protected Token handleAlternativeStringLiteral(final PeekingReader reader,
+        final ParserContext context,
+        final int pos,
+        final int line,
+        final int col) throws IOException {
         reader.swallow(2);
         reader.swallowUntilExcluding("$$");
         reader.swallow(2);

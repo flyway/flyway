@@ -43,8 +43,8 @@ public class FlywayModel extends FlywayEnvironmentModel {
     private String provisionMode;
     private String color;
 
-    public static FlywayModel defaults(){
-        FlywayModel model = new FlywayModel();
+    public static FlywayModel defaults() {
+        final FlywayModel model = new FlywayModel();
         model.environment = "default";
         model.setOutputProgress(false);
         model.setReportFilename(DEFAULT_REPORT_FILENAME);
@@ -99,12 +99,12 @@ public class FlywayModel extends FlywayEnvironmentModel {
     }
 
     @SuppressWarnings("unused") // Backwards compatibility for old property name
-    public void setEnvironmentProvisionMode(String mode) {
+    public void setEnvironmentProvisionMode(final String mode) {
         this.provisionMode = mode;
     }
 
-    public FlywayModel merge(FlywayModel otherPojo) {
-        FlywayModel result = new FlywayModel();
+    public FlywayModel merge(final FlywayModel otherPojo) {
+        final FlywayModel result = new FlywayModel();
         result.environment = environment.merge(otherPojo.environment);
         result.outputProgress = outputProgress.merge(otherPojo.outputProgress);
         result.outputLogsInJson = outputLogsInJson.merge(otherPojo.outputLogsInJson);
@@ -162,9 +162,15 @@ public class FlywayModel extends FlywayEnvironmentModel {
         result.setLoggers(getLoggers().merge(otherPojo.getLoggers()));
         result.setDefaultSchema(getDefaultSchema().merge(otherPojo.getDefaultSchema()));
         result.setReportEnabled(getReportEnabled().merge(otherPojo.getReportEnabled()));
-        result.setPlaceholders(MergeUtils.merge(getPlaceholders(),otherPojo.getPlaceholders(), (a,b) -> b != null ? b : a));
-        result.setPropertyResolvers(MergeUtils.merge(getPropertyResolvers(),otherPojo.getPropertyResolvers(), (a,b) -> b != null ? b : a)); // TODO: more granular merge
-        result.setPluginConfigurations(MergeUtils.merge(getPluginConfigurations(), otherPojo.getPluginConfigurations(), MergeUtils::mergeObjects));
+        result.setPlaceholders(MergeUtils.merge(getPlaceholders(),
+            otherPojo.getPlaceholders(),
+            (a, b) -> b != null ? b : a));
+        result.setPropertyResolvers(MergeUtils.merge(getPropertyResolvers(),
+            otherPojo.getPropertyResolvers(),
+            (a, b) -> b != null ? b : a)); // TODO: more granular merge
+        result.setPluginConfigurations(MergeUtils.merge(getPluginConfigurations(),
+            otherPojo.getPluginConfigurations(),
+            MergeUtils::mergeObjects));
         return result;
     }
 }

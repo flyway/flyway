@@ -33,8 +33,8 @@ public class CoreMigrationTypeResolver implements MigrationTypeResolver {
         final String[] sqlMigrationSuffixes = configuration.getSqlMigrationSuffixes();
         final String sqlMigrationPrefix = configuration.getSqlMigrationPrefix();
         final String repeatableMigrationPrefix = configuration.getRepeatableSqlMigrationPrefix();
-        if(filename.startsWith(sqlMigrationPrefix) || filename.startsWith(repeatableMigrationPrefix)) {
-            if(Arrays.asList(sqlMigrationSuffixes).contains(suffix)) {
+        if (filename.startsWith(sqlMigrationPrefix) || filename.startsWith(repeatableMigrationPrefix)) {
+            if (Arrays.asList(sqlMigrationSuffixes).contains(suffix)) {
                 return CoreMigrationType.SQL;
             }
             return CoreMigrationType.JDBC;

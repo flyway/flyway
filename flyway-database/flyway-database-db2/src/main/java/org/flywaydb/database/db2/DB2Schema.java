@@ -37,35 +37,35 @@ public class DB2Schema extends Schema<DB2Database, DB2Table> {
      * Creates a new DB2 schema.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database The database-specific support.
-     * @param name The name of the schema.
+     * @param database     The database-specific support.
+     * @param name         The name of the schema.
      */
-    DB2Schema(JdbcTemplate jdbcTemplate, DB2Database database, String name) {
+    DB2Schema(final JdbcTemplate jdbcTemplate, final DB2Database database, final String name) {
         super(jdbcTemplate, database, name);
     }
 
     @Override
     protected boolean doExists() throws SQLException {
         return jdbcTemplate.queryForInt("SELECT count(*) from ("
-                                                + "SELECT 1 FROM syscat.schemata WHERE schemaname=?"
-                                                + ")", name) > 0;
+            + "SELECT 1 FROM syscat.schemata WHERE schemaname=?"
+            + ")", name) > 0;
     }
 
     @Override
     protected boolean doEmpty() throws SQLException {
         return jdbcTemplate.queryForInt("select count(*) from ("
-                                                + "select 1 from syscat.tables where tabschema = ? "
-                                                + "union "
-                                                + "select 1 from syscat.views where viewschema = ? "
-                                                + "union "
-                                                + "select 1 from syscat.sequences where seqschema = ? "
-                                                + "union "
-                                                + "select 1 from syscat.indexes where indschema = ? "
-                                                + "union "
-                                                + "select 1 from syscat.routines where ROUTINESCHEMA = ? "
-                                                + "union "
-                                                + "select 1 from syscat.triggers where trigschema = ? "
-                                                + ")", name, name, name, name, name, name) == 0;
+            + "select 1 from syscat.tables where tabschema = ? "
+            + "union "
+            + "select 1 from syscat.views where viewschema = ? "
+            + "union "
+            + "select 1 from syscat.sequences where seqschema = ? "
+            + "union "
+            + "select 1 from syscat.indexes where indschema = ? "
+            + "union "
+            + "select 1 from syscat.routines where ROUTINESCHEMA = ? "
+            + "union "
+            + "select 1 from syscat.triggers where trigschema = ? "
+            + ")", name, name, name, name, name, name) == 0;
     }
 
     @Override
@@ -86,63 +86,63 @@ public class DB2Schema extends Schema<DB2Database, DB2Table> {
 
         if (database.getVersion().isAtLeast("10")) {
             // drop versioned table link -> not supported for DB2 9.x
-            List<String> dropVersioningStatements = generateDropVersioningStatement();
+            final List<String> dropVersioningStatements = generateDropVersioningStatement();
             if (!dropVersioningStatements.isEmpty()) {
                 // Do a explicit drop of MQTs in order to be able to drop the Versioning
-                for (String dropTableStatement : generateDropStatements("S", "TABLE")) {
+                for (final String dropTableStatement : generateDropStatements("S", "TABLE")) {
                     jdbcTemplate.execute(dropTableStatement);
                 }
             }
 
-            for (String dropVersioningStatement : dropVersioningStatements) {
+            for (final String dropVersioningStatement : dropVersioningStatements) {
                 jdbcTemplate.execute(dropVersioningStatement);
             }
         }
 
         // views
-        for (String dropStatement : generateDropStatementsForViews()) {
+        for (final String dropStatement : generateDropStatementsForViews()) {
             jdbcTemplate.execute(dropStatement);
         }
 
         // aliases
-        for (String dropStatement : generateDropStatements("A", "ALIAS")) {
+        for (final String dropStatement : generateDropStatements("A", "ALIAS")) {
             jdbcTemplate.execute(dropStatement);
         }
 
         // temporary Tables
-        for (String dropStatement : generateDropStatements("G", "TABLE")) {
+        for (final String dropStatement : generateDropStatements("G", "TABLE")) {
             jdbcTemplate.execute(dropStatement);
         }
 
-        for (Table table : allTables()) {
+        for (final Table table : allTables()) {
             table.drop();
         }
 
         // sequences
-        for (String dropStatement : generateDropStatementsForSequences()) {
+        for (final String dropStatement : generateDropStatementsForSequences()) {
             jdbcTemplate.execute(dropStatement);
         }
 
         // procedures
-        for (String dropStatement : generateDropStatementsForProcedures()) {
+        for (final String dropStatement : generateDropStatementsForProcedures()) {
             jdbcTemplate.execute(dropStatement);
         }
 
         // triggers
-        for (String dropStatement : generateDropStatementsForTriggers()) {
+        for (final String dropStatement : generateDropStatementsForTriggers()) {
             jdbcTemplate.execute(dropStatement);
         }
 
         // modules
-        for (String dropStatement : generateDropStatementsForModules()) {
+        for (final String dropStatement : generateDropStatementsForModules()) {
             jdbcTemplate.execute(dropStatement);
         }
 
-        for (Function function : allFunctions()) {
+        for (final Function function : allFunctions()) {
             function.drop();
         }
 
-        for (Type type : allTypes()) {
+        for (final Type type : allTypes()) {
             type.drop();
         }
     }
@@ -154,8 +154,11 @@ public class DB2Schema extends Schema<DB2Database, DB2Table> {
      * @throws SQLException when the statements could not be generated.
      */
     private List<String> generateDropStatementsForProcedures() throws SQLException {
-        String dropProcGenQuery =
-                "select SPECIFICNAME from SYSCAT.ROUTINES where ROUTINETYPE='P' and ROUTINESCHEMA = '" + name + "'" + " and ROUTINEMODULENAME IS NULL";
+        final String dropProcGenQuery =
+            "select SPECIFICNAME from SYSCAT.ROUTINES where ROUTINETYPE='P' and ROUTINESCHEMA = '"
+                + name
+                + "'"
+                + " and ROUTINEMODULENAME IS NULL";
         return buildDropStatements("DROP SPECIFIC PROCEDURE", dropProcGenQuery);
     }
 
@@ -166,7 +169,7 @@ public class DB2Schema extends Schema<DB2Database, DB2Table> {
      * @throws SQLException when the statements could not be generated.
      */
     private List<String> generateDropStatementsForTriggers() throws SQLException {
-        String dropTrigGenQuery = "select TRIGNAME from SYSCAT.TRIGGERS where TRIGSCHEMA = '" + name + "'";
+        final String dropTrigGenQuery = "select TRIGNAME from SYSCAT.TRIGGERS where TRIGSCHEMA = '" + name + "'";
         return buildDropStatements("DROP TRIGGER", dropTrigGenQuery);
     }
 
@@ -177,8 +180,9 @@ public class DB2Schema extends Schema<DB2Database, DB2Table> {
      * @throws SQLException when the statements could not be generated.
      */
     private List<String> generateDropStatementsForSequences() throws SQLException {
-        String dropSeqGenQuery = "select SEQNAME from SYSCAT.SEQUENCES where SEQSCHEMA = '" + name
-                + "' and SEQTYPE='S'";
+        final String dropSeqGenQuery = "select SEQNAME from SYSCAT.SEQUENCES where SEQSCHEMA = '"
+            + name
+            + "' and SEQTYPE='S'";
         return buildDropStatements("DROP SEQUENCE", dropSeqGenQuery);
     }
 
@@ -189,27 +193,30 @@ public class DB2Schema extends Schema<DB2Database, DB2Table> {
      * @throws SQLException when the statements could not be generated.
      */
     private List<String> generateDropStatementsForViews() throws SQLException {
-        String dropSeqGenQuery = "select TABNAME from SYSCAT.TABLES where TYPE='V' AND TABSCHEMA = '" + name + "'" +
+        final String dropSeqGenQuery = "select TABNAME from SYSCAT.TABLES where TYPE='V' AND TABSCHEMA = '"
+            + name
+            + "'"
+            +
 
 
 
 
-                        // Filter out statistical view for an index with an expression-based key
-                        // See https://www.ibm.com/support/knowledgecenter/SSEPGG_10.5.0/com.ibm.db2.luw.sql.ref.doc/doc/r0001063.html
-                        " and substr(property,19,1) <> 'Y'"
+
+                // Filter out statistical view for an index with an expression-based key
+                // See https://www.ibm.com/support/knowledgecenter/SSEPGG_10.5.0/com.ibm.db2.luw.sql.ref.doc/doc/r0001063.html
+                " and substr(property,19,1) <> 'Y'"
 
 
 
-                ;
+            ;
 
         return buildDropStatements("DROP VIEW", dropSeqGenQuery);
     }
 
     private List<String> generateDropStatementsForModules() throws SQLException {
-        String dropSeqGenQuery =
-                "select MODULENAME from syscat.modules where MODULESCHEMA = '"
-                        + name
-                        + "' and OWNERTYPE='U'";
+        final String dropSeqGenQuery = "select MODULENAME from syscat.modules where MODULESCHEMA = '"
+            + name
+            + "' and OWNERTYPE='U'";
 
         return buildDropStatements("DROP MODULE", dropSeqGenQuery);
     }
@@ -217,14 +224,17 @@ public class DB2Schema extends Schema<DB2Database, DB2Table> {
     /**
      * Generates DROP statements for this type of table, representing this type of object in this schema.
      *
-     * @param tableType The type of table (Can be T, V, S, ...).
+     * @param tableType  The type of table (Can be T, V, S, ...).
      * @param objectType The type of object.
      * @return The drop statements.
      * @throws SQLException when the statements could not be generated.
      */
-    private List<String> generateDropStatements(String tableType, String objectType) throws SQLException {
-        String dropTablesGenQuery = "select TABNAME from SYSCAT.TABLES where TYPE='" + tableType + "' and TABSCHEMA = '"
-                + name + "'";
+    private List<String> generateDropStatements(final String tableType, final String objectType) throws SQLException {
+        final String dropTablesGenQuery = "select TABNAME from SYSCAT.TABLES where TYPE='"
+            + tableType
+            + "' and TABSCHEMA = '"
+            + name
+            + "'";
         return buildDropStatements("DROP " + objectType, dropTablesGenQuery);
     }
 
@@ -232,14 +242,14 @@ public class DB2Schema extends Schema<DB2Database, DB2Table> {
      * Builds the drop statements for database objects in this schema.
      *
      * @param dropPrefix The drop command for the database object (e.g. 'drop table').
-     * @param query The query to get all present database objects
+     * @param query      The query to get all present database objects
      * @return The statements.
      * @throws SQLException when the drop statements could not be built.
      */
     private List<String> buildDropStatements(final String dropPrefix, final String query) throws SQLException {
-        List<String> dropStatements = new ArrayList<>();
-        List<String> dbObjects = jdbcTemplate.queryForStringList(query);
-        for (String dbObject : dbObjects) {
+        final List<String> dropStatements = new ArrayList<>();
+        final List<String> dbObjects = jdbcTemplate.queryForStringList(query);
+        for (final String dbObject : dbObjects) {
             dropStatements.add(dropPrefix + " " + database.quote(name, dbObject));
         }
         return dropStatements;
@@ -249,18 +259,20 @@ public class DB2Schema extends Schema<DB2Database, DB2Table> {
      * @return All tables that have versioning associated with them.
      */
     private List<String> generateDropVersioningStatement() throws SQLException {
-        List<String> dropVersioningStatements = new ArrayList<>();
-        Table[] versioningTables = findTables("select TABNAME from SYSCAT.TABLES where TEMPORALTYPE <> 'N' and TABSCHEMA = ?", name);
-        for (Table table : versioningTables) {
+        final List<String> dropVersioningStatements = new ArrayList<>();
+        final Table[] versioningTables = findTables(
+            "select TABNAME from SYSCAT.TABLES where TEMPORALTYPE <> 'N' and TABSCHEMA = ?",
+            name);
+        for (final Table table : versioningTables) {
             dropVersioningStatements.add("ALTER TABLE " + table.toString() + " DROP VERSIONING");
         }
 
         return dropVersioningStatements;
     }
 
-    private DB2Table[] findTables(String sqlQuery, String... params) throws SQLException {
-        List<String> tableNames = jdbcTemplate.queryForStringList(sqlQuery, params);
-        DB2Table[] tables = new DB2Table[tableNames.size()];
+    private DB2Table[] findTables(final String sqlQuery, String... params) throws SQLException {
+        final List<String> tableNames = jdbcTemplate.queryForStringList(sqlQuery, params);
+        final DB2Table[] tables = new DB2Table[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new DB2Table(jdbcTemplate, database, this, tableNames.get(i));
         }
@@ -274,20 +286,20 @@ public class DB2Schema extends Schema<DB2Database, DB2Table> {
 
     @Override
     protected Function[] doAllFunctions() throws SQLException {
-        List<String> functionNames = jdbcTemplate.queryForStringList(
-                "select SPECIFICNAME from SYSCAT.ROUTINES where"
-                        // Functions only
-                        + " ROUTINETYPE='F'"
-                        // That aren't system-generated or built-in
-                        + " AND ORIGIN IN ("
-                        + "'E', " // User-defined, external
-                        + "'M', " // Template function
-                        + "'Q', " // SQL-bodied
-                        + "'U')"  // User-defined, based on a source
-                        + " and ROUTINESCHEMA = ?", name);
+        final List<String> functionNames = jdbcTemplate.queryForStringList(
+            "select SPECIFICNAME from SYSCAT.ROUTINES where"
+                // Functions only
+                + " ROUTINETYPE='F'"
+                // That aren't system-generated or built-in
+                + " AND ORIGIN IN (" + "'E', " // User-defined, external
+                + "'M', " // Template function
+                + "'Q', " // SQL-bodied
+                + "'U')"  // User-defined, based on a source
+                + " and ROUTINESCHEMA = ?",
+            name);
 
-        List<Function> functions = new ArrayList<>();
-        for (String functionName : functionNames) {
+        final List<Function> functions = new ArrayList<>();
+        for (final String functionName : functionNames) {
             functions.add(getFunction(functionName));
         }
 
@@ -295,17 +307,17 @@ public class DB2Schema extends Schema<DB2Database, DB2Table> {
     }
 
     @Override
-    public Table getTable(String tableName) {
+    public Table getTable(final String tableName) {
         return new DB2Table(jdbcTemplate, database, this, tableName);
     }
 
     @Override
-    protected Type getType(String typeName) {
+    protected Type getType(final String typeName) {
         return new DB2Type(jdbcTemplate, database, this, typeName);
     }
 
     @Override
-    public Function getFunction(String functionName, String... args) {
+    public Function getFunction(final String functionName, String... args) {
         return new DB2Function(jdbcTemplate, database, this, functionName, args);
     }
 }

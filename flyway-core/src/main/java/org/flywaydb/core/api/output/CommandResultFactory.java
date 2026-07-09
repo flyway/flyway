@@ -68,86 +68,108 @@ public class CommandResultFactory {
             allSchemasEmpty);
     }
 
-    public static MigrateResult createMigrateResult(String databaseName, String databaseType, Configuration configuration) {
-        String flywayVersion = VersionPrinter.getVersion();
-        return new MigrateResult(flywayVersion, databaseName, String.join(", ", configuration.getSchemas()), databaseType);
+    public static MigrateResult createMigrateResult(final String databaseName,
+        final String databaseType,
+        final Configuration configuration) {
+        final String flywayVersion = VersionPrinter.getVersion();
+        return new MigrateResult(flywayVersion,
+            databaseName,
+            String.join(", ", configuration.getSchemas()),
+            databaseType);
     }
 
-    public static CleanResult createCleanResult(String databaseName) {
-        String flywayVersion = VersionPrinter.getVersion();
+    public static CleanResult createCleanResult(final String databaseName) {
+        final String flywayVersion = VersionPrinter.getVersion();
         return new CleanResult(flywayVersion, databaseName);
     }
 
-    public static BaselineResult createBaselineResult(String databaseName) {
-        String flywayVersion = VersionPrinter.getVersion();
+    public static BaselineResult createBaselineResult(final String databaseName) {
+        final String flywayVersion = VersionPrinter.getVersion();
         return new BaselineResult(flywayVersion, databaseName);
     }
 
-    public static ValidateResult createValidateResult(String databaseName, ErrorDetails validationError, int validationCount, List<ValidateOutput> invalidMigrations, List<String> warnings) {
-        String flywayVersion = VersionPrinter.getVersion();
-        boolean validationSuccessful = validationError == null;
-        List<ValidateOutput> invalidMigrationsList = invalidMigrations == null ? new ArrayList<>() : invalidMigrations;
+    public static ValidateResult createValidateResult(final String databaseName,
+        final ErrorDetails validationError,
+        final int validationCount,
+        final List<ValidateOutput> invalidMigrations,
+        final List<String> warnings) {
+        final String flywayVersion = VersionPrinter.getVersion();
+        final boolean validationSuccessful = validationError == null;
+        final List<ValidateOutput> invalidMigrationsList = invalidMigrations == null
+            ? new ArrayList<>()
+            : invalidMigrations;
 
-        return new ValidateResult(flywayVersion, databaseName, validationError, validationSuccessful, validationCount, invalidMigrationsList, warnings);
+        return new ValidateResult(flywayVersion,
+            databaseName,
+            validationError,
+            validationSuccessful,
+            validationCount,
+            invalidMigrationsList,
+            warnings);
     }
 
-    public static RepairResult createRepairResult(String databaseName) {
-        String flywayVersion = VersionPrinter.getVersion();
+    public static RepairResult createRepairResult(final String databaseName) {
+        final String flywayVersion = VersionPrinter.getVersion();
         return new RepairResult(flywayVersion, databaseName);
     }
 
-    public static InfoOutput createInfoOutput(Set<MigrationInfo> undoableMigrations, MigrationInfo migrationInfo) {
+    public static InfoOutput createInfoOutput(final Set<MigrationInfo> undoableMigrations,
+        final MigrationInfo migrationInfo) {
         return new InfoOutput(getCategory(migrationInfo),
-                              migrationInfo.getVersion() != null ? migrationInfo.getVersion().getVersion() : "",
-                              migrationInfo.getVersion() != null ? migrationInfo.getVersion().getRawVersion() : "",
-                              migrationInfo.getDescription(),
-                              migrationInfo.getType() != null ? migrationInfo.getType().toString() : "",
-                              migrationInfo.getInstalledOn() != null ? migrationInfo.getInstalledOn().toInstant().toString() : "",
-                              migrationInfo.getState().getDisplayName(),
-                              getUndoableStatus(migrationInfo, undoableMigrations),
-                              migrationInfo.getPhysicalLocation() != null ? migrationInfo.getPhysicalLocation() : "",
-                              getUndoablePath(migrationInfo, undoableMigrations),
-                              migrationInfo.getInstalledBy() != null ? migrationInfo.getInstalledBy() : "",
-                              migrationInfo.getShouldExecuteExpression(),
-                              migrationInfo.getExecutionTime() != null ? migrationInfo.getExecutionTime() : 0);
+            migrationInfo.getVersion() != null ? migrationInfo.getVersion().getVersion() : "",
+            migrationInfo.getVersion() != null ? migrationInfo.getVersion().getRawVersion() : "",
+            migrationInfo.getDescription(),
+            migrationInfo.getType() != null ? migrationInfo.getType().toString() : "",
+            migrationInfo.getInstalledOn() != null ? migrationInfo.getInstalledOn().toInstant().toString() : "",
+            migrationInfo.getState().getDisplayName(),
+            getUndoableStatus(migrationInfo, undoableMigrations),
+            migrationInfo.getPhysicalLocation() != null ? migrationInfo.getPhysicalLocation() : "",
+            getUndoablePath(migrationInfo, undoableMigrations),
+            migrationInfo.getInstalledBy() != null ? migrationInfo.getInstalledBy() : "",
+            migrationInfo.getShouldExecuteExpression(),
+            migrationInfo.getExecutionTime() != null ? migrationInfo.getExecutionTime() : 0);
     }
 
-    public static MigrateOutput createMigrateOutput(MigrationInfo migrationInfo, int executionTime) {
+    public static MigrateOutput createMigrateOutput(final MigrationInfo migrationInfo, final int executionTime) {
         return createMigrateOutput(migrationInfo, executionTime, false);
     }
 
-    public static MigrateOutput createMigrateOutput(MigrationInfo migrationInfo, int executionTime, Boolean rolledBack) {
+    public static MigrateOutput createMigrateOutput(final MigrationInfo migrationInfo,
+        final int executionTime,
+        final Boolean rolledBack) {
         return new MigrateOutput(getCategory(migrationInfo),
-                                 migrationInfo.getVersion() != null ? migrationInfo.getVersion().getVersion() : "",
-                                 migrationInfo.getDescription(),
-                                 migrationInfo.getType() != null ? migrationInfo.getType().toString() : "",
-                                 migrationInfo.getPhysicalLocation() != null ? migrationInfo.getPhysicalLocation() : "",
-                                 executionTime,
-                                 rolledBack);
+            migrationInfo.getVersion() != null ? migrationInfo.getVersion().getVersion() : "",
+            migrationInfo.getDescription(),
+            migrationInfo.getType() != null ? migrationInfo.getType().toString() : "",
+            migrationInfo.getPhysicalLocation() != null ? migrationInfo.getPhysicalLocation() : "",
+            executionTime,
+            rolledBack);
     }
 
-    public static ValidateOutput createValidateOutput(MigrationInfo migrationInfo, ErrorDetails validateError) {
-        return new ValidateOutput(
-                migrationInfo.getVersion() != null ? migrationInfo.getVersion().getVersion() : "",
-                migrationInfo.getDescription(),
-                migrationInfo.getPhysicalLocation() != null ? migrationInfo.getPhysicalLocation() : "",
-                validateError);
+    public static ValidateOutput createValidateOutput(final MigrationInfo migrationInfo,
+        final ErrorDetails validateError) {
+        return new ValidateOutput(migrationInfo.getVersion() != null ? migrationInfo.getVersion().getVersion() : "",
+            migrationInfo.getDescription(),
+            migrationInfo.getPhysicalLocation() != null ? migrationInfo.getPhysicalLocation() : "",
+            validateError);
     }
 
-    public static RepairOutput createRepairOutput(MigrationInfo migrationInfo) {
-        return new RepairOutput(
-                migrationInfo.getVersion() != null ? migrationInfo.getVersion().getVersion() : "",
-                migrationInfo.getDescription(),
-                migrationInfo.getPhysicalLocation() != null ? migrationInfo.getPhysicalLocation() : "");
+    public static RepairOutput createRepairOutput(final MigrationInfo migrationInfo) {
+        return new RepairOutput(migrationInfo.getVersion() != null ? migrationInfo.getVersion().getVersion() : "",
+            migrationInfo.getDescription(),
+            migrationInfo.getPhysicalLocation() != null ? migrationInfo.getPhysicalLocation() : "");
     }
 
-    public static RepairOutput createRepairOutput(AppliedMigration am) {
+    public static RepairOutput createRepairOutput(final AppliedMigration am) {
         return new RepairOutput(am.getVersion() != null ? am.getVersion().getVersion() : "", am.getDescription(), "");
     }
 
-    private static String getUndoableStatus(MigrationInfo migrationInfo, Set<MigrationInfo> undoableMigrations) {
-        if (migrationInfo.getVersion() != null && !migrationInfo.getType().isUndo() && !migrationInfo.getState().equals(MigrationState.UNDONE)) {
-            if (!migrationInfo.getState().isFailed() && undoableMigrations.stream().anyMatch(u -> u.getVersion().equals(migrationInfo.getVersion()))) {
+    private static String getUndoableStatus(final MigrationInfo migrationInfo,
+        final Set<MigrationInfo> undoableMigrations) {
+        if (migrationInfo.getVersion() != null && !migrationInfo.getType().isUndo() && !migrationInfo.getState()
+            .equals(MigrationState.UNDONE)) {
+            if (!migrationInfo.getState().isFailed() && undoableMigrations.stream()
+                .anyMatch(u -> u.getVersion().equals(migrationInfo.getVersion()))) {
                 return "Yes";
             }
             return "No";
@@ -155,37 +177,37 @@ public class CommandResultFactory {
         return "";
     }
 
-    private static String getUndoablePath(MigrationInfo migrationInfo, Set<MigrationInfo> undoableMigrations) {
-        if (migrationInfo.getVersion() != null && !migrationInfo.getType().isUndo() && !migrationInfo.getState().equals(MigrationState.UNDONE)) {
+    private static String getUndoablePath(final MigrationInfo migrationInfo,
+        final Set<MigrationInfo> undoableMigrations) {
+        if (migrationInfo.getVersion() != null && !migrationInfo.getType().isUndo() && !migrationInfo.getState()
+            .equals(MigrationState.UNDONE)) {
             if (!migrationInfo.getState().isFailed()) {
                 return undoableMigrations.stream()
-                        .filter(u -> u.getVersion().equals(migrationInfo.getVersion()))
-                        .findFirst()
-                        .map(MigrationInfo::getPhysicalLocation)
-                        .orElse("");
+                    .filter(u -> u.getVersion().equals(migrationInfo.getVersion()))
+                    .findFirst()
+                    .map(MigrationInfo::getPhysicalLocation)
+                    .orElse("");
             }
         }
         return "";
     }
 
-    private static Set<MigrationInfo> getUndoMigrations(MigrationInfo[] migrationInfos) {
-        return Arrays.stream(migrationInfos)
-                .filter(m -> m.getType().isUndo())
-                .collect(Collectors.toSet());
+    private static Set<MigrationInfo> getUndoMigrations(final MigrationInfo[] migrationInfos) {
+        return Arrays.stream(migrationInfos).filter(m -> m.getType().isUndo()).collect(Collectors.toSet());
     }
 
-    private static MigrationInfo[] removeAvailableUndoMigrations(MigrationInfo[] migrationInfos) {
+    private static MigrationInfo[] removeAvailableUndoMigrations(final MigrationInfo[] migrationInfos) {
         return Arrays.stream(migrationInfos)
-                .filter(m -> !m.getState().equals(MigrationState.AVAILABLE))
-                .toArray(MigrationInfo[]::new);
+            .filter(m -> !m.getState().equals(MigrationState.AVAILABLE))
+            .toArray(MigrationInfo[]::new);
     }
 
-    private static String getDatabaseName(Configuration configuration, Database database) {
+    private static String getDatabaseName(final Configuration configuration, final Database database) {
         try {
             return database.getCatalog();
         } catch (Exception e) {
             try (Connection connection = configuration.getDataSource().getConnection()) {
-                String catalog = connection.getCatalog();
+                final String catalog = connection.getCatalog();
                 return catalog != null ? catalog : "";
             } catch (Exception e1) {
                 return "";
@@ -193,7 +215,7 @@ public class CommandResultFactory {
         }
     }
 
-    private static String getCategory(MigrationInfo migrationInfo) {
+    private static String getCategory(final MigrationInfo migrationInfo) {
         if (migrationInfo.getType().isSynthetic()) {
             return "";
         }

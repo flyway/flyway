@@ -26,12 +26,12 @@ import org.flywaydb.core.internal.database.base.Schema;
  * Sybase ASE Connection.
  */
 public class SybaseASEConnection extends Connection<SybaseASEDatabase> {
-    SybaseASEConnection(SybaseASEDatabase database, java.sql.Connection connection) {
+    SybaseASEConnection(final SybaseASEDatabase database, final java.sql.Connection connection) {
         super(database, connection);
     }
 
     @Override
-    public Schema getSchema(String name) {
+    public Schema getSchema(final String name) {
         //Sybase does not support schemas, nor changing users on the fly. Always return the same dummy schema.
         return new SybaseASESchema(jdbcTemplate, database, "dbo");
     }

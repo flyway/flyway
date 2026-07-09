@@ -30,7 +30,10 @@ import java.util.Map;
 public class DatabricksTable extends Table<DatabricksDatabase, DatabricksSchema> {
     private final InsertRowLock insertRowLock;
 
-    public DatabricksTable(JdbcTemplate jdbcTemplate, DatabricksDatabase database, DatabricksSchema schema, String name) {
+    public DatabricksTable(final JdbcTemplate jdbcTemplate,
+        final DatabricksDatabase database,
+        final DatabricksSchema schema,
+        final String name) {
         super(jdbcTemplate, database, schema, name);
         this.insertRowLock = new InsertRowLock(jdbcTemplate);
     }
@@ -45,22 +48,29 @@ public class DatabricksTable extends Table<DatabricksDatabase, DatabricksSchema>
         if (!schema.exists()) {
             return false;
         }
-        List<Map<String, String>> tables = jdbcTemplate.queryForList(
-                "show tables in " + database.quote(schema.getName()) + " like '" + name + "';"
-        );
+        final List<Map<String, String>> tables = jdbcTemplate.queryForList("show tables in "
+            + database.quote(schema.getName())
+            + " like '"
+            + name
+            + "';");
         return tables.stream().anyMatch(table -> table.get("tableName").equals(name));
     }
 
     @Override
     protected void doLock() throws SQLException {
-        String updateLockStatement = "UPDATE " + this + " SET installed_on = CURRENT_TIMESTAMP() WHERE version = '?' AND DESCRIPTION = 'flyway-lock';";
-        String deleteExpiredLockStatement =
-                " DELETE FROM " + this +
-                        " WHERE DESCRIPTION = 'flyway-lock'" +
-                        " AND installed_on < TIMESTAMP '?';";
+        final String updateLockStatement = "UPDATE "
+            + this
+            + " SET installed_on = CURRENT_TIMESTAMP() WHERE version = '?' AND DESCRIPTION = 'flyway-lock';";
+        final String deleteExpiredLockStatement = " DELETE FROM "
+            + this
+            + " WHERE DESCRIPTION = 'flyway-lock'"
+            + " AND installed_on < TIMESTAMP '?';";
 
         if (lockDepth == 0) {
-            insertRowLock.doLock(database.getInsertStatement(this), updateLockStatement, deleteExpiredLockStatement, database.getBooleanTrue());
+            insertRowLock.doLock(database.getInsertStatement(this),
+                updateLockStatement,
+                deleteExpiredLockStatement,
+                database.getBooleanTrue());
         }
     }
 

@@ -25,9 +25,9 @@ import org.flywaydb.core.api.MigrationVersion;
 
 /**
  * Represents a resource name, parsed into its components.
- *
- * Versioned and Undo migrations are named in the form prefixVERSIONseparatorDESCRIPTIONsuffix;
- * Repeatable migrations and callbacks are named in the form prefixSeparatorDESCRIPTIONsuffix
+ * <p>
+ * Versioned and Undo migrations are named in the form prefixVERSIONseparatorDESCRIPTIONsuffix; Repeatable migrations
+ * and callbacks are named in the form prefixSeparatorDESCRIPTIONsuffix
  */
 @RequiredArgsConstructor
 public class ResourceName {
@@ -46,9 +46,8 @@ public class ResourceName {
      * @param message A message explaining the reason the resource name is invalid
      * @return The fully populated parsing result.
      */
-    public static ResourceName invalid(String message) {
-        return new ResourceName(null, null, null, null, null,
-                                null, false, message);
+    public static ResourceName invalid(final String message) {
+        return new ResourceName(null, null, null, null, null, null, false, message);
     }
 
     /**
@@ -66,8 +65,7 @@ public class ResourceName {
     }
 
     /**
-     * The version of the resource (eg. "1.2.3" for versioned migrations), or null for non-versioned
-     * resources
+     * The version of the resource (eg. "1.2.3" for versioned migrations), or null for non-versioned resources
      */
     public MigrationVersion getVersion() {
         if (isVersioned()) {
@@ -82,7 +80,8 @@ public class ResourceName {
      */
     public String getDescription() {
         if (!isValid) {
-            throw new FlywayException("Cannot access description of invalid ResourceNameParseResult\r\n" + validityMessage);
+            throw new FlywayException("Cannot access description of invalid ResourceNameParseResult\r\n"
+                + validityMessage);
         }
         return description;
     }

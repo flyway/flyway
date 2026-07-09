@@ -24,9 +24,9 @@ import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.Plugin;
 
-public interface NativeConnectorsMigrationComparator extends Plugin  {
-    
+public interface NativeConnectorsMigrationComparator extends Plugin {
+
     int getPriority(Configuration configuration);
-    
+
     Comparator<MigrationInfo> getComparator(Configuration configuration);
 }

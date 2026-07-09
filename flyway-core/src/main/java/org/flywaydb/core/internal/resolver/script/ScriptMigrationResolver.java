@@ -47,7 +47,7 @@ import java.util.*;
 @CustomLog
 public class ScriptMigrationResolver<E extends CallbackEvent<E>> implements MigrationResolver {
 
-    private final String[] fileTypes = new String[] {"cmd", "bat", "ps1", "py", "sh", "bash"};
+    private final String[] fileTypes = new String[] { "cmd", "bat", "ps1", "py", "sh", "bash" };
     private final String[] suffixes = Arrays.stream(fileTypes).map(s -> "." + s).toArray(String[]::new);
     private final ResourceProvider resourceProvider;
     private final Configuration configuration;
@@ -55,7 +55,10 @@ public class ScriptMigrationResolver<E extends CallbackEvent<E>> implements Migr
     private final StatementInterceptor statementInterceptor;
     public final Set<GenericCallback<E>> scriptCallbacks;
 
-    public ScriptMigrationResolver(final ResourceProvider resourceProvider, final Configuration configuration, final ParsingContext parsingContext, final StatementInterceptor statementInterceptor) {
+    public ScriptMigrationResolver(final ResourceProvider resourceProvider,
+        final Configuration configuration,
+        final ParsingContext parsingContext,
+        final StatementInterceptor statementInterceptor) {
         this.resourceProvider = resourceProvider;
         this.configuration = configuration;
         this.parsingContext = parsingContext;
@@ -77,7 +80,10 @@ public class ScriptMigrationResolver<E extends CallbackEvent<E>> implements Migr
                 if (migrationType == null) {
                     addMigrations(CoreMigrationType.SCRIPT, migrations, prefix, false);
                 } else {
-                    addMigrations(migrationType.isUndo() ? CoreMigrationType.UNDO_SCRIPT : migrationType, migrations, prefix, false);
+                    addMigrations(migrationType.isUndo() ? CoreMigrationType.UNDO_SCRIPT : migrationType,
+                        migrations,
+                        prefix,
+                        false);
                 }
             }
         }
@@ -95,10 +101,9 @@ public class ScriptMigrationResolver<E extends CallbackEvent<E>> implements Migr
             final LoadableResource placeholderReplacingLoadableResource = new LoadableResource() {
                 @Override
                 public Reader read() {
-                    return PlaceholderReplacingReader.createForScriptMigration(
-                            configuration,
-                            parsingContext,
-                            loadableResource.read());
+                    return PlaceholderReplacingReader.createForScriptMigration(configuration,
+                        parsingContext,
+                        loadableResource.read());
                 }
 
                 @Override
@@ -120,7 +125,8 @@ public class ScriptMigrationResolver<E extends CallbackEvent<E>> implements Migr
         return list.toArray(LoadableResource[]::new);
     }
 
-    private Integer getChecksumForLoadableResource(final boolean repeatable, final List<LoadableResource> loadableResources) {
+    private Integer getChecksumForLoadableResource(final boolean repeatable,
+        final List<LoadableResource> loadableResources) {
         if (repeatable && configuration.isPlaceholderReplacement()) {
             return ChecksumCalculator.calculate(createPlaceholderReplacingLoadableResources(loadableResources));
         }
@@ -128,7 +134,8 @@ public class ScriptMigrationResolver<E extends CallbackEvent<E>> implements Migr
         return ChecksumCalculator.calculate(loadableResources.toArray(LoadableResource[]::new));
     }
 
-    private Integer getEquivalentChecksumForLoadableResource(final boolean repeatable, final List<LoadableResource> loadableResources) {
+    private Integer getEquivalentChecksumForLoadableResource(final boolean repeatable,
+        final List<LoadableResource> loadableResources) {
         if (repeatable) {
             return ChecksumCalculator.calculate(loadableResources.toArray(LoadableResource[]::new));
         }
@@ -136,14 +143,18 @@ public class ScriptMigrationResolver<E extends CallbackEvent<E>> implements Migr
         return null;
     }
 
-    private void addMigrations(final MigrationType migrationType, final List<ResolvedMigration> migrations, final String prefix, final boolean repeatable) {
+    private void addMigrations(final MigrationType migrationType,
+        final List<ResolvedMigration> migrations,
+        final String prefix,
+        final boolean repeatable) {
         final ResourceNameParser resourceNameParser = new ResourceNameParser(configuration);
 
-        for (final LoadableResource resource : resourceProvider.getResources(prefix, new String[] { ""})) {
+        for (final LoadableResource resource : resourceProvider.getResources(prefix, new String[] { "" })) {
             final String filename = resource.getFilename();
             final ResourceName result = resourceNameParser.parse(filename, suffixes);
 
-            if (!result.isValid() || isCallback(result) || !prefix.equals(result.getPrefix()) || isNotScriptFile(filename)) {
+            if (!result.isValid() || isCallback(result) || !prefix.equals(result.getPrefix()) || isNotScriptFile(
+                filename)) {
                 continue;
             }
 
@@ -153,22 +164,21 @@ public class ScriptMigrationResolver<E extends CallbackEvent<E>> implements Migr
             final Integer checksum = getChecksumForLoadableResource(repeatable, resources);
             final Integer equivalentChecksum = getEquivalentChecksumForLoadableResource(repeatable, resources);
 
-            migrations.add(new ResolvedMigrationImpl(
-                    result.getVersion(),
-                    result.getDescription(),
-                    resource.getRelativePath(),
-                    checksum,
-                    equivalentChecksum,
-                    migrationType,
-                    resource.getAbsolutePathOnDisk(),
-                    new ScriptMigrationExecutor(resource, parsingContext, result, statementInterceptor)));
+            migrations.add(new ResolvedMigrationImpl(result.getVersion(),
+                result.getDescription(),
+                resource.getRelativePath(),
+                checksum,
+                equivalentChecksum,
+                migrationType,
+                resource.getAbsolutePathOnDisk(),
+                new ScriptMigrationExecutor(resource, parsingContext, result, statementInterceptor)));
         }
     }
 
     public void resolveCallbacks(final ParseCallbackEvent<E> parseCallbackEvent) {
         final ResourceNameParser resourceNameParser = new ResourceNameParser(configuration);
 
-        for (final LoadableResource resource : resourceProvider.getResources("", new String[] { ""})) {
+        for (final LoadableResource resource : resourceProvider.getResources("", new String[] { "" })) {
             final String filename = resource.getFilename();
             final ResourceName result = resourceNameParser.parse(filename, suffixes);
 
@@ -178,12 +188,14 @@ public class ScriptMigrationResolver<E extends CallbackEvent<E>> implements Migr
 
             final Optional<E> maybeEvent = parseCallbackEvent.parse(result.getPrefix());
             if (maybeEvent.isPresent()) {
-                LOG.debug("Found script callback: " + resource.getAbsolutePath() + " (filename: " + resource.getFilename() + ")");
-                scriptCallbacks.add(new ArbitraryScriptCallback<>(
-                        maybeEvent.get(),
-                        result.getDescription(),
-                        new ScriptMigrationExecutor(resource, parsingContext, result, statementInterceptor)
-                ));
+                LOG.debug("Found script callback: "
+                    + resource.getAbsolutePath()
+                    + " (filename: "
+                    + resource.getFilename()
+                    + ")");
+                scriptCallbacks.add(new ArbitraryScriptCallback<>(maybeEvent.get(),
+                    result.getDescription(),
+                    new ScriptMigrationExecutor(resource, parsingContext, result, statementInterceptor)));
             }
         }
     }
@@ -215,7 +227,7 @@ public class ScriptMigrationResolver<E extends CallbackEvent<E>> implements Migr
      * @param result The parsing result to check.
      * @return {@code true} if it is, {@code false} if it isn't.
      */
-    private static boolean isCallback(ResourceName result) {
+    private static boolean isCallback(final ResourceName result) {
         return Event.fromId(result.getPrefix()) != null;
     }
 

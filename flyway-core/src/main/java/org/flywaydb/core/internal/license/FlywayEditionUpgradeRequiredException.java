@@ -24,13 +24,13 @@ import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
 public class FlywayEditionUpgradeRequiredException extends FlywayLicensingException {
     public FlywayEditionUpgradeRequiredException(final Tier current, final String feature) {
-        super("Upgrade required: " + feature + " is not supported by " +
-            (current == null ? "OSS" : current.getDisplayName())
-            + ".\n"
-            + (current != null
-            ? "If you would like to start a free Enterprise trial, please run auth -startEnterpriseTrial -IAgreeToTheEula.\n"
-            + "Check the licensing documentation for information on how to license Flyway: "
-            + FlywayDbWebsiteLinks.LICENSING_ACTIVATING_CLI
+        super("Upgrade required: " + feature + " is not supported by " + (current == null
+            ? "OSS"
+            : current.getDisplayName()) + ".\n" + (current != null
+            ?
+            "If you would like to start a free Enterprise trial, please run auth -startEnterpriseTrial -IAgreeToTheEula.\n"
+                + "Check the licensing documentation for information on how to license Flyway: "
+                + FlywayDbWebsiteLinks.LICENSING_ACTIVATING_CLI
             : "Download Redgate Edition for free: "
                 + FlywayDbWebsiteLinks.REDGATE_EDITION_DOWNLOAD
                 + ".\n"

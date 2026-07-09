@@ -45,29 +45,26 @@ public class DatabricksParser extends Parser {
     protected void adjustBlockDepth(final ParserContext context,
         final List<Token> tokens,
         final Token keyword,
-        final PeekingReader reader
-                                   ) throws IOException {
+        final PeekingReader reader) throws IOException {
         final int lastKeywordIndex = getLastKeywordIndex(tokens);
         final Token previousKeyword = lastKeywordIndex >= 0 ? tokens.get(lastKeywordIndex) : null;
         final String keywordText = keyword.getText();
-        final String previousKeywordText = previousKeyword != null ? previousKeyword.getText().toUpperCase(Locale.ENGLISH) : "";
+        final String previousKeywordText = previousKeyword != null ? previousKeyword.getText()
+            .toUpperCase(Locale.ENGLISH) : "";
 
-        if ("BEGIN".equalsIgnoreCase(keywordText)
-            && (reader.peekIgnoreCase(" TRANSACTION") || reader.peekIgnoreCase(" WORK"))) {
+        if ("BEGIN".equalsIgnoreCase(keywordText) && (reader.peekIgnoreCase(" TRANSACTION") || reader.peekIgnoreCase(
+            " WORK"))) {
             return;
         }
 
-        if ("BEGIN".equalsIgnoreCase(keywordText)
-            || (("CASE".equalsIgnoreCase(keywordText)
-            || ("IF".equalsIgnoreCase(keywordText)
-            && !CONDITIONALLY_CREATABLE_OBJECTS.contains(previousKeywordText))
+        if ("BEGIN".equalsIgnoreCase(keywordText) || (("CASE".equalsIgnoreCase(keywordText)
+            || ("IF".equalsIgnoreCase(keywordText) && !CONDITIONALLY_CREATABLE_OBJECTS.contains(previousKeywordText))
             || "FOR".equalsIgnoreCase(keywordText)
             || "WHILE".equalsIgnoreCase(keywordText)
             || "LOOP".equalsIgnoreCase(keywordText)
-            || "REPEAT".equalsIgnoreCase(keywordText))
-            && previousKeyword != null
-            && !(lastKeywordIndex == tokens.size() - 1 && "END".equalsIgnoreCase(previousKeywordText))
-            && !"CURSOR".equalsIgnoreCase(previousKeywordText))) {
+            || "REPEAT".equalsIgnoreCase(keywordText)) && previousKeyword != null && !(lastKeywordIndex
+            == tokens.size() - 1 && "END".equalsIgnoreCase(previousKeywordText)) && !"CURSOR".equalsIgnoreCase(
+            previousKeywordText))) {
             context.increaseBlockDepth(keywordText);
         } else if ("END".equalsIgnoreCase(keywordText) && context.getBlockDepth() > 0) {
             context.decreaseBlockDepth();

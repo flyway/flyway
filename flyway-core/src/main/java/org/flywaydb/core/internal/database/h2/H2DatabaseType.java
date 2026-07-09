@@ -43,12 +43,12 @@ public class H2DatabaseType extends BaseDatabaseType {
     }
 
     @Override
-    public boolean handlesJDBCUrl(String url) {
+    public boolean handlesJDBCUrl(final String url) {
         return url.startsWith("jdbc:h2:") || url.startsWith("jdbc:p6spy:h2:");
     }
 
     @Override
-    public String getDriverClass(String url, ClassLoader classLoader) {
+    public String getDriverClass(final String url, final ClassLoader classLoader) {
         if (url.startsWith("jdbc:p6spy:h2:")) {
             return "com.p6spy.engine.spy.P6SpyDriver";
         }
@@ -56,17 +56,23 @@ public class H2DatabaseType extends BaseDatabaseType {
     }
 
     @Override
-    public boolean handlesDatabaseProductNameAndVersion(String databaseProductName, String databaseProductVersion, Connection connection) {
+    public boolean handlesDatabaseProductNameAndVersion(final String databaseProductName,
+        final String databaseProductVersion,
+        final Connection connection) {
         return databaseProductName.startsWith("H2");
     }
 
     @Override
-    public Database createDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+    public Database createDatabase(final Configuration configuration,
+        final JdbcConnectionFactory jdbcConnectionFactory,
+        final StatementInterceptor statementInterceptor) {
         return new H2Database(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
     @Override
-    public Parser createParser(Configuration configuration, ResourceProvider resourceProvider, ParsingContext parsingContext) {
+    public Parser createParser(final Configuration configuration,
+        final ResourceProvider resourceProvider,
+        final ParsingContext parsingContext) {
         return new H2Parser(configuration, parsingContext);
     }
 }

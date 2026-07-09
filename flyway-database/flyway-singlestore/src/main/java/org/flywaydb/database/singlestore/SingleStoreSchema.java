@@ -30,26 +30,27 @@ import java.util.Map;
 
 public class SingleStoreSchema extends Schema<SingleStoreDatabase, SingleStoreTable> {
 
-    SingleStoreSchema(JdbcTemplate jdbcTemplate, SingleStoreDatabase database, String name) {
+    SingleStoreSchema(final JdbcTemplate jdbcTemplate, final SingleStoreDatabase database, final String name) {
         super(jdbcTemplate, database, name);
     }
 
     @Override
     protected boolean doExists() throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT COUNT(1) FROM information_schema.schemata WHERE schema_name=? LIMIT 1", name) > 0;
+        return jdbcTemplate.queryForInt("SELECT COUNT(1) FROM information_schema.schemata WHERE schema_name=? LIMIT 1",
+            name) > 0;
     }
 
     @Override
     protected boolean doEmpty() throws SQLException {
         return jdbcTemplate.queryForInt("SELECT SUM(found) FROM ("
-                        + "(SELECT 1 as found FROM information_schema.tables WHERE table_schema=? LIMIT 1) UNION ALL "
-                        + "(SELECT 1 as found FROM information_schema.views WHERE table_schema=? LIMIT 1) UNION ALL "
-                        + "(SELECT 1 as found FROM information_schema.routines WHERE routine_schema=? LIMIT 1)"
-                        + ") as all_found", name, name, name) == 0;
+            + "(SELECT 1 as found FROM information_schema.tables WHERE table_schema=? LIMIT 1) UNION ALL "
+            + "(SELECT 1 as found FROM information_schema.views WHERE table_schema=? LIMIT 1) UNION ALL "
+            + "(SELECT 1 as found FROM information_schema.routines WHERE routine_schema=? LIMIT 1)"
+            + ") as all_found", name, name, name) == 0;
     }
 
     @Override
-     protected void doCreate() throws SQLException {
+    protected void doCreate() throws SQLException {
         jdbcTemplate.execute("CREATE SCHEMA " + database.quote(name));
     }
 
@@ -60,36 +61,40 @@ public class SingleStoreSchema extends Schema<SingleStoreDatabase, SingleStoreTa
 
     @Override
     protected void doClean() throws SQLException {
-        for (String statement : cleanRoutines()) {
+        for (final String statement : cleanRoutines()) {
             jdbcTemplate.execute(statement);
         }
 
-        for (String statement : cleanViews()) {
+        for (final String statement : cleanViews()) {
             jdbcTemplate.execute(statement);
         }
 
-        for (Table table : allTables()) {
+        for (final Table table : allTables()) {
             table.drop();
         }
     }
 
     private List<String> cleanRoutines() throws SQLException {
-        List<Map<String, String>> routineNames = jdbcTemplate.queryForList("SELECT routine_name as 'N', routine_type as 'T' FROM information_schema.routines WHERE routine_schema=?", name);
+        final List<Map<String, String>> routineNames = jdbcTemplate.queryForList(
+            "SELECT routine_name as 'N', routine_type as 'T' FROM information_schema.routines WHERE routine_schema=?",
+            name);
 
-        List<String> statements = new ArrayList<>();
-        for (Map<String, String> row : routineNames) {
-            String routineName = row.get("N");
-            String routineType = row.get("T");
+        final List<String> statements = new ArrayList<>();
+        for (final Map<String, String> row : routineNames) {
+            final String routineName = row.get("N");
+            final String routineType = row.get("T");
             statements.add("DROP " + routineType + " " + database.quote(name, routineName));
         }
         return statements;
     }
 
     private List<String> cleanViews() throws SQLException {
-        List<String> viewNames = jdbcTemplate.queryForStringList("SELECT table_name FROM information_schema.views WHERE table_schema=?", name);
+        final List<String> viewNames = jdbcTemplate.queryForStringList(
+            "SELECT table_name FROM information_schema.views WHERE table_schema=?",
+            name);
 
-        List<String> statements = new ArrayList<>();
-        for (String viewName : viewNames) {
+        final List<String> statements = new ArrayList<>();
+        for (final String viewName : viewNames) {
             statements.add("DROP VIEW " + database.quote(name, viewName));
         }
         return statements;
@@ -97,9 +102,11 @@ public class SingleStoreSchema extends Schema<SingleStoreDatabase, SingleStoreTa
 
     @Override
     protected SingleStoreTable[] doAllTables() throws SQLException {
-        List<String> tableNames = jdbcTemplate.queryForStringList("SELECT table_name FROM information_schema.tables WHERE table_schema=?", name);
+        final List<String> tableNames = jdbcTemplate.queryForStringList(
+            "SELECT table_name FROM information_schema.tables WHERE table_schema=?",
+            name);
 
-        SingleStoreTable[] tables = new SingleStoreTable[tableNames.size()];
+        final SingleStoreTable[] tables = new SingleStoreTable[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new SingleStoreTable(jdbcTemplate, database, this, tableNames.get(i));
         }
@@ -107,7 +114,7 @@ public class SingleStoreSchema extends Schema<SingleStoreDatabase, SingleStoreTa
     }
 
     @Override
-    public Table getTable(String tableName) {
+    public Table getTable(final String tableName) {
         return new SingleStoreTable(jdbcTemplate, database, this, tableName);
     }
 }

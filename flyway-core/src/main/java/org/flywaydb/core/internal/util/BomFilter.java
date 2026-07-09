@@ -28,7 +28,7 @@ public class BomFilter {
      * @param c The char to check
      * @return Whether this char is a UTF-8 Byte Order Mark
      */
-    public static boolean isBom(char c) {
+    public static boolean isBom(final char c) {
         return c == BOM;
     }
 
@@ -38,7 +38,7 @@ public class BomFilter {
      * @param s The string
      * @return The string without a Byte Order Mark at the start
      */
-    public static String FilterBomFromString(String s) {
+    public static String FilterBomFromString(final String s) {
         if (s.isEmpty()) {
             return s;
         }

@@ -37,47 +37,47 @@ public class FileLog implements Log {
     private final Path path;
 
     @Override
-    public void debug(String message) {
+    public void debug(final String message) {
         if (LogFactory.isDebugEnabled()) {
             writeLogMessage("DEBUG", message);
         }
     }
 
     @Override
-    public void info(String message) {
+    public void info(final String message) {
         if (!LogFactory.isQuietMode()) {
             writeLogMessage(message);
         }
     }
 
     @Override
-    public void warn(String message) {
+    public void warn(final String message) {
         writeLogMessage("WARNING", message);
     }
 
     @Override
-    public void error(String message) {
+    public void error(final String message) {
         writeLogMessage("ERROR", message);
     }
 
     @Override
-    public void error(String message, Exception e) {
-        StringWriter stringWriter = new StringWriter();
+    public void error(final String message, final Exception e) {
+        final StringWriter stringWriter = new StringWriter();
         e.printStackTrace(new PrintWriter(stringWriter));
-        String stackTrace = stringWriter.toString();
+        final String stackTrace = stringWriter.toString();
 
         writeLogMessage("ERROR", message);
         writeLogMessage(stackTrace);
     }
 
-    public void notice(String message) {}
+    public void notice(final String message) {}
 
-    private void writeLogMessage(String prefix, String message) {
-        String logMessage = prefix + ": " + message;
+    private void writeLogMessage(final String prefix, final String message) {
+        final String logMessage = prefix + ": " + message;
         writeLogMessage(logMessage);
     }
 
-    private void writeLogMessage(String logMessage) {
+    private void writeLogMessage(final String logMessage) {
         try {
             Files.write(path, (logMessage + "\n").getBytes(), StandardOpenOption.APPEND, StandardOpenOption.WRITE);
         } catch (IOException exception) {

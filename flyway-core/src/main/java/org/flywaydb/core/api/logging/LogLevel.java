@@ -20,5 +20,7 @@
 package org.flywaydb.core.api.logging;
 
 public enum LogLevel {
-    DEBUG, INFO, WARN
+    DEBUG,
+    INFO,
+    WARN
 }

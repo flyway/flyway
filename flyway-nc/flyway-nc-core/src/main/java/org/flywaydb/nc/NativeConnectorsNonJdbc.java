@@ -26,7 +26,8 @@ public abstract class NativeConnectorsNonJdbc extends AbstractNativeConnectorsDa
     protected boolean isClosed;
 
     /**
-     * By default, databases that use Batch to implement Transactions cannot support Batch, as it would cause a conflict.
+     * By default, databases that use Batch to implement Transactions cannot support Batch, as it would cause a
+     * conflict.
      */
     @Override
     public boolean supportsBatch() {
@@ -34,8 +35,8 @@ public abstract class NativeConnectorsNonJdbc extends AbstractNativeConnectorsDa
     }
 
     /**
-     * Only applies to certain non-JDBC databases that put all statements within a block and execute them as a single transaction.
-     * For these databases, transactions are handled via batching
+     * Only applies to certain non-JDBC databases that put all statements within a block and execute them as a single
+     * transaction. For these databases, transactions are handled via batching
      */
     public boolean transactionAsBatch() {
         return false;

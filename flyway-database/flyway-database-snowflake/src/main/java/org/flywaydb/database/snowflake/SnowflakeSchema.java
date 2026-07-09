@@ -36,28 +36,27 @@ public class SnowflakeSchema extends Schema<SnowflakeDatabase, SnowflakeTable> {
      * Creates a new Snowflake schema.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database The database-specific support.
-     * @param name The name of the schema.
+     * @param database     The database-specific support.
+     * @param name         The name of the schema.
      */
-    SnowflakeSchema(JdbcTemplate jdbcTemplate, SnowflakeDatabase database, String name) {
+    SnowflakeSchema(final JdbcTemplate jdbcTemplate, final SnowflakeDatabase database, final String name) {
         super(jdbcTemplate, database, name);
     }
 
     @Override
     protected boolean doExists() throws SQLException {
-        List<Boolean> results = jdbcTemplate.query("SHOW SCHEMAS LIKE '" + name + "'", rs -> true);
+        final List<Boolean> results = jdbcTemplate.query("SHOW SCHEMAS LIKE '" + name + "'", rs -> true);
         return !results.isEmpty();
     }
 
     @Override
     protected boolean doEmpty() throws SQLException {
-        int objectCount = getObjectCount("TABLE") + getObjectCount("VIEW")
-                + getObjectCount("SEQUENCE");
+        final int objectCount = getObjectCount("TABLE") + getObjectCount("VIEW") + getObjectCount("SEQUENCE");
 
         return objectCount == 0;
     }
 
-    private int getObjectCount(String objectType) throws SQLException {
+    private int getObjectCount(final String objectType) throws SQLException {
         return jdbcTemplate.query("SHOW " + objectType + "S IN SCHEMA " + database.quote(name), rs -> 1).size();
     }
 
@@ -73,68 +72,78 @@ public class SnowflakeSchema extends Schema<SnowflakeDatabase, SnowflakeTable> {
 
     @Override
     protected void doClean() throws SQLException {
-        for (String dropStatement : generateDropStatements("VIEW")) {
+        for (final String dropStatement : generateDropStatements("VIEW")) {
             jdbcTemplate.execute(dropStatement);
         }
 
-        for (String dropStatement : generateDropStatements("TABLE")) {
+        for (final String dropStatement : generateDropStatements("TABLE")) {
             jdbcTemplate.execute(dropStatement);
         }
 
-        for (String dropStatement : generateDropStatements("SEQUENCE")) {
+        for (final String dropStatement : generateDropStatements("SEQUENCE")) {
             jdbcTemplate.execute(dropStatement);
         }
 
-        for (String dropStatement: generateDropStatements("STAGE")) {
+        for (final String dropStatement : generateDropStatements("STAGE")) {
             jdbcTemplate.execute(dropStatement);
         }
 
-        for (Pair<String, String> snowflakeDropPair : generateDropStatementsWithArgs("USER FUNCTIONS", "FUNCTION")) {
+        for (final Pair<String, String> snowflakeDropPair : generateDropStatementsWithArgs("USER FUNCTIONS",
+            "FUNCTION")) {
             try {
                 jdbcTemplate.execute(snowflakeDropPair.getRight());
             } catch (SQLException sqlException) {
-                LOG.warn("Unable to drop User Function " + snowflakeDropPair.getLeft() + ": " + sqlException.getMessage());
+                LOG.warn("Unable to drop User Function "
+                    + snowflakeDropPair.getLeft()
+                    + ": "
+                    + sqlException.getMessage());
             }
         }
 
-        for (Pair<String, String> snowflakeDropPair : generateDropStatementsWithArgs("USER PROCEDURES", "PROCEDURE")) {
+        for (final Pair<String, String> snowflakeDropPair : generateDropStatementsWithArgs("USER PROCEDURES",
+            "PROCEDURE")) {
             try {
                 jdbcTemplate.execute(snowflakeDropPair.getRight());
             } catch (SQLException sqlException) {
-                LOG.warn("Unable to drop User Procedure " + snowflakeDropPair.getLeft() + ": " + sqlException.getMessage());
+                LOG.warn("Unable to drop User Procedure "
+                    + snowflakeDropPair.getLeft()
+                    + ": "
+                    + sqlException.getMessage());
             }
         }
     }
 
     @Override
     protected SnowflakeTable[] doAllTables() throws SQLException {
-        List<SnowflakeTable> tables = jdbcTemplate.query("SHOW TABLES IN SCHEMA " + database.quote(name), new RowMapper<SnowflakeTable>() {
-            @Override
-            public SnowflakeTable mapRow(ResultSet rs) throws SQLException {
-                String tableName = rs.getString("name");
-                return (SnowflakeTable) getTable(tableName);
-            }
-        });
+        final List<SnowflakeTable> tables = jdbcTemplate.query("SHOW TABLES IN SCHEMA " + database.quote(name),
+            new RowMapper<SnowflakeTable>() {
+                @Override
+                public SnowflakeTable mapRow(final ResultSet rs) throws SQLException {
+                    final String tableName = rs.getString("name");
+                    return (SnowflakeTable) getTable(tableName);
+                }
+            });
         return tables.toArray(SnowflakeTable[]::new);
     }
 
     @Override
-    public Table getTable(String tableName) {
+    public Table getTable(final String tableName) {
         return new SnowflakeTable(jdbcTemplate, database, this, tableName);
     }
 
     private List<String> generateDropStatements(final String objectType) throws SQLException {
         return jdbcTemplate.query("SHOW " + objectType + "S IN SCHEMA " + database.quote(name), rs -> {
-            String tableName = rs.getString("name");
+            final String tableName = rs.getString("name");
             return "DROP " + objectType + " " + database.quote(name) + "." + database.quote(tableName);
         });
     }
 
-    private List<Pair<String,String>> generateDropStatementsWithArgs(final String showObjectType, final String dropObjectType) throws SQLException {
+    private List<Pair<String, String>> generateDropStatementsWithArgs(final String showObjectType,
+        final String dropObjectType) throws SQLException {
         return jdbcTemplate.query("SHOW " + showObjectType + " IN SCHEMA " + database.quote(name), rs -> {
-            String nameAndArgsList = rs.getString("arguments");
-            int indexOfEndOfArgs = nameAndArgsList.indexOf(") RETURN ");
-            String functionName = nameAndArgsList.substring(0, indexOfEndOfArgs + 1);
+            final String nameAndArgsList = rs.getString("arguments");
+            final int indexOfEndOfArgs = nameAndArgsList.indexOf(") RETURN ");
+            final String functionName = nameAndArgsList.substring(0, indexOfEndOfArgs + 1);
             return Pair.of(functionName, "DROP " + dropObjectType + " " + name + "." + functionName);
         });
     }

@@ -24,10 +24,8 @@ import lombok.NoArgsConstructor;
 
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAccessor;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -40,32 +38,31 @@ public class DateUtils {
      * Formats this date in the standard ISO yyyy-MM-dd HH:mm:ss format.
      *
      * @param date The date to format.
-     *
      * @return The date in ISO format. An empty string if the date is null.
      */
-    public static String formatDateAsIsoString(Date date) {
+    public static String formatDateAsIsoString(final Date date) {
         if (date == null) {
             return "";
         }
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
     }
 
-    public static String formatStringAsIsoDateString(String date) {
+    public static String formatStringAsIsoDateString(final String date) {
         if (date == null) {
             return "";
         }
-        
-        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date.from(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(date))));
+
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date.from(Instant.from(DateTimeFormatter.ISO_INSTANT.parse(
+            date))));
     }
 
     /**
      * Formats the time of this date in the standard ISO HH:mm:ss format.
      *
      * @param date The date to format.
-     *
      * @return The time in ISO format. An empty string if the time is null.
      */
-    public static String formatTimeAsIsoString(Date date) {
+    public static String formatTimeAsIsoString(final Date date) {
         if (date == null) {
             return "";
         }
@@ -78,10 +75,9 @@ public class DateUtils {
      * @param year  The year.
      * @param month The month (1-12).
      * @param day   The day (1-31).
-     *
      * @return The date.
      */
-    public static Date toDate(int year, int month, int day) {
+    public static Date toDate(final int year, final int month, final int day) {
         return new GregorianCalendar(year, month - 1, day).getTime();
     }
 
@@ -89,29 +85,27 @@ public class DateUtils {
      * Converts this date into a YYYY-MM-dd string.
      *
      * @param date The date.
-     *
      * @return The matching string.
      */
-    public static String toDateString(Date date) {
-        GregorianCalendar calendar = new GregorianCalendar();
+    public static String toDateString(final Date date) {
+        final GregorianCalendar calendar = new GregorianCalendar();
         calendar.setTime(date);
-        String year = "" + calendar.get(Calendar.YEAR);
-        String month = StringUtils.trimOrLeftPad("" + (calendar.get(Calendar.MONTH) + 1), 2, '0');
-        String day = StringUtils.trimOrLeftPad("" + calendar.get(Calendar.DAY_OF_MONTH), 2, '0');
+        final String year = "" + calendar.get(Calendar.YEAR);
+        final String month = StringUtils.trimOrLeftPad("" + (calendar.get(Calendar.MONTH) + 1), 2, '0');
+        final String day = StringUtils.trimOrLeftPad("" + calendar.get(Calendar.DAY_OF_MONTH), 2, '0');
         return year + "-" + month + "-" + day;
     }
 
-    public static Date addDaysToDate(Date fromDate, int days) {
+    public static Date addDaysToDate(final Date fromDate, final int days) {
         return Date.from(fromDate.toInstant()
-                                 .atZone(ZoneId.systemDefault())
-                                 .toLocalDate()
-                                 .plusDays(days)
-                                 .atStartOfDay(ZoneId.systemDefault())
-                                 .toInstant());
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate()
+            .plusDays(days)
+            .atStartOfDay(ZoneId.systemDefault())
+            .toInstant());
     }
 
-    public static long getRemainingDays(Date expiry) {
+    public static long getRemainingDays(final Date expiry) {
         return DAYS.between(new Date().toInstant(), expiry.toInstant());
     }
-
 }

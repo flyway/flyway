@@ -82,8 +82,11 @@ class JdbcTableSchemaHistory extends SchemaHistory {
      * @param database The database to use.
      * @param table    The schema history table used by Flyway.
      */
-    JdbcTableSchemaHistory(SqlScriptExecutorFactory sqlScriptExecutorFactory, SqlScriptFactory sqlScriptFactory,
-                           Database database, Table table, Configuration configuration) {
+    JdbcTableSchemaHistory(final SqlScriptExecutorFactory sqlScriptExecutorFactory,
+        final SqlScriptFactory sqlScriptFactory,
+        final Database database,
+        final Table table,
+        final Configuration configuration) {
         this.sqlScriptExecutorFactory = sqlScriptExecutorFactory;
         this.sqlScriptFactory = sqlScriptFactory;
         this.table = table;
@@ -113,19 +116,28 @@ class JdbcTableSchemaHistory extends SchemaHistory {
                 int retries = 0;
                 while (!exists()) {
                     if (retries == 0) {
-                        LOG.info("Creating Schema History table " + table + (baseline ? " with baseline" : "") + " ...");
+                        LOG.info("Creating Schema History table "
+                            + table
+                            + (baseline ? " with baseline" : "")
+                            + " ...");
                     }
                     try {
-                        ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(),
-                                                                         database).execute(new Callable<Object>() {
-                            @Override
-                            public Object call() {
-                                sqlScriptExecutorFactory.createSqlScriptExecutor(connection.getJdbcConnection(), false, false, true)
-                                                        .execute(database.getCreateScript(sqlScriptFactory, table, baseline), database.getConfiguration());
-                                LOG.debug("Created Schema History table " + table + (baseline ? " with baseline" : ""));
-                                return null;
-                            }
-                        });
+                        ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(), database)
+                            .execute(new Callable<Object>() {
+                                @Override
+                                public Object call() {
+                                    sqlScriptExecutorFactory.createSqlScriptExecutor(connection.getJdbcConnection(),
+                                            false,
+                                            false,
+                                            true)
+                                        .execute(database.getCreateScript(sqlScriptFactory, table, baseline),
+                                            database.getConfiguration());
+                                    LOG.debug("Created Schema History table " + table + (baseline
+                                        ? " with baseline"
+                                        : ""));
+                                    return null;
+                                }
+                            });
                     } catch (FlywayException e) {
                         if (++retries >= 10) {
                             throw e;
@@ -159,16 +171,21 @@ class JdbcTableSchemaHistory extends SchemaHistory {
     }
 
     @Override
-    public <T> T lock(Callable<T> callable) {
+    public <T> T lock(final Callable<T> callable) {
         connection.restoreOriginalState();
 
         return connection.lock(table, callable);
     }
 
     @Override
-    protected void doAddAppliedMigration(int installedRank, MigrationVersion version, String description,
-                                         MigrationType type, String script, Integer checksum,
-                                         int executionTime, boolean success) {
+    protected void doAddAppliedMigration(final int installedRank,
+        final MigrationVersion version,
+        String description,
+        final MigrationType type,
+        final String script,
+        final Integer checksum,
+        final int executionTime,
+        final boolean success) {
         boolean tableIsLocked = false;
         connection.restoreOriginalState();
 
@@ -181,22 +198,32 @@ class JdbcTableSchemaHistory extends SchemaHistory {
         }
 
         try {
-            String versionStr = version == null ? null : version.toString();
+            final String versionStr = version == null ? null : version.toString();
 
             if (!database.supportsEmptyMigrationDescription() && "".equals(description)) {
                 description = NO_DESCRIPTION_MARKER;
             }
 
-            Object versionObj = versionStr == null ? JdbcNullTypes.StringNull : versionStr;
-            Object checksumObj = checksum == null ? JdbcNullTypes.IntegerNull : checksum;
+            final Object versionObj = versionStr == null ? JdbcNullTypes.StringNull : versionStr;
+            final Object checksumObj = checksum == null ? JdbcNullTypes.IntegerNull : checksum;
 
             jdbcTemplate.update(database.getInsertStatement(table),
-                                installedRank, versionObj, description, type.name(), script, checksumObj, database.getInstalledBy(),
-                                executionTime, success);
+                installedRank,
+                versionObj,
+                description,
+                type.name(),
+                script,
+                checksumObj,
+                database.getInstalledBy(),
+                executionTime,
+                success);
 
             LOG.debug("Schema History table " + table + " successfully updated to reflect changes");
         } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to insert row for version '" + version + "' in Schema History table " + table, e);
+            throw new FlywaySqlException("Unable to insert row for version '"
+                + version
+                + "' in Schema History table "
+                + table, e);
         } finally {
             if (tableIsLocked) {
                 table.unlock();
@@ -216,14 +243,14 @@ class JdbcTableSchemaHistory extends SchemaHistory {
     }
 
     private void refreshCache() {
-        int maxCachedInstalledRank = cache.isEmpty() ? -1 : cache.getLast().getInstalledRank();
-        String query = database.getSelectStatement(table);
+        final int maxCachedInstalledRank = cache.isEmpty() ? -1 : cache.getLast().getInstalledRank();
+        final String query = database.getSelectStatement(table);
 
         try {
             cache.addAll(jdbcTemplate.query(query, rs -> {
                 // Construct a map of lower-cased column names to ordinals. This is useful for databases that
                 // upper-case them - e.g. Snowflake with QUOTED-IDENTIFIERS-IGNORE-CASE turned on
-                HashMap<String, Integer> columnOrdinalMap = constructColumnOrdinalMap(rs);
+                final HashMap<String, Integer> columnOrdinalMap = constructColumnOrdinalMap(rs);
 
                 Integer checksum = null;
                 try {
@@ -234,17 +261,19 @@ class JdbcTableSchemaHistory extends SchemaHistory {
                     checksum = null;
                 }
 
-                int installedRank = rs.getInt(columnOrdinalMap.get("installed_rank"));
-                MigrationVersion version = rs.getString(columnOrdinalMap.get("version")) != null ? MigrationVersion.fromVersion(rs.getString(columnOrdinalMap.get("version"))) : null;
-                String description = rs.getString(columnOrdinalMap.get("description"));
-                String type = rs.getString(columnOrdinalMap.get("type"));
-                String script = rs.getString(columnOrdinalMap.get("script"));
-                String installedBy = rs.getString(columnOrdinalMap.get("installed_by"));
-                int executionTime = rs.getInt(columnOrdinalMap.get("execution_time"));
-                boolean success = rs.getBoolean(columnOrdinalMap.get("success"));
+                final int installedRank = rs.getInt(columnOrdinalMap.get("installed_rank"));
+                final MigrationVersion version = rs.getString(columnOrdinalMap.get("version")) != null
+                    ? MigrationVersion.fromVersion(rs.getString(columnOrdinalMap.get("version")))
+                    : null;
+                final String description = rs.getString(columnOrdinalMap.get("description"));
+                final String type = rs.getString(columnOrdinalMap.get("type"));
+                final String script = rs.getString(columnOrdinalMap.get("script"));
+                final String installedBy = rs.getString(columnOrdinalMap.get("installed_by"));
+                final int executionTime = rs.getInt(columnOrdinalMap.get("execution_time"));
+                final boolean success = rs.getBoolean(columnOrdinalMap.get("success"));
                 Timestamp installedOn = rs.getTimestamp(columnOrdinalMap.get("installed_on"));
                 if (installedOn == null) {
-                    String installedOnStr = rs.getString(columnOrdinalMap.get("installed_on"));
+                    final String installedOnStr = rs.getString(columnOrdinalMap.get("installed_on"));
                     if (StringUtils.hasText(installedOnStr)) {
                         try {
                             installedOn = Timestamp.valueOf(installedOnStr);
@@ -254,24 +283,37 @@ class JdbcTableSchemaHistory extends SchemaHistory {
                     }
                 }
 
-                return configuration.getPluginRegister().getInstancesOf(AppliedMigration.class).stream()
-                                    .filter(am -> am.handlesType(type))
-                                    .findFirst()
-                                    .orElseThrow(() -> new FlywayUnknownMigrationTypeException(type))
-                                    .create(installedRank, version, description, type, script, checksum, installedOn, installedBy, executionTime, success);
+                return configuration.getPluginRegister()
+                    .getInstancesOf(AppliedMigration.class)
+                    .stream()
+                    .filter(am -> am.handlesType(type))
+                    .findFirst()
+                    .orElseThrow(() -> new FlywayUnknownMigrationTypeException(type))
+                    .create(installedRank,
+                        version,
+                        description,
+                        type,
+                        script,
+                        checksum,
+                        installedOn,
+                        installedBy,
+                        executionTime,
+                        success);
             }, maxCachedInstalledRank));
         } catch (SQLException e) {
-            throw new FlywaySqlException("Error while retrieving the list of applied migrations from Schema History table " + table, e);
+            throw new FlywaySqlException(
+                "Error while retrieving the list of applied migrations from Schema History table " + table,
+                e);
         }
     }
 
-    private HashMap<String, Integer> constructColumnOrdinalMap(ResultSet rs) throws SQLException {
-        HashMap<String, Integer> columnOrdinalMap = new HashMap<>();
-        ResultSetMetaData metadata = rs.getMetaData();
+    private HashMap<String, Integer> constructColumnOrdinalMap(final ResultSet rs) throws SQLException {
+        final HashMap<String, Integer> columnOrdinalMap = new HashMap<>();
+        final ResultSetMetaData metadata = rs.getMetaData();
 
         for (int i = 1; i <= metadata.getColumnCount(); i++) {
             // Careful - column ordinals in JDBC start at 1
-            String columnNameLower = metadata.getColumnName(i).toLowerCase();
+            final String columnNameLower = metadata.getColumnName(i).toLowerCase();
             columnOrdinalMap.put(columnNameLower, i);
         }
 
@@ -279,29 +321,36 @@ class JdbcTableSchemaHistory extends SchemaHistory {
     }
 
     @Override
-    public boolean removeFailedMigrations(final RepairResult repairResult, final MigrationPattern[] migrationPatternFilter) {
+    public boolean removeFailedMigrations(final RepairResult repairResult,
+        final MigrationPattern[] migrationPatternFilter) {
         if (!exists()) {
-            LOG.info("Repair of failed migration in Schema History table " + table + " not necessary as table doesn't exist.");
+            LOG.info("Repair of failed migration in Schema History table "
+                + table
+                + " not necessary as table doesn't exist.");
             return false;
         }
 
-        final List<AppliedMigration> failedAppliedMigrations = filterMigrations(allAppliedMigrations(), migrationPatternFilter)
-            .stream()
-            .filter(fam -> !fam.isSuccess())
-            .toList();
+        final List<AppliedMigration> failedAppliedMigrations = filterMigrations(allAppliedMigrations(),
+            migrationPatternFilter).stream().filter(fam -> !fam.isSuccess()).toList();
 
         if (failedAppliedMigrations.isEmpty()) {
-            LOG.info("Repair of failed migration in Schema History table " + table + " not necessary. No failed migration detected.");
+            LOG.info("Repair of failed migration in Schema History table "
+                + table
+                + " not necessary. No failed migration detected.");
             return false;
         }
 
         try {
-            repairResult.migrationsRemoved = failedAppliedMigrations.stream().map(CommandResultFactory::createRepairOutput).toList();
+            repairResult.migrationsRemoved = failedAppliedMigrations.stream()
+                .map(CommandResultFactory::createRepairOutput)
+                .toList();
 
             for (final AppliedMigration appliedMigration : failedAppliedMigrations) {
                 final Pair<String, Object> deleteStatement;
                 if (appliedMigration.getVersion() != null) {
-                    deleteStatement = database.getDeleteStatement(table, true, appliedMigration.getVersion().getVersion());
+                    deleteStatement = database.getDeleteStatement(table,
+                        true,
+                        appliedMigration.getVersion().getVersion());
                 } else {
                     deleteStatement = database.getDeleteStatement(table, false, appliedMigration.getDescription());
                 }
@@ -319,15 +368,16 @@ class JdbcTableSchemaHistory extends SchemaHistory {
         return true;
     }
 
-    private List<AppliedMigration> filterMigrations(List<AppliedMigration> appliedMigrations, MigrationPattern[] migrationPatternFilter) {
+    private List<AppliedMigration> filterMigrations(final List<AppliedMigration> appliedMigrations,
+        final MigrationPattern[] migrationPatternFilter) {
         if (migrationPatternFilter == null) {
             return appliedMigrations;
         }
 
-        Set<AppliedMigration> filteredList = new HashSet<>();
+        final Set<AppliedMigration> filteredList = new HashSet<>();
 
-        for (AppliedMigration appliedMigration : appliedMigrations) {
-            for (MigrationPattern migrationPattern : migrationPatternFilter) {
+        for (final AppliedMigration appliedMigration : appliedMigrations) {
+            for (final MigrationPattern migrationPattern : migrationPatternFilter) {
                 if (migrationPattern.matches(appliedMigration.getVersion(), appliedMigration.getDescription())) {
                     filteredList.add(appliedMigration);
                 }
@@ -338,63 +388,83 @@ class JdbcTableSchemaHistory extends SchemaHistory {
     }
 
     @Override
-    public void update(AppliedMigration appliedMigration, ResolvedMigration resolvedMigration) {
+    public void update(final AppliedMigration appliedMigration, final ResolvedMigration resolvedMigration) {
         connection.restoreOriginalState();
 
         clearCache();
 
-        MigrationVersion version = appliedMigration.getVersion();
+        final MigrationVersion version = appliedMigration.getVersion();
 
         String description = resolvedMigration.getDescription();
-        Integer checksum = resolvedMigration.getChecksum();
-        MigrationType type = appliedMigration.getType().isSynthetic()
-                ? appliedMigration.getType()
-                : resolvedMigration.getType();
+        final Integer checksum = resolvedMigration.getChecksum();
+        final MigrationType type = appliedMigration.getType().isSynthetic()
+            ? appliedMigration.getType()
+            : resolvedMigration.getType();
 
-        LOG.info("Repairing Schema History table for version " + version
-                         + " (Description: " + description + ", Type: " + type + ", Checksum: " + checksum + ")  ...");
+        LOG.info("Repairing Schema History table for version "
+            + version
+            + " (Description: "
+            + description
+            + ", Type: "
+            + type
+            + ", Checksum: "
+            + checksum
+            + ")  ...");
 
         if (!database.supportsEmptyMigrationDescription() && "".equals(description)) {
             description = NO_DESCRIPTION_MARKER;
         }
 
-        Object checksumObj = checksum == null ? JdbcNullTypes.IntegerNull : checksum;
+        final Object checksumObj = checksum == null ? JdbcNullTypes.IntegerNull : checksum;
 
         try {
-            jdbcTemplate.update(database.getUpdateStatement(table), description, type.name(), checksumObj, appliedMigration.getInstalledRank());
+            jdbcTemplate.update(database.getUpdateStatement(table),
+                description,
+                type.name(),
+                checksumObj,
+                appliedMigration.getInstalledRank());
         } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to repair Schema History table " + table
-                                                 + " for version " + version, e);
+            throw new FlywaySqlException("Unable to repair Schema History table " + table + " for version " + version,
+                e);
         }
     }
 
     @Override
-    public void delete(AppliedMigration appliedMigration) {
+    public void delete(final AppliedMigration appliedMigration) {
         connection.restoreOriginalState();
 
         clearCache();
 
-        MigrationVersion version = appliedMigration.getVersion();
-        String versionStr = version == null ? null : version.toString();
+        final MigrationVersion version = appliedMigration.getVersion();
+        final String versionStr = version == null ? null : version.toString();
 
         if (version == null) {
-            LOG.info("Repairing Schema History table for description \"" + appliedMigration.getDescription() + "\" (Marking as DELETED)  ...");
+            LOG.info("Repairing Schema History table for description \""
+                + appliedMigration.getDescription()
+                + "\" (Marking as DELETED)  ...");
         } else {
             LOG.info("Repairing Schema History table for version \"" + version + "\" (Marking as DELETED)  ...");
         }
 
-        Object versionObj = versionStr == null ? JdbcNullTypes.StringNull : versionStr;
-        Object checksumObj = appliedMigration.getChecksum() == null ? JdbcNullTypes.IntegerNull : appliedMigration.getChecksum();
+        final Object versionObj = versionStr == null ? JdbcNullTypes.StringNull : versionStr;
+        final Object checksumObj = appliedMigration.getChecksum() == null
+            ? JdbcNullTypes.IntegerNull
+            : appliedMigration.getChecksum();
 
         try {
-            jdbcTemplate.update(
-                    database.getInsertStatement(table),
-                    calculateInstalledRank(appliedMigration.getType()),
-                    versionObj, appliedMigration.getDescription(), "DELETE", appliedMigration.getScript(),
-                    checksumObj, database.getInstalledBy(), 0, appliedMigration.isSuccess());
+            jdbcTemplate.update(database.getInsertStatement(table),
+                calculateInstalledRank(appliedMigration.getType()),
+                versionObj,
+                appliedMigration.getDescription(),
+                "DELETE",
+                appliedMigration.getScript(),
+                checksumObj,
+                database.getInstalledBy(),
+                0,
+                appliedMigration.isSuccess());
         } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to repair Schema History table " + table
-                                                 + " for version " + version, e);
+            throw new FlywaySqlException("Unable to repair Schema History table " + table + " for version " + version,
+                e);
         }
     }
 }

@@ -31,13 +31,12 @@ public class ApiExecutor implements Executor<NonJdbcExecutorExecutionUnit, Nativ
     public void execute(final NativeConnectorsNonJdbc database,
         final NonJdbcExecutorExecutionUnit executionUnit,
         final Configuration configuration) {
-        
+
         if (configuration.isBatch() && !database.supportsBatch()) {
             throw new FlywayException("The Batch feature is not supported for " + database.getDatabaseType());
         }
 
-        if (configuration.isBatch() ||
-            (database.transactionAsBatch() && executionUnit.isExecuteInTransaction())) {
+        if (configuration.isBatch() || (database.transactionAsBatch() && executionUnit.isExecuteInTransaction())) {
             database.addToBatch(executionUnit);
         } else {
             // There may be previously added scripts pending execution; flush them out.

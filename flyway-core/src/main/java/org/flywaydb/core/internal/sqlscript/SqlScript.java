@@ -24,8 +24,8 @@ import org.flywaydb.core.api.resource.LoadableResource;
 import java.util.Collection;
 
 /**
- * SQL script containing a series of statements terminated by a delimiter (eg: ;).
- * Single-line (--) and multi-line (/* * /) comments are stripped and ignored.
+ * SQL script containing a series of statements terminated by a delimiter (eg: ;). Single-line (--) and multi-line (/* *
+ * /) comments are stripped and ignored.
  */
 public interface SqlScript extends Comparable<SqlScript> {
     /**
@@ -49,8 +49,8 @@ public interface SqlScript extends Comparable<SqlScript> {
     LoadableResource getResource();
 
     /**
-     * Whether the execution should take place inside a transaction. This is useful for databases
-     * like PostgreSQL where certain statement can only execute outside a transaction.
+     * Whether the execution should take place inside a transaction. This is useful for databases like PostgreSQL where
+     * certain statement can only execute outside a transaction.
      *
      * @return {@code true} if a transaction should be used (highly recommended), or {@code false} if not.
      */
@@ -64,13 +64,14 @@ public interface SqlScript extends Comparable<SqlScript> {
     boolean shouldExecute();
 
     /**
-     * Optionally, a script may provide the expression string describing the conditions under which {@code shouldExecute}
-     * returns true. The {@code shouldExecute} function itself is the source of truth for whether a script may execute.
-     * This function is provided for providing additional information rather than direct evaluation.
+     * Optionally, a script may provide the expression string describing the conditions under which
+     * {@code shouldExecute} returns true. The {@code shouldExecute} function itself is the source of truth for whether
+     * a script may execute. This function is provided for providing additional information rather than direct
+     * evaluation.
      *
      * @return A string expression for the shouldExecute function, or {@code null}
      */
-    default String shouldExecuteExpression() { return null; }
+    default String shouldExecuteExpression() {return null;}
 
     /**
      * Whether the script should honor placeholders.
