@@ -35,6 +35,7 @@
     <module>flyway-database-nc-mongodb</module>
     <module>flyway-database-nc-cassandra</module>
     <module>flyway-database-nc-couchbase</module>
+    <module>flyway-database-doris</module>
     <module>flyway-database-nc-sqlite</module>
 
 
