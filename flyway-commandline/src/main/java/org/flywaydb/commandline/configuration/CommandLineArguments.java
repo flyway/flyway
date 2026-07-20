@@ -354,6 +354,15 @@ public class CommandLineArguments {
         return getOperations().contains(operation);
     }
 
+    public boolean allOperationsSkipDefaultLocations() {
+        final List<String> operations = getOperations();
+        return !operations.isEmpty()
+            && operations.stream()
+                .allMatch(operation -> pluginRegister.getInstancesOf(CommandExtension.class)
+                    .stream()
+                    .anyMatch(ext -> ext.handlesCommand(operation) && !ext.requiresDefaultLocations()));
+    }
+
     public List<String> getOperations() {
         return getOperationsFromArgs(args);
     }

@@ -60,7 +60,7 @@ It is possible to define an environment on the commandline, for example:
 
 Note: You define an environment using the
 `environments` (plural) namespace but you specify which environment to use with the
-`environment` (singular) parameter. It's a bit of a trip hazard but it has some logical purpose to it.
+`environment` (singular) parameter.
 
 ## Legacy configuration
 

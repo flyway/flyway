@@ -51,6 +51,13 @@ public interface CommandExtension<T extends OperationResult> extends PluginMetad
     }
 
     /**
+     * @return Whether this extension needs the default CLI SQL location to be resolved
+     */
+    default boolean requiresDefaultLocations() {
+        return true;
+    }
+
+    /**
      * @param parameter The parameter to check is handled
      * @return Whether this extension handles the specified parameter
      */

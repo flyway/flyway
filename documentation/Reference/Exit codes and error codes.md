@@ -22,5 +22,6 @@ When Flyway commands fail, they throw an exception with a message to help you id
 |---------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
 | [General error codes](<Exit codes and error codes/General error codes>)   | These error codes may appear from any command, and are indicative of more general errors. |
 | [Check error codes](<Exit codes and error codes/Check error codes>)       | These error codes are surfaced when running `check changes` or `check drift`.             |
+| [Docker error codes](<Exit codes and error codes/Docker error codes>)     | These error codes are surfaced when using the `docker` provisioner.                       |
 | [Prepare error codes](<Exit codes and error codes/Prepare error codes>)   | These error codes are surfaced when running `prepare`.                                    |
 | [Validate error codes](<Exit codes and error codes/Validate error codes>) | These error codes are surfaced when running `validate` or `validateWithResult`.           |

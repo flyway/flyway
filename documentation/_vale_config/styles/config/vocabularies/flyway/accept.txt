@@ -1,4 +1,5 @@
 Adoptium
+[Aa]llowlist
 (?i)AWS
 [Bb]oolean
 [Cc]lasspath
@@ -24,6 +25,7 @@ Javadocs?
 jConnect
 JREs?
 JSON
+JVMs?
 (?i)jTds
 Kerberos
 Keystore
@@ -51,6 +53,7 @@ repeatables
 (?i)SQL
 SQLFluff
 [Tt]ablespace
+[Tt]oolsets?
 [Tt]ruststore
 (?i)TOML
 (?i)url
@@ -107,6 +110,18 @@ rerunnable
 schemaModel
 schema_history
 schema_shadow
+
+load_project
+reload_project
+create_before_pull_snapshot
+create_diff_schema_model
+update_schema_model
+create_diff_migrations
+generate_migrations
+review_code
+create_diff_development
+update_development
+get_diff_details
 
 Joao
 Tulka

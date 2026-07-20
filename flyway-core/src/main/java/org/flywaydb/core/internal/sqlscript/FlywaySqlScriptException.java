@@ -69,7 +69,7 @@ public class FlywaySqlScriptException extends FlywaySqlException {
         if (statement != null) {
             builder.append("Line       : ").append(getLineNumber()).append("\n");
             builder.append("Statement  : ")
-                .append(LogFactory.isDebugEnabled() ? getStatement() : STATEMENT_MESSAGE)
+                .append(LogFactory.isDebugEnabled() || isCallerFlywayDesktop() ? getStatement() : STATEMENT_MESSAGE)
                 .append("\n");
         }
         this.decoratedMessage = builder.toString();
@@ -96,6 +96,10 @@ public class FlywaySqlScriptException extends FlywaySqlException {
     @Override
     public String getMessage() {
         return decoratedMessage;
+    }
+
+    public static boolean isCallerFlywayDesktop() {
+        return "flyway-desktop".equals(System.getenv("FLYWAY_CALLER"));
     }
 
     private static String generateMessage(final Resource resource, final String environment) {

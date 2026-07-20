@@ -20,7 +20,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.flywaydb</groupId>
   <artifactId>flyway-parent</artifactId>
-  <version>12.11.0</version>
+  <version>13.0.0</version>
   <packaging>pom</packaging>
   <name>${project.artifactId}</name>
   <description>Flyway: Database Migrations Made Easy.</description>
@@ -62,7 +62,6 @@
     <module>flyway-nc</module>
     <module>flyway-shades</module>
     <module>flyway-command</module>
-
 
 
 
@@ -156,7 +155,7 @@
     <version.ignite>2.18.0</version.ignite>
     <version.informix>4.50.3</version.informix>
     <version.jansi>1.18</version.jansi>
-    <version.jackson>3.1.4</version.jackson>
+    <version.jackson>3.1.5</version.jackson>
     <version.jaxb>2.3.1</version.jaxb>
     <version.jaybird>3.0.10</version.jaybird>
     <version.jboss>3.2.15.Final</version.jboss>
@@ -168,9 +167,9 @@
     <version.junit>6.1.1</version.junit>
     <version.java-diff-utils>4.12</version.java-diff-utils>
     <version.system-stubs>2.1.8</version.system-stubs>
-    <version.legacy-jackson>2.22.0</version.legacy-jackson>
+    <version.legacy-jackson>2.22.1</version.legacy-jackson>
     <version.license-maven-plugin>2.4.0</version.license-maven-plugin>
-    <version.log4net2>2.25.4</version.log4net2>
+    <version.log4net2>2.25.5</version.log4net2>
     <version.logback>1.2.13</version.logback>
     <version.lombok>1.18.46</version.lombok>
     <version.lombok-maven-plugin>1.18.20.0</version.lombok-maven-plugin>

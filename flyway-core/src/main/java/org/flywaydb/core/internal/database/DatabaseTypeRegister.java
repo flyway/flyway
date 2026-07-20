@@ -76,11 +76,18 @@ public class DatabaseTypeRegister {
     }
 
     public static String redactJdbcUrl(final String url) {
+        if (!"true".equalsIgnoreCase(System.getenv("FLYWAY_DO_NOT_REDACT_URL"))) {
+            return "********";
+        }
         return redactJdbcUrlWithKnownTypes(url, getDatabaseTypesForUrl(url, null));
     }
 
     public static String redactJdbcUrlWithKnownTypes(String url,
         final Collection<? extends GeneralDatabaseType> types) {
+        if (!"true".equalsIgnoreCase(System.getenv("FLYWAY_DO_NOT_REDACT_URL"))) {
+            return "********";
+        }
+
         if (types.isEmpty()) {
             final List<Pattern> dbPatterns = BaseDatabaseType.getDefaultJDBCCredentialsPatterns();
             url = redactJdbcUrl(url, dbPatterns);
@@ -97,24 +104,24 @@ public class DatabaseTypeRegister {
         String redactedUrl = url;
         if (dbPatterns != null && !dbPatterns.isEmpty()) {
             for (final Pattern dbPattern : dbPatterns) {
-                redactedUrl = redactJdbcUrl(redactedUrl, dbPattern);
+                redactedUrl = redactValueUsingPattern(redactedUrl, dbPattern);
             }
         }
         return redactedUrl;
     }
 
-    private static String redactJdbcUrl(final String url, final Pattern pattern) {
-        final Matcher matcher = pattern.matcher(url);
+    public static String redactValueUsingPattern(final String value, final Pattern pattern) {
+        final Matcher matcher = pattern.matcher(value);
         final String replacement = "********";
         final StringBuilder redactedJdbcUrlBuilder = new StringBuilder();
         int lastEndIndex = 0;
 
         while (matcher.find()) {
-            redactedJdbcUrlBuilder.append(url, lastEndIndex, matcher.start(1));
+            redactedJdbcUrlBuilder.append(value, lastEndIndex, matcher.start(1));
             redactedJdbcUrlBuilder.append(replacement);
             lastEndIndex = matcher.end(1);
         }
-        redactedJdbcUrlBuilder.append(url.substring(lastEndIndex));
+        redactedJdbcUrlBuilder.append(value.substring(lastEndIndex));
         return redactedJdbcUrlBuilder.toString();
     }
 

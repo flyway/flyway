@@ -29,8 +29,8 @@ import org.flywaydb.core.internal.license.VersionPrinter;
 @CustomLog
 public class DeprecationUtils {
     public enum DeprecatedFeatures {
-        CLONE_PROVISIONER("Clone Provisioner", null, 13),
-        CLONE_RESOLVER("Clone Resolver", null, 13),
+        CLONE_PROVISIONER("Clone Provisioner", null, 14),
+        CLONE_RESOLVER("Clone Resolver", null, 14),
         CHECK_BUILD_URL("check.buildUrl", "check.buildEnvironment", null),
         INIT_SQL("initSql", "'afterConnect' callback", null),
         CREATE_SCHEMA("'createSchema' callback", "'beforeCreateSchema' callback", null),

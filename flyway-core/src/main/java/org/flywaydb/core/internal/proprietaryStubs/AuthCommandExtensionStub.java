@@ -49,6 +49,11 @@ public class AuthCommandExtensionStub implements CommandExtension<OperationResul
     }
 
     @Override
+    public boolean requiresDefaultLocations() {
+        return false;
+    }
+
+    @Override
     public boolean handlesParameter(final String parameter) {
         return false;
     }

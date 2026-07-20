@@ -62,10 +62,12 @@ public class LegacyConfigurationManager implements ConfigurationManager {
         config.putAll(envVars);
         config = overrideConfiguration(config, commandLineArguments.getConfiguration(false));
 
-        final File sqlFolder = new File(installDirectory, DEFAULT_CLI_SQL_LOCATION);
-        if (ConfigUtils.shouldUseDefaultCliSqlLocation(sqlFolder,
-            StringUtils.hasText(config.get(ConfigUtils.LOCATIONS)))) {
-            config.put(ConfigUtils.LOCATIONS, "filesystem:" + sqlFolder.getAbsolutePath());
+        if (!commandLineArguments.allOperationsSkipDefaultLocations()) {
+            final File sqlFolder = new File(installDirectory, DEFAULT_CLI_SQL_LOCATION);
+            if (ConfigUtils.shouldUseDefaultCliSqlLocation(sqlFolder,
+                StringUtils.hasText(config.get(ConfigUtils.LOCATIONS)))) {
+                config.put(ConfigUtils.LOCATIONS, "filesystem:" + sqlFolder.getAbsolutePath());
+            }
         }
 
         if (workingDirectory != null) {

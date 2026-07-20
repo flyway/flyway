@@ -206,7 +206,9 @@ public class ModernConfigurationManager implements ConfigurationManager {
 
         loadJarDirsAndAddToClasspath(installDirectory, cfg);
 
-        setDefaultSqlLocation(installDirectory, cfg);
+        if (!commandLineArguments.allOperationsSkipDefaultLocations()) {
+            setDefaultSqlLocation(installDirectory, cfg);
+        }
 
         return cfg;
     }

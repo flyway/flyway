@@ -765,8 +765,10 @@ public class ConfigUtils {
     }
 
     public static void dumpConfigurationMap(final Map<String, String> config, final String configMessage) {
-        LOG.debug(configMessage);
-        LOG.debug(getConfigMapDump(config));
+        if ("true".equalsIgnoreCase(System.getenv("FLYWAY_LOG_DEBUG_CONFIGURATION_MAP"))) {
+            LOG.debug(configMessage);
+            LOG.debug(getConfigMapDump(config));
+        }
     }
 
     static String getConfigMapDump(final Map<String, String> config) {

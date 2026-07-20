@@ -20,5 +20,8 @@
 package org.flywaydb.database.nc.mongodb;
 
 record MongoshCredential(String url, String username, String password) {
-
+    @Override
+    public String toString() {
+        return "MongoshCredential[username=" + username + "]";
+    }
 }

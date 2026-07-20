@@ -19,8 +19,11 @@
  */
 package org.flywaydb.core.internal.nc;
 
+import static org.flywaydb.core.internal.database.DatabaseTypeRegister.redactValueUsingPattern;
+
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -33,6 +36,7 @@ import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.util.StopWatch;
+import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.TimeFormat;
 
 /**
@@ -249,19 +253,19 @@ public sealed interface NativeConnectorsDatabase<T> extends GeneralDatabaseType,
     void updateSchemaHistoryItem(SchemaHistoryItem item, final String tableName);
 
     default String redactUrl(final String url) {
+        if (!"true".equalsIgnoreCase(System.getenv("FLYWAY_DO_NOT_REDACT_URL"))) {
+            return "********";
+        }
+
         String redactedUrl = url;
         for (final Pattern pattern : getUrlRedactionPatterns()) {
-            final Matcher matcher = pattern.matcher(url);
-            if (matcher.find()) {
-                final String password = matcher.group(1);
-                redactedUrl = redactedUrl.replace(password, "********");
-            }
+            redactedUrl = redactValueUsingPattern(redactedUrl, pattern);
         }
         return redactedUrl;
     }
 
     default Pattern[] getUrlRedactionPatterns() {
-        return new Pattern[] { Pattern.compile("password=([^;&]*).*", Pattern.CASE_INSENSITIVE),
+        return new Pattern[] { Pattern.compile("[;&?]password=([^;&]*)(?=[;&])?", Pattern.CASE_INSENSITIVE),
                                Pattern.compile("(?:jdbc:)?[^:]+://[^:]+:([^@]+)@.*", Pattern.CASE_INSENSITIVE) };
     }
 

@@ -24,6 +24,8 @@ import static org.flywaydb.nc.utils.VerbUtils.toMigrationText;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import lombok.CustomLog;
 import org.flywaydb.core.ProgressLogger;
 import org.flywaydb.core.api.LoadableMigrationInfo;
@@ -49,6 +51,9 @@ import org.flywaydb.nc.readers.ReaderFactory;
 
 @CustomLog
 public class ExecutableMigrator extends Migrator<NativeConnectorsDatabase> {
+    private static final List<Pattern> URL_PATTERNS = List.of(Pattern.compile("jdbc:", Pattern.CASE_INSENSITIVE),
+        Pattern.compile("mongodb:", Pattern.CASE_INSENSITIVE));
+
     @Override
     public List<MigrationExecutionGroup> createGroups(final MigrationInfo[] allPendingMigrations,
         final Configuration configuration,
@@ -208,7 +213,7 @@ public class ExecutableMigrator extends Migrator<NativeConnectorsDatabase> {
             : Event.AFTER_EACH_MIGRATE_ERROR;
         callbackManager.handleEvent(afterEach, database, configuration, context);
 
-        final String message = database.redactUrl(e.getMessage());
+        final String message = redactMessage(e.getMessage());
         throw new FlywayMigrateException(migrationInfo,
             calculateErrorMessage(message, migrationInfo, configuration.getCurrentEnvironmentName()),
             true,
@@ -233,5 +238,12 @@ public class ExecutableMigrator extends Migrator<NativeConnectorsDatabase> {
             null,
             null,
             "Message    : " + message + "\n");
+    }
+
+    static String redactMessage(final String message) {
+        if (URL_PATTERNS.stream().anyMatch(x -> x.matcher(message).find())) {
+            return "Error response redacted as it contains a pattern matching a URL.";
+        }
+        return message;
     }
 }

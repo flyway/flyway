@@ -20,6 +20,7 @@
 package org.flywaydb.nc.executors;
 
 import static org.flywaydb.core.internal.sqlscript.FlywaySqlScriptException.STATEMENT_MESSAGE;
+import static org.flywaydb.core.internal.sqlscript.FlywaySqlScriptException.isCallerFlywayDesktop;
 
 import lombok.CustomLog;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -68,7 +69,7 @@ public class JdbcExecutor implements Executor<SqlStatement, NativeConnectorsJdbc
         final boolean isDebugEnabled) {
         messageBuilder.append("Line       : ").append(executionUnit.getLineNumber()).append("\n");
         messageBuilder.append("Statement  : ")
-            .append(isDebugEnabled ? executionUnit.getSql() : STATEMENT_MESSAGE)
+            .append(isDebugEnabled || isCallerFlywayDesktop() ? executionUnit.getSql() : STATEMENT_MESSAGE)
             .append("\n");
     }
 }

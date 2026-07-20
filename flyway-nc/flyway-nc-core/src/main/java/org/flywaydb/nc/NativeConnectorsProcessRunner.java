@@ -139,7 +139,7 @@ public class NativeConnectorsProcessRunner {
     }
 
     public boolean checkToolInstalled(final boolean silent, final String errorMessage) {
-        LOG.debug("Executing " + String.join(" ", processBuilder.command()));
+        LOG.debug("Checking tool is installed: " + tool);
         try {
             processBuilder.start();
         } catch (final Exception e) {
