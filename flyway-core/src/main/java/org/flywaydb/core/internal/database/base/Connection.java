@@ -106,6 +106,17 @@ public abstract class Connection<D extends Database> implements Closeable {
             database).execute(callable);
     }
 
+    /**
+     * Locks this table and executes this callable.
+     *
+     * @param preferSessionLock Whether a session-scoped lock should be used instead of a transactional one, when the
+     * database implementation supports the distinction. Ignored by implementations that don't.
+     * @return The result of the callable.
+     */
+    public <T> T lock(final Table table, final Callable<T> callable, final boolean preferSessionLock) {
+        return lock(table, callable);
+    }
+
     public final JdbcTemplate getJdbcTemplate() {
         return jdbcTemplate;
     }
