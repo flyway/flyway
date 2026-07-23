@@ -102,7 +102,7 @@ public class DbMigrate {
             count = configuration.isGroup() ?
                 // When group is active, start the transaction boundary early to
                 // ensure that all changes to the schema history table are either committed or rolled back atomically.
-                schemaHistory.lock(this::migrateAll) :
+                schemaHistory.lock(this::migrateAll, nextPendingMigrationsRequireSessionLock()) :
                 // For all regular cases, proceed with the migration as usual.
                 migrateAll();
 
@@ -152,7 +152,7 @@ public class DbMigrate {
                 // With group active a lock on the schema history table has already been acquired.
                 ? migrateGroup(firstRun)
                 // Otherwise acquire the lock now. The lock will be released at the end of each migration.
-                : schemaHistory.lock(() -> migrateGroup(firstRun));
+                : schemaHistory.lock(() -> migrateGroup(firstRun), nextPendingMigrationsRequireSessionLock());
 
             migrateResult.migrationsExecuted += count;
             total += count;
@@ -170,6 +170,34 @@ public class DbMigrate {
         }
 
         return total;
+    }
+
+    /**
+     * Determines, without acquiring the schema history lock, whether the migration(s) about to be locked for
+     * require a session-scoped lock rather than a transactional one. With {@code group} disabled, the lock is
+     * re-acquired for each individual migration, so only the next pending migration matters. With {@code group}
+     * enabled, all pending migrations are applied under a single lock acquisition, so any one of them requiring
+     * non-transactional execution means the whole batch does too.
+     */
+    private boolean nextPendingMigrationsRequireSessionLock() {
+        final MigrationInfoServiceImpl infoService = new MigrationInfoServiceImpl(migrationResolver,
+            schemaHistory,
+            database,
+            configuration,
+            configuration.getTarget(),
+            configuration.isOutOfOrder(),
+            ValidatePatternUtils.getIgnoreAllPattern());
+        infoService.refresh();
+
+        final MigrationInfoImpl[] pending = infoService.pending();
+        if (pending.length == 0) {
+            return false;
+        }
+
+        return configuration.isGroup()
+            ? Arrays.stream(pending)
+                .anyMatch(migration -> !migration.getResolvedMigration().getExecutor().canExecuteInTransaction())
+            : !pending[0].getResolvedMigration().getExecutor().canExecuteInTransaction();
     }
 
     /**
