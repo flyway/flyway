@@ -21,6 +21,7 @@ package org.flywaydb.database.mysql;
 
 import lombok.CustomLog;
 import lombok.Getter;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
@@ -78,6 +79,17 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
         if (!database.isMariaDB() && !database.getVersion().isAtLeast("5.7")) {
             LOG.debug("Disabled user variable reset as it is only available from MySQL 5.7 onwards");
             return false;
+        }
+        Configuration config = database.getConfiguration();
+        if(config != null){
+            MysqlConfigurationExtension configurationExtension = config.getPluginRegister().getExact(MysqlConfigurationExtension.class);
+            if(configurationExtension != null){
+                Boolean skipUserVariableReset = configurationExtension.getSkipUserVariableReset();
+                if(skipUserVariableReset != null && skipUserVariableReset){
+                    LOG.debug("Disabled user variable reset as it is skipped in configuration");
+                    return false;
+                }
+            }
         }
 
         try {
