@@ -212,6 +212,10 @@ public class MigrationInfoImpl implements MigrationInfo {
             return null;
         }
 
+        if (MigrationState.COMPACTED.equals(state)) {
+            return null;
+        }
+
         if (Arrays.stream(context.ignorePatterns).anyMatch(p -> p.matchesMigration(getVersion() != null, state))) {
             return null;
         }
@@ -246,9 +250,20 @@ public class MigrationInfoImpl implements MigrationInfo {
             && (!context.isFutureIgnored() || (MigrationState.FUTURE_SUCCESS != state
             && MigrationState.FUTURE_FAILED != state))) {
             if (appliedMigration.getVersion() != null) {
-                final String errorMessage = "Detected applied migration not resolved locally: "
-                    + getVersion()
-                    + ".\nIf you removed this migration intentionally, run repair to mark the migration as deleted.";
+                final String errorMessage;
+                if (context.pendingBaseline != null
+                    && context.pendingBaseline.isNewerThan(context.lastApplied)
+                    && getVersion().compareTo(context.pendingBaseline) <= 0) {
+                    errorMessage = "Detected applied migration not resolved locally: "
+                        + getVersion()
+                        + ".\nThe database has not reached baseline migration "
+                        + context.pendingBaseline
+                        + ". Restore the removed versioned migrations and migrate through that version before compacting them.";
+                } else {
+                    errorMessage = "Detected applied migration not resolved locally: "
+                        + getVersion()
+                        + ".\nIf you removed this migration intentionally, run repair to mark the migration as deleted.";
+                }
                 return new ErrorDetails(CoreErrorCode.APPLIED_VERSIONED_MIGRATION_NOT_RESOLVED, errorMessage);
             } else {
                 final String errorMessage = "Detected applied migration not resolved locally: "

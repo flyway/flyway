@@ -38,6 +38,7 @@ public class MigrationInfoContext {
     public MigrationVersion schema;
     public MigrationVersion pendingBaseline;
     public MigrationVersion appliedBaseline;
+    public MigrationVersion compactionBaseline;
     public MigrationVersion lastResolved = MigrationVersion.EMPTY;
     public MigrationVersion lastApplied = MigrationVersion.EMPTY;
     public Map<String, Integer> latestRepeatableRuns = new HashMap<>();
@@ -86,6 +87,11 @@ public class MigrationInfoContext {
         if (appliedBaseline != null ? !appliedBaseline.equals(that.appliedBaseline) : that.appliedBaseline != null) {
             return false;
         }
+        if (compactionBaseline != null
+            ? !compactionBaseline.equals(that.compactionBaseline)
+            : that.compactionBaseline != null) {
+            return false;
+        }
         if (lastResolved != null ? !lastResolved.equals(that.lastResolved) : that.lastResolved != null) {
             return false;
         }
@@ -107,6 +113,7 @@ public class MigrationInfoContext {
         result = 31 * result + (target != null ? target.hashCode() : 0);
         result = 31 * result + (schema != null ? schema.hashCode() : 0);
         result = 31 * result + (appliedBaseline != null ? appliedBaseline.hashCode() : 0);
+        result = 31 * result + (compactionBaseline != null ? compactionBaseline.hashCode() : 0);
         result = 31 * result + (lastResolved != null ? lastResolved.hashCode() : 0);
         result = 31 * result + (lastApplied != null ? lastApplied.hashCode() : 0);
         result = 31 * result + (cherryPick != null ? cherryPick.hashCode() : 0);

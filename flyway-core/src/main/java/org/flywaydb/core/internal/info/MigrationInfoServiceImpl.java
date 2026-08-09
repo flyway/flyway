@@ -106,6 +106,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             getAppliedRepeatableMigrations(appliedMigrations));
 
         updateContextFromAppliedVersionedMigrations(appliedVersioned, context);
+        context.compactionBaseline = findCompactionBaseline(resolvedMigrations, context.lastApplied);
 
         if (MigrationVersion.CURRENT == target) {
             context.target = context.lastApplied;
@@ -196,6 +197,26 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             }
         }
         return resolvedRepeatableMigrations;
+    }
+
+    static MigrationVersion findCompactionBaseline(final Collection<ResolvedMigration> resolvedMigrations,
+        final MigrationVersion lastApplied) {
+        if (MigrationVersion.EMPTY.equals(lastApplied)) {
+            return null;
+        }
+
+        MigrationVersion compactionBaseline = null;
+        for (final ResolvedMigration resolvedMigration : resolvedMigrations) {
+            final MigrationVersion version = resolvedMigration.getVersion();
+            if (resolvedMigration.getType().isBaseline()
+                && version != null
+                && (resolvedMigration.getExecutor() == null || resolvedMigration.getExecutor().shouldExecute())
+                && version.compareTo(lastApplied) <= 0
+                && (compactionBaseline == null || version.isNewerThan(compactionBaseline))) {
+                compactionBaseline = version;
+            }
+        }
+        return compactionBaseline;
     }
 
     private List<Pair<AppliedMigration, AppliedMigrationAttributes>> getAppliedVersionedMigrations(final List<AppliedMigration> appliedMigrations,

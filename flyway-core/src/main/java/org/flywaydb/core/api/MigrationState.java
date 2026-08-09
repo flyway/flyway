@@ -57,15 +57,14 @@ public enum MigrationState {
     /**
      * This migration succeeded.
      * <p>
-     * This migration was applied against this DB, but it is not available locally. This usually results from multiple
-     * older migration files being consolidated into a single one.
+     * This migration was applied against this DB, but it is not available locally and is not covered by a baseline
+     * migration reached by this database.
      */
     MISSING_SUCCESS("Missing", "missing", false, true, false),
     /**
      * This migration failed.
      * <p>
-     * This migration was applied against this DB, but it is not available locally. This usually results from multiple
-     * older migration files being consolidated into a single one.
+     * This migration was applied against this DB, but it is not available locally.
      * <p>
      * This should rarely, if ever, occur in practice.
      */
@@ -120,7 +119,11 @@ public enum MigrationState {
     /**
      * This is a migration that has been marked as deleted.
      */
-    DELETED("Deleted", false, true, false);
+    DELETED("Deleted", false, true, false),
+    /**
+     * This migration succeeded and is no longer available locally because it is covered by a baseline migration.
+     */
+    COMPACTED("Compacted", "compacted", false, true, false);
 
     private final String displayName;
     private final String pattern;

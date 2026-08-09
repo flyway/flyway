@@ -68,8 +68,29 @@ Migrations with a version less than or equal to the latest baseline migration's 
 +-----------+---------+--------------+------------------+---------------------+----------+----------+
 ```
 
+## Compacting versioned migrations
+
+Once every existing environment has migrated through the version of a baseline migration, the versioned migration files covered by that baseline may be removed. Flyway reports the corresponding schema history entries as `Compacted`, rather than as missing migrations, and validation continues to protect migrations above the baseline version.
+
+Compaction should be rolled out in two deployments. First, add and test the baseline migration while retaining the versioned migrations it replaces. After every existing environment has reached that version, remove the covered versioned migration files in a later deployment.
+
+For the example above, first deploy `B3__create_table.sql` alongside `V1`, `V2`, and `V3`. Once all existing environments are at version 3 or later, remove the three versioned files. Existing environments then show:
+
+```
++-----------+---------+-------------------+------+---------------------+-----------+----------+
+| Category  | Version | Description       | Type | Installed On        | State     | Undoable |
++-----------+---------+-------------------+------+---------------------+-----------+----------+
+| Versioned | 1       | create two tables | SQL  |         ...         | Compacted | No       |
+| Versioned | 2       | drop one table    | SQL  |         ...         | Compacted | No       |
+| Versioned | 3       | alter column      | SQL  |         ...         | Compacted | No       |
++-----------+---------+-------------------+------+---------------------+-----------+----------+
+```
+
+A lagging environment below version 3 still fails validation if a required versioned migration has been removed. Restore the versioned files and migrate that environment through version 3 before compacting them. Do not run `repair` to perform compaction; the original schema history entries are retained as an audit trail.
+
 ## Summary
 
 In this brief tutorial we saw how to:
 
 - Use baseline migrations to signal a new baseline in new environments
+- Compact versioned migrations that are covered by a baseline migration

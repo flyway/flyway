@@ -223,6 +223,13 @@ public class BaseAppliedMigration implements AppliedMigration {
                 return MigrationState.SUCCESS;
             }
 
+            if (isSuccess()
+                && getVersion() != null
+                && context.compactionBaseline != null
+                && getVersion().compareTo(context.compactionBaseline) <= 0) {
+                return MigrationState.COMPACTED;
+            }
+
             if ((getVersion() == null) || getVersion().compareTo(context.lastResolved) < 0) {
                 if (isSuccess()) {
                     return MigrationState.MISSING_SUCCESS;
