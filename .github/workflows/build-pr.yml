@@ -17,10 +17,18 @@ jobs:
           - windows-latest
         java:
           - 17
+        include:
+          # Flyway v14 will require Java 21. Exercise that transition before
+          # the bytecode baseline changes, and keep testing the current JDK.
+          - os: ubuntu-latest
+            java: 21
+          - os: ubuntu-latest
+            java: 26
       fail-fast: false
 
     permissions:
       contents: read
+      packages: read
 
     steps:
     - name: Checkout Flyway
@@ -31,6 +39,9 @@ jobs:
         java-version: ${{ matrix.java }}
         distribution: 'temurin'
         cache: 'maven'
+        server-id: flyway-community-db-support
 
     - name: Build with Maven
-      run: mvn -B install -e --file pom.xml -pl
+      run: mvn -B install -e --file pom.xml
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
