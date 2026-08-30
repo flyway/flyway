@@ -133,6 +133,7 @@ This namespace contains the configurations specific to the Flyway engine.
 |------------------------------------------------------------------------------|----------------------------------|
 | [`clickhouse`](<Configuration/Flyway Namespace/Flyway Clickhouse Namespace>) | Settings specific to Clickhouse. |
 | [`db2z`](<Configuration/Flyway Namespace/Flyway DB2 zOS Namespace>)          | Settings specific to DB2 zOS.    |
+| [`mysql`](<Configuration/Flyway Namespace/Flyway MySQL Namespace>)           | Settings specific to MySQL.      |
 | [`oracle`](<Configuration/Flyway Namespace/Flyway Oracle Namespace>)         | Settings specific to Oracle.     |
 | [`postgresql`](<Configuration/Flyway Namespace/Flyway PostgreSQL Namespace>) | Settings specific to PostgreSQL. |
 | [`sqlserver`](<Configuration/Flyway Namespace/Flyway SQL Server Namespace>)  | Settings specific to SQL Server. |
