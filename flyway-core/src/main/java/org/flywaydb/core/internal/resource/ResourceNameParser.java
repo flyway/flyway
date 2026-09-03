@@ -131,7 +131,7 @@ public class ResourceNameParser {
 
     private Pair<String, String> stripSuffix(final String name, final String[] suffixes) {
         for (final String suffix : suffixes) {
-            if (name.toUpperCase().endsWith(suffix.toUpperCase())) {
+            if (name.regionMatches(true, name.length() - suffix.length(), suffix, 0, suffix.length())) {
                 return Pair.of(name.substring(0, name.length() - suffix.length()),
                     name.substring(name.length() - suffix.length()));
             }
