@@ -9,6 +9,51 @@
 <div class="col-md-9">
 <!-- BEGIN db-generated release notes -->
   <div class="release">
+        <h2 id="13.6.0">Flyway 13.6.0 (2026-09-10)</h2>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Added a deployment overview table to the dry run report</li>
+            <li>`check.code.profile` and `check.code.profiles` let a code analysis run exclude a named set of rules and rule groups, so analysing a schema model no longer reports violations from rules that cannot apply to it. A built-in `schemaModel` profile is included.</li>
+            <li>`flyway deploy` now publishes the deployment to Flyway Pipelines when `publishResult` is enabled</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Added a comment to check dryrun reports when they are truncated</li>
+            <li>skip restoring sql server database name and 'ansi_nulls' if they're unchanged</li>
+            <li>The JSON report file now carries a top-level schemaVersion field identifying the version of the report format.</li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>Snowflake Postgres is now recognised as a supported PostgreSQL-derivative database type</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fixed DB2 migrations failing with SQLCODE=-428 when a schema check introduced in a previous release broke the requirement that some statements (e.g. TRUNCATE) be first in a unit of work</li>
+            <li>setting `url`, `user` or `password` on an environment using the `docker` provisioner is now rejected. The provisioner supplies these from the container it starts, and a configured value was silently used by operations that ran without provisioning.</li>
+            <li>the cached credentials from `flyway auth` are no longer invalidated when Flyway is upgraded. Note that upgrading to this version requires running `flyway auth` once more.</li>
+            <li>the `docker` provisioner's container connection details were discarded when the build environment was resolved without provisioning, so Flyway could migrate and compare against a url left in configuration instead of the container it started.</li>
+            <li>the docker provisioner showed the raw Docker CLI error instead of a clear message when the Docker daemon was not running</li>
+        </ul>
+
+        <h3>Library upgrades</h3>
+        <ul>
+            <li>Docker images now run on JRE 25 (previously JRE 21)</li>
+            <li>Update upgrade org.eclipse.jetty:jetty-server to 12.1.12</li>
+        </ul>
+
+        <h3>Internal dependency</h3>
+        <ul>
+            <li>Upgraded RgCompare to 1.62.10.5605</li>
+        </ul>
+
+  </div>
+
+
+  <div class="release">
         <h2 id="13.5.0">Flyway 13.5.0 (2026-09-03)</h2>
 
         <h3>New features</h3>
@@ -34,11 +79,6 @@
             <li>Upgraded com.fasterxml.jackson.core:jackson-core from 2.22.1 to 2.22.2</li>
             <li>Upgraded com.fasterxml.jackson.core:jackson-databind from 2.22.1 to 2.22.2</li>
             <li>Upgraded org.mariadb.jdbc:mariadb-java-client from 2.7.13 to 2.7.14</li>
-        </ul>
-
-        <h3>Internal dependency</h3>
-        <ul>
-            <li>Upgraded RgCompare to 1.62.7.5532</li>
         </ul>
 
   </div>

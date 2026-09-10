@@ -24,11 +24,9 @@ If you're using your own installed version of SQLFluff, Flyway will not attempt 
 
 ## Note
 
-By default, SQLFluff will respect local configuration files (e.g. `.sqlfluff`) if they are present.
+Setting this parameter isn't the only way Flyway ends up ignoring local configuration files such as `.sqlfluff`. Flyway's Redgate Bundle version of SQLFluff does this whenever it finds `sqlfluff.cfg` in the `conf/` folder and the bundled engine is present, whether or not you set this parameter.
 
-However, setting this parameter will cause Flyway to prevent SQLFluff from loading any additional configuration files. 
-
-If you want SQLFluff to apply its own [configuration searching and nesting behavior](https://docs.sqlfluff.com/en/stable/configuration/setting_configuration.html) then do not set this parameter.
+See [Which configuration is used](<Code Review Rules/Configuring SQLFluff Rules#which-configuration-is-used>) for the full precedence between this setting, the default `conf/sqlfluff.cfg`, and SQLFluff's own configuration searching and nesting behavior.
 
 ## Usage
 

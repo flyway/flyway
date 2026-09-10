@@ -19,14 +19,15 @@
  */
 package org.flywaydb.core.internal.resource;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.ResourceType;
 import org.flywaydb.core.extensibility.ResourceTypeProvider;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StringUtils;
-
-import java.util.*;
 
 public class ResourceNameParser {
     private final Configuration configuration;
@@ -104,6 +105,7 @@ public class ResourceNameParser {
 
             final String description = splitName.getRight().replace("_", " ");
             return new ResourceName(prefixResult.getLeft(),
+                prefix.getRight(),
                 splitName.getLeft(),
                 configuration.getSqlMigrationSeparator(),
                 description,

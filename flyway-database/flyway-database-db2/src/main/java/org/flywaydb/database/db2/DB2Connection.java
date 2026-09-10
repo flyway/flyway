@@ -21,6 +21,7 @@ package org.flywaydb.database.db2;
 
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
+import org.flywaydb.core.internal.exception.FlywaySqlException;
 
 import java.sql.SQLException;
 
@@ -35,6 +36,17 @@ public class DB2Connection extends Connection<DB2Database> {
     @Override
     protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
         return jdbcTemplate.queryForString("select current_schema from sysibm.sysdummy1");
+    }
+
+    @Override
+    public void changeCurrentSchemaTo(final Schema schema) {
+        try {
+            if (schema.exists()) {
+                doChangeCurrentSchemaOrSearchPathTo(schema.getName());
+            }
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Error setting current schema to " + schema, e);
+        }
     }
 
     @Override

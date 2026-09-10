@@ -23,6 +23,21 @@ To configure this provisioner:
     - `keepAlive` - (Optional) When set to `true`, the container is kept running after Flyway exits so that subsequent Flyway commands can reuse it. Defaults to `true`.
     - `iAgreeToTheDBVendorsEula` - (Optional) Must be set to `true` to provision database engines that require acceptance of the vendor's EULA (SQL Server and Oracle). See [EULA acceptance](#eula-acceptance) below.
 
+## Connection details
+
+This provisioner supplies the environment's `url`, `user` and `password` itself, from the container it starts. The container is published on an ephemeral host port, so these values are not knowable ahead of time and change whenever the container is recreated.
+
+Because of this, `url`, `user` and `password` must not be set on a `docker` environment, and Flyway reports an error if they are. This matters most when converting an existing environment to use this provisioner: the connection details of the database it used beforehand have to be removed, or Flyway would connect to that database instead of to the container.
+
+```toml
+[environments.build]
+provisioner = "docker"
+# no url, user or password - the provisioner supplies them
+
+[environments.build.resolvers.docker]
+sourceEnvironment = "production"
+```
+
 > **Note:** The `composeFile` and `services` keys belong to the [`docker-compose` provisioner](<Configuration/Environments Namespace/Environment Provisioner Setting/Docker Compose Provisioner>). For backward compatibility, a `docker` configuration that sets only those keys is forwarded to `docker-compose` with a deprecation warning, but combining them with any of the keys above is not supported and results in an error. Use `docker-compose` for compose-file based provisioning and `docker` for the auto-detecting behavior described here.
 
 ## Engine and version resolution

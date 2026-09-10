@@ -209,7 +209,7 @@ For more information, see the [SQL\*Plus documentation](https://docs.oracle.com/
 
 ## Authentication
 
-Oracle supports several methods of authentication, including username/password (which can be embedded in the JDBC URL), Oracle Wallet, Kerberos, and proxy authentication.
+Oracle supports several methods of authentication, including username/password (which can be embedded in the JDBC URL), Oracle Wallet, Kerberos, and [proxy authentication](https://documentation.red-gate.com/flyway/database-development-using-flyway/storing-and-retrieving-credentials#Storingandretrievingcredentials-OracleProxyAuthentication).
 
 For how to use authentication methods, see [Connecting to environments](https://documentation.red-gate.com/flyway/database-development-using-flyway/connecting-to-environments#Connectingtoenvironments-Authentication).
 For credential storage and retrieval, see [Storing and retrieving credentials](https://documentation.red-gate.com/flyway/database-development-using-flyway/storing-and-retrieving-credentials#Storingandretrievingcredentials-Database-specificcredentialretrieval).

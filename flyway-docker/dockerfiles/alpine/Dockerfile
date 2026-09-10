@@ -9,7 +9,7 @@ RUN gzip -d flyway-commandline-${FLYWAY_VERSION}-linux-alpine-x64.tar.gz \
   && chmod -R a+r /flyway \
   && chmod a+x /flyway/flyway
 
-FROM eclipse-temurin:21-jre-alpine AS flyway
+FROM eclipse-temurin:25-jre-alpine AS flyway
 ARG FLYWAY_VERSION
 LABEL "org.opencontainers.image.version"="${FLYWAY_VERSION}"
 RUN apk --no-cache add --update bash openssl

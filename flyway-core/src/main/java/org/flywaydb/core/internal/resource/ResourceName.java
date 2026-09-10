@@ -22,6 +22,7 @@ package org.flywaydb.core.internal.resource;
 import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.extensibility.ResourceType;
 
 /**
  * Represents a resource name, parsed into its components.
@@ -32,6 +33,7 @@ import org.flywaydb.core.api.MigrationVersion;
 @RequiredArgsConstructor
 public class ResourceName {
     private final String prefix;
+    private final ResourceType type;
     private final String version;
     private final String separator;
     private final String description;
@@ -47,11 +49,11 @@ public class ResourceName {
      * @return The fully populated parsing result.
      */
     public static ResourceName invalid(final String message) {
-        return new ResourceName(null, null, null, null, null, null, false, message);
+        return new ResourceName(null, null, null, null, null, null, null, false, message);
     }
 
     /**
-     * The prefix of the resource (eg. "V" for versioned migrations)
+     * The prefix of the resource (e.g. "V" for versioned migrations)
      */
     public String getPrefix() {
         if (!isValid) {
@@ -60,12 +62,22 @@ public class ResourceName {
         return prefix;
     }
 
+    /**
+     * The resource type matched by the prefix (e.g. a versioned migration, callback, or baseline marker)
+     */
+    public ResourceType getType() {
+        if (!isValid) {
+            throw new FlywayException("Cannot access type of invalid ResourceNameParseResult\r\n" + validityMessage);
+        }
+        return type;
+    }
+
     private boolean isVersioned() {
         return (!"".equals(version));
     }
 
     /**
-     * The version of the resource (eg. "1.2.3" for versioned migrations), or null for non-versioned resources
+     * The version of the resource (e.g. "1.2.3" for versioned migrations), or null for non-versioned resources
      */
     public MigrationVersion getVersion() {
         if (isVersioned()) {
@@ -87,7 +99,7 @@ public class ResourceName {
     }
 
     /**
-     * The file type suffix of the resource (eg. ".sql" for SQL migration scripts)
+     * The file type suffix of the resource (e.g. ".sql" for SQL migration scripts)
      */
     public String getSuffix() {
         if (!isValid) {

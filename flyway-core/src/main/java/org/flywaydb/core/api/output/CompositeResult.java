@@ -22,9 +22,21 @@ package org.flywaydb.core.api.output;
 import java.util.Collection;
 import java.util.List;
 
-public record CompositeResult<T extends OperationResult>(Collection<T> individualResults) implements OperationResult {
-    public CompositeResult(final Collection<T> individualResults) {
+public record CompositeResult<T extends OperationResult>(Collection<T> individualResults, int schemaVersion)
+    implements OperationResult {
+    /**
+     * The report schema version written by this version of Flyway. An envelope deserialized from a report written
+     * before versioning was introduced reports 0.
+     */
+    public static final int CURRENT_SCHEMA_VERSION = 1;
+
+    public CompositeResult(final Collection<T> individualResults, final int schemaVersion) {
         this.individualResults = List.copyOf(individualResults);
+        this.schemaVersion = schemaVersion;
+    }
+
+    public CompositeResult(final Collection<T> individualResults) {
+        this(individualResults, CURRENT_SCHEMA_VERSION);
     }
 
     @Override

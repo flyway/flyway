@@ -19,14 +19,13 @@
  */
 package org.flywaydb.core.internal.resource;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.ResourceType;
 import org.flywaydb.core.extensibility.ResourceTypeProvider;
 import org.flywaydb.core.internal.util.Pair;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class CoreResourceTypeProvider implements ResourceTypeProvider {
     private enum CoreResourceType implements ResourceType {
@@ -38,7 +37,16 @@ public class CoreResourceTypeProvider implements ResourceTypeProvider {
          * Whether the given resource type represents a resource that is versioned.
          */
         public boolean isVersioned() {
-            return this == CoreResourceType.MIGRATION;
+            return this == MIGRATION;
+        }
+
+        @Override
+        public String getDisplayName() {
+            return switch (this) {
+                case MIGRATION -> "Versioned";
+                case REPEATABLE_MIGRATION -> "Repeatable";
+                case CALLBACK -> "Callback";
+            };
         }
     }
 

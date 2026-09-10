@@ -20,7 +20,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.flywaydb</groupId>
   <artifactId>flyway-parent</artifactId>
-  <version>13.5.0</version>
+  <version>13.6.0</version>
   <packaging>pom</packaging>
   <name>${project.artifactId}</name>
   <description>Flyway: Database Migrations Made Easy.</description>
@@ -86,6 +86,7 @@
 
 
 
+
   </modules>
 
   <repositories>
@@ -105,12 +106,6 @@
       <id>flyway-community-db-support</id>
       <url>https://maven.pkg.github.com/flyway/flyway-community-db-support</url>
     </repository>
-
-
-
-
-
-
   </repositories>
 
   <properties>
@@ -120,14 +115,11 @@
 
     <jar.skipIfEmpty>false</jar.skipIfEmpty>
 
-    <version.ant>1.10.13</version.ant>
     <version.antlr>4.13.2</version.antlr>
     <version.appinsights>3.4.7</version.appinsights>
     <version.aws-java-sdk>2.44.14</version.aws-java-sdk> <!-- TODO: revert back to range once nexus is better -->
     <version.aws-secretsmanager>2.1.0</version.aws-secretsmanager>
     <version.azure-identity>1.18.5</version.azure-identity>
-    <version.azure-keyvault-secrets>4.9.2</version.azure-keyvault-secrets>
-    <version.bcpkix-jdk18on>1.85</version.bcpkix-jdk18on>
     <version.build-helper-maven-plugin>3.6.1</version.build-helper-maven-plugin>
     <version.byte-buddy-agent>1.17.6</version.byte-buddy-agent>
     <version.cassandra-jdbc>5.0.3</version.cassandra-jdbc>
@@ -144,27 +136,24 @@
     <version.frontend-maven-plugin>1.15.4</version.frontend-maven-plugin>
     <version.node>v22.12.0</version.node>
     <version.gcs>2.60.0</version.gcs>
-    <version.gcsm>2.81.0</version.gcsm>
     <version.gradle>6.1.1</version.gradle>
     <version.gson>2.10.1</version.gson>
     <version.h2>2.3.232</version.h2>
     <version.hamcrest>2.2</version.hamcrest>
     <version.hsqldb>2.7.2</version.hsqldb>
-    <version.ignite>2.18.0</version.ignite>
     <version.informix>4.50.3</version.informix>
     <version.jansi>4.3.1</version.jansi>
     <version.jackson>3.1.6</version.jackson>
-    <version.jaxb>2.3.1</version.jaxb>
     <version.jaybird>3.0.10</version.jaybird>
     <version.jboss>3.2.15.Final</version.jboss>
     <version.jetbrains-annotations>26.1.0</version.jetbrains-annotations>
     <version.jffi>1.3.10</version.jffi>
     <version.jimfs>1.3.2</version.jimfs>
     <version.jna>5.13.0</version.jna>
+    <version.json-schema-validator>3.0.6</version.json-schema-validator>
     <version.jsr305>3.0.2</version.jsr305>
     <version.jtds>1.3.1</version.jtds>
     <version.junit>6.1.3</version.junit>
-    <version.java-diff-utils>4.12</version.java-diff-utils>
     <version.system-stubs>2.1.8</version.system-stubs>
     <version.legacy-jackson>2.22.2</version.legacy-jackson>
     <version.license-maven-plugin>2.4.0</version.license-maven-plugin>
@@ -175,12 +164,10 @@
     <version.mariadb>2.7.14</version.mariadb>
     <version.maven>3.9.16</version.maven>
     <version.maven-plugin-tools>3.15.2</version.maven-plugin-tools>
-    <version.mcp-bom>2.0.0</version.mcp-bom>
     <version.mockito>5.23.0</version.mockito>
     <version.mockserver>5.15.0</version.mockserver>
     <version.mongodb>5.6.1</version.mongodb>
     <version.msal4j>1.20.0</version.msal4j>
-    <version.msal4j-persistence>1.3.0</version.msal4j-persistence>
     <version.mssql>12.10.2</version.mssql>
     <version.mssql-jdbc>${version.mssql}.jre11</version.mssql-jdbc>
     <version.mssql-jdbc_auth.x86>${version.mssql}.x86</version.mssql-jdbc_auth.x86>
@@ -196,13 +183,12 @@
     <version.sap>2.6.30</version.sap>
     <version.singlestore>1.2.8</version.singlestore>
     <version.slf4j>1.7.30</version.slf4j>
-    <version.snowflake>4.3.1</version.snowflake>
+    <version.snowflake>4.3.4</version.snowflake>
     <version.spanner>2.40.0</version.spanner>
     <version.springjdbc>5.3.19</version.springjdbc>
     <version.sqlite>3.50.3.0</version.sqlite>
     <version.surefire>3.5.5</version.surefire>
     <version.testcontainers>1.21.4</version.testcontainers>
-    <version.victools-jsonschema>5.0.0</version.victools-jsonschema>
   </properties>
 
   <dependencyManagement>
@@ -384,12 +370,6 @@
         <optional>true</optional>
       </dependency>
       <dependency>
-        <groupId>org.apache.ignite</groupId>
-        <artifactId>ignite-core</artifactId>
-        <version>${version.ignite}</version>
-        <optional>true</optional>
-      </dependency>
-      <dependency>
         <groupId>com.singlestore</groupId>
         <artifactId>singlestore-jdbc-client</artifactId>
         <version>${version.singlestore}</version>
@@ -547,11 +527,6 @@
         <version>${version.reactor-netty}</version>
       </dependency>
       <dependency>
-        <groupId>com.microsoft.azure</groupId>
-        <artifactId>msal4j-persistence-extension</artifactId>
-        <version>${version.msal4j-persistence}</version>
-      </dependency>
-      <dependency>
         <groupId>com.couchbase.client</groupId>
         <artifactId>java-client</artifactId>
         <version>${version.couchbase}</version>
@@ -566,49 +541,13 @@
         <artifactId>reactor-core</artifactId>
         <version>3.8.7</version>
       </dependency>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+      <dependency>
+        <groupId>io.opentelemetry</groupId>
+        <artifactId>opentelemetry-bom</artifactId>
+        <version>1.62.0</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
 
 
 
@@ -716,20 +655,10 @@
         <version>${version.azure-identity}</version>
       </dependency>
       <dependency>
-        <groupId>com.azure</groupId>
-        <artifactId>azure-security-keyvault-secrets</artifactId>
-        <version>${version.azure-keyvault-secrets}</version>
-      </dependency>
-      <dependency>
         <groupId>com.microsoft.azure</groupId>
         <artifactId>msal4j</artifactId>
         <version>${version.msal4j}</version>
         <optional>true</optional>
-      </dependency>
-      <dependency>
-        <groupId>javax.xml.bind</groupId>
-        <artifactId>jaxb-api</artifactId>
-        <version>${version.jaxb}</version>
       </dependency>
       <dependency>
         <groupId>software.amazon.awssdk</groupId>
@@ -741,18 +670,6 @@
         <groupId>com.google.cloud</groupId>
         <artifactId>google-cloud-storage</artifactId>
         <version>${version.gcs}</version>
-        <optional>true</optional>
-      </dependency>
-      <dependency>
-        <groupId>com.google.cloud</groupId>
-        <artifactId>google-cloud-secretmanager</artifactId>
-        <version>${version.gcsm}</version>
-        <optional>true</optional>
-      </dependency>
-      <dependency>
-        <groupId>com.google.api.grpc</groupId>
-        <artifactId>proto-google-cloud-secretmanager-v1</artifactId>
-        <version>${version.gcsm}</version>
         <optional>true</optional>
       </dependency>
       <dependency>
@@ -773,11 +690,6 @@
       </dependency>
       <dependency>
         <groupId>org.apache.maven</groupId>
-        <artifactId>maven-artifact</artifactId>
-        <version>${version.maven}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.maven</groupId>
         <artifactId>maven-model</artifactId>
         <version>${version.maven}</version>
       </dependency>
@@ -785,11 +697,6 @@
         <groupId>org.apache.maven</groupId>
         <artifactId>maven-core</artifactId>
         <version>${version.maven}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.ant</groupId>
-        <artifactId>ant</artifactId>
-        <version>${version.ant}</version>
       </dependency>
       <dependency>
         <groupId>org.jline</groupId>
@@ -816,26 +723,6 @@
         <groupId>com.nimbusds</groupId>
         <artifactId>oauth2-oidc-sdk</artifactId>
         <version>11.32</version>
-      </dependency>
-      <dependency>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-server</artifactId>
-        <version>12.1.10</version>
-      </dependency>
-      <dependency>
-        <groupId>com.oracle.database.security</groupId>
-        <artifactId>oraclepki</artifactId>
-        <version>${version.oracle}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.oracle.database.security</groupId>
-        <artifactId>osdt_cert</artifactId>
-        <version>${version.oracle}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.oracle.database.security</groupId>
-        <artifactId>osdt_core</artifactId>
-        <version>${version.oracle}</version>
       </dependency>
       <dependency>
         <groupId>com.databricks</groupId>

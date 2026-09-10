@@ -5,6 +5,33 @@ SQLFluff is configured using a configuration file.
 
 Flyway ships with a default configuration file in the `conf/` folder of the Flyway installation called `sqlfluff.cfg`. In order to turn this into a project policy we recommend putting a copy of this file under version control for your project and directing Flyway where to find this using the [`rulesConfig`](<configuration/flyway namespace/flyway check namespace/flyway check rules config setting>) parameter
 
+## Which configuration is used
+
+Flyway resolves at most one SQLFluff configuration file per run. The choice depends on whether [`flyway.check.rulesConfig`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Rules Config Setting>) is set and which SQLFluff engine is active:
+
+| Situation | Configuration used | Local SQLFluff config files |
+| --------- | ------------------- | --------------------------------------------------- |
+| `rulesConfig` is set | That file, alone. It must exist or Flyway errors | Ignored |
+| Unset, Redgate Bundle SQLFluff active, `conf/sqlfluff.cfg` present | `conf/sqlfluff.cfg`, alone | Ignored |
+| Unset, using your own SQLFluff installation | None supplied by Flyway | SQLFluff's own [configuration searching and nesting behavior](https://docs.sqlfluff.com/en/stable/configuration/setting_configuration.html) applies |
+| Unset, Redgate Bundle SQLFluff active but `conf/sqlfluff.cfg` missing | None supplied by Flyway | SQLFluff's own [configuration searching and nesting behavior](https://docs.sqlfluff.com/en/stable/configuration/setting_configuration.html) applies |
+
+SQLFluff itself reads local configuration from up to five files - `pyproject.toml`, `.sqlfluff`, `pep8.ini`, `tox.ini` and `setup.cfg`. See SQLFluff's [configuration documentation](https://docs.sqlfluff.com/en/stable/configuration/setting_configuration.html) for how these are discovered, ordered and merged. When Flyway resolves a configuration file it suppresses all five; when it does not, all five are available to SQLFluff as normal.
+
+A few things are always true, regardless of which row applies:
+
+- Flyway never merges configuration files. Whenever it resolves one, it passes both `--config` and `--ignore-local-config` to SQLFluff, so exactly one file applies. If you want to extend the shipped default, copy `conf/sqlfluff.cfg` and edit the copy rather than layering a local file on top.
+- The dialect always comes from Flyway, not from your configuration file. Flyway passes `--dialect` on every run - [`flyway.check.rulesDialect`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Rules Dialect Setting>) if set, otherwise a dialect derived from the JDBC URL, otherwise ANSI. SQLFluff's command-line arguments take precedence over its config-file keys, so a `dialect =` inside your configuration file has no effect.
+- [`flyway.check.sqlfluffCustomRulesPath`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check SQLFluff Custom Rules Location Setting>) is separate from all of this and additive - it points at a directory of custom rules rather than a configuration file, and is only available with Redgate Bundle SQLFluff. See [Configuring Custom SQLFluff Rules](<Code Review Rules/Configuring Custom SQLFluff Rules>) for how to use it.
+
+### Which engine is active
+
+Setting environment variable `FLYWAY_ENV_NATIVE_SQLFLUFF=false` forces Flyway to use your own SQLFluff installation, whatever your edition. This takes precedence over the license check when selecting an engine.
+
+{% include enterprise.html %}
+
+Redgate Bundle SQLFluff is used when Flyway is licensed for Flyway Enterprise and the bundled engine is present in your installation. If it is not present, Flyway logs a warning and falls back to your own SQLFluff installation - in which case no default config is loaded and local config files apply.
+
 ## Enabling and Disabling Rules
 There are a number of ways to enable and disable rules in the SQLFluff configuration file
 [SQLFluff Rules configuration](https://docs.sqlfluff.com/en/stable/configuration/rule_configuration.html#enabling-and-disabling-rules)

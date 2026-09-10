@@ -19,14 +19,14 @@
  */
 package org.flywaydb.database.sqlserver;
 
+import java.sql.SQLException;
+import java.util.Objects;
+import java.util.concurrent.Callable;
 import lombok.Getter;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
-
-import java.sql.SQLException;
-import java.util.concurrent.Callable;
 import org.flywaydb.core.internal.util.StringUtils;
 
 /**
@@ -48,7 +48,7 @@ public class SQLServerConnection extends Connection<SQLServerDatabase> {
     protected SQLServerConnection(final SQLServerDatabase database, final java.sql.Connection connection) {
         super(database, connection);
         try {
-            originalDatabaseName = jdbcTemplate.queryForString("SELECT DB_NAME()");
+            originalDatabaseName = getCurrentDatabaseName();
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine current database", e);
         }
@@ -76,18 +76,24 @@ public class SQLServerConnection extends Connection<SQLServerDatabase> {
         awsRds = rdsAdminExists();
 
         try {
-            originalAnsiNulls = azure
-                ? null
-                : jdbcTemplate.queryForString("DECLARE @ANSI_NULLS VARCHAR(3) = 'OFF';\n"
-                    + "IF ( (32 & @@OPTIONS) = 32 ) SET @ANSI_NULLS = 'ON';\n"
-                    + "SELECT @ANSI_NULLS AS ANSI_NULLS;");
+            originalAnsiNulls = azure ? null : getCurrentAnsiNulls();
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine ANSI NULLS state", e);
         }
     }
 
+    private String getCurrentDatabaseName() throws SQLException {
+        return jdbcTemplate.queryForString("SELECT DB_NAME()");
+    }
+
+    private String getCurrentAnsiNulls() throws SQLException {
+        return jdbcTemplate.queryForString("DECLARE @ANSI_NULLS VARCHAR(3) = 'OFF';\n"
+            + "IF ( (32 & @@OPTIONS) = 32 ) SET @ANSI_NULLS = 'ON';\n"
+            + "SELECT @ANSI_NULLS AS ANSI_NULLS;");
+    }
+
     void setCurrentDatabase(final String databaseName) throws SQLException {
-        if (!azure) {
+        if (!azure && !Objects.equals(databaseName, getCurrentDatabaseName())) {
             jdbcTemplate.execute("USE " + database.quote(databaseName));
         }
     }
@@ -100,7 +106,7 @@ public class SQLServerConnection extends Connection<SQLServerDatabase> {
     @Override
     protected void doRestoreOriginalState() throws SQLException {
         setCurrentDatabase(originalDatabaseName);
-        if (!azure) {
+        if (!azure && !Objects.equals(originalAnsiNulls, getCurrentAnsiNulls())) {
             jdbcTemplate.execute("SET ANSI_NULLS " + originalAnsiNulls);
         }
     }

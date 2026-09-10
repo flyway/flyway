@@ -19,13 +19,12 @@
  */
 package org.flywaydb.core.api.migration.baseline;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.ResourceType;
 import org.flywaydb.core.extensibility.ResourceTypeProvider;
 import org.flywaydb.core.internal.util.Pair;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class BaselineResourceTypeProvider implements ResourceTypeProvider {
     private enum BaselineResourceType implements ResourceType {
@@ -34,6 +33,11 @@ public class BaselineResourceTypeProvider implements ResourceTypeProvider {
         @Override
         public boolean isVersioned() {
             return true;
+        }
+
+        @Override
+        public String getDisplayName() {
+            return "Baseline";
         }
     }
 

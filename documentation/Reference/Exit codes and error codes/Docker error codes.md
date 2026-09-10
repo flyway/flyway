@@ -11,8 +11,8 @@ These error codes may be returned when using the [`docker` provisioner](<Configu
 
 ### `DOCKER_NOT_RUNNING`
 
-- **Caused by:** The `docker` command could not connect to the Docker daemon.
-- **Solution:** Start Docker (or Docker Desktop) and ensure the daemon is running before retrying.
+- **Caused by:** The `docker` command could not connect to the Docker daemon, either because it is not running or because the user running Flyway is not allowed to access it.
+- **Solution:** Start Docker (or Docker Desktop) and ensure the daemon is running before retrying. If Docker is running, check that the user running Flyway is allowed to access it - on Linux this usually means adding that user to the `docker` group.
 
 ### `DOCKER_EULA_NOT_ACCEPTED`
 

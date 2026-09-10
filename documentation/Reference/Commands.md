@@ -48,6 +48,12 @@ Flyway provides a comprehensive set of commands to manage database migrations an
 | [**Deploy**](<Commands/Deploy>) | Enterprise | Executes deployment scripts against target databases                                                                                                                      |
 | [**Snapshot**](<Commands/Snapshot>) | Enterprise | Takes [snapshots](https://documentation.red-gate.com/fd/snapshots-273973468.html) of database state for comparison                                                        |
 
+## AI Integration
+
+| Command | Tier | Description |
+|---------|------|-------------|
+| [**Mcp**](<Commands/Mcp>) | Enterprise | Starts the [Flyway MCP Server](<Usage/Flyway MCP Server>), exposing tools for AI coding agents to work with a Flyway project |
+
 ## Utilities
 
 | Command | Tier | Description |

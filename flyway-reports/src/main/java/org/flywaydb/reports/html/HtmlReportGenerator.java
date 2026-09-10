@@ -140,6 +140,7 @@ public class HtmlReportGenerator {
         return "<!doctype html>\n"
             + "<html lang=\"en\">\n"
             + "<head><meta charset=\"utf-8\">\n"
+            + "<title>Flyway Report</title>\n"
             + "<style>\n"
             + getCodeStyle()
             + "</style>\n</head>\n"

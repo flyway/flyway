@@ -245,6 +245,10 @@ a.nav-link:active {
   text-decoration: none;
 }
 
+.dryrun-script-link {
+  text-decoration-skip-ink: none;
+}
+
 .tabulardata {
   width: 100%;
 }
