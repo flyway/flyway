@@ -29,8 +29,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.CoreLocationPrefix;
 import org.flywaydb.core.api.FlywayException;
@@ -65,6 +68,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
                                                                       "runtimeClasspath",
                                                                       "testCompileClasspath",
                                                                       "testRuntimeClasspath" };
+    private static final String FLYWAY_PROPERTY_PREFIX = "flyway.";
 
     /**
      * The flyway {} block in the build script.
@@ -588,12 +592,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         this.javaProject = project.getPluginManager().hasPlugin("java");
         this.projectDirPath = project.getProjectDir().getAbsolutePath();
 
-        this.flywayProjectProperties = new HashMap<>();
-        for (final Map.Entry<String, ?> entry : project.getProperties().entrySet()) {
-            if (entry.getKey().startsWith("flyway.") && entry.getValue() != null) {
-                flywayProjectProperties.put(entry.getKey(), entry.getValue().toString());
-            }
-        }
+        this.flywayProjectProperties = resolveFlywayProjectProperties(project);
 
         this.flywayEnvVars = project.getProviders().of(FlywayEnvVarsValueSource.class, spec -> {});
         this.flywayConfigurationsSysProp = project.getProviders().systemProperty(ConfigUtils.CONFIGURATIONS);
@@ -619,6 +618,23 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         }));
 
         this.extraClasspath = classpathFiles;
+    }
+
+    /**
+     * {@code flyway.*} from extra properties on this project and its parents (child wins). Gradle copies {@code -P}
+     * and {@code gradle.properties} into extra, so this matches {@code Project.getProperties()} for those keys without
+     * calling it (deprecated in 9.6, removed in 10).
+     */
+    private static Map<String, String> resolveFlywayProjectProperties(final Project project) {
+        return Stream
+            .iterate(project, Objects::nonNull, Project::getParent)
+            .flatMap(current -> current.getExtensions().getExtraProperties().getProperties().entrySet().stream())
+            .filter(entry -> entry.getKey().startsWith(FLYWAY_PROPERTY_PREFIX) && entry.getValue() != null)
+            .collect(Collectors.toMap(
+                Map.Entry::getKey,
+                entry -> entry.getValue().toString(),
+                (child, parent) -> child,
+                HashMap::new));
     }
 
     @TaskAction
@@ -1036,7 +1052,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     private static void addConfigFromProperties(final Map<? super String, ? super String> config,
         final Properties properties) {
         for (final String prop : properties.stringPropertyNames()) {
-            if (prop.startsWith("flyway.")) {
+            if (prop.startsWith(FLYWAY_PROPERTY_PREFIX)) {
                 config.put(prop, properties.getProperty(prop));
             }
         }
@@ -1045,7 +1061,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     private static void addConfigFromProperties(final Map<? super String, ? super String> config,
         final Map<String, ?> properties) {
         for (final String prop : properties.keySet()) {
-            if (prop.startsWith("flyway.")) {
+            if (prop.startsWith(FLYWAY_PROPERTY_PREFIX)) {
                 config.put(prop, properties.get(prop).toString());
             }
         }
