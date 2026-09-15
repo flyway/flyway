@@ -38,9 +38,9 @@ CP="$CLASSPATH:$INSTALLDIR/lib/*:$INSTALLDIR/lib/aad/*:$INSTALLDIR/lib/plugins/*
 
 NATIVE_ACCESS="--enable-native-access=ALL-UNNAMED"
 if $linux; then
-  EXTRA_ARGS=($NATIVE_ACCESS, -Djava.security.egd=file:/dev/../dev/urandom)
+  EXTRA_ARGS=("$NATIVE_ACCESS")
 else
-  EXTRA_ARGS=($NATIVE_ACCESS, "-Djava.library.path=$INSTALLDIR/native")
+  EXTRA_ARGS=("$NATIVE_ACCESS" "-Djava.library.path=$INSTALLDIR/native")
 fi
 
 # Inherit OS-level proxy settings unless explicitly disabled. Placed before JAVA_ARGS on the
@@ -52,7 +52,7 @@ case "$FLYWAY_USE_SYSTEM_PROXIES" in
 esac
 
 if `command -v cygpath > /dev/null`; then CP=`cygpath -pw "$CP"`; fi
-"$JAVA_CMD" $PROXY_ARGS $JAVA_ARGS "$EXTRA_ARGS" -cp "$CP" org.flywaydb.commandline.Main "$@"
+"$JAVA_CMD" $PROXY_ARGS $JAVA_ARGS "${EXTRA_ARGS[@]}" -cp "$CP" org.flywaydb.commandline.Main "$@"
 
 # Exit using the same code returned from Java
 exit $?

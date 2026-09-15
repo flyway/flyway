@@ -739,8 +739,7 @@ public class ConfigUtils {
 
         config.getFlyway().getPluginConfigurations().forEach((name, pluginConfig) -> {
             if (pluginConfig instanceof Map<?, ?>) {
-                ((Map<?, ?>) pluginConfig).forEach((key, value) -> configMap.put("flyway." + name + "." + key,
-                    value.toString()));
+                putFlattenedEntries(configMap, "flyway." + name, (Map<?, ?>) pluginConfig);
             } else {
                 configMap.put("flyway." + name, pluginConfig.toString());
             }
@@ -748,10 +747,23 @@ public class ConfigUtils {
 
         config.getRootConfigurations().forEach((name, pluginConfig) -> {
             if (pluginConfig instanceof Map<?, ?>) {
-                ((Map<?, ?>) pluginConfig).forEach((key, value) -> configMap.put(name + "." + key, value.toString()));
+                putFlattenedEntries(configMap, name, (Map<?, ?>) pluginConfig);
             }
         });
         return configMap;
+    }
+
+    private static void putFlattenedEntries(final Map<String, String> target,
+        final String prefix,
+        final Map<?, ?> map) {
+        map.forEach((key, value) -> {
+            final String flattenedKey = prefix + "." + key;
+            if (value instanceof Map<?, ?>) {
+                putFlattenedEntries(target, flattenedKey, (Map<?, ?>) value);
+            } else {
+                target.put(flattenedKey, String.valueOf(value));
+            }
+        });
     }
 
     public static Map<String, String> getEnvironmentMap(final EnvironmentModel model, final String envKey) {

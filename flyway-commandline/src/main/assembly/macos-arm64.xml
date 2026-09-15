@@ -33,6 +33,12 @@
       <directory>target/dependency/jre-macos-arm64/jdk-${jre.version}-jre/Contents/Home</directory>
       <outputDirectory>jre</outputDirectory>
       <fileMode>755</fileMode>
+      <excludes>
+        <exclude>bin/jfr</exclude>
+        <exclude>bin/jrunscript</exclude>
+        <exclude>bin/jwebserver</exclude>
+        <exclude>bin/rmiregistry</exclude>
+      </excludes>
     </fileSet>
   </fileSets>
 </assembly>

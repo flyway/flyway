@@ -9,6 +9,49 @@
 <div class="col-md-9">
 <!-- BEGIN db-generated release notes -->
   <div class="release">
+        <h2 id="13.7.0">Flyway 13.7.0 (2026-09-15)</h2>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Flyway MCP adds a new Test Migrate tool that runs pending migration scripts against your configured shadow database.</li>
+            <li>Flyway MCP now also supports 3-sided diff by creating a checkpoint of the schema model before updating, so it can be compared against the development database.</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>remove unnecessary executable files from JRE package</li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/4282">Issue 4282</a>
+                Fix older versions of the Snowflake driver using a legacy driver class being unable to connect to Flyway
+            </li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>drift results were published to Flyway Pipelines even when publishResult was false</li>
+            <li>dry runs no longer publish migrate events to Flyway Service as deployments</li>
+            <li>Fixed an issue where an unusually long configuration value could cause Flyway's debug configuration table to render incorrectly</li>
+            <li>generated migration filename timestamps are now in UTC rather than the local system timezone</li>
+        </ul>
+
+        <h3>Library upgrades</h3>
+        <ul>
+            <li>bump couchbase client to 3.12.3 and databricks-jdbc to 3.4.2</li>
+        </ul>
+
+        <h3>Internal dependency</h3>
+        <ul>
+            <li>Upgraded RgCompare to 1.63.0.5650</li>
+        </ul>
+
+  </div>
+
+
+  <div class="release">
         <h2 id="13.6.0">Flyway 13.6.0 (2026-09-10)</h2>
 
         <h3>New features</h3>
@@ -43,11 +86,6 @@
         <ul>
             <li>Docker images now run on JRE 25 (previously JRE 21)</li>
             <li>Update upgrade org.eclipse.jetty:jetty-server to 12.1.12</li>
-        </ul>
-
-        <h3>Internal dependency</h3>
-        <ul>
-            <li>Upgraded RgCompare to 1.62.10.5605</li>
         </ul>
 
   </div>

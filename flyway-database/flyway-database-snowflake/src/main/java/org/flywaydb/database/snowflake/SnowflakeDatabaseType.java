@@ -63,6 +63,11 @@ public class SnowflakeDatabaseType extends BaseDatabaseType {
     }
 
     @Override
+    public String getBackupDriverClass(final String url, final ClassLoader classLoader) {
+        return "net.snowflake.client.jdbc.SnowflakeDriver";
+    }
+
+    @Override
     public boolean handlesDatabaseProductNameAndVersion(final String databaseProductName,
         final String databaseProductVersion,
         final Connection connection) {

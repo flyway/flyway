@@ -33,6 +33,18 @@
       <directory>target/dependency/jre-windows-x64/jdk-${jre.version}-jre</directory>
       <outputDirectory>jre</outputDirectory>
       <fileMode>644</fileMode>
+      <excludes>
+        <exclude>bin/jabswitch.exe</exclude>
+        <exclude>bin/jaccessinspector.exe</exclude>
+        <exclude>bin/jaccesswalker.exe</exclude>
+        <exclude>bin/jfr.exe</exclude>
+        <exclude>bin/jrunscript.exe</exclude>
+        <exclude>bin/jwebserver.exe</exclude>
+        <exclude>bin/rmiregistry.exe</exclude>
+        <exclude>bin/klist.exe</exclude>
+        <exclude>bin/kinit.exe</exclude>
+        <exclude>bin/ktab.exe</exclude>
+      </excludes>
     </fileSet>
     <fileSet>
       <directory>target/dependency/mssql</directory>
