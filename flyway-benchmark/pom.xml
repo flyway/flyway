@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-parent</artifactId>
+    <version>13.5.0</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>flyway-benchmark</artifactId>
+  <name>${project.artifactId}</name>
+  <description>Internal performance harness. Not published.</description>
+
+  <properties>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.deploy.skip>true</maven.deploy.skip>
+    <maven.install.skip>true</maven.install.skip>
+    <gpg.skip>true</gpg.skip>
+
+    <!-- JFR -->
+    <jfr.settings>profile</jfr.settings>
+    <jfr.file>${project.build.directory}/validate-on-migrate.jfr</jfr.file>
+
+    <!-- Benchmark knobs; override on the command line, e.g. -Dbench.migrations=8000 -->
+    <bench.phase>all</bench.phase>
+    <bench.dir/>
+    <bench.sizes/>
+    <bench.migrations>4400</bench.migrations>
+    <bench.folders>40</bench.folders>
+    <bench.repeatable>0</bench.repeatable>
+    <bench.lines>25</bench.lines>
+    <bench.confEvery>100</bench.confEvery>
+    <bench.appliedPercent>90</bench.appliedPercent>
+    <bench.outOfOrder>false</bench.outOfOrder>
+    <bench.warmup>0</bench.warmup>
+    <bench.iterations>3</bench.iterations>
+    <bench.refreshes>3</bench.refreshes>
+    <bench.regenerate>false</bench.regenerate>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>flyway-core</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>flyway-nc-core</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>flyway-nc-scanners</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.5.0</version>
+        <configuration>
+          <executable>java</executable>
+          <arguments>
+            <argument>-XX:StartFlightRecording=settings=${jfr.settings},filename=${jfr.file},dumponexit=true</argument>
+            <argument>-XX:FlightRecorderOptions=stackdepth=256</argument>
+            <argument>-Dflyway.bench.phase=${bench.phase}</argument>
+            <argument>-Dflyway.bench.dir=${bench.dir}</argument>
+            <argument>-Dflyway.bench.sizes=${bench.sizes}</argument>
+            <argument>-Dflyway.bench.migrations=${bench.migrations}</argument>
+            <argument>-Dflyway.bench.folders=${bench.folders}</argument>
+            <argument>-Dflyway.bench.repeatable=${bench.repeatable}</argument>
+            <argument>-Dflyway.bench.lines=${bench.lines}</argument>
+            <argument>-Dflyway.bench.confEvery=${bench.confEvery}</argument>
+            <argument>-Dflyway.bench.appliedPercent=${bench.appliedPercent}</argument>
+            <argument>-Dflyway.bench.outOfOrder=${bench.outOfOrder}</argument>
+            <argument>-Dflyway.bench.warmup=${bench.warmup}</argument>
+            <argument>-Dflyway.bench.iterations=${bench.iterations}</argument>
+            <argument>-Dflyway.bench.refreshes=${bench.refreshes}</argument>
+            <argument>-Dflyway.bench.regenerate=${bench.regenerate}</argument>
+            <argument>-classpath</argument>
+            <classpath/>
+            <argument>org.flywaydb.benchmark.ValidateOnMigrateBenchmark</argument>
+          </arguments>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

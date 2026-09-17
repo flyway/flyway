@@ -37,6 +37,7 @@ public class PluginRegister {
 
     private final List<ServiceLoader.Provider<Plugin>> REGISTERED_PROVIDERS = new ArrayList<>();
     private final Map<ServiceLoader.Provider<Plugin>, Plugin> INSTANTIATED_PLUGINS = new ConcurrentHashMap<>();
+    private final Map<Class<?>, List<ServiceLoader.Provider<Plugin>>> MATCHING_PROVIDERS = new ConcurrentHashMap<>();
     private final ClassLoader CLASS_LOADER = this.getClass().getClassLoader();
     private boolean hasRegisteredPlugins;
 
@@ -178,7 +179,9 @@ public class PluginRegister {
     }
 
     private <T extends Plugin> List<ServiceLoader.Provider<Plugin>> getMatchingProviders(final Class<T> clazz) {
-        return getProviders().stream().filter(p -> clazz.isAssignableFrom(p.type())).collect(Collectors.toList());
+        final List<ServiceLoader.Provider<Plugin>> providers = getProviders();
+        return MATCHING_PROVIDERS.computeIfAbsent(clazz,
+            type -> providers.stream().filter(p -> type.isAssignableFrom(p.type())).collect(Collectors.toList()));
     }
 
     void registerPlugins() {

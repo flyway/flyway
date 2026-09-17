@@ -23,9 +23,10 @@ import static org.flywaydb.scanners.ScannerUtils.validateMigrationNaming;
 
 import java.io.File;
 import java.nio.charset.Charset;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -82,16 +83,24 @@ public abstract class BaseSqlMigrationScanner implements NativeConnectorsMigrati
             return Collections.emptyList();
         }
 
-        final Set<String> resourceNames = findResourceNamesFromFileSystem(location.getRootPath(),
+        final Set<String> resourceNames = new TreeSet<>();
+        final Set<String> configFilePaths = new HashSet<>();
+        findResourceNamesFromFileSystem(location.getRootPath(),
             dir,
             configuration.isFailOnMissingLocations(),
             configuration.isValidateMigrationNaming(),
             new ResourceNameParser(configuration),
             isFilesystem,
+            resourceNames,
+            configFilePaths,
             configuration.getSqlMigrationSuffixes());
         return resourceNames.stream()
             .filter(path -> matchesPath(path, location))
-            .map(resourceName -> processResource(location, configuration, resourceName, parsingContext))
+            .map(resourceName -> processResource(location,
+                configuration,
+                resourceName,
+                parsingContext,
+                configFilePaths))
             .toList();
     }
 
@@ -100,12 +109,13 @@ public abstract class BaseSqlMigrationScanner implements NativeConnectorsMigrati
     private Pair<LoadableResource, SqlScriptMetadata> processResource(final Location location,
         final Configuration configuration,
         final String resourceName,
-        final ParsingContext parsingContext) {
+        final ParsingContext parsingContext,
+        final Set<String> configFilePaths) {
         boolean detectEncodingForThisResource = configuration.isDetectEncoding();
         Charset encoding = configuration.getEncoding();
         String encodingBlurb = "";
         SqlScriptMetadata metadata = null;
-        if (new File(resourceName + ".conf").exists()) {
+        if (configFilePaths.contains(resourceName + ".conf")) {
             metadata = getSqlScriptMetadata(location, configuration, resourceName, parsingContext);
             if (metadata.encoding() != null) {
                 encoding = Charset.forName(metadata.encoding());
@@ -159,17 +169,18 @@ public abstract class BaseSqlMigrationScanner implements NativeConnectorsMigrati
         return DirectoryValidationResult.VALID;
     }
 
-    private Set<String> findResourceNamesFromFileSystem(final String scanRootLocation,
+    private void findResourceNamesFromFileSystem(final String scanRootLocation,
         final File folder,
         final boolean throwOnMissingLocations,
         final boolean validateMigrationNaming,
         final ResourceNameParser resourceNameParser,
         final boolean isFileSystem,
+        final Set<String> resourceNames,
+        final Set<String> configFilePaths,
         final String... sqlMigrationSuffixes) {
         final String path = folder.getPath();
         LOG.debug("Scanning for resources in path: " + folder.getPath() + " (" + scanRootLocation + ")");
 
-        final Set<String> resourceNames = new TreeSet<>();
         final String fileOrClasspath = isFileSystem ? "filesystem" : "classpath";
         final File[] files = folder.listFiles();
 
@@ -198,13 +209,24 @@ public abstract class BaseSqlMigrationScanner implements NativeConnectorsMigrati
                 LOG.debug(message);
             }
 
-            return Collections.emptySet();
+            return;
         }
 
-        final List<Pair<File, ResourceName>> fileList = Arrays.stream(files)
-            .filter(File::canRead)
-            .map(file -> Pair.of(file, resourceNameParser.parse(file.getName())))
-            .toList();
+        final List<Pair<File, ResourceName>> fileList = new ArrayList<>(files.length);
+        final List<File> directories = new ArrayList<>();
+        for (final File file : files) {
+            final String name = file.getName();
+            if (name.endsWith(".conf")) {
+                configFilePaths.add(file.getPath());
+            }
+            if (!file.canRead()) {
+                continue;
+            }
+            fileList.add(Pair.of(file, resourceNameParser.parse(name)));
+            if (file.isDirectory()) {
+                directories.add(file);
+            }
+        }
 
         final List<Pair<String, ResourceName>> resources = fileList.stream()
             .map(pair -> Pair.of(pair.getLeft().getName(), pair.getRight()))
@@ -215,21 +237,21 @@ public abstract class BaseSqlMigrationScanner implements NativeConnectorsMigrati
             .filter(pair -> pair.getRight().isValid() && !"".equals(pair.getRight().getSuffix()))
             .forEach(pair -> resourceNames.add(pair.getLeft().getPath()));
 
-        Arrays.stream(files).filter(File::canRead).filter(File::isDirectory).forEach(file -> {
-            if (file.isHidden()) {
+        for (final File directory : directories) {
+            if (directory.isHidden()) {
                 // #1807: Skip hidden directories to avoid issues with Kubernetes
-                LOG.debug("Skipping hidden directory: " + file.getAbsolutePath());
+                LOG.debug("Skipping hidden directory: " + directory.getAbsolutePath());
             } else {
-                resourceNames.addAll(findResourceNamesFromFileSystem(scanRootLocation,
-                    file,
+                findResourceNamesFromFileSystem(scanRootLocation,
+                    directory,
                     throwOnMissingLocations,
                     validateMigrationNaming,
                     resourceNameParser,
                     isFileSystem,
-                    sqlMigrationSuffixes));
+                    resourceNames,
+                    configFilePaths,
+                    sqlMigrationSuffixes);
             }
-        });
-
-        return resourceNames;
+        }
     }
 }
