@@ -169,7 +169,20 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
     }
 
     protected boolean canUseNamedLockTemplate() {
-        return !database.isPxcStrict() && !database.isWsrepOn();
+        if (database.isPxcStrict()) {
+            return false;
+        }
+
+        if (database.isWsrepOn()) {
+            // #3675: GET_LOCK used to fail on Galera nodes with wsrep_on=ON.
+            // MariaDB fixed this in MDEV-31325, so named locks can be used again if they are explicitly enabled.
+            return Boolean.TRUE.equals(database.getConfiguration()
+                .getPluginRegister()
+                .getExact(MySQLConfigurationExtension.class)
+                .getNamedLockOnWsrep());
+        }
+
+        return true;
     }
 
     private boolean rdsAdminExists() {
