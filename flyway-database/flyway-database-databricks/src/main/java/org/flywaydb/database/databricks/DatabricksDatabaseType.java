@@ -30,9 +30,11 @@ import org.flywaydb.core.internal.parser.ParsingContext;
 
 import java.sql.Connection;
 import java.sql.Types;
+import java.util.Map;
 
 public class DatabricksDatabaseType extends BaseDatabaseType {
     private static final String DATABRICKS_JDBC_DRIVER = "com.databricks.client.jdbc.Driver";
+    private static final String USER_AGENT_ENTRY = "UserAgentEntry";
 
     @Override
     public String getName() {
@@ -78,5 +80,14 @@ public class DatabricksDatabaseType extends BaseDatabaseType {
         final ResourceProvider resourceProvider,
         final ParsingContext parsingContext) {
         return new DatabricksParser(configuration, parsingContext);
+    }
+
+    /**
+     * The Databricks driver reads its configuration from the properties set directly on the object it is handed, so
+     * it never sees anything added by {@code setDefaultConnectionProps}.
+     */
+    @Override
+    public void setOverridingConnectionProps(final Map<String, String> props) {
+        props.putIfAbsent(USER_AGENT_ENTRY, APPLICATION_NAME);
     }
 }

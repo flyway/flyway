@@ -33,17 +33,19 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.extensibility.CommandExtension;
+import org.flywaydb.core.extensibility.ConfigurationParameter;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.extensibility.TestConnectionRunner;
 import org.flywaydb.core.internal.configuration.models.EnvironmentModel;
 import org.flywaydb.core.internal.util.Pair;
+import org.flywaydb.core.internal.util.StringUtils;
 
 @CustomLog
 @RequiredArgsConstructor
 public class TestConnectionCommandExtension implements CommandExtension<TestConnectionResult> {
     public static final String VERB = "testConnection";
 
-    private static final String TEST_CONNECTION_INLINE_ENVIRONMENT = "default";
+    private static final String DEFAULT_INLINE_ENVIRONMENT = "default";
 
     private final StandardInEnvironmentModelProvider modelProvider;
 
@@ -60,6 +62,11 @@ public class TestConnectionCommandExtension implements CommandExtension<TestConn
     @Override
     public boolean handlesParameter(final String parameter) {
         return false;
+    }
+
+    @Override
+    public List<ConfigurationParameter> getConfigurationParameters() {
+        return TestConnectionConfigurationExtension.getConfigurationParameters();
     }
 
     @Override
@@ -106,16 +113,23 @@ public class TestConnectionCommandExtension implements CommandExtension<TestConn
     Configuration getConfigWithRelevantEnvironments(final Configuration config) {
         if ("-".equals(config.getCurrentEnvironmentName())) {
             final EnvironmentModel environment = modelProvider.getModel();
+            final String inlineEnvironmentName = inlineEnvironmentName(config);
             final Map<String, EnvironmentModel> environments = Stream.concat(config.getModernConfig()
                     .getEnvironments()
                     .entrySet()
-                    .stream(), Stream.of(Map.entry(TEST_CONNECTION_INLINE_ENVIRONMENT, environment)))
+                    .stream(), Stream.of(Map.entry(inlineEnvironmentName, environment)))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (existing, inline) -> inline));
             return new FluentConfiguration().configuration(config)
                 .allEnvironments(environments)
-                .environment(TEST_CONNECTION_INLINE_ENVIRONMENT);
+                .environment(inlineEnvironmentName);
         }
 
         return config;
+    }
+
+    private static String inlineEnvironmentName(final Configuration config) {
+        final var extension = config.getPluginRegister().getExact(TestConnectionConfigurationExtension.class);
+        final var configured = extension == null ? null : extension.getEnvironmentName();
+        return StringUtils.hasText(configured) ? configured : DEFAULT_INLINE_ENVIRONMENT;
     }
 }

@@ -164,3 +164,10 @@ and the concepts (workspaces, diffs, artifacts) they share.
 
 See [Worked example](<Usage/Flyway MCP Server/Worked Example>) for a walkthrough of a natural-language request and
 the sequence of tool calls the agent makes in response, with sample inputs and outputs.
+
+---
+
+## Troubleshooting
+
+See [Troubleshooting](<Usage/Flyway MCP Server/Troubleshooting>) for common setup and usage problems, and how to
+resolve them.

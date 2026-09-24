@@ -201,7 +201,7 @@ public class MigrateVerbExtension implements VerbExtension {
             allPendingMigrations = removeOutOfOrderPendingMigrations(allPendingMigrations);
         }
 
-        final Migrator migrator = MigratorFactory.getMigrator(database);
+        final Migrator<NativeConnectorsDatabase> migrator = MigratorFactory.getMigrator(database);
 
         final List<MigrationExecutionGroup> executionGroups = migrator.createGroups(allPendingMigrations,
             configuration,

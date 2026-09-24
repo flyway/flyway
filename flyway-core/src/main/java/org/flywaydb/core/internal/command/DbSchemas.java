@@ -72,7 +72,7 @@ public class DbSchemas {
     public DbSchemas(final Database database,
         final Schema[] schemas,
         final SchemaHistory schemaHistory,
-        final CallbackExecutor callbackExecutor) {
+        final CallbackExecutor<Event> callbackExecutor) {
         this.database = database;
         this.connection = database.getMainConnection();
         this.schemas = schemas;

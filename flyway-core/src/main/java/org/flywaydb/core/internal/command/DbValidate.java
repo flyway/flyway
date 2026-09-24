@@ -76,7 +76,7 @@ public class DbValidate {
         final Schema schema,
         final CompositeMigrationResolver migrationResolver,
         final Configuration configuration,
-        final CallbackExecutor callbackExecutor,
+        final CallbackExecutor<Event> callbackExecutor,
         final ValidatePattern[] ignorePatterns) {
         this.schemaHistory = schemaHistory;
         this.schema = schema;

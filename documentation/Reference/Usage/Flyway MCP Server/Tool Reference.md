@@ -13,6 +13,11 @@ subtitle: Tool Reference
 - **Selecting changes**: Tools that accept a `changes` list of IDs also accept a single `*` to select every change from
   a diff. You can't mix `*` with specific IDs. If a selected change depends on another change that wasn't selected, the
   dependency is included automatically.
+- **Three-sided diff**: Instead of comparing two states, `create_diff_development` can compare three—the current
+  schema model, the development database, and a schema model checkpoint captured earlier via
+  `create_schema_model_checkpoint`. Each change is tagged with how the schema model has moved since the checkpoint 
+  (`new`, `existing`, `missing`, or `conflict`), which lets you separate changes you introduced locally from ones brought 
+  in from a shared source. See `create_diff_development` for details.
 
 ## Tools
 
@@ -26,6 +31,7 @@ subtitle: Tool Reference
 | `create_diff_migrations`      | `develop_migrations`                  | Diffs the schema model against the current migration scripts (via the shadow environment).               |
 | `generate_migrations`         | `develop_migrations`                  | Generates migration scripts from a migrations diff.                                                      |
 | `review_code`                 | `develop_migrations`                  | Runs code review against a single migration script and reports the rule violations found.                |
+| `test_migrate`                | `develop_migrations`                  | Runs pending migration scripts against the shadow database to verify they execute without errors.        |
 | `create_diff_development`     | `develop_migrations`, `develop_state` | Diffs the schema model against the development database, in the direction needed to update the database. |
 | `update_development`          | `develop_migrations`, `develop_state` | Applies selected changes from a development diff to the development database.                            |
 | `get_diff_details`            | `develop_migrations`, `develop_state` | Returns the unified diff text for a single changed object within any diff.                               |
@@ -120,6 +126,19 @@ Runs code review against a single migration script and reports the rule violatio
 Returns the absolute path of the reviewed file, the list of issues (rule violations) found, the definitions of the
 violated rules, and `total_rules_checked` (the number of rules evaluated).
 
+### test_migrate
+
+Runs pending migration scripts against the shadow database to verify they execute without errors. The shadow database may be automatically reprovisioned first if the migration history has diverged. Each migration that ran during this call is reported as `success`; if one fails, execution stops and that migration is reported as `failed`, with any remaining scripts reported as `pending`.
+
+| Parameter     | Required | Description                                                                                                                                                                                                                                    |
+|---------------|----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `workspaceId` | Yes      | Workspace ID from `load_project`.                                                                                                                                                                                                              |
+| `rebuild`     | No       | When `true`, forces a full reprovision of the shadow database before running migrations. Use this if you have manually altered the shadow database, or want to test every migration from the baseline rather than just new or changed scripts. |
+
+Returns `results` (per-file migration results in execution order, each with a `file` name and a `status` of `success`,
+`failed`, or `pending`), `error` (the error message from the failed migration, or `null` when all migrations succeeded),
+and `reprovisioned` (whether the shadow database was fully reprovisioned during this call; always `false` if a migration failed, even when a reprovision happened first).
+
 ### create_diff_development
 
 Diffs the schema model against the development database, describing the changes needed to bring the development database
@@ -128,8 +147,8 @@ in line with the schema model. Feeds into `update_development`. Only one such di
 If a `checkpointId` is supplied (from `create_schema_model_checkpoint`), a three-sided diff is performed instead: the
 schema model as it was at the checkpoint is compared against both the current schema model and the development
 database, classifying each change by how the schema model has moved since the checkpoint (new, existing, missing, or
-conflict). This distinguishes changes that predate the checkpoint from ones introduced since—for example, changes a
-`git pull` brought in versus your own local changes.
+conflict). This distinguishes changes that predate the checkpoint from ones introduced since—for example, changes
+brought in from a shared source versus your own local edits.
 
 | Parameter      | Required | Description                                                             |
 |----------------|----------|--------------------------------------------------------------------------|

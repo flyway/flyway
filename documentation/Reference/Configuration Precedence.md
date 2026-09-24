@@ -26,6 +26,12 @@ By default, Flyway will load settings from configuration files located in direct
 
 Note that this behavior can be overridden by explicitly specifying config files using the [configFiles](<Command-line Parameters/Config Files Parameter>) command line parameter.
 
+## flyway.toml and flyway.user.toml precedence
+
+Within any one of the directories above, Flyway also looks for a `flyway.user.toml` file alongside the main `flyway.toml`. `flyway.user.toml` is intended for settings that are personal to you rather than shared with the rest of your team - `flyway init`, for example, adds `*.user.toml` to `.gitignore` automatically, so it's never checked into source control.
+
+Should `flyway.toml` and `flyway.user.toml` in the same directory contain duplicate parameters, the setting in `flyway.user.toml` takes precedence. This is separate from the directory precedence above - a `flyway.toml` in a higher-precedence directory still takes precedence over a `flyway.user.toml` in a lower-precedence directory.
+
 ## Toml precedence over conf
 
 TOML Configuration files (<filename>.toml) take precedence over legacy configuration (<filename>.conf) files

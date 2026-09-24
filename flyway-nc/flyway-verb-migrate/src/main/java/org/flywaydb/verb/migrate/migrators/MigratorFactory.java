@@ -23,12 +23,14 @@ import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
 import org.flywaydb.nc.NativeConnectorsHybrid;
 
 public class MigratorFactory {
-    public static <DB extends NativeConnectorsDatabase> Migrator getMigrator(final DB database) {
+    @SuppressWarnings("unchecked") // each branch's concrete Migrator<X> is only safe for callers matching X at
+                                    // runtime, which the instanceof/connectionType checks below already guarantee
+    public static <DB extends NativeConnectorsDatabase> Migrator<DB> getMigrator(final DB database) {
         if (database instanceof NativeConnectorsHybrid<?, ?, ?>) {
-            return new HybridMigrator();
+            return (Migrator<DB>) new HybridMigrator();
         }
 
-        return switch (database.getDatabaseMetaData().connectionType()) {
+        return (Migrator<DB>) switch (database.getDatabaseMetaData().connectionType()) {
             case API -> new ApiMigrator();
             case JDBC -> new JdbcMigrator();
             case EXECUTABLE -> new ExecutableMigrator();

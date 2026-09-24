@@ -76,7 +76,7 @@ public class DbMigrate {
         final Schema schema,
         final CompositeMigrationResolver migrationResolver,
         final Configuration configuration,
-        final CallbackExecutor callbackExecutor) {
+        final CallbackExecutor<Event> callbackExecutor) {
         this.database = database;
         this.connectionUserObjects = database.getMigrationConnection();
         this.schemaHistory = schemaHistory;

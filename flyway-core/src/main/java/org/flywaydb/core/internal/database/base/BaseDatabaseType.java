@@ -56,7 +56,7 @@ public abstract class BaseDatabaseType implements DatabaseType {
      * This is useful for databases that allow setting this in order to easily correlate individual application with
      * database connections.
      */
-    protected static final String APPLICATION_NAME = "Flyway by Redgate";
+    protected static final String APPLICATION_NAME = "Redgate_Flyway";
 
     /**
      * @return The human-readable name for this database.

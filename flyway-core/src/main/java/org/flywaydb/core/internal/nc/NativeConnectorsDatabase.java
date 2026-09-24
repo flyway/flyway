@@ -46,7 +46,7 @@ public sealed interface NativeConnectorsDatabase<T> extends GeneralDatabaseType,
                                                                                                AbstractNativeConnectorsDatabase,
                                                                                                AbstractNativeConnectorsHybridDatabase {
     Log LOG = org.flywaydb.core.api.logging.LogFactory.getLog(NativeConnectorsDatabase.class);
-    String APPLICATION_NAME = "Flyway by Redgate";
+    String APPLICATION_NAME = "Redgate_Flyway";
 
     @Override
     default String getName() {

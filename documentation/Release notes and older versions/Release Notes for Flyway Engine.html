@@ -9,6 +9,37 @@
 <div class="col-md-9">
 <!-- BEGIN db-generated release notes -->
   <div class="release">
+        <h2 id="13.8.0">Flyway 13.8.0 (2026-09-24)</h2>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>connections now report their application name as "Redgate_Flyway" rather than "Flyway by Redgate" on every database that supports it</li>
+            <li>Databricks connections now identify Flyway to Databricks as "Redgate_Flyway" via the UserAgentEntry connection property</li>
+            <li>drift results are published to Flyway Pipelines for any drift check when publishResult is enabled, not only for checks against a Flyway Pipelines snapshot</li>
+            <li>Flyway now sets the pgjdbc `assumeMinServerVersion` property to 9.1 on PostgreSQL connections</li>
+            <li>`testConnection.environmentName` names the environment supplied on standard input, so provisioners act on the environment being tested rather than standing up a second one, and progress and error messages name it rather than `default`</li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>added Snowflake support for the snapshot history feature</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>connections to PostgreSQL and CockroachDB now report application_name as "Flyway by Redgate" rather than the pgjdbc default</li>
+            <li>the `docker` provisioner built container connection URLs against `localhost`, which could resolve to an address the container was not published on, so clients failed to connect to a container Flyway had reported as ready</li>
+        </ul>
+
+        <h3>Internal dependency</h3>
+        <ul>
+            <li>Upgraded RgCompare to 1.66.1.5811</li>
+        </ul>
+
+  </div>
+
+
+  <div class="release">
         <h2 id="13.7.0">Flyway 13.7.0 (2026-09-15)</h2>
 
         <h3>New features</h3>
@@ -41,11 +72,6 @@
         <h3>Library upgrades</h3>
         <ul>
             <li>bump couchbase client to 3.12.3 and databricks-jdbc to 3.4.2</li>
-        </ul>
-
-        <h3>Internal dependency</h3>
-        <ul>
-            <li>Upgraded RgCompare to 1.63.0.5650</li>
         </ul>
 
   </div>

@@ -122,9 +122,11 @@ update_schema_model
 create_diff_migrations
 generate_migrations
 review_code
+test_migrate
 create_diff_development
 update_development
 get_diff_details
+reprovisioned
 
 Joao
 Tulka

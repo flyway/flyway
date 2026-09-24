@@ -40,6 +40,8 @@ import org.flywaydb.core.internal.plugin.PluginRegister;
 @CustomLog
 public class DatabaseTypeRegister {
     private static final PluginRegister pluginRegister = new PluginRegister();
+    private static final Pattern URL_PREFIX_PATTERN = Pattern.compile("(jdbc:[^:]+:).*");
+
 
     // Order DatabaseType before native connector types, then by plugin priority (highest first)
     private static final List<GeneralDatabaseType> SORTED_DATABASE_TYPES = pluginRegister.getInstancesOf(
@@ -77,30 +79,36 @@ public class DatabaseTypeRegister {
 
     public static String redactJdbcUrl(final String url) {
         if (!"true".equalsIgnoreCase(System.getenv("FLYWAY_DO_NOT_REDACT_URL"))) {
-            return "********";
+            return redactJdbcUrlDetails(url);
         }
         return redactJdbcUrlWithKnownTypes(url, getDatabaseTypesForUrl(url, null));
     }
 
-    public static String redactJdbcUrlWithKnownTypes(String url,
+    private static String redactJdbcUrlDetails(final String url) {
+        final Matcher matcher = URL_PREFIX_PATTERN.matcher(url);
+        return matcher.matches() ? matcher.group(1) + "********" : "********";
+    }
+
+    public static String redactJdbcUrlWithKnownTypes(final String url,
         final Collection<? extends GeneralDatabaseType> types) {
         if (!"true".equalsIgnoreCase(System.getenv("FLYWAY_DO_NOT_REDACT_URL"))) {
-            return "********";
+            return redactJdbcUrlDetails(url);
         }
 
         if (types.isEmpty()) {
             final List<Pattern> dbPatterns = BaseDatabaseType.getDefaultJDBCCredentialsPatterns();
-            url = redactJdbcUrl(url, dbPatterns);
+            return redactJdbcUrl(url, dbPatterns);
         } else {
+            String redactedUrl = url;
             for (final GeneralDatabaseType type : types) {
                 final List<Pattern> dbPatterns = getUrlRedactionPatterns(type);
-                url = redactJdbcUrl(url, dbPatterns);
+                redactedUrl = redactJdbcUrl(redactedUrl, dbPatterns);
             }
+            return redactedUrl;
         }
-        return url;
     }
 
-    private static String redactJdbcUrl(final String url, final List<Pattern> dbPatterns) {
+    private static String redactJdbcUrl(final String url, final Collection<Pattern> dbPatterns) {
         String redactedUrl = url;
         if (dbPatterns != null && !dbPatterns.isEmpty()) {
             for (final Pattern dbPattern : dbPatterns) {

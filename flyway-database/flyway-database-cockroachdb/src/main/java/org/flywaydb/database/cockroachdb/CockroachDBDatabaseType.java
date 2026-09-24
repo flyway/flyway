@@ -118,7 +118,12 @@ public class CockroachDBDatabaseType extends BaseDatabaseType {
 
     @Override
     public void setDefaultConnectionProps(final String url, final Properties props, final ClassLoader classLoader) {
-        props.put("applicationName", BaseDatabaseType.APPLICATION_NAME);
+        // This type outranks PostgreSQLDatabaseType for every jdbc:postgresql URL, so plain PostgreSQL connections
+        // only get these props by way of this method.
+        // pgjdbc resolves this property name case-sensitively; a lowercase key is silently ignored
+        props.put("ApplicationName", BaseDatabaseType.APPLICATION_NAME);
+        // pgjdbc only includes the application name in the startup packet when told to assume a 9.0 or later server
+        props.put("assumeMinServerVersion", "9.1");
     }
 
     private boolean detectUserRequiredInUrl(String url) {
