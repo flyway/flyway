@@ -26,7 +26,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.CustomLog;
@@ -38,7 +40,6 @@ import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.api.resource.LoadableResourceMetadata;
 import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
 import org.flywaydb.nc.migration.CompositeMigrationTypeResolver;
@@ -90,7 +91,6 @@ public class VerbUtils {
     public static MigrationInfo[] getMigrations(final SchemaHistoryModel schemaHistoryModel,
         final LoadableResourceMetadata[] sortedMigrations,
         final Configuration configuration) {
-        final List<Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> migrations = new ArrayList<>();
         final MigrationTypeResolver migrationTypeResolver = new CompositeMigrationTypeResolver();
 
         final List<ResolvedSchemaHistoryItem> resolvedSchemaHistoryItems = getResolvedSchemaHistoryItems(
@@ -98,10 +98,12 @@ public class VerbUtils {
             configuration,
             migrationTypeResolver);
         final List<LoadableResourceMetadata> resolvedMigrations = getResolvedMigrations(sortedMigrations,
-            configuration);
+            configuration,
+            migrationTypeResolver);
 
-        insertResolvedSchemaHistoryItems(resolvedSchemaHistoryItems, migrations);
-        insertResolvedMigrations(resolvedMigrations, migrations);
+        final List<Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> migrations = joinSchemaHistoryWithResolvedMigrations(
+            resolvedSchemaHistoryItems,
+            resolvedMigrations);
         insertUndoneMigrations(resolvedSchemaHistoryItems, resolvedMigrations, migrations);
 
         final NativeConnectorsMigrationComparator comparator = getOrderComparator(configuration);
@@ -177,9 +179,11 @@ public class VerbUtils {
     }
 
     private static LoadableResourceMetadata getTypedMigration(final Configuration configuration,
-        final LoadableResourceMetadata sortedMigration) {
+        final LoadableResourceMetadata sortedMigration,
+        final MigrationTypeResolver migrationTypeResolver) {
 
-        final MigrationType migrationType = getMigrationType(sortedMigration.loadableResource(), configuration);
+        final MigrationType migrationType = migrationTypeResolver.resolveMigrationType(sortedMigration.loadableResource()
+            .getFilename(), configuration);
 
         if (migrationType == null) {
             return null;
@@ -192,11 +196,6 @@ public class VerbUtils {
             sortedMigration.sqlScriptMetadata(),
             sortedMigration.checksum(),
             migrationType);
-    }
-
-    private static MigrationType getMigrationType(final LoadableResource resource, final Configuration configuration) {
-        final CompositeMigrationTypeResolver resolver = new CompositeMigrationTypeResolver();
-        return resolver.resolveMigrationType(resource.getFilename(), configuration);
     }
 
     public static ResolvedEnvironment getResolvedEnvironment(final Configuration configuration,
@@ -232,59 +231,95 @@ public class VerbUtils {
     }
 
     private static List<LoadableResourceMetadata> getResolvedMigrations(final LoadableResourceMetadata[] sortedMigrations,
-        final Configuration configuration) {
+        final Configuration configuration,
+        final MigrationTypeResolver migrationTypeResolver) {
         return Arrays.stream(sortedMigrations)
-            .map(sortedMigration -> getTypedMigration(configuration, sortedMigration))
+            .map(sortedMigration -> getTypedMigration(configuration, sortedMigration, migrationTypeResolver))
             .filter(Objects::nonNull)
             .toList();
     }
 
-    private static void insertResolvedSchemaHistoryItems(final List<ResolvedSchemaHistoryItem> resolvedSchemaHistoryItems,
-        final List<Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> migrations) {
-        for (final ResolvedSchemaHistoryItem schemaHistoryItem : resolvedSchemaHistoryItems) {
-            migrations.add(Pair.of(schemaHistoryItem, null));
-        }
-    }
+    /**
+     * Pairs each resolved migration with the schema history items it matches. Unmatched history items keep
+     * their original relative order at the front, matched pairs and pending migrations follow in resolved
+     * migration order, which is the ordering the state calculators and the final sort rely on.
+     */
+    private static List<Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> joinSchemaHistoryWithResolvedMigrations(
+        final List<ResolvedSchemaHistoryItem> resolvedSchemaHistoryItems,
+        final Iterable<LoadableResourceMetadata> resolvedMigrations) {
 
-    private static void insertResolvedMigrations(final Iterable<LoadableResourceMetadata> resolvedMigrations,
-        final List<Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> migrations) {
-        resolvedMigrations.forEach(resolvedMigration -> {
-            final List<Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> matchedMigrations = findMigrationsByResourceMetadata(
-                migrations,
-                resolvedMigration);
+        // MigrationVersion.tokenize strips trailing zeros, so equal versions always hash alike.
+        final Map<MigrationVersion, List<IndexedSchemaHistoryItem>> byVersion = new HashMap<>();
+        final Map<RepeatableKey, List<IndexedSchemaHistoryItem>> byRepeatableKey = new HashMap<>();
 
-            if (!matchedMigrations.isEmpty()) {
-                for (final Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata> migration : matchedMigrations) {
-                    migrations.add(Pair.of(migration.getLeft(), resolvedMigration));
-                    migrations.remove(migration);
+        for (int index = 0; index < resolvedSchemaHistoryItems.size(); index++) {
+            final ResolvedSchemaHistoryItem item = resolvedSchemaHistoryItems.get(index);
+            final IndexedSchemaHistoryItem indexed = new IndexedSchemaHistoryItem(index, item);
+            if (item.isRepeatable()) {
+                if (item.getChecksum() != null) {
+                    byRepeatableKey.computeIfAbsent(new RepeatableKey(item.getDescription(), item.getChecksum()),
+                        key -> new ArrayList<>()).add(indexed);
                 }
             } else {
-                migrations.add(Pair.of(null, resolvedMigration));
-            }
-        });
-    }
-
-    private static List<Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> findMigrationsByResourceMetadata(
-        final List<Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> migrations,
-        final LoadableResourceMetadata resourceMetadata) {
-
-        final List<Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> result = new ArrayList<>();
-
-        for (final Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata> migration : migrations) {
-            final ResolvedSchemaHistoryItem item = migration.getLeft();
-            if (item != null) {
-                final boolean versionMatched = item.isRepeatable()
-                    ? item.getDescription()
-                    .equals(resourceMetadata.description()) && item.getChecksum().equals(resourceMetadata.checksum())
-                    : item.getVersion().equals(resourceMetadata.version());
-                if (versionMatched && typesCompatible(resourceMetadata, item)) {
-                    result.add(migration);
-                }
+                byVersion.computeIfAbsent(item.getVersion(), key -> new ArrayList<>()).add(indexed);
             }
         }
 
-        return result;
+        final boolean[] matched = new boolean[resolvedSchemaHistoryItems.size()];
+        final List<Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> tail = new ArrayList<>();
+
+        for (final LoadableResourceMetadata resolvedMigration : resolvedMigrations) {
+            boolean matchedAny = false;
+            for (final IndexedSchemaHistoryItem candidate : findCandidates(resolvedMigration,
+                byVersion,
+                byRepeatableKey)) {
+                if (typesCompatible(resolvedMigration, candidate.item())) {
+                    matched[candidate.index()] = true;
+                    tail.add(Pair.of(candidate.item(), resolvedMigration));
+                    matchedAny = true;
+                }
+            }
+            if (!matchedAny) {
+                tail.add(Pair.of(null, resolvedMigration));
+            }
+        }
+
+        final List<Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> migrations = new ArrayList<>(
+            resolvedSchemaHistoryItems.size() + tail.size());
+        for (int index = 0; index < resolvedSchemaHistoryItems.size(); index++) {
+            if (!matched[index]) {
+                migrations.add(Pair.of(resolvedSchemaHistoryItems.get(index), null));
+            }
+        }
+        migrations.addAll(tail);
+        return migrations;
     }
+
+    private static List<IndexedSchemaHistoryItem> findCandidates(final LoadableResourceMetadata resolvedMigration,
+        final Map<MigrationVersion, List<IndexedSchemaHistoryItem>> byVersion,
+        final Map<RepeatableKey, List<IndexedSchemaHistoryItem>> byRepeatableKey) {
+        final List<IndexedSchemaHistoryItem> versioned = resolvedMigration.version() == null
+            ? List.of()
+            : byVersion.getOrDefault(resolvedMigration.version(), List.of());
+        final List<IndexedSchemaHistoryItem> repeatable = byRepeatableKey.getOrDefault(new RepeatableKey(
+            resolvedMigration.description(),
+            resolvedMigration.checksum()), List.of());
+
+        if (repeatable.isEmpty()) {
+            return versioned;
+        }
+        if (versioned.isEmpty()) {
+            return repeatable;
+        }
+        final List<IndexedSchemaHistoryItem> candidates = new ArrayList<>(versioned);
+        candidates.addAll(repeatable);
+        candidates.sort(Comparator.comparingInt(IndexedSchemaHistoryItem::index));
+        return candidates;
+    }
+
+    private record IndexedSchemaHistoryItem(int index, ResolvedSchemaHistoryItem item) {}
+
+    private record RepeatableKey(String description, Integer checksum) {}
 
     private static boolean typesCompatible(final LoadableResourceMetadata resourceMetadata,
         final ResolvedSchemaHistoryItem item) {

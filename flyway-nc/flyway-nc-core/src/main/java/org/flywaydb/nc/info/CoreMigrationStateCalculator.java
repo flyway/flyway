@@ -19,9 +19,16 @@
  */
 package org.flywaydb.nc.info;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
-import java.util.Optional;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.flywaydb.core.api.CoreMigrationType;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
@@ -32,36 +39,38 @@ import org.flywaydb.core.internal.nc.schemahistory.ResolvedSchemaHistoryItem;
 import org.flywaydb.core.internal.util.Pair;
 
 public class CoreMigrationStateCalculator implements NativeConnectorsStateCalculator {
+
+    private Collection<?> summerizedSortedMigrations;
+    private MigrationSetSummary cachedSummary;
+
     public MigrationState calculateState(final Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata> migration,
         final Collection<? extends Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> sortedMigrations,
         final Configuration configuration) {
+        final MigrationSetSummary summary = summaryFor(sortedMigrations);
         if (migration.getLeft() == null) {
-            return calculateNoSHTStates(migration, sortedMigrations, configuration);
+            return calculateNoSHTStates(migration, summary, configuration);
         }
 
-        return calculateSHTStates(migration, sortedMigrations);
+        return calculateSHTStates(migration, summary);
+    }
+
+    private MigrationSetSummary summaryFor(final Collection<? extends Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> sortedMigrations) {
+        if (summerizedSortedMigrations != sortedMigrations) {
+            cachedSummary = MigrationSetSummary.of(sortedMigrations);
+            summerizedSortedMigrations = sortedMigrations;
+        }
+        return cachedSummary;
     }
 
     private static MigrationState calculateNoSHTStates(final Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata> migration,
-        final Collection<? extends Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> sortedMigrations,
+        final MigrationSetSummary summary,
         final Configuration configuration) {
-        Optional<MigrationVersion> baselineVersion = sortedMigrations.stream()
-            .filter(x -> x.getLeft() != null)
-            .filter(x -> x.getLeft().getType().isBaseline())
-            .map(x -> x.getLeft().getVersion())
-            .findFirst();
-        final boolean baselinedSchema = baselineVersion.isPresent();
-        if (baselineVersion.isEmpty()) {
-            baselineVersion = sortedMigrations.stream()
-                .filter(x -> x.getRight() != null)
-                .filter(x -> x.getRight().migrationType().isBaseline())
-                .map(x -> x.getRight().version())
-                .max(MigrationVersion::compareTo);
-        }
+        final MigrationVersion baselineVersion = summary.baselineVersion;
+        final boolean baselinedSchema = summary.baselinedSchema;
 
-        if (baselineVersion.isEmpty() || migration.getRight().isRepeatable() || migration.getRight()
+        if (baselineVersion == null || migration.getRight().isRepeatable() || migration.getRight()
             .version()
-            .isNewerThan(baselineVersion.get())) {
+            .isNewerThan(baselineVersion)) {
             final MigrationVersion target = configuration.getTarget();
             if (migration.getRight().isRepeatable()) {
                 return MigrationState.PENDING;
@@ -85,15 +94,14 @@ public class CoreMigrationStateCalculator implements NativeConnectorsStateCalcul
             }
 
             if (!configuration.isOutOfOrder()) {
-                final MigrationVersion highestSHTVersion = highestSHTVersion(sortedMigrations);
-                if (migration.getRight().version().isNewerThan(highestSHTVersion)) {
+                if (migration.getRight().version().isNewerThan(summary.highestSHTVersion)) {
                     return MigrationState.PENDING;
                 }
                 return MigrationState.IGNORED;
             }
 
             return MigrationState.PENDING;
-        } else if (migration.getRight().version().equals(baselineVersion.get())) {
+        } else if (migration.getRight().version().equals(baselineVersion)) {
             return migration.getRight().migrationType().isBaseline() && !baselinedSchema
                 ? MigrationState.PENDING
                 : MigrationState.BASELINE_IGNORED;
@@ -103,7 +111,7 @@ public class CoreMigrationStateCalculator implements NativeConnectorsStateCalcul
     }
 
     private static MigrationState calculateSHTStates(final Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata> migration,
-        final Collection<? extends Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> sortedMigrations) {
+        final MigrationSetSummary summary) {
         if (migration.getLeft().getType() == CoreMigrationType.SCHEMA) {
             return MigrationState.SUCCESS;
         }
@@ -113,7 +121,7 @@ public class CoreMigrationStateCalculator implements NativeConnectorsStateCalcul
         }
 
         if (migration.getLeft().isSuccess()) {
-            final MigrationState lookAheadState = calculateLookAheadStates(migration, sortedMigrations);
+            final MigrationState lookAheadState = calculateLookAheadStates(migration, summary);
             if (lookAheadState != null) {
                 return lookAheadState;
             }
@@ -123,14 +131,14 @@ public class CoreMigrationStateCalculator implements NativeConnectorsStateCalcul
             }
 
             if (migration.getLeft().isVersioned()) {
-                final MigrationState missingState = calculateMissingStates(migration, sortedMigrations);
+                final MigrationState missingState = calculateMissingStates(migration, summary);
                 if (missingState != null) {
                     return missingState;
                 }
             }
 
             if (migration.getLeft().isRepeatable() && migration.getLeft().isSuccess()) {
-                final MigrationState repeatableState = calculateRepeatableStates(migration, sortedMigrations);
+                final MigrationState repeatableState = calculateRepeatableStates(migration, summary);
                 if (repeatableState != null) {
                     return repeatableState;
                 }
@@ -139,120 +147,55 @@ public class CoreMigrationStateCalculator implements NativeConnectorsStateCalcul
             return MigrationState.SUCCESS;
         }
         if (migration.getRight() == null) {
-            final MigrationVersion maxLocalVersion = highestLocalVersion(sortedMigrations);
             if (migration.getLeft().isRepeatable()) {
                 return MigrationState.MISSING_FAILED;
             }
-            return migration.getLeft().getVersion().isNewerThan(maxLocalVersion)
+            return migration.getLeft().getVersion().isNewerThan(summary.highestLocalVersion)
                 ? MigrationState.FUTURE_FAILED
                 : MigrationState.MISSING_FAILED;
         }
         return MigrationState.FAILED;
     }
 
-    private static MigrationVersion highestLocalVersion(final Collection<? extends Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> sortedMigrations) {
-        return sortedMigrations.stream()
-            .filter(x -> x.getRight() != null)
-            .map(Pair::getRight)
-            .filter(LoadableResourceMetadata::isVersioned)
-            .filter(x -> !x.migrationType().isUndo())
-            .map(LoadableResourceMetadata::version)
-            .max(Comparator.naturalOrder())
-            .orElse(MigrationVersion.EMPTY);
-    }
-
-    private static MigrationVersion highestSHTVersion(final Collection<? extends Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> sortedMigrations) {
-        return sortedMigrations.stream()
-            .filter(x -> x.getLeft() != null)
-            .filter(x -> !hasFutureUndo(x, sortedMigrations))
-            .map(Pair::getLeft)
-            .filter(ResolvedSchemaHistoryItem::isVersioned)
-            .filter(x -> !x.getType().isUndo())
-            .map(ResolvedSchemaHistoryItem::getVersion)
-            .max(Comparator.naturalOrder())
-            .orElse(MigrationVersion.EMPTY);
-    }
-
     private static MigrationState calculateLookAheadStates(final Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata> migration,
-        final Collection<? extends Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> sortedMigrations) {
-        if (!migration.getLeft().getType().isUndo() && hasFutureUndo(migration, sortedMigrations)) {
+        final MigrationSetSummary summary) {
+        final ResolvedSchemaHistoryItem item = migration.getLeft();
+        if (!item.getType().isUndo() && summary.hasFutureUndo(item)) {
             return MigrationState.UNDONE;
         }
 
-        final boolean futureDelete = sortedMigrations.stream()
-            .filter(x -> x.getLeft() != null)
-            .filter(x -> x.getLeft().getType() == CoreMigrationType.DELETE)
-            .filter(x -> x.getLeft().isRepeatable() == migration.getLeft().isRepeatable())
-            .anyMatch(x -> x.getLeft().isRepeatable()
-                ? x.getLeft()
-                .getDescription()
-                .equals(migration.getLeft().getDescription())
-                : x.getLeft().getVersion().equals(migration.getLeft().getVersion()));
-        if (futureDelete && migration.getLeft().getType() != CoreMigrationType.DELETE) {
+        if (summary.isDeleted(item) && item.getType() != CoreMigrationType.DELETE) {
             return MigrationState.DELETED;
         }
 
-        if (migration.getLeft().isVersioned() && !migration.getLeft().getType().isUndo()) {
-            final boolean outOfOrder = sortedMigrations.stream()
-                .filter(x -> x.getLeft() != null)
-                .filter(x -> !x.getLeft().getType().isUndo())
-                .filter(x -> x.getLeft().isVersioned())
-                .filter(x -> x.getLeft().getVersion().isNewerThan(migration.getLeft().getVersion()))
-                .anyMatch(x -> x.getLeft().getInstalledRank() < migration.getLeft().getInstalledRank());
-            if (outOfOrder) {
-                return MigrationState.OUT_OF_ORDER;
-            }
+        if (item.isVersioned() && !item.getType().isUndo() && summary.isOutOfOrder(item)) {
+            return MigrationState.OUT_OF_ORDER;
         }
         return null;
     }
 
-    private static boolean hasFutureUndo(final Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata> migration,
-        final Collection<? extends Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> sortedMigrations) {
-        return sortedMigrations.stream()
-            .filter(x -> x.getLeft() != null)
-            .filter(x -> x.getLeft().getType().isUndo())
-            .filter(x -> x.getLeft().getInstalledRank() > migration.getLeft().getInstalledRank())
-            .anyMatch(x -> x.getLeft().getVersion().equals(migration.getLeft().getVersion()));
-    }
-
     private static MigrationState calculateMissingStates(final Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata> migration,
-        final Collection<? extends Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> sortedMigrations) {
-        final MigrationVersion latestLocalVersion = sortedMigrations.stream()
-            .filter(x -> x.getRight() != null)
-            .filter(x -> x.getRight().isVersioned())
-            .map(x -> x.getRight().version())
-            .sorted()
-            .findFirst()
-            .orElse(MigrationVersion.EMPTY);
+        final MigrationSetSummary summary) {
+        final MigrationVersion lowestLocalVersion = summary.lowestLocalVersion;
 
-        if (migration.getLeft().getVersion().isNewerThan(latestLocalVersion)) {
+        if (migration.getLeft().getVersion().isNewerThan(lowestLocalVersion)) {
             return MigrationState.FUTURE_SUCCESS;
         }
 
-        if (latestLocalVersion.isNewerThan(migration.getLeft().getVersion())) {
+        if (lowestLocalVersion.isNewerThan(migration.getLeft().getVersion())) {
             return MigrationState.MISSING_SUCCESS;
         }
         return null;
     }
 
     private static MigrationState calculateRepeatableStates(final Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata> migration,
-        final Collection<? extends Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> sortedMigrations) {
-        final boolean superseded = sortedMigrations.stream()
-            .filter(x -> x.getLeft() != null)
-            .filter(x -> x.getLeft().isSuccess())
-            .filter(x -> x.getLeft().isRepeatable())
-            .filter(x -> x.getLeft().getDescription().equals(migration.getLeft().getDescription()))
-            .anyMatch(x -> x.getLeft().getInstalledRank() > migration.getLeft().getInstalledRank());
-        if (superseded) {
+        final MigrationSetSummary summary) {
+        final ResolvedSchemaHistoryItem item = migration.getLeft();
+        if (summary.isSuperseded(item)) {
             return MigrationState.SUPERSEDED;
         }
 
-        final boolean outdated = sortedMigrations.stream()
-            .filter(x -> x.getLeft() == null)
-            .filter(x -> x.getRight().isRepeatable())
-            .anyMatch(x -> x.getRight().description().equals(migration.getLeft().getDescription()));
-
-        if (outdated) {
+        if (summary.pendingRepeatableDescriptions.contains(item.getDescription())) {
             return MigrationState.OUTDATED;
         }
 
@@ -260,5 +203,171 @@ public class CoreMigrationStateCalculator implements NativeConnectorsStateCalcul
             return MigrationState.MISSING_SUCCESS;
         }
         return null;
+    }
+
+    /**
+     * Cross-migration metadata facts computed in a single pass.
+     */
+    private static final class MigrationSetSummary {
+        private final boolean baselinedSchema;
+        private final MigrationVersion baselineVersion;
+        private final MigrationVersion highestSHTVersion;
+        private final MigrationVersion highestLocalVersion;
+        private final MigrationVersion lowestLocalVersion;
+        private final Map<MigrationVersion, Integer> maxUndoRankByVersion;
+        private final Set<MigrationVersion> deletedVersions;
+        private final Set<String> deletedRepeatableDescriptions;
+        private final Map<String, Integer> maxSuccessfulRepeatableRankByDescription;
+        private final Set<String> pendingRepeatableDescriptions;
+        private final Set<ResolvedSchemaHistoryItem> outOfOrderItems;
+
+        private MigrationSetSummary(final boolean baselinedSchema,
+            final MigrationVersion baselineVersion,
+            final MigrationVersion highestSHTVersion,
+            final MigrationVersion highestLocalVersion,
+            final MigrationVersion lowestLocalVersion,
+            final Map<MigrationVersion, Integer> maxUndoRankByVersion,
+            final Set<MigrationVersion> deletedVersions,
+            final Set<String> deletedRepeatableDescriptions,
+            final Map<String, Integer> maxSuccessfulRepeatableRankByDescription,
+            final Set<String> pendingRepeatableDescriptions,
+            final Set<ResolvedSchemaHistoryItem> outOfOrderItems) {
+            this.baselinedSchema = baselinedSchema;
+            this.baselineVersion = baselineVersion;
+            this.highestSHTVersion = highestSHTVersion;
+            this.highestLocalVersion = highestLocalVersion;
+            this.lowestLocalVersion = lowestLocalVersion;
+            this.maxUndoRankByVersion = maxUndoRankByVersion;
+            this.deletedVersions = deletedVersions;
+            this.deletedRepeatableDescriptions = deletedRepeatableDescriptions;
+            this.maxSuccessfulRepeatableRankByDescription = maxSuccessfulRepeatableRankByDescription;
+            this.pendingRepeatableDescriptions = pendingRepeatableDescriptions;
+            this.outOfOrderItems = outOfOrderItems;
+        }
+
+        private static MigrationSetSummary of(final Collection<? extends Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata>> migrations) {
+            ResolvedSchemaHistoryItem baselineItem = null;
+            MigrationVersion resolvedBaselineVersion = null;
+            MigrationVersion highestLocalVersion = null;
+            MigrationVersion lowestLocalVersion = null;
+            final Map<MigrationVersion, Integer> maxUndoRankByVersion = new HashMap<>();
+            final Set<MigrationVersion> deletedVersions = new HashSet<>();
+            final Set<String> deletedRepeatableDescriptions = new HashSet<>();
+            final Map<String, Integer> maxSuccessfulRepeatableRankByDescription = new HashMap<>();
+            final Set<String> pendingRepeatableDescriptions = new HashSet<>();
+            final List<ResolvedSchemaHistoryItem> versionedNonUndoItems = new ArrayList<>();
+
+            for (final Pair<ResolvedSchemaHistoryItem, LoadableResourceMetadata> pair : migrations) {
+                final ResolvedSchemaHistoryItem item = pair.getLeft();
+                final LoadableResourceMetadata resource = pair.getRight();
+
+                if (item != null) {
+                    if (baselineItem == null && item.getType().isBaseline()) {
+                        baselineItem = item;
+                    }
+                    if (item.getType().isUndo() && item.getVersion() != null) {
+                        maxUndoRankByVersion.merge(item.getVersion(), item.getInstalledRank(), Math::max);
+                    }
+                    if (item.getType() == CoreMigrationType.DELETE) {
+                        if (item.isRepeatable()) {
+                            deletedRepeatableDescriptions.add(item.getDescription());
+                        } else {
+                            deletedVersions.add(item.getVersion());
+                        }
+                    }
+                    if (item.isSuccess() && item.isRepeatable()) {
+                        maxSuccessfulRepeatableRankByDescription.merge(item.getDescription(),
+                            item.getInstalledRank(),
+                            Math::max);
+                    }
+                    if (item.isVersioned() && !item.getType().isUndo()) {
+                        versionedNonUndoItems.add(item);
+                    }
+                } else if (resource != null && resource.isRepeatable()) {
+                    pendingRepeatableDescriptions.add(resource.description());
+                }
+
+                if (resource != null) {
+                    if (resource.migrationType().isBaseline()) {
+                        resolvedBaselineVersion = higher(resolvedBaselineVersion, resource.version());
+                    }
+                    if (resource.isVersioned()) {
+                        lowestLocalVersion = lower(lowestLocalVersion, resource.version());
+                        if (!resource.migrationType().isUndo()) {
+                            highestLocalVersion = higher(highestLocalVersion, resource.version());
+                        }
+                    }
+                }
+            }
+
+            final boolean baselinedSchema = baselineItem != null && baselineItem.getVersion() != null;
+
+            // A migration is out of order when a newer version was already installed at a lower rank, so a
+            // single pass in rank order over the running highest version answers it for every item.
+            versionedNonUndoItems.sort(Comparator.comparingInt(ResolvedSchemaHistoryItem::getInstalledRank));
+            final Set<ResolvedSchemaHistoryItem> outOfOrderItems = Collections.newSetFromMap(new IdentityHashMap<>());
+            MigrationVersion highestVersionSoFar = null;
+            for (final ResolvedSchemaHistoryItem item : versionedNonUndoItems) {
+                if (highestVersionSoFar != null && highestVersionSoFar.isNewerThan(item.getVersion())) {
+                    outOfOrderItems.add(item);
+                }
+                highestVersionSoFar = higher(highestVersionSoFar, item.getVersion());
+            }
+
+            MigrationVersion highestSHTVersion = null;
+            for (final ResolvedSchemaHistoryItem item : versionedNonUndoItems) {
+                final Integer undoRank = maxUndoRankByVersion.get(item.getVersion());
+                if (undoRank == null || undoRank <= item.getInstalledRank()) {
+                    highestSHTVersion = higher(highestSHTVersion, item.getVersion());
+                }
+            }
+
+            return new MigrationSetSummary(baselinedSchema,
+                baselinedSchema ? baselineItem.getVersion() : resolvedBaselineVersion,
+                orEmpty(highestSHTVersion),
+                orEmpty(highestLocalVersion),
+                orEmpty(lowestLocalVersion),
+                maxUndoRankByVersion,
+                deletedVersions,
+                deletedRepeatableDescriptions,
+                maxSuccessfulRepeatableRankByDescription,
+                pendingRepeatableDescriptions,
+                outOfOrderItems);
+        }
+
+        private boolean hasFutureUndo(final ResolvedSchemaHistoryItem item) {
+            if (item.getVersion() == null) {
+                return false;
+            }
+            final Integer undoRank = maxUndoRankByVersion.get(item.getVersion());
+            return undoRank != null && undoRank > item.getInstalledRank();
+        }
+
+        private boolean isDeleted(final ResolvedSchemaHistoryItem item) {
+            return item.isRepeatable()
+                ? deletedRepeatableDescriptions.contains(item.getDescription())
+                : deletedVersions.contains(item.getVersion());
+        }
+
+        private boolean isSuperseded(final ResolvedSchemaHistoryItem item) {
+            final Integer maxRank = maxSuccessfulRepeatableRankByDescription.get(item.getDescription());
+            return maxRank != null && maxRank > item.getInstalledRank();
+        }
+
+        private boolean isOutOfOrder(final ResolvedSchemaHistoryItem item) {
+            return outOfOrderItems.contains(item);
+        }
+
+        private static MigrationVersion higher(final MigrationVersion current, final MigrationVersion candidate) {
+            return current == null || candidate.compareTo(current) > 0 ? candidate : current;
+        }
+
+        private static MigrationVersion lower(final MigrationVersion current, final MigrationVersion candidate) {
+            return current == null || candidate.compareTo(current) < 0 ? candidate : current;
+        }
+
+        private static MigrationVersion orEmpty(final MigrationVersion version) {
+            return version == null ? MigrationVersion.EMPTY : version;
+        }
     }
 }
