@@ -109,12 +109,23 @@ public class ClasspathSqlMigrationScanner extends BaseSqlMigrationScanner {
 
     @Override
     boolean matchesPath(final String path, final Location location) {
-        final String rootPath = new File(Thread.currentThread()
-            .getContextClassLoader()
-            .getResource(".")
-            .getPath()).getAbsolutePath();
-        final String remainingPath = path.replace("\\", "/").substring(rootPath.length() + 1);
+        if (location.getPathRegex() == null) {
+            // Without wildcard restrictions the path is irrelevant. Returning early also avoids
+            // resolving the classpath root, which is not possible under every class loader.
+            return true;
+        }
 
+        final String normalizedPath = path.replace("\\", "/");
+        final URL rootUrl = Thread.currentThread().getContextClassLoader().getResource(".");
+        if (rootUrl == null) {
+            // Some class loaders (e.g. Quarkus) return null for getResource("."), so the classpath
+            // root cannot be determined this way. Fall back to matching the full path instead of
+            // failing with a NullPointerException.
+            return matchesAnyWildcardRestrictions(location, normalizedPath);
+        }
+
+        final String rootPath = new File(rootUrl.getPath()).getAbsolutePath();
+        final String remainingPath = normalizedPath.substring(rootPath.length() + 1);
         return matchesAnyWildcardRestrictions(location, remainingPath);
     }
 
