@@ -54,7 +54,7 @@ public class DB2Database extends Database<DB2Connection> {
     public String getRawCreateScript(final Table table, final boolean baseline) {
         final String tablespace = configuration.getTablespace() == null
             ? ""
-            : " IN \"" + configuration.getTablespace() + "\"";
+            : " IN \"" + configuration.getTablespace() + "\" INDEX IN \"" + configuration.getTablespace() + "\"";
 
         return "CREATE TABLE "
             + table
@@ -88,7 +88,6 @@ public class DB2Database extends Database<DB2Connection> {
             + "_s_idx\" ON "
             + table
             + " (\"success\") "
-            + tablespace
             + ";"
             + (baseline ? getBaselineStatement(table) + ";\n" : "");
     }
