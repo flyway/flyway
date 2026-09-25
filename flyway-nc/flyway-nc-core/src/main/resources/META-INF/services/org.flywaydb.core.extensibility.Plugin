@@ -9,3 +9,4 @@ org.flywaydb.nc.readers.JdbcReader
 org.flywaydb.nc.migration.BaselineMigrationTypeResolver
 org.flywaydb.nc.migration.CoreMigrationTypeResolver
 org.flywaydb.nc.NativeConnectorsSupportImpl
+org.flywaydb.nc.NativeConnectorsConfigurationExtension
