@@ -20,6 +20,7 @@
 package org.flywaydb.core.internal.command;
 
 import lombok.CustomLog;
+import org.flywaydb.core.ProgressLogger;
 import org.flywaydb.core.api.CoreErrorCode;
 import org.flywaydb.core.api.ErrorDetails;
 import org.flywaydb.core.api.callback.Event;
@@ -62,6 +63,7 @@ public class DbValidate {
     private final CallbackExecutor<Event> callbackExecutor;
     private final Connection connection;
     private final ValidatePattern[] ignorePatterns;
+    private final ProgressLogger progress;
 
     private record ValidationOutcome(int allMigrationsCount, boolean hasResolvedMigrations, List<ValidateOutput> invalidMigrations) {}
 
@@ -86,6 +88,7 @@ public class DbValidate {
         this.callbackExecutor = callbackExecutor;
         this.connection = database.getMainConnection();
         this.ignorePatterns = ignorePatterns;
+        this.progress = configuration.createProgress("validate");
     }
 
     /**
@@ -110,6 +113,7 @@ public class DbValidate {
         callbackExecutor.onEvent(Event.BEFORE_VALIDATE);
 
         LOG.debug("Validating migrations ...");
+        progress.log("Validating migrations ...");
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
@@ -139,6 +143,7 @@ public class DbValidate {
         int count = 0;
         if (invalidMigrations.isEmpty()) {
             count = outcome.allMigrationsCount();
+            progress.log("Successfully validated " + count + " migration(s)");
             if (count == 1) {
                 LOG.info(String.format("Successfully validated 1 migration (execution time %s)",
                     TimeFormat.format(stopWatch.getTotalTimeMillis())));
@@ -166,6 +171,7 @@ public class DbValidate {
             callbackExecutor.onEvent(Event.AFTER_VALIDATE);
         } else {
             validationError = new ErrorDetails(CoreErrorCode.VALIDATE_ERROR, "Migrations have failed validation");
+            progress.log("Migrations have failed validation");
             callbackExecutor.onEvent(Event.AFTER_VALIDATE_ERROR);
         }
 

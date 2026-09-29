@@ -120,6 +120,7 @@ public class CassandraDatabase extends NativeConnectorsNonJdbc {
 
         final DriverConfigLoader configLoader = DriverConfigLoader.programmaticBuilder()
             .withDuration(DefaultDriverOption.REQUEST_TIMEOUT, Duration.ofSeconds(10))
+            .withBoolean(DefaultDriverOption.NETTY_DAEMON, true)
             .build();
 
         final CqlSessionBuilder builder = CqlSession.builder()

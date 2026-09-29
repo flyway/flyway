@@ -20,6 +20,7 @@
 package org.flywaydb.core.internal.command.clean;
 
 import lombok.CustomLog;
+import org.flywaydb.core.ProgressLogger;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.output.CleanResult;
@@ -44,6 +45,7 @@ public class CleanExecutor {
     protected final Database database;
     protected final SchemaHistory schemaHistory;
     protected final CallbackExecutor<Event> callbackExecutor;
+    protected final ProgressLogger progress;
 
     public CleanExecutor(final Connection connection,
         final Database database,
@@ -53,6 +55,7 @@ public class CleanExecutor {
         this.database = database;
         this.schemaHistory = schemaHistory;
         this.callbackExecutor = callbackExecutor;
+        this.progress = database.getConfiguration().createProgress("clean");
     }
 
     public void clean(final Schema defaultSchema, final Schema[] schemas, final CleanResult cleanResult) {
@@ -141,6 +144,7 @@ public class CleanExecutor {
 
     private void dropSchema(final Schema schema, final CleanResult cleanResult) {
         LOG.debug("Dropping schema " + schema + "...");
+        progress.log("Dropping schema " + schema);
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         try {
@@ -151,6 +155,7 @@ public class CleanExecutor {
                 });
 
             cleanResult.schemasDropped.add(schema.getName());
+            progress.log("Successfully dropped schema " + schema);
 
             stopWatch.stop();
             LOG.info(String.format("Successfully dropped schema %s (execution time %s)",
@@ -181,10 +186,12 @@ public class CleanExecutor {
 
     private void cleanSchema(final Schema schema) {
         LOG.debug("Cleaning schema " + schema + "...");
+        progress.log("Cleaning schema " + schema);
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         doCleanSchema(schema);
         stopWatch.stop();
+        progress.log("Successfully cleaned schema " + schema);
         LOG.info(String.format("Successfully cleaned schema %s (execution time %s)",
             schema,
             TimeFormat.format(stopWatch.getTotalTimeMillis())));

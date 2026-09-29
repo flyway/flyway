@@ -53,6 +53,18 @@ public class FlywayMigrateException extends FlywayException {
         }
     }
 
+    protected FlywayMigrateException(final FlywayMigrateException e) {
+        super(e.getMessage(), e.getCause());
+        this.migration = e.migration;
+        this.outOfOrder = e.outOfOrder;
+        this.executableInTransaction = e.executableInTransaction;
+        this.errorResult = e.errorResult;
+        this.lineNumber = e.lineNumber;
+        this.absolutePathOnDisk = e.absolutePathOnDisk;
+        this.sqlState = e.sqlState;
+        this.sqlErrorCode = e.sqlErrorCode;
+    }
+
     public FlywayMigrateException(final MigrationInfo migration,
         final boolean outOfOrder,
         final SQLException e,

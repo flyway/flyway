@@ -19,6 +19,7 @@
  */
 package org.flywaydb.core.internal.info;
 
+import org.flywaydb.core.ProgressLogger;
 import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.CommandResultFactory;
@@ -515,7 +516,11 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      */
     public List<ValidateOutput> validate() {
         final List<ValidateOutput> invalidMigrations = new ArrayList<>();
+        final ProgressLogger progress = configuration.createProgress("validate")
+            .subTask("migrations")
+            .pushSteps(migrationInfos.size());
         for (final MigrationInfoImpl migrationInfo : migrationInfos) {
+            progress.log("Validating " + migrationInfo.getScript());
             final ErrorDetails validateError = migrationInfo.validate();
             if (validateError != null) {
                 invalidMigrations.add(CommandResultFactory.createValidateOutput(migrationInfo, validateError));

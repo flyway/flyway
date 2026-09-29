@@ -20,6 +20,7 @@
 package org.flywaydb.core.internal.command;
 
 import lombok.CustomLog;
+import org.flywaydb.core.ProgressLogger;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
@@ -86,6 +87,8 @@ public class DbRepair {
      */
     private final Configuration configuration;
 
+    private final ProgressLogger progress;
+
     /**
      * Creates a new DbRepair.
      *
@@ -104,6 +107,7 @@ public class DbRepair {
         this.schemaHistory = schemaHistory;
         this.callbackExecutor = callbackExecutor;
         this.configuration = configuration;
+        this.progress = configuration.createProgress("repair");
 
         this.migrationInfoService = new MigrationInfoServiceImpl(migrationResolver,
             schemaHistory,
@@ -132,12 +136,17 @@ public class DbRepair {
                     public CompletedRepairActions call() {
                         final CompletedRepairActions completedActions = new CompletedRepairActions();
 
+                        progress.pushSteps(4);
+                        progress.log("Removing failed migrations");
+
                         completedActions.removedFailedMigrations = schemaHistory.removeFailedMigrations(repairResult,
                             configuration.getCherryPick());
                         migrationInfoService.refresh();
 
+                        progress.log("Deleting missing migrations");
                         completedActions.deletedMissingMigrations = deleteMissingMigrations();
 
+                        progress.log("Aligning applied migrations with resolved migrations");
                         completedActions.alignedAppliedMigrationChecksums = alignAppliedMigrationsWithResolvedMigrations();
                         return completedActions;
                     }
@@ -145,6 +154,7 @@ public class DbRepair {
 
             stopWatch.stop();
 
+            progress.log("Successfully repaired schema history table " + schemaHistory);
             LOG.info("Successfully repaired schema history table "
                 + schemaHistory
                 + " (execution time "

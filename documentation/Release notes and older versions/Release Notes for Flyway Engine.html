@@ -9,6 +9,22 @@
 <div class="col-md-9">
 <!-- BEGIN db-generated release notes -->
   <div class="release">
+        <h2 id="13.8.1">Flyway 13.8.1 (2026-09-29)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fixed an issue where Cassandra database operations could hang when using Native Connectors mode</li>
+        </ul>
+
+        <h3>Internal dependency</h3>
+        <ul>
+            <li>Upgraded RgCompare to 1.66.2.5896</li>
+        </ul>
+
+  </div>
+
+
+  <div class="release">
         <h2 id="13.8.0">Flyway 13.8.0 (2026-09-24)</h2>
 
         <h3>Changes</h3>
@@ -29,11 +45,6 @@
         <ul>
             <li>connections to PostgreSQL and CockroachDB now report application_name as "Flyway by Redgate" rather than the pgjdbc default</li>
             <li>the `docker` provisioner built container connection URLs against `localhost`, which could resolve to an address the container was not published on, so clients failed to connect to a container Flyway had reported as ready</li>
-        </ul>
-
-        <h3>Internal dependency</h3>
-        <ul>
-            <li>Upgraded RgCompare to 1.66.1.5811</li>
         </ul>
 
   </div>
