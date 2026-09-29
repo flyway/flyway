@@ -1,3 +1,4 @@
 org.flywaydb.database.mysql.MySQLDatabaseType
+org.flywaydb.database.mysql.MySQLConfigurationExtension
 org.flywaydb.database.mysql.authentication.MySQLExternalAuthSupportStub
 org.flywaydb.database.mysql.mariadb.MariaDBDatabaseType
