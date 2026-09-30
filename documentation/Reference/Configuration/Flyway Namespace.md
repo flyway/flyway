@@ -101,6 +101,12 @@ This namespace contains the configurations specific to the Flyway engine.
 | [`pipelineId`](<Configuration/Flyway Namespace/Flyway Pipeline Id Setting>)                     | Community | String  | An id for identifying your pipeline.                                  |
 | [`publishResult`](<Configuration/Flyway Namespace/Flyway Publish Result Setting>)               | Community | Boolean | Whether to publish the result of your Flyway run to Flyway Pipelines. |
 
+## Native connector settings
+
+| Setting | Tier | Type | Description |
+|---------|------|------|-------------|
+| [`nativeConnectors.processTimeout`](<Configuration/Flyway Namespace/Flyway Native Connectors Process Timeout Setting>) | Community | Integer | Maximum external migration process execution time in seconds. |
+
 ## Baseline settings
 
 | Setting                                                                                       | Tier      | Type    | Description                                                               |
