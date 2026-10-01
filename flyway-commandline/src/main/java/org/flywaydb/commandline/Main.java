@@ -147,6 +147,11 @@ public class Main {
                     isSingleCommandExtension);
 
                 if (!isSingleCommandExtension) {
+                    // Computed directly from the result, independent of report-generator plugins,
+                    // so whether Flyway signals failure can never depend on whether report generation ran
+                    // or on how many/which ResultReportGenerator plugins are enabled.
+                    final Exception resultException = ReportGenerationOutputMerger.getAggregateExceptions(result);
+
                     final var callbackExecutor = new CommandlineCallbackExecutor<>(configuration, Event.class);
                     final List<ResultReportGenerator> reportGenerators = PLUGIN_REGISTER.getInstancesOf(
                         ResultReportGenerator.class);
@@ -159,8 +164,8 @@ public class Main {
                     callbackExecutor.onReportGeneratedEvent(Event.AFTER_REPORT_GENERATED,
                         reportGenerationOutput.reportDetails);
 
-                    if (reportGenerationOutput.aggregateException != null) {
-                        throw reportGenerationOutput.aggregateException;
+                    if (resultException != null) {
+                        throw resultException;
                     }
                 }
 

@@ -72,6 +72,7 @@ public enum Topic {
     ORACLE_BLOG("flyway-blog/flyway-native-connectors-oracle"),
     V10_BLOG("v10-blog"),
     GIVE_FEEDBACK("release-notes-and-older-versions/feedback"),
+    FEEDBACK_SURVEY_REPORTS("feedback-survey-reports"),
     FEEDBACK_SURVEY_ENTERPRISE("feedback-survey-enterprise"),
     FEEDBACK_SURVEY_COMMUNITY("feedback-survey-community"),
 

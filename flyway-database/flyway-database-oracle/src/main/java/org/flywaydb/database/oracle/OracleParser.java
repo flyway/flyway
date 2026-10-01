@@ -312,10 +312,40 @@ public class OracleParser extends Parser {
         //      LOOP
         //        ...
         //      END LOOP
-        // the first END does *not* attach to the subsequent LOOP. The same is possible with $IF ... $END constructions
+        // the first END does *not* attach to the subsequent LOOP.
+        // Conditional compilation directives ($IF ... $END) are self-closing, so an $END never attaches to the
+        // keyword that follows it, even though the block it closed was initiated by the IF of an $IF.
         return lastTokenIs(tokens, parensDepth, "END")
-            && lastTokenIsOnLine(tokens, parensDepth, keyword.getLine())
+            && !precedingEndIsConditionalCompilationDirective(tokens, parensDepth)
             && keyword.getText().equals(context.getLastClosedBlockInitiator());
+    }
+
+    private static boolean precedingEndIsConditionalCompilationDirective(final List<Token> tokens,
+        final int parensDepth) {
+        final Token beforeEnd = getTokenBeforePrevious(tokens, parensDepth);
+        return beforeEnd != null && beforeEnd.getType() == TokenType.SYMBOL && "$".equals(beforeEnd.getText());
+    }
+
+    private static Token getTokenBeforePrevious(final List<Token> tokens, final int parensDepth) {
+        int significantTokens = 0;
+        for (int i = tokens.size() - 1; i >= 0; i--) {
+            final Token token = tokens.get(i);
+
+            if (token.getParensDepth() < parensDepth) {
+                return null;
+            }
+            if (token.getParensDepth() != parensDepth
+                || token.getType() == TokenType.COMMENT
+                || token.getType() == TokenType.BLANK_LINES) {
+                continue;
+            }
+
+            if (++significantTokens == 2) {
+                return token;
+            }
+        }
+
+        return null;
     }
 
     @Override

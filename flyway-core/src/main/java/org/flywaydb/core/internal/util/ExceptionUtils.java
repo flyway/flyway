@@ -20,6 +20,7 @@
 package org.flywaydb.core.internal.util;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -107,5 +108,9 @@ public class ExceptionUtils {
             throwable = throwable.getCause();
         }
         return false;
+    }
+
+    public static boolean exceptionHasSuppressedOf(final Throwable exception, final Class<?> suppressed) {
+        return Arrays.stream(exception.getSuppressed()).anyMatch(suppressed::isInstance);
     }
 }

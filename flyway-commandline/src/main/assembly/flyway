@@ -43,12 +43,12 @@ else
   EXTRA_ARGS=("$NATIVE_ACCESS" "-Djava.library.path=$INSTALLDIR/native")
 fi
 
-# Inherit OS-level proxy settings unless explicitly disabled. Placed before JAVA_ARGS on the
+# Inherit OS-level proxy settings only when explicitly enabled. Placed before JAVA_ARGS on the
 # invocation line so any explicit -Dhttp.proxyHost etc. the user passes always wins (java
 # honours the last -D wins).
 case "$FLYWAY_USE_SYSTEM_PROXIES" in
-  [Ff][Aa][Ll][Ss][Ee]) PROXY_ARGS="" ;;
-  *) PROXY_ARGS="-Djava.net.useSystemProxies=true" ;;
+  [Tt][Rr][Uu][Ee]) PROXY_ARGS="-Djava.net.useSystemProxies=true" ;;
+  *) PROXY_ARGS="" ;;
 esac
 
 if `command -v cygpath > /dev/null`; then CP=`cygpath -pw "$CP"`; fi

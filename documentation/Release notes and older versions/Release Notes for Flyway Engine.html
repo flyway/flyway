@@ -9,16 +9,40 @@
 <div class="col-md-9">
 <!-- BEGIN db-generated release notes -->
   <div class="release">
+        <h2 id="13.9.0">Flyway 13.9.0 (2026-10-01)</h2>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Oracle comparisons support a new preserveIdentifierCase option, which keeps schema names in deployment scripts in the capitalization Oracle stores them in (Preview).</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Flyway now defaults `FLYWAY_USE_SYSTEM_PROXIES` to `false`, making inheritance of the operating system proxy configuration opt-in</li>
+            <li>Flyway Report has been updated to a new implementation and is now enabled by default. If you need to use the legacy implementation, set the `FLYWAY_NEW_REPORTS` environment variable to `false`</li>
+            <li>`init` no longer writes the root `redgateCompare.filterFile` setting for SQL Server and Oracle projects</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Flyway no longer reports that changes were successfully rolled back when an exception occurred during rollback</li>
+            <li>Oracle parser no longer fails when END CASE, END LOOP, or END IF is split across two lines</li>
+        </ul>
+
+        <h3>Internal dependency</h3>
+        <ul>
+            <li>Upgraded RgCompare to 1.66.2.5916</li>
+        </ul>
+
+  </div>
+
+
+  <div class="release">
         <h2 id="13.8.1">Flyway 13.8.1 (2026-09-29)</h2>
 
         <h3>Bug fixes</h3>
         <ul>
             <li>Fixed an issue where Cassandra database operations could hang when using Native Connectors mode</li>
-        </ul>
-
-        <h3>Internal dependency</h3>
-        <ul>
-            <li>Upgraded RgCompare to 1.66.2.5896</li>
         </ul>
 
   </div>

@@ -21,7 +21,10 @@ package org.flywaydb.core.internal.reports;
 
 import java.util.Collection;
 import java.util.Objects;
+import java.util.stream.Stream;
+import org.flywaydb.core.api.output.CompositeResult;
 import org.flywaydb.core.api.output.HtmlResult;
+import org.flywaydb.core.api.output.OperationResult;
 
 public class ReportGenerationOutputMerger {
 
@@ -35,9 +38,8 @@ public class ReportGenerationOutputMerger {
         }
 
         final ReportDetails mergedDetails = mergeReportDetails(first.reportDetails, second.reportDetails);
-        final Exception mergedException = mergeExceptions(first.aggregateException, second.aggregateException);
 
-        return new ReportGenerationOutput(mergedDetails, mergedException);
+        return new ReportGenerationOutput(mergedDetails);
     }
 
     private static ReportDetails mergeReportDetails(final ReportDetails first, final ReportDetails second) {
@@ -71,12 +73,21 @@ public class ReportGenerationOutputMerger {
         return first;
     }
 
-    public static Exception getAggregateExceptions(final Collection<? extends HtmlResult> results) {
+    public static Exception getAggregateExceptions(final OperationResult result) {
+        final Collection<HtmlResult> flattenedResults = flattenResults(result).filter(HtmlResult.class::isInstance)
+            .map(HtmlResult.class::cast)
+            .toList();
         Exception aggregate = null;
-        final var exceptions = results.stream().map(x -> x.exceptionObject).filter(Objects::nonNull).toList();
+        final var exceptions = flattenedResults.stream().map(x -> x.exceptionObject).filter(Objects::nonNull).toList();
         for (final Exception e : exceptions) {
             aggregate = mergeExceptions(aggregate, e);
         }
         return aggregate;
+    }
+
+    private static Stream<OperationResult> flattenResults(final OperationResult result) {
+        return result instanceof final CompositeResult<?> compositeResult
+            ? compositeResult.individualResults().stream().flatMap(ReportGenerationOutputMerger::flattenResults)
+            : Stream.of(result);
     }
 }

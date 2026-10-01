@@ -17,16 +17,12 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package org.flywaydb.core.internal.reports;
+package org.flywaydb.core.internal.exception;
 
-public class ReportGenerationOutput {
-    public ReportDetails reportDetails;
+import java.sql.SQLException;
 
-    public ReportGenerationOutput() {
-        reportDetails = new ReportDetails();
-    }
-
-    public ReportGenerationOutput(final ReportDetails reportDetails) {
-        this.reportDetails = reportDetails;
+public class FlywayRollbackFailedException extends FlywaySqlException {
+    public FlywayRollbackFailedException(final SQLException sqlException) {
+        super("Unable to rollback transaction", sqlException);
     }
 }

@@ -8,8 +8,9 @@ root cause of Flyway failing to reach the internet on a machine where a browser 
 
 ## Automatic proxy inheritance
 
-The Flyway command-line tool and Docker images pass `-Djava.net.useSystemProxies=true` to the JVM on startup.
-This tells the JVM to ask the operating system for its proxy configuration (Windows WinINET, macOS System
+By default, Flyway does not look at your operating system's proxy configuration. To enable it, set the environment
+variable `FLYWAY_USE_SYSTEM_PROXIES` to `true`. The Flyway command-line tool and Docker images then pass
+`-Djava.net.useSystemProxies=true` to the JVM on startup. This tells the JVM to ask the operating system for its proxy configuration (Windows WinINET, macOS System
 Configuration, or GNOME, depending on platform) and use it automatically. In most environments, no further
 configuration is required.
 
@@ -37,16 +38,16 @@ take longer.
 Linux is never affected, and neither are the Docker images, because the JVM only reads a manually entered proxy
 on that platform.
 
-### Turning it off
+### Turning it on
 
-Set the environment variable `FLYWAY_USE_SYSTEM_PROXIES` to `false` to restore the previous behavior, where
-Flyway does not look at the OS proxy configuration at all. You would want this if:
+Set the environment variable `FLYWAY_USE_SYSTEM_PROXIES` to `true`. Any other value, or leaving it unset, means
+Flyway does not look at the OS proxy configuration. You would want to enable it if Flyway cannot reach the
+internet from a machine where your browser can, and you would rather reuse the OS proxy settings than configure
+a proxy explicitly.
 
-- your OS proxy settings are set up incorrectly or unreachable from where Flyway is running, and inheriting them
-  causes connection failures that would not otherwise occur
-- you want full control over proxy behavior via `JAVA_ARGS` (see below) without the OS settings interfering
-- proxy discovery is measurably slowing down your commands, as described above, and you would rather set the
-  proxy explicitly
+Leave it off if your OS proxy settings are set up incorrectly or unreachable from where Flyway is running, if you
+want full control over proxy behavior via `JAVA_ARGS` (see below), or if proxy discovery is measurably slowing
+down your commands, as described above.
 
 ## Manual proxy configuration
 
@@ -64,7 +65,7 @@ For example:
 <pre class="console"><span>&gt;</span> set JAVA_ARGS=-Dhttp.proxyHost=myproxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=myproxy -Dhttps.proxyPort=8080</pre>
 
 These explicit properties always take precedence over the OS proxy settings described above, so setting them is
-safe even when `FLYWAY_USE_SYSTEM_PROXIES` is left at its default.
+safe even when `FLYWAY_USE_SYSTEM_PROXIES` is set to `true`.
 
 ### Excluding hosts from the proxy
 

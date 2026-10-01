@@ -36,6 +36,7 @@ import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.exception.FlywayMigrateException;
+import org.flywaydb.core.internal.exception.FlywayRollbackFailedException;
 import org.flywaydb.core.internal.info.MigrationConfigPrinter;
 import org.flywaydb.core.internal.info.MigrationInfoImpl;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
@@ -338,8 +339,13 @@ public class DbMigrate {
             migrateResult.putFailedMigration(migration, executionTime);
 
             if (database.supportsDdlTransactions() && executeGroupInTransaction) {
-                LOG.error(failedMsg + " Changes successfully rolled back.");
-                migrateResult.markAsRolledBack(group.keySet().stream().toList());
+                if (ExceptionUtils.exceptionHasSuppressedOf(e, FlywayRollbackFailedException.class)) {
+                    // Flyway is unable to determine the rollback state precisely, so we deliberately only log the result
+                    LOG.error(failedMsg);
+                } else {
+                    LOG.error(failedMsg + " Changes successfully rolled back.");
+                    migrateResult.markAsRolledBack(group.keySet().stream().toList());
+                }
             } else {
                 LOG.error(failedMsg + " Please restore backups and roll back database and code!");
                 schemaHistory.addAppliedMigration(migration.getVersion(),

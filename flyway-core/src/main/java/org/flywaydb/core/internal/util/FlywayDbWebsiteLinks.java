@@ -57,6 +57,7 @@ public class FlywayDbWebsiteLinks {
     public static final String INFO_REPORT_LEARN_MORE = helpUrl(Topic.INFO_REPORT);
     public static final String MIGRATION_REPORT_LEARN_MORE = helpUrl(Topic.MIGRATION_REPORT);
     public static final String GIVE_FEEDBACK = helpUrl(Topic.GIVE_FEEDBACK);
+    public static final String FEEDBACK_SURVEY_REPORTS = helpUrl(Topic.FEEDBACK_SURVEY_REPORTS);
     public static final String TOML_HELP = helpUrl(Topic.TOML_HELP);
     public static final String EULA_LINK = helpUrl(Topic.EULA);
     public static final String COMMUNITY_SUPPORT = helpUrl(Topic.COMMUNITY_SUPPORT);

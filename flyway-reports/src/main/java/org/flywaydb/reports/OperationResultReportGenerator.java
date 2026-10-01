@@ -19,12 +19,12 @@
  */
 package org.flywaydb.reports;
 
-import static org.flywaydb.core.internal.reports.ReportGenerationOutputMerger.getAggregateExceptions;
-
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -36,7 +36,6 @@ import java.util.stream.Stream;
 import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.output.CompositeResult;
 import org.flywaydb.core.api.output.HtmlResult;
 import org.flywaydb.core.api.output.OperationResult;
@@ -58,14 +57,13 @@ public class OperationResultReportGenerator implements ResultReportGenerator {
 
     @Override
     public boolean isEnabled() {
-        return !"true".equalsIgnoreCase(System.getenv("FLYWAY_NEW_REPORTS"));
+        return "false".equalsIgnoreCase(System.getenv("FLYWAY_NEW_REPORTS"));
     }
 
     @Override
     public ReportGenerationOutput generateReport(final OperationResult operationResult,
         final Configuration configuration) {
         ReportDetails reportDetails = new ReportDetails();
-        Exception aggregateException = null;
 
         final Collection<HtmlResult> flattenedResults = flattenResults(operationResult).filter(HtmlResult.class::isInstance)
             .map(HtmlResult.class::cast)
@@ -78,11 +76,7 @@ public class OperationResultReportGenerator implements ResultReportGenerator {
             reportDetails = writeReport(configuration, filteredResults);
         }
 
-        if (!flattenedResults.isEmpty()) {
-            aggregateException = getAggregateExceptions(flattenedResults);
-        }
-
-        return new ReportGenerationOutput(reportDetails, aggregateException);
+        return new ReportGenerationOutput(reportDetails);
     }
 
     private ReportDetails writeReport(final Configuration configuration,
@@ -106,9 +100,9 @@ public class OperationResultReportGenerator implements ResultReportGenerator {
         } catch (final FlywayException e) {
             if (DEFAULT_REPORT_FILENAME.equals(reportFilename)) {
                 LOG.warn("Unable to create default report files.");
-                if (LogFactory.isDebugEnabled()) {
-                    e.printStackTrace(System.out);
-                }
+                final var stackTraceWriter = new StringWriter();
+                e.printStackTrace(new PrintWriter(stackTraceWriter));
+                LOG.debug(stackTraceWriter.toString());
             } else {
                 LOG.error("Unable to create report files", e);
             }

@@ -22,6 +22,7 @@ package org.flywaydb.core.internal.jdbc;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.exception.FlywayRollbackFailedException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 
 import java.sql.Connection;
@@ -76,6 +77,7 @@ public class TransactionalExecutionTemplate implements ExecutionTemplate {
                     LOG.debug("Transaction rolled back");
                 } catch (SQLException se) {
                     LOG.error("Unable to rollback transaction", se);
+                    rethrow.addSuppressed(new FlywayRollbackFailedException(se));
                 }
             } else {
                 try {
