@@ -913,6 +913,13 @@
 
   <profiles>
     <profile>
+      <!-- Internal perf harness; excluded from normal builds and releases. -->
+      <id>benchmark</id>
+      <modules>
+        <module>flyway-benchmark</module>
+      </modules>
+    </profile>
+    <profile>
       <id>sign-artifacts</id>
       <build>
         <plugins>

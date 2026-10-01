@@ -24,8 +24,9 @@ import static org.flywaydb.core.api.resource.LoadableResource.createPlaceholderR
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import lombok.CustomLog;
 import org.flywaydb.core.api.CoreErrorCode;
@@ -62,18 +63,16 @@ public class MigrationScannerManager {
             return Collections.emptyList();
         }
 
+        final ResourceNameParser resourceNameParser = new ResourceNameParser(configuration);
         final List<LoadableResourceMetadata> resources = Arrays.stream(locations)
             .flatMap(location -> scan(location, configuration, parsingContext).stream())
-            .map(resource -> getLoadableResourceMetadata(resource, configuration, parsingContext))
+            .map(resource -> getLoadableResourceMetadata(resource, configuration, parsingContext, resourceNameParser))
             .toList();
 
-        final Collection<LoadableResourceMetadata> resourceSet = new HashSet<>();
+        final Map<LoadableResourceMetadata, LoadableResourceMetadata> resourceSet = new HashMap<>();
         resources.forEach(resource -> {
-            if (resourceSet.contains(resource)) {
-                final LoadableResourceMetadata first = resourceSet.stream()
-                    .filter(loadableResourceMetadata -> loadableResourceMetadata.equals(resource))
-                    .findFirst()
-                    .get();
+            final LoadableResourceMetadata first = resourceSet.putIfAbsent(resource, resource);
+            if (first != null) {
                 if (first.version() != null) {
                     throw new FlywayException(String.format(
                         "Found more than one migration with version %s\nOffenders:\n-> %s \n-> %s",
@@ -87,8 +86,6 @@ public class MigrationScannerManager {
                         resource.loadableResource().getAbsolutePath(),
                         first.loadableResource().getAbsolutePath()), CoreErrorCode.DUPLICATE_REPEATABLE_MIGRATION);
                 }
-            } else {
-                resourceSet.add(resource);
             }
         });
 
@@ -97,9 +94,9 @@ public class MigrationScannerManager {
 
     private static LoadableResourceMetadata getLoadableResourceMetadata(final Pair<LoadableResource, SqlScriptMetadata> resource,
         final Configuration configuration,
-        final ParsingContext parsingContext) {
+        final ParsingContext parsingContext,
+        final ResourceNameParser resourceNameParser) {
 
-        final ResourceNameParser resourceNameParser = new ResourceNameParser(configuration);
         final ResourceName resourceName = resourceNameParser.parse(resource.getLeft().getFilename());
 
         final SqlScriptMetadata sqlScriptMetadata = resource.getRight();

@@ -100,7 +100,6 @@ public class MigrateVerbExtension implements VerbExtension {
 
         if (configuration.isValidateOnMigrate()) {
             validate(configuration);
-            context.refresh(configuration);
         }
 
         final NativeConnectorsDatabase database = context.getDatabase();
