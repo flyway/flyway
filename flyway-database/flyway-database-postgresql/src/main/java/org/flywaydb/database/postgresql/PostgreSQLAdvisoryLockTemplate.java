@@ -55,10 +55,21 @@ public class PostgreSQLAdvisoryLockTemplate {
     }
 
     public <T> T execute(final Callable<T> callable) {
+        return execute(callable, false);
+    }
+
+    /**
+     * @param preferSessionLock When {@code true}, uses PostgreSQL's session-level advisory lock instead of the
+     * transactional one, regardless of the {@code postgresql.transactional.lock} configuration setting. Intended for
+     * migrations that declare {@code executeInTransaction=false} (e.g. {@code CREATE INDEX CONCURRENTLY}), since the
+     * transactional lock otherwise holds this connection's transaction open for the duration of the migration,
+     * causing PostgreSQL to wait on it as part of the non-transactional statement's own visibility snapshot.
+     */
+    public <T> T execute(final Callable<T> callable, final boolean preferSessionLock) {
         final PostgreSQLConfigurationExtension configurationExtension = configuration.getPluginRegister()
             .getExact(PostgreSQLConfigurationExtension.class);
 
-        if (configurationExtension.isTransactionalLock()) {
+        if (configurationExtension.isTransactionalLock() && !preferSessionLock) {
             return new TransactionalExecutionTemplate(jdbcTemplate.getConnection(),
                 true).execute(() -> execute(callable, this::tryLockTransactional));
         } else {
