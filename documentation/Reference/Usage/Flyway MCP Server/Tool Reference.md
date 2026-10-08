@@ -105,14 +105,33 @@ Returns a `diffId` and a list of selectable differences.
 Generates migration scripts from a migrations diff. Scripts are named automatically using the project's configured
 naming convention.
 
-| Parameter          | Required | Description                                                   |
-|--------------------|----------|---------------------------------------------------------------|
-| `workspaceId`      | Yes      | Workspace ID from `load_project`.                             |
-| `migrationsDiffId` | Yes      | Diff ID from `create_diff_migrations`.                        |
-| `changes`          | Yes      | List of change IDs to include, or `*` for all changes.        |
-| `description`      | No       | Description used in the generated migration script filenames. |
+Whether an undo script is also generated for each versioned script is controlled by the project's
+[`flyway.generate.types`](<Configuration/Flyway Namespace/Flyway Generate Namespace/Flyway Generate Types Setting>)
+toml setting, e.g.:
 
-Returns the migration folder path, the list of generated files, and any warnings raised during generation.
+```toml
+[flyway.generate]
+types = ["versioned", "undo"]
+```
+
+unless overridden for this call via `generateUndoScripts`. If `flyway.generate.types` isn't set at all, the
+`flywayDesktop.generate.undoScripts` toml setting is used as a fallback, e.g.:
+
+```toml
+[flywayDesktop.generate]
+undoScripts = true
+```
+
+| Parameter             | Required | Description                                                                                                                                          |
+|------------------------|----------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `workspaceId`          | Yes      | Workspace ID from `load_project`.                                                                                                                   |
+| `migrationsDiffId`     | Yes      | Diff ID from `create_diff_migrations`.                                                                                                               |
+| `changes`              | Yes      | List of change IDs to include, or `*` for all changes.                                                                                              |
+| `description`          | No       | Description used in the generated migration script filenames.                                                                                       |
+| `generateUndoScripts`  | No       | Whether to also generate an undo script. If unset, follows the project's `flyway.generate.types` setting; if true/false, overrides it for this call only. |
+
+Returns the migration folder path, the list of generated files, any warnings raised during generation, and whether
+undo scripts were generated (`undoScriptsGenerated`).
 
 ### review_code
 

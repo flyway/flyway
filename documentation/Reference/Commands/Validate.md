@@ -4,7 +4,7 @@ subtitle: Validate
 
 ## Description
 
-Validates the applied migrations against the available ones.
+Validates the applied Versioned and Repeatable migrations against the available ones.
 
 Validation fails if
 - differences in migration names, types or checksums are found

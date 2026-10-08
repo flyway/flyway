@@ -17,6 +17,7 @@ flyway_schema_history
 [Gg]radle
 (?i)HashiCorp
 (?i)HTML
+hostname
 hotfix
 jarDirs
 (?i)JavaScript
@@ -43,6 +44,7 @@ ntext
 nullability
 nvarchar
 nvarchars
+OAuth
 OSGi
 (?i)Powershell
 [Rr]edgate

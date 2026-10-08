@@ -26,8 +26,8 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.CleanModePlugin;
 import org.flywaydb.core.extensibility.Tier;
+import org.flywaydb.core.internal.command.clean.CleanModel;
 import org.flywaydb.core.internal.command.clean.CleanModel.Mode;
-import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
@@ -293,7 +293,7 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
             }
         }
 
-        final String cleanMode = ConfigUtils.getCleanModel(configuration).getMode();
+        final String cleanMode = getCleanModel(configuration).getMode();
         if (Mode.ALL.name().equalsIgnoreCase(cleanMode)) {
             final CleanModePlugin cleanModePlugin = configuration.getPluginRegister()
                 .getInstancesOf(CleanModePlugin.class)
@@ -419,5 +419,28 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
         }
 
         return DATABASE_HOSTING_LOCAL;
+    }
+
+    @Override
+    public boolean supportsCleanMode() {
+        return true;
+    }
+
+    @Override
+    public CleanModel getCleanModel(final Configuration conf) {
+        final var extension = conf.getPluginRegister()
+            .getLicensedInstanceOf(SQLServerConfigurationExtension.class, conf);
+        CleanModel cleanModel = null;
+
+        if (extension != null) {
+            cleanModel = extension.getClean();
+        }
+
+        if (cleanModel != null) {
+            cleanModel.validate();
+            return cleanModel;
+        } else {
+            return new CleanModel();
+        }
     }
 }

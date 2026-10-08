@@ -16,7 +16,7 @@ and much more.
     {% include plugin.html name="Cake" logo="cake.png" url="https://github.com/buthomas/Cake.Flyway" info=" A cross platform build automation system" %}
     {% include plugin.html name="Chef" logo="chef.svg" url="https://supermarket.chef.io/cookbooks/flywaydb" info="Infrastructure Automation" %}
     {% include plugin.html name="Chocolatey" logo="chocolatey.svg" url="https://chocolatey.org/packages/flyway.commandline/" info="Package manager for Windows" %}
-    {% include plugin.html name="Dropwizard" logo="dropwizard.png" url="Usage/Community Plugins and Integrations/Community Plugins and Integrations (Dropwizard)" info="Java framework for developing high-performance RESTful web services" %}
+    {% include plugin.html name="Dropwizard" logo="dropwizard.png" url="Usage/Community Plugins and Integrations/Community Plugins and Integrations (Dropwizard)" info="Java framework for developing high-performance web services" %}
     {% include plugin.html name="Grails" logo="grails.svg" url="Usage/Community Plugins and Integrations/Community Plugins and Integrations (Grails)" info="Groovy-based web application framework for the JVM built on top of Spring Boot" %}
     {% include plugin.html name="Homebrew" logo="homebrew.png" url="http://formulae.brew.sh/formula/flyway" info="Package manager for macOS" %}
     {% include plugin.html name="IntelliJ IDEA" logo="intellij.svg" url="https://plugins.jetbrains.com/plugin/8597-flyway-migration-creation" info="Capable and ergonomic Java IDE" %}

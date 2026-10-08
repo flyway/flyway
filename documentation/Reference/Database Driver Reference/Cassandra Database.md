@@ -5,7 +5,7 @@ subtitle: Cassandra
 - **Verified Versions:** N/A
 - **Maintainer:** {% include redgate-badge.html %}
 
-> **Deprecated:** The Cassandra JDBC connector is deprecated and will be removed in a future release. We recommend using [Cassandra Native Connectors](<Cassandra Database/Cassandra Database - Native Connectors>) instead.
+> **Deprecated:** The Cassandra JDBC connector is deprecated and will be removed in a future release. We recommend using [Cassandra Native Connectors](<Database Driver Reference/Cassandra Database/Cassandra Database - Native Connectors>) instead.
 
 ## Supported Versions and Support Levels
 

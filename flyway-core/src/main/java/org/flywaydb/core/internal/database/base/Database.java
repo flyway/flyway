@@ -26,6 +26,7 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.LicenseGuard;
 import org.flywaydb.core.extensibility.Tier;
+import org.flywaydb.core.internal.command.clean.CleanModel;
 import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
@@ -565,5 +566,13 @@ public abstract class Database<C extends Connection> implements Closeable {
         }
 
         return DATABASE_HOSTING_LOCAL;
+    }
+
+    public boolean supportsCleanMode() {
+        return false;
+    }
+
+    public CleanModel getCleanModel(final Configuration conf) {
+        return new CleanModel();
     }
 }

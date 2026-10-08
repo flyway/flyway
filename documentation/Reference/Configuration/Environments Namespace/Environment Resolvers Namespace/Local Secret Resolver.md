@@ -18,7 +18,7 @@ The Mac keychain will be used. The secret will be read as a generic password (`f
 
 ### Linux
 
-Libsecret is used, if available. The resolver will look in the default keychain. The resolver will match against the following secret schema:
+The `libsecret` library is used, if available. The resolver will look in the default keychain. The resolver will match against the following secret schema:
 ```
 product: Flyway
 version: 1

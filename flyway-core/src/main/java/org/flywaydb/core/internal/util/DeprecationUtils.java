@@ -39,7 +39,9 @@ public class DeprecationUtils {
         CASSANDRA_JDBC("Cassandra JDBC connection", "Cassandra Native Connectors", null),
         DOCKER_PROVISIONER_LEGACY_CONFIG("The docker provisioner's compose-file configuration",
             "the docker-compose provisioner",
-            null);
+            null),
+        CHECK_DRIFT_ON_MIGRATE("checkDriftOnMigrate", null, null),
+        PUBLISH_REPORT("flywayServicePublish.publishReport", null, null);
 
         private final String feature;
         private final String replacement;

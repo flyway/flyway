@@ -7,7 +7,7 @@ redirect_from: Configuration/baselineOnMigrate/
 
 Whether to automatically call [baseline](Commands/baseline) when [migrate](Commands/migrate) is executed against a non-empty schema with no [schema history table](<Configuration/Flyway Namespace/Flyway Table Setting>).
 
-This schema will then be baselined with the
+This schema will then be marked with the
 [`baselineVersion`](<Configuration/Flyway Namespace/Flyway Baseline Version Setting>) before executing the migrations. 
 Only migrations above [`baselineVersion`](<Configuration/Flyway Namespace/Flyway Baseline Version Setting>) will then be applied.
 

@@ -1,23 +1,22 @@
 ---
-subtitle: 'Tutorial: Personal Access Tokens (PATs)'
+subtitle: 'Tutorial: Personal Access Tokens'
 ---
 
-This brief tutorial will teach you how to authorize Flyway to use Teams or Enterprise Edition using personal access tokens a.k.a. PATs.
+This brief tutorial will teach you how to authorize Flyway to use Teams or Enterprise Edition using personal access tokens.
 
 ## Introduction
 
-Flyway can be authorized non-interactively by specifying the `email` and `token` parameters for PATs.
+Flyway can be authorized non-interactively by specifying the `email` and `token` parameters.
 
-## Example: Authorizing Flyway with PATs
+## Example: Authorizing Flyway with a token
 
-Let's assume we have just installed Flyway. Flyway defaults to Community Edition out of the box.
+Let's assume we have just installed Redgate Flyway. Flyway defaults to Community Edition out of the box and we would like to authorize Flyway to use Enterprise features.
 
-Let's say we have access to Enterprise Edition and we would like to authorize Flyway to use Enterprise features.
-First, we must generate our PAT. We can do this by visiting the [Personal Access Tokens page](https://identityprovider.red-gate.com/personaltokens)
+First, we must generate our access token. We can do this by visiting the [Personal Access Tokens page](https://identityprovider.red-gate.com/personaltokens)
 on the Redgate identity provider website and clicking on the "New Token" button. Be sure to save your token in a secure
 place because once they are generated, they can't be viewed in full again.
 
-We can then specify our Redgate email and PAT using the [email](<Configuration/Flyway Namespace/Flyway Email Setting>) and [token](<Configuration/Flyway Namespace/Flyway Token Setting>) configuration parameters on the commandline,
+We can then specify our Redgate email and token using the [email](<Configuration/Flyway Namespace/Flyway Email Setting>) and [token](<Configuration/Flyway Namespace/Flyway Token Setting>) configuration parameters on the commandline,
 in the TOML configuration file, or the `FLYWAY_EMAIL` and `FLYWAY_TOKEN` environment variables. Please see the above parameters for full configuration options.
 For this example, we'll use the TOML configuration file:
 
@@ -38,11 +37,11 @@ Flyway Enterprise Edition {{ site.flywayVersion }} by Redgate
 See release notes here: ({% include release-notes-url.html %})
 </pre>
 
-That's all there is to it! Using PATs, we have successfully authorized Flyway to use Enterprise Edition without
+That's all there is to it! We have successfully authorized Flyway to use Enterprise Edition without
 needing to run the `auth` command.
 
 ## Summary
 
 In this brief tutorial we saw how to:
 
-- Use PATs to authorize Flyway to use an edition higher than Community Edition
+- Use a personal access token to authorize Flyway to use an edition higher than Community Edition

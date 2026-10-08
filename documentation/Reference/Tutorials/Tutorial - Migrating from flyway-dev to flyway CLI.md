@@ -42,7 +42,7 @@ $ flyway init "-init.projectName=SqlServerProject" "-init.databaseType=sqlserver
 ## diff - Calculate the differences between two sources
 
 The `diff` command is used to determine the differences between two sources, so that the differences can later be
-applied to a target or used to generate a migration script. For example, to generate a diff between the dev environment
+applied to a target or used to generate a migration script. For example, to generate a diff between the `Dev` environment
 and schemaModel, the following `flyway-dev` command can be used:
 
 ```
@@ -58,7 +58,7 @@ a variety of sources to compare between:
 - `migrations` - uses a buildEnvironment to represent the state of database after specified migrations have been applied
 - `snapshot:<filePath>` - uses a snapshot file at the specified file path
 
-Therefore, to perform the same comparison between the dev environment and schemaModel using flyway CLI, the following
+Therefore, to perform the same comparison between the `development` environment and schemaModel using flyway CLI, the following
 command can be used:
 
 ```

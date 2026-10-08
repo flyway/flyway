@@ -97,7 +97,6 @@ This namespace contains the configurations specific to the Flyway engine.
 
 | Setting                                                                                         | Tier      | Type    | Description                                                           |
 |-------------------------------------------------------------------------------------------------|-----------|---------|-----------------------------------------------------------------------|
-| [`checkDriftOnMigrate`](<Configuration/Flyway Namespace/Flyway Check Drift On Migrate Setting>) | Community | Boolean | Enables automatic drift checks on migrate.                            |
 | [`pipelineId`](<Configuration/Flyway Namespace/Flyway Pipeline Id Setting>)                     | Community | String  | An id for identifying your pipeline.                                  |
 | [`publishResult`](<Configuration/Flyway Namespace/Flyway Publish Result Setting>)               | Community | Boolean | Whether to publish the result of your Flyway run to Flyway Pipelines. |
 
@@ -167,9 +166,10 @@ is preferred.
 
 ## Deprecated settings
 
-| Setting                                                                     | Tier  | Type   | Description              |
-|-----------------------------------------------------------------------------|-------|--------|--------------------------|
-| [`licenseKey`](<Configuration/Flyway Namespace/Flyway License Key Setting>) | Teams | String | Your Flyway license key. |
+| Setting                                                                                         | Tier      | Type    | Description                                |
+|-------------------------------------------------------------------------------------------------|-----------|---------|--------------------------------------------|
+| [`checkDriftOnMigrate`](<Configuration/Flyway Namespace/Flyway Check Drift On Migrate Setting>) | Community | Boolean | Enables automatic drift checks on migrate. |
+| [`licenseKey`](<Configuration/Flyway Namespace/Flyway License Key Setting>)                     | Teams     | String  | Your Flyway license key.                   |
 
 \* There is no license restriction on this setting strictly speaking, but it is used to configure functionality which is
 only

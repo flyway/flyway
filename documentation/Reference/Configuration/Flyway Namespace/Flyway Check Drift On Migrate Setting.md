@@ -5,7 +5,10 @@ redirect_from: Configuration/checkDriftOnMigrate/
 
 {% include redgate.html %}
 
-{% include preview.html %}
+{% include deprecation.html %}
+
+__This parameter is deprecated and will be removed in a future release.__
+Drift results from the [Check Drift](https://documentation.red-gate.com/flyway/flyway-concepts/drift-analysis) command are published when [`publishResult`](<Configuration/Flyway Namespace/Flyway Publish Result Setting>) is set, so schema snapshots no longer need to be stored in Flyway Pipelines.
 
 ## Description
 

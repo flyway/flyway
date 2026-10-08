@@ -479,9 +479,10 @@ public class StringUtils {
             return value;
         }
 
-        if (key.toLowerCase().endsWith("password")
-            || key.toLowerCase().endsWith("token")
-            || ConfigUtils.LICENSE_KEY.equalsIgnoreCase(key)) {
+        final String lowerKey = key.toLowerCase();
+        if (lowerKey.endsWith("password")
+            || lowerKey.endsWith("token")
+            || lowerKey.endsWith(ConfigUtils.LICENSE_KEY.toLowerCase())) {
             value = "********";
         }
 

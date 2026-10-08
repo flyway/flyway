@@ -26,14 +26,14 @@ The Mac keychain is used. No additional setup is required.
 
 ### Linux
 
-Libsecret is used, and it must be able to reach a working Secret Service implementation. All of the following are required:
+All of the following are required:
 
-- the Libsecret library is installed (for example, the `libsecret-1-0` package on Debian and Ubuntu)
-- a Secret Service provider, such as gnome-keyring, is installed and running
-- a D-Bus session bus is available for Libsecret to reach that provider over
+- the `libsecret` library is installed (for example, the `libsecret-1-0` package on Debian and Ubuntu)
+- a Secret Service provider, such as `gnome-keyring`, is installed and running
+- a D-Bus session bus is available for `libsecret` to reach that provider over
 - the keyring it stores into is unlocked
 
-Installing Libsecret by itself is not enough, because without a running, unlocked keyring on a session bus there is nothing for it to talk to. This is the usual failure on headless machines and CI agents, which by default tend to have neither a D-Bus session nor a keyring daemon. Getting it working there generally means installing a keyring daemon, starting it under a D-Bus session that lasts for the duration of the Flyway invocation, and unlocking it with a known password.
+Installing `libsecret` by itself is not enough, because without a running, unlocked keyring on a session bus there is nothing for it to talk to. This is the usual failure on headless machines and CI agents, which by default tend to have neither a D-Bus session nor a keyring daemon. Getting it working there generally means installing a keyring daemon, starting it under a D-Bus session that lasts for the duration of the Flyway invocation, and unlocking it with a known password.
 
 ## Settings
 

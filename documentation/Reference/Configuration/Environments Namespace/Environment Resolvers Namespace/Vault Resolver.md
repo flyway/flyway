@@ -5,7 +5,7 @@ subtitle: environments.*.resolvers.vault
 {% include enterprise.html %}
 
 Per-environment Vault secret management configuration.
-Values can be inlined in the environment configuration using `${vault.path/to/secret/key}`.
+Values can be defined inline in the environment configuration using `${vault.path/to/secret/key}`.
 
 ## Settings
 

@@ -4,7 +4,7 @@ subtitle: redgateCompare.oracle.options.behavior.includePermissionsUserCheck
 
 ## Description
 
-Script a condition around GRANTs and REVOKEs to ensure that these statements are skipped if the grantee/revokee is the user running the deployment script.
+Script a condition around `GRANT` and `REVOKE` statements to ensure that these are skipped if the grantee/revokee is the user running the deployment script.
 
 ## Type
 

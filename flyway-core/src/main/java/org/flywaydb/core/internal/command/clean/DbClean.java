@@ -35,7 +35,6 @@ import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.configuration.ConfigUtils;
 
 @CustomLog
 public class DbClean {
@@ -70,7 +69,8 @@ public class DbClean {
 
         callbackExecutor.onEvent(Event.BEFORE_CLEAN);
 
-        final String command = toCommand(ConfigUtils.getCleanModel(configuration).getMode());
+        CleanModel cleanModel = database.supportsCleanMode() ? database.getCleanModel(configuration) : CleanModel.defaultModel();
+        final String command = toCommand(cleanModel.getMode());
         CleanResult cleanResult;
 
         if ("clean".equals(command)) {

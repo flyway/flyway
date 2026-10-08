@@ -65,6 +65,7 @@ import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.extensibility.ConfigurationExtension;
 import org.flywaydb.core.extensibility.ConfigurationProvider;
+import org.flywaydb.core.extensibility.PluginConfigurationReloader;
 import org.flywaydb.core.extensibility.LicenseGuard;
 import org.flywaydb.core.extensibility.Tier;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
@@ -2134,6 +2135,21 @@ public class ClassicConfiguration implements Configuration {
     public JavaMigration[] getJavaMigrations() {return this.javaMigrations;}
 
     public PluginRegister getPluginRegister() {return this.pluginRegister;}
+
+    /**
+     * Reloads the plugin configuration of the current environment from the configuration model. Call this after
+     * changing the environment or the plugin register to make the environment's plugin parameter overrides take
+     * effect. Any value set directly on a plugin configuration extension for a parameter that the configuration
+     * model sets is discarded and replaced by the model's value, so set such values after reloading. Requires
+     * flyway-core-utilities on the classpath.
+     */
+    public void reloadPluginConfiguration() {
+        final String environment = getModernFlyway().getEnvironment();
+        Optional.ofNullable(pluginRegister.getInstanceOf(PluginConfigurationReloader.class))
+            .ifPresent(listener -> listener.reload(modernConfig,
+                pluginRegister,
+                StringUtils.hasText(environment) ? environment : "default"));
+    }
 
     public List<String> getJarDirs() {
         if (getEnvironmentOverrides().getJarDirs() != null) {

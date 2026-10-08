@@ -4,7 +4,7 @@ subtitle: redgateCompare.sqlserver.options.behavior.inlineTableObjects
 
 ## Description
 
-Script out definitions as part of the table's body where possible for primary keys, foreign keys etc. Only some Indexes can be inlined.
+Script out definitions as part of the table's body where possible for primary keys, foreign keys etc. Only some Indexes can be defined inline.
 
 ## Type
 

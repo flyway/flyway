@@ -114,7 +114,7 @@ A DELETE without a WHERE clause will delete every row in the table, you might be
 ---
 {% include anchor.html link="RG07"%}
 # Rule: RG07 GRANT statements
-## Unintended or unauthorized GRANTs
+## Unintended or unauthorized `GRANT` statements
 These could be a privilege escalation path that should be closely monitored and managed.
 ### Groups: `all`, `redgate`
 ### Dialects supported: `all`

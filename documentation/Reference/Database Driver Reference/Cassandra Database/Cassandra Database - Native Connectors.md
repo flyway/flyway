@@ -48,3 +48,4 @@ Flyway maps it's concept of schema onto a keyspace in Cassandra. If a keyspace i
 ## Limitations
 
 - You can't currently do a [Dry-run](https://documentation.red-gate.com/flyway/flyway-concepts/migrations/migration-command-dry-runs) on operations with Cassandra.
+- You can only specify a single host in the URL (specifying multiple hosts was a feature of the legacy ING JDBC driver), the driver and database take care of connecting to other hosts in the cluster. This does mean that if the host Flyway is connecting to is unavailable then you will need to update the url to point to an available host. 

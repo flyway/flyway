@@ -1,6 +1,7 @@
 Clickhouse
 Databricks
 Informix
+(?i)Lakebase
 MariaDB
 Percona
 Sybase
@@ -23,6 +24,7 @@ Mongosh
 # Oracle
 tablespaces?
 [Dd]iagnosability
+SQLPlus
 
 # Postgres
 pg_dump

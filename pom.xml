@@ -20,7 +20,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.flywaydb</groupId>
   <artifactId>flyway-parent</artifactId>
-  <version>13.9.0</version>
+  <version>13.10.0</version>
   <packaging>pom</packaging>
   <name>${project.artifactId}</name>
   <description>Flyway: Database Migrations Made Easy.</description>
@@ -129,6 +129,7 @@
     <version.commonslang3>3.18.0</version.commonslang3>
     <version.couchbase>3.12.3</version.couchbase>
     <version.databricks>3.4.2</version.databricks>
+    <version.databricks.sdk>0.153.0</version.databricks.sdk>
     <version.derby>10.17.1.0</version.derby>
     <version.equinox>3.15.200</version.equinox>
     <version.equinoxcommon>3.10.600</version.equinoxcommon>
@@ -625,6 +626,11 @@
         <artifactId>databricks-jdbc</artifactId>
         <version>${version.databricks}</version>
       </dependency>
+      <dependency>
+        <groupId>com.databricks</groupId>
+        <artifactId>databricks-sdk-java</artifactId>
+        <version>${version.databricks.sdk}</version>
+      </dependency>
 
     </dependencies>
   </dependencyManagement>
@@ -734,6 +740,10 @@
         <plugin>
           <artifactId>maven-source-plugin</artifactId>
           <version>3.4.0</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-shade-plugin</artifactId>
+          <version>3.6.0</version>
         </plugin>
         <!-- Not used directly anywhere in the reactor; implicitly pulled in via Maven's built-in
              lifecycle bindings (the site lifecycle, not the default build lifecycle).

@@ -34,7 +34,7 @@ it [here](https://cloud.google.com/blog/products/data-analytics/troubleshoot-big
 
 Flyway alleviates this via batching which executes multiple schema changes in one request to minimize latency and improve performance.
 
-To enable batching follow the guide [here](<Configuration/Flyway Namespace/Flyway batch Setting>)for your platform. <br/>
+To enable batching follow the [Flyway batch Setting](<Configuration/Flyway Namespace/Flyway batch Setting>) guide for your platform. <br/>
 In the Flyway Command-Line this would look like the following:
 
 <pre class="console"><span>&gt;</span> flyway migrate -batch=true</pre>
@@ -50,7 +50,7 @@ Flyway Community Edition has a 10GB data limit across all datasets, and this is 
 - Using Flyway with Maven?
     - Include the Flyway GCP BigQuery dependency [here](https://mvnrepository.com/artifact/org.flywaydb/flyway-gcp-bigquery) in your pom
 - Using Flyway with Gradle?
-    - Include the Flyway GCP BigQuery dependency [here](https://mvnrepository.com/artifact/org.flywaydb/flyway-gcp-bigquery) as a buildscript dependency
+    - Include the Flyway GCP BigQuery dependency [here](https://mvnrepository.com/artifact/org.flywaydb/flyway-gcp-bigquery) as a build script dependency
 
 ### Installing dependencies
 
@@ -58,7 +58,7 @@ Google BigQuery requires a number of dependencies to be installed manually.
 
 Go to [Google's documentation](https://cloud.google.com/bigquery/docs/reference/odbc-jdbc-drivers#current_jdbc_driver_release_12161020) and download the JDBC driver.
 
-You will get a zip archive with many JARs inside.
+You will get a zip archive with many `.jar` files inside.
 
 If you are using the Flyway command-line, you will need replace the
 `flyway/drivers/` folder with the contents of this archive.
@@ -85,9 +85,9 @@ We need to fetch three things to complete this URL:
 To get `service_account_name` and `path_to_service_account`, you'll need to create a 'service account' for your Flyway connections.
 
 To do this, open `IAM` within GCP project settings. There you can create a service account. Upon creating this, you will be given the `service_account_name` (it will look
-like `something@projectname.iam.gserviceaccount.com`). Upon creating this you'll have the option to download a keyfile.
+like `something@projectname.iam.gserviceaccount.com`). Upon creating this you'll have the option to download a key-file.
 
-The keyfile file needs to be accessible to Flyway, so save it somewhere accessible on your machine. Then configure `path_to_service_account` to point to this file.
+The key-file needs to be accessible to Flyway, so save it somewhere accessible on your machine. Then configure `path_to_service_account` to point to this file.
 
 You can learn more about service accounts [here](https://cloud.google.com/iam/docs/service-accounts).
 

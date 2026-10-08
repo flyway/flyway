@@ -57,7 +57,6 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.extensibility.ConfigurationExtension;
 import org.flywaydb.core.extensibility.LicenseSupport;
-import org.flywaydb.core.internal.command.clean.CleanModel;
 import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
 import org.flywaydb.core.internal.configuration.models.EnvironmentModel;
 import org.flywaydb.core.internal.configuration.models.FlywayEnvironmentModel;
@@ -735,15 +734,14 @@ public class ConfigUtils {
     public static Map<String, String> getConfigurationMapFromModel(final ConfigurationModel config) {
         final Map<String, String> configMap = new TreeMap<>(ClassUtils.getGettableFieldValues(config.getFlyway(),
             "flyway."));
-        config.getEnvironments().forEach((name, env) -> configMap.putAll(getEnvironmentMap(env, name)));
-
-        config.getFlyway().getPluginConfigurations().forEach((name, pluginConfig) -> {
-            if (pluginConfig instanceof Map<?, ?>) {
-                putFlattenedEntries(configMap, "flyway." + name, (Map<?, ?>) pluginConfig);
-            } else {
-                configMap.put("flyway." + name, pluginConfig.toString());
-            }
+        config.getEnvironments().forEach((name, env) -> {
+            configMap.putAll(getEnvironmentMap(env, name));
+            putPluginConfigurations(configMap,
+                "environments." + name + ".flyway.",
+                env.getFlyway().getPluginConfigurations());
         });
+
+        putPluginConfigurations(configMap, "flyway.", config.getFlyway().getPluginConfigurations());
 
         config.getRootConfigurations().forEach((name, pluginConfig) -> {
             if (pluginConfig instanceof Map<?, ?>) {
@@ -751,6 +749,18 @@ public class ConfigUtils {
             }
         });
         return configMap;
+    }
+
+    private static void putPluginConfigurations(final Map<String, String> target,
+        final String prefix,
+        final Map<String, Object> pluginConfigurations) {
+        pluginConfigurations.forEach((name, pluginConfig) -> {
+            if (pluginConfig instanceof Map<?, ?>) {
+                putFlattenedEntries(target, prefix + name, (Map<?, ?>) pluginConfig);
+            } else {
+                target.put(prefix + name, String.valueOf(pluginConfig));
+            }
+        });
     }
 
     private static void putFlattenedEntries(final Map<String, String> target,
@@ -858,33 +868,6 @@ public class ConfigUtils {
                 ? "script config files"
                 : "conf files or commandline parameters");
             throw new FlywayException(message, CoreErrorCode.CONFIGURATION);
-        }
-    }
-
-    public static CleanModel getCleanModel(final Configuration conf) {
-        final ConfigurationExtension extension = conf.getPluginRegister()
-            .getLicensedExact("SQLServerConfigurationExtension", conf);
-        CleanModel cleanModel = null;
-
-        if (extension != null) {
-            cleanModel = (CleanModel) ClassUtils.getFieldValue(extension, "clean");
-        }
-
-        final CleanModel result = cleanModel;
-        if (result != null) {
-            result.validate();
-            return result;
-        } else {
-            return new CleanModel();
-        }
-    }
-
-    public static void setCleanModel(final Configuration conf, final CleanModel model) {
-        final ConfigurationExtension extension = conf.getPluginRegister()
-            .getLicensedExact("SQLServerConfigurationExtension", conf);
-
-        if (extension != null) {
-            ClassUtils.setFieldValue(extension, "clean", model);
         }
     }
 

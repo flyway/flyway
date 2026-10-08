@@ -55,4 +55,10 @@ public class CleanModel {
         setSchemas(new SchemaModel());
         schemas.setExclude(Arrays.asList(cleanSchemasExclude));
     }
+
+    public static CleanModel defaultModel() {
+        final CleanModel model = new CleanModel();
+        model.setMode(Mode.DEFAULT.name());
+        return model;
+    }
 }

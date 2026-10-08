@@ -14,7 +14,7 @@ license.
 
 ## Initialize a project
 
-Firstly, we will create a new SQL Server project using the `init` command as shown below:
+We will create a new SQL Server project using the `init` command as shown below:
 
 ```
 $ mkdir SqlServerProject

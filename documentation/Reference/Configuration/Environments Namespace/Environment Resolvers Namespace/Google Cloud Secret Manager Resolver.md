@@ -5,7 +5,7 @@ subtitle: environments.*.resolvers.gcsm
 {% include enterprise.html %}
 
 Per-environment Google Cloud Secret Manager secret management configuration.
-Values can be inlined in the environment configuration using `${googlesecrets.key}`.
+Values can be defined inline in the environment configuration using `${googlesecrets.key}`.
 
 ## Settings
 

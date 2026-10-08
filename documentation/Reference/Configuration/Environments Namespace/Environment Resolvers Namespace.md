@@ -3,6 +3,7 @@ subtitle: flyway.environments.*.resolvers
 ---
 
 Resolvers allow Flyway to retrieve configuration parameters from other locations at runtime, such as [secrets managers](https://documentation.red-gate.com/flyway/flyway-concepts/secrets-management) and environment variables.
+
 This is not to be confused with [migration resolvers](<Configuration/Flyway Namespace/Flyway Migration Resolvers Setting>).
 
 Flyway comes with support for the following resolvers:
@@ -16,9 +17,9 @@ The syntax for this is `${resolver-name.resolver-key}`.
 
 For example, to retrieve the value of the `password` key from [Dapr](<Configuration/Environments Namespace/Environment Resolvers Namespace/Dapr Resolver>), you would use `${dapr.password}`.
 
-### Inlining
+### Inline definition
 
-These may be inlined, e.g.
+These may be defined inline, for example:
 
 ```toml
 [environments.default]

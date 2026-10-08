@@ -125,6 +125,11 @@ public class FluentConfiguration implements Configuration {
         return this;
     }
 
+    public FluentConfiguration reloadPluginConfiguration() {
+        config.reloadPluginConfiguration();
+        return this;
+    }
+
     public FluentConfiguration allEnvironments(final Map<String, EnvironmentModel> environments) {
         config.setAllEnvironments(environments);
         return this;

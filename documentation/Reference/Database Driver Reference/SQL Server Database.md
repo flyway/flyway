@@ -178,7 +178,7 @@ jdbc:sqlserver://test_server;instanceName=test_instance;databaseName=test_databa
 - By default, the flyway schema history table will try to write to the default schema for the database connection. You may
   specify which schema to write this table to by setting `flyway.schemas=custom_schema`, as the first entry will become the
   default schema if `flyway.defaultSchema` itself is not set.
-- With these limitations in mind, please refer to the properties or options mentioned [here](<Configuration/Flyway Namespace/Flyway Default Schema Setting>)for descriptions/consequences.
+- With these limitations in mind, please refer to the properties or options mentioned in [Flyway Default Schema Setting](<Configuration/Flyway Namespace/Flyway Default Schema Setting>) for descriptions/consequences.
 - If using the JTDS driver, then setting `ANSI_NULLS` or `QUOTED_IDENTIFIER` in a script will cause an error. This is
   a driver limitation, and can be solved by using the Microsoft driver instead.
 - When running clean, no users will be dropped

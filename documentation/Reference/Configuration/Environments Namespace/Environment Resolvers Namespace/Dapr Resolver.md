@@ -5,7 +5,7 @@ subtitle: environments.*.resolvers.dapr
 {% include enterprise.html %}
 
 Per-environment Dapr secret management configuration.
-Values can be inlined in the environment configuration using `${dapr.key}`.
+Values can be defined inline in the environment configuration using `${dapr.key}`.
 
 ## Settings
 

@@ -45,7 +45,7 @@ import static org.flywaydb.core.internal.command.clean.CleanModel.Mode.ALL;
 import static org.flywaydb.core.internal.command.clean.CleanModel.Mode.SCHEMA;
 import static org.flywaydb.core.internal.util.TelemetryUtils.getTelemetryManager;
 
-@ExtensionMethod({ CleanModeSupportedDatabases.class, Arrays.class })
+@ExtensionMethod({ Arrays.class })
 public class CleanModeCommandExtension implements CommandExtension<CleanResult> {
     private static final String CLEAN_SCHEMAS = "clean-schemas";
     private static final String CLEAN_ALL = "clean-all";
@@ -87,7 +87,7 @@ public class CleanModeCommandExtension implements CommandExtension<CleanResult> 
         }
 
         final CleanResult cleanResult = CommandResultFactory.createCleanResult(database.getCatalog());
-        final CleanModel clean = ConfigUtils.getCleanModel(config);
+        final CleanModel clean = database.getCleanModel(config);
         final CleanModeCleanExecutor cleanExecutor = new CleanModeCleanExecutor(database.getMainConnection(),
             database,
             schemaHistory,

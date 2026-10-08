@@ -62,6 +62,15 @@ These names must correspond to environments defined in the project's `environmen
 development environment to detect and apply schema changes, and the shadow environment to build migration scripts, which
 are the same environments Flyway Desktop uses.
 
+While you're editing this, also set
+[`flyway.generate.types`](<Configuration/Flyway Namespace/Flyway Generate Namespace/Flyway Generate Types Setting>)
+explicitly if you want undo scripts generated alongside versioned ones:
+
+```toml
+[flyway.generate]
+types = ["versioned", "undo"]
+```
+
 ### 2. Register the Flyway MCP server with your AI tools
 
 The Flyway MCP server is a **stdio MCP server**—your AI tool starts it as a local process and communicates with it

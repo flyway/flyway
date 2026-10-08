@@ -5,7 +5,7 @@ subtitle: environments.*.resolvers.azureKeyVault
 {% include enterprise.html %}
 
 Per-environment Azure Key Vault secret management configuration.
-Values can be inlined in the environment configuration using `${azureKeyVault.key}`.
+Values can be defined inline in the environment configuration using `${azureKeyVault.key}`.
 
 ## Settings
 

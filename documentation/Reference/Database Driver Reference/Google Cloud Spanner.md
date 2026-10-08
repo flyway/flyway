@@ -45,7 +45,7 @@ You can find out more about Flyway Teams Edition [here](https://www.red-gate.com
 - Using Flyway with Maven?
     - Include the latest Flyway GCP Spanner dependency [here](https://mvnrepository.com/artifact/org.flywaydb/flyway-gcp-spanner) in your pom
 - Using Flyway with Gradle?
-    - Include the latest Flyway GCP Spanner dependency [here](https://mvnrepository.com/artifact/org.flywaydb/flyway-gcp-spanner) as a buildscript dependency
+    - Include the latest Flyway GCP Spanner dependency [here](https://mvnrepository.com/artifact/org.flywaydb/flyway-gcp-spanner) as a build script dependency
 
 ### Configuring Flyway
 
@@ -60,9 +60,9 @@ We need to fetch three things to complete this url:
 - `database_name`
 - A path to a `keyfile.json` for authentication (not required when connected to an emulated session)
 
-`project_name`, `instance_name`, `database_name` can all be found on the Cloud Spanner web interface. For authentication, we recommend using the 'keyfile'. This requires creating a service account for Cloud Spanner.
+`project_name`, `instance_name`, `database_name` can all be found on the Cloud Spanner web interface. For authentication, we recommend using the key-file. This requires creating a service account for Cloud Spanner.
 
-To do this, open `IAM` within GCP project settings. There you can create a service account. Upon creating this you'll have the option to download the keyfile.
+To do this, open `IAM` within GCP project settings. There you can create a service account. Upon creating this you'll have the option to download the key-file.
 
 The authentication file needs to be accessible to Flyway, so save it somewhere accessible on your machine. Then configure `path_to_service_account` to point to this file.
 

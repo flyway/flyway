@@ -9,6 +9,35 @@
 <div class="col-md-9">
 <!-- BEGIN db-generated release notes -->
   <div class="release">
+        <h2 id="13.10.0">Flyway 13.10.0 (2026-10-08)</h2>
+
+        <h3>New features</h3>
+        <ul>
+            <li>`generate_migrations` MCP tool accepts an optional `generateUndoScripts` parameter to override the project's undo-script generation setting for a single call</li>
+            <li>New `lakebase` property resolver lets Flyway connect to Databricks Lakebase using an interactive Databricks sign-in, with no stored credentials</li>
+            <li>Plugin parameters such as `undoSqlMigrationPrefix` and `check.buildEnvironment` can now be set per environment under `environments.name.flyway` namespace in `TOML`</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>`checkDriftOnMigrate` is deprecated and now logs a warning when used</li>
+            <li>`flywayServicePublish.publishReport` is deprecated and now logs a warning when used</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fixed an issue where SQL Server clean mode configuration could cause operations on databases that do not support clean mode to fail</li>
+        </ul>
+
+        <h3>Internal dependency</h3>
+        <ul>
+            <li>Upgraded RgCompare to 1.66.4.5964</li>
+        </ul>
+
+  </div>
+
+
+  <div class="release">
         <h2 id="13.9.0">Flyway 13.9.0 (2026-10-01)</h2>
 
         <h3>New features</h3>
@@ -27,11 +56,6 @@
         <ul>
             <li>Flyway no longer reports that changes were successfully rolled back when an exception occurred during rollback</li>
             <li>Oracle parser no longer fails when END CASE, END LOOP, or END IF is split across two lines</li>
-        </ul>
-
-        <h3>Internal dependency</h3>
-        <ul>
-            <li>Upgraded RgCompare to 1.66.2.5916</li>
         </ul>
 
   </div>
