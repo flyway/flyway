@@ -25,13 +25,15 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.MigrationType;
 import org.flywaydb.core.internal.exception.FlywayUnknownMigrationTypeException;
 import org.flywaydb.core.internal.nc.MigrationTypeResolver;
+import org.flywaydb.core.internal.plugin.PluginRegister;
 
 public class CompositeMigrationTypeResolver implements MigrationTypeResolver {
+    private PluginRegister resolvedFrom;
+    private List<MigrationTypeResolver> resolvers;
+
     @Override
     public MigrationType resolveMigrationType(final String filename, final Configuration configuration) {
-        final List<MigrationTypeResolver> plugins = configuration.getPluginRegister()
-            .getInstancesOf(MigrationTypeResolver.class);
-        return plugins.stream()
+        return resolvers(configuration).stream()
             .map(plugin -> plugin.resolveMigrationType(filename, configuration))
             .filter(Objects::nonNull)
             .findFirst()
@@ -40,14 +42,21 @@ public class CompositeMigrationTypeResolver implements MigrationTypeResolver {
 
     @Override
     public MigrationType resolveMigrationTypeFromName(final String name, final Configuration configuration) {
-        final List<MigrationTypeResolver> plugins = configuration.getPluginRegister()
-            .getInstancesOf(MigrationTypeResolver.class);
-        return plugins.stream().map(plugin -> {
+        return resolvers(configuration).stream().map(plugin -> {
             try {
                 return plugin.resolveMigrationTypeFromName(name, configuration);
             } catch (IllegalArgumentException e) {
                 return null;
             }
         }).filter(Objects::nonNull).findFirst().orElseThrow(() -> new FlywayUnknownMigrationTypeException(name));
+    }
+
+    private List<MigrationTypeResolver> resolvers(final Configuration configuration) {
+        final PluginRegister pluginRegister = configuration.getPluginRegister();
+        if (resolvedFrom != pluginRegister) {
+            resolvers = pluginRegister.getInstancesOf(MigrationTypeResolver.class);
+            resolvedFrom = pluginRegister;
+        }
+        return resolvers;
     }
 }
