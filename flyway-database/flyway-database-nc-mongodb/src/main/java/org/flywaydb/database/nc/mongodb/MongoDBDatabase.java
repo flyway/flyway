@@ -63,8 +63,9 @@ import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.util.AsciiTable;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.nc.NativeConnectorsProcessRunner;
+import org.flywaydb.nc.NativeConnectorsConfigurationExtension;
 import org.flywaydb.nc.NativeConnectorsNonJdbc;
+import org.flywaydb.nc.NativeConnectorsProcessRunner;
 import org.flywaydb.nc.executors.NonJdbcExecutorExecutionUnit;
 import org.flywaydb.nc.utils.TemporaryFileUtils;
 
@@ -76,6 +77,7 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
     private ClientSession clientSession;
     private Boolean doesSchemaHistoryTableExist;
     private ConnectionString connectionString;
+    private int processTimeout;
 
     @Override
     public DatabaseSupport supportsUrl(final String url) {
@@ -101,6 +103,8 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
     @Override
     public void initialize(final ResolvedEnvironment environment, final Configuration configuration) {
         initializeConnectionType(configuration);
+        processTimeout = configuration.getConfigurationExtension(NativeConnectorsConfigurationExtension.class)
+            .getProcessTimeout();
 
         if (environment.getUrl().startsWith("jdbc:")) {
             LOG.info("JDBC prefix stripped from url: " + redactUrl(environment.getUrl()));
@@ -434,7 +438,7 @@ public class MongoDBDatabase extends NativeConnectorsNonJdbc {
 
         commands.addAll(List.of("--file", TemporaryFileUtils.createTempFile(executionUnit, ".js")));
 
-        final NativeConnectorsProcessRunner processRunner = new NativeConnectorsProcessRunner(commands, "Mongosh");
+        final NativeConnectorsProcessRunner processRunner = new NativeConnectorsProcessRunner(commands, "Mongosh", processTimeout);
         processRunner.executeMigrations(outputQueryResults, false);
     }
 
