@@ -94,7 +94,8 @@ public class CoreMigrationStateCalculator implements NativeConnectorsStateCalcul
 
             return MigrationState.PENDING;
         } else if (migration.getRight().version().equals(baselineVersion.get())) {
-            return migration.getRight().migrationType().isBaseline() && !baselinedSchema
+            final boolean schemaHistoryEmpty = highestSHTVersion(sortedMigrations).equals(MigrationVersion.EMPTY);
+            return migration.getRight().migrationType().isBaseline() && !baselinedSchema && schemaHistoryEmpty
                 ? MigrationState.PENDING
                 : MigrationState.BASELINE_IGNORED;
         } else {
