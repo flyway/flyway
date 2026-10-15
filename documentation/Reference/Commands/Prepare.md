@@ -2,6 +2,8 @@
 subtitle: Prepare
 ---
 
+## Description
+
 {% include enterprise.html %}
 
 The `prepare` command generates a deployment script from a schemaModel, an environment, a diff artifact, or migrations

@@ -29,6 +29,7 @@ import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeL
 import static org.flywaydb.core.internal.configuration.ConfigUtils.warnForUnknownEnvParameters;
 import static org.flywaydb.core.internal.configuration.models.UnknownParameterModel.resolveUnknownParameter;
 
+import java.util.Locale;
 import org.flywaydb.core.api.CoreErrorCode;
 import org.flywaydb.core.api.configuration.ObsoleteParameter;
 import org.flywaydb.core.api.exception.ObsoleteConfigurationParametersException;
@@ -204,6 +205,7 @@ public class ModernConfigurationManager implements ConfigurationManager {
         }
 
         warnForUnknownEnvParameters(config.getEnvironments());
+        warnForCaseInsensitiveDuplicateEnvironments(config);
 
         ConfigUtils.dumpConfigurationModel(config, "Using configuration:", sources);
         final ClassicConfiguration cfg = new ClassicConfiguration(config);
@@ -313,6 +315,17 @@ public class ModernConfigurationManager implements ConfigurationManager {
             return false;
         }
         return value.equals(UNSET_ENVIRONMENT_FIELD_VALUES.get(key.substring(fieldStart)));
+    }
+
+    private static void warnForCaseInsensitiveDuplicateEnvironments(final ConfigurationModel config) {
+        final Collection<String> environmentNames = config.getEnvironments().keySet();
+        final Map<String, List<String>> namesByLowerCase = environmentNames.stream()
+            .sorted()
+            .collect(Collectors.groupingBy(name -> name.toLowerCase(Locale.ROOT)));
+
+        namesByLowerCase.values().stream().filter(names -> names.size() > 1).forEach(names -> LOG.warn(
+            "Environments " + names.stream().map(name -> "'" + name + "'").collect(Collectors.joining(", "))
+                + " differ only by case and are treated as separate environments"));
     }
 
     private static void handleResolverCommandLineArgs(final String environment,

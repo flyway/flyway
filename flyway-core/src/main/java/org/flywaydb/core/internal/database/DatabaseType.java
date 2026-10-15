@@ -188,8 +188,21 @@ public interface DatabaseType extends GeneralDatabaseType {
      * and {@code setConfigConnectionProps} and should only be used if neither of those can satisfy your requirement.
      *
      * @param props The properties to write to.
+     * @see #setOverridingConnectionProps(String, Map)
      */
     void setOverridingConnectionProps(Map<String, String> props);
+
+    /**
+     * Set any overriding connection properties, with access to the JDBC url. Override this instead of
+     * {@link #setOverridingConnectionProps(Map)} when a property should only be set if the url doesn't already
+     * specify it.
+     *
+     * @param url   The JDBC url.
+     * @param props The properties to write to.
+     */
+    default void setOverridingConnectionProps(final String url, final Map<String, String> props) {
+        setOverridingConnectionProps(props);
+    }
 
     /**
      * Sets connection properties that must be applied before the JDBC driver is initialized. These properties typically

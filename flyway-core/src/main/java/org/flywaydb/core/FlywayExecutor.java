@@ -52,6 +52,7 @@ import org.flywaydb.core.internal.callback.NoopCallbackExecutor;
 import org.flywaydb.core.internal.callback.SqlScriptCallbackFactory;
 import org.flywaydb.core.internal.callback.PreConnectCallbackExecutor;
 import org.flywaydb.core.internal.clazz.NoopClassProvider;
+import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.configuration.ConfigurationValidator;
 import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.base.CommunityDatabaseType;
@@ -281,6 +282,7 @@ public class FlywayExecutor {
             configuration,
             statementInterceptor);
 
+        LOG.info("Environment: " + ConfigUtils.describeCurrentEnvironment(configuration));
         LOG.info("Database: "
             + redactJdbcUrl(jdbcConnectionFactory.getJdbcUrl())
             + " ("

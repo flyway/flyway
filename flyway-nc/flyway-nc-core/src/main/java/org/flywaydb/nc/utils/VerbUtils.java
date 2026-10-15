@@ -49,6 +49,7 @@ import org.flywaydb.core.internal.nc.MigrationTypeResolver;
 import org.flywaydb.core.internal.nc.schemahistory.ResolvedSchemaHistoryItem;
 import org.flywaydb.core.internal.nc.schemahistory.SchemaHistoryModel;
 import org.flywaydb.core.extensibility.MigrationType;
+import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
 import org.flywaydb.core.internal.configuration.resolvers.ProvisionerMode;
 import org.flywaydb.core.internal.parser.ParsingContext;
@@ -80,6 +81,7 @@ public class VerbUtils {
 
         database.initialize(getResolvedEnvironment(configuration, null), configuration);
         if (!databaseInfoPrinted) {
+            LOG.info("Environment: " + ConfigUtils.describeCurrentEnvironment(configuration));
             LOG.info("Database: " + database.redactUrl(configuration.getUrl()) + " (" + database.getDatabaseMetaData()
                 .productName() + ")");
             databaseInfoPrinted = true;

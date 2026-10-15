@@ -2,6 +2,8 @@
 subtitle: Init
 ---
 
+{% include redgate.html %}
+
 ## Description
 
 The `init` command generates a new Flyway project, complete with recommended files and configuration for a given database type.

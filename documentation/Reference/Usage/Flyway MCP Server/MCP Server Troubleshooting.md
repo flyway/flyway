@@ -9,7 +9,7 @@ them.
 
 If `flyway version` fails in your terminal, `flyway` isn't on your system `PATH`—add the installation's `bin`
 folder to your `PATH`, or use the full path to the `flyway`/`flyway.cmd` executable in `.mcp.json`'s `command`
-field instead. See [Command flag in `.mcp.json`](<Usage/Flyway MCP Server/Configuration>) for details, including
+field instead. See [Command flag in `.mcp.json`](<Usage/Flyway MCP Server/MCP Server Configuration>) for details, including
 the Windows `.cmd` caveat for GUI-launched AI tools.
 
 ## The AI tool doesn't detect the server
@@ -54,13 +54,13 @@ for how the two files relate.
 ## `error: No such environment` or missing `[flywayDesktop]` environments
 
 The MCP server's `develop_migrations` and `develop_state` toolsets are built around the same development/shadow
-workflow as Flyway Desktop—see [Prerequisites](<Usage/Flyway MCP Server>) for the required `[flywayDesktop]` and
+workflow as Flyway Desktop—see [Prerequisites](<Usage/Flyway MCP Server#FlywayMCPServer-Setup>) for the required `[flywayDesktop]` and
 `[environments.*]` configuration. If your project only has hand-written migrations against a single target
 environment, without a development/shadow setup, these toolsets won't have the environments they need.
 
 ## Credentials saved in plaintext
 
 Changing database credentials through Flyway Desktop's connection dialog writes them into a toml file as plain
-text. Use [secrets management](<Configuration/Flyway Namespace#secrets-management-namespaces>) (environment
+text. Use [secrets management](<Configuration/Flyway Namespace#FlywayNamespace-Secretsmanagementnamespaces>) (environment
 variables, a secrets manager, or a resolver such as [Local Secret](<Configuration/Environments Namespace/Environment Resolvers Namespace/Local Secret Resolver>))
 instead of leaving passwords in a toml file that might end up committed to version control.

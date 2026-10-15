@@ -46,6 +46,7 @@ nvarchar
 nvarchars
 OAuth
 OSGi
+(?i)passphrase
 (?i)Powershell
 [Rr]edgate
 redgate.html

@@ -7,6 +7,10 @@ you can see how the pieces from [Tool reference](<Usage/Flyway MCP Server/Tool R
 practice. You do not need to ask for specific tool calls, the agent will figure that out from your instructions and the
 current state of the project.
 
+This example uses `generate_migrations` and other migration tools, so it needs the `develop_migrations` (or `all`)
+toolset. With only `develop_state`, the agent can keep the schema model and development database in sync but can't
+generate migrations. See [Configuration](<Usage/Flyway MCP Server/MCP Server Configuration>) to choose a toolset.
+
 ## Load the project
 
 Every session starts here, regardless of what you ask for next.

@@ -217,14 +217,14 @@ public class DriverDataSource implements DataSource {
         }
 
         if (additionalProperties != null) {
-            this.additionalProperties = additionalProperties;
+            this.additionalProperties = new HashMap<>(additionalProperties);
         } else {
             this.additionalProperties = new HashMap<>();
         }
         this.defaultProperties = new Properties(defaultProperties);
         type.setDefaultConnectionProps(url, this.defaultProperties, classLoader);
         type.setConfigConnectionProps(configuration, this.defaultProperties, classLoader);
-        type.setOverridingConnectionProps(this.additionalProperties);
+        type.setOverridingConnectionProps(this.url, this.additionalProperties);
         this.user = detectFallbackUser(user);
         this.password = detectFallbackPassword(password);
 

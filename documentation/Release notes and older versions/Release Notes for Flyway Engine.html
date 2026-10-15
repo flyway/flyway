@@ -9,6 +9,58 @@
 <div class="col-md-9">
 <!-- BEGIN db-generated release notes -->
   <div class="release">
+        <h2 id="13.10.2">Flyway 13.10.2 (2026-10-15)</h2>
+
+        <h3>Internal dependency</h3>
+        <ul>
+            <li>Upgraded RgCompare to 1.67.0.6161</li>
+        </ul>
+
+  </div>
+
+
+  <div class="release">
+        <h2 id="13.10.1">Flyway 13.10.1 (2026-10-15)</h2>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Flyway now prints the name of the environment it's working on</li>
+            <li>New databricks property resolver to generate a token cache passphrase to support interactive sign-in</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3604">Issue 3604</a>
+                Flyway identifies itself to Snowflake as Redgate_Flyway unless the application parameter is set
+            </li>
+            <li>warn when environment names differ only by case</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/4292">Issue 4292</a>
+                Fix an issue in Native Connectors mode where a `baseline` script was reported as `Pending` instead of `Ignored` for databases with already-applied migrations
+            </li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3604">Issue 3604</a>
+                Redshift and Databricks connections no longer modify the jdbcProperties passed to Flyway, or fail when they are immutable
+            </li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/4287">Issue 4287</a>
+                running `flyway init` in OSS Edition now reports that Redgate Edition is required instead of "Invalid flag: init"
+            </li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3604">Issue 3604</a>
+                Snowflake connections made from a JDBC URL no longer fail on Java 16 and later unless JDBC_QUERY_RESULT_FORMAT=JSON is added to the URL
+            </li>
+        </ul>
+
+  </div>
+
+
+  <div class="release">
         <h2 id="13.10.0">Flyway 13.10.0 (2026-10-08)</h2>
 
         <h3>New features</h3>
@@ -27,11 +79,6 @@
         <h3>Bug fixes</h3>
         <ul>
             <li>Fixed an issue where SQL Server clean mode configuration could cause operations on databases that do not support clean mode to fail</li>
-        </ul>
-
-        <h3>Internal dependency</h3>
-        <ul>
-            <li>Upgraded RgCompare to 1.66.4.5964</li>
         </ul>
 
   </div>

@@ -12,7 +12,7 @@ subtitle: Register with your AI tools
       "command": "<path to flyway>",
       "args": [
         "mcp",
-        "-mcp.toolsets=develop_migrations",
+        "-mcp.toolsets=develop_state",
         "-mcp.maxLogs=100"
       ]
     }
@@ -20,7 +20,10 @@ subtitle: Register with your AI tools
 }
 ```
 
-See [Configuration](<Usage/Flyway MCP Server/Configuration>) for what the `command` and `args` fields control,
+This example enables `develop_state`, the narrowest toolset. Change it to `-mcp.toolsets=develop_migrations` if you also
+want the agent to generate migration scripts, as in the [Worked example](<Usage/Flyway MCP Server/Worked Example>).
+
+See [Configuration](<Usage/Flyway MCP Server/MCP Server Configuration>) for what the `command` and `args` fields control,
 including the available toolsets.
 
 If your AI tool supports it, you can instead point it at a config file's location with a flag, rather than needing
@@ -47,7 +50,7 @@ with servers under a `servers` key instead of `mcpServers`:
       "command": "<path to flyway>",
       "args": [
         "mcp",
-        "-mcp.toolsets=develop_migrations",
+        "-mcp.toolsets=develop_state",
         "-mcp.maxLogs=100"
       ]
     }

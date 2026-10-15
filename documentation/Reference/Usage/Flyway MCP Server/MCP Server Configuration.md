@@ -13,7 +13,7 @@ This page covers the `command` and `args` fields inside the `flyway` entry of yo
       "command": "<path to flyway>",
       "args": [
         "mcp",
-        "-mcp.toolsets=develop_migrations",
+        "-mcp.toolsets=develop_state",
         "-mcp.maxLogs=100"
       ]
     }
@@ -49,13 +49,28 @@ above.
 ### Toolsets in `.mcp.json`
 
 Toolsets allow you to configure which Tools you're happy for the Flyway MCP server to use with your prompts. See
-[Tool reference](<Usage/Flyway MCP Server/Tool Reference>) for the list of tools each toolset enables.
+[Tool reference](<Usage/Flyway MCP Server/Tool Reference>) for what each tool does.
 
-`mcp.toolsets` has no default. You must explicitly configure at least one, or the server will fail to start. To enable
-more than one, separate them with commas, e.g. `-mcp.toolsets=develop_migrations,develop_state`.
+`mcp.toolsets` has no default. You must explicitly configure at least one, or the server will fail to start with:
 
-| Toolset              | Enables                                                                                                                                                          |
-|----------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `develop_migrations` | The full development workflow: capturing database changes into the schema model, generating migration scripts, and applying changes to the development database. |
-| `develop_state`      | Keeping the schema model and development database in sync, without the tools that generate migration scripts.                                                    |
-| `all`                | Every available tool.                                                                                                                                            |
+```
+mcp.toolsets must be configured with at least one toolset. Available values: develop_migrations, develop_state, all
+```
+
+To enable more than one, separate them with commas.
+
+| Toolset              | Enables                                                                                                                                                                         |
+|----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `develop_state`      | Keeping the schema model and development database in sync, without the tools that generate migration scripts.                                                                   |
+| `develop_migrations` | Everything in `develop_state`, plus capturing schema model checkpoints, diffing against migration scripts, generating and testing migrations, and reviewing code.              |
+| `all`                | Every available toolset. Today this is identical to `develop_migrations`.                                                                                                       |
+
+`develop_migrations` includes everything in `develop_state`, so there's no need to combine them. Choose `develop_state` if you
+don't want an agent generating migration scripts, and `develop_migrations` if you do. Prefer one of these over `all`, because
+what `all` enables may change between releases.
+
+See the Toolsets column of the [Tools](<Usage/Flyway MCP Server/Tool Reference#ToolReference-Tools>) table in the Tool reference for
+the tools each toolset enables.
+
+Three-sided development diffs depend on `create_schema_model_checkpoint`, so they're only available with
+`develop_migrations` or `all`.

@@ -51,7 +51,8 @@ public class CoreMigrationStateCalculator implements NativeConnectorsStateCalcul
             .map(x -> x.getLeft().getVersion())
             .findFirst();
         final boolean baselinedSchema = baselineVersion.isPresent();
-        if (baselineVersion.isEmpty()) {
+        final boolean migrationsApplied = !highestSHTVersion(sortedMigrations).equals(MigrationVersion.EMPTY);
+        if (baselineVersion.isEmpty() && !migrationsApplied) {
             baselineVersion = sortedMigrations.stream()
                 .filter(x -> x.getRight() != null)
                 .filter(x -> x.getRight().migrationType().isBaseline())
@@ -80,7 +81,7 @@ public class CoreMigrationStateCalculator implements NativeConnectorsStateCalcul
                 return MigrationState.IGNORED;
             }
 
-            if (migration.getRight().migrationType().isBaseline() && baselinedSchema) {
+            if (migration.getRight().migrationType().isBaseline() && (baselinedSchema || migrationsApplied)) {
                 return MigrationState.IGNORED;
             }
 

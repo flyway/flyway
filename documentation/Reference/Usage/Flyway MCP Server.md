@@ -31,7 +31,7 @@ At a high level:
 
 These boundaries apply to the MCP tools themselves. If `[flywayDesktop]`'s development or shadow environments point
 at something other than a development database, or your AI tool edits `flyway.toml` directly outside the MCP
-server's tools, those boundaries don't apply—see [Best practices](#best-practices) for securing every environment
+server's tools, those boundaries don't apply—see [Best practices](#FlywayMCPServer-Bestpractices) for securing every environment
 the server can reach.
 
 This feature is in **preview** and under active development. Tool names, parameters, and behavior may change
@@ -71,7 +71,22 @@ explicitly if you want undo scripts generated alongside versioned ones:
 types = ["versioned", "undo"]
 ```
 
-### 2. Register the Flyway MCP server with your AI tools
+### 2. Choose toolsets
+
+The server only exposes the tools in the toolsets you enable, and you **must** enable at least one with the
+`-mcp.toolsets` argument—without it, the server fails to start.
+
+| Toolset              | Choose it if...                                                               |
+|----------------------|-------------------------------------------------------------------------------|
+| `develop_state`      | You want to keep the schema model and development database in sync.           |
+| `develop_migrations` | You also want the agent to generate, test and review migration scripts.       |
+| `all`                | You want every toolset. Today this is identical to `develop_migrations`.      |
+
+`develop_migrations` includes everything in `develop_state`. Start with the narrowest toolset that covers your workflow. See
+the Toolsets column of the [Tools](<Usage/Flyway MCP Server/Tool Reference#ToolReference-Tools>) table for the tools in
+each toolset, and [Configuration](<Usage/Flyway MCP Server/MCP Server Configuration>) for the full parameter reference.
+
+### 3. Register the Flyway MCP server with your AI tools
 
 The Flyway MCP server is a **stdio MCP server**—your AI tool starts it as a local process and communicates with it
 directly, rather than connecting to it over HTTP. Most AI tools' own MCP documentation categorizes servers this
@@ -82,7 +97,8 @@ folder as your `.git` directory)—though this isn't necessary for every tool, a
 formats vary.
 
 See [Register with your AI tools](<Usage/Flyway MCP Server/Register with your AI tools>) for an
-example config using `.mcp.json`, or go straight to your tool's own setup docs:
+example config using `.mcp.json`, and [Configuration](<Usage/Flyway MCP Server/MCP Server Configuration>) for what
+the `command` and `args` fields control, or go straight to your tool's own setup docs:
 
 - [Claude Code](https://code.claude.com/docs/en/mcp)
 - [VS Code (GitHub Copilot Chat)](https://code.visualstudio.com/docs/copilot/customization/mcp-servers)
@@ -99,14 +115,14 @@ a good place to outline what each one is, so the agent knows which project to lo
 (for example, "find the changes I made in NodeB"). A single `.mcp.json` at the repository root is enough for
 this—you don't need one per project.
 
-### 3. Start your AI tool
+### 4. Start your AI tool
 
 Start your AI tool. It should detect the Flyway MCP server you registered (for example, via `.mcp.json`) and prompt
 you to enable it. Once enabled, ask it to load your project first, then ask it to perform Flyway actions (for
-example, "generate migrations for the changes in my development database") and it will call the appropriate tools
+example, "apply the changes in my development database to the schema model") and it will call the appropriate tools
 below on your behalf.
 
-### 4. Try it out
+### 5. Try it out
 
 A few prompts to confirm everything's working, run in order against a project with some uncommitted database
 changes:
@@ -145,7 +161,7 @@ account:
 - **Secure every environment the server can reach.** This includes both the development and shadow environments defined
   in your toml, not just production-like ones.
 - **Never store credentials in plaintext.** Use Flyway's
-  [secrets management](<Configuration/Flyway Namespace#secrets-management-namespaces>) functionality (e.g. environment
+  [secrets management](<Configuration/Flyway Namespace#FlywayNamespace-Secretsmanagementnamespaces>) functionality (e.g. environment
   variables, a secrets manager, or the local secret resolver) instead of putting passwords or tokens directly in your
   toml.
 - **Guide the agent with project instructions, not tool invocations.** Use your AI tool's project-level instructions
@@ -159,6 +175,13 @@ account:
   agent apply changes to a database.
 - **Expect change.** This server is in active development; pin your toolset configuration deliberately and check release
   notes before upgrading, since tool names and behavior may change between versions.
+
+---
+
+## Configuration
+
+See [Configuration](<Usage/Flyway MCP Server/MCP Server Configuration>) for the `mcp.toolsets` and `mcp.maxLogs`
+parameters and what each toolset enables.
 
 ---
 
@@ -178,5 +201,5 @@ the sequence of tool calls the agent makes in response, with sample inputs and o
 
 ## Troubleshooting
 
-See [Troubleshooting](<Usage/Flyway MCP Server/Troubleshooting>) for common setup and usage problems, and how to
+See [Troubleshooting](<Usage/Flyway MCP Server/MCP Server Troubleshooting>) for common setup and usage problems, and how to
 resolve them.

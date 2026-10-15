@@ -2,6 +2,8 @@
 subtitle: Add
 ---
 
+{% include redgate.html %}
+
 ## Description
 
 The `add` command is used to create new migration scripts following the naming convention of your existing migrations.

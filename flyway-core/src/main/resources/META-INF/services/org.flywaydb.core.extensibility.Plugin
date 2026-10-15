@@ -15,6 +15,7 @@ org.flywaydb.core.api.migration.baseline.BaselineResourceTypeProvider
 org.flywaydb.core.internal.proprietaryStubs.LicensingConfigurationExtensionStub
 org.flywaydb.core.internal.proprietaryStubs.AuthCommandExtensionStub
 org.flywaydb.core.internal.proprietaryStubs.DeployCommandExtensionStub
+org.flywaydb.core.internal.proprietaryStubs.InitCommandExtensionStub
 org.flywaydb.core.internal.proprietaryStubs.DiffCommandExtensionStub
 org.flywaydb.core.internal.proprietaryStubs.ModelCommandExtensionStub
 org.flywaydb.core.internal.proprietaryStubs.DiffTextCommandExtensionStub

@@ -32,8 +32,13 @@ import org.flywaydb.core.internal.parser.ParsingContext;
 
 import java.sql.Connection;
 import java.sql.Types;
+import java.util.Arrays;
+import java.util.Map;
 
 public class SnowflakeDatabaseType extends BaseDatabaseType {
+    private static final String RESULT_FORMAT_PROPERTY = "JDBC_QUERY_RESULT_FORMAT";
+    private static final String APPLICATION_PROPERTY = "application";
+
     @Override
     public String getName() {
         return "Snowflake";
@@ -92,5 +97,38 @@ public class SnowflakeDatabaseType extends BaseDatabaseType {
     public ExecutionTemplate createTransactionalExecutionTemplate(final Connection connection,
         final boolean rollbackOnException) {
         return new PlainExecutionTemplate();
+    }
+
+    @Override
+    public void setOverridingConnectionProps(final String url, final Map<String, String> props) {
+        // The Snowflake driver ignores properties inherited from defaults and lets passed properties override URL
+        // parameters, so these must be set here rather than in setDefaultConnectionProps.
+        useJsonResultFormat(props);
+        identifyFlywayUnlessApplicationSet(url, props);
+    }
+
+    private static void useJsonResultFormat(final Map<String, String> props) {
+        props.keySet().removeIf(RESULT_FORMAT_PROPERTY::equalsIgnoreCase);
+        props.put(RESULT_FORMAT_PROPERTY, "JSON");
+    }
+
+    private static void identifyFlywayUnlessApplicationSet(final String url, final Map<String, String> props) {
+        if (!isSetInUrl(url, APPLICATION_PROPERTY) && !isSetInProps(props, APPLICATION_PROPERTY)) {
+            props.put(APPLICATION_PROPERTY, APPLICATION_NAME);
+        }
+    }
+
+    private static boolean isSetInProps(final Map<String, String> props, final String property) {
+        return props.keySet().stream().anyMatch(property::equalsIgnoreCase);
+    }
+
+    private static boolean isSetInUrl(final String url, final String property) {
+        final int queryStart = url.indexOf('?');
+        if (queryStart < 0) {
+            return false;
+        }
+        return Arrays.stream(url.substring(queryStart + 1).split("&"))
+            .map(parameter -> parameter.split("=", 2)[0])
+            .anyMatch(property::equalsIgnoreCase);
     }
 }

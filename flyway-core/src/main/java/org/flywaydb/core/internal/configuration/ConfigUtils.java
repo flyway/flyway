@@ -1063,4 +1063,14 @@ public class ConfigUtils {
 
         return redacted;
     }
+
+    public static String describeCurrentEnvironment(final Configuration configuration) {
+        final String name = configuration.getCurrentEnvironmentName();
+        final ConfigurationModel modernConfig = configuration.getModernConfig();
+        final EnvironmentModel environment = modernConfig == null || modernConfig.getEnvironments() == null
+                                             ? null
+                                             : modernConfig.getEnvironments().get(name);
+        final String displayName = environment == null ? null : environment.getDisplayName();
+        return StringUtils.hasText(displayName) ? name + " (" + displayName + ")" : name;
+    }
 }

@@ -2,6 +2,8 @@
 subtitle: Auth
 ---
 
+{% include redgate.html %}
+
 ## Description
 
 `auth` initiates an online license acquisition flow.

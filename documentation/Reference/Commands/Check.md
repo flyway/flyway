@@ -2,6 +2,8 @@
 subtitle: Check
 ---
 
+{% include redgate.html %}
+
 ## Description
 
 The `check` command encapsulates the following operations:

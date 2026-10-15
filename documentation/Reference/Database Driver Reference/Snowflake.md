@@ -13,13 +13,16 @@ subtitle: Snowflake
 
 | Item                               | Details                                                                                                                                 |
 |------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
-| **URL format**                     | <code>jdbc:snowflake://<i>account</i>.snowflakecomputing.com/?db=<i>database</i>&warehouse=<i>warehouse</i>&role=<i>role</i><i>&JDBC_QUERY_RESULT_FORMAT=JSON</i></code><br>(optionally <code>&schema=<i>schema</i></code> to specify current schema) |
+| **URL format**                     | <code>jdbc:snowflake://<i>account</i>.snowflakecomputing.com/?db=<i>database</i>&warehouse=<i>warehouse</i>&role=<i>role</i></code><br>(optionally <code>&schema=<i>schema</i></code> to specify current schema) |
 | **Ships with Flyway Command-line** | Yes                                                                                                                                     |
 | **Maven Central coordinates**      | `net.snowflake:snowflake-jdbc`                                                                                                          |
 | **Supported versions**             | `4.0.2` and later                                                                                                                       |
 | **Default Java class**             | `net.snowflake.client.api.driver.SnowflakeDriver`                                                                                       |
 
 **Note:** The default schema is `PUBLIC` - if it does not exist or you want to use a different schema ensure you [set it in Flyway](<Configuration/Flyway Namespace/Flyway Default Schema Setting>)
+
+**Note:** When Flyway creates the connection from a JDBC URL, it always sets `JDBC_QUERY_RESULT_FORMAT=JSON`, because the driver's default Arrow result format fails on Java 16 and later unless the JVM is started with `--add-opens=java.base/java.nio=ALL-UNNAMED`. Any other value you set is ignored. Flyway also sets `application=Redgate_Flyway` unless you set `application` yourself. If you give Flyway your own `DataSource`, for example with Spring Boot, set `JDBC_QUERY_RESULT_FORMAT=JSON` on it yourself.
+
 ## Java Usage
 Snowflake support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
 Snowflake is found within the `flyway-database-snowflake` plugin module.
@@ -106,6 +109,3 @@ location of the private key:
 ## Limitations
 
 - Parallel migrations as described [here](Usage/Frequently Asked Questions#parallel) are unavailable in Snowflake. You can track the status of this feature in our GitHub issues [here](https://github.com/flyway/flyway/issues/3305).
-- Due to a change in the Java 16+ runtime which Flyway depends upon, a formatting error will occur in the Snowflake JDBC driver unless you define the handling of such, that can be done by either:
-  - appending `&JDBC_QUERY_RESULT_FORMAT=JSON` to your JDBC connection string
-  - adding `--add-opens java.base/java.lang=ALL-UNNAMED`. This can be done via the [command line or environment variables](Usage/Command-Line)

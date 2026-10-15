@@ -1,6 +1,8 @@
 ---
-subtitle: Check Changes
+subtitle: Check Code
 ---
+
+{% include redgate.html %}
 
 ## Description
 
