@@ -51,6 +51,24 @@ The `severity` field controls how violations of this rule are handled:
 
 The `disabled` severity level allows you to temporarily disable specific rules without removing them from your configuration.
 
+### Excluding rules for a single run
+
+`severity = "disabled"` turns a rule off everywhere. To exclude it from some runs only, list its code in a
+[code review profile](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Code Profiles Setting>) and
+name that profile with [`check.code.profile`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Code Profile Setting>)
+on the runs you want it excluded from:
+
+```toml
+[flyway.check.code.profiles]
+preCommit = ["layout", "RX001"]
+```
+
+Rule codes are matched case-insensitively and must be written in full, as wildcards only apply to SQLFluff. A profile
+is shared with SQLFluff, so the same profile can list SQLFluff rules and rule groups alongside your regex rule codes.
+Give your rules a code prefix of your own rather than one
+[reserved](<Code Review Rules/Configuring Custom SQLFluff Rules>) for the rules Flyway ships: a profile entry naming
+a code that a reserved rule and one of yours share excludes both.
+
 ### Regular expression considerations
 
 * Does case sensitivity matter to you ? If it doesn't then make the regex rules insensitive too with the prefix `(?i)`

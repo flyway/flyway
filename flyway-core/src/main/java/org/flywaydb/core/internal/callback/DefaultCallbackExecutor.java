@@ -97,11 +97,22 @@ public class DefaultCallbackExecutor<E extends CallbackEvent<E>> implements Call
     }
 
     @Override
+    public void onMainConnectionEvent(final E event) {
+        executeAndAdoptState(event, database.getMainConnection());
+    }
+
+    @Override
     public void onMigrationConnectionEvent(final E event) {
         if (database.useSingleConnection()) {
             return;
         }
-        execute(event, database.getMigrationConnection());
+        executeAndAdoptState(event, database.getMigrationConnection());
+    }
+
+    private void executeAndAdoptState(final E event, final Connection connection) {
+        if (!execute(event, connection).isEmpty()) {
+            connection.updateOriginalState();
+        }
     }
 
     @Override

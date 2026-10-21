@@ -9,11 +9,44 @@
 <div class="col-md-9">
 <!-- BEGIN db-generated release notes -->
   <div class="release">
-        <h2 id="13.10.2">Flyway 13.10.2 (2026-10-15)</h2>
+        <h2 id="13.11.1">Flyway 13.11.1 (2026-10-21)</h2>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Distrusted CA certificates are now blocked in the Java trust store of the bundled JREs and Docker images</li>
+        </ul>
+
+  </div>
+
+
+  <div class="release">
+        <h2 id="13.11.0">Flyway 13.11.0 (2026-10-21)</h2>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Code review profiles can now exclude individual regex rules by rule code</li>
+            <li>Code Review reports now show the line that has a violation</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Command-line errors now suggest running with `-X` for debug output</li>
+            <li>Docker images now upgrade ca-certificates at build time</li>
+            <li>`info` now honors `baselineOnMigrate`, so migrations at or below `baselineVersion` show as `Below Baseline` or `Ignored`, instead of `Pending`</li>
+            <li>The `docker` provisioner now builds SQL Server and PostgreSQL environments in a dedicated `flyway` database and Oracle environments in a dedicated `FLYWAY` schema, instead of `master`, `postgres` and `SYSTEM`</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/4286">Issue 4286</a>
+                PostgreSQL session role changes made in an `afterConnect` callback (e.g. `SET ROLE`) now persist into migrations, matching the behaviour of `initSql`
+            </li>
+        </ul>
 
         <h3>Internal dependency</h3>
         <ul>
-            <li>Upgraded RgCompare to 1.67.0.6161</li>
+            <li>Upgraded RgCompare to 1.68.1.6299</li>
         </ul>
 
   </div>

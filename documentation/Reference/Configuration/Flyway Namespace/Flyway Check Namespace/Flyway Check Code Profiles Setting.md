@@ -10,11 +10,21 @@ A table defining the code review profiles available to this project, keyed by pr
 here and named per invocation on the command line. Each entry lists the
 rules and rule groups that [`profile`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Code Profile Setting>) excludes when that profile is named.
 
-Both individual rule codes (`RG06`) and SQLFluff rule groups (`layout`) are accepted. Excluding a rule that the
-installed SQLFluff does not know about is not an error - SQLFluff writes a warning and carries on.
+Both individual rule codes and SQLFluff rule groups are accepted. A rule code may name either a SQLFluff rule
+(`RG06`) or a [regex rule](<Code Review Rules/Configuring Regex Rules>) (`RX001`); regex rule codes are matched
+case-insensitively and must be written in full. Rule group excludes and wildcards such as `LT*` only apply to SQLFluff.
 
-Flyway ships with a built-in `schemaModel` profile. Defining a profile of the same name here replaces it outright, so
-list every rule you want excluded rather than only the ones you want to add. Any other name defines a new profile.
+One profile can name both SQLFluff and regex rules, as each entry excludes whichever rules it names. An entry that
+matches no rule at all is not an error - when SQLFluff is enabled, Flyway warns about it and the run carries on. The
+warning never fails the run, even with
+[`check.code.failOnError`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check Code Fail On Error Setting>)
+set.
+
+The `RG` prefix, and the prefixes SQLFluff uses for its own rules, are
+[reserved](<Code Review Rules/Configuring Custom SQLFluff Rules>) for the rules Flyway ships, so don't give your own
+rules a code in that space. If you do, an entry naming that code excludes every rule that uses it.
+
+Flyway doesn't ship any profiles, so every profile you name must be defined here.
 
 Profile names are matched case-insensitively.
 
@@ -24,10 +34,7 @@ Table of string arrays
 
 ## Default
 
-<i>empty - no project-defined profiles</i>
-
-The built-in `schemaModel` profile is always available and is not an entry in this table, so an empty table does not
-mean there are no profiles to name.
+<i>empty - no profiles are defined</i>
 
 ## Usage
 
@@ -39,8 +46,14 @@ This can't be added to a configuration file via Flyway Desktop.
 
 ```toml
 [flyway.check.code.profiles]
-schemaModel = ["capitalisation", "layout", "RG06", "RG09"]
-preCommit = ["layout"]
+schemaModel = ["capitalisation", "layout", "RG01", "RG03", "RG05", "RG06", "RG09", "RG10", "RG13", "RG14", "RG16", "RG22"]
+preCommit = ["layout", "RX001"]
 ```
 
 Naming either of these with `check.code.profile` excludes exactly the rules listed.
+
+The `schemaModel` profile above is a starting point for analyzing a schema model. It excludes the rules that cannot
+fire, or that only produce noise, on the schema model files written by the comparison engine: the DML rules, the script
+shape rules, the data-loss DDL rules (a drop in a schema model is a deleted file, not a `DROP` statement), the
+`ALTER`-only rules, and the formatting families. Flyway doesn't keep this list up to date as rules are added or
+changed, so review it against the rules you run.

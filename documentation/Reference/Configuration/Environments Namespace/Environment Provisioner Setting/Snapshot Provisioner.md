@@ -21,6 +21,21 @@ The snapshot provisioner can be used to speed up provisioning a shadow environme
     - `snapshotVersion` - (Required) The migration version the snapshot represents. This version will be inserted as the baseline version into the `flyway_schema_history` table of the provisioned database.
     - `cleanOnReprovision` - (Optional) When set to true this option forces a clean of the provisioned database before the snapshot is applied. This option may be required when it's not possible to apply the snapshot to the database. For example, if applying the snapshot needs to re-add a non-null column to a table that has data in it.
 
+### Flyway Desktop
+
+To configure the snapshot provisioner in Flyway Desktop:
+
+1. Set the `REDGATE_FLYWAY_DIFF_VERB` environment variable to `true`.
+2. Open the database connection dialog for the development or shadow database.
+3. Select the **Snapshot** card.
+4. Populate the following settings:
+    - `Snapshot file` - (Required) The file path of the snapshot file. This maps to `filename`.
+    - `Snapshot version` - (Required) The migration version the snapshot represents. This maps to `snapshotVersion`.
+    - `Always clean on reprovision` - (Optional) Cleans the database before the snapshot is applied. This maps to `cleanOnReprovision`.
+5. Set up the rest of the database connection as usual.
+
+Testing the connection or re-provisioning may cause a slight delay while the snapshot is applied.
+
 ## Database creation
 The snapshot provisioner will create the database contained in the JDBC URL if it does not already exist, for the supported database engines listed below.
 For other database engines, the database specified must already exist before the snapshot provisioner is used.

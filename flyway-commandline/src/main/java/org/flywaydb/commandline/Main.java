@@ -93,6 +93,7 @@ public class Main {
     private static Log LOG;
     private static final PluginRegister PLUGIN_REGISTER = new PluginRegister();
     private static boolean hasPrintedLicense;
+    private static final String DEBUG_FLAG_SUGGESTION = "Run with -X to see debug output.";
 
     public static void main(final String[] args) throws Exception {
         int exitCode = 0;
@@ -285,7 +286,7 @@ public class Main {
             if (commandLineArguments.getLogLevel() == Level.DEBUG) {
                 LOG.error("Unexpected error", e);
             } else {
-                LOG.error(getMessagesFromException(e));
+                LOG.error(formatErrorWithDebugHint(e));
             }
         }
         flushLog(commandLineArguments);
@@ -298,7 +299,7 @@ public class Main {
         }
     }
 
-    private static String getMessagesFromException(Throwable e) {
+    private static String formatErrorWithDebugHint(Throwable e) {
         final StringBuilder condensedMessages = new StringBuilder();
         String preamble = "";
         while (e != null) {
@@ -310,6 +311,7 @@ public class Main {
             preamble = "\r\nCaused by: ";
             e = e.getCause();
         }
+        condensedMessages.append(System.lineSeparator()).append(DEBUG_FLAG_SUGGESTION);
         return condensedMessages.toString();
     }
 

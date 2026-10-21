@@ -33,6 +33,13 @@ Use the full path instead (e.g. `C:\flyway-{version}\flyway.cmd` or `/opt/flyway
 - your AI tool is launched from a desktop shortcut rather than a terminal—some GUI-launched apps don't inherit your
   shell's `PATH`, particularly on macOS.
 
+In a JSON config such as `.mcp.json`, backslashes in a Windows path must be escaped (or replaced with forward slashes),
+otherwise the file isn't valid JSON:
+
+```json
+"command": "C:\\flyway-{version}\\flyway.cmd"
+```
+
 On Windows, if you do use a bare `flyway` and it isn't picked up, try `flyway.cmd` explicitly—some process launchers
 don't resolve a bare command name to its `.cmd` extension the way a terminal does.
 

@@ -2,11 +2,14 @@
 subtitle: Tool Reference
 ---
 
+This feature is in **preview**. Tool names, parameters, and behavior may change significantly, or tools may be removed, in
+future releases without notice. This reference describes the tools in Flyway {{site.flywayVersion}}.
+
 ## Concepts
 
 - **Workspace**: Calling `load_project` loads a Flyway project into a workspace, identified by a `workspaceId`. Only one
   workspace is loaded at a time; loading a new project discards artifacts and results from the previous one. If you've
-  only changed the project's toml configuration, call `reload_project` instead, which preserves existing artifacts.
+  only changed the project's TOML configuration, call `reload_project` instead, which preserves existing artifacts.
 - **Diffs and artifacts**: Each `create_diff_*` tool computes the difference between two states of your project (for
   example, the development database and the schema model) and returns a `diffId`. Other tools then consume that
   `diffId`, together with a list of change IDs, to apply or generate something from the selected differences.
@@ -18,6 +21,22 @@ subtitle: Tool Reference
   `create_schema_model_checkpoint`. Each change is tagged with how the schema model has moved since the checkpoint 
   (`new`, `existing`, `missing`, or `conflict`), which lets you separate changes you introduced locally from ones brought 
   in from a shared source. See `create_diff_development` for details.
+
+- **Diff names**: A `create_diff_*` tool is named for what its changes are applied to, not for the direction of the
+  comparison. `create_diff_schema_model` produces changes to apply to the schema model (by comparing the development
+  database against it), `create_diff_migrations` produces changes to generate migration scripts from, and
+  `create_diff_development` produces changes to apply to the development database.
+- **Selectable differences**: Each `create_diff_*` tool returns a `diffId` and a list of `differences`. Each difference
+  has an `id` (used in `changes` lists and as `changeId`), the object's `name` and `type`, a `change` of `Add`, `Edit`,
+  `Rename` or `Delete`, and, for a rename, its `previousName`. Calling a `create_diff_*` tool again replaces the
+  previous diff of that type, so the earlier `diffId` is no longer valid.
+- **Parameter types**: IDs (`workspaceId`, `diffId`, `migrationsDiffId`, `checkpointId` and `changeId`) are strings
+  returned by earlier tool calls. Copy them exactly rather than constructing them. `changes` is an array of strings,
+  such as `["chg-1", "chg-3"]`, or `["*"]` to select everything. `generateUndoScripts` and `rebuild` take `true` or `false`;
+  `projectFolder`, `file` and `description` are strings.
+- **Errors**: A failed call returns an error result containing the error code and message, for example
+  `PROJECT_NOT_LOADED Project workspace 'ws-1234' is not loaded.` The
+  [Troubleshooting](<Usage/Flyway MCP Server/MCP Server Troubleshooting>) page covers the common ones.
 
 ## Tools
 
@@ -36,6 +55,27 @@ subtitle: Tool Reference
 | `update_development`          | `develop_migrations`, `develop_state` | Applies selected changes from a development diff to the development database.                            |
 | `get_diff_details`            | `develop_migrations`, `develop_state` | Returns the unified diff text for a single changed object within any diff.                               |
 
+### What each tool reads and writes
+
+| Tool                             | Reads                                                         | Writes                                |
+|----------------------------------|---------------------------------------------------------------|---------------------------------------|
+| `load_project`                   | `flyway.toml` and the project files                           | Nothing in your project               |
+| `reload_project`                 | `flyway.toml` and the project files                           | Nothing in your project               |
+| `create_schema_model_checkpoint` | The schema model                                              | Nothing in your project               |
+| `create_diff_schema_model`       | The development database and the schema model                 | Nothing in your project               |
+| `update_schema_model`            | The stored schema model diff                                  | Schema model files                    |
+| `create_diff_migrations`         | The schema model and migration scripts                        | The shadow database (builds migrations into it) |
+| `generate_migrations`            | The stored migrations diff                                    | Migration script files                |
+| `review_code`                    | One migration script                                          | Nothing                               |
+| `test_migrate`                   | Pending migration scripts                                     | The shadow database                   |
+| `create_diff_development`        | The schema model and the development database                 | Nothing in your project               |
+| `update_development`             | The stored development diff                                   | The development database              |
+| `get_diff_details`               | A stored diff                                                 | Nothing                               |
+
+Only `update_development` changes your development database. `create_diff_migrations` and `test_migrate` use the shadow
+database, and the `create_diff_*` tools keep their results in the server's temporary workspace rather than in your
+project.
+
 ### load_project
 
 Loads a Flyway project into a workspace. Required before any other tool can be used.
@@ -49,7 +89,7 @@ Returns a `workspaceId`, used by all subsequent tool calls.
 ### reload_project
 
 Reloads a project from disk for an existing workspace, without discarding previously computed artifacts. Prefer this
-over `load_project` when you've only edited the project's toml files.
+over `load_project` when you've only edited the project's TOML files.
 
 | Parameter     | Required | Description                              |
 |---------------|----------|------------------------------------------|
@@ -75,7 +115,7 @@ is stored per workspace at a time.
 |---------------|----------|-----------------------------------|
 | `workspaceId` | Yes      | Workspace ID from `load_project`. |
 
-Returns a `diffId` and a list of selectable differences.
+Returns a `diffId` and a list of `differences`.
 
 ### update_schema_model
 
@@ -98,7 +138,7 @@ Diffs the schema model against the current state of the migration scripts, built
 |---------------|----------|-----------------------------------|
 | `workspaceId` | Yes      | Workspace ID from `load_project`. |
 
-Returns a `diffId` and a list of selectable differences.
+Returns a `diffId` and a list of `differences`.
 
 ### generate_migrations
 
@@ -107,7 +147,7 @@ naming convention.
 
 Whether an undo script is also generated for each versioned script is controlled by the project's
 [`flyway.generate.types`](<Configuration/Flyway Namespace/Flyway Generate Namespace/Flyway Generate Types Setting>)
-toml setting, e.g.:
+TOML setting, e.g.:
 
 ```toml
 [flyway.generate]
@@ -130,12 +170,14 @@ undoScripts = true
 | `description`          | No       | Description used in the generated migration script filenames.                                                                                       |
 | `generateUndoScripts`  | No       | Whether to also generate an undo script. If unset, follows the project's `flyway.generate.types` setting; if true/false, overrides it for this call only. |
 
-Returns the migration folder path, the list of generated files, any warnings raised during generation, and whether
-undo scripts were generated (`undoScriptsGenerated`).
+Returns the `migrationFolder` path, the list of generated `files` (relative to that folder), any `warnings` raised during
+generation (each with a `file`, `message`, `type` and `severity`), and whether undo scripts were generated
+(`undoScriptsGenerated`).
 
 ### review_code
 
-Runs code review against a single migration script and reports the rule violations found.
+Runs code review against a single migration script and reports the rule violations found. It uses the project's code
+review configuration, as `flyway check -code` does.
 
 | Parameter     | Required | Description                                                            |
 |---------------|----------|------------------------------------------------------------------------|
@@ -155,7 +197,7 @@ Runs pending migration scripts against the shadow database to verify they execut
 | `rebuild`     | No       | When `true`, forces a full reprovision of the shadow database before running migrations. Use this if you have manually altered the shadow database, or want to test every migration from the baseline rather than just new or changed scripts. |
 
 Returns `results` (per-file migration results in execution order, each with a `file` name and a `status` of `success`,
-`failed`, or `pending`), `error` (the error message from the failed migration, or `null` when all migrations succeeded),
+`failed`, or `pending`), `error` (the error message from the failed migration; omitted when all migrations succeeded),
 and `reprovisioned` (whether the shadow database was fully reprovisioned during this call; always `false` if a migration failed, even when a reprovision happened first).
 
 ### create_diff_development
@@ -174,13 +216,15 @@ brought in from a shared source versus your own local edits.
 | `workspaceId`  | Yes      | Workspace ID from `load_project`.                                       |
 | `checkpointId` | No       | Checkpoint ID from `create_schema_model_checkpoint`, to enable a three-sided diff. |
 
-Returns a `diffId` and a list of selectable differences. When `checkpointId` is supplied, also returns
+Returns a `diffId` and a list of `differences`. When `checkpointId` is supplied, also returns
 `threeSidedDifferences`—the same differences, each tagged with how the schema model has moved since the checkpoint
 (new, existing, missing, or conflict).
 
 ### update_development
 
-Applies selected changes from a development diff to the development database.
+Applies selected changes from a development diff to the development database. **This modifies the database that your
+`flywayDesktop.developmentEnvironment` points at.** For supported database types, a dependency of a selected change
+is included automatically and, where available, listed in `objects`.
 
 | Parameter     | Required | Description                                          |
 |---------------|----------|------------------------------------------------------|
@@ -189,7 +233,9 @@ Applies selected changes from a development diff to the development database.
 | `changes`     | Yes      | List of change IDs to apply, or `*` for all changes. |
 
 Returns `changesDeployed` (a boolean indicating whether a deployment action was performed against development—this
-may be `false` if no changes were selected) and the list of objects updated in the development database.
+may be `false` if no changes were selected) and `objects`, the list of objects updated in the development database,
+each with a `name`, a `type` and where the update came from (`origin`). `objects` is only given for some database types,
+and is omitted when nothing was applied.
 
 ### get_diff_details
 
@@ -202,4 +248,5 @@ in the same workspace.
 | `diffId`      | Yes      | Diff ID from any `create_diff_*` tool.         |
 | `changeId`    | Yes      | ID of the changed object to fetch details for. |
 
-Returns the unified diff text for the requested change.
+Returns the unified diff as `text`. Very large objects fail with `The object detail exceeds the rendering limit of 500
+lines.`

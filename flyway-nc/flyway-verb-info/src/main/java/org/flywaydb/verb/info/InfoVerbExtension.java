@@ -19,13 +19,19 @@
  */
 package org.flywaydb.verb.info;
 
+import java.util.Arrays;
 import java.util.List;
 import lombok.CustomLog;
+import org.flywaydb.core.api.CoreMigrationType;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.OperationResult;
+import org.flywaydb.core.api.resource.LoadableResourceMetadata;
 import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
+import org.flywaydb.core.internal.nc.schemahistory.SchemaHistoryItem;
+import org.flywaydb.core.internal.nc.schemahistory.SchemaHistoryModel;
 import org.flywaydb.core.extensibility.ConfigurationParameter;
 import org.flywaydb.core.extensibility.VerbExtension;
 import org.flywaydb.nc.callbacks.CallbackManager;
@@ -86,7 +92,8 @@ public class InfoVerbExtension implements VerbExtension {
 
         callbackManager.handleEvent(Event.BEFORE_INFO, database, configuration, context.getParsingContext());
 
-        if (!database.schemaHistoryTableExists(configuration.getTable())) {
+        final boolean schemaHistoryTableExists = database.schemaHistoryTableExists(configuration.getTable());
+        if (!schemaHistoryTableExists) {
             LOG.info("Schema history table "
                 + database.quote(database.getCurrentSchema(), configuration.getTable())
                 + " does not exist yet");
@@ -94,7 +101,9 @@ public class InfoVerbExtension implements VerbExtension {
 
         final NativeConnectorsMigrationInfoService infoResult;
         try {
-            infoResult = new NativeConnectorsMigrationInfoService(context.getMigrations(),
+            final MigrationInfo[] migrations = !schemaHistoryTableExists && willBaselineOnMigrate(configuration,
+                database) ? getMigrationsAfterBaselineOnMigrate(configuration, context) : context.getMigrations();
+            infoResult = new NativeConnectorsMigrationInfoService(migrations,
                 configuration,
                 database.getName(),
                 database.allSchemasEmpty(VerbUtils.getAllSchemas(configuration.getSchemas(),
@@ -106,5 +115,31 @@ public class InfoVerbExtension implements VerbExtension {
 
         callbackManager.handleEvent(Event.AFTER_INFO, database, configuration, context.getParsingContext());
         return infoResult;
+    }
+
+    private static boolean willBaselineOnMigrate(final Configuration configuration,
+        final NativeConnectorsDatabase<?> database) {
+        return configuration.isBaselineOnMigrate()
+            && !configuration.isSkipExecutingMigrations()
+            && Arrays.stream(VerbUtils.getAllSchemas(configuration.getSchemas(), database.getCurrentSchema()))
+            .filter(database::isSchemaExists)
+            .anyMatch(schema -> !database.isSchemaEmpty(schema));
+    }
+
+    private static MigrationInfo[] getMigrationsAfterBaselineOnMigrate(final Configuration configuration,
+        final PreparationContext context) {
+        final SchemaHistoryItem baselineMarker = SchemaHistoryItem.builder()
+            .description(configuration.getBaselineDescription())
+            .installedRank(1)
+            .type(CoreMigrationType.BASELINE.name())
+            .script("<< Flyway Baseline >>")
+            .version(configuration.getBaselineVersion().getVersion())
+            .success(true)
+            .build();
+        return Arrays.stream(VerbUtils.getMigrations(new SchemaHistoryModel(List.of(baselineMarker)),
+                context.getResources().toArray(LoadableResourceMetadata[]::new),
+                configuration))
+            .filter(migration -> migration.getType() != CoreMigrationType.BASELINE)
+            .toArray(MigrationInfo[]::new);
     }
 }

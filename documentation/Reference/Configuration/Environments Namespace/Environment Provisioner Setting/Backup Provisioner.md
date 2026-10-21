@@ -48,6 +48,19 @@ The following database engines and backup file formats are supported:
     - `backupFilePath` - (Required) The file path of the backup file. Note: this needs to be accessible/relative to the database server that is being provisioned.
     - `backupVersion` - (Optional) The migration version the backup file represents. This property is required when the backup file doesn't contain a `flyway_schema_history` table. In this scenario a `flyway_schema_history` table will be created once the backup has been restored and a baseline entry with version `backupVersion` will be inserted into the `flyway_schema_history` table. If the backup file does contain a `flyway_schema_history` table then this property is optional. If left unset then the `flyway_schema_history` table from the backup will be restored unaltered, otherwise the `flyway_schema_history` will be updated to baseline version `backupVersion`.
 
+### Flyway Desktop
+
+To configure the backup provisioner in Flyway Desktop:
+
+1. Open the database connection dialog for the development or shadow database.
+2. Select the **Backup** card.
+3. Populate the following settings:
+    - `Backup file` - (Required) The file path of the backup file. This maps to `backupFilePath`. Note: this needs to be accessible from the database server that is being provisioned.
+    - `Backup version` - (Optional) The migration version the backup file represents. This maps to `backupVersion` and behaves as described above.
+4. Set up the rest of the database connection as usual.
+
+Testing the connection or re-provisioning may cause a slight delay while the backup is restored.
+
 Below we consider configuration and examples for each supported database engine.
 
 # SQL Server

@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>13.10.3</version>
+    <version>13.11.1</version>
   </parent>
   <artifactId>flyway-commandline</artifactId>
   <packaging>jar</packaging>
@@ -572,18 +572,33 @@
                   <target>
                     <unzip src="${basedir}/src/main/assembly/jre/OpenJDK25U-jre_x64_windows_hotspot_${jre.file-path}.zip"
                       dest="${project.build.directory}/dependency/jre-windows-x64"/>
+                    <concat destfile="${project.build.directory}/dependency/jre-windows-x64/jdk-${jre.version}-jre/lib/security/blocked.certs" append="true">
+                      <fileset file="${basedir}/src/main/assembly/blocked-certs.txt"/>
+                    </concat>
                     <untar compression="gzip"
                       src="${basedir}/src/main/assembly/jre/OpenJDK25U-jre_x64_linux_hotspot_${jre.file-path}.tar.gz"
                       dest="${project.build.directory}/dependency/jre-linux-x64"/>
+                    <concat destfile="${project.build.directory}/dependency/jre-linux-x64/jdk-${jre.version}-jre/lib/security/blocked.certs" append="true">
+                      <fileset file="${basedir}/src/main/assembly/blocked-certs.txt"/>
+                    </concat>
                     <untar compression="gzip"
                       src="${basedir}/src/main/assembly/jre/OpenJDK25U-jre_x64_alpine-linux_hotspot_${jre.file-path}.tar.gz"
                       dest="${project.build.directory}/dependency/jre-linux-alpine-x64"/>
+                    <concat destfile="${project.build.directory}/dependency/jre-linux-alpine-x64/jdk-${jre.version}-jre/lib/security/blocked.certs" append="true">
+                      <fileset file="${basedir}/src/main/assembly/blocked-certs.txt"/>
+                    </concat>
                     <untar compression="gzip"
                       src="${basedir}/src/main/assembly/jre/OpenJDK25U-jre_x64_mac_hotspot_${jre.file-path}.tar.gz"
                       dest="${project.build.directory}/dependency/jre-macos-x64"/>
+                    <concat destfile="${project.build.directory}/dependency/jre-macos-x64/jdk-${jre.version}-jre/Contents/Home/lib/security/blocked.certs" append="true">
+                      <fileset file="${basedir}/src/main/assembly/blocked-certs.txt"/>
+                    </concat>
                     <untar compression="gzip"
                       src="${basedir}/src/main/assembly/jre/OpenJDK25U-jre_aarch64_mac_hotspot_${jre.file-path}.tar.gz"
                       dest="${project.build.directory}/dependency/jre-macos-arm64"/>
+                    <concat destfile="${project.build.directory}/dependency/jre-macos-arm64/jdk-${jre.version}-jre/Contents/Home/lib/security/blocked.certs" append="true">
+                      <fileset file="${basedir}/src/main/assembly/blocked-certs.txt"/>
+                    </concat>
                   </target>
                 </configuration>
               </execution>
@@ -654,6 +669,9 @@
                   <target>
                     <unzip src="${basedir}/src/main/assembly/jre/OpenJDK25U-jre_x64_windows_hotspot_${jre.file-path}.zip"
                       dest="${project.build.directory}/dependency/jre-windows-x64"/>
+                    <concat destfile="${project.build.directory}/dependency/jre-windows-x64/jdk-${jre.version}-jre/lib/security/blocked.certs" append="true">
+                      <fileset file="${basedir}/src/main/assembly/blocked-certs.txt"/>
+                    </concat>
                   </target>
                 </configuration>
               </execution>
@@ -708,6 +726,9 @@
                     <untar compression="gzip"
                       src="${basedir}/src/main/assembly/jre/OpenJDK25U-jre_x64_mac_hotspot_${jre.version}_10.tar.gz"
                       dest="${project.build.directory}/dependency/jre-macos-x64"/>
+                    <concat destfile="${project.build.directory}/dependency/jre-macos-x64/jdk-${jre.version}-jre/Contents/Home/lib/security/blocked.certs" append="true">
+                      <fileset file="${basedir}/src/main/assembly/blocked-certs.txt"/>
+                    </concat>
                   </target>
                 </configuration>
               </execution>
@@ -762,6 +783,9 @@
                     <untar compression="gzip"
                       src="${basedir}/src/main/assembly/jre/OpenJDK25U-jre_aarch64_mac_hotspot_${jre.file-path}.tar.gz"
                       dest="${project.build.directory}/dependency/jre-macos-arm64"/>
+                    <concat destfile="${project.build.directory}/dependency/jre-macos-arm64/jdk-${jre.version}-jre/Contents/Home/lib/security/blocked.certs" append="true">
+                      <fileset file="${basedir}/src/main/assembly/blocked-certs.txt"/>
+                    </concat>
                   </target>
                 </configuration>
               </execution>
@@ -816,6 +840,9 @@
                     <untar compression="gzip"
                       src="${basedir}/src/main/assembly/jre/OpenJDK25U-jre_x64_linux_hotspot_${jre.file-path}.tar.gz"
                       dest="${project.build.directory}/dependency/jre-linux-x64"/>
+                    <concat destfile="${project.build.directory}/dependency/jre-linux-x64/jdk-${jre.version}-jre/lib/security/blocked.certs" append="true">
+                      <fileset file="${basedir}/src/main/assembly/blocked-certs.txt"/>
+                    </concat>
                   </target>
                 </configuration>
               </execution>

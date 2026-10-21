@@ -19,6 +19,7 @@
  */
 package org.flywaydb.core.internal.command;
 
+import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfoService;
@@ -54,8 +55,12 @@ public class DbInfo {
                 configuration.getTarget(),
                 configuration.isOutOfOrder(),
                 ValidatePatternUtils.getIgnoreAllPattern());
+            final boolean allSchemasEmpty = Arrays.stream(schemas).filter(Schema::exists).allMatch(Schema::empty);
+            if (!allSchemasEmpty && willBaselineOnMigrate()) {
+                migrationInfoService.setBaselineOnMigrateVersion(configuration.getBaselineVersion());
+            }
             migrationInfoService.refresh();
-            migrationInfoService.setAllSchemasEmpty(schemas);
+            migrationInfoService.setAllSchemasEmpty(allSchemasEmpty);
         } catch (FlywayException e) {
             callbackExecutor.onEvent(Event.AFTER_INFO_ERROR);
             throw e;
@@ -64,5 +69,11 @@ public class DbInfo {
         callbackExecutor.onEvent(Event.AFTER_INFO);
 
         return migrationInfoService;
+    }
+
+    private boolean willBaselineOnMigrate() {
+        return configuration.isBaselineOnMigrate()
+            && !configuration.isSkipExecutingMigrations()
+            && !schemaHistory.exists();
     }
 }

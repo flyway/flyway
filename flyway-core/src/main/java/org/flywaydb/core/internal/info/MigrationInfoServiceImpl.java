@@ -19,6 +19,7 @@
  */
 package org.flywaydb.core.internal.info;
 
+import lombok.Setter;
 import org.flywaydb.core.ProgressLogger;
 import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -31,7 +32,6 @@ import org.flywaydb.core.api.MigrationFilter;
 import org.flywaydb.core.extensibility.AppliedMigration;
 import org.flywaydb.core.extensibility.MigrationType;
 import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.Pair;
@@ -53,7 +53,13 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
     /**
      * Whether all the specified schemas are empty or not.
      */
+    @Setter
     private Boolean allSchemasEmpty;
+    /**
+     * The version migrate will baseline at before applying migrations, when baselineOnMigrate applies.
+     */
+    @Setter
+    private MigrationVersion baselineOnMigrateVersion;
 
     /**
      * @param migrationResolver The migration resolver for available migrations.
@@ -107,6 +113,11 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             getAppliedRepeatableMigrations(appliedMigrations));
 
         updateContextFromAppliedVersionedMigrations(appliedVersioned, context);
+
+        if (baselineOnMigrateVersion != null && appliedMigrations.isEmpty()) {
+            context.appliedBaseline = baselineOnMigrateVersion;
+            context.lastApplied = baselineOnMigrateVersion;
+        }
 
         if (MigrationVersion.CURRENT == target) {
             context.target = context.lastApplied;
@@ -527,10 +538,6 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             }
         }
         return invalidMigrations;
-    }
-
-    public void setAllSchemasEmpty(final Schema[] schemas) {
-        allSchemasEmpty = Arrays.stream(schemas).filter(Schema::exists).allMatch(Schema::empty);
     }
 
     @Override

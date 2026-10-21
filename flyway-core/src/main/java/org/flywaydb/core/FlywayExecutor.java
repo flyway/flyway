@@ -226,7 +226,7 @@ public class FlywayExecutor {
                     parsingContext,
                     flywayTelemetryManager));
 
-            callbackExecutor.onEvent(AFTER_CONNECT);
+            callbackExecutor.onMainConnectionEvent(AFTER_CONNECT);
             final SqlScriptExecutorFactory sqlScriptExecutorFactory = databaseType.createSqlScriptExecutorFactory(
                 jdbcConnectionFactory,
                 callbackExecutor,

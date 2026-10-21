@@ -148,6 +148,19 @@ public abstract class Connection<D extends Database> implements Closeable {
 
     protected void doRestoreOriginalState() throws SQLException {}
 
+    /**
+     * Adopts the current session state as the state that {@link #restoreOriginalState()} restores to.
+     */
+    public final void updateOriginalState() {
+        try {
+            doUpdateOriginalState();
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to update connection's original state", e);
+        }
+    }
+
+    protected void doUpdateOriginalState() throws SQLException {}
+
     public final java.sql.Connection getJdbcConnection() {
         return jdbcConnection;
     }

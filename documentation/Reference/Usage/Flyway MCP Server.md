@@ -8,7 +8,7 @@ subtitle: Flyway MCP Server
 
 **MCP** (Model Context Protocol) is an open standard that lets AI coding agents call tools exposed by an external
 server,
-instead of just reading project's files.
+instead of just reading the project's files.
 
 The **Flyway MCP** server exposes tools for the same development workflow you'd perform in Flyway Desktop or the Flyway
 CLI: inspecting changes in development database, updating the schema model and generating migration scripts. An agent
@@ -46,11 +46,23 @@ significantly, or tools may be removed, in future releases without notice.
 - A build of Flyway **13.0.0 or later** (but latest release recommended),
   [downloaded here](https://documentation.red-gate.com/fd/installers-172490864.html). You must be
   [licensed and authenticated](https://documentation.red-gate.com/fd/licensing-164167730.html) for Flyway
-  Enterprise -- check this by running `flyway version`, which reports your current license tier and version.
+  Enterprise -- check this by running `flyway version`. The first line reports your edition and version, for example
+  `Flyway Community Edition {{ site.flywayVersion }} by Redgate`; if it doesn't name an Enterprise edition, Flyway isn't licensed yet.
     - No organization-level opt-in is required beyond the license—any user licensed for Flyway Enterprise can use the
       MCP server.
+    - You don't need to install Java separately: the command-line download bundles its own Java runtime in its `jre`
+      folder.
+- A Flyway project. If you don't have one, create it with Flyway Desktop, or from the command line with
+  [`flyway init`](<Commands/Init>), for example:
+
+  ```
+  flyway init -projectName=MyProject -databaseType=<your database type>
+  ```
+
+  The MCP server doesn't need to be started from the project folder, but the agent needs that folder's path (the one
+  containing `flyway.toml`) to load the project.
 - Your project's `flyway.toml` must have both a development and a shadow environment configured under the
-  `[flywayDesktop]` namespace:
+  `[flywayDesktop]` namespace. `flyway init` adds these two settings for you:
 
 ```toml
 [flywayDesktop]
@@ -58,7 +70,24 @@ developmentEnvironment = "development"
 shadowEnvironment = "shadow"
 ```
 
-These names must correspond to environments defined in the project's `environments` namespace. The MCP tools use the
+These names must correspond to environments defined in the project's `environments` namespace. Flyway Desktop creates
+those environments when you connect a database; without it, add them to `flyway.toml` yourself, for example:
+
+```toml
+[environments.development]
+url = "<JDBC URL of your development database>"
+user = "<user>"
+password = "${localSecret.developmentPassword}"
+
+[environments.shadow]
+url = "<JDBC URL of your shadow database>"
+user = "<user>"
+password = "${localSecret.shadowPassword}"
+```
+
+[Environments](<Configuration/Environments Namespace>) lists every environment setting, and
+[secrets management](<Configuration/Flyway Namespace#FlywayNamespace-Secretsmanagementnamespaces>) describes keeping
+passwords out of the file. The MCP tools use the
 development environment to detect and apply schema changes, and the shadow environment to build migration scripts, which
 are the same environments Flyway Desktop uses.
 
@@ -159,11 +188,11 @@ account:
 - **Only use the MCP server on projects and databases you trust.** The agent reads project files and queries connected
   databases as part of normal operation, so anything it has access to should be treated as within the agent's reach.
 - **Secure every environment the server can reach.** This includes both the development and shadow environments defined
-  in your toml, not just production-like ones.
+  in your TOML, not just production-like ones.
 - **Never store credentials in plaintext.** Use Flyway's
   [secrets management](<Configuration/Flyway Namespace#FlywayNamespace-Secretsmanagementnamespaces>) functionality (e.g. environment
   variables, a secrets manager, or the local secret resolver) instead of putting passwords or tokens directly in your
-  toml.
+  TOML.
 - **Guide the agent with project instructions, not tool invocations.** Use your AI tool's project-level instructions
   file (e.g. `CLAUDE.md`) or a skill to describe the development workflow you want followed—for example, that
   database changes should be captured into the schema model before migrations are generated, or that you want to

@@ -44,6 +44,10 @@ public enum NoopCallbackExecutor implements CallbackExecutor<Event> {
     }
 
     @Override
+    public void onMainConnectionEvent(final Event event) {
+    }
+
+    @Override
     public void onMigrationConnectionEvent(final Event event) {
     }
 

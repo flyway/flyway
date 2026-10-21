@@ -11,7 +11,10 @@ This schema will then be marked with the
 [`baselineVersion`](<Configuration/Flyway Namespace/Flyway Baseline Version Setting>) before executing the migrations. 
 Only migrations above [`baselineVersion`](<Configuration/Flyway Namespace/Flyway Baseline Version Setting>) will then be applied.
 
-_Note_ - Flyway will check the [schemas](<Configuration/Environments Namespace/Environment schemas Setting>) you have specified to decide whether your database is empty. If the database appears empty and a relevant baseline script exists then Flyway will attempt to execute it as part of the migration.
+_Notes_
+
+- Flyway will check the [schemas](<Configuration/Environments Namespace/Environment schemas Setting>) you have specified to decide whether your database is empty. If the database appears empty, the baseline is skipped, which means no baseline marker will be recorded in this database.
+- This differs slightly from calling the [baseline](Commands/baseline) command directly. The `baseline` command does not check whether the database is empty, and always records a baseline marker in the [schema history table](<Configuration/Flyway Namespace/Flyway Table Setting>).
 
 ### Why should I use this ?
 

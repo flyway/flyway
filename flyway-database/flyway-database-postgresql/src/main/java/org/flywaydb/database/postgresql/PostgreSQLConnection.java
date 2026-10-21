@@ -31,18 +31,14 @@ import java.sql.SQLException;
 import java.util.concurrent.Callable;
 
 public class PostgreSQLConnection extends Connection<PostgreSQLDatabase> {
-    private final String originalRole;
+    private String originalRole;
     @Getter
     private final boolean awsRds;
 
     protected PostgreSQLConnection(final PostgreSQLDatabase database, final java.sql.Connection connection) {
         super(database, connection);
 
-        try {
-            originalRole = jdbcTemplate.queryForString("SELECT CURRENT_USER");
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to determine current user", e);
-        }
+        updateOriginalState();
 
         awsRds = rdsAdminExists();
     }
@@ -106,6 +102,11 @@ public class PostgreSQLConnection extends Connection<PostgreSQLDatabase> {
         return new PostgreSQLAdvisoryLockTemplate(database.getConfiguration(),
             jdbcTemplate,
             table.toString().hashCode()).execute(callable);
+    }
+
+    @Override
+    protected void doUpdateOriginalState() throws SQLException {
+        originalRole = jdbcTemplate.queryForString("SELECT CURRENT_USER");
     }
 
     private boolean rdsAdminExists() {

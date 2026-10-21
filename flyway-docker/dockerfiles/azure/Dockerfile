@@ -13,7 +13,7 @@ ARG FLYWAY_VERSION
 LABEL "org.opencontainers.image.version"="${FLYWAY_VERSION}"
 ENV LANG C.UTF-8
 RUN apk add --no-cache --virtual .pipeline-deps readline linux-pam \
-  && apk add bash sudo shadow openssl curl tar \
+  && apk add --upgrade bash sudo shadow openssl curl tar ca-certificates \
   && apk del .pipeline-deps
 LABEL "com.azure.dev.pipelines.agent.handler.node.path"="/usr/local/bin/node"
 WORKDIR /flyway
