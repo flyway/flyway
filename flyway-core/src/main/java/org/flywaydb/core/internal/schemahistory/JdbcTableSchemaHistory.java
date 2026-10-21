@@ -172,9 +172,14 @@ class JdbcTableSchemaHistory extends SchemaHistory {
 
     @Override
     public <T> T lock(final Callable<T> callable) {
+        return lock(callable, false);
+    }
+
+    @Override
+    public <T> T lock(final Callable<T> callable, final boolean preferSessionLock) {
         connection.restoreOriginalState();
 
-        return connection.lock(table, callable);
+        return connection.lock(table, callable, preferSessionLock);
     }
 
     @Override
