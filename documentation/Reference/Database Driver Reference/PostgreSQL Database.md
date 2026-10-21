@@ -125,6 +125,12 @@ SCRAM authentication encryption is supported transparently using the current JDB
 For how to use authentication methods, see [Connecting to environments](https://documentation.red-gate.com/flyway/database-development-using-flyway/connecting-to-environments#Connectingtoenvironments-Authentication).
 For credential storage and retrieval, see [Storing and retrieving credentials](https://documentation.red-gate.com/flyway/database-development-using-flyway/storing-and-retrieving-credentials#Storingandretrievingcredentials-Database-specificcredentialretrieval).
 
+## Role selection
+
+Use `SET ROLE` in an `afterConnect` callback to select the role for subsequent `afterConnect` callbacks and PostgreSQL migrations.
+Flyway restores this role before each migration, so role changes within a migration do not carry over to the next.
+`SET LOCAL ROLE` applies only to the callback transaction.
+
 ## Lock Types
 
 By default Flyway uses a transactional lock with PostgreSQL, however this can cause issues with certain SQL statements, most notably `CREATE INDEX CONCURRENTLY`. In this scenario, transactional locks can be replaced with session-level locks by setting `flyway.postgresql.transactional.lock=false` in your configuration.

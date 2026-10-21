@@ -110,9 +110,7 @@ public class DefaultCallbackExecutor<E extends CallbackEvent<E>> implements Call
     }
 
     private void executeAndAdoptState(final E event, final Connection connection) {
-        if (!execute(event, connection).isEmpty()) {
-            connection.updateOriginalState();
-        }
+        execute(event, connection, true);
     }
 
     @Override
@@ -165,6 +163,10 @@ public class DefaultCallbackExecutor<E extends CallbackEvent<E>> implements Call
     }
 
     private Collection<String> execute(final E event, final Connection connection) {
+        return execute(event, connection, false);
+    }
+
+    private Collection<String> execute(final E event, final Connection connection, final boolean adoptState) {
         final Context context = new SimpleContext(configuration, connection, null, null, database);
 
         final Collection<GenericCallback<E>> callbacksToExecute = callbacks.stream()
@@ -179,6 +181,9 @@ public class DefaultCallbackExecutor<E extends CallbackEvent<E>> implements Call
                     });
             } else {
                 execute(connection, callback, event, context);
+            }
+            if (adoptState) {
+                connection.updateOriginalState();
             }
         });
 
