@@ -44,13 +44,22 @@ import org.flywaydb.core.internal.util.StringUtils;
 public class NativeConnectorsProcessRunner {
     private final ProcessBuilder processBuilder;
     private final String tool;
+    private final int processTimeout;
     private final Collection<String> printStrings = new ArrayList<>();
     private boolean redirectOutput;
 
     public NativeConnectorsProcessRunner(final List<String> commands, final String tool) {
+        this(commands, tool, NativeConnectorsConfigurationExtension.DEFAULT_PROCESS_TIMEOUT);
+    }
+
+    public NativeConnectorsProcessRunner(final List<String> commands, final String tool, final int processTimeout) {
+        if (processTimeout <= 0) {
+            throw new FlywayException("Native connector process timeout must be greater than 0 seconds");
+        }
         processBuilder = new ProcessBuilder(commands);
         processBuilder.environment();
         this.tool = tool;
+        this.processTimeout = processTimeout;
     }
 
     public void addTextToPrint(final String textToAdd) {
@@ -100,9 +109,10 @@ public class NativeConnectorsProcessRunner {
         try {
             LOG.debug("Executing " + tool);
             final Process process = processBuilder.start();
-            final boolean exited = process.waitFor(5, TimeUnit.MINUTES);
+            final boolean exited = process.waitFor(processTimeout, TimeUnit.SECONDS);
             if (!exited) {
-                throw new FlywayException(tool + " execution timeout. Consider using smaller migrations");
+                throw new FlywayException(tool + " execution timeout. Increase flyway.nativeConnectors.processTimeout "
+                    + "or consider using smaller migrations");
             }
             final String stdOut = redirectOutput
                 ? getOutputFromFile(processBuilder.redirectOutput().file())
