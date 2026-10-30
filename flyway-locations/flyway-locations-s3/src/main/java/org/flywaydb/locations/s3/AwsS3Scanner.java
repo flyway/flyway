@@ -33,11 +33,13 @@ import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.scanner.cloud.CloudScanner;
 import software.amazon.awssdk.core.exception.SdkClientException;
+import software.amazon.awssdk.core.pagination.sync.SdkIterable;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3Uri;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.S3Object;
+import software.amazon.awssdk.services.s3.paginators.ListObjectsV2Iterable;
 
 @CustomLog
 public class AwsS3Scanner extends CloudScanner {
@@ -71,7 +73,7 @@ public class AwsS3Scanner extends CloudScanner {
                 .bucket(bucketName)
                 .prefix(prefix);
             final ListObjectsV2Request request = builder.build();
-            final ListObjectsV2Response listObjectResult = s3Client.listObjectsV2(request);
+            final ListObjectsV2Iterable listObjectResult = s3Client.listObjectsV2Paginator(request);
             return getLoadableResources(bucketName, listObjectResult);
         } catch (final SdkClientException e) {
 
@@ -121,8 +123,8 @@ public class AwsS3Scanner extends CloudScanner {
     }
 
     private Collection<LoadableResource> getLoadableResources(final String bucketName,
-        final ListObjectsV2Response listObjectResult) {
-        final List<S3Object> objectSummaries = listObjectResult.contents();
+        final ListObjectsV2Iterable listObjectResult) {
+        final SdkIterable<S3Object> objectSummaries = listObjectResult.contents();
         final Collection<LoadableResource> resources = new TreeSet<>();
         for (final S3Object objectSummary : objectSummaries) {
             LOG.debug("Found Amazon S3 resource: " + (bucketName + "/") + objectSummary.key());

@@ -13,10 +13,10 @@ Flyway resolves at most one SQLFluff configuration file per run. The choice depe
 | --------- | ------------------- | --------------------------------------------------- |
 | `rulesConfig` is set | That file, alone. It must exist or Flyway errors | Ignored |
 | Unset, Redgate Bundle SQLFluff active, `conf/sqlfluff.cfg` present | `conf/sqlfluff.cfg`, alone | Ignored |
-| Unset, using your own SQLFluff installation | None supplied by Flyway | SQLFluff's own [configuration searching and nesting behavior](https://docs.sqlfluff.com/en/stable/configuration/setting_configuration.html) applies |
-| Unset, Redgate Bundle SQLFluff active but `conf/sqlfluff.cfg` missing | None supplied by Flyway | SQLFluff's own [configuration searching and nesting behavior](https://docs.sqlfluff.com/en/stable/configuration/setting_configuration.html) applies |
+| Unset, using your own SQLFluff installation | None supplied by Flyway | SQLFluff's own [configuration searching and nesting behavior](https://docs.sqlfluff.com/en/stable/configuration.html) applies |
+| Unset, Redgate Bundle SQLFluff active but `conf/sqlfluff.cfg` missing | None supplied by Flyway | SQLFluff's own [configuration searching and nesting behavior](https://docs.sqlfluff.com/en/stable/configuration.html) applies |
 
-SQLFluff itself reads local configuration from up to five files - `pyproject.toml`, `.sqlfluff`, `pep8.ini`, `tox.ini` and `setup.cfg`. See SQLFluff's [configuration documentation](https://docs.sqlfluff.com/en/stable/configuration/setting_configuration.html) for how these are discovered, ordered and merged. When Flyway resolves a configuration file it suppresses all five; when it does not, all five are available to SQLFluff as normal.
+SQLFluff itself reads local configuration from up to five files - `pyproject.toml`, `.sqlfluff`, `pep8.ini`, `tox.ini` and `setup.cfg`. See SQLFluff's [configuration documentation](https://docs.sqlfluff.com/en/stable/configuration.html) for how these are discovered, ordered and merged. When Flyway resolves a configuration file it suppresses all five; when it does not, all five are available to SQLFluff as normal.
 
 A few things are always true, regardless of which row applies:
 
@@ -34,7 +34,7 @@ Redgate Bundle SQLFluff is used when Flyway is licensed for Flyway Enterprise an
 
 ## Enabling and Disabling Rules
 There are a number of ways to enable and disable rules in the SQLFluff configuration file
-[SQLFluff Rules configuration](https://docs.sqlfluff.com/en/stable/configuration/rule_configuration.html#enabling-and-disabling-rules)
+[SQLFluff Rules configuration](https://docs.sqlfluff.com/en/stable/configuration/rules.html#enabling-and-disabling-rules)
 
 The default configuration shipped with Flyway enables only a subset of SQLFluff rules, primarily those that help make your SQL statements clearer, safer, and more consistently styled. 
 It also enables a set of custom rules provided by Redgate by default.
@@ -59,8 +59,8 @@ Whether Flyway will fail or not if there is an error is governed by the [`check.
 | Rule severity | Mechanism |
 | --------------|-----------|
 | Error         | No action required |
-| Warning       | Add the rule or group to the [`[sqlfluff].warnings`](https://docs.sqlfluff.com/en/stable/configuration/rule_configuration.html#downgrading-rules-to-warnings) section |
-| Disabled      | Add the rule or group to the [`[sqlfluff].exclude_rules`](https://docs.sqlfluff.com/en/stable/configuration/rule_configuration.html#downgrading-rules-to-warnings) section |
+| Warning       | Add the rule or group to the [`[sqlfluff].warnings`](https://docs.sqlfluff.com/en/stable/configuration/rules#downgrading-rules-to-warnings) section |
+| Disabled      | Add the rule or group to the [`[sqlfluff].exclude_rules`](https://docs.sqlfluff.com/en/stable/configuration/rules#enabling-and-disabling-rules) section |
 
 ### Parameters
 Many rules have configurable options that allow you to customize their behavior. For the [standard SQLFluff rules](https://docs.sqlfluff.com/en/stable/reference/rules.html) you will see these defined in each rule in a section labeled "Configuration"
@@ -89,7 +89,7 @@ This involves adding a manual approval step to your pipeline so if Flyway's `che
 
 
 ## File level 
-This involves adding [In-File Configuration Directives](https://docs.sqlfluff.com/en/stable/configuration/setting_configuration.html#in-file-configuration-directives) to the top of your file.
+This involves adding [In-File Configuration Directives](https://docs.sqlfluff.com/en/stable/configuration/#in-file-configuration-directives) to the top of your file.
 For example, if I want to suspend rule `AM01` for this file I would add a comment to my SQL like this:
 
 ```sql
@@ -99,7 +99,7 @@ For example, if I want to suspend rule `AM01` for this file I would add a commen
 Which will prevent this rule being checked on the remainder of the file
 
 ## Section level
-This is a more localized change of policy just [ignoring a range](https://docs.sqlfluff.com/en/stable/configuration/ignoring_configuration.html#ignoring-line-ranges) of lines in the SQL
+This is a more localized change of policy just [ignoring a range](https://docs.sqlfluff.com/en/stable/configuration/ignoring#ignoring-line-ranges) of lines in the SQL
 ```sql
 -- noqa: disable = AL02
 SELECT col_a a FROM foo
@@ -107,7 +107,7 @@ SELECT col_a a FROM foo
 ```
 
 ## line level
-This is the most granular change and just [ignores violation on an individual line](https://docs.sqlfluff.com/en/stable/configuration/ignoring_configuration.html#ignoring-individual-lines)
+This is the most granular change and just [ignores violation on an individual line](https://docs.sqlfluff.com/en/stable/configuration/ignoring#ignoring-individual-lines)
 ```sql
 -- Ignore rule CP02 & rule CP03
 SeLeCt  1 from tBl ;    -- noqa: CP02,CP03

@@ -699,7 +699,7 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:com.google.re2j:re2j:Go
 <license-texts/Go-0.txt>
 -------------------------------------
 -------------------------------------
-com.h2database:h2 2.3.232
+com.h2database:h2 2.5.252
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:com.h2database:h2:(EPL-1.0_OR_MPL-2.0)
 

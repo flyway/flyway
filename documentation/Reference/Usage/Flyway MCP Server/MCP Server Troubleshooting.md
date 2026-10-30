@@ -39,6 +39,9 @@ first line should name an Enterprise edition, and the MCP server needs Flyway 13
 permit has expired, re-authenticate or refresh your permit. The
 [prerequisites](<Usage/Flyway MCP Server#FlywayMCPServer-Setup>) list the licensing requirements.
 
+The server passes its own license, offline permit and personal access token (PAT) settings on to every project it
+loads, so a licensing error can come from how the server was started, not only from the project's configuration.
+
 ## Nothing seems to happen after asking the agent to do something
 
 Every session needs to `load_project` before any other tool works. If the agent hasn't done this yet, other tool
@@ -83,6 +86,34 @@ workflow as Flyway Desktop. The [prerequisites](<Usage/Flyway MCP Server#FlywayM
 `[flywayDesktop]` and `[environments.*]` configuration. If your project only has hand-written migrations against a
 single target environment, without a development/shadow setup, these toolsets won't have the environments they need.
 
+## I expected an undo script and didn't get one
+
+Check `undoScriptsGenerated` in the `generate_migrations` response. Flyway doesn't generate undo scripts by default. It
+generates them only if one of these is true:
+
+- `flyway.generate.types` includes `undo`.
+- `flyway.generate.types` isn't set and `flywayDesktop.generate.undoScripts` is `true`.
+- The call passes `generateUndoScripts: true`.
+
+See [`generate_migrations`](<Usage/Flyway MCP Server/Tool Reference#ToolReference-generate_migrations>) for details.
+
+## Cannot apply three-sided diff
+
+`update_development` fails with this error when one object would be updated from both sides of a three-sided diff: once
+by a checkpoint change (`B/` ID) and once by a schema model change (`A/` ID). The overlap can come from the changes you
+selected or from dependencies that are pulled in automatically. Nothing is deployed, and the message lists the objects
+involved:
+
+```
+Cannot apply three-sided diff: the following objects are affected by changes selected from both the checkpoint and
+current schema model states (either directly, or pulled in as dependencies): dbo.Customer (Table). Deselect the
+overlapping change(s) from one side and try again.
+```
+
+To fix it, remove one of the overlapping IDs from `changes` and call `update_development` again with the same `diffId`.
+Keep the `A/` ID to take the schema model version of the object, or the `B/` ID to take the checkpoint version. You
+don't need to create the diff again.
+
 ## Project workspace '<id>' is not loaded
 
 Only one workspace is loaded at a time, and a workspace only lasts for the current server session. This error means the
@@ -92,7 +123,10 @@ loaded a different project (which replaces the previous workspace). Ask the agen
 
 ## No artifact found, or artifact id does not match
 
-These errors mean the `diffId` the agent used is no longer valid. The workspace keeps only one diff of each type, so
+These errors carry the error code `WORKSPACE_ARTIFACT` (the other error code is `PROJECT_NOT_LOADED`, described above). The
+messages look like `No artifact found for <diff type> in workspace`, `Artifact id does not match '<id>' for <diff type>
+in workspace.` or `No artifact found with id '<id>' in workspace`. They mean the `diffId` the agent used is no longer
+valid. The workspace keeps only one diff of each type, so
 calling a `create_diff_*` tool again invalidates the previous `diffId`, and loading a new project discards them all.
 Ask the agent to create the diff again and use the new `diffId`. The
 [Tool reference](<Usage/Flyway MCP Server/Tool Reference>) explains how workspaces and diffs work.

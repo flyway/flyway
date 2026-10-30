@@ -75,6 +75,15 @@ At this point the schema model reflects the database changes—nothing has touch
    `["V1.2__update_customer_summary_view.sql"]`, along with any `warnings` raised during generation. Each warning has
    a `file`, `message`, `type` and `severity`, so the agent can report any issues to you.
 
+   Undo scripts are off by default. If the project's `flyway.generate.types` includes `undo`, or the agent passes
+   `generateUndoScripts: true`, `files` also lists `U1.2__update_customer_summary_view.sql` and `undoScriptsGenerated`
+   is `true`.
+
+   Flyway Desktop projects may instead have `undoScripts = true` under `[flywayDesktop.generate]`. That setting is only
+   used when `flyway.generate.types` isn't set. In that case the result is the same as above: the undo script is listed
+   in `files` and `undoScriptsGenerated` is `true`. If `flyway.generate.types` is set (for example `["versioned"]`), it
+   takes precedence and no undo script is generated, unless the agent passes `generateUndoScripts: true`.
+
 ### 4. Check the script before finishing
 
 6. `test_migrate` with `workspaceId: "ws-1234"`.

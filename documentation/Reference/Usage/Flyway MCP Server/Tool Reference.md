@@ -21,6 +21,10 @@ future releases without notice. This reference describes the tools in Flyway {{s
   `create_schema_model_checkpoint`. Each change is tagged with how the schema model has moved since the checkpoint 
   (`new`, `existing`, `missing`, or `conflict`), which lets you separate changes you introduced locally from ones brought 
   in from a shared source. See `create_diff_development` for details.
+- **Change ID prefixes in a three-sided diff**: Each three-sided result carries up to two change IDs. `schemaModelDiffId`
+  (prefixed `A/`) comes from comparing the current schema model with the development database, and `checkpointDiffId`
+  (prefixed `B/`) comes from comparing the checkpoint with the development database. Pass these IDs, prefix included,
+  in the `changes` list of `update_development`. Either ID can be absent.
 
 - **Diff names**: A `create_diff_*` tool is named for what its changes are applied to, not for the direction of the
   comparison. `create_diff_schema_model` produces changes to apply to the schema model (by comparing the development
@@ -28,7 +32,7 @@ future releases without notice. This reference describes the tools in Flyway {{s
   `create_diff_development` produces changes to apply to the development database.
 - **Selectable differences**: Each `create_diff_*` tool returns a `diffId` and a list of `differences`. Each difference
   has an `id` (used in `changes` lists and as `changeId`), the object's `name` and `type`, a `change` of `Add`, `Edit`,
-  `Rename` or `Delete`, and, for a rename, its `previousName`. Calling a `create_diff_*` tool again replaces the
+  `Rename` or `Delete`, and, for a rename, its `previousName`. Where a rename is detected, the change may be reported as an edit too. Calling a `create_diff_*` tool again replaces the
   previous diff of that type, so the earlier `diffId` is no longer valid.
 - **Parameter types**: IDs (`workspaceId`, `diffId`, `migrationsDiffId`, `checkpointId` and `changeId`) are strings
   returned by earlier tool calls. Copy them exactly rather than constructing them. `changes` is an array of strings,
@@ -145,6 +149,8 @@ Returns a `diffId` and a list of `differences`.
 Generates migration scripts from a migrations diff. Scripts are named automatically using the project's configured
 naming convention.
 
+Scripts follow the naming convention of the project and the numbering convention of the previous script.
+
 Whether an undo script is also generated for each versioned script is controlled by the project's
 [`flyway.generate.types`](<Configuration/Flyway Namespace/Flyway Generate Namespace/Flyway Generate Types Setting>)
 TOML setting, e.g.:
@@ -162,6 +168,14 @@ unless overridden for this call via `generateUndoScripts`. If `flyway.generate.t
 undoScripts = true
 ```
 
+The default for `flyway.generate.types` is `["versioned"]`, so no undo scripts are generated unless you configure them
+or pass `generateUndoScripts: true`.
+
+Undo scripts are only generated alongside a versioned script. If the resulting types contain neither
+`versioned` nor `baseline` (for example `types = ["undo"]`, or `generateUndoScripts: false` on a project configured
+that way), the server adds `versioned`. If `baseline` is in the types, `versioned` is not added, and asking for an
+undo script as well fails with `Cannot generate an undo script for a baseline migration`.
+
 | Parameter             | Required | Description                                                                                                                                          |
 |------------------------|----------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `workspaceId`          | Yes      | Workspace ID from `load_project`.                                                                                                                   |
@@ -171,8 +185,9 @@ undoScripts = true
 | `generateUndoScripts`  | No       | Whether to also generate an undo script. If unset, follows the project's `flyway.generate.types` setting; if true/false, overrides it for this call only. |
 
 Returns the `migrationFolder` path, the list of generated `files` (relative to that folder), any `warnings` raised during
-generation (each with a `file`, `message`, `type` and `severity`), and whether undo scripts were generated
-(`undoScriptsGenerated`).
+generation (each with a `file`, `message`, `type` and `severity` of `Low`, `Medium` or `High`), and whether undo scripts
+were generated (`undoScriptsGenerated`). `files` also includes each script's config file alongside the migration script
+itself.
 
 ### review_code
 
@@ -186,6 +201,10 @@ review configuration, as `flyway check -code` does.
 
 Returns the absolute path of the reviewed file, the list of issues (rule violations) found, the definitions of the
 violated rules, and `total_rules_checked` (the number of rules evaluated).
+
+Each issue has a `code` (the violated rule), `line` and `column` where it begins, and `line_end` and `column_end` where
+it ends. Each definition has the `engine` that produced the rule, its `code`, a `title` and a `severity` of `Error` or
+`Warning`.
 
 ### test_migrate
 
@@ -216,15 +235,39 @@ brought in from a shared source versus your own local edits.
 | `workspaceId`  | Yes      | Workspace ID from `load_project`.                                       |
 | `checkpointId` | No       | Checkpoint ID from `create_schema_model_checkpoint`, to enable a three-sided diff. |
 
-Returns a `diffId` and a list of `differences`. When `checkpointId` is supplied, also returns
-`threeSidedDifferences`—the same differences, each tagged with how the schema model has moved since the checkpoint
-(new, existing, missing, or conflict).
+Returns a `diffId`, a list of `differences` and, when `checkpointId` is supplied, a list of `threeSidedDifferences`. With a `checkpointId`, `differences` is empty and
+the results are in `threeSidedDifferences`. Without one, `threeSidedDifferences` is empty and the results are in
+`differences`.
+
+Each three-sided result has a `name`, a `type`, a `changeType`, and up to two change IDs: `checkpointDiffId` (`B/`
+prefix) and `schemaModelDiffId` (`A/` prefix). Either can be absent. The `changeType` is `<Action> <group>`, where the
+action is `Add`, `Edit` or `Delete` and the group is one of:
+
+| Group      | Meaning                                                                                                                                                 |
+|------------|---------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `existing` | The schema model still matches the checkpoint; only the development database has drifted. Apply to reconcile the development database.                  |
+| `new`      | The schema model has moved since the checkpoint; the development database still matches the checkpoint. Apply to reconcile.                            |
+| `missing`  | The schema model and development database agree, but both differ from the checkpoint. No reconciliation needed; apply only to revert to the checkpoint. |
+| `conflict` | The schema model and development database have each moved since the checkpoint and no longer agree. Resolve manually.                                   |
+
+That gives twelve values, such as `Add existing`, `Edit conflict` and `Delete missing`.
 
 ### update_development
 
 Applies selected changes from a development diff to the development database. **This modifies the database that your
-`flywayDesktop.developmentEnvironment` points at.** For supported database types, a dependency of a selected change
+`flywayDesktop.developmentEnvironment` points at**, and the deployment is forced (the underlying `prepare` runs with `force` set), so it doesn't stop for
+the checks a normal deployment would. For supported database types, a dependency of a selected change
 is included automatically and, where available, listed in `objects`.
+
+For a three-sided diff, you can mix `A/` and `B/` change IDs in `changes`. Checkpoint-side (`B/`) changes are applied
+first, then schema model side (`A/`) changes. `*` selects every change from the current schema model side only.
+
+A single object can't be updated from both sides in one call. If the selected changes, including any dependencies that
+are pulled in automatically, touch the same object from both the checkpoint and the schema model, the call fails before
+anything is deployed and the error names the overlapping objects. To fix it, remove one of the overlapping IDs from
+`changes` and call `update_development` again with the same `diffId`. For example, if `dbo.Customer` appears as both
+`B/chg-4` and `A/chg-9`, send `["A/chg-9"]` to take the schema model version, or `["B/chg-4"]` to take the checkpoint
+version.
 
 | Parameter     | Required | Description                                          |
 |---------------|----------|------------------------------------------------------|
@@ -236,6 +279,15 @@ Returns `changesDeployed` (a boolean indicating whether a deployment action was 
 may be `false` if no changes were selected) and `objects`, the list of objects updated in the development database,
 each with a `name`, a `type` and where the update came from (`origin`). `objects` is only given for some database types,
 and is omitted when nothing was applied.
+
+`origin` is one of:
+
+| Origin                    | Meaning                                                      |
+|---------------------------|--------------------------------------------------------------|
+| `Selected schema model`   | You selected the change, and it came from the schema model.  |
+| `Selected checkpoint`     | You selected the change, and it came from the checkpoint.    |
+| `Dependency schema model` | Pulled in as a dependency of a selected schema model change. |
+| `Dependency checkpoint`   | Pulled in as a dependency of a selected checkpoint change.   |
 
 ### get_diff_details
 

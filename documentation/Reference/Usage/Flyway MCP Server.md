@@ -100,6 +100,10 @@ explicitly if you want undo scripts generated alongside versioned ones:
 types = ["versioned", "undo"]
 ```
 
+The default is `["versioned"]`, so no undo scripts are generated unless you set this. Undo scripts are only generated
+alongside a versioned script, so a setting of `["undo"]` on its own also generates versioned scripts. See
+[`generate_migrations`](<Usage/Flyway MCP Server/Tool Reference#ToolReference-generate_migrations>) for the details.
+
 ### 2. Choose toolsets
 
 The server only exposes the tools in the toolsets you enable, and you **must** enable at least one with the

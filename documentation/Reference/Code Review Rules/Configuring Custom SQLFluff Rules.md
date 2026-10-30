@@ -10,7 +10,7 @@ This is useful when you have policy that is specific to your team or product for
 ## Prerequisites
 
 - A version of Flyway that supports [`check.sqlfluffCustomRulesPath`](<Configuration/Flyway Namespace/Flyway Check Namespace/Flyway Check SQLFluff Custom Rules Location Setting>) ([see release notes](https://documentation.red-gate.com/flyway/release-notes-and-older-versions/release-notes-for-flyway-engine)).
-- Familiarity with [authoring SQLFluff rules](https://docs.sqlfluff.com/en/stable/perma/rules.html). The Flyway integration uses standard SQLFluff plugin API there is no rule API specific to Flyway to learn.
+- Familiarity with [authoring SQLFluff rules](https://docs.sqlfluff.com/en/stable/reference/rules.html). The Flyway integration uses standard SQLFluff plugin API there is no rule API specific to Flyway to learn.
 
 ## Configuration
 
@@ -30,7 +30,7 @@ flyway check -code -check.sqlfluffCustomRulesPath="/code-review-rules"
 The path must be a directory that:
 
 - exists, and
-- contains an `__init__.py` file (i.e. it is a Python package that follows the [SQLFluff plugin layout](https://docs.sqlfluff.com/en/stable/configuration/plugin_configuration.html)).
+- contains an `__init__.py` file (i.e. it is a Python package that follows the [SQLFluff plugin layout](https://docs.sqlfluff.com/en/stable/development/plugins.html)).
 
 If either of these is not true, `check -code` aborts with a clear error rather than running with rules silently missing:
 

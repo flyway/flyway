@@ -47,6 +47,9 @@ the target database which underlies the report.
 This approach will detect all drift from what is in the migrations, regardless of whether it has occurred since the last
 deployment or was pre-existing.
 
+Please note: using this approach populates the applied migrations from the schema history table of the target environment, here called "production".
+As a result of this, the same behavior will be applied to the build environment, for example, if a baseline should be run or not.
+
 ### Generating report based upon applied migrations
 
 ```bash

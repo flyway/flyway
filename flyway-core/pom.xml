@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>13.11.1</version>
+    <version>13.12.0</version>
   </parent>
   <artifactId>flyway-core</artifactId>
   <packaging>jar</packaging>
@@ -56,6 +56,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.jetbrains</groupId>

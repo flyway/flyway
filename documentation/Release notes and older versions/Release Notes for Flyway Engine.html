@@ -9,6 +9,54 @@
 <div class="col-md-9">
 <!-- BEGIN db-generated release notes -->
   <div class="release">
+        <h2 id="13.12.0">Flyway 13.12.0 (2026-10-30)</h2>
+
+        <h3>New features</h3>
+        <ul>
+            <li>The check report now warns when objects that have drifted will also be changed by the deployment</li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/4272">Issue 4272</a>
+                With the H2 2.5.252 driver, `LENGTH()` on binary values returns the number of bytes rather than the number of decoded characters
+            </li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Databricks browser sign-in no longer fails when DATABRICKS_CLIENT_SECRET, ARM_CLIENT_SECRET or a named profile's client secret is set</li>
+            <li>Flyway can handle more than 1000 migrations from an S3 bucket</li>
+            <li>SQL Server drift incorporate migrations now include object existence checks, so they can be run against databases that already contain the drifted objects</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/4280">Issue 4280</a>
+                `jackson-annotations` is now an optional dependency of `flyway-core`
+            </li>
+        </ul>
+
+        <h3>Library upgrades</h3>
+        <ul>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/4272">Issue 4272</a>
+                Upgraded com.h2database:h2 from 2.3.232 to 2.5.252
+            </li>
+            <li>Update msal4j to 1.23.1 to address vulnerabilities in transitive dependencies json-smart and asm</li>
+        </ul>
+
+        <h3>Internal dependency</h3>
+        <ul>
+            <li>Upgraded RgCompare to 1.73.0.6434</li>
+        </ul>
+
+  </div>
+
+
+  <div class="release">
         <h2 id="13.11.1">Flyway 13.11.1 (2026-10-21)</h2>
 
         <h3>Changes</h3>
@@ -42,11 +90,6 @@
                 <a href="https://github.com/flyway/flyway/issues/4286">Issue 4286</a>
                 PostgreSQL session role changes made in an `afterConnect` callback (e.g. `SET ROLE`) now persist into migrations, matching the behaviour of `initSql`
             </li>
-        </ul>
-
-        <h3>Internal dependency</h3>
-        <ul>
-            <li>Upgraded RgCompare to 1.68.1.6299</li>
         </ul>
 
   </div>

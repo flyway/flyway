@@ -2,6 +2,7 @@ Clickhouse
 Databricks
 Informix
 (?i)Lakebase
+(?i)Lakehouse
 MariaDB
 Percona
 Sybase
