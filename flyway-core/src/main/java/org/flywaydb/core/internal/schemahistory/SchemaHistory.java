@@ -60,6 +60,18 @@ public abstract class SchemaHistory {
     public abstract <T> T lock(Callable<T> callable);
 
     /**
+     * Acquires an exclusive read-write lock on the schema history table. This lock will be released automatically upon
+     * completion.
+     *
+     * @param preferSessionLock Whether a session-scoped lock should be used instead of a transactional one, when the
+     * database implementation supports the distinction. Ignored by implementations that don't.
+     * @return The result of the action.
+     */
+    public <T> T lock(final Callable<T> callable, final boolean preferSessionLock) {
+        return lock(callable);
+    }
+
+    /**
      * @return Whether the schema history table exists.
      */
     public abstract boolean exists();
