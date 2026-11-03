@@ -146,6 +146,13 @@ flyway.migrate();
 
 See [configuration](Configuration) for a full list of supported configuration parameters.
 
+### Optional Jackson dependencies
+
+`flyway-core` declares `jackson-databind` and `jackson-annotations` as optional dependencies. Basic Java API
+operations, including migrating, validating, and inspecting migration history, can run without Jackson.
+For functionality that requires Jackson, such as configuring extensions through a property map, add
+`tools.jackson.core:jackson-databind` to your application. It brings in the required Jackson annotations transitively.
+
 ### JDBC Drivers
 
 You will need to include the relevant JDBC driver for your chosen database as a dependency in your Java project.
