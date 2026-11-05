@@ -20,7 +20,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.flywaydb</groupId>
   <artifactId>flyway-parent</artifactId>
-  <version>13.12.0</version>
+  <version>13.12.1</version>
   <packaging>pom</packaging>
   <name>${project.artifactId}</name>
   <description>Flyway: Database Migrations Made Easy.</description>
@@ -58,34 +58,6 @@
     <module>flyway-nc</module>
     <module>flyway-shades</module>
     <module>flyway-command</module>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   </modules>
 
   <repositories>
@@ -181,6 +153,7 @@
     <version.springjdbc>5.3.19</version.springjdbc>
     <version.sqlite>3.50.3.0</version.sqlite>
     <version.surefire>3.5.5</version.surefire>
+    <version.mockito>5.23.0</version.mockito>
     <version.testcontainers>1.21.4</version.testcontainers>
   </properties>
 
@@ -693,16 +666,14 @@
           <artifactId>maven-bundle-plugin</artifactId>
           <version>5.1.8</version>
         </plugin>
-
-
-
-
-
-
-
-
-
-
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${version.surefire}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <version>${version.surefire}</version>
+        </plugin>
         <plugin>
           <artifactId>maven-dependency-plugin</artifactId>
           <version>3.11.0</version>
@@ -833,79 +804,77 @@
           </gpgArguments>
         </configuration>
       </plugin>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <argLine>-javaagent:${settings.localRepository}/org/mockito/mockito-core/${version.mockito}/mockito-core-${version.mockito}.jar -Xshare:off</argLine>
+          <groups>${flyway-test.groups}</groups>
+          <properties>
+            <property>
+              <name>listener</name>
+              <value>org.junit.platform.launcher.listeners.LoggingListener</value>
+            </property>
+          </properties>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <configuration>
+          <systemPropertyVariables>
+            <user.timezone>+00:00</user.timezone>
+          </systemPropertyVariables>
+          <argLine>-XX:ReservedCodeCacheSize=128m -Xmx4096m -javaagent:${settings.localRepository}/org/mockito/mockito-core/${version.mockito}/mockito-core-${version.mockito}.jar -Xshare:off</argLine>
+          <groups>${flyway-test.groups}</groups>
+          <properties>
+            <property>
+              <name>listener</name>
+              <value>org.junit.platform.launcher.listeners.LoggingListener</value>
+            </property>
+          </properties>
+          <includes>
+            <include>**/*Test.java</include>
+          </includes>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>enforce-jdk9-or-later-to-build</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireJavaVersion>
+                  <version>[9,)</version>
+                </requireJavaVersion>
+              </rules>
+            </configuration>
+          </execution>
+          <execution>
+            <id>require-plugin-versions</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requirePluginVersions>
+                  <unCheckedPluginList>${project.groupId}:flyway-maven-plugin,org.flywaydb:flyway-maven-plugin</unCheckedPluginList>
+                </requirePluginVersions>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 
@@ -923,6 +892,28 @@
   </reporting>
 
   <profiles>
+    <profile>
+      <id>redgate-modules</id>
+      <activation>
+        <file>
+          <exists>${basedir}/flyway-reactor-redgate/pom.xml</exists>
+        </file>
+      </activation>
+      <modules>
+        <module>flyway-reactor-redgate</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>test-modules</id>
+      <activation>
+        <file>
+          <exists>${basedir}/flyway-reactor-test/pom.xml</exists>
+        </file>
+      </activation>
+      <modules>
+        <module>flyway-reactor-test</module>
+      </modules>
+    </profile>
     <profile>
       <id>sign-artifacts</id>
       <build>

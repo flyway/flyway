@@ -22,6 +22,10 @@
     {
       "name": "Python",
       "license_file": "python-psf-license-2.txt"
+    },
+    {
+      "name": "Roboto and Roboto Mono fonts",
+      "license_file": "roboto-apache-2.txt"
     }
   ],
   "overrides": {
@@ -54,19 +58,19 @@
       "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:azure.core:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:azure.storage.blobs:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:azure.storage.common:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:bouncycastle.cryptography:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:pip:chardet:LGPL-2.1": {
@@ -90,27 +94,27 @@
       "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:com.azure:azure-core:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:com.azure:azure-core-http-netty:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:com.azure:azure-identity:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:com.azure:azure-json:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:com.azure:azure-monitor-opentelemetry-exporter:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:com.azure:azure-xml:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:com.couchbase.client:core-io:Apache-2.0": {
@@ -186,7 +190,7 @@
       "sha256": "6a819476b0089433517f9131080e953eafb91c35ab08752c47e439d8b3330e8c"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:com.github.jnr:jnr-x86asm:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:com.github.spotbugs:spotbugs-annotations:LGPL-2.1": {
@@ -198,7 +202,7 @@
       "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:com.github.zafarkhaja:java-semver:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:com.google.android:annotations:Apache-2.0": {
@@ -430,15 +434,15 @@
       "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:com.microsoft.azure:msal4j:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:com.microsoft.azure:msal4j-persistence-extension:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:com.microsoft.sqlserver:mssql-jdbc:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:commons-codec:commons-codec:Apache-2.0": {
@@ -534,7 +538,7 @@
       "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
     },
     "https://app.snyk.io/vuln/snyk:lic:pip:iniconfig:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:io.dropwizard.metrics:metrics-core:Apache-2.0": {
@@ -818,7 +822,7 @@
       "sha256": "6a819476b0089433517f9131080e953eafb91c35ab08752c47e439d8b3330e8c"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:jetbrains.annotations:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:pip:jinja2:BSD-2-Clause": {
@@ -834,63 +838,63 @@
       "sha256": "1934ed7b93e49392abfc7b081929bd0ec62e5238a4b0654954cf3091083e2a74"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:microsoft.applicationinsights:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:microsoft.bcl.asyncinterfaces:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:microsoft.csharp:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:microsoft.data.sqlite:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:microsoft.data.sqlite.core:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:microsoft.extensions.dependencyinjection:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:microsoft.extensions.dependencyinjection.abstractions:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:microsoft.extensions.logging:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:microsoft.extensions.logging.abstractions:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:microsoft.extensions.options:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:microsoft.extensions.primitives:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:microsoft.identitymodel.abstractions:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:microsoft.identitymodel.jsonwebtokens:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:microsoft.identitymodel.logging:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:microsoft.identitymodel.tokens:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:microsoft.netcore.platforms:Microsoft-.NET-Library": {
@@ -902,11 +906,11 @@
       "sha256": "8a367b6f063cc078ba6a55ad683ff78073adff7e13185609b7c038c95bc0f457"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:mono.unix:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:mysqlconnector:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:net.java.dev.jna:jna:(Apache-2.0_OR_LGPL-2.1)": {
@@ -938,7 +942,7 @@
       "sha256": "6b6255aa0afecc112bc296c39b5ed3d25d944a622e02b8635630da049f6c5297"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:newtonsoft.json:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:npgsql:PostgreSQL": {
@@ -1042,19 +1046,19 @@
       "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:org.bouncycastle:bcpkix-jdk18on:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:org.bouncycastle:bcprov-jdk18on:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:org.bouncycastle:bcutil-jdk18on:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:org.checkerframework:checker-qual:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:org.codehaus.groovy:groovy-all:Apache-2.0": {
@@ -1062,7 +1066,7 @@
       "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:org.codehaus.mojo:animal-sniffer-annotations:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:org.codehaus.plexus:plexus-cipher:Apache-2.0": {
@@ -1270,7 +1274,7 @@
       "sha256": "8acd6a0c692b8aeda542da4ea4f69b14586d2953141d6c0b39b9bc7bd044afd4"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:org.projectlombok:lombok:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:org.reactivestreams:reactive-streams:CC0-1.0": {
@@ -1282,15 +1286,15 @@
       "sha256": "f0f4a5977de2e4310448d4a64025fcc9e4c73d457504ae220a415a0501c5acf2"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:org.semver4j:semver4j:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:org.slf4j:slf4j-api:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:org.slf4j:slf4j-nop:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:org.threeten:threetenbp:BSD-3-Clause": {
@@ -1310,11 +1314,11 @@
       "sha256": "8f413228f933ccc758b10bdf85bd48353cf31b9eba859c2ff6acdd454f9a5e0b"
     },
     "https://app.snyk.io/vuln/snyk:lic:pip:platformdirs:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:pip:pluggy:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:pip:pygments:BSD-2-Clause": {
@@ -1322,11 +1326,11 @@
       "sha256": "8acd6a0c692b8aeda542da4ea4f69b14586d2953141d6c0b39b9bc7bd044afd4"
     },
     "https://app.snyk.io/vuln/snyk:lic:pip:pytest:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:pip:pyyaml:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:quikgraph:MS-PL": {
@@ -1490,43 +1494,43 @@
       "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:system.codedom:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:system.commandline:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:system.commandline.namingconventionbinder:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:system.diagnostics.diagnosticsource:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:system.identitymodel.tokens.jwt:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:system.io.hashing:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:system.management:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:system.memory:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:system.memory.data:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:system.numerics.vectors:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:system.runtime:Microsoft-.NET-Library": {
@@ -1534,7 +1538,7 @@
       "sha256": "8a367b6f063cc078ba6a55ad683ff78073adff7e13185609b7c038c95bc0f457"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:system.security.cryptography.cng:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:system.text.encoding:Microsoft-.NET-Library": {
@@ -1542,11 +1546,11 @@
       "sha256": "8a367b6f063cc078ba6a55ad683ff78073adff7e13185609b7c038c95bc0f457"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:system.text.encodings.web:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:system.text.json:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:system.text.regularexpressions:Microsoft-.NET-Library": {
@@ -1554,7 +1558,7 @@
       "sha256": "8a367b6f063cc078ba6a55ad683ff78073adff7e13185609b7c038c95bc0f457"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:system.threading.tasks.extensions:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:pip:tblib:BSD-2-Clause": {
@@ -1566,7 +1570,7 @@
       "sha256": "8acd6a0c692b8aeda542da4ea4f69b14586d2953141d6c0b39b9bc7bd044afd4"
     },
     "https://app.snyk.io/vuln/snyk:lic:pip:tqdm:MPL-2.0_AND_MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:pip:certifi:MPL-2.0": {
@@ -1578,7 +1582,7 @@
       "sha256": "f0f4a5977de2e4310448d4a64025fcc9e4c73d457504ae220a415a0501c5acf2"
     },
     "https://app.snyk.io/vuln/snyk:lic:pip:chardet:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:pip:chardet:0BSD": {
@@ -1586,15 +1590,15 @@
       "sha256": "e9e1b2278b59fbe3414e158aa804543d4872338b4bf198f0324294a16b7f2c22"
     },
     "https://app.snyk.io/vuln/snyk:lic:pip:charset-normalizer:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:com.azure:azure-monitor-opentelemetry-autoconfigure:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:com.azure:azure-security-keyvault-secrets:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:com.datastax.astra:astra-sdk-devops:Apache-2.0": {
@@ -1658,7 +1662,7 @@
       "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
     },
     "https://app.snyk.io/vuln/snyk:lic:pip:exceptiongroup:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:pip:idna:BSD-3-Clause": {
@@ -1666,15 +1670,15 @@
       "sha256": "1934ed7b93e49392abfc7b081929bd0ec62e5238a4b0654954cf3091083e2a74"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:io.modelcontextprotocol.sdk:mcp:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:io.modelcontextprotocol.sdk:mcp-core:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:io.modelcontextprotocol.sdk:mcp-json-jackson3:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:javax.validation:validation-api:Apache-2.0": {
@@ -1682,7 +1686,7 @@
       "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
     },
     "https://app.snyk.io/vuln/snyk:lic:pip:more-itertools:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:net.bytebuddy:byte-buddy:Apache-2.0": {
@@ -1742,7 +1746,7 @@
       "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:org.rnorth.duct-tape:duct-tape:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:org.slf4j:jcl-over-slf4j:Apache-2.0": {
@@ -1754,35 +1758,35 @@
       "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:org.testcontainers:cockroachdb:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:org.testcontainers:database-commons:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:org.testcontainers:db2:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:org.testcontainers:jdbc:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:org.testcontainers:junit-jupiter:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:org.testcontainers:mariadb:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:org.testcontainers:postgresql:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:org.testcontainers:testcontainers:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:pip:pycparser:BSD-3-Clause": {
@@ -1794,7 +1798,7 @@
       "sha256": "6b6255aa0afecc112bc296c39b5ed3d25d944a622e02b8635630da049f6c5297"
     },
     "https://app.snyk.io/vuln/snyk:lic:pip:pyjwt:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:pip:pynacl:Apache-2.0": {
@@ -1822,11 +1826,11 @@
       "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
     },
     "https://app.snyk.io/vuln/snyk:lic:nuget:timezoneconverter:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:pip:tomli:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:tools.jackson.dataformat:jackson-dataformat-yaml:Apache-2.0": {
@@ -1838,16 +1842,212 @@
       "sha256": "520340630ec1277287b24481e00d2f0bf13b475f29b54f8af73ff9861b190b14"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:uk.org.webcompere:system-stubs-core:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:maven:uk.org.webcompere:system-stubs-jupiter:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
     },
     "https://app.snyk.io/vuln/snyk:lic:pip:urllib3:MIT": {
-      "path": "cached/MIT-0.txt",
+      "path": "cached/MIT-1.txt",
       "sha256": "d7e7b6fc80acb28e65c2beafe25fc7bda78164830bce5f91672b446f131163b3"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:nuget:apache.arrow:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:nuget:apache.arrow.scalars:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:npm:babel:runtime:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "a69371ea7140f1269a63696afdbb92ba0ccd68bcd6def2013ccd4aed683e38ad"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:npm:clsx:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "a69371ea7140f1269a63696afdbb92ba0ccd68bcd6def2013ccd4aed683e38ad"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:com.databricks:databricks-sdk-java:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:com.fasterxml.jackson.datatype:jackson-datatype-guava:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:com.fasterxml.jackson.datatype:jackson-datatype-jdk8:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:npm:diff:BSD-3-Clause": {
+      "path": "cached/BSD-3-Clause-0.txt",
+      "sha256": "1934ed7b93e49392abfc7b081929bd0ec62e5238a4b0654954cf3091083e2a74"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:npm:emotion:cache:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "a69371ea7140f1269a63696afdbb92ba0ccd68bcd6def2013ccd4aed683e38ad"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:npm:emotion:hash:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "a69371ea7140f1269a63696afdbb92ba0ccd68bcd6def2013ccd4aed683e38ad"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:npm:emotion:is-prop-valid:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "a69371ea7140f1269a63696afdbb92ba0ccd68bcd6def2013ccd4aed683e38ad"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:npm:emotion:memoize:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "a69371ea7140f1269a63696afdbb92ba0ccd68bcd6def2013ccd4aed683e38ad"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:npm:emotion:react:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "a69371ea7140f1269a63696afdbb92ba0ccd68bcd6def2013ccd4aed683e38ad"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:npm:emotion:serialize:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "a69371ea7140f1269a63696afdbb92ba0ccd68bcd6def2013ccd4aed683e38ad"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:npm:emotion:sheet:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "a69371ea7140f1269a63696afdbb92ba0ccd68bcd6def2013ccd4aed683e38ad"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:npm:emotion:styled:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "a69371ea7140f1269a63696afdbb92ba0ccd68bcd6def2013ccd4aed683e38ad"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:npm:emotion:unitless:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "a69371ea7140f1269a63696afdbb92ba0ccd68bcd6def2013ccd4aed683e38ad"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:npm:emotion:use-insertion-effect-with-fallbacks:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "a69371ea7140f1269a63696afdbb92ba0ccd68bcd6def2013ccd4aed683e38ad"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:npm:emotion:utils:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "a69371ea7140f1269a63696afdbb92ba0ccd68bcd6def2013ccd4aed683e38ad"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:npm:hoist-non-react-statics:BSD-3-Clause": {
+      "path": "cached/BSD-3-Clause-0.txt",
+      "sha256": "1934ed7b93e49392abfc7b081929bd0ec62e5238a4b0654954cf3091083e2a74"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-codec-classes-quic:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-codec-http3:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:io.netty:netty-codec-native-quic:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:jakarta.annotation:jakarta.annotation-api:(EPL-2.0_OR_GPL-2.0-with-classpath-exception)": {
+      "path": "cached/EPL-1.0_OR_GPL-2.0_OR_LGPL-2.1-0.txt",
+      "sha256": "6a819476b0089433517f9131080e953eafb91c35ab08752c47e439d8b3330e8c"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:nuget:microsoft.bcl.cryptography:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "a69371ea7140f1269a63696afdbb92ba0ccd68bcd6def2013ccd4aed683e38ad"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:nuget:microsoft.extensions.configuration.abstractions:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "a69371ea7140f1269a63696afdbb92ba0ccd68bcd6def2013ccd4aed683e38ad"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:nuget:microsoft.extensions.diagnostics.abstractions:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "a69371ea7140f1269a63696afdbb92ba0ccd68bcd6def2013ccd4aed683e38ad"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:nuget:microsoft.extensions.fileproviders.abstractions:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "a69371ea7140f1269a63696afdbb92ba0ccd68bcd6def2013ccd4aed683e38ad"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:nuget:microsoft.extensions.hosting.abstractions:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "a69371ea7140f1269a63696afdbb92ba0ccd68bcd6def2013ccd4aed683e38ad"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:nuget:microsoft.identity.client:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "a69371ea7140f1269a63696afdbb92ba0ccd68bcd6def2013ccd4aed683e38ad"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:nuget:microsoft.identity.client.extensions.msal:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "a69371ea7140f1269a63696afdbb92ba0ccd68bcd6def2013ccd4aed683e38ad"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:npm:mui:icons-material:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "a69371ea7140f1269a63696afdbb92ba0ccd68bcd6def2013ccd4aed683e38ad"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:npm:mui:lab:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "a69371ea7140f1269a63696afdbb92ba0ccd68bcd6def2013ccd4aed683e38ad"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:npm:mui:material:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "a69371ea7140f1269a63696afdbb92ba0ccd68bcd6def2013ccd4aed683e38ad"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:npm:mui:private-theming:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "a69371ea7140f1269a63696afdbb92ba0ccd68bcd6def2013ccd4aed683e38ad"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:npm:mui:styled-engine:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "a69371ea7140f1269a63696afdbb92ba0ccd68bcd6def2013ccd4aed683e38ad"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:npm:mui:system:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "a69371ea7140f1269a63696afdbb92ba0ccd68bcd6def2013ccd4aed683e38ad"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:npm:mui:utils:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "a69371ea7140f1269a63696afdbb92ba0ccd68bcd6def2013ccd4aed683e38ad"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:org.apache.commons:commons-configuration2:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:org.jline:jansi:BSD-2-Clause": {
+      "path": "cached/Apache-2.0_OR_BSD-2-Clause_OR_MIT_OR_Protobuf-0.txt",
+      "sha256": "8acd6a0c692b8aeda542da4ea4f69b14586d2953141d6c0b39b9bc7bd044afd4"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:npm:react:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "a69371ea7140f1269a63696afdbb92ba0ccd68bcd6def2013ccd4aed683e38ad"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:npm:react-dom:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "a69371ea7140f1269a63696afdbb92ba0ccd68bcd6def2013ccd4aed683e38ad"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:npm:react-is:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "a69371ea7140f1269a63696afdbb92ba0ccd68bcd6def2013ccd4aed683e38ad"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:npm:react-transition-group:BSD-3-Clause": {
+      "path": "cached/BSD-3-Clause-0.txt",
+      "sha256": "1934ed7b93e49392abfc7b081929bd0ec62e5238a4b0654954cf3091083e2a74"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:npm:scheduler:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "a69371ea7140f1269a63696afdbb92ba0ccd68bcd6def2013ccd4aed683e38ad"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:maven:software.amazon.awssdk:apache5-client:Apache-2.0": {
+      "path": "cached/Apache-2.0-0.txt",
+      "sha256": "4b89e2ad7b757f99b0f9b2f24dc5c7cd302fd9b5f20f05cafc8b1bafb28bab63"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:npm:stylis:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "a69371ea7140f1269a63696afdbb92ba0ccd68bcd6def2013ccd4aed683e38ad"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:nuget:system.clientmodel:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "a69371ea7140f1269a63696afdbb92ba0ccd68bcd6def2013ccd4aed683e38ad"
+    },
+    "https://app.snyk.io/vuln/snyk:lic:nuget:system.security.cryptography.protecteddata:MIT": {
+      "path": "cached/MIT-0.txt",
+      "sha256": "a69371ea7140f1269a63696afdbb92ba0ccd68bcd6def2013ccd4aed683e38ad"
     }
   }
 }

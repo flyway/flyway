@@ -24,6 +24,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.BiFunction;
 import lombok.CustomLog;
@@ -62,17 +63,6 @@ public class NativeConnectorsSqlite extends NativeConnectorsJdbc {
     }
 
     @Override
-    public boolean schemaHistoryTableExists(final String tableName) {
-        try (final Statement statement = connection.createStatement()) {
-            final ResultSet resultSet = statement.executeQuery(
-                "SELECT name FROM sqlite_master WHERE type='table' AND name='" + tableName + "'");
-            return resultSet.next();
-        } catch (final SQLException e) {
-            throw new FlywayException(e);
-        }
-    }
-
-    @Override
     protected boolean supportsSchema() {
         return false;
     }
@@ -89,11 +79,10 @@ public class NativeConnectorsSqlite extends NativeConnectorsJdbc {
 
     @Override
     public boolean isSchemaEmpty(final String schema) {
-        try (final Statement statement = connection.createStatement()) {
-            final ResultSet resultSet = statement.executeQuery("SELECT tbl_name FROM sqlite_master WHERE type='table'");
-            final List<String> result = new ArrayList<>();
+        try (final ResultSet resultSet = connection.getMetaData().getTables(getCatalog(), schema, null, new String[]{"TABLE"})) {
+            final Collection<String> result = new ArrayList<>();
             while (resultSet.next()) {
-                result.add(resultSet.getString(1));
+                result.add(resultSet.getString("TABLE_NAME"));
             }
             final List<String> ignoredSystemTableNames = List.of("android_metadata", "sqlite_sequence");
 

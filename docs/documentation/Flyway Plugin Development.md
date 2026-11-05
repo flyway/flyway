@@ -41,36 +41,3 @@ The `ConfigurationExtension` interface (`org.flywaydb.core.extensibility.Configu
 `ConfigurationExtensions` require the following methods to be implemented:
 * `String getNamespace()` - This is the namespace for the configuration option under the `flyway` configuration domain. This is used to group configuration options together. For example the configuration `flyway.postgresql.transactional.lock` has the namespace `postgresql`
 * `String getConfigurationParameterFromEnvironmentVariable(String environmentVariable)` - This is used to get the configuration parameter from an environment variable. This is used to allow users to set configuration options via environment variables. For example, the configuration `flyway.postgresql.transactional.lock` can be set via the environment variable `FLYWAY_POSTGRESQL_TRANSACTIONAL_LOCK`. This is only necessary for legacy Flyway configuration. If you are using new Flyway configuration, the Environment Variable format will by default be screaming snake case of your configuration option's path. 
-
-## Flyway Plugin Archetype
-To make it easier to create plugins for Flyway, we have created a Maven archetype to create a basic plugin project.
-This archetype can be found in the `flyway-plugins/flyway-plugin-archetype` module in the `flyway` repository.
-
-### Installing locally
-If you wish to compile the Flyway Plugin Archetype locally, you can do so by running the following command from the root of the `flyway` repository:
-
-    mvn clean install -DskipTests -DskipIts -pl flyway-plugins/flyway-plugin-archetype -am
-
-### Using the archetype
-To create a new Flyway plugin project via commandline, run the following command:
-
-    mvn archetype:generate -DarchetypeGroupId=org.flywaydb 
-                           -DarchetypeArtifactId=flyway-plugin-archetype
-                           -DarchetypeVersion=10.0.0
-                           -DgroupId=org.flywaydb 
-                           -DartifactId=my-flyway-plugin
-                           -Dversion=10.0.1-SNAPSHOT
-                           -Dpackage=org.flywaydb.community.database.myflywayplugin
-
-If using IntelliJ, you can create a new project by selecting `File > New > Project...` and selecting `Maven Archetype` from the list of project types.
-Then fill in with the appropriate information, see below, and click `create`:
-
-![image](assets/intellijProjectArchetype.png)
-
-This will create a new project in the `my-flyway-plugin` directory.
-This directory will contain the following:
-* a `pom.xml` file which you can use to build your plugin
-* a `src/main/java` directory containing the source code for your plugin
-* a `src/test/java` directory containing unit tests for your plugin
-* a basic Plugin class which you can extend to implement your plugin in the package specified in your generate command
-* a `META-INF/services` directory containing a file which you can use to register your plugin with Flyway.

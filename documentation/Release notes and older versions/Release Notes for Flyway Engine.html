@@ -9,6 +9,23 @@
 <div class="col-md-9">
 <!-- BEGIN db-generated release notes -->
   <div class="release">
+        <h2 id="13.12.1">Flyway 13.12.1 (2026-11-05)</h2>
+
+        <h3>New features</h3>
+        <ul>
+            <li>The Flyway `Maven` and `Gradle` plugins can now load `TOML` configuration files via `configFiles` parameter</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Publishing migrate results no longer fails for databases without a catalog, such as SQLite</li>
+            <li>The migrate HTML report now shows the correct database version after a failed migration when versions such as 1.9 and 1.10 are involved</li>
+        </ul>
+
+  </div>
+
+
+  <div class="release">
         <h2 id="13.12.0">Flyway 13.12.0 (2026-10-30)</h2>
 
         <h3>New features</h3>

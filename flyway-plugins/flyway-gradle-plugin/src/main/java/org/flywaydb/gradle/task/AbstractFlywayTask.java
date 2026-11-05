@@ -37,6 +37,7 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.utilities.configuration.BuildToolTomlConfiguration;
 import org.flywaydb.gradle.FlywayExtension;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
@@ -633,10 +634,37 @@ public abstract class AbstractFlywayTask extends DefaultTask {
                 getClass().getClassLoader());
 
             final Map<String, String> envVars = ConfigUtils.environmentVariablesToPropertyMap(flywayEnvVars.get());
-            final Map<String, String> config = createFlywayConfig(envVars);
-            ConfigUtils.dumpConfigurationMap(config, "Using configuration:");
+            final List<File> configFiles = determineConfigFiles(getWorkingDirectory(), envVars);
 
-            final Flyway flyway = Flyway.configure(classLoader).configuration(config).load();
+            final Flyway flyway;
+            if (configFiles.stream().anyMatch(file -> file.getName().endsWith(".toml"))) {
+                final Map<String, String> config = createFlywayConfig(envVars, false);
+                final Map<String, String> overrides = new HashMap<>();
+                addConfigFromProperties(overrides, envVars);
+                putIfSet(overrides,
+                    BuildToolTomlConfiguration.ENVIRONMENT,
+                    flywayEnvVars.get().get(BuildToolTomlConfiguration.ENVIRONMENT_VARIABLE));
+                addConfigFromProperties(overrides, System.getProperties());
+                removeGradlePluginSpecificPropertiesToAvoidWarnings(config);
+                removeGradlePluginSpecificPropertiesToAvoidWarnings(overrides);
+
+                flyway = Flyway.configure(classLoader)
+                    .configuration(BuildToolTomlConfiguration.load(configFiles,
+                        getWorkingDirectory(),
+                        classLoader,
+                        config,
+                        overrides))
+                    .load();
+            } else {
+                final Map<String, String> config = createFlywayConfig(envVars, true);
+                addConfigFromProperties(config, loadConfigurationFromConfigFiles(configFiles, envVars));
+                addConfigFromProperties(config, envVars);
+                addConfigFromProperties(config, System.getProperties());
+                removeGradlePluginSpecificPropertiesToAvoidWarnings(config);
+                ConfigUtils.dumpConfigurationMap(config, "Using configuration:");
+
+                flyway = Flyway.configure(classLoader).configuration(config).load();
+            }
             final Object result = run(flyway);
             ((DriverDataSource) flyway.getConfiguration().getDataSource()).shutdownDatabase();
             return result;
@@ -676,12 +704,15 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      */
     protected abstract Object run(Flyway flyway);
 
-    private Map<String, String> createFlywayConfig(final Map<String, String> envVars) {
+    private Map<String, String> createFlywayConfig(final Map<String, String> envVars,
+        final boolean includeDefaultConfigFiles) {
         final Map<String, String> conf = new HashMap<>();
 
         addLocationsToConfig(conf);
         addCallbackLocationsToConfig(conf);
-        addConfigFromProperties(conf, loadConfigurationFromDefaultConfigFiles(envVars));
+        if (includeDefaultConfigFiles) {
+            addConfigFromProperties(conf, loadConfigurationFromDefaultConfigFiles(envVars));
+        }
 
         putIfSet(conf, ConfigUtils.DRIVER, driver, extension.driver);
         putIfSet(conf, ConfigUtils.URL, url, extension.url);
@@ -801,10 +832,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         conf.putAll(getPluginConfiguration(pluginConfiguration, extension.pluginConfiguration));
 
         addConfigFromProperties(conf, flywayProjectProperties);
-        addConfigFromProperties(conf, loadConfigurationFromConfigFiles(getWorkingDirectory(), envVars));
-        addConfigFromProperties(conf, envVars);
-        addConfigFromProperties(conf, System.getProperties());
-        removeGradlePluginSpecificPropertiesToAvoidWarnings(conf);
 
         return conf;
     }
@@ -900,16 +927,16 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     /**
      * Load properties from the config files (if specified).
      *
-     * @param workingDirectory The working directory to use.
-     * @param envVars          The environment variables converted to Flyway properties.
+     * @param configFiles The config files to load.
+     * @param envVars     The environment variables converted to Flyway properties.
      * @return The properties.
      */
-    private Map<String, String> loadConfigurationFromConfigFiles(final File workingDirectory,
+    private Map<String, String> loadConfigurationFromConfigFiles(final List<File> configFiles,
         final Map<String, String> envVars) {
         final String encoding = determineConfigurationFileEncoding(envVars);
 
         final Map<String, String> conf = new HashMap<>();
-        for (final File configFile : determineConfigFiles(workingDirectory, envVars)) {
+        for (final File configFile : configFiles) {
             conf.putAll(ConfigUtils.loadConfigurationFile(configFile, encoding, true));
         }
         return conf;

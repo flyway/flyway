@@ -248,6 +248,23 @@ Alternatively you can also use the `FLYWAY_CONFIG_FILE_ENCODING` environment var
 
 <pre class="console"><span>&gt;</span> export <strong>FLYWAY_CONFIG_FILE_ENCODING</strong>=ISO-8859-1</pre>
 
+#### TOML config files
+
+Files ending in `.toml` are loaded as TOML configuration, the same format the Flyway command-line uses, including
+[environments](<Configuration/Environments Namespace>):
+
+<pre class="console"><span>&gt;</span> mvn <strong>-Dflyway.configFiles=</strong>flyway.toml flyway:migrate</pre>
+
+When TOML config files are used:
+- All configured config files must be TOML. Mixing `.toml` and `.conf` files is not supported.
+- The default `flyway.conf` files (`<user-home>/flyway.conf` and `flyway.conf` in the current directory) are not loaded.
+- The environment to use is taken from `flyway.environment`, following the [overriding order](#overriding-order) below: for example
+  `-Dflyway.environment=prod`, the `FLYWAY_ENVIRONMENT` environment variable, `environment` in the `[flyway]` section of the TOML file,
+  or a `flyway.environment` Maven property. It defaults to `default`, and any other environment must be defined in the TOML file.
+- Values in the TOML file override settings from the plugin configuration section, Maven properties and `settings.xml`. Connection settings such as `url` and `user` apply to the selected environment.
+- Relative `filesystem:` locations in the TOML file are relative to the working directory (by default, the directory containing your `pom.xml` file).
+- `flyway.configFileEncoding` only applies to `.conf` files.
+
 ### Overriding order
 
 The Flyway Maven plugin has been carefully designed to load and override configuration in a sensible order.
@@ -264,3 +281,5 @@ Settings are loaded in the following order (higher items in the list take preced
 
 The means that if for example `flyway.url` is both present in a config file and passed as `-Dflyway.url=` from the command-line,
 the JVM system property passed in via the command-line will take precedence and be used.  
+
+When TOML config files are used, custom config files are the TOML files and `<user-home>/flyway.conf` is not loaded. The environment is selected using the same order.

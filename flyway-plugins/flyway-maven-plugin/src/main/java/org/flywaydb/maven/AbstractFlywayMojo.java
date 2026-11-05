@@ -51,6 +51,7 @@ import org.flywaydb.core.internal.logging.EvolvingLog;
 import org.flywaydb.core.internal.logging.buffered.BufferedLog;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.utilities.configuration.BuildToolTomlConfiguration;
 
 /**
  * Common base class for all mojos with all common attributes.
@@ -738,8 +739,12 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             }
 
             final Map<String, String> envVars = ConfigUtils.environmentVariablesToPropertyMap();
+            final List<File> configFiles = determineConfigFiles(workDir, envVars);
+            final boolean useToml = configFiles.stream().anyMatch(file -> file.getName().endsWith(".toml"));
 
-            final Map<String, String> conf = new HashMap<>(loadConfigurationFromDefaultConfigFiles(envVars));
+            final Map<String, String> conf = useToml
+                ? new HashMap<>()
+                : new HashMap<>(loadConfigurationFromDefaultConfigFiles(envVars));
 
             loadCredentialsFromSettings();
 
@@ -817,16 +822,30 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             conf.putAll(getPluginConfiguration(pluginConfiguration));
 
             conf.putAll(ConfigUtils.propertiesToMap(mavenProject.getProperties()));
-            conf.putAll(loadConfigurationFromConfigFiles(workDir, envVars));
-            conf.putAll(envVars);
-            conf.putAll(ConfigUtils.propertiesToMap(System.getProperties()));
-            removeMavenPluginSpecificPropertiesToAvoidWarnings(conf);
 
-            if ("auto".equalsIgnoreCase(conf.getOrDefault(ConfigUtils.LOGGERS, "auto"))) {
-                conf.put(ConfigUtils.LOGGERS, "maven");
+            final Flyway flyway;
+            if (useToml) {
+                final Map<String, String> overrides = new HashMap<>(envVars);
+                putIfSet(overrides,
+                    BuildToolTomlConfiguration.ENVIRONMENT,
+                    System.getenv(BuildToolTomlConfiguration.ENVIRONMENT_VARIABLE));
+                overrides.putAll(ConfigUtils.propertiesToMap(System.getProperties()));
+                removeMavenPluginSpecificPropertiesToAvoidWarnings(conf);
+                removeMavenPluginSpecificPropertiesToAvoidWarnings(overrides);
+                useMavenLoggerIfAuto(conf);
+
+                flyway = Flyway.configure(classLoader)
+                    .configuration(BuildToolTomlConfiguration.load(configFiles, workDir, classLoader, conf, overrides))
+                    .load();
+            } else {
+                conf.putAll(loadConfigurationFromConfigFiles(configFiles, envVars));
+                conf.putAll(envVars);
+                conf.putAll(ConfigUtils.propertiesToMap(System.getProperties()));
+                removeMavenPluginSpecificPropertiesToAvoidWarnings(conf);
+                useMavenLoggerIfAuto(conf);
+
+                flyway = Flyway.configure(classLoader).configuration(conf).load();
             }
-
-            final Flyway flyway = Flyway.configure(classLoader).configuration(conf).load();
             doExecute(flyway);
         } catch (final Exception e) {
             throw new MojoExecutionException(e.toString(), ExceptionUtils.getRootCause(e));
@@ -835,6 +854,12 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             if (currentLog instanceof BufferedLog) {
                 ((BufferedLog) currentLog).flush(new MavenLog(this.getLog()));
             }
+        }
+    }
+
+    private static void useMavenLoggerIfAuto(final Map<String, String> conf) {
+        if ("auto".equalsIgnoreCase(conf.getOrDefault(ConfigUtils.LOGGERS, "auto"))) {
+            conf.put(ConfigUtils.LOGGERS, "maven");
         }
     }
 
@@ -952,16 +977,16 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     /**
      * Load properties from the config files (if specified).
      *
-     * @param workDir The working directory to use.
-     * @param envVars The environment variables converted to Flyway properties.
+     * @param configFiles The config files to load.
+     * @param envVars     The environment variables converted to Flyway properties.
      * @return The properties.
      */
-    private Map<String, String> loadConfigurationFromConfigFiles(final File workDir,
+    private Map<String, String> loadConfigurationFromConfigFiles(final List<File> configFiles,
         final Map<String, String> envVars) {
         final String encoding = determineConfigurationFileEncoding(envVars);
 
         final Map<String, String> conf = new HashMap<>();
-        for (final File configFile : determineConfigFiles(workDir, envVars)) {
+        for (final File configFile : configFiles) {
             conf.putAll(ConfigUtils.loadConfigurationFile(configFile, encoding, true));
         }
         return conf;

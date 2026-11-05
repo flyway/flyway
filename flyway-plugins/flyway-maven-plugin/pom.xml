@@ -4,26 +4,13 @@
   <parent>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>13.12.0</version>
+    <version>13.12.1</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <artifactId>flyway-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
   <name>${project.artifactId}</name>
 
-  <dependencyManagement>
-    <dependencies>
-
-
-
-
-
-
-
-
-
-    </dependencies>
-  </dependencyManagement>
   <dependencies>
     <dependency>
       <groupId>org.apache.maven</groupId>
@@ -46,6 +33,11 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>flyway-core-utilities</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>tools.jackson.dataformat</groupId>
       <artifactId>jackson-dataformat-toml</artifactId>
     </dependency>
@@ -57,37 +49,6 @@
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
     </dependency>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -141,53 +102,6 @@
           </execution>
         </executions>
       </plugin>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     </plugins>
   </build>
 </project>

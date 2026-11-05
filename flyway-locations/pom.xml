@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>13.12.0</version>
+    <version>13.12.1</version>
   </parent>
 
   <artifactId>flyway-locations</artifactId>
@@ -13,15 +13,7 @@
   <name>${project.artifactId}</name>
 
   <modules>
-
-
-
-
     <module>flyway-locations-s3</module>
-
-
-
-
   </modules>
 
 </project>

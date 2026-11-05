@@ -19,6 +19,7 @@
  */
 package org.flywaydb.reports.output;
 
+import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.MigrateResult;
 import org.flywaydb.reports.api.extensibility.HtmlRenderer;
@@ -27,6 +28,7 @@ import org.flywaydb.core.internal.util.FileUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import static org.flywaydb.core.internal.util.TimeFormat.*;
@@ -84,8 +86,9 @@ public class MigrateHtmlRenderer implements HtmlRenderer<MigrateResult> {
         final List<HtmlReportSummary> htmlResult = new ArrayList<>();
         final int migratedCount = result.migrationsExecuted;
         final String databaseVersion = result.targetSchemaVersion == null ? result.migrations.stream()
-            .min((a, b) -> b.version.compareTo(a.version))
             .map(m -> m.version)
+            .filter(StringUtils::hasText)
+            .max(Comparator.comparing(MigrationVersion::fromVersion))
             .orElse("0") : result.targetSchemaVersion;
 
         htmlResult.add(new HtmlReportSummary(result.targetSchemaVersion != null ? "scGood" : "scError",

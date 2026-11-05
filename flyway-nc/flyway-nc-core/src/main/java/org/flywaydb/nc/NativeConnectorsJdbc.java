@@ -100,6 +100,15 @@ public abstract class NativeConnectorsJdbc extends AbstractNativeConnectorsDatab
     }
 
     @Override
+    public boolean schemaHistoryTableExists(final String tableName) {
+        try (final ResultSet resultSet = connection.getMetaData().getTables(getCatalog(), getCurrentSchema(), tableName, new String[]{"TABLE"})) {
+            return resultSet.next();
+        } catch (final SQLException e) {
+            throw new FlywayException(e);
+        }
+    }
+
+    @Override
     public String getCurrentUser() {
         try {
             return JdbcUtils.getDatabaseMetaData(connection).getUserName();
