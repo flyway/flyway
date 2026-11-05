@@ -56,7 +56,7 @@ YugabyteDB support is a separate dependency for Flyway and will need to be added
 ```groovy
 buildscript {
     dependencies {
-        implmentation "org.flywaydb:flyway-database-yugabytedb"
+        implementation "org.flywaydb:flyway-database-yugabytedb"
     }
 }
 ```
