@@ -20,6 +20,7 @@ We have to map Flyway concepts and language rooted in the relational database wo
 | transaction     | transaction     |
 
 ## Configuration
+- JavaScript migrations run through `mongosh` with a default timeout of five minutes. Set [nativeConnectors.processTimeout](<Configuration/Flyway Namespace/Flyway Native Connectors Process Timeout Setting>) to a larger number of seconds for longer migrations.
 - Flyway identifies the migration type through the file extension. You should set [sqlMigrationSuffixes](<Configuration/Flyway Namespace/Flyway SQL Migration Suffixes Setting>) to `.js` for JavaScript migrations or `.json` for JSON migrations.
    - Note that Flyway doesn't support mixed migration types in a single project 
 - Any non-credential configuration (see [Mongo Connection String Options](https://www.mongodb.com/docs/manual/reference/connection-string-options/) needs to go into the connection string (Flyway's [URL](Configuration/Environments Namespace/Environment URL Setting) parameter), as this is passed directly to both the driver and Mongosh. 
