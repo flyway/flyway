@@ -118,6 +118,8 @@ public class ValidateVerbExtension extends CachingVerbExtension {
 
         final List<MigrationInfo> notIgnoredMigrations = VerbUtils.removeIgnoredMigrations(configuration, migrations);
         final List<ValidateOutput> invalidMigrations = getInvalidMigrations(notIgnoredMigrations, configuration);
+
+        final OperationResult validateResult;
         if (invalidMigrations.isEmpty()) {
             final int count = migrations.length;
             LOG.info(String.format("Successfully validated %d migration%s (execution time %s)",
@@ -141,24 +143,34 @@ public class ValidateVerbExtension extends CachingVerbExtension {
                 LOG.warn(noResolvedMigrationsWarning);
             }
 
-            return new ValidateResult(VersionPrinter.getVersion(),
+            validateResult = new ValidateResult(VersionPrinter.getVersion(),
                 database.getDatabaseMetaData().databaseName(),
                 null,
                 true,
                 count,
                 invalidMigrations,
                 warnings);
+
+        } else {
+            callbackManager.handleEvent(Event.AFTER_VALIDATE_ERROR, database, configuration, context.getParsingContext());
+            validateResult = new ValidateResult(VersionPrinter.getVersion(),
+                database.getDatabaseMetaData().databaseName(),
+                new ErrorDetails(CoreErrorCode.VALIDATE_ERROR, "Migrations have failed validation"),
+                false,
+                0,
+                invalidMigrations,
+                new ArrayList<>());
         }
 
-        callbackManager.handleEvent(Event.AFTER_VALIDATE_ERROR, database, configuration, context.getParsingContext());
+        if (!cached) {
+            callbackManager.handleEvent(Event.AFTER_VALIDATE_OPERATION_FINISH,
+                database,
+                configuration,
+                context.getParsingContext(),
+                validateResult);
+        }
 
-        return new ValidateResult(VersionPrinter.getVersion(),
-            database.getDatabaseMetaData().databaseName(),
-            new ErrorDetails(CoreErrorCode.VALIDATE_ERROR, "Migrations have failed validation"),
-            false,
-            0,
-            invalidMigrations,
-            new ArrayList<>());
+        return validateResult;
     }
 
     private List<ValidateOutput> getInvalidMigrations(final List<MigrationInfo> migrations,

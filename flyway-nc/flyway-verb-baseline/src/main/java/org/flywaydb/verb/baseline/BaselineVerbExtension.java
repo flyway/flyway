@@ -200,6 +200,14 @@ public class BaselineVerbExtension extends CachingVerbExtension {
         }
 
         callbackManager.handleEvent(Event.AFTER_BASELINE, database, configuration, context.getParsingContext());
+
+        if (!cached) {
+            callbackManager.handleEvent(Event.AFTER_BASELINE_OPERATION_FINISH,
+                database,
+                configuration,
+                context.getParsingContext(),
+                baselineResult);
+        }
         return baselineResult;
     }
 

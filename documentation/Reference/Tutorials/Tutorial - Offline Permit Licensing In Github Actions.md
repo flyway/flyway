@@ -35,7 +35,7 @@ Navigate to `https://permits.red-gate.com/offline?productCode=63` and sign in wi
 
 Download the permit file and save it to your local machine as `flyway-permit.txt`.
 
-You will notice the file is a large block of text, often several kilobytes. This size is why Flyway reads the permit from a file path rather than accepting it as an inline value; the [Flyway Offline Permit Path setting](https://documentation.red-gate.com/fd/flyway-offline-permit-path-setting-314869837.html) reference page lists all supported configuration methods (TOML, environment variable, Maven plugin, and Java API).
+You will notice the file is a large block of text, often several kilobytes. This tutorial writes the permit to a file and points Flyway at it with [`offlinePermitPath`](https://documentation.red-gate.com/fd/flyway-offline-permit-path-setting-314869837.html), which avoids the length limits some shells and operating systems place on command lines and environment variables. You can also supply the permit value directly with [`offlinePermit`](<Configuration/Flyway Namespace/Flyway Offline Permit Setting>); see [Alternative: pass the permit directly](#alternative-pass-the-permit-directly) below.
 
 > **Permit expiry:** Offline permits have a finite validity period. When yours expires, Flyway will revert to Community features. Repeat Steps 1–2 to download a fresh permit and update the repository secret; no workflow file changes are needed.
 
@@ -49,10 +49,10 @@ Open `flyway-permit.txt` in a text editor, select all the content, and copy it t
 
 Enter these values:
 
-| Field | Value                    |
-|-------|--------------------------|
-| Name  | `FLYWAY_OFFLINE_PERMIT`  |
-| Value | the permit file contents |
+| Field | Value                     |
+|-------|---------------------------|
+| Name  | `OFFLINE_PERMIT_CONTENTS` |
+| Value | the permit file contents  |
 
 Click **Add secret**.
 
@@ -89,7 +89,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Write offline permit
-        run: echo "${{ secrets.FLYWAY_OFFLINE_PERMIT }}" > "$RUNNER_TEMP/flyway-permit.txt"
+        run: echo "${{ secrets.OFFLINE_PERMIT_CONTENTS }}" > "$RUNNER_TEMP/flyway-permit.txt"
 
       - name: Run Flyway migrations
         run: |
@@ -116,6 +116,25 @@ Here is what each step does:
 Database credentials are passed as environment variables from repository secrets—never hard coded.
 
 You will also need to add `DB_HOST`, `DB_USER`, and `DB_PASSWORD` as repository secrets (following the same process as Step 2) if you have not done so already.
+
+### Alternative: pass the permit directly
+
+Instead of writing the permit to a file, you can pass it to Flyway with the `FLYWAY_OFFLINE_PERMIT` environment variable, which sets [`offlinePermit`](<Configuration/Flyway Namespace/Flyway Offline Permit Setting>). Remove the **Write offline permit** step and the permit volume mount, and add the permit as an environment variable instead:
+
+```yaml
+      - name: Run Flyway migrations
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}/migrations:/flyway/sql" \
+            -v "${{ github.workspace }}/flyway.toml:/flyway/conf/flyway.toml" \
+            -e FLYWAY_OFFLINE_PERMIT="${{ secrets.OFFLINE_PERMIT_CONTENTS }}" \
+            -e FLYWAY_URL="jdbc:postgresql://${{ secrets.DB_HOST }}:5432/mydb" \
+            -e FLYWAY_USER="${{ secrets.DB_USER }}" \
+            -e FLYWAY_PASSWORD="${{ secrets.DB_PASSWORD }}" \
+            redgate/flyway migrate
+```
+
+You must also remove the `offlinePermitPath` line from `flyway.toml`. Only one of `offlinePermit` or `offlinePermitPath` can be configured, and Flyway will fail with an error if both are set.
 
 ---
 
@@ -145,7 +164,7 @@ Migrating schema "public" to version 5 - add_orders_index
 Successfully applied 1 migration to schema "public", now at version v5 (execution time 00:00.198s)
 ```
 
-The first line confirms that the Enterprise permit was loaded. If you see `Flyway Community Edition` instead, the permit was not applied. The most common cause is a name mismatch between the secret and the workflow reference. Check that `FLYWAY_OFFLINE_PERMIT` appears identically in both **Settings → Secrets** and the `secrets.FLYWAY_OFFLINE_PERMIT` expression in the workflow.
+The first line confirms that the Enterprise permit was loaded. If you see `Flyway Community Edition` instead, the permit was not applied. The most common cause is a name mismatch between the secret and the workflow reference. Check that `OFFLINE_PERMIT_CONTENTS` appears identically in both **Settings → Secrets** and the `secrets.OFFLINE_PERMIT_CONTENTS` expression in the workflow.
 
 ---
 
@@ -165,7 +184,7 @@ We now have a pipeline that:
 When your permit expires:
 
 1. Download a new permit file from `https://permits.red-gate.com/offline?productCode=63` (Step 1)
-2. In GitHub, go to **Settings → Secrets and variables → Actions**, find `FLYWAY_OFFLINE_PERMIT`, and click **Update**
+2. In GitHub, go to **Settings → Secrets and variables → Actions**, find `OFFLINE_PERMIT_CONTENTS`, and click **Update**
 3. Paste the new permit contents and save
 
 The pipeline will use the updated permit on its next run. No changes to the workflow file are required.
@@ -176,3 +195,4 @@ The pipeline will use the updated permit on its next run. No changes to the work
 
 - [License Permits](https://documentation.red-gate.com/fd/license-permits-224919672.html): an overview of permit types and CI/CD integration examples
 - [Flyway Offline Permit Path setting](https://documentation.red-gate.com/fd/flyway-offline-permit-path-setting-314869837.html): the configuration reference for `offlinePermitPath` across all supported methods: command-line, TOML, environment variable, Maven plugin, and Java API
+- [Flyway Offline Permit setting](<Configuration/Flyway Namespace/Flyway Offline Permit Setting>): the configuration reference for `offlinePermit`, which takes the permit value directly instead of a path to a file

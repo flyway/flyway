@@ -21,6 +21,7 @@ package org.flywaydb.core;
 
 import static org.flywaydb.core.internal.nc.NativeConnectorsModeUtils.canUseNativeConnectors;
 import static org.flywaydb.core.internal.nc.NativeConnectorsModeUtils.findVerbExtension;
+import static org.flywaydb.core.internal.util.TelemetryUtils.getTelemetryManager;
 
 import java.util.Collection;
 import lombok.CustomLog;
@@ -76,10 +77,6 @@ import java.util.List;
 public class Flyway {
     private final ClassicConfiguration configuration;
     private final FlywayExecutor flywayExecutor;
-
-    @Deprecated
-    @Setter
-    private FlywayTelemetryManager flywayTelemetryManager;
 
     /**
      * This is your starting point. This creates a configuration which can be customized to your needs before being
@@ -161,6 +158,7 @@ public class Flyway {
      */
     @SneakyThrows
     public MigrateResult migrate() throws FlywayException {
+        final FlywayTelemetryManager flywayTelemetryManager = getTelemetryManager(configuration);
         try (final MigrateTelemetryModel telemetryModel = new MigrateTelemetryModel(flywayTelemetryManager)) {
             if (canUseNativeConnectors(configuration)) {
                 final var verb = findVerbExtension(configuration, "migrate");
@@ -272,6 +270,7 @@ public class Flyway {
                 LOG.warn("Native Connectors for info is set but no verb is present");
             }
         }
+        final FlywayTelemetryManager flywayTelemetryManager = getTelemetryManager(configuration);
         return flywayExecutor.execute((migrationResolver, schemaHistory, database, defaultSchema, schemas, callbackExecutor, statementInterceptor) -> {
             final MigrationInfoService migrationInfoService = new DbInfo(migrationResolver,
                 schemaHistory,
@@ -297,6 +296,7 @@ public class Flyway {
      */
     @SneakyThrows
     public CleanResult clean() {
+        final FlywayTelemetryManager flywayTelemetryManager = getTelemetryManager(configuration);
         try (final EventTelemetryModel telemetryModel = new EventTelemetryModel("clean", flywayTelemetryManager)) {
             if (canUseNativeConnectors(configuration)) {
                 final var verb = findVerbExtension(configuration, "clean");
@@ -372,6 +372,7 @@ public class Flyway {
                 LOG.warn("Native Connectors for validate is set but no verb is present");
             }
         }
+        final FlywayTelemetryManager flywayTelemetryManager = getTelemetryManager(configuration);
         return flywayExecutor.execute((migrationResolver, schemaHistory, database, defaultSchema, schemas, callbackExecutor, statementInterceptor) -> {
             final ValidateResult validateResult = doValidate(database,
                 migrationResolver,
@@ -397,6 +398,7 @@ public class Flyway {
      */
     @SneakyThrows
     public BaselineResult baseline() throws FlywayException {
+        final FlywayTelemetryManager flywayTelemetryManager = getTelemetryManager(configuration);
         try (final EventTelemetryModel telemetryModel = new EventTelemetryModel("baseline", flywayTelemetryManager)) {
             if (canUseNativeConnectors(configuration)) {
                 final var verb = findVerbExtension(configuration, "baseline");
@@ -446,6 +448,7 @@ public class Flyway {
      */
     @SneakyThrows
     public RepairResult repair() throws FlywayException {
+        final FlywayTelemetryManager flywayTelemetryManager = getTelemetryManager(configuration);
         try (final EventTelemetryModel telemetryModel = new EventTelemetryModel("repair", flywayTelemetryManager)) {
             if (canUseNativeConnectors(configuration)) {
                 final var verb = findVerbExtension(configuration, "repair");
@@ -490,6 +493,7 @@ public class Flyway {
         if (canUseNativeConnectors(configuration)) {
             final var verb = findVerbExtension(configuration, "undo");
             if (verb.isPresent()) {
+                final FlywayTelemetryManager flywayTelemetryManager = getTelemetryManager(configuration);
                 try (final EventTelemetryModel ignored = new EventTelemetryModel("undo", flywayTelemetryManager)) {
                     LOG.debug("Native Connectors for undo is set and a verb is present");
                     return (OperationResult) verb.get().executeVerb(configuration);

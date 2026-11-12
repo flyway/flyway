@@ -21,7 +21,6 @@ package org.flywaydb.core.extensibility;
 
 import java.util.List;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.license.FlywayPermit;
 
 public interface LicenseSupport extends Plugin {
@@ -30,7 +29,7 @@ public interface LicenseSupport extends Plugin {
 
     List<String> consumeDeferredWarnings(Configuration configuration);
 
-    void submitPur(Configuration configuration, String eventType, Database database);
+    void submitPur(Configuration configuration, String eventType, String databaseType, String databaseHosting);
 
     boolean isRedgateEdition();
 }

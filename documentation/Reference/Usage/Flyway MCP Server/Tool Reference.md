@@ -44,20 +44,23 @@ future releases without notice. This reference describes the tools in Flyway {{s
 
 ## Tools
 
-| Tool                          | Toolsets                              | Purpose                                                                                                  |
-|-------------------------------|---------------------------------------|----------------------------------------------------------------------------------------------------------|
-| `load_project`                | `develop_migrations`, `develop_state` | Loads a Flyway project into a new workspace.                                                             |
-| `reload_project`              | `develop_migrations`, `develop_state` | Reloads an already-loaded project from disk, preserving existing artifacts.                              |
-| `create_schema_model_checkpoint` | `develop_migrations`               | Captures a checkpoint of the schema model for use as a baseline in a three-sided development diff.       |
-| `create_diff_schema_model`    | `develop_migrations`, `develop_state` | Diffs the development database against the project's schema model.                                       |
-| `update_schema_model`         | `develop_migrations`, `develop_state` | Applies selected changes from a schema model diff to the schema model files.                             |
-| `create_diff_migrations`      | `develop_migrations`                  | Diffs the schema model against the current migration scripts (via the shadow environment).               |
-| `generate_migrations`         | `develop_migrations`                  | Generates migration scripts from a migrations diff.                                                      |
-| `review_code`                 | `develop_migrations`                  | Runs code review against a single migration script and reports the rule violations found.                |
-| `test_migrate`                | `develop_migrations`                  | Runs pending migration scripts against the shadow database to verify they execute without errors.        |
-| `create_diff_development`     | `develop_migrations`, `develop_state` | Diffs the schema model against the development database, in the direction needed to update the database. |
-| `update_development`          | `develop_migrations`, `develop_state` | Applies selected changes from a development diff to the development database.                            |
-| `get_diff_details`            | `develop_migrations`, `develop_state` | Returns the unified diff text for a single changed object within any diff.                               |
+| Tool                          | Toolsets                              | License    | Purpose                                                                                                  |
+|-------------------------------|---------------------------------------|------------|----------------------------------------------------------------------------------------------------------|
+| `load_project`                | `develop_migrations`, `develop_state` | None       | Loads a Flyway project into a new workspace.                                                             |
+| `reload_project`              | `develop_migrations`, `develop_state` | None       | Reloads an already-loaded project from disk, preserving existing artifacts.                              |
+| `create_schema_model_checkpoint` | `develop_migrations`               | Enterprise | Captures a checkpoint of the schema model for use as a baseline in a three-sided development diff.       |
+| `create_diff_schema_model`    | `develop_migrations`, `develop_state` | Enterprise | Diffs the development database against the project's schema model.                                       |
+| `update_schema_model`         | `develop_migrations`, `develop_state` | Enterprise | Applies selected changes from a schema model diff to the schema model files.                             |
+| `create_diff_migrations`      | `develop_migrations`                  | Enterprise | Diffs the schema model against the current migration scripts (via the shadow environment).               |
+| `generate_migrations`         | `develop_migrations`                  | Enterprise | Generates migration scripts from a migrations diff.                                                      |
+| `review_code`                 | `develop_migrations`                  | None       | Runs code review against a single migration script and reports the rule violations found. Without Flyway Teams or Enterprise you must install SQLFluff yourself, see [review_code](#review_code). |
+| `test_migrate`                | `develop_migrations`                  | None       | Runs pending migration scripts against the shadow database to verify they execute without errors.        |
+| `create_diff_development`     | `develop_migrations`, `develop_state` | Enterprise | Diffs the schema model against the development database, in the direction needed to update the database. |
+| `update_development`          | `develop_migrations`, `develop_state` | Enterprise | Applies selected changes from a development diff to the development database.                            |
+| `get_diff_details`            | `develop_migrations`, `develop_state` | Enterprise | Returns the unified diff text for a single changed object within any diff.                               |
+
+Every tool is listed whatever your license. Calling an Enterprise tool without a Flyway Enterprise license returns a
+licensing error, and the server keeps running so the other tools still work.
 
 ### What each tool reads and writes
 
@@ -205,6 +208,11 @@ violated rules, and `total_rules_checked` (the number of rules evaluated).
 Each issue has a `code` (the violated rule), `line` and `column` where it begins, and `line_end` and `column_end` where
 it ends. Each definition has the `engine` that produced the rule, its `code`, a `title` and a `severity` of `Error` or
 `Warning`.
+
+`review_code` needs no license, but without Flyway Enterprise it skips the rules that need one, such as regex rules, so
+`total_rules_checked` is lower. It also uses a SQLFluff that you install yourself (Python 3, pip and SQLFluff) instead of
+the one bundled with Flyway, and returns an error if that isn't installed. If the project sets `failOnError`, which
+needs Flyway Teams or Enterprise, the call returns a licensing error.
 
 ### test_migrate
 

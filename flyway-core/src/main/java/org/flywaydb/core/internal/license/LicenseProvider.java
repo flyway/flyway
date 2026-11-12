@@ -21,12 +21,11 @@ package org.flywaydb.core.internal.license;
 
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.Plugin;
-import org.flywaydb.core.internal.database.base.Database;
 
 public interface LicenseProvider extends Plugin {
     EncryptedFlywayPermit fetchPermit(Configuration configuration);
 
-    default void submitPur(final String eventType, final Database database, final Configuration config)
+    default void submitPur(final String eventType, final String databaseType, final String databaseHosting, final Configuration config)
         throws Exception {}
 
     default String consumeDeferredWarning() {return null;}

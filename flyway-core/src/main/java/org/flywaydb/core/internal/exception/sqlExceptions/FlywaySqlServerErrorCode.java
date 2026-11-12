@@ -23,5 +23,6 @@ public enum FlywaySqlServerErrorCode implements FlywaySqlErrorCode {
     CONNECTION_FAILURE,
     INTEGRATED_AUTH_NOT_SUPPORTED,
     INTERACTIVE_AUTH_DRIVERS_MISSING,
+    NO_ROUTE_TO_HOST,
     UNTRUSTED_CERTIFICATE
 }

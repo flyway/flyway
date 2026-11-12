@@ -666,7 +666,9 @@ public abstract class AbstractFlywayTask extends DefaultTask {
                 flyway = Flyway.configure(classLoader).configuration(config).load();
             }
             final Object result = run(flyway);
-            ((DriverDataSource) flyway.getConfiguration().getDataSource()).shutdownDatabase();
+            if (flyway.getConfiguration().getDataSource() instanceof final DriverDataSource driverDataSource) {
+                driverDataSource.shutdownDatabase();
+            }
             return result;
         } catch (final Exception e) {
             throw new FlywayException(collectMessages(e, "Error occurred while executing " + getName()), e);

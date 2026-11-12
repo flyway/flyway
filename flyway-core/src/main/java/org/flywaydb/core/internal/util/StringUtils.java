@@ -482,6 +482,7 @@ public class StringUtils {
         final String lowerKey = key.toLowerCase();
         if (lowerKey.endsWith("password")
             || lowerKey.endsWith("token")
+            || lowerKey.endsWith("offlinepermit")
             || lowerKey.endsWith(ConfigUtils.LICENSE_KEY.toLowerCase())) {
             value = "********";
         }

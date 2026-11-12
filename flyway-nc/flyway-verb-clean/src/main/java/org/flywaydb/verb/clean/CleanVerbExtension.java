@@ -101,6 +101,8 @@ public class CleanVerbExtension implements VerbExtension {
 
         callbackManager.handleEvent(Event.AFTER_CLEAN, database, configuration, context.getParsingContext());
 
+        callbackManager.handleEvent(Event.AFTER_CLEAN_OPERATION_FINISH, database, configuration, context.getParsingContext(), cleanResult);
+
         return cleanResult;
     }
 

@@ -3,6 +3,8 @@ subtitle: flyway.email
 redirect_from: Configuration/email/
 ---
 
+{% include redgate.html %}
+
 ## Description
 
 A Redgate email to be used in conjunction with the [`token`](<Configuration/Flyway Namespace/Flyway Token Setting>) parameter to

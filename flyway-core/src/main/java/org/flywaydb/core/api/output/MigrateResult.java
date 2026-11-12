@@ -67,6 +67,7 @@ public class MigrateResult extends HtmlResult {
 
     MigrateResult(final MigrateResult migrateResult) {
         super(migrateResult.getTimestamp(), migrateResult.getOperation());
+        setEnvironment(migrateResult.getEnvironment());
         this.flywayVersion = migrateResult.flywayVersion;
         this.database = migrateResult.database;
         this.schemaName = migrateResult.schemaName;

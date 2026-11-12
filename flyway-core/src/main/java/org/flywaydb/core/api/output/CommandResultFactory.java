@@ -60,22 +60,26 @@ public class CommandResultFactory {
             : currentSchemaVersion;
         final String schemaVersion = schemaVersionToOutput.getVersion();
 
-        return new InfoResult(flywayVersion,
+        final InfoResult result = new InfoResult(flywayVersion,
             databaseName,
             schemaVersion,
             String.join(", ", configuration.getSchemas()),
             infoOutputs,
             allSchemasEmpty);
+        result.setEnvironment(configuration.getCurrentEnvironmentName());
+        return result;
     }
 
     public static MigrateResult createMigrateResult(final String databaseName,
         final String databaseType,
         final Configuration configuration) {
         final String flywayVersion = VersionPrinter.getVersion();
-        return new MigrateResult(flywayVersion,
+        final MigrateResult result = new MigrateResult(flywayVersion,
             databaseName,
             String.join(", ", configuration.getSchemas()),
             databaseType);
+        result.setEnvironment(configuration.getCurrentEnvironmentName());
+        return result;
     }
 
     public static CleanResult createCleanResult(final String databaseName) {

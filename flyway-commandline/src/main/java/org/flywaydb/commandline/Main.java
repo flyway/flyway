@@ -322,7 +322,6 @@ public class Main {
         final FlywayTelemetryManager telemetryManager,
         final Configuration configuration) {
         OperationResult result = null;
-        flyway.setFlywayTelemetryManager(telemetryManager);
 
         if ("clean".equals(operation)) {
             result = flyway.clean();

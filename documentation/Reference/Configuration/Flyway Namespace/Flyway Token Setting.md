@@ -3,6 +3,8 @@ subtitle: flyway.token
 redirect_from: Configuration/token/
 ---
 
+{% include redgate.html %}
+
 ## Description
 
 A personal access token (PAT) to be used in conjunction with the [`email`](<Configuration/Flyway Namespace/Flyway Email Setting>)

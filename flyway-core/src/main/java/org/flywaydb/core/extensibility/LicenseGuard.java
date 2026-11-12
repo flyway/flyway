@@ -22,7 +22,6 @@ package org.flywaydb.core.extensibility;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
 import org.flywaydb.core.internal.license.FlywayPermit;
 
@@ -70,10 +69,10 @@ public class LicenseGuard {
         return false;
     }
 
-    public static void submitPur(final Configuration configuration, final String eventType, final Database database) {
+    public static void submitPur(final Configuration configuration, final String eventType, final String databaseType, final String databaseHosting) {
         configuration.getPluginRegister()
             .getInstanceOf(LicenseSupport.class)
-            .submitPur(configuration, eventType, database);
+            .submitPur(configuration, eventType, databaseType, databaseHosting);
     }
 
     public static FlywayPermit getPermit(final Configuration configuration) {

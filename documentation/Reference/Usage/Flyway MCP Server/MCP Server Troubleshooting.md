@@ -34,10 +34,16 @@ The `-mcp.toolsets` argument is mandatory. Add it to `args` in `.mcp.json` with 
 
 ## Licensing error encountered during tool call
 
-This usually means the current permit has expired or needs to be refreshed. Run `flyway version` in a terminal: the
-first line should name an Enterprise edition, and the MCP server needs Flyway 13.0.0 or later. If it doesn't, or your
-permit has expired, re-authenticate or refresh your permit. The
-[prerequisites](<Usage/Flyway MCP Server#FlywayMCPServer-Setup>) list the licensing requirements.
+The tool you called needs Flyway Enterprise. The rest of the message says why: `Upgrade required: MCP tool <name> is
+not supported by <edition>` means Flyway isn't licensed for Enterprise, and `license has expired` means your permit
+needs to be renewed or refreshed. The server keeps running, so tools that don't need a license (`load_project`,
+`reload_project`, `review_code` and `test_migrate`) still work.
+
+Run `flyway version` in a terminal: the first line should name an Enterprise edition, and the MCP server needs Flyway
+13.0.0 or later. If it doesn't, or your permit has expired, re-authenticate or refresh your permit, then restart the
+MCP server from your AI tool so it picks up the new permit. The
+[prerequisites](<Usage/Flyway MCP Server#FlywayMCPServer-Setup>) list the licensing requirements, and the
+[Tool Reference](<Usage/Flyway MCP Server/Tool Reference>) lists which tools need Enterprise.
 
 The server passes its own license, offline permit and personal access token (PAT) settings on to every project it
 loads, so a licensing error can come from how the server was started, not only from the project's configuration.

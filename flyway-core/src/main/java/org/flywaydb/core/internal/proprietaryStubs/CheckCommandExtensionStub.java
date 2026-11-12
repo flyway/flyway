@@ -29,7 +29,6 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
-import org.flywaydb.core.internal.license.FlywayRedgateEditionRequiredException;
 
 import java.util.List;
 
@@ -52,7 +51,7 @@ public class CheckCommandExtensionStub implements CommandExtension<OperationResu
     public OperationResult handle(final Configuration config, final List<String> flags) throws FlywayException {
         return TelemetrySpan.trackSpan(new EventTelemetryModel(COMMAND, getTelemetryManager(config)),
             (telemetryModel) -> {
-                throw new FlywayRedgateEditionRequiredException(COMMAND);
+                throw StubExceptions.featureUnavailable(COMMAND);
             });
     }
 

@@ -1,1 +1,2 @@
 org.flywaydb.nc.callbacks.NativeConnectorsCallbackHandler
+org.flywaydb.nc.callbacks.InternalCallbackHandler

@@ -114,6 +114,8 @@ public class InfoVerbExtension implements VerbExtension {
         }
 
         callbackManager.handleEvent(Event.AFTER_INFO, database, configuration, context.getParsingContext());
+
+        callbackManager.handleEvent(Event.AFTER_INFO_OPERATION_FINISH, database, configuration, context.getParsingContext(), infoResult);
         return infoResult;
     }
 

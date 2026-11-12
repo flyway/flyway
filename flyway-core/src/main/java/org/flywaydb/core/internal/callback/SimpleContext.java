@@ -20,7 +20,9 @@
 package org.flywaydb.core.internal.callback;
 
 import java.util.List;
+import java.util.Optional;
 import lombok.AccessLevel;
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.MigrationInfo;
@@ -32,8 +34,10 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
 import org.flywaydb.core.internal.reports.ReportDetails;
 
+@CustomLog
 @Getter(onMethod = @__(@Override))
 public class SimpleContext implements Context {
     private final Configuration configuration;
@@ -44,6 +48,8 @@ public class SimpleContext implements Context {
     private final OperationResult operationResult;
     @Getter
     private final Database database;
+    @Getter
+    private final NativeConnectorsDatabase ncDatabase;
     private ReportDetails reportDetails;
 
     public SimpleContext(final Configuration configuration, final ReportDetails reportDetails) {
@@ -53,6 +59,7 @@ public class SimpleContext implements Context {
         this.statement = null;
         this.operationResult = null;
         this.database = null;
+        this.ncDatabase = null;
         this.reportDetails = reportDetails;
     }
 
@@ -63,6 +70,7 @@ public class SimpleContext implements Context {
         this.statement = null;
         this.operationResult = null;
         this.database = null;
+        this.ncDatabase = null;
     }
 
     public SimpleContext(final Configuration configuration,
@@ -75,6 +83,7 @@ public class SimpleContext implements Context {
         this.statement = null;
         this.operationResult = operationResult;
         this.database = null;
+        this.ncDatabase = null;
     }
 
     public SimpleContext(final Configuration configuration,
@@ -88,6 +97,7 @@ public class SimpleContext implements Context {
         this.statement = null;
         this.operationResult = operationResult;
         this.database = database;
+        this.ncDatabase = null;
     }
 
     public SimpleContext(final Configuration configuration,
@@ -102,6 +112,40 @@ public class SimpleContext implements Context {
         this.statement = new SimpleStatement(sql, warnings, errors);
         this.operationResult = null;
         this.database = null;
+        this.ncDatabase = null;
+    }
+
+    public SimpleContext(final Configuration configuration,
+        final Connection connection,
+        final MigrationInfo migrationInfo,
+        final OperationResult operationResult,
+        final NativeConnectorsDatabase database) {
+        this.configuration = configuration;
+        this.connection = connection;
+        this.migrationInfo = migrationInfo;
+        this.statement = null;
+        this.operationResult = operationResult;
+        this.ncDatabase = database;
+        this.database = null;
+    }
+
+    public String getDatabaseName() {
+        if (ncDatabase != null) {
+            return ncDatabase.getDatabaseMetaData().databaseName();
+        }
+        try {
+            return Optional.ofNullable(database).map(Database::getCatalog).orElse("");
+        } catch (final Exception e) {
+            LOG.debug("Unable to determine the database name for the deploy event: " + e.getMessage());
+            return "";
+        }
+    }
+
+    public String getDatabaseType() {
+        if (ncDatabase != null) {
+            return ncDatabase.getDatabaseType();
+        }
+        return Optional.ofNullable(database).map(d -> d.getDatabaseType().getName()).orElse("");
     }
 
     @Override

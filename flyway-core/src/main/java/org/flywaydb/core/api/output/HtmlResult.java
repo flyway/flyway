@@ -42,6 +42,9 @@ public class HtmlResult implements OperationResult {
     @Getter
     @Setter
     private boolean licenseFailed;
+    @Getter
+    @Setter
+    private String environment;
 
     public HtmlResult(final OffsetDateTime timestamp, final String operation) {
         setTimestamp(timestamp);

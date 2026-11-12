@@ -55,7 +55,7 @@ public interface ConfigurationExtension extends Plugin {
     @Override
     default Plugin copy() {
         if (JACKSON_DATABIND_PRESENT) {
-            final ObjectMapper objectMapper = new ObjectMapper();
+            final ObjectMapper objectMapper = ConfigurationExtensionCopyMapper.INSTANCE;
             try {
                 return objectMapper.readValue(objectMapper.writeValueAsString(this), this.getClass());
             } catch (final Exception e) {
@@ -76,5 +76,12 @@ public interface ConfigurationExtension extends Plugin {
     @JsonIgnore
     default boolean isStub() {
         return false;
+    }
+}
+
+final class ConfigurationExtensionCopyMapper {
+    static final ObjectMapper INSTANCE = new ObjectMapper();
+
+    private ConfigurationExtensionCopyMapper() {
     }
 }

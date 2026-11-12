@@ -22,7 +22,6 @@ package org.flywaydb.database.nc.couchbase;
 import static com.couchbase.client.java.query.QueryScanConsistency.REQUEST_PLUS;
 import static org.flywaydb.core.internal.logging.PreviewFeatureWarning.logPreviewFeature;
 
-import com.couchbase.client.core.env.SecurityConfig;
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.ClusterOptions;
@@ -101,7 +100,7 @@ public class CouchbaseDatabase extends NativeConnectorsNonJdbc {
         initializeConnectionType(configuration);
 
         final ClusterEnvironment env = ClusterEnvironment.builder()
-            .securityConfig(SecurityConfig.enableTls(true))
+            .securityConfig(security -> security.enableTls(true))
             .build();
 
         cluster = Cluster.connect(environment.getUrl(),

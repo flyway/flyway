@@ -114,6 +114,8 @@ public class RepairVerbExtension implements VerbExtension {
         }
 
         callbackManager.handleEvent(Event.AFTER_REPAIR, database, configuration, context.getParsingContext());
+
+        callbackManager.handleEvent(Event.AFTER_REPAIR_OPERATION_FINISH, database, configuration, context.getParsingContext(), repairResult);
         return repairResult;
     }
 

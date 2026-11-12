@@ -22,8 +22,11 @@ package org.flywaydb.core.internal.license;
 import static org.flywaydb.core.internal.util.FlywayDbWebsiteLinks.LICENSING_ACTIVATING_CLI;
 
 import java.io.File;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import lombok.CustomLog;
 import lombok.Getter;
+import lombok.Setter;
 import org.flywaydb.core.extensibility.Tier;
 import org.flywaydb.core.internal.util.DateUtils;
 import org.flywaydb.core.internal.util.FileUtils;
@@ -42,7 +45,11 @@ public class FlywayPermit implements Serializable {
     private final boolean trial;
     private final boolean redgateEmployee;
     private final AuthMethod authMethod;
+    @Setter
+    private Date lastChecked;
     private static final long DAYS_TO_DISPLAY_LICENSED_UNTIL = 30;
+    private static final DateTimeFormatter LAST_CHECKED_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm z")
+        .withZone(ZoneId.systemDefault());
     static final long PERMIT_FILE_OUTDATED_TIME = 24 * 60 * 60 * 1000;
     private static final File FLYWAY_APP_DATA_FOLDER = FileUtils.getAppDataFlywayCLILocation();
     private static final File PERMIT_FILE = new File(FLYWAY_APP_DATA_FOLDER, "permit");
@@ -82,7 +89,7 @@ public class FlywayPermit implements Serializable {
         }
 
         if (authMethod != null && authMethod != AuthMethod.NONE) {
-            LOG.info("Licensed via: " + authMethod.getDisplayName());
+            LOG.info("Licensed via: " + authMethod.getDisplayName() + lastCheckedSuffix());
         }
 
         final Date expiry = this.authMethod == AuthMethod.OFFLINE_PERMIT ? this.permitExpiry : this.contractExpiry;
@@ -133,6 +140,13 @@ public class FlywayPermit implements Serializable {
             LOG.info("Licensed until " + DateUtils.toDateString(this.contractExpiry) + " (" + StringUtils.getDaysString(
                 DateUtils.getRemainingDays(this.contractExpiry)) + " remaining)");
         }
+    }
+
+    private String lastCheckedSuffix() {
+        if (this.lastChecked == null) {
+            return "";
+        }
+        return " (last checked " + LAST_CHECKED_FORMAT.format(this.lastChecked.toInstant()) + ")";
     }
 
     private void logPermitExpiryIfWithinWindow(final Date expiry) {

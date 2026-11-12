@@ -166,6 +166,7 @@ public class MigrateVerbExtension implements VerbExtension {
             database.getDatabaseMetaData().databaseName(),
             "",
             database.getDatabaseType());
+        migrateResult.setEnvironment(configuration.getCurrentEnvironmentName());
 
         final MigrationInfoService migrationInfoService = new NativeConnectorsMigrationInfoService(context.getMigrations(),
             configuration,
@@ -245,6 +246,8 @@ public class MigrateVerbExtension implements VerbExtension {
                 context.getParsingContext());
         }
         callbackManager.handleEvent(Event.AFTER_MIGRATE, database, configuration, context.getParsingContext());
+
+        callbackManager.handleEvent(Event.AFTER_MIGRATE_OPERATION_FINISH, database, configuration, context.getParsingContext(), migrateResult);
 
         return migrateResult;
     }

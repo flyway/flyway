@@ -33,6 +33,7 @@ import lombok.Value;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.callback.CallbackEvent;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.api.resource.LoadableResourceMetadata;
 import org.flywaydb.core.internal.nc.CallbackHandler;
 import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
@@ -52,10 +53,19 @@ public class NativeConnectorsCallbackHandler implements CallbackHandler {
     public void handleEvent(final CallbackEvent<?> event,
         final NativeConnectorsDatabase database,
         final Configuration configuration,
-        final ParsingContext parsingContext) {
+        final ParsingContext parsingContext,
+        final OperationResult operationResult) {
         callbacks.stream()
             .filter(x -> x.supports(event))
             .forEach(x -> handleEvent(x, database, configuration, parsingContext));
+    }
+
+    @Override
+    public void handleEvent(final CallbackEvent<?> event,
+        final NativeConnectorsDatabase database,
+        final Configuration configuration,
+        final ParsingContext parsingContext) {
+        handleEvent(event, database, configuration, parsingContext, null);
     }
 
     private void handleEvent(final Callback callback,
@@ -100,23 +110,26 @@ public class NativeConnectorsCallbackHandler implements CallbackHandler {
     }
 
     @Override
-    public void registerCallbacks(final Collection<LoadableResourceMetadata> resources,
+    public void registerCallbacks(final Configuration configuration,
+        final Collection<LoadableResourceMetadata> resources,
         final Function<String, ? extends CallbackEvent<?>> eventResolver) {
         callbacks.clear();
-        resources.stream().map(resource -> {
-            final var event = eventResolver.apply(resource.prefix());
-            if (event != null) {
-                if (resource.sqlScriptMetadata() != null && !resource.sqlScriptMetadata().shouldExecute()) {
-                    LOG.debug("Callback " + event.getId() + " registration skipped as shouldExecute is false");
-                    return null;
-                }
+        if (!configuration.isSkipDefaultCallbacks()) {
+            resources.stream().map(resource -> {
+                final var event = eventResolver.apply(resource.prefix());
+                if (event != null) {
+                    if (resource.sqlScriptMetadata() != null && !resource.sqlScriptMetadata().shouldExecute()) {
+                        LOG.debug("Callback " + event.getId() + " registration skipped as shouldExecute is false");
+                        return null;
+                    }
 
-                LOG.debug("Callback registered: " + event.getId() + " from " + resource.loadableResource()
-                    .getAbsolutePath());
-                return new Callback(resource, event);
-            }
-            return null;
-        }).filter(Objects::nonNull).forEach(callbacks::add);
+                    LOG.debug("Callback registered: " + event.getId() + " from " + resource.loadableResource()
+                        .getAbsolutePath());
+                    return new Callback(resource, event);
+                }
+                return null;
+            }).filter(Objects::nonNull).forEach(callbacks::add);
+        }
     }
 }
 

@@ -28,7 +28,6 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
-import org.flywaydb.core.internal.license.FlywayRedgateEditionRequiredException;
 
 public class ModelCommandExtensionStub implements CommandExtension<OperationResult> {
     private static final String FEATURE_NAME = "model";
@@ -49,7 +48,7 @@ public class ModelCommandExtensionStub implements CommandExtension<OperationResu
     public OperationResult handle(final Configuration config, final List<String> flags) throws FlywayException {
         return TelemetrySpan.trackSpan(new EventTelemetryModel(COMMAND, getTelemetryManager(config)),
             (telemetryModel) -> {
-                throw new FlywayRedgateEditionRequiredException(FEATURE_NAME);
+                throw StubExceptions.featureUnavailable(FEATURE_NAME);
             });
     }
 

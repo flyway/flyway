@@ -9,6 +9,39 @@
 <div class="col-md-9">
 <!-- BEGIN db-generated release notes -->
   <div class="release">
+        <h2 id="13.12.2">Flyway 13.12.2 (2026-11-12)</h2>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Flyway now supports the `offlinePermit` parameter for supplying an offline license permit directly, as an alternative to `offlinePermitPath`</li>
+            <li>When Flyway is licensed through online authentication or a personal access token, the "Licensed via" message now shows when the license was last checked, including the time zone, for example "Licensed via: Online Authentication (last checked 2026-10-09 08:14 BST)". This makes it clear that a recently renewed license may take up to 24 hours to appear.</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Connection failures with no route to the database host now report the `NO_ROUTE_TO_HOST` sub error code in JSON output instead of `CONNECTION_FAILURE`</li>
+            <li>The `docker` provisioner is no longer in preview</li>
+            <li>The Flyway MCP server now starts without a license. `load_project`, `reload_project`, `review_code` and `test_migrate` work without one; the other tools still need Flyway Enterprise and return a licensing error explaining how to upgrade.</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/4297">Issue 4297</a>
+                Fixed a `NullPointerException` that made Gradle plugin tasks fail with Native Connectors databases
+            </li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/4300">Issue 4300</a>
+                Fixed Maven builds failing with `401 Unauthorized` from the `flyway-community-db-support` GitHub Packages repository. `flyway-parent` no longer declares it
+            </li>
+            <li>Migrate and deploy results are now published to Flyway Insights when using native connectors</li>
+            <li>Some published Redgate Flyway Maven artifacts could not be resolved because they referenced POMs that were never published; they now resolve correctly</li>
+        </ul>
+
+  </div>
+
+
+  <div class="release">
         <h2 id="13.12.1">Flyway 13.12.1 (2026-11-05)</h2>
 
         <h3>New features</h3>

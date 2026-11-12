@@ -44,12 +44,14 @@ significantly, or tools may be removed, in future releases without notice.
 ### 1. Prerequisites
 
 - A build of Flyway **13.0.0 or later** (but latest release recommended),
-  [downloaded here](https://documentation.red-gate.com/fd/installers-172490864.html). You must be
+  [downloaded here](https://documentation.red-gate.com/fd/installers-172490864.html). The server starts without a
+  license, but most of its tools need Flyway Enterprise—the [Tool Reference](<Usage/Flyway MCP Server/Tool Reference>)
+  lists which. To use them you must be
   [licensed and authenticated](https://documentation.red-gate.com/fd/licensing-164167730.html) for Flyway
   Enterprise -- check this by running `flyway version`. The first line reports your edition and version, for example
   `Flyway Community Edition {{ site.flywayVersion }} by Redgate`; if it doesn't name an Enterprise edition, Flyway isn't licensed yet.
-    - No organization-level opt-in is required beyond the license—any user licensed for Flyway Enterprise can use the
-      MCP server.
+    - No organization-level opt-in is required beyond the license—any user licensed for Flyway Enterprise can use every
+      MCP server tool.
     - You don't need to install Java separately: the command-line download bundles its own Java runtime in its `jre`
       folder.
 - A Flyway project. If you don't have one, create it with Flyway Desktop, or from the command line with

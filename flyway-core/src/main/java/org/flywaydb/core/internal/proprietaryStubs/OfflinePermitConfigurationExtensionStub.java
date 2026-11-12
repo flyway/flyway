@@ -28,9 +28,13 @@ import org.flywaydb.core.internal.license.FlywayRedgateEditionRequiredException;
 public class OfflinePermitConfigurationExtensionStub implements ConfigurationExtension {
 
     public static final String FLYWAY_OFFLINE_PERMIT_PATH_ENV = "FLYWAY_OFFLINE_PERMIT_PATH";
+    public static final String FLYWAY_OFFLINE_PERMIT_ENV = "FLYWAY_OFFLINE_PERMIT";
 
     private static final String FLYWAY_OFFLINE_PERMIT_PATH = "flyway.offlinePermitPath";
-    private String offlinePermitPath;
+    private String offlinePermitPath; //Do not delete this field. Config discovers valid parameters by looking at declared fields on config extensions.
+    
+    private static final String FLYWAY_OFFLINE_PERMIT = "flyway.offlinePermit";
+    private String offlinePermit; //Do not delete this field. Config discovers valid parameters by looking at declared fields on config extensions.
 
     @Override
     public String getNamespace() {
@@ -42,6 +46,9 @@ public class OfflinePermitConfigurationExtensionStub implements ConfigurationExt
         if (FLYWAY_OFFLINE_PERMIT_PATH_ENV.equals(environmentVariable)) {
             return FLYWAY_OFFLINE_PERMIT_PATH;
         }
+        if (FLYWAY_OFFLINE_PERMIT_ENV.equals(environmentVariable)) {
+            return FLYWAY_OFFLINE_PERMIT;
+        }
         return null;
     }
 
@@ -50,6 +57,14 @@ public class OfflinePermitConfigurationExtensionStub implements ConfigurationExt
     }
 
     public String getOfflinePermitPath() {
+        return null;
+    }
+
+    public void setOfflinePermit(final String offlinePermit) {
+        throw new FlywayRedgateEditionRequiredException("Offline Permit");
+    }
+
+    public String getOfflinePermit() {
         return null;
     }
 

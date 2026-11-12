@@ -32,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
+import org.flywaydb.core.internal.exception.sqlExceptions.FlywaySqlNoRouteToHostException;
 import org.flywaydb.core.internal.exception.sqlExceptions.FlywaySqlUnableToConnectToDbException;
 import org.flywaydb.core.internal.strategy.BackoffStrategy;
 import org.flywaydb.core.internal.util.ExceptionUtils;
@@ -74,7 +75,7 @@ public class JdbcUtils {
                 FlywaySqlException.throwFlywayExceptionIfPossible(sqlException, dataSource);
 
                 if (++retries > connectRetries) {
-                    throw new FlywaySqlUnableToConnectToDbException(sqlException, dataSource);
+                    throw unableToConnect(sqlException, dataSource);
                 }
                 final Throwable rootCause = ExceptionUtils.getRootCause(sqlException);
                 String message = "Connection error: " + sqlException.getMessage();
@@ -85,10 +86,17 @@ public class JdbcUtils {
                 try {
                     Thread.sleep(backoffStrategy.next() * 1000L);
                 } catch (final InterruptedException e1) {
-                    throw new FlywaySqlUnableToConnectToDbException(sqlException, dataSource);
+                    throw unableToConnect(sqlException, dataSource);
                 }
             }
         }
+    }
+
+    private static FlywaySqlUnableToConnectToDbException unableToConnect(final SQLException sqlException,
+        final DataSource dataSource) {
+        return FlywaySqlNoRouteToHostException.isNoRouteToHost(sqlException)
+            ? new FlywaySqlNoRouteToHostException(sqlException, dataSource)
+            : new FlywaySqlUnableToConnectToDbException(sqlException, dataSource);
     }
 
     /**

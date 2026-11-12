@@ -23,17 +23,25 @@ import java.util.Collection;
 import java.util.function.Function;
 import org.flywaydb.core.api.callback.CallbackEvent;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.api.resource.LoadableResourceMetadata;
 import org.flywaydb.core.extensibility.Plugin;
 import org.flywaydb.core.internal.parser.ParsingContext;
 
 public interface CallbackHandler extends Plugin {
 
-    void registerCallbacks(final Collection<LoadableResourceMetadata> resources,
+    void registerCallbacks(final Configuration configuration,
+        final Collection<LoadableResourceMetadata> resources,
         final Function<String, ? extends CallbackEvent<?>> eventResolver);
 
     void handleEvent(final CallbackEvent<?> event,
         final NativeConnectorsDatabase database,
         final Configuration configuration,
         final ParsingContext parsingContext);
+
+    void handleEvent(final CallbackEvent<?> event,
+        final NativeConnectorsDatabase database,
+        final Configuration configuration,
+        final ParsingContext parsingContext,
+        final OperationResult operationResult);
 }

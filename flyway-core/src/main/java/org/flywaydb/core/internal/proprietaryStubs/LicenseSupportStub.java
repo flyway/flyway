@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.List;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.LicenseSupport;
-import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.license.FlywayPermit;
 
 public class LicenseSupportStub implements LicenseSupport {
@@ -35,7 +34,7 @@ public class LicenseSupportStub implements LicenseSupport {
     }
 
     @Override
-    public void submitPur(final Configuration configuration, final String eventType, final Database database) {}
+    public void submitPur(final Configuration configuration, final String eventType, final String databaseType, final String databaseHosting) {}
 
     @Override
     public List<String> consumeDeferredWarnings(final Configuration configuration) {

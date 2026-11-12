@@ -2,8 +2,6 @@
 subtitle: Docker Provisioner
 ---
 
-- **Status:** Preview
-
 {% include enterprise.html %}
 
 This [provisioner](https://documentation.red-gate.com/flyway/flyway-concepts/environments/provisioning) automatically provisions a database in a Docker container with minimal configuration. It detects the database engine and version to use, selects a matching Docker image, and spins up a container using raw Docker commands.
