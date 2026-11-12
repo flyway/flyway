@@ -127,12 +127,20 @@ public class SnowflakeParser extends Parser {
             return; //Beginning a transaction shouldn't increase block depth
         }
 
+        // [#4273] previousKeywordText alone can't tell "END IF" (one compound closer) apart from
+        // an unrelated "END" followed, in a later independent statement, by a standalone IF/FOR/CASE.
+        // tokens still holds every DELIMITER crossed since the enclosing statement began (block-depth > 0
+        // keeps mid-statement delimiters from ending the statement), so a delimiter between the last
+        // "END" and here proves this keyword cannot be the tail of that "END".
+        final boolean immediatelyAfterEnd = "END".equalsIgnoreCase(previousKeywordText)
+            && !hasDelimiterAfter(tokens, lastKeywordIndex);
+
         if ("BEGIN".equalsIgnoreCase(keywordText) || ((("IF".equalsIgnoreCase(keywordText)
             && !CONDITIONALLY_CREATABLE_OBJECTS.contains(previousKeywordText))
             // excludes the IF in eg. CREATE TABLE IF EXISTS
             || "FOR".equalsIgnoreCase(keywordText) || "CASE".equalsIgnoreCase(keywordText))
             && previousKeyword != null
-            && !"END".equalsIgnoreCase(previousKeywordText)
+            && !immediatelyAfterEnd
             && !"CURSOR".equalsIgnoreCase(previousKeywordText))) {  // DECLARE CURSOR FOR SELECT ... has no END
             context.increaseBlockDepth(keywordText);
         } else if (("EACH".equalsIgnoreCase(keywordText) || "SQLEXCEPTION".equalsIgnoreCase(keywordText))
@@ -143,6 +151,15 @@ public class SnowflakeParser extends Parser {
         } else if ("END".equalsIgnoreCase(keywordText) && context.getBlockDepth() > 0) {
             context.decreaseBlockDepth();
         }
+    }
+
+    private static boolean hasDelimiterAfter(final List<Token> tokens, final int index) {
+        for (int i = index + 1; i < tokens.size(); i++) {
+            if (tokens.get(i).getType() == TokenType.DELIMITER) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
