@@ -60,5 +60,23 @@
       <version>${project.parent.version}</version>
       <scope>compile</scope>
     </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>5.13.4</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>flyway-database-nc-sqlite</artifactId>
+      <version>${project.parent.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>flyway-nc-scanners</artifactId>
+      <version>${project.parent.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 </project>
