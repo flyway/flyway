@@ -41,7 +41,10 @@ public class DeprecationUtils {
             "the docker-compose provisioner",
             null),
         CHECK_DRIFT_ON_MIGRATE("checkDriftOnMigrate", null, null),
-        PUBLISH_REPORT("flywayServicePublish.publishReport", null, null);
+        PUBLISH_REPORT("flywayServicePublish.publishReport", null, null),
+        REDGATE_LICENSING_PERMIT("The REDGATE_LICENSING_PERMIT environment variable",
+            "offlinePermit (or the FLYWAY_OFFLINE_PERMIT environment variable)",
+            null);
 
         private final String feature;
         private final String replacement;

@@ -1371,7 +1371,8 @@ public class ClassicConfiguration implements Configuration {
         if (modernConfig.getEnvironments().containsKey(environment)) {
             getModernFlyway().setEnvironment(environment);
         } else {
-            final Optional<String> suggestion = findCaseInsensitiveEnvironmentMatch(environment);
+            final Optional<String> suggestion = findCaseInsensitiveMatch(modernConfig.getEnvironments().keySet(),
+                environment);
             throw new FlywayException("Environment '" + environment + "' not found." + suggestion.map(s ->
                 " Did you mean '"
                     + s
@@ -1984,13 +1985,34 @@ public class ClassicConfiguration implements Configuration {
             environment.getUser()) && Objects.equals(this.getPassword(), environment.getPassword());
     }
 
+    public List<String> getEnvironmentNamesInGroup(final String environmentGroup) {
+        if (!modernConfig.getEnvironmentGroups().containsKey(environmentGroup)) {
+            final Optional<String> suggestion = findCaseInsensitiveMatch(modernConfig.getEnvironmentGroups().keySet(),
+                environmentGroup);
+            throw new FlywayException("Environment group '"
+                + environmentGroup
+                + "' not found. Check that this environment group exists in your configuration."
+                + suggestion.map(s -> " Did you mean '" + s + "'?").orElse(""));
+        }
+
+        return modernConfig.getEnvironments()
+            .entrySet()
+            .stream()
+            .filter(entry -> entry.getValue().getEnvironmentGroups() != null
+                && entry.getValue().getEnvironmentGroups().contains(environmentGroup))
+            .map(Map.Entry::getKey)
+            .sorted()
+            .toList();
+    }
+
     public String getCurrentEnvironmentName() {
         String envName = getModernFlyway().getEnvironment();
         if (!StringUtils.hasText(envName)) {
-            envName = "default";
+            envName = ConfigurationModel.DEFAULT_ENVIRONMENT;
         }
         if (!modernConfig.getEnvironments().containsKey(envName) && !"-".equals(envName)) {
-            final Optional<String> suggestion = findCaseInsensitiveEnvironmentMatch(envName);
+            final Optional<String> suggestion = findCaseInsensitiveMatch(modernConfig.getEnvironments().keySet(),
+                envName);
             throw new FlywayException("Environment '"
                 + envName
                 + "' not found. Check that this environment exists in your configuration."
@@ -2000,11 +2022,10 @@ public class ClassicConfiguration implements Configuration {
         return envName;
     }
 
-    private Optional<String> findCaseInsensitiveEnvironmentMatch(final String envName) {
-        return modernConfig.getEnvironments()
-            .keySet()
+    private static Optional<String> findCaseInsensitiveMatch(final Collection<String> names, final String name) {
+        return names
             .stream()
-            .filter(key -> key.equalsIgnoreCase(envName))
+            .filter(key -> key.equalsIgnoreCase(name))
             .findFirst();
     }
 
@@ -2148,7 +2169,7 @@ public class ClassicConfiguration implements Configuration {
         Optional.ofNullable(pluginRegister.getInstanceOf(PluginConfigurationReloader.class))
             .ifPresent(listener -> listener.reload(modernConfig,
                 pluginRegister,
-                StringUtils.hasText(environment) ? environment : "default"));
+                StringUtils.hasText(environment) ? environment : ConfigurationModel.DEFAULT_ENVIRONMENT));
     }
 
     public List<String> getJarDirs() {

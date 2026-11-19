@@ -36,6 +36,7 @@ import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.extensibility.ConfigurationParameter;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.extensibility.TestConnectionRunner;
+import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
 import org.flywaydb.core.internal.configuration.models.EnvironmentModel;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -44,8 +45,6 @@ import org.flywaydb.core.internal.util.StringUtils;
 @RequiredArgsConstructor
 public class TestConnectionCommandExtension implements CommandExtension<TestConnectionResult> {
     public static final String VERB = "testConnection";
-
-    private static final String DEFAULT_INLINE_ENVIRONMENT = "default";
 
     private final StandardInEnvironmentModelProvider modelProvider;
 
@@ -130,6 +129,6 @@ public class TestConnectionCommandExtension implements CommandExtension<TestConn
     private static String inlineEnvironmentName(final Configuration config) {
         final var extension = config.getPluginRegister().getExact(TestConnectionConfigurationExtension.class);
         final var configured = extension == null ? null : extension.getEnvironmentName();
-        return StringUtils.hasText(configured) ? configured : DEFAULT_INLINE_ENVIRONMENT;
+        return StringUtils.hasText(configured) ? configured : ConfigurationModel.DEFAULT_ENVIRONMENT;
     }
 }

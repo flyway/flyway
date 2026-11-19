@@ -22,7 +22,8 @@ package org.flywaydb.core.internal.exception;
 import org.flywaydb.core.api.FlywayException;
 
 /**
- * Thrown when the current license tier includes a feature but the module that implements it is not available.
+ * Thrown when a Redgate Edition feature is used and Redgate licensing is on the classpath, but the module that
+ * implements the feature is not.
  */
 public class FlywayModuleNotFoundException extends FlywayException {
     public FlywayModuleNotFoundException(final String feature) {

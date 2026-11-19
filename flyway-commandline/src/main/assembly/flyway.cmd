@@ -17,13 +17,13 @@ if not "%FLYWAY_JAVA_CMD%"=="" (
     ) else (
       set JAVA_CMD="%JAVA_HOME%\bin\java.exe"
     )
-  )
+  ) 
 )
 
 if "%JAVA_ARGS%"=="" (
   set JAVA_ARGS=
 )
-set EXTRA_ARGS=--enable-native-access=ALL-UNNAMED -Djava.library.path="%INSTALLDIR%\native"
+set EXTRA_ARGS=--enable-native-access=ALL-UNNAMED -XX:-UseBASE64Intrinsics -Djava.library.path="%INSTALLDIR%\native"
 
 @REM Inherit OS-level proxy settings only when explicitly enabled. Placed before JAVA_ARGS so any
 @REM explicit -Dhttp.proxyHost etc. the user passes always wins (java honours the last -D wins).

@@ -21,6 +21,7 @@ package org.flywaydb.core.internal.configuration.models;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,7 +32,11 @@ import org.flywaydb.core.internal.util.MergeUtils;
 @Setter
 @NoArgsConstructor
 public class ConfigurationModel {
+    public static final String DEFAULT_ENVIRONMENT = "default";
+    private static final List<String> DEFAULT_ENVIRONMENT_GROUPS = List.of("dev", "test", "staging", "prod", "shadow", "build");
+
     private Map<String, EnvironmentModel> environments = new HashMap<>();
+    private Map<String, EnvironmentGroupModel> environmentGroups = new HashMap<>();
     private FlywayModel flyway = new FlywayModel();
     private String id;
 
@@ -41,7 +46,8 @@ public class ConfigurationModel {
     public static ConfigurationModel defaults() {
         final ConfigurationModel model = new ConfigurationModel();
         model.flyway = FlywayModel.defaults();
-        model.environments.put("default", new EnvironmentModel());
+        model.environments.put(DEFAULT_ENVIRONMENT, new EnvironmentModel());
+        DEFAULT_ENVIRONMENT_GROUPS.forEach(group -> model.environmentGroups.put(group, new EnvironmentGroupModel()));
         return model;
     }
 
@@ -51,6 +57,9 @@ public class ConfigurationModel {
 
         result.flyway = flyway != null ? flyway.merge(otherPojo.flyway) : otherPojo.flyway;
         result.environments = MergeUtils.merge(environments, otherPojo.environments, EnvironmentModel::merge);
+        result.environmentGroups = MergeUtils.merge(environmentGroups,
+            otherPojo.environmentGroups,
+            EnvironmentGroupModel::merge);
         result.rootConfigurations = MergeUtils.merge(rootConfigurations,
             otherPojo.rootConfigurations,
             MergeUtils::mergeObjects);

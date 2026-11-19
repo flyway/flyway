@@ -1874,7 +1874,7 @@ Source: https://app.snyk.io/vuln/snyk:lic:maven:net.minidev:json-smart:Apache-2.
 <license-texts/Apache-2.0-0.txt>
 -------------------------------------
 -------------------------------------
-net.snowflake:snowflake-jdbc 4.3.4
+net.snowflake:snowflake-jdbc 4.4.1
 -------------------------------------
 Source: https://app.snyk.io/vuln/snyk:lic:maven:net.snowflake:snowflake-jdbc:Apache-2.0
 

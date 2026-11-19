@@ -45,7 +45,7 @@ public class FlywayModel extends FlywayEnvironmentModel {
 
     public static FlywayModel defaults() {
         final FlywayModel model = new FlywayModel();
-        model.environment = "default";
+        model.environment = ConfigurationModel.DEFAULT_ENVIRONMENT;
         model.setOutputProgress(false);
         model.setReportFilename(DEFAULT_REPORT_FILENAME);
         model.setDetectEncoding(false);

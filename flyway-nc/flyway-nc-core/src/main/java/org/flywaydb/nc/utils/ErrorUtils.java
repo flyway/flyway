@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import lombok.CustomLog;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resource.LoadableResource;
+import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
 import org.flywaydb.core.internal.nc.NativeConnectorsDatabase;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.nc.Executor;
@@ -67,7 +68,7 @@ public class ErrorUtils {
     public static String getScriptExecutionErrorMessageTitle(final Path scriptName, final String environment) {
         final StringBuilder messageBuilder = new StringBuilder("Failed to execute script ").append(scriptName);
 
-        if (!"default".equalsIgnoreCase(environment)) {
+        if (!ConfigurationModel.DEFAULT_ENVIRONMENT.equalsIgnoreCase(environment)) {
             messageBuilder.append(" against ").append(environment).append(" environment");
         }
 

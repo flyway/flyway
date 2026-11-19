@@ -24,6 +24,7 @@ import lombok.CustomLog;
 import lombok.Getter;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resource.Resource;
+import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 
 /**
@@ -109,7 +110,7 @@ public class FlywaySqlScriptException extends FlywaySqlException {
             messageBuilder.append(" ").append(resource.getFilename());
         }
 
-        if (!"default".equalsIgnoreCase(environment)) {
+        if (!ConfigurationModel.DEFAULT_ENVIRONMENT.equalsIgnoreCase(environment)) {
             messageBuilder.append(" against ").append(environment).append(" environment");
         }
 

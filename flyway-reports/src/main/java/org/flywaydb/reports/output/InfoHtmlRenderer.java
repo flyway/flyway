@@ -21,6 +21,7 @@ package org.flywaydb.reports.output;
 
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.InfoResult;
+import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
 import org.flywaydb.reports.api.extensibility.HtmlRenderer;
 import org.flywaydb.reports.api.extensibility.HtmlReportSummary;
 import org.flywaydb.core.internal.util.DateUtils;
@@ -84,7 +85,7 @@ public class InfoHtmlRenderer implements HtmlRenderer<InfoResult> {
 
         htmlResult.add(deployedSummary);
 
-        if (!"default".equals(config.getCurrentEnvironmentName())) {
+        if (!ConfigurationModel.DEFAULT_ENVIRONMENT.equals(config.getCurrentEnvironmentName())) {
             htmlResult.add(new HtmlReportSummary("summaryNote",
                 "infoOutlined",
                 "Environment: " + config.getCurrentEnvironmentName()));

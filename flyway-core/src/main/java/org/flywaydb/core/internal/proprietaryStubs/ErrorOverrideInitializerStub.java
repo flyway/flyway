@@ -33,7 +33,7 @@ import org.flywaydb.core.internal.database.base.Schema;
 public class ErrorOverrideInitializerStub implements ErrorOverrideInitializer {
     @Override
     public void setCallback(final String[] errorOverrides) {
-
+        throw StubExceptions.featureUnavailable("errorOverrides");
     }
 
     @Override

@@ -22,6 +22,7 @@ package org.flywaydb.reports.output;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.MigrateResult;
+import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
 import org.flywaydb.reports.api.extensibility.HtmlRenderer;
 import org.flywaydb.reports.api.extensibility.HtmlReportSummary;
 import org.flywaydb.core.internal.util.FileUtils;
@@ -103,7 +104,7 @@ public class MigrateHtmlRenderer implements HtmlRenderer<MigrateResult> {
         htmlResult.add(new HtmlReportSummary("scNote",
             "clockOutlined",
             "Execution Time: " + format(result.migrations.stream().mapToInt(i -> i.executionTime).sum())));
-        if (!"default".equals(config.getCurrentEnvironmentName())) {
+        if (!ConfigurationModel.DEFAULT_ENVIRONMENT.equals(config.getCurrentEnvironmentName())) {
             htmlResult.add(new HtmlReportSummary("summaryNote",
                 "infoOutlined",
                 "Environment: " + config.getCurrentEnvironmentName()));

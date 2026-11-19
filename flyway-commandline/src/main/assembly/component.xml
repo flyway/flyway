@@ -37,7 +37,7 @@
       <includes>
         <include>flyway</include>
       </includes>
-      <fileMode>744</fileMode>
+      <fileMode>755</fileMode>
       <lineEnding>unix</lineEnding>
       <filtered>true</filtered>
     </fileSet>

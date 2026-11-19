@@ -27,12 +27,14 @@ import java.util.List;
  */
 public class AsciiTable {
     private static final String DEFAULT_COLUMN_NAME = "(No column name)";
+    private static final String TRUNCATION_MARKER = "...";
 
     private final List<String> columns;
     private final List<List<String>> rows;
     private final boolean printHeader;
     private final String nullText;
     private final String emptyText;
+    private final int maxCellWidth;
 
     /**
      * Creates a new Ascii table.
@@ -48,11 +50,34 @@ public class AsciiTable {
         final boolean printHeader,
         final String nullText,
         final String emptyText) {
+        this(columns, rows, printHeader, nullText, emptyText, Integer.MAX_VALUE);
+    }
+
+    /**
+     * Creates a new Ascii table whose cell values are shortened to at most {@code maxCellWidth} characters.
+     *
+     * @param columns      The column titles.
+     * @param rows         The data rows
+     * @param printHeader  Whether to print the header row or not.
+     * @param nullText     The text to use for a {@code null} value.
+     * @param emptyText    The text to include in the table if it has no rows.
+     * @param maxCellWidth The maximum width of a cell value. Longer values are cut short and end with "...".
+     */
+    public AsciiTable(final List<String> columns,
+        final List<List<String>> rows,
+        final boolean printHeader,
+        final String nullText,
+        final String emptyText,
+        final int maxCellWidth) {
+        if (maxCellWidth <= TRUNCATION_MARKER.length()) {
+            throw new IllegalArgumentException("maxCellWidth must be greater than " + TRUNCATION_MARKER.length());
+        }
         this.columns = ensureValidColumns(columns);
         this.rows = rows;
         this.printHeader = printHeader;
         this.nullText = nullText;
         this.emptyText = emptyText;
+        this.maxCellWidth = maxCellWidth;
     }
 
     private static List<String> ensureValidColumns(final List<String> columns) {
@@ -122,6 +147,9 @@ public class AsciiTable {
         String value = row.get(i);
         if (value == null) {
             value = nullText;
+        }
+        if (value.length() > maxCellWidth) {
+            value = value.substring(0, maxCellWidth - TRUNCATION_MARKER.length()) + TRUNCATION_MARKER;
         }
         return value;
     }

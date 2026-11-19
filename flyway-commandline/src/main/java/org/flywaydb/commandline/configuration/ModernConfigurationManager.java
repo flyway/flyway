@@ -27,6 +27,7 @@ import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeJ
 import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeLocationsBasedOnWorkingDirectory;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeLocationsInEnvironmentsBasedOnWorkingDirectory;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.warnForUnknownEnvParameters;
+import static org.flywaydb.core.internal.configuration.ConfigUtils.warnForUnknownEnvironmentGroupParameters;
 import static org.flywaydb.core.internal.configuration.models.UnknownParameterModel.resolveUnknownParameter;
 
 import java.util.Locale;
@@ -173,7 +174,7 @@ public class ModernConfigurationManager implements ConfigurationManager {
                             .substring("jdbcProperties.".length()), entry.getValue());
                     } else if (entry.getKey().startsWith("flyway.")) {
                         flywayEnvironmentModelArguments.put(entry.getKey(), entry.getValue());
-                    } else if ("schemas".equals(entry.getKey())) {
+                    } else if ("schemas".equals(entry.getKey()) || "environmentGroups".equals(entry.getKey())) {
                         envValueObject.put(entry.getKey(),
                             Arrays.stream(entry.getValue().split(",")).map(String::trim).toList());
                     } else if (entry.getKey().startsWith("resolvers.")) {
@@ -206,6 +207,8 @@ public class ModernConfigurationManager implements ConfigurationManager {
 
         warnForUnknownEnvParameters(config.getEnvironments());
         warnForCaseInsensitiveDuplicateEnvironments(config);
+        warnForCaseInsensitiveDuplicateEnvironmentGroups(config);
+        warnForUnknownEnvironmentGroupParameters(config.getEnvironmentGroups());
 
         ConfigUtils.dumpConfigurationModel(config, "Using configuration:", sources);
         final ClassicConfiguration cfg = new ClassicConfiguration(config);
@@ -326,6 +329,17 @@ public class ModernConfigurationManager implements ConfigurationManager {
         namesByLowerCase.values().stream().filter(names -> names.size() > 1).forEach(names -> LOG.warn(
             "Environments " + names.stream().map(name -> "'" + name + "'").collect(Collectors.joining(", "))
                 + " differ only by case and are treated as separate environments"));
+    }
+
+    private static void warnForCaseInsensitiveDuplicateEnvironmentGroups(final ConfigurationModel config) {
+        final Collection<String> environmentGroupNames = config.getEnvironmentGroups().keySet();
+        final Map<String, List<String>> namesByLowerCase = environmentGroupNames.stream()
+            .sorted()
+            .collect(Collectors.groupingBy(name -> name.toLowerCase(Locale.ROOT)));
+
+        namesByLowerCase.values().stream().filter(names -> names.size() > 1).forEach(names -> LOG.warn(
+            "Environment groups " + names.stream().map(name -> "'" + name + "'").collect(Collectors.joining(", "))
+                + " differ only by case and are treated as separate environment groups"));
     }
 
     private static void handleResolverCommandLineArgs(final String environment,

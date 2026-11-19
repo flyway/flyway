@@ -20,14 +20,13 @@
 package org.flywaydb.core.internal.proprietaryStubs;
 
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
 import org.flywaydb.core.internal.sqlscript.ShouldExecuteEvaluator;
 
 public class ShouldExecuteEvaluatorStub implements ShouldExecuteEvaluator {
 
     @Override
     public boolean evaluateExpression(final String expression, final Configuration config) {
-        throw new FlywayEditionUpgradeRequiredException(null, "shouldExecute");
+        throw StubExceptions.featureUnavailable("shouldExecute");
     }
 
     @Override

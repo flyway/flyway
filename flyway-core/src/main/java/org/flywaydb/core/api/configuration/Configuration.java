@@ -35,6 +35,7 @@ import org.flywaydb.core.internal.plugin.PluginRegister;
 import javax.sql.DataSource;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.Map;
 
 public interface Configuration {
@@ -666,6 +667,17 @@ public interface Configuration {
      * Get the name of the current environment
      */
     String getCurrentEnvironmentName();
+
+    /**
+     * Get the names of the environments in an environment group.
+     * <p>
+     * This is an experimental API. Its signature and behaviour may change in a future release, so do not rely on it.
+     *
+     * @param environmentGroup The name of the environment group.
+     * @return The names of the environments in the group, sorted by name. Empty if the group has no environments.
+     * @throws org.flywaydb.core.api.FlywayException if the environment group is not defined.
+     */
+    List<String> getEnvironmentNamesInGroup(String environmentGroup);
 
     ProgressLogger createProgress(String operationName);
 

@@ -36,11 +36,11 @@ fi
 CP="$CLASSPATH:$INSTALLDIR/lib/*:$INSTALLDIR/lib/aad/*:$INSTALLDIR/lib/plugins/*:$INSTALLDIR/lib/oracle_wallet/*:$INSTALLDIR/lib/flyway/*:$INSTALLDIR/lib/netty/*:$INSTALLDIR/lib/opentelemetry/*:$INSTALLDIR/drivers/*:$INSTALLDIR/drivers/aws/*:$INSTALLDIR/drivers/cassandra/*:$INSTALLDIR/drivers/couchbase/*:$INSTALLDIR/drivers/mongo/*"
 
 
-NATIVE_ACCESS="--enable-native-access=ALL-UNNAMED"
+BASE_ARGS=("--enable-native-access=ALL-UNNAMED" "-XX:-UseBASE64Intrinsics")
 if $linux; then
-  EXTRA_ARGS=("$NATIVE_ACCESS")
+  EXTRA_ARGS=("${BASE_ARGS[@]}")
 else
-  EXTRA_ARGS=("$NATIVE_ACCESS" "-Djava.library.path=$INSTALLDIR/native")
+  EXTRA_ARGS=("${BASE_ARGS[@]}" "-Djava.library.path=$INSTALLDIR/native")
 fi
 
 # Inherit OS-level proxy settings only when explicitly enabled. Placed before JAVA_ARGS on the

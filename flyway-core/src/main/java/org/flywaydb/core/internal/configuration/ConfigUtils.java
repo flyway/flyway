@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -58,6 +59,7 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.extensibility.ConfigurationExtension;
 import org.flywaydb.core.extensibility.LicenseSupport;
 import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
+import org.flywaydb.core.internal.configuration.models.EnvironmentGroupModel;
 import org.flywaydb.core.internal.configuration.models.EnvironmentModel;
 import org.flywaydb.core.internal.configuration.models.FlywayEnvironmentModel;
 import org.flywaydb.core.internal.configuration.models.FlywayModel;
@@ -157,6 +159,8 @@ public class ConfigUtils {
     private static final PluginRegister PLUGIN_REGISTER = new PluginRegister();
 
     private static final Collection<String> DEPRECATED_PLUGINS_WARNED = new HashSet<>();
+
+    private static final int CONFIGURATION_TABLE_MAX_CELL_WIDTH = 150;
 
     private static final Map<String, String> JDBC_PROPERTY_ENVIRONMENT_VARIABLE_MAP = Map.of(
         "FLYWAY_JDBC_PROPERTIES_ACCESSTOKEN",
@@ -741,6 +745,13 @@ public class ConfigUtils {
                 env.getFlyway().getPluginConfigurations());
         });
 
+        if (!config.getEnvironmentGroups().isEmpty()) {
+            configMap.put("environmentGroups", new TreeSet<>(config.getEnvironmentGroups().keySet()).toString());
+        }
+        config.getEnvironmentGroups()
+            .forEach((name, group) -> configMap.putAll(ClassUtils.getGettableFieldValues(group,
+                "environmentGroups." + name + ".")));
+
         putPluginConfigurations(configMap, "flyway.", config.getFlyway().getPluginConfigurations());
 
         config.getRootConfigurations().forEach((name, pluginConfig) -> {
@@ -1026,6 +1037,16 @@ public class ConfigUtils {
         });
     }
 
+    public static void warnForUnknownEnvironmentGroupParameters(
+        final Map<String, EnvironmentGroupModel> environmentGroups) {
+        environmentGroups.forEach((groupName, group) -> {
+            if (!group.getUnknownConfigurations().isEmpty()) {
+                LOG.warn("Unknown parameters configured in Environment Group " + groupName + ": " + String.join(", ",
+                    group.getUnknownConfigurations().keySet()));
+            }
+        });
+    }
+
     public static boolean isRedgate() {
         final LicenseSupport licenseSupport = STATIC_PLUGIN_REGISTER.getInstanceOf(LicenseSupport.class);
         return licenseSupport != null && licenseSupport.isRedgateEdition();
@@ -1048,7 +1069,7 @@ public class ConfigUtils {
                 sources.getOrDefault(entry.getKey(), Source.DEFAULT).getLabel()))
             .toList();
 
-        return new AsciiTable(columns, rows, true, "", "No configuration").render();
+        return new AsciiTable(columns, rows, true, "", "No configuration", CONFIGURATION_TABLE_MAX_CELL_WIDTH).render();
     }
 
     private static String redactValue(final String key, final String value) {

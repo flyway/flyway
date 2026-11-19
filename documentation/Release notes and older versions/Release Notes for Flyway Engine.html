@@ -9,6 +9,41 @@
 <div class="col-md-9">
 <!-- BEGIN db-generated release notes -->
   <div class="release">
+        <h2 id="13.13.0">Flyway 13.13.0 (2026-11-19)</h2>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>The `REDGATE_LICENSING_PERMIT` environment variable is deprecated. Use `offlinePermit` parameter (or `FLYWAY_OFFLINE_PERMIT`) instead</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fixed a bug where a very long configuration value made Flyway's debug configuration table extremely wide. Values longer than 150 characters are now cut short and marked with `...`</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/4305">Issue 4305</a>
+                Fixed the Flyway Gradle plugin requiring `JVM 25`. The plugin now runs on `Java 17` and later again, matching Flyway's supported Java versions
+            </li>
+            <li>the `flyway` launcher script in the CLI archives is now executable by all users (0755), not just its owner</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>API users without the `flyway-proprietary` module now get a clear error when using `dryRunOutput` or `errorOverrides`, instead of a real migration or ignored overrides</li>
+            <li>Patch java4shell vulnerability by setting `-XX:-UseBASE64Intrinsics`</li>
+        </ul>
+
+        <h3>Library upgrades</h3>
+        <ul>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/4303">Issue 4303</a>
+                Upgrade Snowflake-jdbc to 4.4.1
+            </li>
+        </ul>
+
+  </div>
+
+
+  <div class="release">
         <h2 id="13.12.2">Flyway 13.12.2 (2026-11-12)</h2>
 
         <h3>New features</h3>

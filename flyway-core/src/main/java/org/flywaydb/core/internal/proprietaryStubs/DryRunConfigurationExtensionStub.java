@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.OutputStream;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.ConfigurationExtension;
+import org.flywaydb.core.internal.util.StringUtils;
 
 public class DryRunConfigurationExtensionStub implements ConfigurationExtension {
 
@@ -30,7 +31,10 @@ public class DryRunConfigurationExtensionStub implements ConfigurationExtension 
     protected OutputStream cachedOutputStream;
 
     public OutputStream getOrResolveOutputStream(final String fileName, final Configuration configuration) {
-        return cachedOutputStream;
+        if (cachedOutputStream != null || StringUtils.hasText(fileName)) {
+            throw StubExceptions.featureUnavailable("dryRunOutput");
+        }
+        return null;
     }
 
     public void setOutputStream(final OutputStream outputStream) {

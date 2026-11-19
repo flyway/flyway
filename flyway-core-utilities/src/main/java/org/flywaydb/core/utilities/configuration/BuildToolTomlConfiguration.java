@@ -19,6 +19,8 @@
  */
 package org.flywaydb.core.utilities.configuration;
 
+import static org.flywaydb.core.internal.configuration.models.ConfigurationModel.DEFAULT_ENVIRONMENT;
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
@@ -40,7 +42,6 @@ public final class BuildToolTomlConfiguration {
 
     public static final String ENVIRONMENT = "flyway.environment";
     public static final String ENVIRONMENT_VARIABLE = "FLYWAY_ENVIRONMENT";
-    private static final String DEFAULT_ENVIRONMENT = "default";
 
     /**
      * Builds the plugin configuration from TOML config files, keeping the precedence of their legacy config files:

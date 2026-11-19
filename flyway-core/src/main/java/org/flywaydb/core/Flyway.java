@@ -502,16 +502,7 @@ public class Flyway {
                 LOG.warn("Native Connectors for undo is set but no verb is present");
             }
         }
-        try {
-            return runCommand("undo", Collections.emptyList());
-        } catch (final FlywayException e) {
-            if (e.getMessage().startsWith("No command extension found")) {
-                throw new FlywayException(
-                    "The command 'undo' was not recognized. Make sure you have added 'flyway-proprietary' as a dependency.",
-                    e);
-            }
-            throw e;
-        }
+        return runCommand("undo", Collections.emptyList());
     }
 
     private OperationResult runCommand(final String command, final List<String> flags) {

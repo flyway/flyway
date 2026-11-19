@@ -48,6 +48,7 @@ public class EnvironmentModel {
     private Map<String, String> jdbcProperties = new HashMap<>();
     private Map<String, Map<String, Object>> resolvers;
     private String provisioner;
+    private List<String> environmentGroups;
     private FlywayEnvironmentModel flyway = new FlywayEnvironmentModel();
 
     @JsonAnySetter
@@ -68,6 +69,7 @@ public class EnvironmentModel {
         result.jdbcProperties = MergeUtils.merge(jdbcProperties, otherPojo.jdbcProperties, MergeUtils::merge);
         result.resolvers = MergeUtils.merge(resolvers, otherPojo.resolvers, EnvironmentModel::MergeResolvers);
         result.provisioner = MergeUtils.merge(provisioner, otherPojo.provisioner);
+        result.environmentGroups = MergeUtils.merge(environmentGroups, otherPojo.environmentGroups);
         result.flyway = flyway.merge(otherPojo.flyway);
         result.unknownConfigurations = MergeUtils.merge(unknownConfigurations,
             otherPojo.unknownConfigurations,
