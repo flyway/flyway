@@ -10,6 +10,10 @@ If false, session-level locks will be used instead.
 
 This should be set to `false` for statements such as `CREATE INDEX CONCURRENTLY`.
 
+Flyway also switches to a session-level lock automatically, without this setting, for any single migration
+(or, with `group` enabled, any migration batch) that declares `executeInTransaction=false` in its script
+configuration. This setting remains available to force session-level locking for every migration.
+
 ## Type
 
 Boolean

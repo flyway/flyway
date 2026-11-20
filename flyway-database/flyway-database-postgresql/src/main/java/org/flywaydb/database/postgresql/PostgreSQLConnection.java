@@ -99,9 +99,14 @@ public class PostgreSQLConnection extends Connection<PostgreSQLDatabase> {
 
     @Override
     public <T> T lock(final Table table, final Callable<T> callable) {
+        return lock(table, callable, false);
+    }
+
+    @Override
+    public <T> T lock(final Table table, final Callable<T> callable, final boolean preferSessionLock) {
         return new PostgreSQLAdvisoryLockTemplate(database.getConfiguration(),
             jdbcTemplate,
-            table.toString().hashCode()).execute(callable);
+            table.toString().hashCode()).execute(callable, preferSessionLock);
     }
 
     @Override
