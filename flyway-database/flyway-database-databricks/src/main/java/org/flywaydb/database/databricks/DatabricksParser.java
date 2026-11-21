@@ -59,7 +59,8 @@ public class DatabricksParser extends Parser {
 
         if ("BEGIN".equalsIgnoreCase(keywordText) || (("CASE".equalsIgnoreCase(keywordText)
             || ("IF".equalsIgnoreCase(keywordText) && !CONDITIONALLY_CREATABLE_OBJECTS.contains(previousKeywordText))
-            || "FOR".equalsIgnoreCase(keywordText)
+            || ("FOR".equalsIgnoreCase(keywordText)
+            && !"STATISTICS".equalsIgnoreCase(previousKeywordText))
             || "WHILE".equalsIgnoreCase(keywordText)
             || "LOOP".equalsIgnoreCase(keywordText)
             || "REPEAT".equalsIgnoreCase(keywordText)) && previousKeyword != null && !(lastKeywordIndex
