@@ -104,6 +104,27 @@ public class MigrateVerbExtension implements VerbExtension {
         }
 
         final NativeConnectorsDatabase database = context.getDatabase();
+        // Record emptiness before creating schemas. Creating a missing schema also creates
+        // the history table, which would skip this baseline and non-empty-schema check.
+        final boolean schemaHistoryExisted = database.schemaHistoryTableExists(configuration.getTable());
+        final NativeConnectorsDatabase finalDatabase = database;
+        final List<String> populatedSchemas = schemaHistoryExisted
+            ? List.of()
+            : Arrays.stream(VerbUtils.getAllSchemas(configuration.getSchemas(), database.getCurrentSchema()))
+                .filter(database::isSchemaExists)
+                .filter(schema -> !finalDatabase.isSchemaEmpty(schema))
+                .toList();
+
+        if (!schemaHistoryExisted
+            && !populatedSchemas.isEmpty()
+            && !configuration.isSkipExecutingMigrations()
+            && !configuration.isBaselineOnMigrate()) {
+            throw new FlywayException("Found non-empty schema(s) "
+                + StringUtils.collectionToCommaDelimitedString(populatedSchemas)
+                + " but no schema history table. Use baseline()"
+                + " or set baselineOnMigrate to true to initialize the schema history table.",
+                CoreErrorCode.NON_EMPTY_SCHEMA_WITHOUT_SCHEMA_HISTORY_TABLE);
+        }
 
         if (configuration.isCreateSchemas()) {
             try {
@@ -123,15 +144,10 @@ public class MigrateVerbExtension implements VerbExtension {
                      See\s""" + FlywayDbWebsiteLinks.MIGRATIONS);
         }
 
-        if (!database.schemaHistoryTableExists(configuration.getTable())) {
-            final NativeConnectorsDatabase finalDatabase = database;
-            final List<String> populatedSchemas = Arrays.stream(VerbUtils.getAllSchemas(configuration.getSchemas(),
-                    database.getCurrentSchema()))
-                .filter(database::isSchemaExists)
-                .filter(x -> !finalDatabase.isSchemaEmpty(x))
-                .toList();
-
-            if (populatedSchemas.isEmpty() && configuration.isBaselineOnMigrate()) {
+        if (!schemaHistoryExisted) {
+            if (populatedSchemas.isEmpty()
+                && configuration.isBaselineOnMigrate()
+                && !database.schemaHistoryTableExists(configuration.getTable())) {
                 LOG.info(
                     "All configured schemas are empty; a baseline marker will not be added to Flyway's schema history table. "
                         + "A baseline or migration script with a lower version than the baseline version may execute if available. Check the Schemas parameter if this is not intended."
@@ -140,19 +156,13 @@ public class MigrateVerbExtension implements VerbExtension {
                         + " for more info");
             }
 
-            if (!populatedSchemas.isEmpty() && !configuration.isSkipExecutingMigrations()) {
-                if (configuration.isBaselineOnMigrate()) {
-                    final BaselineVerbExtension baselineVerbExtension = new BaselineVerbExtension();
-                    baselineVerbExtension.useCaching();
-                    baselineVerbExtension.executeVerb(configuration);
-                    context.refresh(configuration);
-                } else {
-                    throw new FlywayException("Found non-empty schema(s) "
-                        + StringUtils.collectionToCommaDelimitedString(populatedSchemas)
-                        + " but no schema history table. Use baseline()"
-                        + " or set baselineOnMigrate to true to initialize the schema history table.",
-                        CoreErrorCode.NON_EMPTY_SCHEMA_WITHOUT_SCHEMA_HISTORY_TABLE);
-                }
+            if (!populatedSchemas.isEmpty()
+                && !configuration.isSkipExecutingMigrations()
+                && configuration.isBaselineOnMigrate()) {
+                final BaselineVerbExtension baselineVerbExtension = new BaselineVerbExtension();
+                baselineVerbExtension.useCaching();
+                baselineVerbExtension.executeVerb(configuration);
+                context.refresh(configuration);
             }
         }
 

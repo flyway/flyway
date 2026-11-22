@@ -86,12 +86,26 @@ public class DbSchemas {
      * @param baseline Whether to include the creation of a baseline marker.
      */
     public void create(final boolean baseline) {
+        create(baseline, true);
+    }
+
+    /**
+     * Creates the schemas.
+     *
+     * @param baseline                 Whether to include the creation of a baseline marker.
+     * @param initializeSchemaHistory  Whether to initialize the schema history table when a schema was created.
+     *                                 Migrate passes {@code false} when an existing schema is non-empty so the
+     *                                 baseline decision still sees that state. Initializing history after creating
+     *                                 a schema remains correct when every schema is empty.
+     * @return The schemas created by this call.
+     */
+    public List<Schema> create(final boolean baseline, final boolean initializeSchemaHistory) {
         callbackExecutor.onEvent(Event.CREATE_SCHEMA);
         callbackExecutor.onEvent(Event.BEFORE_CREATE_SCHEMA);
         int retries = 0;
         while (true) {
             try {
-                ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(), database)
+                return ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(), database)
                     .execute(() -> {
                         final List<Schema> createdSchemas = new ArrayList<>();
                         for (final Schema schema : schemas) {
@@ -108,14 +122,13 @@ public class DbSchemas {
                             }
                         }
 
-                        if (!createdSchemas.isEmpty()) {
+                        if (!createdSchemas.isEmpty() && initializeSchemaHistory) {
                             schemaHistory.create(baseline);
                             schemaHistory.addSchemasMarker(createdSchemas.toArray(Schema[]::new));
                         }
 
-                        return null;
+                        return createdSchemas;
                     });
-                return;
             } catch (RuntimeException e) {
                 if (++retries >= 10) {
                     throw e;
